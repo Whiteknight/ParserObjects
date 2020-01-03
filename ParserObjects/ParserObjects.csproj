@@ -1,7 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>ParserObjects</AssemblyName>
+    <RootNamespace>ParserObjects</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>8.0</LangVersion>
+    <Version>0.0.1-alpha</Version>
+    <Authors>Andrew F. Whitworth</Authors>
+    <Company />
+    <Description>Parser abstractions, objects and combinators</Description>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageProjectUrl>https://github.com/Whiteknight/ParserObjects</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath="">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
