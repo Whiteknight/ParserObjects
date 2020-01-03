@@ -23,7 +23,7 @@ namespace ParserObjects.Parsers
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
             var location = t.CurrentLocation;
-            var window = new WindowTokenizer<TInput>(t);
+            var window = new WindowSequence<TInput>(t);
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {

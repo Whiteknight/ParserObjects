@@ -2,12 +2,12 @@
 
 namespace ParserObjects
 {
-    public class WindowTokenizer<T> : ISequence<T>
+    public class WindowSequence<T> : ISequence<T>
     {
         private readonly Stack<T> _window;
         private readonly ISequence<T> _inner;
 
-        public WindowTokenizer(ISequence<T> inner)
+        public WindowSequence(ISequence<T> inner)
         {
             _inner = inner;
             _window = new Stack<T>();

@@ -46,7 +46,7 @@ namespace ParserObjects.Tests.Parsers.Specialty
         [Test]
         public void CPlusPlusStyleCommentLiteral_Tests()
         {
-            var parser = ProgrammingParserMethods.CPlusPlussStyleComment();
+            var parser = ProgrammingParserMethods.CPlusPlusStyleComment();
             var result = parser.Parse(new StringCharacterSequence("// TEST\n"));
             result.Success.Should().BeTrue();
             result.Value.Should().Be("// TEST");
@@ -59,6 +59,15 @@ namespace ParserObjects.Tests.Parsers.Specialty
             var result = parser.Parse(new StringCharacterSequence("-- TEST\n"));
             result.Success.Should().BeTrue();
             result.Value.Should().Be("-- TEST");
+        }
+
+        [Test]
+        public void JavaScriptStyleNumberLiteral_Tests()
+        {
+            var parser = ProgrammingParserMethods.JavaScriptStyleNumberLiteral();
+            var result = parser.Parse(new StringCharacterSequence("-1.23e+4"));
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(-12300.0);
         }
     }
 }
