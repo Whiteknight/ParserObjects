@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Parsers.Visitors;
+using ParserObjects.Sequences;
 
 namespace ParserObjects
 {
@@ -44,5 +45,18 @@ namespace ParserObjects
 
         public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, IParser find, IParser replace)
             => new ReplaceParserVisitor(p => p == find, replace).Visit(root) as IParser<TInput, TOutput>;
+
+        public static bool CanMatch<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
+        {
+            var window = new WindowSequence<TInput>(input);
+            var result = parser.Parse(window);
+            window.Rewind();
+            return result.Success;
+        }
+
+        public static bool CanMatch<TOutput>(this IParser<char, TOutput> parser, string input)
+        {
+            return CanMatch(parser, new StringCharacterSequence(input));
+        }
     }
 }

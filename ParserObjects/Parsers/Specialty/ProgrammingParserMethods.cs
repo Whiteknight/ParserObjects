@@ -41,6 +41,18 @@ namespace ParserObjects.Parsers.Specialty
             );
         }
 
+        public static IParser<char, string> CStyleIdentifier()
+        {
+            var startChar = Match<char>(c => c == '_' || char.IsLetter(c));
+            var bodyChar = Match<char>(c => c == '_' || char.IsLetterOrDigit(c));
+            return Rule(
+                startChar,
+                bodyChar.List(c => new string(c.ToArray())),
+
+                (start, rest) => start + rest
+            );
+        }
+
         public static IParser<char, double> JavaScriptStyleNumberLiteral()
         {
             return Rule(
