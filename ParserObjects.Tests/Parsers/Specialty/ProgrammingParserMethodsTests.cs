@@ -82,5 +82,19 @@ namespace ParserObjects.Tests.Parsers.Specialty
             parser.CanMatch("0").Should().BeFalse();
             parser.CanMatch("-a").Should().BeFalse();
         }
+
+        [Test]
+        public void DoubleQuotedStringWithEscapedQuotes_Tests()
+        {
+            var parser = ProgrammingParserMethods.DoubleQuotedStringWithEscapedQuotes();
+            parser.CanMatch("\"TEST\"").Should().BeTrue();
+        }
+
+        [Test]
+        public void SingleQuotedStringWithEscapedQuotes_Tests()
+        {
+            var parser = ProgrammingParserMethods.SingleQuotedStringWithEscapedQuotes();
+            parser.CanMatch("'TEST'").Should().BeTrue();
+        }
     }
 }

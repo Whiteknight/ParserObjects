@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Sequences;
 
 namespace ParserObjects.Parsers
 {

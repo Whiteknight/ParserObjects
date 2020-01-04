@@ -101,5 +101,26 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, string> CPlusPlusStyleComment() => PrefixedLine("//");
 
         public static IParser<char, string> SqlStyleComment() => PrefixedLine("--");
+
+        public static IParser<char, string> DoubleQuotedStringWithEscapedQuotes()
+            => DelimitedStringWithEscapedDelimiters('"', '"', '\\');
+
+        public static IParser<char, string> SingleQuotedStringWithEscapedQuotes()
+            => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\');
+
+        public static IParser<char, string> DelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
+        {
+            var bodyChar = First(
+                Match(escapeStr.ToString() + closeStr , c => escapeStr.ToString() + closeStr),
+                Match<char>(c => c != closeStr).Transform(c => c.ToString())
+            );
+            return Rule(
+                Match(openStr.ToString(), c => openStr.ToString()),
+                bodyChar.List(l => string.Join("", l)),
+                Match(closeStr.ToString(), c => closeStr.ToString()),
+
+                (open, body, close) => open + body + close
+            );
+        }
     }
 }
