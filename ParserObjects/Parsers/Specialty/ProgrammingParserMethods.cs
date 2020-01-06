@@ -110,6 +110,7 @@ namespace ParserObjects.Parsers.Specialty
 
         public static IParser<char, string> DelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
         {
+            // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
             var bodyChar = First(
                 Match(escapeStr.ToString() + closeStr , c => escapeStr.ToString() + closeStr),
                 Match<char>(c => c != closeStr).Transform(c => c.ToString())
