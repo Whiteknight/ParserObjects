@@ -58,5 +58,8 @@ namespace ParserObjects
         {
             return CanMatch(parser, new StringCharacterSequence(input));
         }
+
+        public static IParseResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
+            => parser.Parse(new StringCharacterSequence(s));
     }
 }

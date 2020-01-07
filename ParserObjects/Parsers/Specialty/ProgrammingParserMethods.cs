@@ -123,5 +123,27 @@ namespace ParserObjects.Parsers.Specialty
                 (open, body, close) => open + body + close
             );
         }
+
+        public static IParser<char, string> StrippedDoubleQuotedStringWithEscapedQuotes()
+            => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\');
+
+        public static IParser<char, string> StrippedSingleQuotedStringWithEscapedQuotes()
+            => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\');
+
+        public static IParser<char, string> StrippedDelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
+        {
+            // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
+            var bodyChar = First(
+                Match(escapeStr.ToString() + closeStr, c => closeStr),
+                Match<char>(c => c != closeStr)
+            );
+            return Rule(
+                Match(openStr.ToString(), c => openStr),
+                bodyChar.List(l => new string(l.ToArray())),
+                Match(closeStr.ToString(), c => closeStr),
+
+                (open, body, close) => body
+            );
+        }
     }
 }

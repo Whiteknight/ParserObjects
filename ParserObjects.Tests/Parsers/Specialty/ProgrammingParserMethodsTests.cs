@@ -87,14 +87,44 @@ namespace ParserObjects.Tests.Parsers.Specialty
         public void DoubleQuotedStringWithEscapedQuotes_Tests()
         {
             var parser = ProgrammingParserMethods.DoubleQuotedStringWithEscapedQuotes();
-            parser.CanMatch("\"TEST\"").Should().BeTrue();
+            var result = parser.Parse("\"TEST\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("\"TEST\"");
+
+            result = parser.Parse("\"TE\\\"ST\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("\"TE\\\"ST\"");
         }
 
         [Test]
         public void SingleQuotedStringWithEscapedQuotes_Tests()
         {
             var parser = ProgrammingParserMethods.SingleQuotedStringWithEscapedQuotes();
-            parser.CanMatch("'TEST'").Should().BeTrue();
+            var result = parser.Parse("'TEST'");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("'TEST'");
+        }
+
+        [Test]
+        public void StrippedDoubleQuotedStringWithEscapedQuotes_Tests()
+        {
+            var parser = ProgrammingParserMethods.StrippedDoubleQuotedStringWithEscapedQuotes();
+            var result = parser.Parse("\"TEST\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("TEST");
+
+            result = parser.Parse("\"TE\\\"ST\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("TE\"ST");
+        }
+
+        [Test]
+        public void StrippedSingleQuotedStringWithEscapedQuotes_Tests()
+        {
+            var parser = ProgrammingParserMethods.StrippedSingleQuotedStringWithEscapedQuotes();
+            var result = parser.Parse("'TEST'");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("TEST");
         }
     }
 }

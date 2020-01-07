@@ -16,6 +16,8 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Deferred<TInput, TOutput>(Func<IParser<TInput, TOutput>> getParser) 
             => new DeferredParser<TInput, TOutput>(getParser);
 
+        public static IParser<TInput, object> End<TInput>()
+            => new EndParser<TInput>();
 
         /// <summary>
         /// Return the reuslt of the first parser which succeeds
@@ -42,6 +44,9 @@ namespace ParserObjects.Parsers
 
         public static IParser<T, T> Match<T>(Func<T, bool> predicate) 
             => new PredicateParser<T, T>(predicate, t => t);
+
+        public static IParser<T, T> Match<T>(T pattern)
+            => Match<T>(s => s.Equals(pattern));
 
         public static IParser<TInput, TOutput> Match<TInput, TOutput>(IEnumerable<TInput> pattern, Func<TInput[], TOutput> produce)
             => new MatchSequenceParser<TInput, TOutput>(pattern, produce);
