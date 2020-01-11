@@ -39,6 +39,7 @@ namespace ParserObjects.Sequences
         }
 
         public Location CurrentLocation => _inner.CurrentLocation;
+
         public bool IsAtEnd => _inner.IsAtEnd;
     }
 }

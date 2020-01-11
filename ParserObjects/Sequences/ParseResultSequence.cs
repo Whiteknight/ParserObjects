@@ -38,7 +38,8 @@ namespace ParserObjects.Sequences
             return next;
         }
 
-        public Location CurrentLocation => _putbacks.Count > 0 ? _putbacks.Peek().Location : _input.CurrentLocation;
+        public Location CurrentLocation 
+            => _putbacks.Count > 0 ? _putbacks.Peek().Location : _input.CurrentLocation;
 
         public bool IsAtEnd => _putbacks.Count == 0 && _input.IsAtEnd;
     }

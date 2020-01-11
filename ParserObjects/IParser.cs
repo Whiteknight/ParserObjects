@@ -8,7 +8,6 @@ namespace ParserObjects
     public interface IParser
     {
         string Name { get; set; }
-        //IParser Accept(IParserVisitor visitor);
         IEnumerable<IParser> GetChildren();
         IParser ReplaceChild(IParser find, IParser replace);
     }

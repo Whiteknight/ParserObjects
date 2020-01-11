@@ -9,7 +9,9 @@
         }
 
         public bool Success => true;
+
         public TOutput Value { get; }
+
         public Location Location { get; }
 
         public IParseResult<object> Untype() => new SuccessResult<object>(Value, Location);

@@ -48,24 +48,21 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (_parsers.Contains(find) && replace is IParser<TInput> realReplace)
+            if (!_parsers.Contains(find) || !(replace is IParser<TInput> realReplace))
+                return this;
+            var newList = new IParser<TInput>[_parsers.Count];
+            for (int i = 0; i < _parsers.Count; i++)
             {
-                var newList = new IParser<TInput>[_parsers.Count];
-                for (int i = 0; i < _parsers.Count; i++)
-                {
-                    var child = _parsers[i];
-                    newList[i] = child == find ? realReplace : child;
-                }
-
-                return new RuleParser<TInput, TOutput>(newList, _produce);
+                var child = _parsers[i];
+                newList[i] = child == find ? realReplace : child;
             }
 
-            return this;
+            return new RuleParser<TInput, TOutput>(newList, _produce);
         }
 
         public override string ToString()
         {
-            var typeName = this.GetType().Name;
+            var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }

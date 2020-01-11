@@ -34,12 +34,11 @@ namespace ParserObjects.Parsers.Visitors
             foreach (var child in parser.GetChildren())
             {
                 var newChild = Visit(child);
-                if (newChild != child)
-                {
-                    Debug.WriteLine("Replacing " + child);
-                    newParser = newParser.ReplaceChild(child, newChild);
-                    newParser.Name = (parser.Name ?? "") + ".Replaced";
-                }
+                if (newChild == child)
+                    continue;
+                Debug.WriteLine("Replacing " + child);
+                newParser = newParser.ReplaceChild(child, newChild);
+                newParser.Name = (parser.Name ?? "") + ".Replaced";
             }
 
             _seen[parser] = newParser;

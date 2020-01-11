@@ -28,10 +28,10 @@ namespace ParserObjects.Sequences
                 _line++;
                 _previousEndOfLineColumn = _column;
                 _column = 0;
+                return next;
             }
-            else
-                _column++;
 
+            _column++;
             return next;
         }
 
@@ -39,9 +39,7 @@ namespace ParserObjects.Sequences
         {
             if (_putbacks.Any())
                 return _putbacks.Pop();
-            if (_index >= _s.Length)
-                return '\0';
-            return _s[_index++];
+            return _index >= _s.Length ? '\0' : _s[_index++];
         }
 
         public void PutBack(char value)

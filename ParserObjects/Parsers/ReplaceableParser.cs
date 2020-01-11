@@ -2,6 +2,10 @@
 
 namespace ParserObjects.Parsers
 {
+    // Delegates to an internal parser, and also allows the internal parser to be
+    // replaced without causing the entire parser tree to be rewritten.
+    // Also if a child has been rewritten and the rewrite is bubbling up the tree, it will
+    // stop here.
     public class ReplaceableParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private IParser<TInput, TOutput> _value;

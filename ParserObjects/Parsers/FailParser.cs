@@ -5,9 +5,11 @@ namespace ParserObjects.Parsers
 {
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public IParseResult<TOutput> Parse(ISequence<TInput> t) => new FailResult<TOutput>(t.CurrentLocation);
+        public IParseResult<TOutput> Parse(ISequence<TInput> t) 
+            => new FailResult<TOutput>(t.CurrentLocation);
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => new FailResult<object>(t.CurrentLocation);
+        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) 
+            => new FailResult<object>(t.CurrentLocation);
 
         public string Name { get; set; }
 
@@ -17,7 +19,7 @@ namespace ParserObjects.Parsers
 
         public override string ToString()
         {
-            var typeName = this.GetType().Name;
+            var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }

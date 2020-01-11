@@ -15,9 +15,7 @@ namespace ParserObjects
 
     public static class SequenceExtensions
     {
-        public static ISequence<TOutput> Map<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map)
-        {
-            return new MapSequence<TInput, TOutput>(input, map);
-        }
+        public static ISequence<TOutput> Map<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map) 
+            => new MapSequence<TInput, TOutput>(input, map);
     }
 }

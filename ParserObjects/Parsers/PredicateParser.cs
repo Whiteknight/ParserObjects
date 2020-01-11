@@ -43,7 +43,7 @@ namespace ParserObjects.Parsers
 
         public override string ToString()
         {
-            var typeName = this.GetType().Name;
+            var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }

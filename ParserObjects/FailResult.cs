@@ -8,9 +8,10 @@
         }
 
         public bool Success => false;
-        public TOutput Value => default;
-        public Location Location { get; }
 
+        public TOutput Value => default;
+
+        public Location Location { get; }
 
         public IParseResult<object> Untype() => new FailResult<object>(Location);
     }

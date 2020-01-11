@@ -20,9 +20,8 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
-            for (int i = 0; i < _parsers.Count; i++)
+            foreach (var parser in _parsers)
             {
-                var parser = _parsers[i];
                 var result = parser.Parse(t);
                 if (result.Success)
                     return result;
@@ -39,19 +38,17 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (_parsers.Contains(find) && replace is IParser<TInput, TOutput> realReplace)
+            if (!_parsers.Contains(find) || !(replace is IParser<TInput, TOutput> realReplace))
+                return this;
+            var newList = new IParser<TInput, TOutput>[_parsers.Count];
+            for (int i = 0; i < _parsers.Count; i++)
             {
-                var newList = new IParser<TInput, TOutput>[_parsers.Count];
-                for (int i = 0; i < _parsers.Count; i++)
-                {
-                    var child = _parsers[i];
-                    newList[i] = child == find ? realReplace : child;
-                }
-
-                return new FirstParser<TInput, TOutput>(newList);
+                var child = _parsers[i];
+                newList[i] = child == find ? realReplace : child;
             }
 
-            return this;
+            return new FirstParser<TInput, TOutput>(newList);
+
         }
 
         public override string ToString()

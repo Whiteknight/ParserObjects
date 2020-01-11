@@ -15,7 +15,9 @@ namespace ParserObjects.Parsers
         public IParser ReplaceChild(IParser find, IParser replace) => this;
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t) 
-            => t.IsAtEnd ? new SuccessResult<object>(null, t.CurrentLocation) : (IParseResult<object>) new FailResult<object>(t.CurrentLocation);
+            => t.IsAtEnd 
+                ? new SuccessResult<object>(null, t.CurrentLocation) 
+                : (IParseResult<object>) new FailResult<object>(t.CurrentLocation);
 
         public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
     }

@@ -19,7 +19,8 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t) => _getParser().Parse(t);
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => _getParser().Parse(t).Untype();
+        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) 
+            => _getParser().Parse(t).Untype();
 
         public string Name { get; set; }
 
@@ -38,9 +39,4 @@ namespace ParserObjects.Parsers
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }
-
-    // Delegates to an internal parser, and also allows the internal parser to be
-    // replaced without causing the entire parser tree to be rewritten.
-    // Also if a child has been rewritten and the rewrite is bubbling up the tree, it will
-    // stop here.
 }

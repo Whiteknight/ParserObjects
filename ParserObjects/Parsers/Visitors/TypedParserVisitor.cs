@@ -38,12 +38,11 @@ namespace ParserObjects.Parsers.Visitors
             foreach (var child in newParser.GetChildren())
             {
                 var newChild = VisitInternal(child, seen);
-                if (newChild != child)
-                {
-                    Debug.WriteLine("Replacing " + child);
-                    newParser = newParser.ReplaceChild(child, newChild);
-                    newParser.Name = parser.Name;
-                }
+                if (newChild == child)
+                    continue;
+                Debug.WriteLine("Replacing " + child);
+                newParser = newParser.ReplaceChild(child, newChild);
+                newParser.Name = parser.Name;
             }
 
             return newParser;
@@ -51,9 +50,10 @@ namespace ParserObjects.Parsers.Visitors
 
         public IParser DispatchVisitHandler(IParser parser)
         {
-            var type = parser.GetType();
+            var parserType = parser.GetType();
 
             // Check base types first
+            var type = parserType;
             while (true)
             {
                 if (_handlers.ContainsKey(type))
@@ -64,14 +64,13 @@ namespace ParserObjects.Parsers.Visitors
             }
 
             // Check interface types second
-            var interfaceTypes = type.GetInterfaces().Where(i => typeof(IParser).IsAssignableFrom(i)).ToList();
-            foreach (var interfaceType in interfaceTypes)
-            {
-                if (_handlers.ContainsKey(interfaceType))
-                    return _handlers[interfaceType](parser);
-            }
-
-            return _defaultHandler(parser);
+            return parserType
+                   .GetInterfaces()
+                   .Where(i => typeof(IParser).IsAssignableFrom(i))
+                   .Where(interfaceType => _handlers.ContainsKey(interfaceType))
+                   .Select(interfaceType => _handlers[interfaceType](parser))
+                   .FirstOrDefault()
+                   ?? _defaultHandler(parser);
         }
 
         public void AddHandler<TParser>(Func<TParser, IParser> handler)

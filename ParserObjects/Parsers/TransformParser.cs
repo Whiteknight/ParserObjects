@@ -20,13 +20,7 @@ namespace ParserObjects.Parsers
             _transform = transform;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
-        {
-            var result = _parser.Parse(t);
-            if (!result.Success)
-                return new FailResult<TOutput>(t.CurrentLocation);
-            return new SuccessResult<TOutput>(_transform(result.Value), result.Location);
-        }
+        public IParseResult<TOutput> Parse(ISequence<TInput> t) => _parser.Parse(t).Transform(_transform);
 
         IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
@@ -43,7 +37,7 @@ namespace ParserObjects.Parsers
 
         public override string ToString()
         {
-            var typeName = this.GetType().Name;
+            var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }

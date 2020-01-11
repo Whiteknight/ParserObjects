@@ -47,9 +47,6 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public override string ToString()
-        {
-            return $"Required.{_inner}";
-        }
+        public override string ToString() => $"Required.{_inner}";
     }
 }
