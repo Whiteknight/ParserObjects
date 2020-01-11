@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using static ParserObjects.Parsers.ParserMethods;
 using static ParserObjects.Parsers.Specialty.NumberParserMethods;
 using static ParserObjects.Parsers.Specialty.ParserMethods;
@@ -23,7 +22,7 @@ namespace ParserObjects.Parsers.Specialty
         {
             return Rule(
                 Optional(Match("-", c => "-"), () => ""),
-                Digit().List(d => new string(d.ToArray())),
+                Digit().ListCharToString(),
 
                 (sign, value) => int.Parse(sign + value)
             );
@@ -47,7 +46,7 @@ namespace ParserObjects.Parsers.Specialty
             var bodyChar = Match<char>(c => c == '_' || char.IsLetterOrDigit(c));
             return Rule(
                 startChar,
-                bodyChar.List(c => new string(c.ToArray())),
+                bodyChar.ListCharToString(),
 
                 (start, rest) => start + rest
             );
@@ -61,14 +60,14 @@ namespace ParserObjects.Parsers.Specialty
                     Match("0", c => "0"),
                     Rule(
                         NonZeroDigit(),
-                        Digit().List(d => new string(d.ToArray())),
+                        Digit().ListCharToString(),
                         (first, rest) => first + rest
                     )
                 ),
                 First(
                     Rule(
                         Match(".", c => "."),
-                        Digit().List(d => new string(d.ToArray()), true),
+                        Digit().ListCharToString(true),
                         (dot, fract) => dot + fract
                     ),
                     Produce<char, string>(() => "")
@@ -113,11 +112,12 @@ namespace ParserObjects.Parsers.Specialty
             // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
             var bodyChar = First(
                 Match(escapeStr.ToString() + closeStr , c => escapeStr.ToString() + closeStr),
+                Match(escapeStr.ToString() + escapeStr.ToString(), c => escapeStr.ToString() + escapeStr.ToString()),
                 Match<char>(c => c != closeStr).Transform(c => c.ToString())
             );
             return Rule(
                 Match(openStr.ToString(), c => openStr.ToString()),
-                bodyChar.List(l => string.Join("", l)),
+                bodyChar.ListStringsToString(),
                 Match(closeStr.ToString(), c => closeStr.ToString()),
 
                 (open, body, close) => open + body + close
@@ -135,11 +135,12 @@ namespace ParserObjects.Parsers.Specialty
             // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
             var bodyChar = First(
                 Match(escapeStr.ToString() + closeStr, c => closeStr),
+                Match(escapeStr.ToString() + escapeStr.ToString(), c => escapeStr),
                 Match<char>(c => c != closeStr)
             );
             return Rule(
                 Match(openStr.ToString(), c => openStr),
-                bodyChar.List(l => new string(l.ToArray())),
+                bodyChar.ListCharToString(),
                 Match(closeStr.ToString(), c => closeStr),
 
                 (open, body, close) => body
