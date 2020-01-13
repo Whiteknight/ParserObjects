@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using static ParserObjects.Parsers.ParserMethods;
 using static ParserObjects.Parsers.Specialty.NumberParserMethods;
-using static ParserObjects.Parsers.Specialty.ParserMethods;
+using static ParserObjects.Parsers.Specialty.LineParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
 {
