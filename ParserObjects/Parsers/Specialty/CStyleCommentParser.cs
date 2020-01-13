@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace ParserObjects.Parsers.Specialty
 {
+    /// <summary>
+    /// Parser for C-style /* ... */ comments. 
+    /// </summary>
     public class CStyleCommentParser : IParser<char, string>
     {
         public IParseResult<string> Parse(ISequence<char> t)

@@ -4,35 +4,37 @@ using System.Linq;
 
 namespace ParserObjects.Parsers
 {
-    public class PredicateParser<TInput, TOutput> : IParser<TInput, TOutput>
+    /// <summary>
+    /// Tests the next input and returns it if it matches.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class PredicateParser<T> : IParser<T, T>
     {
-        private readonly Func<TInput, bool> _predicate;
-        private readonly Func<TInput, TOutput> _produce;
+        private readonly Func<T, bool> _predicate;
 
-        public PredicateParser(Func<TInput, bool> predicate, Func<TInput, TOutput> produce)
+        public PredicateParser(Func<T, bool> predicate)
         {
             _predicate = predicate;
-            _produce = produce;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IParseResult<T> Parse(ISequence<T> t)
         {
             var location = t.CurrentLocation;
             if (t.IsAtEnd)
-                return new FailResult<TOutput>(location);
+                return new FailResult<T>(location);
             var next = t.Peek();
             if (!_predicate(next))
-                return new FailResult<TOutput>(location);
-            return new SuccessResult<TOutput>(_produce(t.GetNext()), location);
+                return new FailResult<T>(location);
+            return new SuccessResult<T>(t.GetNext(), location);
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IParseResult<object> ParseUntyped(ISequence<T> t)
         {
             var location = t.CurrentLocation;
             var next = t.Peek();
             if (!_predicate(next))
                 return new FailResult<object>(location);
-            return new SuccessResult<object>(_produce(t.GetNext()), location);
+            return new SuccessResult<object>(t.GetNext(), location);
         }
 
         public string Name { get; set; }

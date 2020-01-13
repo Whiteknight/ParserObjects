@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
@@ -8,24 +7,21 @@ namespace ParserObjects.Parsers
     /// succeeds. Terminates and returns a ListNode when the parser fails. May return 0 items.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TItem"></typeparam>
     /// <typeparam name="TInput"></typeparam>
-    public class ListParser<TInput, TItem, TOutput> : IParser<TInput, TOutput>
+    public class ListParser<TInput, TOutput> : IParser<TInput, IEnumerable<TOutput>>
     {
-        private readonly IParser<TInput, TItem> _parser;
-        private readonly Func<IReadOnlyList<TItem>, TOutput> _produce;
+        private readonly IParser<TInput, TOutput> _parser;
 
-        public ListParser(IParser<TInput, TItem> parser, Func<IReadOnlyList<TItem>, TOutput> produce, bool atLeastOne)
+        public ListParser(IParser<TInput, TOutput> parser, bool atLeastOne)
         {
             _parser = parser;
-            _produce = produce;
             AtLeastOne = atLeastOne;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IParseResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
         {
             var location = t.CurrentLocation;
-            var items = new List<TItem>();
+            var items = new List<TOutput>();
             while (true)
             {
                 var result = _parser.Parse(t);
@@ -35,8 +31,8 @@ namespace ParserObjects.Parsers
             }
 
             if (AtLeastOne && items.Count == 0)
-                return new FailResult<TOutput>(location);
-            return new SuccessResult<TOutput>(_produce(items), location);
+                return new FailResult<IEnumerable<TOutput>>(location);
+            return new SuccessResult<IEnumerable<TOutput>>(items, location);
         }
 
         public bool AtLeastOne { get; }
@@ -49,14 +45,14 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (_parser == find && replace is IParser<TInput, TItem> realReplace)
-                return new ListParser<TInput, TItem, TOutput>(realReplace, _produce, AtLeastOne);
+            if (_parser == find && replace is IParser<TInput, TOutput> realReplace)
+                return new ListParser<TInput, TOutput>(realReplace, AtLeastOne);
             return this;
         }
 
         public override string ToString()
         {
-            var typeName = this.GetType().Name;
+            var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
     }

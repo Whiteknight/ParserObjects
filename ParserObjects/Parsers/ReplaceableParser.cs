@@ -2,10 +2,13 @@
 
 namespace ParserObjects.Parsers
 {
-    // Delegates to an internal parser, and also allows the internal parser to be
-    // replaced without causing the entire parser tree to be rewritten.
-    // Also if a child has been rewritten and the rewrite is bubbling up the tree, it will
-    // stop here.
+    /// <summary>
+    /// Delegates to an internal parser, and allows the internal parser to be replaced without causing a
+    /// tree-rewrite. If a child has been rewritten and the rewrite is bubbline up the tree, it will stop
+    /// here. Useful only if your grammar allows rule rewrites.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class ReplaceableParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private IParser<TInput, TOutput> _value;

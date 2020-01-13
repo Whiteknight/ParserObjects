@@ -32,25 +32,41 @@ namespace ParserObjects.Parsers
         /// <summary>
         /// Parse a list of zero or more items.
         /// </summary>
-        /// <typeparam name="TItem"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="produce"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> List<TInput, TItem, TOutput>(IParser<TInput, TItem> p, Func<IReadOnlyList<TItem>, TOutput> produce, bool atLeastOne = false) 
-            => new ListParser<TInput, TItem, TOutput>(p, produce, atLeastOne);
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, bool atLeastOne = false) 
+            => new ListParser<TInput, TOutput>(p, atLeastOne);
 
-
+        /// <summary>
+        /// Test the next input value and return it, if it matches the predicate
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
         public static IParser<T, T> Match<T>(Func<T, bool> predicate) 
-            => new PredicateParser<T, T>(predicate, t => t);
+            => new PredicateParser<T>(predicate);
 
+        /// <summary>
+        /// Get the next input value and return it if it is equal to the given value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
         public static IParser<T, T> Match<T>(T pattern)
             => Match<T>(s => s.Equals(pattern));
 
-        public static IParser<TInput, TOutput> Match<TInput, TOutput>(IEnumerable<TInput> pattern, Func<TInput[], TOutput> produce)
-            => new MatchSequenceParser<TInput, TOutput>(pattern, produce);
+        /// <summary>
+        /// Get the next few input values and compare them one-by-one against an ordered sequence of test
+        /// values. If every value in the sequence matches, return the sequence as a list.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public static IParser<TInput, IReadOnlyList<TInput>> Match<TInput>(IEnumerable<TInput> pattern)
+            => new MatchSequenceParser<TInput>(pattern);
 
         /// <summary>
         /// Attempt to parse an item and return a default value otherwise
@@ -71,6 +87,13 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Produce<TInput, TOutput>(Func<TOutput> produce) 
             => new ProduceParser<TInput, TOutput>(t => produce());
 
+        /// <summary>
+        /// Unconditionally produce a value given the input sequence at it's current location
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="produce"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TInput, TOutput>(Func<ISequence<TInput>, TOutput> produce) 
             => new ProduceParser<TInput, TOutput>(produce);
 
@@ -119,8 +142,7 @@ namespace ParserObjects.Parsers
                             separator,
                             p,
                             (s, item) => item
-                        ),
-                        items => items
+                        )
                     ),
                     (first, rest) => produce(new[] { first }.Concat(rest).ToList())
                 );
@@ -134,8 +156,7 @@ namespace ParserObjects.Parsers
                             separator,
                             p,
                             (s, item) => item
-                        ),
-                        items => items
+                        )
                     ),
                     (first, rest) => produce(new[] { first }.Concat(rest).ToList())
                 ),

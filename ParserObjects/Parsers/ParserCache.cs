@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Cache for parser objects
+    /// </summary>
     public class ParserCache
     {
         private static ParserCache _instance;
@@ -25,5 +27,6 @@ namespace ParserObjects.Parsers
 
             return _cache[name] as T;
         }
+
     }
 }

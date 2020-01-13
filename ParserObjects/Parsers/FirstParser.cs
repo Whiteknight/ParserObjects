@@ -48,7 +48,6 @@ namespace ParserObjects.Parsers
             }
 
             return new FirstParser<TInput, TOutput>(newList);
-
         }
 
         public override string ToString()
