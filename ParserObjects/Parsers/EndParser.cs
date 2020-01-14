@@ -10,6 +10,7 @@ namespace ParserObjects.Parsers
     public class EndParser<TInput> : IParser<TInput, object>
     {
         public string Name { get; set; }
+
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;

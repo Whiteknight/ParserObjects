@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Specialty
 {
-    public static class WhitespaceParsersMethods
+    public static class WhitespaceParserMethods
     {
         /// <summary>
         /// Parses a single character of whitespace (' ', '\t', '\r', '\n','\v', etc)
@@ -23,7 +24,7 @@ namespace ParserObjects.Parsers.Specialty
             public static IParser<char, char> WhitespaceCharacter() => ParserMethods.Match<char>(char.IsWhiteSpace);
 
             public static IParser<char, string> Whitespace()
-                => WhitespaceParsersMethods.WhitespaceCharacter().List(true).Transform(w => new string(w.ToArray()));
+                => WhitespaceParserMethods.WhitespaceCharacter().List(true).Transform(w => new string(w.ToArray()));
         }
     }
 }

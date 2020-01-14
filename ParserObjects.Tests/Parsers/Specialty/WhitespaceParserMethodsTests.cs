@@ -9,7 +9,7 @@ namespace ParserObjects.Tests.Parsers.Specialty
         [Test]
         public void Whitespace_Tests()
         {
-            var parser = WhitespaceParsersMethods.Whitespace();
+            var parser = WhitespaceParserMethods.Whitespace();
             parser.CanMatch("").Should().BeFalse();
             parser.CanMatch(" ").Should().BeTrue();
             parser.CanMatch("\t").Should().BeTrue();

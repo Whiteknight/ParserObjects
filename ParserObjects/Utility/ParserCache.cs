@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ParserObjects.Parsers
+namespace ParserObjects.Utility
 {
     /// <summary>
     /// Cache for parser objects
