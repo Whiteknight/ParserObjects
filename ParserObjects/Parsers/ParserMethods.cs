@@ -7,7 +7,7 @@ namespace ParserObjects.Parsers
 {
     public static class ParserMethods
     {
-        // TODO: Any() matches any non-end input token
+        public static IParser<T, T> Any<T>() => new AnyParser<T>();
 
         /// <summary>
         /// Get a reference to a parser. Avoids circular dependencies in the grammar
