@@ -73,6 +73,9 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, IReadOnlyList<TInput>> Match<TInput>(IEnumerable<TInput> pattern)
             => new MatchSequenceParser<TInput>(pattern);
 
+        public static IParser<TInput, bool> NegativeLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
+            => new NegativeLookaheadParser<TInput, TMatch>(p);
+
         /// <summary>
         /// Attempt to parse an item and return a default value otherwise
         /// </summary>
@@ -81,6 +84,9 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null) 
             => new OptionalParser<TInput, TOutput>(p, getDefault);
+
+        public static IParser<TInput, bool> PositiveLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
+            => new PositiveLookaheadParser<TInput, TMatch>(p);
 
         /// <summary>
         /// Produce an empty or default node without consuming anything out of the tokenizer

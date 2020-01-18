@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using static ParserObjects.Parsers.ParserMethods;
+﻿using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -16,7 +15,7 @@ namespace ParserObjects.Parsers.Specialty
             var notNewlineChar = Match<char>(c => c != '\r' && c != '\n');
             return Rule(
                 Match<char>(prefix).Transform(c => prefix),
-                notNewlineChar.List().Transform(l => new string(l.ToArray())),
+                notNewlineChar.ListCharToString(),
 
                 (p, content) => p + content
             );

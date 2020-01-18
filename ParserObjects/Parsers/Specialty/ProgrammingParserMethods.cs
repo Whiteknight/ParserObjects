@@ -13,56 +13,56 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> CStyleComment()
-            => ParserCache.Instance.GetParser(nameof(CStyleComment), () => new CStyleCommentParser());
+            => ParserCache.Instance.GetParser(nameof(CStyleComment), Internal._CStyleComment);
 
         /// <summary>
         /// C-style hexadecimal literal
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> CStyleHexadecimalLiteral()
-            => ParserCache.Instance.GetParser(nameof(CStyleHexadecimalLiteral), Internal.CStyleHexadecimalLiteral);
+            => ParserCache.Instance.GetParser(nameof(CStyleHexadecimalLiteral), Internal._CStyleHexadecimalLiteral);
 
         /// <summary>
         /// C-style Integer literal
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> CStyleIntegerLiteral()
-            => ParserCache.Instance.GetParser(nameof(CStyleIntegerLiteral), Internal.CStyleIntegerLiteral);
+            => ParserCache.Instance.GetParser(nameof(CStyleIntegerLiteral), Internal._CStyleIntegerLiteral);
 
         /// <summary>
         /// C-style float/double literal
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> CStyleDoubleLiteral()
-            => ParserCache.Instance.GetParser(nameof(CStyleDoubleLiteral), Internal.CStyleDoubleLiteral);
+            => ParserCache.Instance.GetParser(nameof(CStyleDoubleLiteral), Internal._CStyleDoubleLiteral);
 
         /// <summary>
         /// C-style Identifier
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> CStyleIdentifier()
-            => ParserCache.Instance.GetParser(nameof(CStyleIdentifier), Internal.CStyleIdentifier);
+            => ParserCache.Instance.GetParser(nameof(CStyleIdentifier), Internal._CStyleIdentifier);
 
         /// <summary>
         /// JavaScript-style number literal, returned as a double
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> JavaScriptStyleNumberLiteral()
-            => ParserCache.Instance.GetParser(nameof(JavaScriptStyleNumberLiteral), Internal.JavaScriptStyleNumberLiteral);
+            => ParserCache.Instance.GetParser(nameof(JavaScriptStyleNumberLiteral), Internal._JavaScriptStyleNumberLiteral);
 
         /// <summary>
         /// C++-style comment //...
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> CPlusPlusStyleComment()
-            => ParserCache.Instance.GetParser(nameof(CPlusPlusStyleComment), Internal.CPlusPlusStyleComment);
+            => ParserCache.Instance.GetParser(nameof(CPlusPlusStyleComment), Internal._CPlusPlusStyleComment);
 
         /// <summary>
         /// SQL-style comment --....
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> SqlStyleComment()
-            => ParserCache.Instance.GetParser(nameof(SqlStyleComment), Internal.SqlStyleComment);
+            => ParserCache.Instance.GetParser(nameof(SqlStyleComment), Internal._SqlStyleComment);
 
         /// <summary>
         /// Double-quoted string literal, with backslash-escaped quotes. The returned string is the string
@@ -70,7 +70,7 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> DoubleQuotedStringWithEscapedQuotes()
-            => ParserCache.Instance.GetParser(nameof(DoubleQuotedStringWithEscapedQuotes), Internal.DoubleQuotedStringWithEscapedQuotes);
+            => ParserCache.Instance.GetParser(nameof(DoubleQuotedStringWithEscapedQuotes), Internal._DoubleQuotedStringWithEscapedQuotes);
 
         /// <summary>
         /// Single-quoted string literal, with backslash-escaped quotes. The returned string is the string
@@ -78,7 +78,7 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> SingleQuotedStringWithEscapedQuotes()
-            => ParserCache.Instance.GetParser(nameof(SingleQuotedStringWithEscapedQuotes), Internal.SingleQuotedStringWithEscapedQuotes);
+            => ParserCache.Instance.GetParser(nameof(SingleQuotedStringWithEscapedQuotes), Internal._SingleQuotedStringWithEscapedQuotes);
 
         /// <summary>
         /// A parser for delimited strings. Returns the string literal with open sequence, close sequence,
@@ -90,7 +90,6 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> DelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
         {
-            // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
             var escapedClose = escapeStr.ToString() + closeStr.ToString();
             var escapedEscape = escapeStr.ToString() + escapeStr.ToString();
             var bodyChar = First(
@@ -113,7 +112,7 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedDoubleQuotedStringWithEscapedQuotes()
-            => ParserCache.Instance.GetParser(nameof(StrippedDoubleQuotedStringWithEscapedQuotes), Internal.StrippedDoubleQuotedStringWithEscapedQuotes);
+            => ParserCache.Instance.GetParser(nameof(StrippedDoubleQuotedStringWithEscapedQuotes), Internal._StrippedDoubleQuotedStringWithEscapedQuotes);
 
         /// <summary>
         /// Single-quoted string with backslash-escaped quotes. The returned string is the string without
@@ -121,7 +120,7 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedSingleQuotedStringWithEscapedQuotes()
-            => ParserCache.Instance.GetParser(nameof(StrippedSingleQuotedStringWithEscapedQuotes), Internal.StrippedSingleQuotedStringWithEscapedQuotes);
+            => ParserCache.Instance.GetParser(nameof(StrippedSingleQuotedStringWithEscapedQuotes), Internal._StrippedSingleQuotedStringWithEscapedQuotes);
 
         /// <summary>
         /// A parser for delimited strings. Returns the string literal, stripped of open sequence, close
@@ -133,7 +132,6 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> StrippedDelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
         {
-            // TODO: Once we enter into a string and pass the opening char, we can't backtrack out of it
             var escapedClose = escapeStr.ToString() + closeStr.ToString();
             var escapedEscape = escapeStr.ToString() + escapeStr.ToString();
             var bodyChar = First(
@@ -156,8 +154,30 @@ namespace ParserObjects.Parsers.Specialty
 
         private static class Internal
         {
+            public static IParser<char, string> _CStyleComment()
+            {
+                var start = Match<char>("/*").Transform(c => "/*");
+                var end = Match<char>("*/").Transform(c => "*/");
 
-            public static IParser<char, int> CStyleHexadecimalLiteral()
+                var bodyChar = First(
+                    Rule(
+                        Match('*'),
+                        NegativeLookahead(Match('/')),
+                        (star, slash) => star
+                    ),
+                    Match<char>(c => c != '*')
+                );
+
+                return Rule(
+                    start,
+                    bodyChar.ListCharToString(),
+                    end,
+                    (s, b, e) => s + b + e
+                );
+            }
+
+            // TODO: Variants of all these methods which return the number string
+            public static IParser<char, int> _CStyleHexadecimalLiteral()
             {
                 return Rule(
                     Match<char>("0x"),
@@ -167,7 +187,7 @@ namespace ParserObjects.Parsers.Specialty
                 );
             }
 
-            public static IParser<char, int> CStyleIntegerLiteral()
+            public static IParser<char, int> _CStyleIntegerLiteral()
             {
                 return Rule(
                     Match('-').Transform(c => "-").Optional(() => string.Empty),
@@ -177,7 +197,7 @@ namespace ParserObjects.Parsers.Specialty
                 );
             }
 
-            public static IParser<char, double> CStyleDoubleLiteral()
+            public static IParser<char, double> _CStyleDoubleLiteral()
             {
                 return Rule(
                     Match('-').Transform(c => "-").Optional(() => ""),
@@ -189,7 +209,7 @@ namespace ParserObjects.Parsers.Specialty
                 );
             }
 
-            public static IParser<char, string> CStyleIdentifier()
+            public static IParser<char, string> _CStyleIdentifier()
             {
                 var startChar = Match<char>(c => c == '_' || char.IsLetter(c));
                 var bodyChar = Match<char>(c => c == '_' || char.IsLetterOrDigit(c));
@@ -201,7 +221,7 @@ namespace ParserObjects.Parsers.Specialty
                 );
             }
 
-            public static IParser<char, double> JavaScriptStyleNumberLiteral()
+            public static IParser<char, double> _JavaScriptStyleNumberLiteral()
             {
                 return Rule(
                     Match('-').Transform(c => "-").Optional(() => ""),
@@ -242,20 +262,20 @@ namespace ParserObjects.Parsers.Specialty
                 );
             }
 
-            public static IParser<char, string> CPlusPlusStyleComment() => PrefixedLine("//");
+            public static IParser<char, string> _CPlusPlusStyleComment() => PrefixedLine("//");
 
-            public static IParser<char, string> SqlStyleComment() => PrefixedLine("--");
+            public static IParser<char, string> _SqlStyleComment() => PrefixedLine("--");
 
-            public static IParser<char, string> DoubleQuotedStringWithEscapedQuotes()
+            public static IParser<char, string> _DoubleQuotedStringWithEscapedQuotes()
                 => DelimitedStringWithEscapedDelimiters('"', '"', '\\');
 
-            public static IParser<char, string> SingleQuotedStringWithEscapedQuotes()
+            public static IParser<char, string> _SingleQuotedStringWithEscapedQuotes()
                 => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\');
 
-            public static IParser<char, string> StrippedDoubleQuotedStringWithEscapedQuotes()
+            public static IParser<char, string> _StrippedDoubleQuotedStringWithEscapedQuotes()
                 => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\');
 
-            public static IParser<char, string> StrippedSingleQuotedStringWithEscapedQuotes()
+            public static IParser<char, string> _StrippedSingleQuotedStringWithEscapedQuotes()
                 => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\');
         }
     }
