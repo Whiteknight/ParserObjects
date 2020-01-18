@@ -1,5 +1,9 @@
 ﻿namespace ParserObjects
 {
+    /// <summary>
+    /// An IParseResult which represents a success
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
     public struct SuccessResult<TOutput> : IParseResult<TOutput>
     {
         public SuccessResult(TOutput value, Location location)

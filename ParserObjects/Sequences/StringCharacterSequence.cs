@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// A sequence of characters read from a string
+    /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {
         private readonly string _fileName;

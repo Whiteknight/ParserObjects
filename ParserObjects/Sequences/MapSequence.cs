@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// A sequence decorator which takes items from the input sequence and transforms them
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class MapSequence<TInput, TOutput> : ISequence<TOutput>
     {
         private readonly ISequence<TInput> _inputs;

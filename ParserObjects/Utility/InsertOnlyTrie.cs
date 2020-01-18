@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Sequences;
 
 namespace ParserObjects.Utility
 {
+    /// <summary>
+    /// Trie implementation which allows inserts of values but not updates of values. Once a value is
+    /// inserted into the trie, it cannot be removed or modified
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
     public class InsertOnlyTrie<TKey, TResult> : ITrie<TKey, TResult>
     {
         private readonly Node _root;

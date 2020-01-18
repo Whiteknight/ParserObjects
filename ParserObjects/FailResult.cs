@@ -1,5 +1,9 @@
 ﻿namespace ParserObjects
 {
+    /// <summary>
+    /// An IParseResult which represents a failure
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
     public struct FailResult<TOutput> : IParseResult<TOutput>
     {
         public FailResult(Location location)

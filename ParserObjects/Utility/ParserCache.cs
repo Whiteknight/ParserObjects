@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ParserObjects.Utility
 {
     /// <summary>
-    /// Cache for parser objects
+    /// Cache for parser objects by name. 
     /// </summary>
     public class ParserCache
     {
@@ -27,6 +27,5 @@ namespace ParserObjects.Utility
 
             return _cache[name] as T;
         }
-
     }
 }

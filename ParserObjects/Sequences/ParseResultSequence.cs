@@ -2,6 +2,11 @@
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// An adaptor to change ouput values from an IParser into input values for a new parser
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class ParseResultSequence<TInput, TOutput> : ISequence<IParseResult<TOutput>>
     {
         private readonly ISequence<TInput> _input;

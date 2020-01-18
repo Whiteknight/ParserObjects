@@ -2,6 +2,11 @@
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// A limited, rewindable window over a sequence. The entire window can be rewound to the point where
+    /// it started in a single operation, in case a large complicated parse attempt fails.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class WindowSequence<T> : ISequence<T>
     {
         private readonly Stack<T> _window;

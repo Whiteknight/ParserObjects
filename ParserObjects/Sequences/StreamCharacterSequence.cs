@@ -5,6 +5,9 @@ using System.Text;
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// A sequence of characters read from a Stream, such as from a file
+    /// </summary>
     public class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         private const int BufferSize = 128;
