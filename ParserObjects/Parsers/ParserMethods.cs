@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -384,6 +385,14 @@ namespace ParserObjects.Parsers
                 (list) => produce((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
         }
 
+        public static IParser<char, string> StringTrie(IEnumerable<string> patterns)
+        {
+            var trie = new InsertOnlyTrie<char, string>();
+            foreach (var pattern in patterns)
+                trie.Add(pattern, pattern);
+            return new TrieParser<char, string>(trie);
+        }
+
         /// <summary>
         /// Transform one node into another node to fit into the grammar
         /// </summary>
@@ -395,5 +404,8 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
+
+        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(ITrie<TInput, TOutput> trie)
+            => new TrieParser<TInput, TOutput>(trie);
     }
 }
