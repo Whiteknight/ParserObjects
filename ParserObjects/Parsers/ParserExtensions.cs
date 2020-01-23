@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers
 {
     public static class ParserExtensions
     {
+        public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
+            => Rule(p, PositiveLookahead(lookahead), (result, match) => result);
+
         /// <summary>
         /// Returns a list of results from the given parser. Continues to parse until the parser returns
         /// failure. Returns an enumerable of results.
@@ -37,6 +41,9 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<char, string> ListStringsToString(this IParser<char, string> p, bool atLeastOne = false)
             => p.List(atLeastOne).Transform(s => string.Join(string.Empty, s));
+
+        public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
+            => Rule(p, NegativeLookahead(lookahead), (result, match) => result);
 
         /// <summary>
         /// The results of the given parser are optional. If the given parser fails, a default value will
