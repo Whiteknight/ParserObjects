@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -8,19 +9,23 @@ namespace ParserObjects.Sequences
     /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {
+        private const int MaxLineLengthsBufferSize = 5;
+
         private readonly string _fileName;
         private readonly string _s;
         private readonly Stack<char> _putbacks;
+        private readonly AlwaysFullRingBuffer<int> _previousEndOfLineColumns;
+
         private int _index;
         private int _line;
         private int _column;
-        private int _previousEndOfLineColumn;
 
         public StringCharacterSequence(string s, string fileName = null)
         {
             _s = s;
             _fileName = fileName;
             _putbacks = new Stack<char>();
+            _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
         public char GetNext()
@@ -29,7 +34,7 @@ namespace ParserObjects.Sequences
             if (next == '\n')
             {
                 _line++;
-                _previousEndOfLineColumn = _column;
+                _previousEndOfLineColumns.Add(_column);
                 _column = 0;
                 return next;
             }
@@ -47,10 +52,14 @@ namespace ParserObjects.Sequences
 
         public void PutBack(char value)
         {
+            // '\0' is the end sentinel, we can't put it back or treat it like a valid value
+            if (value == '\0')
+                return;
             if (value == '\n')
             {
                 _line--;
-                _column = _previousEndOfLineColumn;
+                _previousEndOfLineColumns.MoveBack();
+                _column = _previousEndOfLineColumns.GetCurrent();
             }
 
             _putbacks.Push(value);
@@ -68,5 +77,15 @@ namespace ParserObjects.Sequences
         public Location CurrentLocation => new Location(_fileName, _line, _column);
 
         public bool IsAtEnd => _putbacks.Count == 0 && _index >= _s.Length;
+
+        public string GetRemainer()
+        {
+            var startIndex = _index - _putbacks.Count;
+            if (startIndex < 0) 
+                startIndex = 0;
+            if (startIndex == 0)
+                return _s;
+            return _s.Substring(startIndex);
+        }
     }
 }

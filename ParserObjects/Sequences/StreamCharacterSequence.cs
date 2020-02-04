@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -11,10 +12,14 @@ namespace ParserObjects.Sequences
     public class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         private const int BufferSize = 128;
+        private const int MaxLineLengthsBufferSize = 5;
+
         private readonly string _fileName;
         private readonly StreamReader _reader;
         private readonly Stack<char> _putbacks;
         private readonly char[] _buffer;
+        private readonly AlwaysFullRingBuffer<int> _previousEndOfLineColumns;
+
         private bool _isComplete;
         private int _remainingChars;
         private int _bufferIndex;
@@ -29,6 +34,7 @@ namespace ParserObjects.Sequences
             _buffer = new char[BufferSize];
             var stream = File.OpenRead(_fileName);
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
+            _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
         public StreamCharacterSequence(StreamReader reader, string fileName = null)
@@ -57,6 +63,7 @@ namespace ParserObjects.Sequences
             if (c == '\n')
             {
                 _line++;
+                _previousEndOfLineColumns.Add(_column);
                 _column = 0;
             }
             else
@@ -67,9 +74,15 @@ namespace ParserObjects.Sequences
 
         public void PutBack(char value)
         {
+            if (value == '\0')
+                return;
             _putbacks.Push(value);
             if (value == '\n')
+            {
                 _line--;
+                _previousEndOfLineColumns.MoveBack();
+                _column = _previousEndOfLineColumns.GetCurrent();
+            }
         }
 
         public char Peek()

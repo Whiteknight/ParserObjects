@@ -13,6 +13,9 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, string> PrefixedLine(string prefix)
         {
             var notNewlineChar = Match<char>(c => c != '\r' && c != '\n');
+            if (string.IsNullOrEmpty(prefix))
+                return notNewlineChar.ListCharToString();
+
             return Rule(
                 Match<char>(prefix).Transform(c => prefix),
                 notNewlineChar.ListCharToString(),
