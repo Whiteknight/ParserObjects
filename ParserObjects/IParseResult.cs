@@ -5,8 +5,8 @@ namespace ParserObjects
     /// <summary>
     /// Result object from a Parse operation
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    public interface IParseResult<out TOutput>
+    /// <typeparam name="TValue"></typeparam>
+    public interface IParseResult<out TValue>
     {
         /// <summary>
         /// Returns true if the parse succeeded, false otherwise.
@@ -16,7 +16,7 @@ namespace ParserObjects
         /// <summary>
         /// The produced value from the successful parse. If Success is false, this value is undefined.
         /// </summary>
-        TOutput Value { get; }
+        TValue Value { get; }
 
         /// <summary>
         /// The approximate location of the successful parse in the input sequence. On failure, this
@@ -26,28 +26,23 @@ namespace ParserObjects
         Location Location { get; }
 
         /// <summary>
-        /// Return a new IParseResult without explicit type information.
+        /// Transforms the Value of the result to a new form
         /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="transform"></param>
         /// <returns></returns>
-        IParseResult<object> Untype();
+        IParseResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
     }
 
     public static class ParseResultExtensions
     {
         /// <summary>
-        /// If the result is a success, transform the value and return a new result object with the updated
-        /// value. If the result is a failure, returns a new failure result of the new type.
+        /// Transforms the Value of the result to type object
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="input"></param>
-        /// <param name="transform"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
         /// <returns></returns>
-        public static IParseResult<TOutput> Transform<TInput, TOutput>(this IParseResult<TInput> input, Func<TInput, TOutput> transform)
-        {
-            if (input.Success)
-                return new SuccessResult<TOutput>(transform(input.Value), input.Location);
-            return new FailResult<TOutput>(input.Location);
-        }
+        public static IParseResult<object> Untype<T>(this IParseResult<T> result)
+            => result.Transform(x => (object) x);
     }
 }

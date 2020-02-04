@@ -31,6 +31,8 @@ namespace ParserObjects.Parsers
         public IParseResult<object> ParseUntyped(ISequence<T> t)
         {
             var location = t.CurrentLocation;
+            if (t.IsAtEnd)
+                return new FailResult<object>(location);
             var next = t.Peek();
             if (!_predicate(next))
                 return new FailResult<object>(location);

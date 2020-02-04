@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t) => _value.Parse(t);
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => _value.ParseUntyped(t);
 
         public string Name { get; set; }
 

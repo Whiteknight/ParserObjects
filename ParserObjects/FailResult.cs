@@ -1,10 +1,12 @@
-﻿namespace ParserObjects
+﻿using System;
+
+namespace ParserObjects
 {
     /// <summary>
     /// An IParseResult which represents a failure
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    public struct FailResult<TOutput> : IParseResult<TOutput>
+    /// <typeparam name="TValue"></typeparam>
+    public struct FailResult<TValue> : IParseResult<TValue>
     {
         public FailResult(Location location)
         {
@@ -13,10 +15,11 @@
 
         public bool Success => false;
 
-        public TOutput Value => default;
+        public TValue Value => default;
 
         public Location Location { get; }
 
-        public IParseResult<object> Untype() => new FailResult<object>(Location);
+        public IParseResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
+            => new FailResult<TOutput>(Location);
     }
 }
