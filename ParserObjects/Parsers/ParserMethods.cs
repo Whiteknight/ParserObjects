@@ -7,6 +7,11 @@ namespace ParserObjects.Parsers
 {
     public static class ParserMethods
     {
+        /// <summary>
+        /// Matches anywhere in the sequence except at the end, and consumes 1 token of input
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IParser<T, T> Any<T>() => new AnyParser<T>();
 
         /// <summary>
@@ -36,6 +41,18 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> First<TInput, TOutput>(params IParser<TInput, TOutput>[] parsers) 
             => new FirstParser<TInput, TOutput>(parsers);
+
+        /// <summary>
+        /// Flattens the result of a parser 
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TCollection"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Flatten<TInput, TCollection, TOutput>(IParser<TInput, TCollection> parser)
+            where TCollection : IEnumerable<TOutput>
+            => new FlattenParser<TInput, TCollection, TOutput>(parser);
 
         /// <summary>
         /// Parse a list of zero or more items.
@@ -76,6 +93,14 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, IReadOnlyList<TInput>> Match<TInput>(IEnumerable<TInput> pattern)
             => new MatchSequenceParser<TInput>(pattern);
 
+        /// <summary>
+        /// Zero-length assertion that the given pattern does not match from the current position. No
+        /// input is consumed
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMatch"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static IParser<TInput, bool> NegativeLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
             => new NegativeLookaheadParser<TInput, TMatch>(p);
 
@@ -88,6 +113,14 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null) 
             => new OptionalParser<TInput, TOutput>(p, getDefault);
 
+        /// <summary>
+        /// Zero-length assertion that the given pattern matches from the current position. No input is
+        /// consumed.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMatch"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static IParser<TInput, bool> PositiveLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
             => new PositiveLookaheadParser<TInput, TMatch>(p);
 

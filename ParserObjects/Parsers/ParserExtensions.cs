@@ -7,6 +7,28 @@ namespace ParserObjects.Parsers
 {
     public static class ParserExtensions
     {
+        /// <summary>
+        /// Flattens the enumerable result of a given parser.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TCollection"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Flatten<TInput, TCollection, TOutput>(this IParser<TInput, TCollection> parser)
+            where TCollection : IEnumerable<TOutput>
+            => new FlattenParser<TInput, TCollection, TOutput>(parser);
+
+        /// <summary>
+        /// Zero-length assertion that the given parser's result is followed by another sequence.
+        /// The lookahead sequence is matched but not consumed
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TMatch"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="lookahead"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
             => Rule(p, PositiveLookahead(lookahead), (result, match) => result);
 
@@ -42,6 +64,16 @@ namespace ParserObjects.Parsers
         public static IParser<char, string> ListStringsToString(this IParser<char, string> p, bool atLeastOne = false)
             => p.List(atLeastOne).Transform(s => string.Join(string.Empty, s));
 
+        /// <summary>
+        /// Zero-length assertion that the given parser's match result is not followed by a lookahead pattern.
+        /// The lookahead is compared but no input is consumed to match it.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TMatch"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="lookahead"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
             => Rule(p, NegativeLookahead(lookahead), (result, match) => result);
 

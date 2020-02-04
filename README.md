@@ -1,5 +1,7 @@
 # ParserObjects
 
-ParserObjects is a small library to help with common parsing tasks. This library includes some pre-made parser objects and parser combinators, though the abstractions it provides are arguably the most useful thing.
+ParserObjects is a library for object-based parsers and combinators. Complex parsers can be built by constructing a graph of smaller, simple parser objects.
 
-This library is very early pre-release for design and testing purposes. Performance is abysmal, features are missing, and none of the code here is to be trusted.
+## Current Status
+
+ParserObjects library is currently in active development. Abstractions and core classes are stable, and new features are being added in response to downstream need.
