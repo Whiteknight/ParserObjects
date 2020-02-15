@@ -20,10 +20,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IEnumerable<IParser> GetChildren()
-        {
-            return new IParser[] { _inner };
-        }
+        public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {

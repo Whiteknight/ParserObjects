@@ -37,11 +37,7 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public override string ToString()
-        {
-            if (Name == null)
-                return "Optional." + _parser;
-            return $"Optional={Name}.{_parser}";
-        }
+        public override string ToString() 
+            => Name == null ? $"Optional.{_parser}" : $"Optional={Name}.{_parser}";
     }
 }

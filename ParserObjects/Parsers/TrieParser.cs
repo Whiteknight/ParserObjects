@@ -3,6 +3,12 @@ using System.Linq;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parser which wraps an ITrie to be able to return elements which match one of several possible
+    /// input patterns
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly ITrie<TInput, TOutput> _trie;

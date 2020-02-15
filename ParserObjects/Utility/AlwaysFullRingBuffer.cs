@@ -1,9 +1,14 @@
 ﻿namespace ParserObjects.Utility
 {
-    // Simplified ring-buffer implementation which assumes the buffer is always full so we don't need to
-    // keep track of a half-full buffer with a start and end pointer.
+    /// <summary>
+    /// Simplified ring-buffer implementation which makes several assumptions for simplicity
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class AlwaysFullRingBuffer<T>
     {
+        // By assuming that the buffer starts out full with default values, and not caring if we rewind a
+        // a full loop, we can simplify the implementation and only use a single index and simplified check
+        // logic
         private readonly int _size;
         private readonly T[] _buffer;
 

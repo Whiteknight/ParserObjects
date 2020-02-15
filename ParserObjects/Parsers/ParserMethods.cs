@@ -97,6 +97,20 @@ namespace ParserObjects.Parsers
             => new MatchSequenceParser<TInput>(pattern);
 
         /// <summary>
+        /// Optimized implementation of First() which returns an input which matches any of the given pattern
+        /// strings. Uses a Trie internally to greedily match the longest matching input sequence
+        /// </summary>
+        /// <param name="patterns"></param>
+        /// <returns></returns>
+        public static IParser<char, string> MatchAny(IEnumerable<string> patterns)
+        {
+            var trie = new InsertOnlyTrie<char, string>();
+            foreach (var pattern in patterns)
+                trie.Add(pattern, pattern);
+            return new TrieParser<char, string>(trie);
+        }
+
+        /// <summary>
         /// Zero-length assertion that the given pattern does not match from the current position. No
         /// input is consumed
         /// </summary>
@@ -422,14 +436,6 @@ namespace ParserObjects.Parsers
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },
                 (list) => produce((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
-        }
-
-        public static IParser<char, string> StringTrie(IEnumerable<string> patterns)
-        {
-            var trie = new InsertOnlyTrie<char, string>();
-            foreach (var pattern in patterns)
-                trie.Add(pattern, pattern);
-            return new TrieParser<char, string>(trie);
         }
 
         /// <summary>

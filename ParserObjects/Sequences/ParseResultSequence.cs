@@ -3,7 +3,7 @@
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// An adaptor to change output values from an IParser into input values for a new parser
+    /// An adaptor to change output values from an IParser into an ISequence of results
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
