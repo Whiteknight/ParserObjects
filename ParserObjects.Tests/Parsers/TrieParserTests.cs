@@ -31,5 +31,22 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("<=");
             target.Parse(input).Value.Should().Be("=");
         }
+
+        [Test]
+        public void MatchAny_Parse_Operators()
+        {
+            var target = ParserObjects.Parsers.ParserMethods.MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });
+
+            var input = new StringCharacterSequence("===>=<=><<==");
+
+            target.Parse(input).Value.Should().Be("==");
+            target.Parse(input).Value.Should().Be("=");
+            target.Parse(input).Value.Should().Be(">=");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be(">");
+            target.Parse(input).Value.Should().Be("<");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be("=");
+        }
     }
 }
