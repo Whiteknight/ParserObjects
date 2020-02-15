@@ -33,6 +33,30 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Operators_Method()
+        {
+            var trie = new InsertOnlyTrie<char, string>();
+            trie.Add("=", "=");
+            trie.Add("==", "==");
+            trie.Add(">=", ">=");
+            trie.Add("<=", "<=");
+            trie.Add("<", "<");
+            trie.Add(">", ">");
+            var target = ParserObjects.Parsers.ParserMethods.Trie(trie);
+
+            var input = new StringCharacterSequence("===>=<=><<==");
+
+            target.Parse(input).Value.Should().Be("==");
+            target.Parse(input).Value.Should().Be("=");
+            target.Parse(input).Value.Should().Be(">=");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be(">");
+            target.Parse(input).Value.Should().Be("<");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be("=");
+        }
+
+        [Test]
         public void MatchAny_Parse_Operators()
         {
             var target = ParserObjects.Parsers.ParserMethods.MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });

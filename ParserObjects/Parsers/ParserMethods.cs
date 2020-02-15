@@ -173,8 +173,7 @@ namespace ParserObjects.Parsers
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
-        /// Parse a required item. If the parse fails, produce a default version and attach a
-        /// diagnostic error message
+        /// Parse a required item. If the parse fails, produce a default value
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>

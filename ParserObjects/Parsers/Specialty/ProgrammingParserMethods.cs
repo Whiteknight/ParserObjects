@@ -191,7 +191,7 @@ namespace ParserObjects.Parsers.Specialty
             {
                 return Rule(
                     Match('-').Transform(c => "-").Optional(() => string.Empty),
-                    Digit().ListCharToString(),
+                    Digit().ListCharToString(true),
 
                     (sign, value) => int.Parse(sign + value)
                 );
