@@ -57,6 +57,14 @@ namespace ParserObjects
         public static ISequence<TOutput> Map<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map) 
             => new MapSequence<TInput, TOutput>(input, map);
 
-        // TODO: Filter
+        /// <summary>
+        /// Filter elements in a sequence to only return items which match a predicate
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static ISequence<T> Filter<T>(this ISequence<T> input, Func<T, bool> predicate)
+            => new FilterSequence<T>(input, predicate);
     }
 }
