@@ -3,7 +3,7 @@
 namespace ParserObjects
 {
     /// <summary>
-    /// An IParseResult which represents a success
+    /// An IParseResult which represents a success. This result will have a valid Value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
     public struct SuccessResult<TValue> : IParseResult<TValue>

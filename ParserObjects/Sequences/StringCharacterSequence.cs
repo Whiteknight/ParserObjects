@@ -9,6 +9,7 @@ namespace ParserObjects.Sequences
     /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {
+        // TODO: Newline characters should be configurable and platform-specific
         private const int MaxLineLengthsBufferSize = 5;
 
         private readonly string _fileName;
@@ -62,6 +63,8 @@ namespace ParserObjects.Sequences
                 _column = _previousEndOfLineColumns.GetCurrent();
             }
 
+            // TODO: If the putback is in the string, we should be able to just decrement
+            // the index
             _putbacks.Push(value);
         }
 

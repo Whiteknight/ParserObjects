@@ -14,12 +14,12 @@
         }
 
         /// <summary>
-        /// If the input source is a file, this is the name of the file.
+        /// The name of the file, if the input source is a file
         /// </summary>
         public string FileName { get; }
 
         /// <summary>
-        /// If the input source has multiple lines, this is the line number
+        /// The line number, if the input is on multiple lines
         /// </summary>
         public int Line { get; }
 

@@ -44,7 +44,7 @@ namespace ParserObjects.Sequences
                 return _putbacks.Pop();
             if (_enumeratorIsAtEnd)
                 return _getEndValue();
-            _enumeratorIsAtEnd = _enumerator.MoveNext();
+            _enumeratorIsAtEnd = !_enumerator.MoveNext();
             if (_enumeratorIsAtEnd)
                 return _getEndValue();
             _index++;

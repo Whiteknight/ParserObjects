@@ -65,55 +65,11 @@ namespace ParserObjects
         IParseResult<TOutput> Parse(ISequence<TInput> t);
     }
 
+    /// <summary>
+    /// General-purpose extensions for IParser and descendents
+    /// </summary>
     public static class ParserExtensions
     {
-        /// <summary>
-        /// Specify a name for the parser with function syntax.
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="parser"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Named<TInput, TOutput>(this IParser<TInput, TOutput> parser, string name)
-        {
-            parser.Name = name;
-            return parser;
-        }
-
-        /// <summary>
-        /// Given a parser tree, replace all parsers which satisfy the predicate with some new parser value.
-        /// Returns the updated tree
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="root"></param>
-        /// <param name="predicate"></param>
-        /// <param name="replacement"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, Func<IParser, bool> predicate, IParser replacement)
-            => new ReplaceParserVisitor(predicate, replacement).Visit(root) as IParser<TInput, TOutput>;
-
-        /// <summary>
-        /// Recurse the tree searching for a parser with the given name. Returns the first matching result.
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static IParser FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
-
-        /// <summary>
-        /// Given a parser tree, replace the given parser with the new parser. Returns the updated tree.
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="root"></param>
-        /// <param name="find"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, IParser find, IParser replace)
-            => new ReplaceParserVisitor(p => p == find, replace).Visit(root) as IParser<TInput, TOutput>;
-
         /// <summary>
         /// Attempts a parse but does not consume any input. Instead it returns a boolean true if the parse
         /// succeeded or false otherwise.
@@ -133,14 +89,36 @@ namespace ParserObjects
 
         /// <summary>
         /// Convenience method for parsers which act on character sequences. Attempts a parse but does not
-        /// consume any input. Instead it returns a boolean true if the parse succeeds or false otherwise.
+        /// consume any input. Returns true if the parse would succeed, false otherwise.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static bool CanMatch<TOutput>(this IParser<char, TOutput> parser, string input) 
+        public static bool CanMatch<TOutput>(this IParser<char, TOutput> parser, string input)
             => CanMatch(parser, new StringCharacterSequence(input));
+
+        /// <summary>
+        /// Recurse the tree searching for a parser with the given name. Returns the first matching result.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static IParser FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
+
+        /// <summary>
+        /// Specify a name for the parser with function syntax.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Named<TInput, TOutput>(this IParser<TInput, TOutput> parser, string name)
+        {
+            parser.Name = name;
+            return parser;
+        }
 
         /// <summary>
         /// Convenience method for parser which act on character sequences. Parse the given input string
@@ -152,5 +130,41 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParseResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
             => parser.Parse(new StringCharacterSequence(s));
+
+        /// <summary>
+        /// Given a parser tree, replace all parsers which satisfy the predicate with some new parser value.
+        /// Returns the updated tree
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="root"></param>
+        /// <param name="predicate"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, Func<IParser, bool> predicate, IParser replacement)
+            => new ReplaceParserVisitor(predicate, replacement).Visit(root) as IParser<TInput, TOutput>;
+
+        /// <summary>
+        /// Given a parser tree, replace the given parser with the new parser. Returns the updated tree.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="root"></param>
+        /// <param name="find"></param>
+        /// <param name="replace"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, IParser find, IParser replace)
+            => new ReplaceParserVisitor(p => p == find, replace).Visit(root) as IParser<TInput, TOutput>;
+
+        /// <summary>
+        /// Convert a parser and it's input sequence into a new sequence of parse result values
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static ISequence<IParseResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
+            => new ParseResultSequence<TInput, TOutput>(input, parser);
     }
 }

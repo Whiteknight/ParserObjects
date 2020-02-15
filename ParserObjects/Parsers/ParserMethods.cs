@@ -5,6 +5,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parser methods for building combinators using declarative syntax
+    /// </summary>
     public static class ParserMethods
     {
         /// <summary>
@@ -15,7 +18,7 @@ namespace ParserObjects.Parsers
         public static IParser<T, T> Any<T>() => new AnyParser<T>();
 
         /// <summary>
-        /// Get a reference to a parser. Avoids circular dependencies in the grammar
+        /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
@@ -25,7 +28,7 @@ namespace ParserObjects.Parsers
             => new DeferredParser<TInput, TOutput>(getParser);
 
         /// <summary>
-        /// Matches affirmatively at the end of the input
+        /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
@@ -33,7 +36,7 @@ namespace ParserObjects.Parsers
             => new EndParser<TInput>();
 
         /// <summary>
-        /// Return the reuslt of the first parser which succeeds
+        /// Return the result of the first parser which succeeds
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
@@ -145,7 +148,8 @@ namespace ParserObjects.Parsers
             => new ProduceParser<TInput, TOutput>(produce);
 
         /// <summary>
-        /// Serves as a placeholder in the parser tree where we can make a replacement later.
+        /// Serves as a placeholder in the parser tree where a replacement can be made without rewriting
+        /// the whole tree
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -167,7 +171,7 @@ namespace ParserObjects.Parsers
             => new RequiredParser<TInput, TOutput>(p, produce);
 
         /// <summary>
-        /// Parse a list of items separated by some separator production
+        /// Parse a list of items separated by some separator
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -440,6 +444,13 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
 
+        /// <summary>
+        /// Look up sequences of inputs in an ITrie to greedily find the longest matching sequence
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="trie"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Trie<TInput, TOutput>(ITrie<TInput, TOutput> trie)
             => new TrieParser<TInput, TOutput>(trie);
     }

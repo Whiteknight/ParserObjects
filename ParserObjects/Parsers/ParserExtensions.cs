@@ -5,6 +5,9 @@ using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// IParser extension methods for building combinators using fluent syntax
+    /// </summary>
     public static class ParserExtensions
     {
         /// <summary>
