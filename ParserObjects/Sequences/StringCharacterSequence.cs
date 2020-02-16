@@ -81,7 +81,7 @@ namespace ParserObjects.Sequences
 
         public bool IsAtEnd => _putbacks.Count == 0 && _index >= _s.Length;
 
-        public string GetRemainer()
+        public string GetRemainder()
         {
             var startIndex = _index - _putbacks.Count;
             if (startIndex < 0) 

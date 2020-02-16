@@ -6,7 +6,7 @@ namespace ParserObjects.Parsers.Specialty
     public static class LineParserMethods
     {
         /// <summary>
-        /// Parses a line of text, starting with a prefix and going until a newline
+        /// Parses a line of text, starting with a prefix and going until a newline. Newline not included
         /// </summary>
         /// <param name="prefix"></param>
         /// <returns></returns>

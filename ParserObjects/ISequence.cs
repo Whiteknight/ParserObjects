@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Sequences;
 
 namespace ParserObjects
@@ -46,6 +47,15 @@ namespace ParserObjects
     public static class SequenceExtensions
     {
         /// <summary>
+        /// Convert the sequence to an IEnumerable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> AsEnumerable<T>(this ISequence<T> input)
+            => new SequenceEnumerable<T>(input);
+
+        /// <summary>
         /// Transform a sequence of one type into a sequence of another type by applying a transformation
         /// function to every element.
         /// </summary>
@@ -54,7 +64,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="map"></param>
         /// <returns></returns>
-        public static ISequence<TOutput> Map<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map) 
+        public static ISequence<TOutput> Select<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map) 
             => new MapSequence<TInput, TOutput>(input, map);
 
         /// <summary>
@@ -64,7 +74,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static ISequence<T> Filter<T>(this ISequence<T> input, Func<T, bool> predicate)
+        public static ISequence<T> Where<T>(this ISequence<T> input, Func<T, bool> predicate)
             => new FilterSequence<T>(input, predicate);
     }
 }

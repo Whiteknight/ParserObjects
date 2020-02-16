@@ -1,0 +1,39 @@
+﻿using FluentAssertions;
+using NUnit.Framework;
+using ParserObjects.Sequences;
+
+namespace ParserObjects.Tests.Sequences
+{
+    public class TransformSequenceTests
+    {
+        [Test]
+        public void GetNext_Test()
+        {
+            var target = new MapSequence<int, int>(
+                new EnumerableSequence<int>(
+                    new[] { 1, 2, 3 },
+                    () => 0
+                ),
+                x => x * 2
+            );
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void Select_Test()
+        {
+            var source = new EnumerableSequence<int>(
+                new[] { 1, 2, 3 },
+                () => 0
+            );
+            var target = source.Select(x => x * 2);
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(0);
+        }
+    }
+}

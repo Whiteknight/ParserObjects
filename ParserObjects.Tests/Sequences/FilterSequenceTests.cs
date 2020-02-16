@@ -39,5 +39,19 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
         }
+
+        [Test]
+        public void Where_Test()
+        {
+            var source = new EnumerableSequence<int>(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                () => 0
+            );
+            var target = source.Where(x => x % 2 == 0);
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(0);
+        }
     }
 }
