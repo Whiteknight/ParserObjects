@@ -7,7 +7,7 @@ namespace ParserObjects.Parsers
     /// Matches at the end of the input sequence
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class EndParser<TInput> : IParser<TInput, object>
+    public class EndParser<TInput> : IParser<TInput, bool>
     {
         public string Name { get; set; }
 
@@ -17,9 +17,12 @@ namespace ParserObjects.Parsers
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t) 
             => t.IsAtEnd 
-                ? new SuccessResult<object>(null, t.CurrentLocation) 
+                ? new SuccessResult<object>(true, t.CurrentLocation) 
                 : (IParseResult<object>) new FailResult<object>(t.CurrentLocation);
 
-        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IParseResult<bool> Parse(ISequence<TInput> t)
+            => t.IsAtEnd
+                ? new SuccessResult<bool>(true, t.CurrentLocation)
+                : (IParseResult<bool>)new FailResult<bool>(t.CurrentLocation);
     }
 }
