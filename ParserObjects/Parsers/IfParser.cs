@@ -35,9 +35,7 @@ namespace ParserObjects.Parsers
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
             var result = _predicate.Parse(t);
-            if (!result.Success || !result.Value)
-                return new FailResult<TOutput>(t.CurrentLocation);
-            return _inner.Parse(t);
+            return result.Success && result.Value ? _inner.Parse(t) : new FailResult<TOutput>(t.CurrentLocation);
         }
     }
 }

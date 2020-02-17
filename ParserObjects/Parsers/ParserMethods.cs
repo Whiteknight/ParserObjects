@@ -75,6 +75,12 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> If<TInput, TOutput>(IParser<TInput, bool> predicate, IParser<TInput, TOutput> parser)
             => new IfParser<TInput, TOutput>(predicate, parser);
 
+        public static IParser<TInput, TOutput> IfMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
+            => If(PositiveLookahead(predicate), parser);
+
+        public static IParser<TInput, TOutput> IfNotMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
+            => If(NegativeLookahead(predicate), parser);
+
         /// <summary>
         /// Parse a list of zero or more items.
         /// </summary>
@@ -93,7 +99,7 @@ namespace ParserObjects.Parsers
         /// <param name="predicate"></param>
         /// <returns></returns>
         public static IParser<T, T> Match<T>(Func<T, bool> predicate) 
-            => new PredicateParser<T>(predicate);
+            => new MatchPredicateParser<T>(predicate);
 
         /// <summary>
         /// Get the next input value and return it if it is equal to the given value

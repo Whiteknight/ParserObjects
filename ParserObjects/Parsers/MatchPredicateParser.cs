@@ -5,14 +5,14 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Returns the next input item if it satisfies a predicate.
+    /// Returns the next input item if it satisfies a predicate, failure otherwise.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class PredicateParser<T> : IParser<T, T>
+    public class MatchPredicateParser<T> : IParser<T, T>
     {
         private readonly Func<T, bool> _predicate;
 
-        public PredicateParser(Func<T, bool> predicate)
+        public MatchPredicateParser(Func<T, bool> predicate)
         {
             _predicate = predicate;
         }
