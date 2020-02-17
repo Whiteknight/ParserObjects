@@ -10,23 +10,33 @@ namespace ParserObjects.Sequences
     public class EnumerableSequence<T> : ISequence<T>, IDisposable
     {
         private readonly IEnumerator<T> _enumerator;
-        private readonly Func<T> _getEndValue;
+        private readonly T _endValue;
         private readonly Stack<T> _putbacks;
 
         private bool _enumeratorIsAtEnd;
         private int _index;
 
         public EnumerableSequence(IEnumerable<T> enumerable, Func<T> getEndValue)
-            : this(enumerable.GetEnumerator(), getEndValue)
+            : this(enumerable.GetEnumerator(), (getEndValue ?? (() => default))())
         {
         }
 
         public EnumerableSequence(IEnumerator<T> enumerator, Func<T> getEndValue)
+            : this(enumerator, (getEndValue ?? (() => default))())
+        {
+        }
+
+        public EnumerableSequence(IEnumerable<T> enumerable, T endValue)
+            : this(enumerable.GetEnumerator(), endValue)
+        {
+        }
+
+        public EnumerableSequence(IEnumerator<T> enumerator, T endValue)
         {
             _enumerator = enumerator;
-            _getEndValue = getEndValue ?? (() => default);
+            _enumeratorIsAtEnd = !_enumerator.MoveNext();
+            _endValue = endValue;
             _putbacks = new Stack<T>();
-            _enumeratorIsAtEnd = false;
             _index = 0;
         }
 
@@ -43,12 +53,11 @@ namespace ParserObjects.Sequences
             if (_putbacks.Count > 0)
                 return _putbacks.Pop();
             if (_enumeratorIsAtEnd)
-                return _getEndValue();
+                return _endValue;
+            var value = _enumerator.Current;
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
-            if (_enumeratorIsAtEnd)
-                return _getEndValue();
             _index++;
-            return _enumerator.Current;
+            return value;
         }
 
         public T Peek()
@@ -56,12 +65,7 @@ namespace ParserObjects.Sequences
             if (_putbacks.Count > 0)
                 return _putbacks.Peek();
             if (_enumeratorIsAtEnd)
-                return _getEndValue();
-            _enumeratorIsAtEnd = _enumerator.MoveNext();
-            if (_enumeratorIsAtEnd)
-                return _getEndValue();
-            _index++;
-            _putbacks.Push(_enumerator.Current);
+                return _endValue;
             return _enumerator.Current;
         }
 
