@@ -8,12 +8,11 @@ namespace ParserObjects.Parsers
     /// consume any actual input
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    public class PositiveLookaheadParser<TInput, TOutput> : IParser<TInput, bool>
+    public class PositiveLookaheadParser<TInput> : IParser<TInput, bool>
     {
-        private readonly IParser<TInput, TOutput> _inner;
+        private readonly IParser<TInput> _inner;
 
-        public PositiveLookaheadParser(IParser<TInput, TOutput> inner)
+        public PositiveLookaheadParser(IParser<TInput> inner)
         {
             _inner = inner;
         }
@@ -24,15 +23,15 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (_inner == find && replace is IParser<TInput, TOutput> typed)
-                return new PositiveLookaheadParser<TInput, TOutput>(typed);
+            if (_inner == find && replace is IParser<TInput> typed)
+                return new PositiveLookaheadParser<TInput>(typed);
             return this;
         }
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
             var window = new WindowSequence<TInput>(t);
-            var result = _inner.Parse(window);
+            var result = _inner.ParseUntyped(window);
             window.Rewind();
             return result.Transform(c => (object) result.Success);
         }
@@ -40,7 +39,7 @@ namespace ParserObjects.Parsers
         public IParseResult<bool> Parse(ISequence<TInput> t)
         {
             var window = new WindowSequence<TInput>(t);
-            var result = _inner.Parse(window);
+            var result = _inner.ParseUntyped(window);
             window.Rewind();
             return result.Transform(c => result.Success);
         }

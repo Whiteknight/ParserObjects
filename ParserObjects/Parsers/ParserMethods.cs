@@ -28,11 +28,18 @@ namespace ParserObjects.Parsers
             => new DeferredParser<TInput, TOutput>(getParser);
 
         /// <summary>
+        /// The empty parser, consumers no input and always returns success at any point.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <returns></returns>
+        public static IParser<TInput, object> Empty<TInput>() => new EmptyParser<TInput>();
+
+        /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, object> End<TInput>()
+        public static IParser<TInput, bool> End<TInput>()
             => new EndParser<TInput>();
 
         /// <summary>
@@ -115,11 +122,10 @@ namespace ParserObjects.Parsers
         /// input is consumed
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TMatch"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, bool> NegativeLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
-            => new NegativeLookaheadParser<TInput, TMatch>(p);
+        public static IParser<TInput, bool> NegativeLookahead<TInput>(IParser<TInput> p)
+            => new NegativeLookaheadParser<TInput>(p);
 
         /// <summary>
         /// Attempt to parse an item and return a default value otherwise
@@ -135,11 +141,10 @@ namespace ParserObjects.Parsers
         /// consumed.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TMatch"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, bool> PositiveLookahead<TInput, TMatch>(IParser<TInput, TMatch> p)
-            => new PositiveLookaheadParser<TInput, TMatch>(p);
+        public static IParser<TInput, bool> PositiveLookahead<TInput>(IParser<TInput> p)
+            => new PositiveLookaheadParser<TInput>(p);
 
         /// <summary>
         /// Produce an empty or default node without consuming anything out of the tokenizer

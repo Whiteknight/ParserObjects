@@ -28,11 +28,10 @@ namespace ParserObjects.Parsers
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TMatch"></typeparam>
         /// <param name="p"></param>
         /// <param name="lookahead"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
+        public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
             => Rule(p, PositiveLookahead(lookahead), (result, match) => result);
 
         /// <summary>
@@ -73,11 +72,10 @@ namespace ParserObjects.Parsers
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TMatch"></typeparam>
         /// <param name="p"></param>
         /// <param name="lookahead"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput, TMatch>(this IParser<TInput, TOutput> p, IParser<TInput, TMatch> lookahead)
+        public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
             => Rule(p, NegativeLookahead(lookahead), (result, match) => result);
 
         /// <summary>
