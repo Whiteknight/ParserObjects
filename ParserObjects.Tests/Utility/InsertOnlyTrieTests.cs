@@ -26,6 +26,32 @@ namespace ParserObjects.Tests.Utility
         }
 
         [Test]
+        public void Char_Int_AddGetBacktrack()
+        {
+            var target = new InsertOnlyTrie<char, int>();
+            target.Add("abc", 1);
+            target.Add("abcde", 2);
+
+            // looks for "abcd", has a node but no value. Then backtracks to "abc" and finds the value
+            var input = new StringCharacterSequence("abcd");
+
+            target.Get(input).Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Char_Int_DoesntExist()
+        {
+            var target = new InsertOnlyTrie<char, int>();
+            target.Add("abc", 1);
+            target.Add("abd", 2);
+            target.Add("aef", 3);
+            target.Add("aeg", 4);
+            target.Add("hij", 5);
+
+            target.Get("XYZ").Success.Should().BeFalse();
+        }
+
+        [Test]
         public void Char_Int_AddGetPrefixes()
         {
             var target = new InsertOnlyTrie<char, int>();

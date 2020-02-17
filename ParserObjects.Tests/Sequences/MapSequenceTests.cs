@@ -4,7 +4,7 @@ using ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class TransformSequenceTests
+    public class MapSequenceTests
     {
         [Test]
         public void GetNext_Test()
@@ -20,6 +20,23 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(4);
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void Peek_Test()
+        {
+            var target = new MapSequence<int, int>(
+                new EnumerableSequence<int>(
+                    new[] { 1, 2, 3 },
+                    () => 0
+                ),
+                x => x * 2
+            );
+            target.Peek().Should().Be(2);
+            target.Peek().Should().Be(2);
+            target.Peek().Should().Be(2);
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(4);
         }
 
         [Test]

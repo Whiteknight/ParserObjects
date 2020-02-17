@@ -17,6 +17,16 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void AsCharacterSequence_GetNext_Test()
+        {
+            var target = "abc".AsCharacterSequence();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
         public void GetRemainder_Test()
         {
             var target = new StringCharacterSequence("abc");
