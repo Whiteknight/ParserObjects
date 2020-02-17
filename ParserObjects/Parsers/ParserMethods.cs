@@ -65,23 +65,6 @@ namespace ParserObjects.Parsers
             => new FlattenParser<TInput, TCollection, TOutput>(parser);
 
         /// <summary>
-        /// Invokes the parser if the predicate is satisifed
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="predicate"></param>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> If<TInput, TOutput>(IParser<TInput, bool> predicate, IParser<TInput, TOutput> parser)
-            => new IfParser<TInput, TOutput>(predicate, parser);
-
-        public static IParser<TInput, TOutput> IfMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
-            => If(PositiveLookahead(predicate), parser);
-
-        public static IParser<TInput, TOutput> IfNotMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
-            => If(NegativeLookahead(predicate), parser);
-
-        /// <summary>
         /// Parse a list of zero or more items.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>

@@ -35,17 +35,6 @@ namespace ParserObjects.Parsers
             => Rule(p, PositiveLookahead(lookahead), (result, match) => result);
 
         /// <summary>
-        /// Parse if the predicate succeeds
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="parser"></param>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> If<TInput, TOutput>(this IParser<TInput, TOutput> parser, IParser<TInput, bool> predicate)
-            => new IfParser<TInput, TOutput>(predicate, parser);
-
-        /// <summary>
         /// Returns a list of results from the given parser. Continues to parse until the parser returns
         /// failure. Returns an enumerable of results.
         /// </summary>
@@ -112,17 +101,6 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> Or<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce) 
             => new RequiredParser<TInput, TOutput>(p, produce);
-
-        /// <summary>
-        /// If the predicate succeeds, invoke the parser
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="predicate"></param>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Then<TInput, TOutput>(this IParser<TInput, bool> predicate, IParser<TInput, TOutput> parser)
-            => new IfParser<TInput, TOutput>(predicate, parser);
 
         /// <summary>
         /// Transform the output of the given parser to a new value 

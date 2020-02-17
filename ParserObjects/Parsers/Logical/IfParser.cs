@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ParserObjects.Parsers
+namespace ParserObjects.Parsers.Logical
 {
     /// <summary>
     /// Attempts to match a predicate condition and, on success, invokes a parser.
