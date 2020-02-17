@@ -133,8 +133,8 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null) 
-            => new OptionalParser<TInput, TOutput>(p, getDefault);
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
+            => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
 
         /// <summary>
         /// Zero-length assertion that the given pattern matches from the current position. No input is
@@ -178,18 +178,19 @@ namespace ParserObjects.Parsers
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
-        /// Parse a required item. If the parse fails, produce a default value
+        /// A value is required. If the given parser fails to produce a result, a default value will be
+        /// produced instead.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Required<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce) 
-            => new RequiredParser<TInput, TOutput>(p, produce);
+        public static IParser<TInput, TOutput> Required<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
+            => First(p, Produce(produce ?? (t => default)));
 
         /// <summary>
-        /// Parse a list of items separated by some separator
+        /// Parse a list of items separated by a separator pattern.
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

@@ -87,20 +87,20 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null) 
-            => new OptionalParser<TInput, TOutput>(p, getDefault);
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
+            => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
 
         /// <summary>
-        /// The results of the given parser are optional. If the given parser fails, a method will be
-        /// invoked to produce an alternate value
+        /// A result is required. If the given parser fails to produce a result, a default value will be
+        /// provided instead
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Or<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce) 
-            => new RequiredParser<TInput, TOutput>(p, produce);
+        public static IParser<TInput, TOutput> Required<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
+            => First(p, Produce(produce ?? (t => default)));
 
         /// <summary>
         /// Transform the output of the given parser to a new value 
