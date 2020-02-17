@@ -3,6 +3,11 @@ using System.Linq;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Returns unconditional failure
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         public IParseResult<TOutput> Parse(ISequence<TInput> t) 

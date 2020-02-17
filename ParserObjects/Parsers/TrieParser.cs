@@ -5,7 +5,7 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Parser which wraps an ITrie to be able to return elements which match one of several possible
-    /// input patterns
+    /// input patterns. Adaptor from ITrie to IParser.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

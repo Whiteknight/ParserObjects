@@ -4,7 +4,7 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Matches any input item that isn't the end of input
+    /// Matches any input item that isn't the end of input. Consumes exactly one input item.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class AnyParser<T> : IParser<T, T>

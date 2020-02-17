@@ -4,7 +4,8 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Matches at the end of the input sequence
+    /// Matches at the end of the input sequence. Fails if the input sequence is at any point besides the
+    /// end.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public class EndParser<TInput> : IParser<TInput, bool>

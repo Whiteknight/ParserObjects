@@ -12,6 +12,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     public class RequiredParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
+        // TODO: Can we replace RequiredParser with First(inner, Produce(otherwise))?
         private readonly IParser<TInput, TOutput> _inner;
         private readonly Func<ISequence<TInput>, TOutput> _otherwise;
 

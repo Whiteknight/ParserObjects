@@ -5,7 +5,7 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Tests the next input and returns it if it matches.
+    /// Returns the next input item if it satisfies a predicate.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class PredicateParser<T> : IParser<T, T>
