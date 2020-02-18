@@ -12,6 +12,7 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> PrefixedLine(string prefix)
         {
+            // TODO: Should this include the \n \r chars at the end or not?
             var notNewlineChar = Match<char>(c => c != '\r' && c != '\n');
             if (string.IsNullOrEmpty(prefix))
                 return notNewlineChar.ListCharToString();

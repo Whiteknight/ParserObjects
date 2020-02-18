@@ -3,8 +3,8 @@
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parses a list of productions with no explicit separator. Continues as long as the parser
-    /// succeeds. Terminates and returns a ListNode when the parser fails. May return 0 items.
+    /// Parses an enumerable of results so long as the parser continues to match. Returns an enumerable
+    /// of the parsed results.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>

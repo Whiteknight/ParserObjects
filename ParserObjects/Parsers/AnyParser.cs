@@ -9,6 +9,8 @@ namespace ParserObjects.Parsers
     /// <typeparam name="T"></typeparam>
     public class AnyParser<T> : IParser<T, T>
     {
+        // TODO: We can replace this with MatchPredicate(x => true)
+
         public string Name { get; set; }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

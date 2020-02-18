@@ -51,7 +51,7 @@ namespace ParserObjects.Parsers.Specialty
                 => Match<char>(c => _hexDigits.Contains(c));
 
             public static IParser<char, string> _HexadecimalString()
-                => _HexadecimalDigit().ListCharToString();
+                => _HexadecimalDigit().ListCharToString(true);
         }
     }
 }
