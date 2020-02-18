@@ -1,4 +1,5 @@
-﻿using static ParserObjects.Parsers.ParserMethods;
+﻿using System;
+using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers.Logical
 {
@@ -18,10 +19,16 @@ namespace ParserObjects.Parsers.Logical
         public static IParser<TInput, TOutput> If<TInput, TOutput>(IParser<TInput, bool> predicate, IParser<TInput, TOutput> parser)
             => new IfParser<TInput, TOutput>(predicate, parser);
 
-        public static IParser<TInput, TOutput> IfMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
+        public static IParser<TInput, TOutput> If<TInput, TOutput>(Func<ISequence<TInput>, bool> predicate, IParser<TInput, TOutput> parser)
+            => If(Produce(predicate), parser);
+
+        public static IParser<TInput, TOutput> If<TInput, TOutput>(Func<bool> predicate, IParser<TInput, TOutput> parser)
+            => If(Produce<TInput, bool>(predicate), parser);
+
+        public static IParser<TInput, TOutput> IfLookahead<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
             => If(PositiveLookahead(predicate), parser);
 
-        public static IParser<TInput, TOutput> IfNotMatches<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
+        public static IParser<TInput, TOutput> IfNotLookahead<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
             => If(NegativeLookahead(predicate), parser);
 
         public static IParser<TInput, bool> Not<TInput>(IParser<TInput, bool> p1)

@@ -42,6 +42,9 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, bool> End<TInput>()
             => new EndParser<TInput>();
 
+        public static IParser<TInput, TOutput> Fail<TInput, TOutput>()
+            => new FailParser<TInput, TOutput>();
+
         /// <summary>
         /// Return the result of the first parser which succeeds
         /// </summary>

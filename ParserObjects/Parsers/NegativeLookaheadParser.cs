@@ -30,13 +30,7 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
-        {
-            var window = new WindowSequence<TInput>(t);
-            var result = _inner.ParseUntyped(window);
-            window.Rewind();
-            return result.Success ? new FailResult<object>(result.Location) : (IParseResult<object>)new SuccessResult<object>(null, result.Location);
-        }
+        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public IParseResult<bool> Parse(ISequence<TInput> t)
         {

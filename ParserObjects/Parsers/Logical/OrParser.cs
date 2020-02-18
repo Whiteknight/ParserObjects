@@ -29,11 +29,11 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<bool> Parse(ISequence<TInput> t)
         {
-            // If p1 fails or succeeds(false) return result1, it is identical to what we want to return
-            // if p1 succeeds(true) and p2 succeeds, return result2
-            // If p1 succeeds(true) but p2 fails, return failure
+            // If p1 fails or succeeds(true) return result1, it is identical to what we want to return
+            // if p1 succeeds(false) and p2 succeeds, return result2
+            // If p1 succeeds(false) but p2 fails, return failure
             var result1 = _p1.Parse(t);
-            if (!result1.Success || !result1.Value)
+            if (!result1.Success || result1.Value)
                 return result1;
 
             var result2 = _p2.Parse(t);
