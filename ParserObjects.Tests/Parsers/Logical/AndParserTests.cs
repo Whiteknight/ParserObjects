@@ -1,18 +1,21 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
+using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.Logical.ParserMethods;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
     public class AndParserTests
     {
+        private readonly IParser<char, bool> _trueParser = Produce<char, bool>(() => true);
+        private readonly IParser<char, bool> _falseParser = Produce<char, bool>(() => false);
+        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
+
         [Test]
         public void Parse_True_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(trueParser, trueParser);
+            var parser = And(_trueParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -23,9 +26,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_True_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(trueParser, falseParser);
+            var parser = And(_trueParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -36,9 +37,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(falseParser, trueParser);
+            var parser = And(_falseParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -49,9 +48,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(falseParser, falseParser);
+            var parser = And(_falseParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -62,10 +59,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_True_Fail()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(trueParser, failParser);
+            var parser = And(_trueParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -75,10 +69,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Fail_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(failParser, trueParser);
+            var parser = And(_failParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -88,10 +79,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_Fail()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(falseParser, failParser);
+            var parser = And(_falseParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -102,14 +90,35 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Fail_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.And(failParser, falseParser);
+            var parser = And(_failParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_ReplaceChild_1()
+        {
+            var parser = And(_falseParser, _trueParser);
+            parser = parser.ReplaceChild(_falseParser, _trueParser) as IParser<char, bool>;
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().BeTrue();
+        }
+
+        [Test]
+        public void Parse_ReplaceChild_2()
+        {
+            var parser = And(_trueParser, _falseParser);
+            parser = parser.ReplaceChild(_falseParser, _trueParser) as IParser<char, bool>;
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().BeTrue();
         }
     }
 }

@@ -90,5 +90,13 @@ namespace ParserObjects.Sequences
                 return _s;
             return _s.Substring(startIndex);
         }
+
+        public void Reset()
+        {
+            _index = 0;
+            _line = 0;
+            _column = 0;
+            _putbacks.Clear();
+        }
     }
 }

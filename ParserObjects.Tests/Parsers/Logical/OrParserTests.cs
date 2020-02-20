@@ -1,18 +1,21 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
+using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.Logical.ParserMethods;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
     public class OrParserTests
     {
+        private readonly IParser<char, bool> _trueParser = Produce<char, bool>(() => true);
+        private readonly IParser<char, bool> _falseParser = Produce<char, bool>(() => false);
+        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
+
         [Test]
         public void Parse_True_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(trueParser, trueParser);
+            var parser = Or(_trueParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -23,9 +26,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_True_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(trueParser, falseParser);
+            var parser = Or(_trueParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -36,9 +37,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(falseParser, trueParser);
+            var parser = Or(_falseParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -49,9 +48,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(falseParser, falseParser);
+            var parser = Or(_falseParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -62,10 +59,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_True_Fail()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(trueParser, failParser);
+            var parser = Or(_trueParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -76,10 +70,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Fail_True()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(failParser, trueParser);
+            var parser = Or(_failParser, _trueParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -89,10 +80,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_False_Fail()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(falseParser, failParser);
+            var parser = Or(_falseParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -102,14 +90,35 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Fail_False()
         {
-            var trueParser = ParserMethods.Produce<char, bool>(() => true);
-            var falseParser = ParserMethods.Produce<char, bool>(() => false);
-            var failParser = ParserMethods.Fail<char, bool>();
-            var parser = ParserObjects.Parsers.Logical.ParserMethods.Or(failParser, falseParser);
+            var parser = Or(_failParser, _falseParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_ReplaceChild_1()
+        {
+            var parser = Or(_falseParser, _failParser);
+            parser = parser.ReplaceChild(_failParser, _trueParser) as IParser<char, bool>;
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().BeTrue();
+        }
+
+        [Test]
+        public void Parse_ReplaceChild_2()
+        {
+            var parser = Or(_failParser, _falseParser);
+            parser = parser.ReplaceChild(_failParser, _trueParser) as IParser<char, bool>;
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().BeTrue();
         }
     }
 }

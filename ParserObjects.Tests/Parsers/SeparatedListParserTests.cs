@@ -59,6 +59,24 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_AtLeastOne_Multiple()
+        {
+            var parser = SeparatedList(
+                CStyleIntegerLiteral(),
+                Match<char>(","),
+                n => n,
+                atLeastOne: true
+            );
+            var input = new StringCharacterSequence("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value;
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+        }
+
+        [Test]
         public void Parse_AtLeastOne_Empty()
         {
             var parser = SeparatedList(

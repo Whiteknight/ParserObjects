@@ -1,6 +1,8 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
+using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -14,6 +16,13 @@ namespace ParserObjects.Tests.Parsers
             parser.CanMatch(" ").Should().BeFalse();
             parser.CanMatch("1").Should().BeFalse();
             parser.CanMatch("x").Should().BeFalse();
+        }
+
+        [Test]
+        public void GetChildren_Test()
+        {
+            var parser = Fail<char, object>();
+            parser.GetChildren().Count().Should().Be(0);
         }
     }
 }

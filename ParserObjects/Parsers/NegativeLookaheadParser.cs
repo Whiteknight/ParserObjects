@@ -26,7 +26,7 @@ namespace ParserObjects.Parsers
         public IParser ReplaceChild(IParser find, IParser replace)
         {
             if (_inner == find && replace is IParser<TInput> typed)
-                return new PositiveLookaheadParser<TInput>(typed);
+                return new NegativeLookaheadParser<TInput>(typed);
             return this;
         }
 

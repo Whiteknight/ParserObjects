@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using static ParserObjects.Parsers.ParserMethods;
 
@@ -14,6 +15,41 @@ namespace ParserObjects.Tests.Parsers
                 c => int.Parse(c.ToString())
             );
             parser.Parse("1").Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_Failure()
+        {
+            var parser = Transform(
+                Fail<char, char>(),
+                c => int.Parse(c.ToString())
+            );
+            parser.Parse("1").Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void ReplaceChild_Test()
+        {
+            var failParser = Fail<char, char>();
+            var parser = Transform(
+                failParser,
+                c => int.Parse(c.ToString())
+            );
+            parser = parser.ReplaceChild(failParser, Any<char>()) as IParser<char, int>;
+            parser.Parse("1").Value.Should().Be(1);
+        }
+
+        [Test]
+        public void GetChildren_Test()
+        {
+            var failParser = Fail<char, char>();
+            var parser = Transform(
+                failParser,
+                c => int.Parse(c.ToString())
+            );
+            var results = parser.GetChildren().ToList();
+            results.Count.Should().Be(1);
+            results[0].Should().BeSameAs(failParser);
         }
     }
 }
