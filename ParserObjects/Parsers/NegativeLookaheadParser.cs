@@ -10,8 +10,6 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     public class NegativeLookaheadParser<TInput> : IParser<TInput, bool>
     {
-        // TODO: We could replace this with Not(PositiveLookahead(inner))
-
         private readonly IParser<TInput> _inner;
 
         public NegativeLookaheadParser(IParser<TInput> inner)

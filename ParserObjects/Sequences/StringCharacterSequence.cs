@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
@@ -83,12 +84,20 @@ namespace ParserObjects.Sequences
 
         public string GetRemainder()
         {
-            var startIndex = _index - _putbacks.Count;
-            if (startIndex < 0) 
-                startIndex = 0;
-            if (startIndex == 0)
-                return _s;
-            return _s.Substring(startIndex);
+            if (_putbacks.Count == 0)
+                return GetStringBufferRemainder();
+
+            // Little optimization, we don't need a StringBuilder if we only have one putback
+            if (_putbacks.Count == 1)
+                return _putbacks.Peek().ToString() + GetStringBufferRemainder();
+
+            var builder = new StringBuilder();
+            var elements = new char[_putbacks.Count];
+            _putbacks.CopyTo(elements, 0);
+            for (int i = 0; i < elements.Length; i++)
+                builder.Append(elements[i]);
+            builder.Append(GetStringBufferRemainder());
+            return builder.ToString();
         }
 
         public void Reset()
@@ -97,6 +106,15 @@ namespace ParserObjects.Sequences
             _line = 0;
             _column = 0;
             _putbacks.Clear();
+        }
+
+        private string GetStringBufferRemainder()
+        {
+            if (_index == 0)
+                return _s;
+            if (_index >= _s.Length)
+                return string.Empty;
+            return _s.Substring(_index);
         }
     }
 }

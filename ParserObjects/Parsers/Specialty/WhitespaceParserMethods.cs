@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ParserObjects.Utility;
+using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -21,10 +22,10 @@ namespace ParserObjects.Parsers.Specialty
 
         private static class Internal
         {
-            public static IParser<char, char> _WhitespaceCharacter() => ParserMethods.Match<char>(char.IsWhiteSpace);
+            public static IParser<char, char> _WhitespaceCharacter() => Match<char>(char.IsWhiteSpace);
 
             public static IParser<char, string> _Whitespace()
-                => WhitespaceParserMethods.WhitespaceCharacter().List(true).Transform(w => new string(w.ToArray()));
+                => WhitespaceCharacter().List(true).Transform(w => new string(w.ToArray()));
         }
     }
 }

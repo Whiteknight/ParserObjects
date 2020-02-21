@@ -9,7 +9,8 @@ namespace ParserObjects.Parsers
     /// <typeparam name="T"></typeparam>
     public class AnyParser<T> : IParser<T, T>
     {
-        // TODO: We can replace this with MatchPredicate(x => true)
+        // This is functionally equivalent to MatchPredicateParser(x => true) but a little faster
+        // and convenient to have for testing
 
         public string Name { get; set; }
 

@@ -160,11 +160,7 @@ namespace ParserObjects.Parsers.Specialty
                 var end = Match<char>("*/").Transform(c => "*/");
 
                 var bodyChar = First(
-                    Rule(
-                        Match('*'),
-                        NegativeLookahead(Match('/')),
-                        (star, slash) => star
-                    ),
+                    Match('*').NotFollowedBy(Match('/')),
                     Match<char>(c => c != '*')
                 );
 
