@@ -42,6 +42,12 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, bool> End<TInput>()
             => new EndParser<TInput>();
 
+        /// <summary>
+        /// A parser which unconditionally returns failure.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Fail<TInput, TOutput>()
             => new FailParser<TInput, TOutput>();
 
@@ -66,6 +72,20 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Flatten<TInput, TCollection, TOutput>(IParser<TInput, TCollection> parser)
             where TCollection : IEnumerable<TOutput>
             => new FlattenParser<TInput, TCollection, TOutput>(parser);
+
+        /// <summary>
+        /// A left-associative parser where the left item is parsed unconditionally, and the result of the
+        /// left parser is applied to the right parser. This new result is then treated as the 'left' value
+        /// for the next iteration of the right parser. This can be used when many rules have a common prefix
+        /// and you don't want to backtrack through the prefix on every attempt, 
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="getRight"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> LeftApply<TInput, TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight)
+            => new LeftApplyZeroOrMoreParser<TInput, TOutput>(left, getRight);
 
         /// <summary>
         /// Parse a list of zero or more items.
@@ -193,49 +213,18 @@ namespace ParserObjects.Parsers
             => First(p, Produce(produce ?? (t => default)));
 
         /// <summary>
-        /// Parse a list of items separated by a separator pattern.
+        /// a right-associative parser where the parser attempts to parse a sequence of items and middles
+        /// &lt;item&gt; (&lt;middle&gt; &lt;item&gt;)*. 
         /// </summary>
-        /// <typeparam name="TItem"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TSeparator"></typeparam>
         /// <typeparam name="TInput"></typeparam>
-        /// <param name="p"></param>
-        /// <param name="separator"></param>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="middle"></param>
         /// <param name="produce"></param>
-        /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> SeparatedList<TInput, TItem, TSeparator, TOutput>(IParser<TInput, TItem> p, IParser<TInput, TSeparator> separator, Func<IReadOnlyList<TItem>, TOutput> produce, bool atLeastOne = false)
-        {
-            if (atLeastOne)
-            {
-                return Rule(
-                    p,
-                    List(
-                        Rule(
-                            separator,
-                            p,
-                            (s, item) => item
-                        )
-                    ),
-                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
-                );
-            }
-
-            return First(
-                Rule(
-                    p,
-                    List(
-                        Rule(
-                            separator,
-                            p,
-                            (s, item) => item
-                        )
-                    ),
-                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
-                ),
-                Produce<TInput, TOutput>(() => produce(new List<TItem>()))
-            );
-        }
+        public static IParser<TInput, TOutput> RightApply<TInput, TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce)
+            => new RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput>(item, middle, produce);
 
         /// <summary>
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
@@ -444,6 +433,51 @@ namespace ParserObjects.Parsers
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },
                 (list) => produce((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
+        }
+
+        /// <summary>
+        /// Parse a list of items separated by a separator pattern.
+        /// </summary>
+        /// <typeparam name="TItem"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TSeparator"></typeparam>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="separator"></param>
+        /// <param name="produce"></param>
+        /// <param name="atLeastOne"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> SeparatedList<TInput, TItem, TSeparator, TOutput>(IParser<TInput, TItem> p, IParser<TInput, TSeparator> separator, Func<IReadOnlyList<TItem>, TOutput> produce, bool atLeastOne = false)
+        {
+            if (atLeastOne)
+            {
+                return Rule(
+                    p,
+                    List(
+                        Rule(
+                            separator,
+                            p,
+                            (s, item) => item
+                        )
+                    ),
+                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
+                );
+            }
+
+            return First(
+                Rule(
+                    p,
+                    List(
+                        Rule(
+                            separator,
+                            p,
+                            (s, item) => item
+                        )
+                    ),
+                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
+                ),
+                Produce<TInput, TOutput>(() => produce(new List<TItem>()))
+            );
         }
 
         /// <summary>
