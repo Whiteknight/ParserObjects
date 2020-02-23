@@ -2,6 +2,12 @@
 
 ParserObjects is a library for object-based parsers, parsing utilities and abstractions.
 
+## Design Goals
+
+1. Simple building blocks
+1. Create parsers by composing object graphs
+1. Stream inputs and results
+
 ## Sequences and Parsers
 
 An `ISequence` is similar to an `IEnumerable` or `IEnumerator` in concept, though with a focus on supporting parsing operations. Sequences allow you to `GetNext()` items one at a time, to `Peek()` at items without consuming them, and `PutBack()` an item to rewind the sequence. There are many ways to create a sequence:
