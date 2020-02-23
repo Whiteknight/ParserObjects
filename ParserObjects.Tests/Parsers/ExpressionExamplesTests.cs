@@ -74,7 +74,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_LeftAssociative()
+        public void Parse_RightAssociative()
         {
             // In C#, assignment ("=") is right-associative
             // 1=2=3 should parse as 1=(2=3)
@@ -85,6 +85,35 @@ namespace ParserObjects.Tests.Parsers
                 equals,
                 (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
             );
+            var result1 = equality.Parse("1=2=3").Value as InfixExpressionParseNode;
+            (result1.Left as NumberValueParseNode).Value.Should().Be("1");
+            result1.Operator.Should().Be("=");
+            var rhs1 = result1.Right as InfixExpressionParseNode;
+            (rhs1.Left as NumberValueParseNode).Value.Should().Be("2");
+            rhs1.Operator.Should().Be("=");
+            (rhs1.Right as NumberValueParseNode).Value.Should().Be("3");
+        }
+
+        [Test]
+        public void Parse_RightAssociative_Recursive()
+        {
+            // In C#, assignment ("=") is right-associative
+            // 1=2=3 should parse as 1=(2=3)
+            // This is the recursive version of the above with Deferred() instead.
+            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var equals = Match<char>("=").Transform(c => c[0].ToString());
+            IParser<char, ParseNode> equalityCore = null;
+            var equality = Deferred(() => equalityCore);
+            equalityCore = First(
+                Rule(
+                    number,
+                    equals,
+                    equality,
+                    (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                ),
+                number
+            );
+
             var result1 = equality.Parse("1=2=3").Value as InfixExpressionParseNode;
             (result1.Left as NumberValueParseNode).Value.Should().Be("1");
             result1.Operator.Should().Be("=");
