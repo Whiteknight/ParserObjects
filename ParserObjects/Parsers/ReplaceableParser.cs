@@ -3,13 +3,12 @@
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Delegates to an internal parser, and allows the internal parser to be replaced without causing a
-    /// tree-rewrite. If a child has been rewritten and the rewrite is bubbline up the tree, it will stop
-    /// here. Useful only if your grammar allows rule rewrites.
+    /// Delegates to an internal parser, and allows the internal parser to be replaced in-place without
+    /// returning a new instance or causing a tree rewrite. 
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class ReplaceableParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public class ReplaceableParser<TInput, TOutput> : IParser<TInput, TOutput>, IReplaceableParserUntyped
     {
         private IParser<TInput, TOutput> _value;
 
@@ -33,9 +32,14 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public void SetParser(IParser<TInput, TOutput> parser)
+        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitReplaceable(this) ?? this;
+
+        public IParser ReplaceableChild => _value;
+
+        public void SetParser(IParser parser)
         {
-            _value = parser;
+            if (parser is IParser<TInput, TOutput> typed)
+                _value = typed;
         }
     }
 }

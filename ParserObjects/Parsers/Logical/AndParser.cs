@@ -50,5 +50,7 @@ namespace ParserObjects.Parsers.Logical
             window.Rewind();
             return new FailResult<bool>(result2.Location);
         }
+
+        public IParser Accept(IParserVisitor visitor) => (visitor as ILogicalVisitorDispatcher)?.VisitAnd(this);
     }
 }

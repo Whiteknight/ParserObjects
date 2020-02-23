@@ -42,5 +42,7 @@ namespace ParserObjects.Parsers.Logical
 
             return new FailResult<bool>(result2.Location);
         }
+
+        public IParser Accept(IParserVisitor visitor) => (visitor as ILogicalVisitorDispatcher)?.VisitOr(this);
     }
 }

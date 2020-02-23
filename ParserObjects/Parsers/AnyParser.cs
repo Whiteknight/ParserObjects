@@ -27,5 +27,7 @@ namespace ParserObjects.Parsers
             var next = t.GetNext();
             return new SuccessResult<T>(next, t.CurrentLocation);
         }
+
+        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitAny(this) ?? this;
     }
 }

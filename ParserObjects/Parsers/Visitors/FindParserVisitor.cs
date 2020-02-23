@@ -8,36 +8,57 @@ namespace ParserObjects.Parsers.Visitors
     {
         private readonly Func<IParser, bool> _predicate;
         private readonly bool _justOne;
-        private readonly List<IParser> _found;
-        private readonly HashSet<IParser> _seen;
+        private readonly IList<IParser> _found;
+        private readonly ICollection<IParser> _seen;
+
         private bool _canStop;
 
-        private FindParserVisitor(List<IParser> found, Func<IParser, bool> predicate, bool justOne)
+        public FindParserVisitor(Func<IParser, bool> predicate, bool justOne)
         {
             _predicate = predicate;
             _justOne = justOne;
             _canStop = false;
-            _found = found;
+            _found = new List<IParser>();
             _seen = new HashSet<IParser>();
         }
 
         public static IParser Named(string name, IParser root)
         {
-            var found = new List<IParser>();
-            new FindParserVisitor(found,
-                p => p.Name == name, true).Visit(root);
-            return found.FirstOrDefault();
+            var visitor = new FindParserVisitor(p => p.Name == name, true);
+            visitor.Visit(root);
+            return visitor._found.FirstOrDefault();
         }
 
         public static IReadOnlyList<TParser> OfType<TParser>(IParser root)
             where TParser : IParser
         {
-            var found = new List<IParser>();
-            new FindParserVisitor(found, p => p is TParser, false).Visit(root);
-            return found.Cast<TParser>().ToList();
+            var visitor = new FindParserVisitor(p => p is TParser, false);
+            visitor.Visit(root);
+            return visitor._found.Cast<TParser>().ToList();
         }
 
+        public static bool Replace(IParser root, Func<IParser, bool> predicate, IParser replacement)
+        {
+            if (root == null || predicate == null || replacement == null)
+                return false;
+            var visitor = new FindParserVisitor(p => p is IReplaceableParserUntyped && predicate(p), true);
+            visitor.Visit(root);
+            foreach (var found in visitor._found.Cast<IReplaceableParserUntyped>())
+                found.SetParser(replacement);
+            return true;
+        }
+
+        public static bool Replace(IParser root, string name, IParser replacement) 
+            => Replace(root, p => p.Name == name, replacement);
+
         public IParser Visit(IParser parser)
+        {
+            if (parser == null)
+                return null;
+            return VisitInternal(parser);
+        }
+
+        private IParser VisitInternal(IParser parser)
         {
             if (_canStop || _seen.Contains(parser))
                 return parser;
@@ -55,7 +76,7 @@ namespace ParserObjects.Parsers.Visitors
 
             foreach (var child in parser.GetChildren())
             {
-                Visit(child);
+                VisitInternal(child);
                 if (_canStop)
                     break;
             }

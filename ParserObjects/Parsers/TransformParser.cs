@@ -35,6 +35,8 @@ namespace ParserObjects.Parsers
             return this;
         }
 
+        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitTransform(this) ?? this;
+
         public override string ToString()
         {
             var typeName = GetType().Name;

@@ -66,5 +66,7 @@ namespace ParserObjects.Parsers
 
             return this;
         }
+
+        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitRightApplyZeroOrMore(this) ?? this;
     }
 }

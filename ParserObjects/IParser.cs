@@ -30,6 +30,13 @@ namespace ParserObjects
         /// <param name="replace"></param>
         /// <returns></returns>
         IParser ReplaceChild(IParser find, IParser replace);
+
+        /// <summary>
+        /// Accept the visitor and attempt to dispatch to a type-specific visit method
+        /// </summary>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
+        IParser Accept(IParserVisitor visitor);
     }
 
     /// <summary>
@@ -63,6 +70,24 @@ namespace ParserObjects
         /// <param name="t"></param>
         /// <returns></returns>
         IParseResult<TOutput> Parse(ISequence<TInput> t);
+    }
+
+    /// <summary>
+    /// A parser which has an in-place replaceable child. Used to identify parsers which can participate in
+    /// certain find/replace operations
+    /// </summary>
+    public interface IReplaceableParserUntyped
+    {
+        /// <summary>
+        /// The child parser which can be replaced without cloning
+        /// </summary>
+        IParser ReplaceableChild { get; }
+
+        /// <summary>
+        /// Set the new child parser without cloning
+        /// </summary>
+        /// <param name="parser"></param>
+        void SetParser(IParser parser);
     }
 
     /// <summary>
@@ -132,8 +157,8 @@ namespace ParserObjects
             => parser.Parse(new StringCharacterSequence(s));
 
         /// <summary>
-        /// Given a parser tree, replace all parsers which satisfy the predicate with some new parser value.
-        /// Returns the updated tree
+        /// Given a parser tree, replace all children of ReplaceableParsers matching the given predicate with
+        /// the provided replacement parser.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -141,20 +166,34 @@ namespace ParserObjects
         /// <param name="predicate"></param>
         /// <param name="replacement"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, Func<IParser, bool> predicate, IParser replacement)
-            => new ReplaceParserVisitor(predicate, replacement).Visit(root) as IParser<TInput, TOutput>;
+        public static bool Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, Func<IParser, bool> predicate, IParser replacement)
+            => FindParserVisitor.Replace(root, predicate, replacement);
 
         /// <summary>
-        /// Given a parser tree, replace the given parser with the new parser. Returns the updated tree.
+        /// Given a parser tree, find a ReplaceableParser with a child which is reference equal to the given
+        /// find parser, and replaces it with the given replacement parser.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="root"></param>
         /// <param name="find"></param>
-        /// <param name="replace"></param>
+        /// <param name="replacement"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, IParser find, IParser replace)
-            => new ReplaceParserVisitor(p => p == find, replace).Visit(root) as IParser<TInput, TOutput>;
+        public static bool Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, IParser find, IParser replacement)
+            => Replace(root, p => ReferenceEquals((p as IReplaceableParserUntyped)?.ReplaceableChild, find), replacement);
+
+        /// <summary>
+        /// Given a parser tree, find a ReplaceableParser with the given name and replace it's child parser
+        /// with the given replacement parser
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        public static bool Replace<TInput, TOutput>(this IParser<TInput, TOutput> root, string name, IParser replacement)
+            => FindParserVisitor.Replace(root, name, replacement);
 
         /// <summary>
         /// Convert a parser and it's input sequence into a new sequence of parse result values
