@@ -104,6 +104,9 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
             => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
 
+        public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
+            => new ReplaceableParser<TInput, TOutput>(p);
+
         /// <summary>
         /// A result is required. If the given parser fails to produce a result, a default value will be
         /// provided instead

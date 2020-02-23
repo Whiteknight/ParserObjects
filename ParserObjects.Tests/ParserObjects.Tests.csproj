@@ -17,4 +17,8 @@
     <ProjectReference Include="..\ParserObjects\ParserObjects.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Parsers\Visitors\" />
+  </ItemGroup>
+
 </Project>
