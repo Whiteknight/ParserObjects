@@ -128,12 +128,6 @@ namespace ParserObjects.Tests.Parsers
             var rhs = result1.Right as PrefixExpressionParseNode;
             rhs.Operator.Should().Be("-");
             (rhs.Right as NumberValueParseNode).Value.Should().Be("2");
-
-            var a = 1;
-            var b = 2;
-            var x = a---b;
-            x.Should().Be(3);
-            a.Should().Be(0);
         }
     }
 }
