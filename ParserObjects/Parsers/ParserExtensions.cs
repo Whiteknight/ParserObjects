@@ -56,6 +56,17 @@ namespace ParserObjects.Parsers
         public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne = false)
             => p.List(atLeastOne).Transform(c => new string(c.ToArray()));
 
+        /// <summary>
+        /// Returns a list of results from the given parser separated by a separator pattern. Continues until
+        /// the item or separator parser return failure. Returns an enumerable of results.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TSeparator"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="separator"></param>
+        /// <param name="atLeastOne"></param>
+        /// <returns></returns>
         public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne = false)
             => SeparatedList(p, separator, atLeastOne);
 

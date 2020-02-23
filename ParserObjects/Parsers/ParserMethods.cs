@@ -108,7 +108,7 @@ namespace ParserObjects.Parsers
             => new MatchPredicateParser<T>(predicate);
 
         /// <summary>
-        /// Get the next input value and return it if it is equal to the given value
+        /// Get the next input value and return it if it .Equals() to the given value
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="pattern"></param>
