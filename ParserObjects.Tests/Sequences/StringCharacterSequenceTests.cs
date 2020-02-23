@@ -91,5 +91,16 @@ namespace ParserObjects.Tests.Sequences
             target.PutBack('W');
             target.GetRemainder().Should().Be("WXYZabc");
         }
+
+        [Test]
+        public void GetNext_Empty()
+        {
+            var target = new StringCharacterSequence("");
+            // Every get attempt past the end of the string will return '\0'
+            target.GetNext().Should().Be('\0');
+            target.GetNext().Should().Be('\0');
+            target.GetNext().Should().Be('\0');
+            target.GetNext().Should().Be('\0');
+        }
     }
 }

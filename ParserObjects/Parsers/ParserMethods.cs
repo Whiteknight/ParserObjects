@@ -438,19 +438,18 @@ namespace ParserObjects.Parsers
         /// <summary>
         /// Parse a list of items separated by a separator pattern.
         /// </summary>
-        /// <typeparam name="TItem"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TSeparator"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>
-        /// <param name="produce"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> SeparatedList<TInput, TItem, TSeparator, TOutput>(IParser<TInput, TItem> p, IParser<TInput, TSeparator> separator, Func<IReadOnlyList<TItem>, TOutput> produce, bool atLeastOne = false)
+        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne = false)
         {
             if (atLeastOne)
             {
+                // <p> (<separator> <p>)*
                 return Rule(
                     p,
                     List(
@@ -460,10 +459,11 @@ namespace ParserObjects.Parsers
                             (s, item) => item
                         )
                     ),
-                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
+                    (first, rest) => new[] { first }.Concat(rest).ToList()
                 );
             }
 
+            // (<p> (<separator> <p>)*) | empty
             return First(
                 Rule(
                     p,
@@ -474,9 +474,9 @@ namespace ParserObjects.Parsers
                             (s, item) => item
                         )
                     ),
-                    (first, rest) => produce(new[] { first }.Concat(rest).ToList())
+                    (first, rest) => new[] { first }.Concat(rest).ToList()
                 ),
-                Produce<TInput, TOutput>(() => produce(new List<TItem>()))
+                Produce<TInput, IEnumerable<TOutput>>(() => new List<TOutput>())
             );
         }
 

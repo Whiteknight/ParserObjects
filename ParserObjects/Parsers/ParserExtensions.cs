@@ -56,6 +56,9 @@ namespace ParserObjects.Parsers
         public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne = false)
             => p.List(atLeastOne).Transform(c => new string(c.ToArray()));
 
+        public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne = false)
+            => SeparatedList(p, separator, atLeastOne);
+
         /// <summary>
         /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
         /// string
