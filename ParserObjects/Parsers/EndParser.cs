@@ -25,7 +25,5 @@ namespace ParserObjects.Parsers
             => t.IsAtEnd
                 ? new SuccessResult<bool>(true, t.CurrentLocation)
                 : (IParseResult<bool>)new FailResult<bool>(t.CurrentLocation);
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitEnd(this) ?? this;
     }
 }

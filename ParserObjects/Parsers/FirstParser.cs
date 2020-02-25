@@ -50,8 +50,6 @@ namespace ParserObjects.Parsers
             return new FirstParser<TInput, TOutput>(newList);
         }
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitFirst(this) ?? this;
-
         public override string ToString()
         {
             var typeName = GetType().Name;

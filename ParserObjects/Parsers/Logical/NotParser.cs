@@ -32,7 +32,5 @@ namespace ParserObjects.Parsers.Logical
                 return result1;
             return new SuccessResult<bool>(!result1.Value, result1.Location);
         }
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ILogicalVisitorDispatcher)?.VisitNot(this);
     }
 }

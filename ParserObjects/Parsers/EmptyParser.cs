@@ -18,7 +18,5 @@ namespace ParserObjects.Parsers
         public IParseResult<object> ParseUntyped(ISequence<TInput> t) => new SuccessResult<object>(null, t.CurrentLocation);
 
         public IParseResult<object> Parse(ISequence<TInput> t) => new SuccessResult<object>(null, t.CurrentLocation);
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitEmpty(this) ?? this;
     }
 }

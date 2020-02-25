@@ -41,7 +41,5 @@ namespace ParserObjects.Parsers
             var typeName = GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitMatchPredicate(this) ?? this;
     }
 }

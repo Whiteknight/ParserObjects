@@ -27,7 +27,5 @@ namespace ParserObjects.Parsers
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitTrie(this) ?? this;
     }
 }

@@ -30,13 +30,6 @@ namespace ParserObjects
         /// <param name="replace"></param>
         /// <returns></returns>
         IParser ReplaceChild(IParser find, IParser replace);
-
-        /// <summary>
-        /// Accept the visitor and attempt to dispatch to a type-specific visit method
-        /// </summary>
-        /// <param name="visitor"></param>
-        /// <returns></returns>
-        IParser Accept(IParserVisitor visitor);
     }
 
     /// <summary>

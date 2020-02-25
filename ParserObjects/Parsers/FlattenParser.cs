@@ -68,7 +68,5 @@ namespace ParserObjects.Parsers
                 return new FlattenParser<TInput, TCollection, TOutput>(typed);
             return this;
         }
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitFlatten(this) ?? this;
     }
 }

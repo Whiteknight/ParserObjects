@@ -37,7 +37,5 @@ namespace ParserObjects.Parsers
             window.Rewind();
             return result.Success ? new FailResult<bool>(result.Location) : (IParseResult<bool>)new SuccessResult<bool>(true, result.Location);
         }
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitNegativeLookahead(this) ?? this;
     }
 }

@@ -33,8 +33,6 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitDeferred(this) ?? this;
-
         public override string ToString()
         {
             var typeName = this.GetType().Name;

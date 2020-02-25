@@ -37,7 +37,5 @@ namespace ParserObjects.Parsers.Logical
             var result = _predicate.Parse(t);
             return result.Success && result.Value ? _inner.Parse(t) : new FailResult<TOutput>(t.CurrentLocation);
         }
-
-        public IParser Accept(IParserVisitor visitor) => (visitor as ILogicalVisitorDispatcher)?.VisitIf(this);
     }
 }

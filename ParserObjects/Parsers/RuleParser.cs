@@ -61,8 +61,6 @@ namespace ParserObjects.Parsers
             return new RuleParser<TInput, TOutput>(newList, _produce);
         }
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitRule(this) ?? this;
-
         public override string ToString()
         {
             var typeName = GetType().Name;

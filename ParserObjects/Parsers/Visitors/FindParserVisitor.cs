@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ParserObjects.Parsers.Visitors
 {
-    public class FindParserVisitor : IParserVisitor
+    public class FindParserVisitor
     {
         private readonly Func<IParser, bool> _predicate;
         private readonly bool _justOne;

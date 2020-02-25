@@ -30,8 +30,6 @@ namespace ParserObjects.Parsers
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitPositiveLookahead(this) ?? this;
-
         public IParseResult<bool> Parse(ISequence<TInput> t)
         {
             var window = new WindowSequence<TInput>(t);

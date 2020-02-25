@@ -31,8 +31,6 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitProduce(this) ?? this;
-
         public override string ToString()
         {
             var typeName = this.GetType().Name;

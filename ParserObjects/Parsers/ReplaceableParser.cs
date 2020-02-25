@@ -32,8 +32,6 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitReplaceable(this) ?? this;
-
         public IParser ReplaceableChild => _value;
 
         public void SetParser(IParser parser)

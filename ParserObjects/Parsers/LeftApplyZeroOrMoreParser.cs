@@ -72,15 +72,13 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParser Accept(IParserVisitor visitor) => (visitor as ICoreVisitorDispatcher)?.VisitLeftApplyZeroOrMore(this) ?? this;
-
         public override string ToString()
         {
             var typeName = this.GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
         }
 
-        private class LeftValueParser : IParser<TInput, TOutput>
+        public class LeftValueParser : IParser<TInput, TOutput>
         {
             public TOutput Value { get; set; }
             public Location Location { get; set; }
@@ -94,8 +92,6 @@ namespace ParserObjects.Parsers
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
             public IParser ReplaceChild(IParser find, IParser replace) => this;
-
-            public IParser Accept(IParserVisitor visitor) => this;
         }
     }
 }
