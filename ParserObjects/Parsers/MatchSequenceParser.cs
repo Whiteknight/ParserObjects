@@ -10,11 +10,11 @@ namespace ParserObjects.Parsers
     /// <typeparam name="T"></typeparam>
     public class MatchSequenceParser<T> : IParser<T, IReadOnlyList<T>>
     {
-        private readonly T[] _find;
+        public IReadOnlyList<T> Pattern { get; }
 
         public MatchSequenceParser(IEnumerable<T> find)
         {
-            _find = find.ToArray();
+            Pattern = find.ToArray();
         }
 
         public IParseResult<IReadOnlyList<T>> Parse(ISequence<T> t)
@@ -22,19 +22,19 @@ namespace ParserObjects.Parsers
             var location = t.CurrentLocation;
 
             // Handle a few small cases where we don't want to allocate a buffer
-            if (t.IsAtEnd && _find.Length > 0)
+            if (t.IsAtEnd && Pattern.Count > 0)
                 return new FailResult<IReadOnlyList<T>>(location);
-            if (_find.Length == 0)
+            if (Pattern.Count == 0)
                 return new SuccessResult<IReadOnlyList<T>>(new T[0], location);
-            if (_find.Length == 1)
-                return t.Peek().Equals(_find[0]) ? new SuccessResult<IReadOnlyList<T>>(new[] { t.GetNext() }, location) : (IParseResult<IReadOnlyList<T>>)new FailResult<IReadOnlyList<T>>(location);
+            if (Pattern.Count == 1)
+                return t.Peek().Equals(Pattern[0]) ? new SuccessResult<IReadOnlyList<T>>(new[] { t.GetNext() }, location) : (IParseResult<IReadOnlyList<T>>)new FailResult<IReadOnlyList<T>>(location);
 
-            var buffer = new T[_find.Length];
-            for (var i = 0; i < _find.Length; i++)
+            var buffer = new T[Pattern.Count];
+            for (var i = 0; i < Pattern.Count; i++)
             {
                 var c = t.GetNext();
                 buffer[i] = c;
-                if (c.Equals(_find[i]))
+                if (c.Equals(Pattern[i]))
                     continue;
 
                 for (; i >= 0; i--)

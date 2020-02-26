@@ -189,6 +189,16 @@ namespace ParserObjects
             => FindParserVisitor.Replace(root, name, replacement);
 
         /// <summary>
+        /// Attempt to describe the parser as a string of pseudo-BNF. This feature depends on parsers having
+        /// a .Name value set. If you are using custom IParser implementations you will need to use a custom
+        /// BnfStringifyVisitor subclass to account for it.
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <returns></returns>
+        public static string ToBnf(this IParser parser)
+            => BnfStringifyVisitor.ToBnf(parser);
+
+        /// <summary>
         /// Convert a parser and it's input sequence into a new sequence of parse result values
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
