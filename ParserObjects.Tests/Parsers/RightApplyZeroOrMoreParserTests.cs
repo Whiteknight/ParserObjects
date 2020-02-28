@@ -44,7 +44,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Fail()
+        public void Parse_Fail_MissingFirst()
         {
             var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
@@ -60,8 +60,50 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Incomplete_Rewind()
+        public void Parse_MissingMiddle()
         {
+            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var parser = RightApply(
+                numberParser,
+                letterParser,
+                (l, m, r) => $"({l}{m}{r})"
+            );
+
+            var input = new StringCharacterSequence("1");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("1");
+        }
+
+        [Test]
+        public void Parse_MissingRight_Synthetic()
+        {
+            // If we match <first> and <middle> but fail to parse <right>, we have an option
+            // to generate a synthetic right production and continue the parse, so we don't
+            // have a dangling <middle> to be accounted for later.
+            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var parser = RightApply(
+                numberParser,
+                letterParser,
+                (l, m, r) => $"({l}{m}{r})",
+                t => "X"
+            );
+
+            var input = new StringCharacterSequence("1a");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("(1aX)");
+
+        }
+
+        [Test]
+        public void Parse_MissingRight_Rewind()
+        {
+            // If we match <first> and <middle> but fail to parse <right> and there is
+            // no synthetic option specified, we should rewind <middle> and only return
+            // <first>
             var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
@@ -77,8 +119,11 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Incomplete_2_Rewind()
+        public void Parse_MissingRight_Recursed_Rewind()
         {
+            // We match <first> and <middle>, recurse on <right>, but the recursed rule
+            // fails on <recursed.Right>. Rewind back to a success and leave the 
+            // unmatched second <middle> on the input sequence
             var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
@@ -91,6 +136,26 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Value.Should().Be("(1a2)");
             input.Peek().Should().Be('b');
+        }
+
+        [Test]
+        public void Parse_MissingRight_Recursed_Synthetic()
+        {
+            // We match <first> and <middle>, recurse on <right>, but the recursed rule
+            // fails on <recursed.Right> so we use the fallback to produce a synthetic
+            // <right>. No rewind.
+            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var parser = RightApply(
+                numberParser,
+                letterParser,
+                (l, m, r) => $"({l}{m}{r})",
+                t => "X"
+            );
+
+            var input = new StringCharacterSequence("1a2b");
+            var result = parser.Parse(input);
+            result.Value.Should().Be("(1a(2bX))");
         }
 
         [Test]

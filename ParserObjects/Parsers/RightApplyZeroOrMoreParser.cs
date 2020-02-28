@@ -9,14 +9,16 @@ namespace ParserObjects.Parsers
         private readonly IParser<TInput, TOutput> _item;
         private readonly IParser<TInput, TMiddle> _middle;
         private readonly Func<TOutput, TMiddle, TOutput, TOutput> _produce;
+        private readonly Func<ISequence<TInput>, TOutput> _getMissingRight;
 
         // <item> (<middle> <item>)* with right-associativity in the production method
 
-        public RightApplyZeroOrMoreParser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce)
+        public RightApplyZeroOrMoreParser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
         {
             _item = item;
             _middle = middle;
             _produce = produce;
+            _getMissingRight = getMissingRight;
         }
 
 
@@ -32,23 +34,31 @@ namespace ParserObjects.Parsers
         private IParseResult<TOutput> Parse(ISequence<TInput> t, IParseResult<TOutput> leftResult)
         {
             var window = new WindowSequence<TInput>(t);
+
             var middleResult = _middle.Parse(window);
             if (!middleResult.Success)
                 return leftResult;
 
             var itemResult = _item.Parse(window);
-            if (!itemResult.Success)
+            if (itemResult.Success)
             {
-                window.Rewind();
-                return leftResult;
+                // We don't have to use the window here, we no longer need to rewind it
+                var selfResult = Parse(t, itemResult);
+                var rightResult = selfResult.Success ? selfResult : itemResult;
+
+                var value = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
+                return new SuccessResult<TOutput>(value, leftResult.Location);
             }
 
-            // We don't have to use the window here, we no longer need to rewind it
-            var selfResult = Parse(t, itemResult);
-            var rightResult = selfResult.Success ? selfResult : itemResult;
-            
-            var value = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-            return new SuccessResult<TOutput>(value, leftResult.Location);
+            if (_getMissingRight != null)
+            {
+                var syntheticRight = _getMissingRight(window);
+                var value = _produce(leftResult.Value, middleResult.Value, syntheticRight);
+                return new SuccessResult<TOutput>(value, window.CurrentLocation);
+            }
+
+            window.Rewind();
+            return leftResult;
         }
 
         IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
