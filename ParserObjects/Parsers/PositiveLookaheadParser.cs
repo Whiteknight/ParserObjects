@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers
     /// consume any actual input
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class PositiveLookaheadParser<TInput> : IParser<TInput, bool>
+    public class PositiveLookaheadParser<TInput> : IParser<TInput, object>
     {
         private readonly IParser<TInput> _inner;
 
@@ -28,14 +28,14 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<bool> Parse(ISequence<TInput> t)
+        public IParseResult<object> ParseUntyped(ISequence<TInput> t) 
         {
             var window = new WindowSequence<TInput>(t);
             var result = _inner.ParseUntyped(window);
             window.Rewind();
-            return result.Transform(c => result.Success);
+            return result.Transform(v => (object) null);
         }
     }
 }

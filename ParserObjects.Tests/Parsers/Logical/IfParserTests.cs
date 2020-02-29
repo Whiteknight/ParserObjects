@@ -10,13 +10,13 @@ namespace ParserObjects.Tests.Parsers.Logical
 {
     public class IfParserTests
     {
-        private readonly IParser<char, bool> _trueParser = Produce<char, bool>(() => true);
-        private readonly IParser<char, bool> _falseParser = Produce<char, bool>(() => false);
+        private readonly IParser<char, char> _successParser = Any<char>();
+        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
 
         [Test]
-        public void Ext_Then_Match()
+        public void Ext_Then_Success()
         {
-            var parser = _trueParser.Then(Any<char>());
+            var parser = _successParser.Then(Any<char>());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -25,9 +25,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_Then_NotMatch()
+        public void Ext_Then_Fail()
         {
-            var parser = _falseParser.Then(Any<char>());
+            var parser = _failParser.Then(Any<char>());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -35,9 +35,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_If_Match()
+        public void Ext_If_Success()
         {
-            var parser = Any<char>().If(_trueParser);
+            var parser = Any<char>().If(_successParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -46,9 +46,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_If_NotMatch()
+        public void Ext_If_Fail()
         {
-            var parser = Any<char>().If(_falseParser);
+            var parser = Any<char>().If(_failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -56,9 +56,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void If_Match()
+        public void Parse_Success()
         {
-            var parser = If(_trueParser, Any<char>());
+            var parser = If(_successParser, Any<char>());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -67,9 +67,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void If_NotMatch()
+        public void Parse_Fail()
         {
-            var parser = If(_falseParser, Any<char>());
+            var parser = If(_failParser, Any<char>());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -79,8 +79,8 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void If_ReplaceChild_1()
         {
-            var parser = If(_falseParser, Any<char>());
-            parser = parser.ReplaceChild(_falseParser, _trueParser) as IParser<char, char>;
+            var parser = If(_failParser, Any<char>());
+            parser = parser.ReplaceChild(_failParser, _successParser) as IParser<char, char>;
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -93,7 +93,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         {
             var empty = Empty<char>().Transform(c => '\0');
             var any = Any<char>();
-            var parser = If(_trueParser, empty);
+            var parser = If(_successParser, empty);
             parser = parser.ReplaceChild(empty, any) as IParser<char, char>;
 
             var input = new StringCharacterSequence("abc");

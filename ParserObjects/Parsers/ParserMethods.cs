@@ -147,7 +147,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, bool> NegativeLookahead<TInput>(IParser<TInput> p)
+        public static IParser<TInput, object> NegativeLookahead<TInput>(IParser<TInput> p)
             => new NegativeLookaheadParser<TInput>(p);
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, bool> PositiveLookahead<TInput>(IParser<TInput> p)
+        public static IParser<TInput, object> PositiveLookahead<TInput>(IParser<TInput> p)
             => new PositiveLookaheadParser<TInput>(p);
 
         /// <summary>

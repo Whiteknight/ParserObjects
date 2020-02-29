@@ -2,11 +2,11 @@
 
 namespace ParserObjects.Parsers.Logical
 {
-    public class NotParser<TInput> : IParser<TInput, bool>
+    public class NotParser<TInput> : IParser<TInput, object>
     {
-        private readonly IParser<TInput, bool> _p1;
+        private readonly IParser<TInput> _p1;
 
-        public NotParser(IParser<TInput, bool> p1)
+        public NotParser(IParser<TInput> p1)
         {
             _p1 = p1;
         }
@@ -21,16 +21,14 @@ namespace ParserObjects.Parsers.Logical
             return this;
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<bool> Parse(ISequence<TInput> t)
+        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
-            // If p1 fails, return failure
-            // Otherwise return success with the inverse value
-            var result1 = _p1.Parse(t);
-            if (!result1.Success)
-                return result1;
-            return new SuccessResult<bool>(!result1.Value, result1.Location);
+            var result1 = _p1.ParseUntyped(t);
+            if (result1.Success)
+                return new FailResult<object>(t.CurrentLocation);
+            return new SuccessResult<object>(null, result1.Location);
         }
     }
 }

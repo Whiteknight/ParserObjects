@@ -1,54 +1,47 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Sequences;
 
 namespace ParserObjects.Parsers.Logical
 {
-    public class AndParser<TInput> : IParser<TInput, bool>
+    public class AndParser<TInput> : IParser<TInput, object>
     {
-        private readonly IParser<TInput, bool> _p1;
-        private readonly IParser<TInput, bool> _p2;
+        private readonly IReadOnlyList<IParser<TInput>> _parsers;
 
-        public AndParser(IParser<TInput, bool> p1, IParser<TInput, bool> p2)
+        public AndParser(params IParser<TInput>[] parsers)
         {
-            _p1 = p1;
-            _p2 = p2;
+            _parsers = parsers;
         }
 
         public string Name { get; set; }
-        public IEnumerable<IParser> GetChildren() => new [] { _p1, _p2 };
+        public IEnumerable<IParser> GetChildren() => _parsers;
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (find == _p1 && replace is IParser<TInput, bool> typed1)
-                return new AndParser<TInput>(typed1, _p2);
-            if (find == _p2 && replace is IParser<TInput, bool> typed2)
-                return new AndParser<TInput>(_p1, typed2);
-            return this;
+            if (!_parsers.Contains(find) || !(replace is IParser<TInput> realReplace))
+                return this;
+            var newList = new IParser<TInput>[_parsers.Count];
+            for (int i = 0; i < _parsers.Count; i++)
+            {
+                var child = _parsers[i];
+                newList[i] = child == find ? realReplace : child;
+            }
+
+            return new AndParser<TInput>(newList);
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<bool> Parse(ISequence<TInput> t)
+        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
-            // If p1 fails, return failure.
-            // if p1 succeeds(false) return success(false)
-            // If p1 succeeds(true) but p2 fails, rewind and return failure
-            // If p1 succeeds(true) and p2 succeeds(false) return success(false)
-            // if p1 succeeds(true) and p2 succeeds(true) return success(true)
-            var window = new WindowSequence<TInput>(t);
-            var result1 = _p1.Parse(window);
-            if (!result1.Success)
-                return new FailResult<bool>(result1.Location);
-            if (!result1.Value)
-                return new SuccessResult<bool>(false, result1.Location);
+            foreach (var parser in _parsers)
+            {
+                var result = parser.ParseUntyped(t);
+                if (!result.Success)
+                    return new FailResult<object>(t.CurrentLocation);
+            }
 
-            var result2 = _p2.Parse(window);
-            if (result2.Success)
-                return result2;
-
-            // If p1 succeeds but p2 fails, we need to rewind the input that p1 consumed
-            window.Rewind();
-            return new FailResult<bool>(result2.Location);
+            return new SuccessResult<object>(null, t.CurrentLocation);
         }
     }
 }

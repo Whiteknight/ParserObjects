@@ -1,46 +1,46 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserObjects.Parsers.Logical
 {
-    public class OrParser<TInput> : IParser<TInput, bool>
+    public class OrParser<TInput> : IParser<TInput, object>
     {
-        private readonly IParser<TInput, bool> _p1;
-        private readonly IParser<TInput, bool> _p2;
+        private readonly IReadOnlyList<IParser<TInput>> _parsers;
 
-        public OrParser(IParser<TInput, bool> p1, IParser<TInput, bool> p2)
+        public OrParser(params IParser<TInput>[] parsers)
         {
-            _p1 = p1;
-            _p2 = p2;
+            _parsers = parsers;
         }
 
         public string Name { get; set; }
-        public IEnumerable<IParser> GetChildren() => new[] { _p1, _p2 };
+        public IEnumerable<IParser> GetChildren() => _parsers;
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (find == _p1 && replace is IParser<TInput, bool> typed1)
-                return new OrParser<TInput>(typed1, _p2);
-            if (find == _p2 && replace is IParser<TInput, bool> typed2)
-                return new OrParser<TInput>(_p1, typed2);
-            return this;
+            if (! _parsers.Contains(find) || !(replace is IParser<TInput> realReplace))
+                return this;
+            var newList = new IParser<TInput>[_parsers.Count];
+            for (int i = 0; i < _parsers.Count; i++)
+            {
+                var child = _parsers[i];
+                newList[i] = child == find ? realReplace : child;
+            }
+
+            return new OrParser<TInput>(newList);
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<bool> Parse(ISequence<TInput> t)
+        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
-            // If p1 fails or succeeds(true) return result1, it is identical to what we want to return
-            // if p1 succeeds(false) and p2 succeeds, return result2
-            // If p1 succeeds(false) but p2 fails, return failure
-            var result1 = _p1.Parse(t);
-            if (!result1.Success || result1.Value)
-                return result1;
+            foreach (var parser in _parsers)
+            {
+                var result = parser.ParseUntyped(t);
+                if (result.Success)
+                    return result;
+            }
 
-            var result2 = _p2.Parse(t);
-            if (result2.Success)
-                return result2;
-
-            return new FailResult<bool>(result2.Location);
+            return new FailResult<object>(t.CurrentLocation);
         }
     }
 }

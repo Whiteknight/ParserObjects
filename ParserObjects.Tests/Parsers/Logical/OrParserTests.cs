@@ -8,117 +8,71 @@ namespace ParserObjects.Tests.Parsers.Logical
 {
     public class OrParserTests
     {
-        private readonly IParser<char, bool> _trueParser = Produce<char, bool>(() => true);
-        private readonly IParser<char, bool> _falseParser = Produce<char, bool>(() => false);
-        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
+        private readonly IParser<char, char> _anyParser = Any<char>();
+        private readonly IParser<char, char> _failParser = Fail<char, char>();
 
         [Test]
-        public void Parse_True_True()
+        public void Parse_Success_Success()
         {
-            var parser = Or(_trueParser, _trueParser);
+            var parser = Or(_anyParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
         }
 
         [Test]
-        public void Parse_True_False()
+        public void Parse_Success_Fail()
         {
-            var parser = Or(_trueParser, _falseParser);
+            var parser = Or(_anyParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
         }
 
         [Test]
-        public void Parse_False_True()
+        public void Parse_Fail_Success()
         {
-            var parser = Or(_falseParser, _trueParser);
+            var parser = Or(_failParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
         }
 
         [Test]
-        public void Parse_False_False()
+        public void Parse_Fail_Fail()
         {
-            var parser = Or(_falseParser, _falseParser);
+            var parser = Or(_failParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().BeFalse();
-        }
-
-        [Test]
-        public void Parse_True_Fail()
-        {
-            var parser = Or(_trueParser, _failParser);
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
-        }
-
-        [Test]
-        public void Parse_Fail_True()
-        {
-            var parser = Or(_failParser, _trueParser);
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeFalse();
-        }
-
-        [Test]
-        public void Parse_False_Fail()
-        {
-            var parser = Or(_falseParser, _failParser);
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeFalse();
-        }
-
-        [Test]
-        public void Parse_Fail_False()
-        {
-            var parser = Or(_failParser, _falseParser);
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeFalse();
         }
 
         [Test]
         public void Parse_ReplaceChild_1()
         {
-            var parser = Or(_falseParser, _failParser);
-            parser = parser.ReplaceChild(_failParser, _trueParser) as IParser<char, bool>;
+            var fail2 = Fail<char, char>();
+            var parser = Or(_failParser, fail2);
+            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char, object>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
         }
 
         [Test]
         public void Parse_ReplaceChild_2()
         {
-            var parser = Or(_failParser, _falseParser);
-            parser = parser.ReplaceChild(_failParser, _trueParser) as IParser<char, bool>;
+            var fail2 = Fail<char, char>();
+            var parser = Or(fail2, _failParser);
+            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char, object>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
+            var result = parser.ParseUntyped(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().BeTrue();
         }
     }
 }

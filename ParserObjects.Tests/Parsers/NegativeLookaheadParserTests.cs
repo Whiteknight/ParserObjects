@@ -33,7 +33,6 @@ namespace ParserObjects.Tests.Parsers
 
             var input = new StringCharacterSequence("abc");
             parser.Parse(input).Success.Should().Be(true);
-            parser.Parse(input).Value.Should().Be(true);
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
             var failParser = Fail<char, char>();
             var anyParser = Any<char>();
             var parser = NegativeLookahead(failParser);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, bool>;
+            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, object>;
 
             var input = new StringCharacterSequence("abc");
             parser.Parse(input).Success.Should().BeFalse();
@@ -53,7 +52,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var failParser = Fail<char, char>();
             var parser = NegativeLookahead(failParser);
-            var result = parser.ReplaceChild(null, null) as IParser<char, bool>;
+            var result = parser.ReplaceChild(null, null) as IParser<char, object>;
 
             result.Should().BeSameAs(parser);
         }
