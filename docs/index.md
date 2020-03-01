@@ -13,7 +13,7 @@ ParserObjects defines a few important abstractions.
 
 ### `ISequence<T>`
 
-`ISequence<T>` is very similar to `IEnumerable<T>'/`IEnumerator<T>`. It allows you to stream items from a source one by one, but it also provides a few additional features which `IEnumerable<T>'/`IEnumerator<T>` don't include:
+`ISequence<T>` is very similar to `IEnumerable<T>`/`IEnumerator<T>`. It allows you to stream items from a source one by one, but it also provides a few additional features which `IEnumerable<T>`/`IEnumerator<T>` don't include:
 
 1. `.GetNext()` gets the next item from the stream and advances the stream one position
 1. `.Peek()` returns the next item from the stream but does not advance the stream
@@ -25,7 +25,7 @@ A sequence is expected to always return a result even when it is at the end. A s
 
 ### `IParseResult<T>`
 
-The `IParseResult<T>` abstraction returns the result of a parser. 
+The `IParseResult<T>` abstraction represents the result of a parser. 
 
 1. `.Success` a boolean flag which says whether the parse succeeded or failed. 
 1. `.Value` the result value of the parse. If `.Success` is false, this value is invalid and should not be used.

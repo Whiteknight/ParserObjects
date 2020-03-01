@@ -1,6 +1,6 @@
 # Expression Parsing Example
 
-We would like to create a calculator routine which parsers a string like "1 + 2 * 3" into a result following standard order-of-operations rules. The first operators we will support are "+" and "*", where multiplication has higher precidence and both operators are left-associative. (Notice that I'm not recommending this as the "best" solution to this particular problem, you should probably consider something like [The Shunting Yard algorithm](https://en.wikipedia.org/wiki/Shunting-yard_algorithm) for best results).
+We would like to create a calculator routine which parses a string like "1 + 2 * 3" into a result following standard order-of-operations rules. The first operators we will support are "+" and "*", where multiplication has higher precidence and both operators are left-associative. (Notice that I'm not recommending this as the "best" solution to this particular problem, you should probably consider something like [The Shunting Yard algorithm](https://en.wikipedia.org/wiki/Shunting-yard_algorithm) for best results).
 
 ## The Lexical Grammar
 
@@ -20,7 +20,7 @@ public class Token
 }
 ```
 
-Now we can put together a lexical grammar as a `IParser<char, Token>` that takes characters as input and returns `Token`s.
+Now we can put together a lexical grammar as a `IParser<char, Token>` that takes characters as input and returns `Token`.  
 
 ```csharp
 public class LexicalGrammar
@@ -208,11 +208,18 @@ public class Calculator
 {
     public int Calculate(string syntax)
     {
+        // Turn the input string into a sequence of characters
         var characterSequence = new StringCharacterSequence(syntax);
+
+        // Get the lexical grammar, and use it to create a sequence of tokens
         var lexicalParser = LexicalGrammar.CreateParser();
         var tokenSequence = lexicalParser.ToSequence(characterSequence);
+
+        // Get the expression grammar and parse the token sequence into a result
         var expressionParser = ExpressionGrammar.CreateParser();
         var result = expressionParser.Parse(tokenSequence);
+
+        // Get the value of the result
         return result.Value;
     }
 }
@@ -247,12 +254,19 @@ var expression = Rule(
 
 The `First` parser will attempt to find the end, and returns immediately if it does. If it doesn't see the end, however, it will invoke the `Produce` parser which will throw that exception.
 
-We can use a similar technique in our expression parser. We can see a pattern "<number>" or a pattern "<number> <operator> <number>" but not just "<number> <operator>".
+We can use a similar technique in our expression parser. We can see a pattern "&lt;number>" or a pattern "&lt;number> &lt;operator> &lt;number>" but not just "&lt;number> &lt;operator>". First, let's start by defining a new method for a parser which throws an error:
+
+```csharp
+public static IParser<Token, int> ThrowError(string message)
+    => Produce<Token, int>(t => throw new Exception($"{message} at {t.CurrentLocation}"));
+```
+
+The `Produce` parser is expected to return a result value, but it does that by executing an arbitrary lambda function. We can use that to throw an exception at any point in the parser we want. Now we can add some error handling to our grammar:
 
 ```csharp
 var requiredNumber = First(
     number,
-    Produce<Token, object>(t => throw new Exception($"Expected number but found {t.Peek()} at {t.CurrentLocation}"))
+    ThrowError("Expected number")
 )
 var multiplicative = LeftApply(
     number,
@@ -273,7 +287,7 @@ var multiplicative = LeftApply(
 );
 var requiredMultiplicative = First(
     number,
-    Produce<Token, object>(t => throw new Exception($"Expected multiplicative but found {t.Peek()} at {t.CurrentLocation}"))
+    ThrowError("Expected multiplicative")
 )
 var additive = LeftApply(
     multiplicative,
