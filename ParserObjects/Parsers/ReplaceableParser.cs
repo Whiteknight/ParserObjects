@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,6 +15,7 @@ namespace ParserObjects.Parsers
 
         public ReplaceableParser(IParser<TInput, TOutput> defaultValue)
         {
+            Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
             _value = defaultValue;
         }
 

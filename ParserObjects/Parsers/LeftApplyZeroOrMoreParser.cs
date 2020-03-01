@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,6 +15,9 @@ namespace ParserObjects.Parsers
 
         public LeftApplyZeroOrMoreParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight)
         {
+            Assert.ArgumentNotNull(initial, nameof(initial));
+            Assert.ArgumentNotNull(getRight, nameof(getRight));
+
             _initial = initial;
             _left = new LeftValueParser();
             _right = getRight(_left);
@@ -28,6 +32,7 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var result = _initial.Parse(t);
             if (!result.Success)
                 return new FailResult<TOutput>(t.CurrentLocation);

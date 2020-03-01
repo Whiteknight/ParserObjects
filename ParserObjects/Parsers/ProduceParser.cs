@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -16,6 +17,7 @@ namespace ParserObjects.Parsers
 
         public ProduceParser(Func<ISequence<TInput>, TOutput> produce)
         {
+            Assert.ArgumentNotNull(produce, nameof(produce));
             _produce = produce;
         }
 

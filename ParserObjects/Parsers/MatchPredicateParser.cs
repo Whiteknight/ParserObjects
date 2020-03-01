@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,11 +15,13 @@ namespace ParserObjects.Parsers
 
         public MatchPredicateParser(Func<T, bool> predicate)
         {
+            Assert.ArgumentNotNull(predicate, nameof(predicate));
             _predicate = predicate;
         }
 
         public IParseResult<T> Parse(ISequence<T> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var location = t.CurrentLocation;
             if (t.IsAtEnd)
                 return new FailResult<T>(location);

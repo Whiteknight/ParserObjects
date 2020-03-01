@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -15,6 +16,10 @@ namespace ParserObjects.Parsers
 
         public RightApplyZeroOrMoreParser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
         {
+            Assert.ArgumentNotNull(item, nameof(item));
+            Assert.ArgumentNotNull(middle, nameof(middle));
+            Assert.ArgumentNotNull(produce, nameof(produce));
+
             _item = item;
             _middle = middle;
             _produce = produce;
@@ -24,6 +29,8 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
+
             var leftResult = _item.Parse(t);
             if (!leftResult.Success)
                 return new FailResult<TOutput>(t.CurrentLocation);

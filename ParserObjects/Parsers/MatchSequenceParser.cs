@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,11 +15,13 @@ namespace ParserObjects.Parsers
 
         public MatchSequenceParser(IEnumerable<T> find)
         {
+            Assert.ArgumentNotNull(find, nameof(find));
             Pattern = find.ToArray();
         }
 
         public IParseResult<IReadOnlyList<T>> Parse(ISequence<T> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var location = t.CurrentLocation;
 
             // Handle a few small cases where we don't want to allocate a buffer

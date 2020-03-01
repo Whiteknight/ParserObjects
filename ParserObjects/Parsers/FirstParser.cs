@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -15,6 +16,7 @@ namespace ParserObjects.Parsers
 
         public FirstParser(params IParser<TInput, TOutput>[] parsers)
         {
+            Assert.ArgumentNotNull(parsers, nameof(parsers));
             _parsers = parsers;
         }
 

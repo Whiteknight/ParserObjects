@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -20,6 +21,7 @@ namespace ParserObjects.Parsers
 
         public FlattenParser(IParser<TInput, TCollection> input)
         {
+            Assert.ArgumentNotNull(input, nameof(input));
             _input = input;
         }
 

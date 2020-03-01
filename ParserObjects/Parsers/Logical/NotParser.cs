@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
     public class NotParser<TInput> : IParser<TInput, object>
     {
-        private readonly IParser<TInput> _p1;
+        private readonly IParser<TInput> _inner;
 
-        public NotParser(IParser<TInput> p1)
+        public NotParser(IParser<TInput> inner)
         {
-            _p1 = p1;
+            Assert.ArgumentNotNull(inner, nameof(inner));
+            _inner = inner;
         }
 
         public string Name { get; set; }
-        public IEnumerable<IParser> GetChildren() => new[] { _p1 };
+        public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (find == _p1 && replace is IParser<TInput, bool> typed1)
+            if (find == _inner && replace is IParser<TInput, bool> typed1)
                 return new NotParser<TInput>(typed1);
             return this;
         }
@@ -25,7 +27,7 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
-            var result1 = _p1.ParseUntyped(t);
+            var result1 = _inner.ParseUntyped(t);
             if (result1.Success)
                 return new FailResult<object>(t.CurrentLocation);
             return new SuccessResult<object>(null, result1.Location);

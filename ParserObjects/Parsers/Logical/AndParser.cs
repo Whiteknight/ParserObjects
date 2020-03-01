@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
@@ -10,6 +11,7 @@ namespace ParserObjects.Parsers.Logical
 
         public AndParser(params IParser<TInput>[] parsers)
         {
+            Assert.ArgumentNotNull(parsers, nameof(parsers));
             _parsers = parsers;
         }
 

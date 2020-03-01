@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -18,12 +19,16 @@ namespace ParserObjects.Parsers
 
         public RuleParser(IReadOnlyList<IParser<TInput>> parsers, Func<IReadOnlyList<object>, TOutput> produce)
         {
+            Assert.ArgumentNotNull(parsers, nameof(parsers));
+            Assert.ArgumentNotNull(produce, nameof(produce));
             _parsers = parsers;
             _produce = produce;
         }
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
+
             var location = t.CurrentLocation;
             var window = new WindowSequence<TInput>(t);
             

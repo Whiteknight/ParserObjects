@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -16,6 +17,8 @@ namespace ParserObjects.Parsers
 
         public TransformParser(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
+            Assert.ArgumentNotNull(transform, nameof(transform));
             _parser = parser;
             _transform = transform;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,12 +15,14 @@ namespace ParserObjects.Parsers
 
         public ListParser(IParser<TInput, TOutput> parser, bool atLeastOne)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
             _parser = parser;
             AtLeastOne = atLeastOne;
         }
 
         public IParseResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var location = t.CurrentLocation;
             var items = new List<TOutput>();
             while (true)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,10 +15,17 @@ namespace ParserObjects.Parsers
 
         public DeferredParser(Func<IParser<TInput, TOutput>> getParser)
         {
+            Assert.ArgumentNotNull(getParser, nameof(getParser));
             _getParser = getParser;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t) => _getParser().Parse(t);
+        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        {
+            var parser = _getParser();
+            if (parser == null)
+                throw new InvalidOperationException("Deferred parser value must not be null");
+            return parser.Parse(t);
+        }
 
         IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) 
             => _getParser().ParseUntyped(t);

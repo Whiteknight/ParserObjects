@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -22,6 +23,7 @@ namespace ParserObjects.Parsers
 
         public IParseResult<T> Parse(ISequence<T> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             if (t.IsAtEnd)
                 return new FailResult<T>();
             var next = t.GetNext();

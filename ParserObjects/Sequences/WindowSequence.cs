@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -14,6 +15,7 @@ namespace ParserObjects.Sequences
 
         public WindowSequence(ISequence<T> inner)
         {
+            Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
             _window = new Stack<T>();
         }

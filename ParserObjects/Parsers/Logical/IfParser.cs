@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
@@ -15,6 +16,8 @@ namespace ParserObjects.Parsers.Logical
 
         public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> inner)
         {
+            Assert.ArgumentNotNull(predicate, nameof(predicate));
+            Assert.ArgumentNotNull(inner, nameof(inner));
             _predicate = predicate;
             _inner = inner;
         }

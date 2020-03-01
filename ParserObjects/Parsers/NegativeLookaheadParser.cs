@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -14,6 +15,7 @@ namespace ParserObjects.Parsers
 
         public NegativeLookaheadParser(IParser<TInput> inner)
         {
+            Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
         }
 
