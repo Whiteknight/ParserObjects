@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Parsers;
 using ParserObjects.Utility;
 
 namespace ParserObjects
@@ -32,5 +33,11 @@ namespace ParserObjects
         /// <param name="keys"></param>
         /// <returns></returns>
         IParseResult<TResult> Get(ISequence<TKey> keys);
+    }
+
+    public static class TrieExtensions
+    {
+        public static IParser<TKey, TResult> ToParser<TKey, TResult>(this ITrie<TKey, TResult> trie)
+            => new TrieParser<TKey, TResult>(trie);
     }
 }
