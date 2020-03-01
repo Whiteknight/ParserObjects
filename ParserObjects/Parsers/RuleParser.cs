@@ -26,6 +26,8 @@ namespace ParserObjects.Parsers
         {
             var location = t.CurrentLocation;
             var window = new WindowSequence<TInput>(t);
+            
+            // TODO: Use ArrayPool<T> here, or else keep our own local cache of array instances?
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {

@@ -104,20 +104,20 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
             => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
 
-        public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
-            => new ReplaceableParser<TInput, TOutput>(p);
-
         /// <summary>
-        /// A result is required. If the given parser fails to produce a result, a default value will be
-        /// provided instead
+        /// The results of the given parser are optiona. If the given parser fails, a default value will be
+        /// provided
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Required<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
             => First(p, Produce(produce ?? (t => default)));
+
+        public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
+            => new ReplaceableParser<TInput, TOutput>(p);
 
         /// <summary>
         /// Transform the output of the given parser to a new value 

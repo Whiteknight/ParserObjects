@@ -62,7 +62,8 @@ namespace ParserObjects.Parsers
             => new FirstParser<TInput, TOutput>(parsers);
 
         /// <summary>
-        /// Flattens the result of a parser 
+        /// Flattens the result of a parser which returns an enumerable type into a parser which returns
+        /// individual items.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TCollection"></typeparam>
@@ -88,12 +89,13 @@ namespace ParserObjects.Parsers
             => new LeftApplyZeroOrMoreParser<TInput, TOutput>(left, getRight);
 
         /// <summary>
-        /// Parse a list of zero or more items.
+        /// Parse a list of items. 
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="atLeastOne"></param>
+        /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
+        /// false, an empty list returns success.</param>
         /// <returns></returns>
         public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, bool atLeastOne = false) 
             => new ListParser<TInput, TOutput>(p, atLeastOne);
@@ -160,6 +162,17 @@ namespace ParserObjects.Parsers
             => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
 
         /// <summary>
+        /// Attempt to parse an item and return a default value otherwise
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="produce"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
+            => First(p, Produce(produce ?? (t => default)));
+
+        /// <summary>
         /// Zero-length assertion that the given pattern matches from the current position. No input is
         /// consumed.
         /// </summary>
@@ -170,7 +183,7 @@ namespace ParserObjects.Parsers
             => new PositiveLookaheadParser<TInput>(p);
 
         /// <summary>
-        /// Produce an empty or default node without consuming anything out of the tokenizer
+        /// Produce a value without consuming anything out of the input sequence
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
@@ -180,7 +193,7 @@ namespace ParserObjects.Parsers
             => new ProduceParser<TInput, TOutput>(t => produce());
 
         /// <summary>
-        /// Unconditionally produce a value given the input sequence at it's current location
+        /// Produce a value given the current state of the input sequence.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -190,8 +203,7 @@ namespace ParserObjects.Parsers
             => new ProduceParser<TInput, TOutput>(produce);
 
         /// <summary>
-        /// Serves as a placeholder in the parser tree where a replacement can be made without rewriting
-        /// the whole tree
+        /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -201,20 +213,8 @@ namespace ParserObjects.Parsers
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
-        /// A value is required. If the given parser fails to produce a result, a default value will be
-        /// produced instead.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
-        /// <param name="p"></param>
-        /// <param name="produce"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Required<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
-            => First(p, Produce(produce ?? (t => default)));
-
-        /// <summary>
         /// a right-associative parser where the parser attempts to parse a sequence of items and middles
-        /// &lt;item&gt; (&lt;middle&gt; &lt;item&gt;)*. 
+        /// recursively: self := &lt;item&gt; (&lt;middle&gt; &lt;self&gt;)*. 
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
@@ -227,8 +227,8 @@ namespace ParserObjects.Parsers
             => new RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput>(item, middle, produce, getMissingRight);
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput, T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -247,8 +247,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -268,8 +268,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -291,8 +291,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -316,8 +316,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -343,8 +343,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -372,8 +372,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -403,8 +403,8 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback all and
-        /// return failure
+        /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
+        /// all and return failure
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -443,7 +443,8 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>
-        /// <param name="atLeastOne"></param>
+        /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
+        /// if an empty list can be returned.</param>
         /// <returns></returns>
         public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne = false)
         {
