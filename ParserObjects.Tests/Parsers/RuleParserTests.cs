@@ -9,16 +9,14 @@ namespace ParserObjects.Tests.Parsers
 {
     public class RuleParserTests
     {
-        // TODO: We need a lot of tests for various Rule() variants
+        private readonly IParser<char, char> _any = Any<char>();
+
         [Test]
         public void Rule_2_Test()
         {
-            var anyParser = Any<char>();
-
             var target = Rule(
-                anyParser,
-                anyParser,
-
+                _any,
+                _any,
                 (a, b) => $"{a}{b}"
             );
 
@@ -31,9 +29,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_2_Test()
         {
-            var anyParser = Any<char>();
-
-            var target = (anyParser, anyParser).Produce((a, b) => $"{a}{b}");
+            var target = (_any, _any).Produce((a, b) => $"{a}{b}");
 
             var input = new StringCharacterSequence("abc");
 
@@ -41,19 +37,220 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Rule_3_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                (a, b, c) => $"{a}{b}{c}"
+            );
+
+            var input = new StringCharacterSequence("abc");
+
+            target.Parse(input).Value.Should().Be("abc");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_3_Test()
+        {
+            var target = (_any, _any, _any).Produce((a, b, c) => $"{a}{b}{c}");
+
+            var input = new StringCharacterSequence("abc");
+
+            target.Parse(input).Value.Should().Be("abc");
+        }
+
+        [Test]
+        public void Rule_4_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d) => $"{a}{b}{c}{d}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcd");
+        }
+
+        [Test]
+        public void ValueTuple_Produce_4_Test()
+        {
+            var target = (_any, _any, _any, _any).Produce((a, b, c, d) => $"{a}{b}{c}{d}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcd");
+        }
+
+        [Test]
+        public void Rule_5_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e) => $"{a}{b}{c}{d}{e}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcde");
+        }
+
+
+        [Test]
+        public void ValueTuple_Produce_5_Test()
+        {
+            var target = (_any, _any, _any, _any, _any).Produce((a, b, c, d, e) => $"{a}{b}{c}{d}{e}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcde");
+        }
+
+        [Test]
+        public void Rule_6_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdef");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_6_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdef");
+        }
+
+        [Test]
+        public void Rule_7_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefg");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_7_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefg");
+        }
+
+        [Test]
+        public void Rule_8_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefgh");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_8_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefgh");
+        }
+
+
+        [Test]
+        public void Rule_9_Test()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefghi");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_9_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}");
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            target.Parse(input).Value.Should().Be("abcdefghi");
+        }
+
+        [Test]
         public void ReplaceChild_Test()
         {
-            var anyParser = Any<char>();
             var failParser = Fail<char, char>();
 
             var target = Rule(
-                anyParser,
+                _any,
                 failParser,
-
                 (a, b) => $"{a}{b}"
             );
 
-            target = target.ReplaceChild(failParser, anyParser) as IParser<char, string>;
+            target = target.ReplaceChild(failParser, _any) as IParser<char, string>;
             var input = new StringCharacterSequence("abc");
 
             target.Parse(input).Value.Should().Be("ab");
@@ -62,13 +259,11 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_NotFound()
         {
-            var anyParser = Any<char>();
             var failParser = Fail<char, char>();
 
             var target = Rule(
-                anyParser,
+                _any,
                 failParser,
-
                 (a, b) => $"{a}{b}"
             );
 
@@ -79,18 +274,16 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var anyParser = Any<char>();
             var failParser = Fail<char, char>();
 
             var target = Rule(
-                anyParser,
+                _any,
                 failParser,
-
                 (a, b) => $"{a}{b}"
             );
 
             var result = target.GetChildren().ToList();
-            result[0].Should().BeSameAs(anyParser);
+            result[0].Should().BeSameAs(_any);
             result[1].Should().BeSameAs(failParser);
         }
     }
