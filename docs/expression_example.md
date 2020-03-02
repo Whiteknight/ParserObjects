@@ -254,7 +254,7 @@ var expression = Rule(
 
 The `First` parser will attempt to find the end, and returns immediately if it does. If it doesn't see the end, however, it will invoke the `Produce` parser which will throw that exception.
 
-We can use a similar technique in our expression parser. We can see a pattern "&lt;number>" or a pattern "&lt;number> &lt;operator> &lt;number>" but not just "&lt;number> &lt;operator>". First, let's start by defining a new method for a parser which throws an error:
+We can use a similar technique in our expression parser. We can see a pattern "`<number>`" or a pattern "`<number> <operator> <number>`" but not just "`<number> <operator>`". First, let's start by defining a new method for a parser which throws an error:
 
 ```csharp
 public static IParser<Token, int> ThrowError(string message)

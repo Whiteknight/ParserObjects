@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using static ParserObjects.Parsers.ParserMethods;
 
@@ -8,8 +9,9 @@ namespace ParserObjects.Tests.Parsers
 {
     public class RuleParserTests
     {
+        // TODO: We need a lot of tests for various Rule() variants
         [Test]
-        public void Parse_Test()
+        public void Rule_2_Test()
         {
             var anyParser = Any<char>();
 
@@ -17,8 +19,21 @@ namespace ParserObjects.Tests.Parsers
                 anyParser,
                 anyParser,
 
-                (a, b) => a.ToString() + b.ToString()
+                (a, b) => $"{a}{b}"
             );
+
+            var input = new StringCharacterSequence("abc");
+
+            target.Parse(input).Value.Should().Be("ab");
+        }
+
+        // TODO: We need tests for various Tuple.Produce() variants
+        [Test]
+        public void ValueTuple_Produce_2_Test()
+        {
+            var anyParser = Any<char>();
+
+            var target = (anyParser, anyParser).Produce((a, b) => $"{a}{b}");
 
             var input = new StringCharacterSequence("abc");
 
@@ -35,7 +50,7 @@ namespace ParserObjects.Tests.Parsers
                 anyParser,
                 failParser,
 
-                (a, b) => a.ToString() + b.ToString()
+                (a, b) => $"{a}{b}"
             );
 
             target = target.ReplaceChild(failParser, anyParser) as IParser<char, string>;
@@ -54,7 +69,7 @@ namespace ParserObjects.Tests.Parsers
                 anyParser,
                 failParser,
 
-                (a, b) => a.ToString() + b.ToString()
+                (a, b) => $"{a}{b}"
             );
 
             var result = target.ReplaceChild(null, null);
@@ -71,7 +86,7 @@ namespace ParserObjects.Tests.Parsers
                 anyParser,
                 failParser,
 
-                (a, b) => a.ToString() + b.ToString()
+                (a, b) => $"{a}{b}"
             );
 
             var result = target.GetChildren().ToList();
