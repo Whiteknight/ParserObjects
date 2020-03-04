@@ -15,44 +15,57 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, string>> _numberString = new Lazy<IParser<char, string>>(
             () =>
             {
-                // TODO: Clean this up
-                return Rule(
-                    Match('-').Transform(c => "-").Optional(() => ""),
-                    First(
-                        Match('0').Transform(c => "0"),
-                        Rule(
-                            NonZeroDigit(),
-                            Digit().ListCharToString(),
-                            (first, rest) => first + rest
-                        )
-                    ),
-                    First(
-                        Rule(
-                            Match('.').Transform(c => "."),
-                            Digit().ListCharToString(true),
-                            (dot, fract) => dot + fract
-                        ),
-                        Produce<char, string>(() => "")
-                    ),
-                    First(
-                        Rule(
-                            First(
-                                Match('e').Transform(c => "e"),
-                                Match('E').Transform(c => "E")
-                            ),
-                            First(
-                                Match('+').Transform(c => "+"),
-                                Match('-').Transform(c => "-"),
-                                Produce<char, string>(() => "+")
-                            ),
-                            DigitString(),
+                var maybeMinus = Match('-').Transform(c => "-").Optional(() => "");
+                var zero = Match('0').Transform(c => "0");
+                var maybeDigits = Digit().ListCharToString();
+                var empty = Produce<char, string>(() => "");
 
-                            (e, sign, value) => e + sign + value
-                        ),
-                        Produce<char, string>(() => "")
+                // wholePart := '0' | <nonZeroDigit> <digits>*
+                var wholePart = First(
+                    zero,
+                    Rule(
+                        NonZeroDigit(),
+                        maybeDigits,
+                        (first, rest) => first + rest
+                    )
+                );
+
+                // fractPart := '.' <digit>+ | <empty>
+                var fractPart = First(
+                    Rule(
+                        Match('.').Transform(c => "."),
+                        DigitString(),
+                        (dot, fract) => dot + fract
                     ),
-                    (sign, whole, fract, exp) => sign + whole + fract + exp
-                ).Named("JavaScript-Style Number String");
+                    empty
+                );
+
+                // expExpr := ('e' | 'E') ('+' | '-' | <empty>) <digit>+
+                var expExpr = Rule(
+                    First(
+                        Match('e').Transform(c => "e"),
+                        Match('E').Transform(c => "E")
+                    ),
+                    First(
+                        Match('+').Transform(c => "+"),
+                        Match('-').Transform(c => "-"),
+                        Produce<char, string>(() => "+")
+                    ),
+                    DigitString(),
+
+                    (e, sign, value) => e + sign + value
+                );
+
+                // expPart := <exprExpr> | <empty>
+                var expPart = First(
+                    expExpr,
+                    empty
+                );
+
+                // number := <minus>? <wholePart> <fractPart> <expPart>
+                return (maybeMinus, wholePart, fractPart, expPart)
+                    .Produce((sign, whole, fract, exp) => sign + whole + fract + exp)
+                    .Named("JavaScript-Style Number String");
             }
         );
 

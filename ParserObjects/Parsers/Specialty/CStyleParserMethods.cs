@@ -17,11 +17,10 @@ namespace ParserObjects.Parsers.Specialty
             {
                 var start = Match<char>("/*").Transform(c => "/*");
                 var end = Match<char>("*/").Transform(c => "*/");
+                var standaloneAsterisk = Match('*').NotFollowedBy(Match('/'));
+                var notAsterisk = Match<char>(c => c != '*');
 
-                var bodyChar = First(
-                    Match('*').NotFollowedBy(Match('/')),
-                    Match<char>(c => c != '*')
-                );
+                var bodyChar = (standaloneAsterisk, notAsterisk).First();
                 var bodyChars = bodyChar.ListCharToString();
 
                 return (start, bodyChars, end)
@@ -59,11 +58,9 @@ namespace ParserObjects.Parsers.Specialty
                 var digits = Digit().ListCharToString();
                 var zero = Match('0').Transform(c => "0");
                 var nonZeroNumber = (maybeMinus, nonZeroDigit, digits).Produce((sign, start, body) => sign + start + body);
-                var number = First(
-                    nonZeroNumber,
-                    zero
-                );
-                return number.Named("C-Style Integer String");
+                return (nonZeroNumber, zero)
+                    .First()
+                    .Named("C-Style Integer String");
             }
         );
 
