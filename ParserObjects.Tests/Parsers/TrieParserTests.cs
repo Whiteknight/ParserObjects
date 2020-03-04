@@ -76,6 +76,30 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Trie_Action_Operators()
+        {
+            var target = Trie<char, string>(trie => trie
+                .Add("=", "=")
+                .Add("==", "==")
+                .Add(">=", ">=")
+                .Add("<=", "<=")
+                .Add("<", "<")
+                .Add(">", ">")
+            );
+
+            var input = new StringCharacterSequence("===>=<=><<==");
+
+            target.Parse(input).Value.Should().Be("==");
+            target.Parse(input).Value.Should().Be("=");
+            target.Parse(input).Value.Should().Be(">=");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be(">");
+            target.Parse(input).Value.Should().Be("<");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be("=");
+        }
+
+        [Test]
         public void Parse_Operators_Method()
         {
             var trie = new InsertOnlyTrie<char, string>();

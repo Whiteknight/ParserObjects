@@ -20,7 +20,7 @@ namespace ParserObjects.Utility
             _root = new Node();
         }
 
-        public InsertOnlyTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
+        public ITrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
         {
             var current = _root;
             foreach (var key in keys)

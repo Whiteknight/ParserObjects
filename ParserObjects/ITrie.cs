@@ -11,13 +11,15 @@ namespace ParserObjects
     /// <typeparam name="TResult"></typeparam>
     public interface ITrie<TKey, TResult>
     {
+        // TODO: Should we try to separate the read/write bits into separate interfaces, since we don't need both at the same time?
+
         /// <summary>
         /// Given a composite key and a value, insert the value at the location described by the key
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        InsertOnlyTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result);
+        ITrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result);
 
         /// <summary>
         /// Given a composite key, search for a value at that location in the trie
@@ -39,5 +41,20 @@ namespace ParserObjects
     {
         public static IParser<TKey, TResult> ToParser<TKey, TResult>(this ITrie<TKey, TResult> trie)
             => new TrieParser<TKey, TResult>(trie);
+
+        public static ITrie<char, string> Add(this ITrie<char, string> trie, string value)
+        {
+            Assert.ArgumentNotNull(trie, nameof(trie));
+            return trie.Add(value, value);
+        }
+
+        public static ITrie<char, string> AddMany(this ITrie<char, string> trie, params string[] values)
+        {
+            Assert.ArgumentNotNull(trie, nameof(trie));
+            Assert.ArgumentNotNull(values, nameof(values));
+            foreach (var value in values)
+                trie.Add(value, value);
+            return trie;
+        }
     }
 }

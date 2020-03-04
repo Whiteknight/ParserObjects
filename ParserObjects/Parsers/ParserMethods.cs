@@ -502,5 +502,12 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> Trie<TInput, TOutput>(ITrie<TInput, TOutput> trie)
             => new TrieParser<TInput, TOutput>(trie);
+
+        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(Action<ITrie<TInput, TOutput>> setupTrie)
+        {
+            var trie = new InsertOnlyTrie<TInput, TOutput>();
+            setupTrie?.Invoke(trie);
+            return new TrieParser<TInput, TOutput>(trie);
+        }
     }
 }
