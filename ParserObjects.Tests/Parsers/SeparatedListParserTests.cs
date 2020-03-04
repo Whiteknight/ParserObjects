@@ -4,7 +4,7 @@ using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using static ParserObjects.Parsers.ParserMethods;
-using static ParserObjects.Parsers.Specialty.ProgrammingParserMethods;
+using static ParserObjects.Parsers.Specialty.CStyleParserMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -14,7 +14,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var parser = SeparatedList(
-                CStyleIntegerLiteral(),
+                Integer(),
                 Match<char>(","),
                 atLeastOne: false
             );
@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ListSeparatedBy_Parse_Test()
         {
-            var parser = CStyleIntegerLiteral().ListSeparatedBy(
+            var parser = Integer().ListSeparatedBy(
                 Match<char>(","),
                 atLeastOne: false
             );
@@ -49,7 +49,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Empty()
         {
             var parser = SeparatedList(
-                CStyleIntegerLiteral(),
+                Integer(),
                 Match<char>(","),
                 atLeastOne: false
             );
@@ -63,7 +63,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_AtLeastOne_HasOne()
         {
             var parser = SeparatedList(
-                CStyleIntegerLiteral(),
+                Integer(),
                 Match<char>(","),
                 atLeastOne: true
             );
@@ -78,7 +78,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_AtLeastOne_Multiple()
         {
             var parser = SeparatedList(
-                CStyleIntegerLiteral(),
+                Integer(),
                 Match<char>(","),
                 atLeastOne: true
             );
@@ -95,14 +95,13 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_AtLeastOne_Empty()
         {
             var parser = SeparatedList(
-                CStyleIntegerLiteral(),
+                Integer(),
                 Match<char>(","),
                 atLeastOne: true
             );
             var input = new StringCharacterSequence("");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
-
         }
     }
 }

@@ -1,0 +1,68 @@
+﻿using System;
+using System.Globalization;
+using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.Specialty.DigitParserMethods;
+
+namespace ParserObjects.Parsers.Specialty
+{
+    public static class JavaScriptStyleParserMethods
+    {
+        /// <summary>
+        /// JavaScript-style number literal, returned as a double
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, string> NumberString() => _numberString.Value;
+        private static readonly Lazy<IParser<char, string>> _numberString = new Lazy<IParser<char, string>>(
+            () =>
+            {
+                // TODO: Clean this up
+                return Rule(
+                    Match('-').Transform(c => "-").Optional(() => ""),
+                    First(
+                        Match('0').Transform(c => "0"),
+                        Rule(
+                            NonZeroDigit(),
+                            Digit().ListCharToString(),
+                            (first, rest) => first + rest
+                        )
+                    ),
+                    First(
+                        Rule(
+                            Match('.').Transform(c => "."),
+                            Digit().ListCharToString(true),
+                            (dot, fract) => dot + fract
+                        ),
+                        Produce<char, string>(() => "")
+                    ),
+                    First(
+                        Rule(
+                            First(
+                                Match('e').Transform(c => "e"),
+                                Match('E').Transform(c => "E")
+                            ),
+                            First(
+                                Match('+').Transform(c => "+"),
+                                Match('-').Transform(c => "-"),
+                                Produce<char, string>(() => "+")
+                            ),
+                            DigitString(),
+
+                            (e, sign, value) => e + sign + value
+                        ),
+                        Produce<char, string>(() => "")
+                    ),
+                    (sign, whole, fract, exp) => sign + whole + fract + exp
+                ).Named("JavaScript-Style Number String");
+            }
+        );
+
+        public static IParser<char, double> Number() => _number.Value;
+        private static readonly Lazy<IParser<char, double>> _number = new Lazy<IParser<char, double>>(
+            () => NumberString()
+                .Transform(s => double.Parse(s, NumberStyles.Float))
+                .Named("JavaScript-Style Number Literal")
+        );
+
+        // TODO: JS-style string literals with escapes (https://mathiasbynens.be/notes/javascript-escapes)
+    }
+}
