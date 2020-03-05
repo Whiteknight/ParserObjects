@@ -111,10 +111,10 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="produce"></param>
+        /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce)
-            => First(p, Produce(produce ?? (t => default)));
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
+            => First(p, Produce(getDefault ?? (t => default)));
 
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => new ReplaceableParser<TInput, TOutput>(p);

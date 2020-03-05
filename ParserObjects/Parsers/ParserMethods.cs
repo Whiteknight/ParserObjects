@@ -167,10 +167,10 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="produce"></param>
+        /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> produce = null)
-            => First(p, Produce(produce ?? (t => default)));
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
+            => First(p, Produce(getDefault ?? (t => default)));
 
         /// <summary>
         /// Zero-length assertion that the given pattern matches from the current position. No input is
