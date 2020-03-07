@@ -39,15 +39,34 @@ namespace ParserObjects
 
     public static class TrieExtensions
     {
+        /// <summary>
+        /// Wrap the Trie in a TrieParser
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="trie"></param>
+        /// <returns></returns>
         public static IParser<TKey, TResult> ToParser<TKey, TResult>(this ITrie<TKey, TResult> trie)
             => new TrieParser<TKey, TResult>(trie);
 
+        /// <summary>
+        /// Convenience method to add a string value with char keys
+        /// </summary>
+        /// <param name="trie"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static ITrie<char, string> Add(this ITrie<char, string> trie, string value)
         {
             Assert.ArgumentNotNull(trie, nameof(trie));
             return trie.Add(value, value);
         }
 
+        /// <summary>
+        /// Convenience method to add strings to the trie with char keys
+        /// </summary>
+        /// <param name="trie"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static ITrie<char, string> AddMany(this ITrie<char, string> trie, params string[] values)
         {
             Assert.ArgumentNotNull(trie, nameof(trie));
