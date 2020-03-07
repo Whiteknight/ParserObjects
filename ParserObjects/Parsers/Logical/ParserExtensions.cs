@@ -4,11 +4,20 @@ namespace ParserObjects.Parsers.Logical
 {
     public static class ParserExtensions
     {
+        /// <summary>
+        /// Parse the given parser and all additional parsers sequentially. Consumes input but returns no
+        /// output. Will probably be used by Positive- or Negative-lookahead or If.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p1"></param>
+        /// <param name="parsers"></param>
+        /// <returns></returns>
         public static IParser<TInput> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
             => new AndParser<TInput>(new [] { p1 }.Concat(parsers).ToArray());
 
         /// <summary>
-        /// Parse if the predicate succeeds
+        /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
+        /// parse with the given parser.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -18,14 +27,32 @@ namespace ParserObjects.Parsers.Logical
         public static IParser<TInput, TOutput> If<TInput, TOutput>(this IParser<TInput, TOutput> parser, IParser<TInput> predicate)
             => new IfParser<TInput, TOutput>(predicate, parser);
 
+        /// <summary>
+        /// Parses with the given parser, inverting the result so Success becomes Failure and Failure becomes
+        /// Success. Consumes input but returns no output. Will probably be used by Positive- or
+        /// Negative-lookahead or If.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p1"></param>
+        /// <returns></returns>
         public static IParser<TInput> Not<TInput>(this IParser<TInput> p1)
             => new NotParser<TInput>(p1);
 
+        /// <summary>
+        /// Attempts to parse with each parser successively, returning Success if any parser succeeds
+        /// or Failure if none do. Consumes input but returns no output. Will probably be used by
+        /// Positive- or Negative-lookahed or If
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p1"></param>
+        /// <param name="parsers"></param>
+        /// <returns></returns>
         public static IParser<TInput> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
             => new OrParser<TInput>(new[] { p1 }.Concat(parsers).ToArray());
 
         /// <summary>
-        /// If the predicate succeeds, invoke the parser
+        /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
+        /// parse with the given parser. This is the same operation as If with different order of operands.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

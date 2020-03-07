@@ -4,6 +4,11 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
+    /// <summary>
+    /// Tests several parsers sequentially, returning Success if any parser succeeds, Failure
+    /// otherwise. Consumes input but returns no explicit output.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public class OrParser<TInput> : IParser<TInput, object>
     {
         private readonly IReadOnlyList<IParser<TInput>> _parsers;
@@ -36,6 +41,8 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
+            // We shouldn't need a window here. Any parsers which fail won't consume input
+            // and the one parser which might succeed will consume it's input
             foreach (var parser in _parsers)
             {
                 var result = parser.ParseUntyped(t);

@@ -1,8 +1,14 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
+    /// <summary>
+    /// Invokes a parser and inverses the result. If the parser succeeds, return Failure. Otherwise
+    /// returns Success. Consumes no input in either case and returns no output.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public class NotParser<TInput> : IParser<TInput, object>
     {
         private readonly IParser<TInput> _inner;
@@ -27,9 +33,14 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
-            var result1 = _inner.ParseUntyped(t);
+            var window = t.Window();
+            var result1 = _inner.ParseUntyped(window);
             if (result1.Success)
+            {
+                window.Rewind();
                 return new FailResult<object>(t.CurrentLocation);
+            }
+
             return new SuccessResult<object>(null, result1.Location);
         }
     }

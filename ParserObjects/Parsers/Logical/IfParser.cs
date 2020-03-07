@@ -32,7 +32,7 @@ namespace ParserObjects.Parsers.Logical
 
         private bool TestPredicate(ISequence<TInput> t)
         {
-            var window = new WindowSequence<TInput>(t);
+            var window = t.Window();
             var result = _predicate.ParseUntyped(window);
             window.Rewind();
             bool predicatePassed = result.Success;

@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
 {
+    /// <summary>
+    /// Tests several parsers sequentially. If all of them succeed return Success. If any Fail, return
+    /// Failure. Consumes input but returns no explicit output.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public class AndParser<TInput> : IParser<TInput, object>
     {
         private readonly IReadOnlyList<IParser<TInput>> _parsers;
@@ -36,14 +40,18 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<object> ParseUntyped(ISequence<TInput> t)
         {
+            var window = t.Window();
             foreach (var parser in _parsers)
             {
-                var result = parser.ParseUntyped(t);
+                var result = parser.ParseUntyped(window);
                 if (!result.Success)
-                    return new FailResult<object>(t.CurrentLocation);
+                {
+                    window.Rewind();
+                    return new FailResult<object>(window.CurrentLocation);
+                }
             }
 
-            return new SuccessResult<object>(null, t.CurrentLocation);
+            return new SuccessResult<object>(null, window.CurrentLocation);
         }
     }
 }
