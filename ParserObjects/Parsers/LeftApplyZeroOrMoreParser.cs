@@ -58,9 +58,8 @@ namespace ParserObjects.Parsers
             get => _name;
             set
             {
-                // TODO: Find a good way to test this
                 _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? null : _name + ".Left";
+                _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
             }
         }
 

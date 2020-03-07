@@ -69,7 +69,7 @@ namespace ParserObjects
     /// A parser which has an in-place replaceable child. Used to identify parsers which can participate in
     /// certain find/replace operations
     /// </summary>
-    public interface IReplaceableParserUntyped
+    public interface IReplaceableParserUntyped : IParser
     {
         /// <summary>
         /// The child parser which can be replaced without cloning

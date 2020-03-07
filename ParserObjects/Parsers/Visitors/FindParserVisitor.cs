@@ -4,84 +4,121 @@ using System.Linq;
 
 namespace ParserObjects.Parsers.Visitors
 {
+    /// <summary>
+    /// Parser-visitor type to traverse the parser tree and find matching parser nodes.
+    /// </summary>
     public class FindParserVisitor
     {
-        private readonly Func<IParser, bool> _predicate;
-        private readonly bool _justOne;
-        private readonly IList<IParser> _found;
-        private readonly ICollection<IParser> _seen;
-
-        private bool _canStop;
-
-        public FindParserVisitor(Func<IParser, bool> predicate, bool justOne)
+        private class State
         {
-            _predicate = predicate;
-            _justOne = justOne;
-            _canStop = false;
-            _found = new List<IParser>();
-            _seen = new HashSet<IParser>();
+            public Func<IParser, bool> Predicate { get; }
+            public bool JustOne { get; }
+            public IList<IParser> Found { get; }
+            public ICollection<IParser> Seen { get; }
+
+            public bool CanStop { get; set;  }
+
+            public State(Func<IParser, bool> predicate, bool justOne)
+            {
+                Predicate = predicate;
+                JustOne = justOne;
+                CanStop = false;
+                Found = new List<IParser>();
+                Seen = new HashSet<IParser>();
+            }
         }
 
+        /// <summary>
+        /// Search for a parser with the given Name. Returns only the first result in case of duplicates
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="root"></param>
+        /// <returns></returns>
         public static IParser Named(string name, IParser root)
         {
-            var visitor = new FindParserVisitor(p => p.Name == name, true);
-            visitor.Visit(root);
-            return visitor._found.FirstOrDefault();
+            var visitor = new FindParserVisitor();
+            var state = new State(p => p.Name == name, true);
+            visitor.Visit(root, state);
+            return state.Found.FirstOrDefault();
         }
 
+        /// <summary>
+        /// Search for all parsers of the given type. Returns all results.
+        /// </summary>
+        /// <typeparam name="TParser"></typeparam>
+        /// <param name="root"></param>
+        /// <returns></returns>
         public static IReadOnlyList<TParser> OfType<TParser>(IParser root)
             where TParser : IParser
         {
-            var visitor = new FindParserVisitor(p => p is TParser, false);
-            visitor.Visit(root);
-            return visitor._found.Cast<TParser>().ToList();
+            var visitor = new FindParserVisitor();
+            var state = new State(p => p is TParser, false);
+            visitor.Visit(root, state);
+            return state.Found.Cast<TParser>().ToList();
         }
 
-        public static bool Replace(IParser root, Func<IParser, bool> predicate, IParser replacement)
+        /// <summary>
+        /// Search for ReplaceableParsers matching a predicate and attempt to replace their contents with the
+        /// replacement parser if it is found. The replacement parser must be non-null and of the correct
+        /// type. Replaces all matching instances.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="predicate"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        public static bool Replace(IParser root, Func<IReplaceableParserUntyped, bool> predicate, IParser replacement)
         {
             if (root == null || predicate == null || replacement == null)
                 return false;
-            var visitor = new FindParserVisitor(p => p is IReplaceableParserUntyped && predicate(p), true);
-            visitor.Visit(root);
-            foreach (var found in visitor._found.Cast<IReplaceableParserUntyped>())
+            var visitor = new FindParserVisitor();
+            var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
+            visitor.Visit(root, state);
+            foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
                 found.SetParser(replacement);
             return true;
         }
 
+        /// <summary>
+        /// Search for ReplaceableParsers with the given name and attempt to replace their contents with the
+        /// replacement parser. The replacement parser must be non-null and of the correct type. Replaces
+        /// all matching instances.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
         public static bool Replace(IParser root, string name, IParser replacement) 
             => Replace(root, p => p.Name == name, replacement);
 
-        public IParser Visit(IParser parser)
+        private void Visit(IParser parser, State state)
         {
             if (parser == null)
-                return null;
-            return VisitInternal(parser);
+                return;
+            VisitInternal(parser, state);
         }
 
-        private IParser VisitInternal(IParser parser)
+        private void VisitInternal(IParser parser, State state)
         {
-            if (_canStop || _seen.Contains(parser))
-                return parser;
+            if (state.CanStop || state.Seen.Contains(parser))
+                return;
+            state.Seen.Add(parser);
 
-            _seen.Add(parser);
-            if (_predicate(parser))
+            if (state.Predicate(parser))
             {
-                _found.Add(parser);
-                if (_justOne)
+                state.Found.Add(parser);
+                if (state.JustOne)
                 {
-                    _canStop = true;
-                    return parser;
+                    state.CanStop = true;
+                    return;
                 }
             }
 
             foreach (var child in parser.GetChildren())
             {
-                VisitInternal(child);
-                if (_canStop)
+                VisitInternal(child, state);
+                if (state.CanStop)
                     break;
             }
-
-            return parser;
         }
     }
 }
