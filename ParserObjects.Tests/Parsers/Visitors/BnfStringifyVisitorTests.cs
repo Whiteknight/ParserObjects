@@ -181,7 +181,6 @@ namespace ParserObjects.Tests.Parsers.Visitors
                 )
                 .Named("parser");
             var result = parser.ToBnf();
-            // TODO: I don't like relying on the exact ordering of a dictionary
             result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
         }
     }

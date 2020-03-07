@@ -26,6 +26,11 @@ namespace ParserObjects
         /// <returns></returns>
         IParseResult<TResult> Get(ISequence<TKey> keys);
 
+        /// <summary>
+        /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so
+        /// the results should be cached if possible.
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<IReadOnlyList<TKey>> GetAllPatterns();
     }
 

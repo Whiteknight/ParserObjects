@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -106,6 +107,38 @@ namespace ParserObjects.Tests.Utility
             target.Get(new StringCharacterSequence("abX")).Success.Should().BeFalse();
             target.Get(new StringCharacterSequence("aXc")).Success.Should().BeFalse();
             target.Get(new StringCharacterSequence("Xbc")).Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Char_Int_GetAllPatterns()
+        {
+            var target = new InsertOnlyTrie<char, int>();
+            target.Add("abc", 1);
+            target.Add("abd", 2);
+            target.Add("aef", 3);
+            target.Add("aeg", 4);
+            target.Add("hij", 5);
+
+            var result = target.GetAllPatterns().ToList();
+            result.Count.Should().Be(5);
+            result[0].Should().BeEquivalentTo('a', 'b', 'c');
+            result[1].Should().BeEquivalentTo('a', 'b', 'd');
+            result[2].Should().BeEquivalentTo('a', 'e', 'f');
+            result[3].Should().BeEquivalentTo('a', 'e', 'g');
+            result[4].Should().BeEquivalentTo('h', 'i', 'j');
+        }
+
+        [Test]
+        public void Char_Int_GetAllPatterns_Duplicate()
+        {
+            var target = new InsertOnlyTrie<char, int>();
+            target.Add("abc", 1);
+            target.Add("abc", 1);
+            target.Add("abc", 1);
+
+            var result = target.GetAllPatterns().ToList();
+            result.Count.Should().Be(1);
+            result[0].Should().BeEquivalentTo('a', 'b', 'c');
         }
     }
 }

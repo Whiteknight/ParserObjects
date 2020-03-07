@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects.Utility
@@ -11,24 +10,28 @@ namespace ParserObjects.Utility
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public class InsertOnlyTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>, IInsertableTrie<TKey, TResult>
+    public class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResult>
     {
         // TODO: Ability to return a list of all contained sequences for serialization
 
         private readonly Node _root;
+        private readonly List<IReadOnlyList<TKey>> _patterns;
 
         public InsertOnlyTrie()
         {
             _root = new Node();
+            _patterns = new List<IReadOnlyList<TKey>>();
         }
 
         public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
         {
             var current = _root;
-            foreach (var key in keys)
+            var keyList = keys.ToList();
+            foreach (var key in keyList)
                 current = current.GetOrAdd(key);
 
-            current.TryAddResult(result);
+            if (current.TryAddResult(result))
+                _patterns.Add(keyList);
             return this;
         }
 
@@ -47,14 +50,7 @@ namespace ParserObjects.Utility
 
         public IParseResult<TResult> Get(ISequence<TKey> keys) => _root.Get(keys);
 
-        public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns()
-        {
-            var stack = new Stack<TKey>();
-            var results = new List<IReadOnlyList<TKey>>();
-            _root.GetAllPatterns(stack, results);
-            Debug.Assert(stack.Count == 0);
-            return results;
-        }
+        public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 
         private class Node
         {
@@ -111,31 +107,19 @@ namespace ParserObjects.Utility
                 return newNode;
             }
 
-            public void TryAddResult(TResult result)
+            public bool TryAddResult(TResult result)
             {
                 if (!HasResult)
                 {
                     HasResult = true;
                     Result = result;
-                    return;
+                    return true;
                 }
 
                 if (Result.Equals(result))
-                    return;
+                    return false;
 
                 throw new Exception("The result value has already been set for this input sequence");
-            }
-
-            public void GetAllPatterns(Stack<TKey> current, List<IReadOnlyList<TKey>> results)
-            {
-                if (HasResult)
-                    results.Add(current.Reverse().ToArray());
-                foreach (var child in _children)
-                {
-                    current.Push(child.Key);
-                    child.Value.GetAllPatterns(current, results);
-                    current.Pop();
-                }
             }
         }
     }
