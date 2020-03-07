@@ -41,7 +41,7 @@ namespace ParserObjects.Parsers.Visitors
 
         private void Visit(IParser parser, State state)
         {
-            // Top-level sb, we'll be throwing this away
+            // Top-level sb
             state.Current = new StringBuilder();
             VisitChild(parser, state);
         }
@@ -115,7 +115,7 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput>(AnyParser<TInput> p, State state)
         {
-            state.Current.Append("ANY");
+            state.Current.Append(".");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
@@ -126,7 +126,7 @@ namespace ParserObjects.Parsers.Visitors
         protected virtual void VisitTyped<TInput>(EmptyParser<TInput> p, State state)
         {
             // TODO: Would like to output lower-case epsilon, which is the usual symbol
-            state.Current.Append("EMPTY");
+            state.Current.Append("()");
         }
 
         protected virtual void VisitTyped<TInput>(EndParser<TInput> p, State state)
@@ -195,9 +195,9 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput>(NegativeLookaheadParser<TInput> p, State state)
         {
-            // TODO: What's the right symbol to use for this?
-            state.Current.Append("!");
+            state.Current.Append("(?! ");
             VisitChild(p.GetChildren().First(), state);
+            state.Current.Append(" )");
         }
 
         protected virtual void VisitTyped<TInput>(OrParser<TInput> p, State state)
@@ -210,14 +210,14 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)
         {
-            // TODO: What's the right symbol to use for this?
-            state.Current.Append("+");
+            state.Current.Append("(?= ");
             VisitChild(p.GetChildren().First(), state);
+            state.Current.Append(" )");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(ProduceParser<TInput, TOutput> p, State state)
         {
-            state.Current.Append("EMPTY");
+            state.Current.Append("PRODUCE");
         }
 
         protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
