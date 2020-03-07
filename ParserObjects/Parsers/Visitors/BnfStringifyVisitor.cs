@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Parsers.Logical;
@@ -39,6 +40,8 @@ namespace ParserObjects.Parsers.Visitors
         {
             if (parser == null)
                 return;
+
+            // If we have already seen this parser, just put in a tag to represent it
             if (_seen.Contains(parser))
             {
                 if (!string.IsNullOrEmpty(parser.Name))
@@ -52,26 +55,28 @@ namespace ParserObjects.Parsers.Visitors
                 _current.Append("<ALREADY SEEN UNNAMED PARSER>");
                 return;
             }
-
             _seen.Add(parser);
 
+            // If the parser doesn't have a name, recursively visit it in-place
             if (string.IsNullOrEmpty(parser.Name))
             {
                 ((dynamic)this).VisitTyped((dynamic)parser);
                 return;
             }
 
-            // 1. Append a tag to the current builder
+            // If the parser does have a name, write a tag for it
             _current.Append("<");
             _current.Append(parser.Name);
             _current.Append(">");
 
-            // 2. Start a new builder to write out the child rule
+            // Start a new builder, so we can start stringifying this new parser on it's own line.
             _history.Push(_current);
             _current = new StringBuilder();
+
+            // Visit the parser recursively to fill in the builder
             ((dynamic)this).VisitTyped((dynamic)parser);
 
-            // 3. Write the child rule to the overall builder, then pop it
+            // Append the current builder to the overall builder
             var rule = _current.ToString();
             if (!string.IsNullOrEmpty(rule))
             {
@@ -86,7 +91,7 @@ namespace ParserObjects.Parsers.Visitors
         // fallback method if a better match can't be found
         protected virtual void VisitTyped(IParser p)
         {
-            Console.WriteLine($"No override match found for {p.GetType().Name}");
+            Debug.WriteLine($"No override match found for {p.GetType().Name}");
             _current.Append("UNSUPPORTED_TYPE");
         }
 
@@ -147,11 +152,13 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(LeftApplyZeroOrMoreParser<TInput, TOutput> p)
         {
-            // TODO: Find a better way to represent this in the generated BNF
             var children = p.GetChildren().ToArray();
-            VisitChild(children[0]);
-            _current.Append(" => ");
-            VisitChild(children[1]);
+            var initial = children[0];
+            var middle = children[1];
+            _current.Append($"<{p.Name ?? "SELF"}> ");
+            VisitChild(middle);
+            _current.Append(" | ");
+            VisitChild(initial);
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(ListParser<TInput, TOutput> p)
@@ -213,12 +220,11 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput> p)
         {
-            // TODO: What's the correct notation for this?
             var children = p.GetChildren().ToArray();
             VisitChild(children[0]);
             _current.Append(" (");
             VisitChild(children[1]);
-            _current.Append($" <{p.Name ?? "SELF"}>!)");
+            _current.Append($" <{p.Name ?? "SELF"}>)*");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(RuleParser<TInput, TOutput> p)
