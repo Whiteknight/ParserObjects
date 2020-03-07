@@ -499,12 +499,12 @@ namespace ParserObjects.Parsers
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
-        /// <param name="trie"></param>
+        /// <param name="readOnlyTrie"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(ITrie<TInput, TOutput> trie)
-            => new TrieParser<TInput, TOutput>(trie);
+        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
+            => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
-        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(Action<ITrie<TInput, TOutput>> setupTrie)
+        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
         {
             var trie = new InsertOnlyTrie<TInput, TOutput>();
             setupTrie?.Invoke(trie);

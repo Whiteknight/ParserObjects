@@ -170,5 +170,19 @@ namespace ParserObjects.Tests.Parsers.Visitors
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. .)");
         }
+
+        [Test]
+        public void ToBnf_Trie()
+        {
+            var parser = Trie<char, string>(trie => trie
+                    .Add("abc")
+                    .Add("abd")
+                    .Add("xyz")
+                )
+                .Named("parser");
+            var result = parser.ToBnf();
+            // TODO: I don't like relying on the exact ordering of a dictionary
+            result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
+        }
     }
 }

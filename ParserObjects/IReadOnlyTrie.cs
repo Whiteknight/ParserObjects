@@ -9,18 +9,8 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public interface ITrie<TKey, TResult>
+    public interface IReadOnlyTrie<TKey, out TResult>
     {
-        // TODO: Should we try to separate the read/write bits into separate interfaces, since we don't need both at the same time?
-
-        /// <summary>
-        /// Given a composite key and a value, insert the value at the location described by the key
-        /// </summary>
-        /// <param name="keys"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        ITrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result);
-
         /// <summary>
         /// Given a composite key, search for a value at that location in the trie
         /// </summary>
@@ -35,6 +25,19 @@ namespace ParserObjects
         /// <param name="keys"></param>
         /// <returns></returns>
         IParseResult<TResult> Get(ISequence<TKey> keys);
+
+        IEnumerable<IReadOnlyList<TKey>> GetAllPatterns();
+    }
+
+    public interface IInsertableTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>
+    {
+        /// <summary>
+        /// Given a composite key and a value, insert the value at the location described by the key
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result);
     }
 
     public static class TrieExtensions
@@ -44,36 +47,36 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TResult"></typeparam>
-        /// <param name="trie"></param>
+        /// <param name="readOnlyTrie"></param>
         /// <returns></returns>
-        public static IParser<TKey, TResult> ToParser<TKey, TResult>(this ITrie<TKey, TResult> trie)
-            => new TrieParser<TKey, TResult>(trie);
+        public static IParser<TKey, TResult> ToParser<TKey, TResult>(this IReadOnlyTrie<TKey, TResult> readOnlyTrie)
+            => new TrieParser<TKey, TResult>(readOnlyTrie);
 
         /// <summary>
         /// Convenience method to add a string value with char keys
         /// </summary>
-        /// <param name="trie"></param>
+        /// <param name="readOnlyTrie"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static ITrie<char, string> Add(this ITrie<char, string> trie, string value)
+        public static IInsertableTrie<char, string> Add(this IInsertableTrie<char, string> readOnlyTrie, string value)
         {
-            Assert.ArgumentNotNull(trie, nameof(trie));
-            return trie.Add(value, value);
+            Assert.ArgumentNotNull(readOnlyTrie, nameof(readOnlyTrie));
+            return readOnlyTrie.Add(value, value);
         }
 
         /// <summary>
         /// Convenience method to add strings to the trie with char keys
         /// </summary>
-        /// <param name="trie"></param>
+        /// <param name="readOnlyTrie"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static ITrie<char, string> AddMany(this ITrie<char, string> trie, params string[] values)
+        public static IInsertableTrie<char, string> AddMany(this IInsertableTrie<char, string> readOnlyTrie, params string[] values)
         {
-            Assert.ArgumentNotNull(trie, nameof(trie));
+            Assert.ArgumentNotNull(readOnlyTrie, nameof(readOnlyTrie));
             Assert.ArgumentNotNull(values, nameof(values));
             foreach (var value in values)
-                trie.Add(value, value);
-            return trie;
+                readOnlyTrie.Add(value, value);
+            return readOnlyTrie;
         }
     }
 }

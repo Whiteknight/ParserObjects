@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace ParserObjects.Utility
 {
@@ -9,7 +11,7 @@ namespace ParserObjects.Utility
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public class InsertOnlyTrie<TKey, TResult> : ITrie<TKey, TResult>
+    public class InsertOnlyTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>, IInsertableTrie<TKey, TResult>
     {
         // TODO: Ability to return a list of all contained sequences for serialization
 
@@ -20,7 +22,7 @@ namespace ParserObjects.Utility
             _root = new Node();
         }
 
-        public ITrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
+        public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
         {
             var current = _root;
             foreach (var key in keys)
@@ -44,6 +46,15 @@ namespace ParserObjects.Utility
         }
 
         public IParseResult<TResult> Get(ISequence<TKey> keys) => _root.Get(keys);
+
+        public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns()
+        {
+            var stack = new Stack<TKey>();
+            var results = new List<IReadOnlyList<TKey>>();
+            _root.GetAllPatterns(stack, results);
+            Debug.Assert(stack.Count == 0);
+            return results;
+        }
 
         private class Node
         {
@@ -113,6 +124,18 @@ namespace ParserObjects.Utility
                     return;
 
                 throw new Exception("The result value has already been set for this input sequence");
+            }
+
+            public void GetAllPatterns(Stack<TKey> current, List<IReadOnlyList<TKey>> results)
+            {
+                if (HasResult)
+                    results.Add(current.Reverse().ToArray());
+                foreach (var child in _children)
+                {
+                    current.Push(child.Key);
+                    child.Value.GetAllPatterns(current, results);
+                    current.Pop();
+                }
             }
         }
     }

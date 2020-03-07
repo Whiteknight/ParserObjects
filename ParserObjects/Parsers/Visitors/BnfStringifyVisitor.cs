@@ -262,8 +262,24 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(TrieParser<TInput, TOutput> p, State state)
         {
-            // TODO: Iterate all entries in the Trie and output each
-            // TODO: Should output with the same syntax as First
+            var allPatterns = p.Trie.GetAllPatterns().ToList();
+            if (allPatterns.Count == 0)
+                return;
+
+            void PrintPattern(IEnumerable<TInput> pattern, State s)
+            {
+                s.Current.Append("(");
+                s.Current.Append(string.Join(" ", pattern.Select(item => $"'{item}'")));
+                s.Current.Append(")");
+            }
+
+            PrintPattern(allPatterns[0], state);
+
+            foreach (var pattern in allPatterns.Skip(1))
+            {
+                state.Current.Append(" | ");
+                PrintPattern(pattern, state);
+            }
         }
     }
 }
