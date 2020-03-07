@@ -6,7 +6,7 @@ namespace ParserObjects.Parsers.Specialty
     public static class CPlusPlusStyleParserMethods
     {
         /// <summary>
-        /// C++-style comment //...
+        /// C++-style comment '//' ...
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;

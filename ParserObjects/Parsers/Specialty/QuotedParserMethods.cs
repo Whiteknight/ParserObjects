@@ -3,7 +3,6 @@ using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
 {
-    // TODO: Clean this up to use Lazy
     public static class QuotedParserMethods
     {
         /// <summary>
@@ -36,8 +35,8 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> DelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
         {
-            var escapedClose = escapeStr.ToString() + closeStr.ToString();
-            var escapedEscape = escapeStr.ToString() + escapeStr.ToString();
+            var escapedClose = $"{escapeStr}{closeStr}";
+            var escapedEscape = $"{escapeStr}{escapeStr}";
             var bodyChar = First(
                 Match<char>(escapedClose).Transform(c => escapedClose),
                 Match<char>(escapedEscape).Transform(c => escapedEscape),
@@ -82,8 +81,8 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> StrippedDelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
         {
-            var escapedClose = escapeStr.ToString() + closeStr.ToString();
-            var escapedEscape = escapeStr.ToString() + escapeStr.ToString();
+            var escapedClose = $"{escapeStr}{closeStr}";
+            var escapedEscape = $"{escapeStr}{escapeStr}";
             var bodyChar = First(
                 Match<char>(escapedClose).Transform(s => closeStr),
                 Match<char>(escapedEscape).Transform(s => escapeStr),

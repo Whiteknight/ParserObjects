@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers.Specialty
     public static class JavaScriptStyleParserMethods
     {
         /// <summary>
-        /// JavaScript-style number literal, returned as a double
+        /// JavaScript-style number literal, returned as a string
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> NumberString() => _numberString.Value;
@@ -69,6 +69,10 @@ namespace ParserObjects.Parsers.Specialty
             }
         );
 
+        /// <summary>
+        /// JavaScript-style number literal returned as a parsed Double
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, double> Number() => _number.Value;
         private static readonly Lazy<IParser<char, double>> _number = new Lazy<IParser<char, double>>(
             () => NumberString()

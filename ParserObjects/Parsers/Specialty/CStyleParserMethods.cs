@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers.Specialty
     public static class CStyleParserMethods
     {
         /// <summary>
-        /// C-style comment with /* ...  */ delimiters
+        /// C-style comment with '/*' ... '*/' delimiters
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;
@@ -29,6 +29,10 @@ namespace ParserObjects.Parsers.Specialty
             }
         );
 
+        /// <summary>
+        /// C-style hexadecimal literal returned as a string
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
         private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
             () => (Match<char>("0x"), DigitParserMethods.HexadecimalString())
@@ -37,7 +41,7 @@ namespace ParserObjects.Parsers.Specialty
         );
 
         /// <summary>
-        /// C-style hexadecimal literal
+        /// C-style hexadecimal literal returned as a parsed integer
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> HexadecimalInteger() => _hexInteger.Value;
@@ -48,6 +52,10 @@ namespace ParserObjects.Parsers.Specialty
                 .Named("C-Style Hex Literal")
         );
 
+        /// <summary>
+        /// C-style integer literal returned as a string
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> IntegerString() => _integerString.Value;
 
         private static readonly Lazy<IParser<char, string>> _integerString = new Lazy<IParser<char, string>>(
@@ -65,7 +73,7 @@ namespace ParserObjects.Parsers.Specialty
         );
 
         /// <summary>
-        /// C-style Integer literal
+        /// C-style Integer literal returned as a parsed Int32
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> Integer() => _integer.Value;
@@ -76,6 +84,10 @@ namespace ParserObjects.Parsers.Specialty
                 .Named("C-Style Integer Literal")
         );
 
+        /// <summary>
+        /// C-style Double literal returned as a string
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> DoubleString() => _doubleString.Value;
 
         private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
@@ -84,7 +96,7 @@ namespace ParserObjects.Parsers.Specialty
                 .Named("C-Style Double String"));
 
         /// <summary>
-        /// C-style float/double literal
+        /// C-style float/double literal returned as a parsed Double
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> Double() => _double.Value;

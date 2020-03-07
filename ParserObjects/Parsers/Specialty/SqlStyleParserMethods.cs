@@ -6,7 +6,7 @@ namespace ParserObjects.Parsers.Specialty
     public static class SqlStyleParserMethods
     {
         /// <summary>
-        /// SQL-style comment --....
+        /// SQL-style comment '--' ....
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;
