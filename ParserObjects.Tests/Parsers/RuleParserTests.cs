@@ -25,7 +25,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("ab");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_2_Test()
         {
@@ -51,7 +50,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abc");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_3_Test()
         {
@@ -134,7 +132,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abcdef");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_6_Test()
         {
@@ -164,7 +161,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abcdefg");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_7_Test()
         {
@@ -195,7 +191,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abcdefgh");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_8_Test()
         {
@@ -228,7 +223,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abcdefghi");
         }
 
-        // TODO: We need tests for various Tuple.Produce() variants
         [Test]
         public void ValueTuple_Produce_9_Test()
         {

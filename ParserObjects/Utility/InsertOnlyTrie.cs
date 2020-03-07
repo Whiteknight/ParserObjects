@@ -12,8 +12,6 @@ namespace ParserObjects.Utility
     /// <typeparam name="TResult"></typeparam>
     public class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResult>
     {
-        // TODO: Ability to return a list of all contained sequences for serialization
-
         private readonly Node _root;
         private readonly List<IReadOnlyList<TKey>> _patterns;
 

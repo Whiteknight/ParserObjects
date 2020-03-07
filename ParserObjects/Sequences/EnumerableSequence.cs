@@ -43,9 +43,6 @@ namespace ParserObjects.Sequences
         public void PutBack(T value)
         {
             _putbacks.Push(value);
-            _index--;
-            if (_index < 0)
-                _index = 0;
         }
 
         public T GetNext()

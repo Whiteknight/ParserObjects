@@ -9,17 +9,17 @@ namespace ParserObjects.Sequences
     public class FilterSequence<T> : ISequence<T>
     {
         private readonly ISequence<T> _inputs;
-        private readonly Func<T, bool> _filter;
+        private readonly Func<T, bool> _predicate;
 
-        public FilterSequence(ISequence<T> inputs, Func<T, bool> filter)
+        public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
         {
             _inputs = inputs;
-            _filter = filter;
+            _predicate = predicate;
         }
 
         public void PutBack(T value)
         {
-            if (_filter(value))
+            if (_predicate(value))
                 _inputs.PutBack(value);
         }
 
@@ -53,7 +53,7 @@ namespace ParserObjects.Sequences
                 if (_inputs.IsAtEnd)
                     return;
                 var next = _inputs.GetNext();
-                if (!_filter(next))
+                if (!_predicate(next))
                     continue;
                 _inputs.PutBack(next);
                 return;

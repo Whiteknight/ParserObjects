@@ -125,7 +125,6 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput>(EmptyParser<TInput> p, State state)
         {
-            // TODO: Would like to output lower-case epsilon, which is the usual symbol
             state.Current.Append("()");
         }
 

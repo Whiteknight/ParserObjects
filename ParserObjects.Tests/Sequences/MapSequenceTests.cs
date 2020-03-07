@@ -52,5 +52,29 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
         }
+
+        [Test]
+        public void Location_Test()
+        {
+            var target = new MapSequence<int, int>(
+                new EnumerableSequence<int>(
+                    new[] { 1, 2, 3 },
+                    () => 0
+                ),
+                x => x
+            );
+            target.GetNext().Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+            target.GetNext().Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(2);
+            target.PutBack(2);
+            target.CurrentLocation.Column.Should().Be(1);
+            target.GetNext().Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(2);
+            target.GetNext().Should().Be(3);
+            target.CurrentLocation.Column.Should().Be(3);
+            target.GetNext().Should().Be(0);
+            target.CurrentLocation.Column.Should().Be(3);
+        }
     }
 }
