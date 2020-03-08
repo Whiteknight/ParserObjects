@@ -72,6 +72,23 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetRemainder_Empty()
+        {
+            var target = new StringCharacterSequence("");
+            target.GetRemainder().Should().Be("");
+        }
+
+        [Test]
+        public void GetRemainder_End()
+        {
+            var target = new StringCharacterSequence("abc");
+            target.GetNext();
+            target.GetNext();
+            target.GetNext();
+            target.GetRemainder().Should().Be("");
+        }
+
+        [Test]
         public void GetRemainder_OnePutback()
         {
             // We have a small optimization in for this case, so I'm adding a test for it
@@ -100,6 +117,116 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
             target.GetNext().Should().Be('\0');
             target.GetNext().Should().Be('\0');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_WindowsNewlines()
+        {
+            var target = new StringCharacterSequence("\n\ra\n\r");
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_UnixNewlines()
+        {
+            var target = new StringCharacterSequence("\na\n");
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_OldMacNewlines()
+        {
+            var target = new StringCharacterSequence("\ra\r");
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Peek_WindowsNewlines()
+        {
+            var target = new StringCharacterSequence("\n\ra\n\r");
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('\0');
+        }
+
+        [Test]
+        public void Peek_UnixNewlines()
+        {
+            var target = new StringCharacterSequence("\na\n");
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('\0');
+        }
+
+        [Test]
+        public void Peek_OldMacNewlines()
+        {
+            var target = new StringCharacterSequence("\ra\r");
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('\0');
+        }
+
+        [Test]
+        public void PutBack_WindowsNewlines()
+        {
+            var target = new StringCharacterSequence("");
+            target.PutBack('\r');
+            target.PutBack('\n');
+            target.PutBack('a');
+            target.PutBack('\r');
+            target.PutBack('\n');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void PutBack_UnixNewlines()
+        {
+            var target = new StringCharacterSequence("");
+            target.PutBack('\n');
+            target.PutBack('a');
+            target.PutBack('\n');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void PutBack_OldMacNewlines()
+        {
+            var target = new StringCharacterSequence("");
+            target.PutBack('\r');
+            target.PutBack('a');
+            target.PutBack('\r');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
     }

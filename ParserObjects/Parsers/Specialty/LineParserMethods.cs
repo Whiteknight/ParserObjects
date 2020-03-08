@@ -12,7 +12,7 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, string> PrefixedLine(string prefix)
         {
             // We should cache this, in a dictionary by prefix
-            var notNewlineChar = Match<char>(c => c != '\r' && c != '\n');
+            var notNewlineChar = Match<char>(c => c != '\n');
             if (string.IsNullOrEmpty(prefix))
                 return notNewlineChar.ListCharToString();
 

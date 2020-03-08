@@ -44,6 +44,7 @@ namespace ParserObjects.Sequences
             _bufferIndex = BufferSize;
             _buffer = new char[BufferSize];
             _reader = reader;
+            _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
         public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null)
@@ -53,21 +54,26 @@ namespace ParserObjects.Sequences
             _bufferIndex = BufferSize;
             _buffer = new char[BufferSize];
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
+            _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
         public char GetNext()
         {
-            var c = GetNextCharRaw();
+            var c = GetNextCharRaw(true);
             if (c == '\0')
                 return c;
+            if (c == '\r')
+                c = '\n';
+            else if (c == '\n' && GetNextCharRaw(false) == '\r')
+                GetNextCharRaw(true);
+
+            _column++;
             if (c == '\n')
             {
                 _line++;
-                _previousEndOfLineColumns.Add(_column);
+                _previousEndOfLineColumns.Add(_column - 1);
                 _column = 0;
             }
-            else
-                _column++;
 
             return c;
         }
@@ -87,10 +93,9 @@ namespace ParserObjects.Sequences
 
         public char Peek()
         {
-            if (_putbacks.Count > 0)
-                return _putbacks.Peek();
-            var next = GetNext();
-            PutBack(next);
+            var next = GetNextCharRaw(false);
+            if (next == '\r')
+                next = '\n';
             return next;
         }
 
@@ -102,24 +107,30 @@ namespace ParserObjects.Sequences
             _reader?.Dispose();
         }
 
-        private char GetNextCharRaw()
+        private char GetNextCharRaw(bool advance)
         {
             if (_putbacks.Count > 0)
-                return _putbacks.Pop();
+                return advance ? _putbacks.Pop() : _putbacks.Peek();
             if (_isComplete)
                 return '\0';
-            if (_remainingChars == 0 || _bufferIndex >= BufferSize)
-                FillBuffer();
+            
+            FillBuffer();
             if (_isComplete || _remainingChars == 0 || _bufferIndex >= BufferSize)
                 return '\0';
             var c = _buffer[_bufferIndex];
-            _bufferIndex++;
-            _remainingChars--;
+            if (advance)
+            {
+                _bufferIndex++;
+                _remainingChars--;
+            }
+
             return c;
         }
 
         private void FillBuffer()
         {
+            if (_remainingChars != 0 && _bufferIndex < BufferSize)
+                return;
             _remainingChars = _reader.Read(_buffer, 0, BufferSize);
             if (_remainingChars == 0)
                 _isComplete = true;

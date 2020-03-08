@@ -10,7 +10,6 @@ namespace ParserObjects.Sequences
     /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {
-        // TODO: Newline characters should be configurable and platform-specific
         private const int MaxLineLengthsBufferSize = 5;
 
         private readonly string _fileName;
@@ -32,7 +31,17 @@ namespace ParserObjects.Sequences
 
         public char GetNext()
         {
-            var next = GetNextInternal();
+            var next = GetNextInternal(true);
+
+            // If \r replace with \n
+            // If \n\r advance through the \r
+            // We only return \n for newlines
+            if (next == '\r')
+                next = '\n';
+            else if (next == '\n' && GetNextInternal(false) == '\r')
+                GetNextInternal(true);
+
+            // If we have a newline, update the line-tracking.
             if (next == '\n')
             {
                 _line++;
@@ -41,15 +50,19 @@ namespace ParserObjects.Sequences
                 return next;
             }
 
+            // Bump column and return
             _column++;
             return next;
         }
 
-        private char GetNextInternal()
+        private char GetNextInternal(bool advance)
         {
             if (_putbacks.Any())
-                return _putbacks.Pop();
-            return _index >= _s.Length ? '\0' : _s[_index++];
+                return advance ? _putbacks.Pop() : _putbacks.Peek();
+            var value = _index >= _s.Length ? '\0' : _s[_index];
+            if (advance)
+                _index++;
+            return value;
         }
 
         public void PutBack(char value)
@@ -57,6 +70,7 @@ namespace ParserObjects.Sequences
             // '\0' is the end sentinel, we can't put it back or treat it like a valid value
             if (value == '\0')
                 return;
+            // If the user insists on PutBack('\r') our _line numbers can get screwed up
             if (value == '\n')
             {
                 _line--;
@@ -64,18 +78,19 @@ namespace ParserObjects.Sequences
                 _column = _previousEndOfLineColumns.GetCurrent();
             }
 
-            // TODO: If the putback is in the string, we should be able to just decrement
-            // the index
-            _putbacks.Push(value);
+            // Try to just decrement the pointer if we can, otherwise push it onto the putbacks.
+            if (_putbacks.Count == 0 && _index > 0 && _s[_index - 1] == value)
+                _index--;
+            else
+                _putbacks.Push(value);
         }
 
         public char Peek()
         {
-            if (_putbacks.Count > 0)
-                return _putbacks.Peek();
-            if (_index >= _s.Length)
-                return '\0';
-            return _s[_index];
+            var next = GetNextInternal(false);
+            if (next == '\r')
+                next = '\n';
+            return next;
         }
 
         public Location CurrentLocation => new Location(_fileName, _line, _column);
