@@ -30,12 +30,11 @@ namespace ParserObjects.Parsers.Visitors
             }
         }
 
-        public static string ToBnf(IParser parser)
+        public string ToBnf(IParser parser)
         {
-            var visitor = new BnfStringifyVisitor();
             var sb = new StringBuilder();
             var state = new State(sb);
-            visitor.Visit(parser, state);
+            Visit(parser, state);
             return sb.ToString();
         }
 

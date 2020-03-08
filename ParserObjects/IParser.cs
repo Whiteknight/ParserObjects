@@ -196,7 +196,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <returns></returns>
         public static string ToBnf(this IParser parser)
-            => BnfStringifyVisitor.ToBnf(parser);
+            => new BnfStringifyVisitor().ToBnf(parser);
 
         /// <summary>
         /// Convert a parser and it's input sequence into a new sequence of parse result values

@@ -45,4 +45,4 @@ using static ParserObjects.Parsers.ParserMethods;
 
 ## Current Status
 
-ParserObjects library is currently in active development. I am trying to get it ready for a stable 1.0 release.
+ParserObjects library is currently in active development. v0.4.x and above are candidates for a 1.0.0 release.
