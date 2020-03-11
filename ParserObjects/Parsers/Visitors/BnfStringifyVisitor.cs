@@ -15,6 +15,10 @@ namespace ParserObjects.Parsers.Visitors
     /// </summary>
     public class BnfStringifyVisitor
     {
+        // Uses a syntax inspired by W3C EBNF (https://www.w3.org/TR/REC-xml/#sec-notation) and Regex
+        // (for extensions beyond what EBNF normally handles). This NOT intended for round-trip operations
+        // or formal analysis purposes.
+
         public class State
         {
             public StringBuilder Builder { get; }
@@ -91,7 +95,8 @@ namespace ParserObjects.Parsers.Visitors
             {
                 state.Builder.Append(parser.Name);
                 state.Builder.Append(" := ");
-                state.Builder.AppendLine(state.Current.ToString());
+                state.Builder.Append(state.Current.ToString());
+                state.Builder.AppendLine(";");
             }
 
             state.Current = state.History.Pop();
@@ -139,7 +144,8 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(FirstParser<TInput, TOutput> p, State state)
         {
-            var children = p.GetChildren();
+            // TODO: If the last item in the list is an unnamed EmptyParser, we can output it as '?' instead of '| EMPTY'
+            var children = p.GetChildren().ToList();
             state.Current.Append("(");
             VisitChild(children.First(), state);
 
@@ -160,7 +166,6 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(LeftApplyZeroOrMoreParser<TInput, TOutput> p, State state)
         {
-            // TODO: Is there  a way to write this which isn't explicitly left-recursive?
             var children = p.GetChildren().ToArray();
             var initial = children[0];
             var middle = children[1];
@@ -181,8 +186,7 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput>(MatchPredicateParser<TInput> p, State state)
         {
-            // TODO: find a way to do something with this
-            //state.Current.Append("PREDICATE")
+            state.Current.Append("MATCH");
         }
 
         protected virtual void VisitTyped<TInput>(MatchSequenceParser<TInput> p, State state)
@@ -236,7 +240,7 @@ namespace ParserObjects.Parsers.Visitors
             VisitChild(children[0], state);
             state.Current.Append(" (");
             VisitChild(children[1], state);
-            state.Current.Append($" <{p.Name ?? "SELF"}>)*");
+            state.Current.Append(string.IsNullOrEmpty(p.Name) ? " SELF" : $" <{p.Name}>)*");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(RuleParser<TInput, TOutput> p, State state)
