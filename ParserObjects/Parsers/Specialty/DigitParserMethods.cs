@@ -12,7 +12,8 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, char> Digit() => _digit.Value;
         private static readonly Lazy<IParser<char, char>> _digit = new Lazy<IParser<char, char>>(
-            () => Match<char>(char.IsDigit).Named("digit"));
+            () => Match<char>(char.IsDigit).Named("digit")
+        );
 
         /// <summary>
         /// Parses a single non-zero digit 1-9
@@ -20,7 +21,8 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
         private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
-            () => Match<char>(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit"));
+            () => Match<char>(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
+        );
 
         /// <summary>
         /// Parses digits in series and returns them as a string
@@ -42,7 +44,7 @@ namespace ParserObjects.Parsers.Specialty
         );
 
         /// <summary>
-        /// Returns a sequence of hexadecimal digits and returns them as a string.
+        /// Returns a sequence of at least one hexadecimal digits and returns them as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
