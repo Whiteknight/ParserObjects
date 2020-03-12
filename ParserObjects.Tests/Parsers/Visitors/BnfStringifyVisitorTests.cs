@@ -40,7 +40,17 @@ namespace ParserObjects.Tests.Parsers.Visitors
         }
 
         [Test]
-        public void ToBnf_First()
+        public void ToBnf_First_1()
+        {
+            var parser = First(
+                Any<char>()
+            ).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_First_2()
         {
             var parser = First(
                 Any<char>(),
@@ -48,6 +58,30 @@ namespace ParserObjects.Tests.Parsers.Visitors
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. | .)");
+        }
+
+        [Test]
+        public void ToBnf_First_4()
+        {
+            var parser = First(
+                Any<char>(),
+                Any<char>(),
+                Any<char>(),
+                Any<char>()
+            ).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (. | . | . | .)");
+        }
+
+        [Test]
+        public void ToBnf_First_2_Optional()
+        {
+            var parser = First(
+                Any<char>(),
+                Produce<char, char>(() => '\0')
+            ).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (.)?");
         }
 
         [Test]

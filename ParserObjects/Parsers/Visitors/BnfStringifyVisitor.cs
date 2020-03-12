@@ -144,17 +144,35 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(FirstParser<TInput, TOutput> p, State state)
         {
-            // TODO: If the last item in the list is an unnamed EmptyParser, we can output it as '?' instead of '| EMPTY'
             var children = p.GetChildren().ToList();
+            if (children.Count == 1)
+            {
+                VisitChild(children.First(), state);
+                return;
+            }
+
             state.Current.Append("(");
             VisitChild(children.First(), state);
 
-            foreach (var child in children.Skip(1))
+            for (int i = 1; i <= children.Count - 2; i++)
             {
                 state.Current.Append(" | ");
-                VisitChild(child, state);
+                VisitChild(children[i], state);
             }
 
+            if (children.Count >= 2)
+            {
+                var last = children[children.Count - 1];
+                if (last is ProduceParser<TInput, TOutput>)
+                {
+                    state.Current.Append(")?");
+                    return;
+                }
+
+                state.Current.Append(" | ");
+                VisitChild(last, state);
+                
+            }
             state.Current.Append(")");
         }
 

@@ -126,7 +126,6 @@ namespace ParserObjects.Parsers
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<TInput, IReadOnlyList<TInput>> Match<TInput>(IEnumerable<TInput> pattern)
-        // TODO: If pattern.Count() == 1, we should be able to reduce to MatchPredicateParser instead.
             => new MatchSequenceParser<TInput>(pattern);
 
         /// <summary>
