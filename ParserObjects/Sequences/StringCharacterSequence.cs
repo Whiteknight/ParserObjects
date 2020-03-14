@@ -23,6 +23,7 @@ namespace ParserObjects.Sequences
 
         public StringCharacterSequence(string s, string fileName = null)
         {
+            Assert.ArgumentNotNull(s, nameof(s));
             _s = s;
             _fileName = fileName;
             _putbacks = new Stack<char>();

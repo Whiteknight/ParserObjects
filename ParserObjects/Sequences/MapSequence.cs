@@ -18,6 +18,8 @@ namespace ParserObjects.Sequences
 
         public MapSequence(ISequence<TInput> inputs, Func<TInput, TOutput> map)
         {
+            Assert.ArgumentNotNull(inputs, nameof(inputs));
+            Assert.ArgumentNotNull(map, nameof(map));
             _inputs = inputs;
             _map = map;
             _putbacks = new Stack<TOutput>();

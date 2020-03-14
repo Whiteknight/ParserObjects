@@ -28,6 +28,7 @@ namespace ParserObjects.Sequences
 
         public StreamCharacterSequence(string fileName, Encoding encoding = null)
         {
+            Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             _fileName = fileName;
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;
@@ -39,6 +40,7 @@ namespace ParserObjects.Sequences
 
         public StreamCharacterSequence(StreamReader reader, string fileName = null)
         {
+            Assert.ArgumentNotNull(reader, nameof(reader));
             _fileName = fileName;
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;
@@ -49,6 +51,7 @@ namespace ParserObjects.Sequences
 
         public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null)
         {
+            Assert.ArgumentNotNull(stream, nameof(stream));
             _fileName = fileName ?? "stream";
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;
@@ -100,6 +103,7 @@ namespace ParserObjects.Sequences
         }
 
         public Location CurrentLocation => new Location(_fileName, _line, _column);
+
         public bool IsAtEnd => _putbacks.Count == 0 && _isComplete;
 
         public void Dispose()

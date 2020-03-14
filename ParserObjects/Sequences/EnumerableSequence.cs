@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -17,7 +18,7 @@ namespace ParserObjects.Sequences
         private int _index;
 
         public EnumerableSequence(IEnumerable<T> enumerable, Func<T> getEndValue)
-            : this(enumerable.GetEnumerator(), (getEndValue ?? (() => default))())
+            : this(enumerable?.GetEnumerator(), (getEndValue ?? (() => default))())
         {
         }
 
@@ -27,12 +28,13 @@ namespace ParserObjects.Sequences
         }
 
         public EnumerableSequence(IEnumerable<T> enumerable, T endValue)
-            : this(enumerable.GetEnumerator(), endValue)
+            : this(enumerable?.GetEnumerator(), endValue)
         {
         }
 
         public EnumerableSequence(IEnumerator<T> enumerator, T endValue)
         {
+            Assert.ArgumentNotNull(enumerator, nameof(enumerator));
             _enumerator = enumerator;
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
             _endValue = endValue;

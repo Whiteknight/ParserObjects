@@ -1,4 +1,5 @@
 ﻿using System;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -13,6 +14,8 @@ namespace ParserObjects.Sequences
 
         public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
         {
+            Assert.ArgumentNotNull(inputs, nameof(inputs));
+            Assert.ArgumentNotNull(predicate, nameof(predicate));
             _inputs = inputs;
             _predicate = predicate;
         }

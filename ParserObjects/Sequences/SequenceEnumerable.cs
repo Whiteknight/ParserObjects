@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -14,6 +15,7 @@ namespace ParserObjects.Sequences
 
         public SequenceEnumerable(ISequence<T> inputs)
         {
+            Assert.ArgumentNotNull(inputs, nameof(inputs));
             _inputs = inputs;
         }
 

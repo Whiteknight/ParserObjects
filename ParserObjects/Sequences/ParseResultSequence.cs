@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -15,6 +16,8 @@ namespace ParserObjects.Sequences
 
         public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser)
         {
+            Assert.ArgumentNotNull(input, nameof(input));
+            Assert.ArgumentNotNull(parser, nameof(parser));
             _input = input;
             _parser = parser;
             _putbacks = new Stack<IParseResult<TOutput>>();

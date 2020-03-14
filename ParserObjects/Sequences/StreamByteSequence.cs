@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -20,6 +21,8 @@ namespace ParserObjects.Sequences
 
         public StreamByteSequence(string fileName)
         {
+            Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
+
             _fileName = fileName;
             _putbacks = new Stack<byte>();
             _bufferIndex = BufferSize;
@@ -29,6 +32,7 @@ namespace ParserObjects.Sequences
 
         public StreamByteSequence(Stream stream, string fileName = null)
         {
+            Assert.ArgumentNotNull(stream, nameof(stream));
             _fileName = fileName;
             _putbacks = new Stack<byte>();
             _bufferIndex = BufferSize;

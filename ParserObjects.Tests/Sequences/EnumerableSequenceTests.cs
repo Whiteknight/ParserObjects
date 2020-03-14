@@ -17,6 +17,15 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void Peek_Test()
+        {
+            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
+            target.Peek().Should().Be(1);
+            target.Peek().Should().Be(1);
+            target.Peek().Should().Be(1);
+        }
+
+        [Test]
         public void PutBack_Test()
         {
             var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
