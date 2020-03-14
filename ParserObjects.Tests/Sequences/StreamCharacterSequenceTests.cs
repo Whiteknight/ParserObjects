@@ -180,5 +180,32 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
+
+        [Test]
+        public void ToCharSequence_Stream()
+        {
+            var memoryStream = new MemoryStream();
+            memoryStream.Write(Encoding.UTF8.GetBytes("abc"));
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var target = memoryStream.ToCharSequence();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void ToCharSequence_StreamReader()
+        {
+            var memoryStream = new MemoryStream();
+            memoryStream.Write(Encoding.UTF8.GetBytes("abc"));
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var reader = new StreamReader(memoryStream);
+            var target = reader.ToCharSequence();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
     }
 }
