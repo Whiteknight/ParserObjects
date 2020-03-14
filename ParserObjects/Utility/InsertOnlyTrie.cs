@@ -23,6 +23,7 @@ namespace ParserObjects.Utility
 
         public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
         {
+            Assert.ArgumentNotNull(keys, nameof(keys));
             var current = _root;
             var keyList = keys.ToList();
             foreach (var key in keyList)
@@ -35,6 +36,7 @@ namespace ParserObjects.Utility
 
         public IParseResult<TResult> Get(IEnumerable<TKey> keys)
         {
+            Assert.ArgumentNotNull(keys, nameof(keys));
             var current = _root;
             foreach (var key in keys)
             {
@@ -46,7 +48,11 @@ namespace ParserObjects.Utility
             return current.HasResult ? new SuccessResult<TResult>(current.Result, null) : (IParseResult<TResult>)new FailResult<TResult>();
         }
 
-        public IParseResult<TResult> Get(ISequence<TKey> keys) => _root.Get(keys);
+        public IParseResult<TResult> Get(ISequence<TKey> keys)
+        {
+            Assert.ArgumentNotNull(keys, nameof(keys));
+            return _root.Get(keys);
+        }
 
         public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 

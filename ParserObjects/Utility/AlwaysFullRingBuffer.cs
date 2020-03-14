@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ParserObjects.Utility
+﻿namespace ParserObjects.Utility
 {
     /// <summary>
     /// Simplified ring-buffer implementation which makes several assumptions for simplicity
@@ -18,6 +16,7 @@ namespace ParserObjects.Utility
 
         public AlwaysFullRingBuffer(int size, T defaultValue = default)
         {
+            Assert.ArgumentGreaterThan(size, 0, nameof(size));
             _size = size;
             _buffer = new T[size];
             for (int i = 0; i < size; i++)

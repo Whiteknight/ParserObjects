@@ -1,4 +1,5 @@
 ﻿using System;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -22,7 +23,8 @@ namespace ParserObjects
 
         public IParseResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
         {
-            var newValue = (transform ?? (x => default))(Value);
+            Assert.ArgumentNotNull(transform, nameof(transform));
+            var newValue = transform(Value);
             return new SuccessResult<TOutput>(newValue, Location);
         }
     }
