@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
@@ -20,6 +19,7 @@ namespace ParserObjects.Parsers.Logical
         }
 
         public string Name { get; set; }
+
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)

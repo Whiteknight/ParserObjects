@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Logical
@@ -24,6 +23,7 @@ namespace ParserObjects.Parsers.Logical
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var predicatePassed = TestPredicate(t);
             if (predicatePassed)
                 return _inner.Parse(t);
@@ -42,6 +42,7 @@ namespace ParserObjects.Parsers.Logical
         public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
+
         public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)
