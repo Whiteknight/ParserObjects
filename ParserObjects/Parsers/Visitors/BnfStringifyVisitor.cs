@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Parsers.Logical;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Visitors
 {
@@ -36,6 +37,7 @@ namespace ParserObjects.Parsers.Visitors
 
         public string ToBnf(IParser parser)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
             var sb = new StringBuilder();
             var state = new State(sb);
             Visit(parser, state);

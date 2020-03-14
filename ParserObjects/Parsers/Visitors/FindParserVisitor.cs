@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Visitors
 {
@@ -36,6 +37,8 @@ namespace ParserObjects.Parsers.Visitors
         /// <returns></returns>
         public static IParser Named(string name, IParser root)
         {
+            Assert.ArgumentNotNullOrEmpty(name, nameof(name));
+            Assert.ArgumentNotNull(root, nameof(root));
             var visitor = new FindParserVisitor();
             var state = new State(p => p.Name == name, true);
             visitor.Visit(root, state);
@@ -51,6 +54,7 @@ namespace ParserObjects.Parsers.Visitors
         public static IReadOnlyList<TParser> OfType<TParser>(IParser root)
             where TParser : IParser
         {
+            Assert.ArgumentNotNull(root, nameof(root));
             var visitor = new FindParserVisitor();
             var state = new State(p => p is TParser, false);
             visitor.Visit(root, state);
