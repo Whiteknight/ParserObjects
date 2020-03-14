@@ -22,6 +22,7 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             foreach (var parser in _parsers)
             {
                 var result = parser.Parse(t);
