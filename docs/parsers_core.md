@@ -77,7 +77,7 @@ var parser = Fail<char, char>();
 
 ### First Parser
 
-The `First` parser takes a list of parsers. Each parser it attempted in order, and the result is returned when the first parser succeeds. If none of the parsers succeed, the `First` parser fails.
+The `First` parser takes a list of parsers. Each parser is attempted in order, and the result is returned as soon as any parser succeeds. If none of the parsers succeed, the `First` parser fails.
 
 ```csharp
 var parser = new FirstParser<char, object>(
@@ -90,6 +90,7 @@ var parser = First(
     parser2,
     parser3
 )
+var parser = (parser1, parser2, parser3).First();
 ```
 
 ### List Parser
@@ -107,7 +108,7 @@ var parser = innerParser.List();
 The `MatchPredicateParser` examines the next input item and returns it if it matches a predicate.
 
 ```csharp
-var parser = new MatchPredicateParser<char, char>(c => ...);
+var parser = new MatchPredicateParser<char>(c => ...);
 var parser = Match<char>(c => ...);
 ```
 
@@ -137,6 +138,7 @@ var parser = new RuleParser<char, string>(
     parser3,
     (r1, r2, r3) => ...
 )
+var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
 ```
 
 ## Matching Parsers
@@ -145,10 +147,12 @@ These parsers help to simplify matching of literal patterns.
 
 ### Match Sequence Parser
 
-The `MatchSequenceParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list.
+The `MatchSequenceParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list. (some of the below examples take advantage of the fact that a `string` is an `IEnumerable<char>` to help simplify)
 
 ```csharp
+var parser = new MatchSequenceParser<char>(new char[] { 'a', 'b', 'c', 'd' });
 var parser = new MatchSequenceParser<char>("abcd");
+var parser = Match<char>(new char[] { 'a', 'b', 'c', 'd' });
 var parser = Match<char>("abcd");
 ```
 
@@ -160,18 +164,19 @@ var parser = Rule(
     Match(c => c == 'b'),
     Match(c => c == 'c'),
     Match(c => c == 'd')
-    (a, b, c, d) => new [] {a, b, c, d}
+    (a, b, c, d) => new [] { a, b, c, d }
 );
 ```
 
 ### Trie Parser
 
-The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is useful for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides an `ITrie<TKey, TResult>` abstraction for this purpose.
+The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides an `ITrie<TKey, TResult>` abstraction for this purpose.
 
 ```csharp
 var parser = new TrieParser<char, string>(trie);
 var parser = Trie(trie);
 var parser = trie.ToParser();
+var parser = Trie(trie => trie.Add(...));
 ```
 
 ## Transforming parsers
@@ -204,7 +209,7 @@ Lookahead parsers attempt to match a pattern but consume no input.
 
 ### Negative Lookahead Parser
 
-The `NegativeLookaheadParser` invokes an inner parser, but consumes no input. It returns success if the inner parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`.
+The `NegativeLookaheadParser` invokes a parser, but consumes no input. It returns success if the parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`.
 
 ```csharp
 var parser = new NegativeLookaheadParser<char>(innerParser);
@@ -214,7 +219,7 @@ var parser = someParser.NotFollowedBy(innerParser);
 
 ### Positive Lookahead Parser
 
-The `PositiveLookaheadParser` invokes an inner parser but consumes no input. It returns success if the inner parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`.
+The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns success if the parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`.
 
 ```csharp
 var parser = new PositiveLookaheadParser<char>(innerParser);
@@ -228,7 +233,11 @@ These parsers exist to help simplify recursion scenarios.
 
 ### LeftApplyZeroOrMore Parser
 
-The `LeftApplyZeroOrMore` parser is a complicated parser for left-associative parsing. The left value is parsed first and the value of it is applied to the right side production rule. The value of the right parser will then be used as the new left value and it will attempt to continue until a right parser does not match.
+The `LeftApplyZeroOrMore` parser is a complicated parser for left-associative parsing. The left value is parsed first and the value of it is applied to the right side production rule. The value of the right parser will then be used as the new left value and it will attempt to continue until a right parser does not match. The pseudo-BNF for it is:
+
+```
+self := <self> <right> | <left>
+```
 
 ```csharp
 var parser = new LeftApplyZeroOrMore(
@@ -276,7 +285,7 @@ These parsers exist to help with referencing issues.
 
 ### Deferred Parser
 
-The `Deferred` parser references another parser and resolves the reference at parse time instead of at declaration time. This allows your parser to continue recursion and circular references.
+The `Deferred` parser references another parser and resolves the reference at parse time instead of at declaration time. This allows your parser to handle recursion and circular references.
 
 ```csharp
 var parser = new DeferredParser(() => targetParser);

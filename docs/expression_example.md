@@ -41,7 +41,7 @@ var multiplication = Match<char>('*')
     .Transform(c => new Token(TokenType.Multiplication, "*"));
 ```
 
-Now we want to define a parser for reading numbers. Numbers can be multiple digits, at least one, and are in decimal. We create a parser to match a digit character, then get a list of subsequent digits, and then transform the list of digit characters into a Token with a string of digits as it's value:
+Now we want to define a parser for reading numbers. Numbers consist of one or more decimal digits. We create a parser to match a digit character, then get a list of subsequent digits, and then transform the list of digit characters into a Token with a string of digits as it's value:
 
 ```csharp
 var number = Match<char>(c => char.IsDigit(c))
@@ -52,7 +52,7 @@ var number = Match<char>(c => char.IsDigit(c))
 We also want to gather up whitespace, but we don't need to transform it because we don't care about the output value:
 
 ```csharp
-var whitespace = Match<char>(c => char.IsWhitespace(c)).ToList();
+var whitespace = Match<char>(c => char.IsWhitespace(c)).List();
 ```
 
 Now we want to start creating our output rules. Our first rule will attempt to match all the known token types, the second rule will match optional whitespace followed by a token, but only return the token:
@@ -95,7 +95,7 @@ public static class TokenParserExtension
 }
 ```
 
-A number in the expression grammar is a number token, transformed into an integer representation:
+A number in the expression grammar is a Number token, transformed into an integer representation:
 
 ```csharp
 var number = Token(TokenType.Number).Transform(t => int.Parse(t.Value));
@@ -125,16 +125,16 @@ This is all well and good, we can parse a string like "1 + 2" or "1 * 2" but we 
 Let's look at some pseudo-BNF for an expression grammar where multiplication has higher precidence than addition:
 
 ```
-multiplicative := <additive> ('*' <additive>)*
-additive := <number> ('+' <number>)*
+multiplicative := <number> ('*' <number>)*
+additive := <multiplicative> ('+' <multiplicative>)*
 ```
 
 This is a fine representation, we could use a separated list parser to parse them:
 
 ```csharp
-var multiplicative = SeparatedList(number, Token(TokenType.Multiplicative), atLeastOne: true)
+var multiplicative = SeparatedList(number, Token(TokenType.Multiplication), atLeastOne: true)
     .Transform(values => MultiplyAllValuesTogether(values));
-var additive = SeparatedList(multiplicative, Token(TokenType.Additive), atLeastOne: true)
+var additive = SeparatedList(multiplicative, Token(TokenType.Addition), atLeastOne: true)
     .Transform(values => values.Sum());
 ```
 
@@ -239,7 +239,7 @@ var expression = Rule(
 );
 ```
 
-Now if we don't see end-of-input the parse will fail. We could also do something like this:
+Now if we don't see end-of-input the parse will fail. We could also be more proactive and throw an exception if we don't see the end of input:
 ```csharp
 var requiredEnd = First(
     End<Token>(),
