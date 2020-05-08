@@ -1,46 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    /// <summary>
-    /// Parses an enumerable of results so long as the parser continues to match. Returns an enumerable
-    /// of the parsed results.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TInput"></typeparam>
-    [Obsolete("Use LimitedListParser instead. Will be removed in v2.0.0")]
-    public class ListParser<TInput, TOutput> : IParser<TInput, IEnumerable<TOutput>>
+    public class LimitedListParser<TInput, TOutput> : IParser<TInput, IEnumerable<TOutput>>
     {
         private readonly IParser<TInput, TOutput> _parser;
 
-        public ListParser(IParser<TInput, TOutput> parser, bool atLeastOne)
+        public LimitedListParser(IParser<TInput, TOutput> parser, int minimum, int? maximum)
         {
+            Minimum = minimum < 0 ? 0 : minimum;
+            Maximum = maximum;
+            if (Maximum.HasValue)
+            {
+                if (Maximum < Minimum)
+                    Maximum = Minimum;
+            }
             Assert.ArgumentNotNull(parser, nameof(parser));
             _parser = parser;
-            AtLeastOne = atLeastOne;
         }
 
         public IParseResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
+            var window = t.Window();
             var location = t.CurrentLocation;
             var items = new List<TOutput>();
-            while (true)
+            while (Maximum == null || items.Count < Maximum)
             {
-                var result = _parser.Parse(t);
+                var result = _parser.Parse(window);
                 if (!result.Success)
                     break;
                 items.Add(result.Value);
             }
 
-            if (AtLeastOne && items.Count == 0)
+            if (items.Count < Minimum)
+            {
+                window.Rewind();
                 return new FailResult<IEnumerable<TOutput>>(location);
+            }
+
             return new SuccessResult<IEnumerable<TOutput>>(items, location);
         }
 
-        public bool AtLeastOne { get; }
+        public int Minimum { get; }
+        public int? Maximum { get; }
 
         IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
@@ -51,7 +55,7 @@ namespace ParserObjects.Parsers
         public IParser ReplaceChild(IParser find, IParser replace)
         {
             if (_parser == find && replace is IParser<TInput, TOutput> realReplace)
-                return new ListParser<TInput, TOutput>(realReplace, AtLeastOne);
+                return new LimitedListParser<TInput, TOutput>(realReplace, Minimum, Maximum);
             return this;
         }
 

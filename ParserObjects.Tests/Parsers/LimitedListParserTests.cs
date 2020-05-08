@@ -2,17 +2,18 @@
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
-    public class ListParserTests
+    public class LimitedListParserTests
     {
         [Test]
         public void Parse_Test()
         {
-            var parser = List(Any<char>(), false);
+            var parser = List(Any<char>());
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -23,9 +24,31 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Minimum()
+        {
+            var parser = List(Any<char>(), 4);
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Maximum()
+        {
+            var parser = List(Any<char>(), 0, 2);
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var list = result.Value.ToList();
+            list.Count.Should().Be(2);
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+        }
+
+        [Test]
         public void Parse_None()
         {
-            var parser = List(Match<char>(char.IsNumber), false);
+            var parser = List(Match<char>(char.IsNumber));
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -36,7 +59,7 @@ namespace ParserObjects.Tests.Parsers
         public void GetChildren_Test()
         {
             var anyParser = Any<char>();
-            var parser = List(anyParser, false);
+            var parser = List(anyParser);
             var result = parser.GetChildren().ToList();
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(anyParser);
@@ -47,9 +70,9 @@ namespace ParserObjects.Tests.Parsers
         {
             var anyParser = Any<char>();
             var failParser = Fail<char, char>();
-            var parser = List(failParser, false);
+            var parser = List(failParser);
             parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, IEnumerable<char>>;
-            
+
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

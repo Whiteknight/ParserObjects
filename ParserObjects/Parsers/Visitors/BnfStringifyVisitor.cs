@@ -204,6 +204,27 @@ namespace ParserObjects.Parsers.Visitors
             state.Current.Append(p.AtLeastOne ? "+" : "*");
         }
 
+        protected virtual void VisitTyped<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+            if (p.Maximum.HasValue)
+            {
+                if (p.Maximum == p.Minimum)
+                    state.Current.Append($"{{{p.Minimum}}}");
+                else
+                    state.Current.Append($"{{{p.Minimum}, {p.Maximum}}}");
+            }
+            else
+            {
+                if (p.Minimum == 0)
+                    state.Current.Append("*");
+                else if (p.Minimum == 1)
+                    state.Current.Append("+");
+                else
+                    state.Current.Append($"{{{p.Minimum},}}");
+            }
+        }
+
         protected virtual void VisitTyped<TInput>(MatchPredicateParser<TInput> p, State state)
         {
             state.Current.Append("MATCH");

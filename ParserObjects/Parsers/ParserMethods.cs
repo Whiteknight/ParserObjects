@@ -27,6 +27,16 @@ namespace ParserObjects.Parsers
             => Match<char>(pattern).Transform(c => pattern);
 
         /// <summary>
+        /// Given a list of parsers, parse each in sequence and return a list of object
+        /// results on success.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="parsers"></param>
+        /// <returns></returns>
+        public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(params IParser<TInput>[] parsers)
+            => new RuleParser<TInput, IReadOnlyList<object>>(parsers, r => r);
+
+        /// <summary>
         /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
@@ -106,8 +116,20 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
         /// false, an empty list returns success.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, bool atLeastOne = false) 
-            => new ListParser<TInput, TOutput>(p, atLeastOne);
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, bool atLeastOne) 
+            => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
+
+        /// <summary>
+        /// Parse a list of items with defined minimum and maximum quantities.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
+            => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
         /// <summary>
         /// Test the next input value and return it, if it matches the predicate
@@ -231,6 +253,7 @@ namespace ParserObjects.Parsers
         /// <param name="item"></param>
         /// <param name="middle"></param>
         /// <param name="produce"></param>
+        /// <param name="getMissingRight"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> RightApply<TInput, TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
             => new RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput>(item, middle, produce, getMissingRight);

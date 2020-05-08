@@ -43,8 +43,22 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne = false) 
-            => new ListParser<TInput, TOutput>(p, atLeastOne);
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne) 
+            => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
+
+        /// <summary>
+        /// Returns a list of results from the given parser, with limits. Continues to
+        /// parse until the parser returns failure or the maximum number of results is
+        /// reached.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
+            => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
         /// <summary>
         /// Given a parser which parses characters, parse a list of characters and return the sequence as a
@@ -53,8 +67,20 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne = false)
+        public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne)
             => p.List(atLeastOne).Transform(c => new string(c.ToArray()));
+
+        /// <summary>
+        /// Given a parser which parsers characters, parse a list of characters and return
+        /// the result as a string. Supports limits for minimum and maximum numbers of
+        /// characters to parse.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static IParser<char, string> ListCharToString(this IParser<char, char> p, int minimum = 0, int? maximum = null)
+            => p.List(minimum, maximum).Transform(c => new string(c.ToArray()));
 
         /// <summary>
         /// Returns a list of results from the given parser separated by a separator pattern. Continues until
@@ -116,6 +142,13 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
+        /// <summary>
+        /// Make this parser replaceable
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => new ReplaceableParser<TInput, TOutput>(p);
 
