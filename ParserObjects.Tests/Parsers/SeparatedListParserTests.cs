@@ -103,5 +103,36 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
+
+        [Test]
+        public void Parse_Minimum_Fail()
+        {
+            var parser = SeparatedList(
+                Integer(),
+                Match<char>(","),
+                4
+            );
+            var input = new StringCharacterSequence("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Maximum()
+        {
+            var parser = SeparatedList(
+                Integer(),
+                Match<char>(","),
+                0, 
+                2
+            );
+            var input = new StringCharacterSequence("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value.Count.Should().Be(2);
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+        }
     }
 }

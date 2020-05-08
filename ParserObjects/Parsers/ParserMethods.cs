@@ -478,9 +478,24 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
         /// if an empty list can be returned.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne = false)
+        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
+            => SeparatedList(p, separator, atLeastOne ? 1 : 0, null);
+
+        /// <summary>
+        /// Parse a list of items separated by a separator pattern, with minimum and
+        /// maximum item counts
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TSeparator"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="separator"></param>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
         {
-            if (atLeastOne)
+            if (minimum >= 1)
             {
                 // <p> (<separator> <p>)*
                 return Rule(
@@ -490,7 +505,9 @@ namespace ParserObjects.Parsers
                             separator,
                             p,
                             (s, item) => item
-                        )
+                        ),
+                        minimum - 1, 
+                        maximum - 1
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
                 );
@@ -505,7 +522,9 @@ namespace ParserObjects.Parsers
                             separator,
                             p,
                             (s, item) => item
-                        )
+                        ),
+                        minimum - 1, 
+                        maximum - 1
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
                 ),
