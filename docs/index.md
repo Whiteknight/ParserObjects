@@ -44,4 +44,6 @@ The `IParseResult<T>` abstraction represents the result of a parser.
 ## Pages
 
 * [Core Parsers Reference](parsers_core.md)
+* [Specialty Parsers](parsers_specialty.md)
+* [Programming Parsers](parsers_programming.md)
 * [Expression Parsing Example](expression_example.md)
