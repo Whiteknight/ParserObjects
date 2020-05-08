@@ -145,6 +145,20 @@ var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
 
 These parsers help to simplify matching of literal patterns.
 
+### Character String Parser
+
+The `CharacterString` parser matches a literal string of characters against a `char` input and returns the string on success.
+
+```csharp
+var parser = CharacterString("abc");
+```
+
+This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers:
+
+```csharp
+var parser = Match<char>("abc").Transform(x => "abc");
+```
+
 ### Match Sequence Parser
 
 The `MatchSequenceParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list. (some of the below examples take advantage of the fact that a `string` is an `IEnumerable<char>` to help simplify)

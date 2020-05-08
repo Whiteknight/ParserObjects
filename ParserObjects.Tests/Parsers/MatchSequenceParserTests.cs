@@ -39,5 +39,15 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcd");
             parser.GetChildren().Count().Should().Be(0);
         }
+
+        [Test]
+        public void CharacterString_Test()
+        {
+            var parser = CharacterString("abc");
+            var input = new StringCharacterSequence("abcd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+        }
     }
 }

@@ -18,6 +18,15 @@ namespace ParserObjects.Parsers
         public static IParser<T, T> Any<T>() => new AnyParser<T>();
 
         /// <summary>
+        /// Convenience method to match a literal sequence of characters and return the
+        /// result as a string.
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public static IParser<char, string> CharacterString(string pattern)
+            => Match<char>(pattern).Transform(c => pattern);
+
+        /// <summary>
         /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
