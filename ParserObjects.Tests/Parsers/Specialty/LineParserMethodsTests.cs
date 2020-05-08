@@ -8,7 +8,7 @@ namespace ParserObjects.Tests.Parsers.Specialty
     public class LineParserMethodsTests
     {
         [Test]
-        public void Parse_NoPrefix()
+        public void PrefixedLine_NoPrefix()
         {
             var parser = PrefixedLine("");
             var input = new StringCharacterSequence(@"line
@@ -17,7 +17,7 @@ NOT LINE");
         }
 
         [Test]
-        public void Parse_Prefix()
+        public void PrefixedLine_Prefix()
         {
             var parser = PrefixedLine("XXX");
             var input = new StringCharacterSequence(@"XXXline
@@ -26,12 +26,21 @@ NOT LINE");
         }
 
         [Test]
-        public void Parse_Prefix_NoMatch()
+        public void PrefixedLine_Prefix_NoMatch()
         {
             var parser = PrefixedLine("YYY");
             var input = new StringCharacterSequence(@"XXXline
 NOT LINE");
             parser.Parse(input).Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Line_Test()
+        {
+            var parser = Line();
+            var input = new StringCharacterSequence(@"line
+NOT LINE");
+            parser.Parse(input).Value.Should().Be("line");
         }
     }
 }

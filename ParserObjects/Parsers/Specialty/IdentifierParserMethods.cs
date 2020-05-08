@@ -7,6 +7,11 @@ namespace ParserObjects.Parsers.Specialty
 {
     public static class IdentifierParserMethods
     {
+        /// <summary>
+        /// Parses a CamelCase identifier and returns the list of individual strings in
+        /// the identifier. Parses lowerCamelCase and UpperCamelCase
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, IEnumerable<string>> CamelCase() => _camelCase.Value;
         private static readonly Lazy<IParser<char, IEnumerable<string>>> _camelCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
@@ -43,5 +48,9 @@ namespace ParserObjects.Parsers.Specialty
                 return parts.List();
             }
         );
+
+        // TODO: Docs for these methods, when we mature this class a bit more
+        // TODO: spinal-case and snake_case parsers
+        // TODO: Dedicated parsers for lowerCamelCase and UpperCamelCase
     }
 }

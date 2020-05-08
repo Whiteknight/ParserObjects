@@ -13,6 +13,7 @@ namespace ParserObjects.Parsers
     {
         private readonly IParser<TInput, TOutput> _parser;
 
+        // TODO: AtLeast and AtMost parameters to control count of matched items
         public ListParser(IParser<TInput, TOutput> parser, bool atLeastOne)
         {
             Assert.ArgumentNotNull(parser, nameof(parser));

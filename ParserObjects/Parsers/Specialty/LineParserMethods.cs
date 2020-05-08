@@ -1,11 +1,13 @@
-﻿using static ParserObjects.Parsers.ParserMethods;
+﻿using System;
+using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
 {
     public static class LineParserMethods
     {
         /// <summary>
-        /// Parses a line of text, starting with a prefix and going until a newline. Newline not included.
+        /// Parses a line of text, starting with a prefix and going until a newline or end
+        /// of input. Newline not included.
         /// </summary>
         /// <param name="prefix"></param>
         /// <returns></returns>
@@ -14,7 +16,7 @@ namespace ParserObjects.Parsers.Specialty
             // We should cache this, in a dictionary by prefix
             var notNewlineChar = Match<char>(c => c != '\n');
             if (string.IsNullOrEmpty(prefix))
-                return notNewlineChar.ListCharToString();
+                return Line();
 
             var prefixParser = Match<char>(prefix).Transform(c => prefix);
             var charsParser = notNewlineChar.ListCharToString();
@@ -22,5 +24,17 @@ namespace ParserObjects.Parsers.Specialty
                 .Produce((p, content) => p + content)
                 .Named($"linePrefixed:{prefix}");
         }
+
+        /// <summary>
+        /// Parses a line of text until a newline or end of input. Newline not included.
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, string> Line() => _line.Value;
+        private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(() =>
+        {
+            // We should cache this, in a dictionary by prefix
+            var notNewlineChar = Match<char>(c => c != '\n');
+            return notNewlineChar.ListCharToString();
+        });
     }
 }
