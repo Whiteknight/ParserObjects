@@ -18,7 +18,7 @@ namespace ParserObjects.Parsers
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<ISequence<TInput>> before = null, Action<ISequence<TInput>, IParseResult<TOutput>> after = null)
+        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<IParser<TInput, TOutput>, ISequence<TInput>> before = null, Action<IParser<TInput, TOutput>, ISequence<TInput>, IParseResult<TOutput>> after = null)
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
         /// <summary>

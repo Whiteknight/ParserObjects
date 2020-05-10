@@ -6,10 +6,11 @@ namespace ParserObjects.Parsers
     public class ExamineParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _parser;
-        private readonly Action<ISequence<TInput>> _before;
-        private readonly Action<ISequence<TInput>, IParseResult<TOutput>> _after;
+        // TODO: Put together objects for these so we can grow the arg lists arbitrarily
+        private readonly Action<IParser<TInput, TOutput>, ISequence<TInput>> _before;
+        private readonly Action<IParser<TInput, TOutput>, ISequence<TInput>, IParseResult<TOutput>> _after;
 
-        public ExamineParser(IParser<TInput, TOutput> parser, Action<ISequence<TInput>> before, Action<ISequence<TInput>, IParseResult<TOutput>> after)
+        public ExamineParser(IParser<TInput, TOutput> parser, Action<IParser<TInput, TOutput>, ISequence<TInput>> before, Action<IParser<TInput, TOutput>, ISequence<TInput>, IParseResult<TOutput>> after)
         {
             _parser = parser;
             _before = before;
@@ -31,9 +32,9 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
-            _before?.Invoke(t);
+            _before?.Invoke(_parser, t);
             var result = _parser.Parse(t);
-            _after?.Invoke(t, result);
+            _after?.Invoke(_parser, t, result);
             return result;
         }
     }
