@@ -4,7 +4,7 @@ using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -78,7 +78,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Trie_Action_Operators()
         {
-            var target = Trie<char, string>(trie => trie
+            var target = Trie<string>(trie => trie
                 .Add("=", "=")
                 .Add("==", "==")
                 .Add(">=", ">=")
@@ -153,7 +153,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var trie = new InsertOnlyTrie<char, string>();
             var target = new TrieParser<char, string>(trie);
-            target.ReplaceChild(Empty<char>(), Produce<char, string>(() => "")).Should().BeSameAs(target);
+            target.ReplaceChild(Empty(), Produce(() => "")).Should().BeSameAs(target);
         }
     }
 }

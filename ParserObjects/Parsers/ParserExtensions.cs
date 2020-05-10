@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Parsers
 {
@@ -44,7 +43,7 @@ namespace ParserObjects.Parsers
         /// <param name="lookahead"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-            => Rule(p, PositiveLookahead(lookahead), (result, match) => result);
+            => ParserMethods<TInput>.Rule(p, ParserMethods<TInput>.PositiveLookahead(lookahead), (result, match) => result);
 
         /// <summary>
         /// Returns a list of results from the given parser. Continues to parse until the parser returns
@@ -106,7 +105,7 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
         public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
-            => SeparatedList(p, separator, atLeastOne);
+            => ParserMethods<TInput>.SeparatedList(p, separator, atLeastOne);
 
         /// <summary>
         /// Returns a list of results from the given parser separated by a separator
@@ -122,7 +121,7 @@ namespace ParserObjects.Parsers
         /// <param name="maximum"></param>
         /// <returns></returns>
         public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
-            => SeparatedList(p, separator, minimum, maximum);
+            => ParserMethods<TInput>.SeparatedList(p, separator, minimum, maximum);
 
         /// <summary>
         /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
@@ -144,7 +143,7 @@ namespace ParserObjects.Parsers
         /// <param name="lookahead"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-            => Rule(p, NegativeLookahead(lookahead), (result, match) => result);
+            => ParserMethods<TInput>.Rule(p, ParserMethods<TInput>.NegativeLookahead(lookahead), (result, match) => result);
 
         /// <summary>
         /// The results of the given parser are optional. If the given parser fails, a default value will
@@ -156,7 +155,7 @@ namespace ParserObjects.Parsers
         /// <param name="getDefault"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
-            => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
+            => ParserMethods<TInput>.First(p, ParserMethods<TInput>.Produce(getDefault ?? (() => default)));
 
         /// <summary>
         /// The results of the given parser are optiona. If the given parser fails, a default value will be
@@ -168,7 +167,7 @@ namespace ParserObjects.Parsers
         /// <param name="getDefault"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
-            => First(p, Produce(getDefault ?? (t => default)));
+            => ParserMethods<TInput>.First(p, ParserMethods<TInput>.Produce(getDefault ?? (t => default)));
 
         /// <summary>
         /// Make this parser replaceable

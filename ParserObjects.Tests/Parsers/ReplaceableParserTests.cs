@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var anyParser = Any<char>();
+            var anyParser = Any();
             var target = Replaceable(anyParser);
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
@@ -22,7 +22,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ParseUntyped_Test()
         {
-            var anyParser = Any<char>();
+            var anyParser = Any();
             var target = Replaceable(anyParser);
             var input = new StringCharacterSequence("abc");
             var result = target.ParseUntyped(input);
@@ -32,8 +32,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void SetParser_Test()
         {
-            var anyParser = Any<char>();
-            var failParser = Fail<char, char>();
+            var anyParser = Any();
+            var failParser = Fail<char>();
             var target = new ReplaceableParser<char, char>(failParser);
             target.SetParser(anyParser);
             var input = new StringCharacterSequence("abc");
@@ -44,8 +44,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Test()
         {
-            var anyParser = Any<char>();
-            var failParser = Fail<char, char>();
+            var anyParser = Any();
+            var failParser = Fail<char>();
             var target = Replaceable(failParser);
             target = target.ReplaceChild(failParser, anyParser) as IParser<char, char>;
             var input = new StringCharacterSequence("abc");
@@ -56,7 +56,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var anyParser = Any<char>();
+            var anyParser = Any();
             var target = Replaceable(anyParser);
             var result = target.GetChildren().ToList();
             result.Count.Should().Be(1);

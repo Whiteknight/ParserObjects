@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Specialty.CStyleParserMethods;
 
 namespace ParserObjects.Tests.Parsers
@@ -15,7 +15,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 atLeastOne: false
             );
             var input = new StringCharacterSequence("1,2,3,4");
@@ -32,7 +32,7 @@ namespace ParserObjects.Tests.Parsers
         public void ListSeparatedBy_Parse_Test()
         {
             var parser = Integer().ListSeparatedBy(
-                Match<char>(","),
+                Match(","),
                 atLeastOne: false
             );
             var input = new StringCharacterSequence("1,2,3,4");
@@ -50,7 +50,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 atLeastOne: false
             );
             var input = new StringCharacterSequence("");
@@ -64,7 +64,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 atLeastOne: true
             );
             var input = new StringCharacterSequence("1");
@@ -79,7 +79,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 atLeastOne: true
             );
             var input = new StringCharacterSequence("1,2,3");
@@ -96,7 +96,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 atLeastOne: true
             );
             var input = new StringCharacterSequence("");
@@ -109,7 +109,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 4
             );
             var input = new StringCharacterSequence("1,2,3");
@@ -122,7 +122,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = SeparatedList(
                 Integer(),
-                Match<char>(","),
+                Match(","),
                 0, 
                 2
             );

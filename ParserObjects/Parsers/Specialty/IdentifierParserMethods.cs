@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Specialty.DigitParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
@@ -16,8 +16,8 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, IEnumerable<string>>> _camelCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
             {
-                var lowerCase = Match<char>(char.IsLower);
-                var upperCase = Match<char>(char.IsUpper);
+                var lowerCase = Match(char.IsLower);
+                var upperCase = Match(char.IsUpper);
 
                 // Any run of digits of any length is a string
                 var digits = DigitString();

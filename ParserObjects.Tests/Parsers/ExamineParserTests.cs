@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +13,7 @@ namespace ParserObjects.Tests.Parsers
         {
             char before = '\0';
             char after = '\0';
-            var parser = ParserMethods.Examine(ParserMethods.Any<char>(), i => before = i.Peek(), (i, r) => after = i.Peek());
+            var parser = Examine(Any(), i => before = i.Peek(), (i, r) => after = i.Peek());
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -25,7 +26,7 @@ namespace ParserObjects.Tests.Parsers
         {
             char before = '\0';
             char after = '\0';
-            var parser = ParserMethods.Any<char>().Examine(i => before = i.Peek(), (i, r) => after = i.Peek());
+            var parser = Any().Examine(i => before = i.Peek(), (i, r) => after = i.Peek());
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

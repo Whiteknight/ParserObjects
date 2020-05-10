@@ -1,16 +1,15 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
-using static ParserObjects.Parsers.Logical.ParserMethods;
-
+using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.Parsers.Logical.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
     public class NotParserTests
     {
-        private readonly IParser<char, char> _anyParser = Any<char>();
-        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
+        private readonly IParser<char, char> _anyParser = Any();
+        private readonly IParser<char, bool> _failParser = Fail<bool>();
 
         [Test]
         public void Parse_Fail()

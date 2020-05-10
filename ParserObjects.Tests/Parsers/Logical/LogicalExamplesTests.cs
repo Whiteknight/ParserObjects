@@ -3,8 +3,8 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
-using static ParserObjects.Parsers.Logical.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.Parsers.Logical.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
@@ -13,9 +13,9 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Test1()
         {
-            var any = Any<char>().Transform(c => c.ToString());
+            var any = Any().Transform(c => c.ToString());
             var bracketed = If(
-                And(Match('['), Any<char>()),
+                And(Match('['), Any()),
                 Rule(Match('['), any, Match(']'), (o, a, c) => $"{o}{a}{c}")
             );
             var parser = First(

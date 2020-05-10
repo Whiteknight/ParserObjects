@@ -1,5 +1,5 @@
 ﻿using System;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -14,11 +14,11 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, string> PrefixedLine(string prefix)
         {
             // We should cache this, in a dictionary by prefix
-            var notNewlineChar = Match<char>(c => c != '\n');
+            var notNewlineChar = Match(c => c != '\n');
             if (string.IsNullOrEmpty(prefix))
                 return Line();
 
-            var prefixParser = Match<char>(prefix).Transform(c => prefix);
+            var prefixParser = Match(prefix).Transform(c => prefix);
             var charsParser = notNewlineChar.ListCharToString();
             return (prefixParser, charsParser)
                 .Produce((p, content) => p + content)
@@ -33,7 +33,7 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(() =>
         {
             // We should cache this, in a dictionary by prefix
-            var notNewlineChar = Match<char>(c => c != '\n');
+            var notNewlineChar = Match(c => c != '\n');
             return notNewlineChar.ListCharToString();
         });
     }

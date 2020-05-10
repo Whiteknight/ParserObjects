@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -32,8 +32,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_2Precedences_LeftAssociative()
         {
-            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var multiply = Match<char>("*").Transform(c => c[0].ToString());
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var multiply = Match("*").Transform(c => c[0].ToString());
             var multiplicative = LeftApply(
                 number,
                 left => Rule(
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
                     (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 )
             );
-            var add = Match<char>("+").Transform(c => c[0].ToString());
+            var add = Match("+").Transform(c => c[0].ToString());
             var additive = LeftApply(
                 multiplicative,
                 left => Rule(
@@ -78,8 +78,8 @@ namespace ParserObjects.Tests.Parsers
         {
             // In C#, assignment ("=") is right-associative
             // 1=2=3 should parse as 1=(2=3)
-            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var equals = Match<char>("=").Transform(c => c[0].ToString());
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var equals = Match("=").Transform(c => c[0].ToString());
             var equality = RightApply(
                 number,
                 equals,
@@ -100,8 +100,8 @@ namespace ParserObjects.Tests.Parsers
             // In C#, assignment ("=") is right-associative
             // 1=2=3 should parse as 1=(2=3)
             // This is the recursive version of the above with Deferred() instead.
-            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var equals = Match<char>("=").Transform(c => c[0].ToString());
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var equals = Match("=").Transform(c => c[0].ToString());
             IParser<char, ParseNode> equalityCore = null;
             var equality = Deferred(() => equalityCore);
             equalityCore = First(
@@ -126,8 +126,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_PrefixAndInfix_Minus()
         {
-            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var minus = Match<char>("-").Transform(c => c[0].ToString());
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var minus = Match("-").Transform(c => c[0].ToString());
             var maybeNegative = First(
                 Rule(
                     minus,
@@ -165,8 +165,8 @@ namespace ParserObjects.Tests.Parsers
             // Show how we can replace one parser in the tree with another parser.
             // replace the "add" parser with a "subtract" parser we define later, and
             // use the new parser tree to parse a modified grammar
-            var number = Match<char>(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var add = Match<char>("+")
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var add = Match("+")
                 .Transform(c => c[0].ToString())
                 .Replaceable()
                 .Named("add");
@@ -181,11 +181,11 @@ namespace ParserObjects.Tests.Parsers
             );
             var expr = Rule(
                 additive,
-                End<char>(),
+                End(),
                 (a, eoi) => a
             );
 
-            var subtract = Match<char>("-")
+            var subtract = Match("-")
                 .Transform(c => c[0].ToString());
             expr.Replace("add", subtract);
 

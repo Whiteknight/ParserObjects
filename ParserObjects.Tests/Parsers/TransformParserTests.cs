@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var parser = Transform(
-                Any<char>(),
+                Any(),
                 c => int.Parse(c.ToString())
             );
             parser.Parse("1").Value.Should().Be(1);
@@ -21,7 +21,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Failure()
         {
             var parser = Transform(
-                Fail<char, char>(),
+                Fail<char>(),
                 c => int.Parse(c.ToString())
             );
             parser.Parse("1").Success.Should().BeFalse();
@@ -30,19 +30,19 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Test()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
             var parser = Transform(
                 failParser,
                 c => int.Parse(c.ToString())
             );
-            parser = parser.ReplaceChild(failParser, Any<char>()) as IParser<char, int>;
+            parser = parser.ReplaceChild(failParser, Any()) as IParser<char, int>;
             parser.Parse("1").Value.Should().Be(1);
         }
 
         [Test]
         public void GetChildren_Test()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
             var parser = Transform(
                 failParser,
                 c => int.Parse(c.ToString())

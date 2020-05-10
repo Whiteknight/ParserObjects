@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -23,7 +23,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Any_Test()
         {
-            var target = Any<char>();
+            var target = Any();
             var input = new StringCharacterSequence("abc");
             target.Parse(input).Value.Should().Be('a');
             target.Parse(input).Value.Should().Be('b');
@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var target = Any<char>();
+            var target = Any();
             target.GetChildren().Count().Should().Be(0);
         }
     }

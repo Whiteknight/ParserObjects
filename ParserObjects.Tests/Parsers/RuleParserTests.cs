@@ -3,13 +3,13 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
     public class RuleParserTests
     {
-        private readonly IParser<char, char> _any = Any<char>();
+        private readonly IParser<char, char> _any = Any();
 
         [Test]
         public void Rule_2_Test()
@@ -236,7 +236,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Test()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
 
             var target = Rule(
                 _any,
@@ -253,7 +253,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_NotFound()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
 
             var target = Rule(
                 _any,
@@ -268,7 +268,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
 
             var target = Rule(
                 _any,

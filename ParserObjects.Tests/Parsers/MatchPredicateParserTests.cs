@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Match<char>(char.IsNumber);
+            var parser = Match(char.IsNumber);
             var input = new StringCharacterSequence("123");
             parser.Parse(input).Value.Should().Be('1');
         }
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail()
         {
-            var parser = Match<char>(char.IsLetter);
+            var parser = Match(char.IsLetter);
             var input = new StringCharacterSequence("123");
             parser.Parse(input).Success.Should().BeFalse();
         }
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var parser = Match<char>(char.IsNumber);
+            var parser = Match(char.IsNumber);
             parser.GetChildren().Count().Should().Be(0);
         }
     }

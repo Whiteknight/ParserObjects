@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -21,7 +21,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var parser = Fail<char, object>();
+            var parser = Fail<object>();
             parser.GetChildren().Count().Should().Be(0);
         }
     }

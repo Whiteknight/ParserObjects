@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Specialty.DigitParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
@@ -18,7 +18,7 @@ namespace ParserObjects.Parsers.Specialty
                 var maybeMinus = Match('-').Transform(c => "-").Optional(() => "");
                 var zero = Match('0').Transform(c => "0");
                 var maybeDigits = Digit().ListCharToString();
-                var empty = Produce<char, string>(() => "");
+                var empty = Produce(() => "");
 
                 // wholePart := '0' | <nonZeroDigit> <digits>*
                 var wholePart = First(
@@ -49,7 +49,7 @@ namespace ParserObjects.Parsers.Specialty
                     First(
                         Match('+').Transform(c => "+"),
                         Match('-').Transform(c => "-"),
-                        Produce<char, string>(() => "+")
+                        Produce(() => "+")
                     ),
                     DigitString(),
 

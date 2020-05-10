@@ -3,20 +3,20 @@ using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Parsers.Logical;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
-using static ParserObjects.Parsers.Logical.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.Parsers.Logical.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
     public class IfParserTests
     {
-        private readonly IParser<char, char> _successParser = Any<char>();
-        private readonly IParser<char, bool> _failParser = Fail<char, bool>();
+        private readonly IParser<char, char> _successParser = Any();
+        private readonly IParser<char, bool> _failParser = Fail<bool>();
 
         [Test]
         public void Ext_Then_Success()
         {
-            var parser = _successParser.Then(Any<char>());
+            var parser = _successParser.Then(Any());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Ext_Then_Fail()
         {
-            var parser = _failParser.Then(Any<char>());
+            var parser = _failParser.Then(Any());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -37,7 +37,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Ext_If_Success()
         {
-            var parser = Any<char>().If(_successParser);
+            var parser = Any().If(_successParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -48,7 +48,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Ext_If_Fail()
         {
-            var parser = Any<char>().If(_failParser);
+            var parser = Any().If(_failParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -58,7 +58,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Success()
         {
-            var parser = If(_successParser, Any<char>());
+            var parser = If(_successParser, Any());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -69,7 +69,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void Parse_Fail()
         {
-            var parser = If(_failParser, Any<char>());
+            var parser = If(_failParser, Any());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -79,7 +79,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void If_ReplaceChild_1()
         {
-            var parser = If(_failParser, Any<char>());
+            var parser = If(_failParser, Any());
             parser = parser.ReplaceChild(_failParser, _successParser) as IParser<char, char>;
 
             var input = new StringCharacterSequence("abc");
@@ -91,8 +91,8 @@ namespace ParserObjects.Tests.Parsers.Logical
         [Test]
         public void If_ReplaceChild_2()
         {
-            var empty = Empty<char>().Transform(c => '\0');
-            var any = Any<char>();
+            var empty = Empty().Transform(c => '\0');
+            var any = Any();
             var parser = If(_successParser, empty);
             parser = parser.ReplaceChild(empty, any) as IParser<char, char>;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, char> Digit() => _digit.Value;
         private static readonly Lazy<IParser<char, char>> _digit = new Lazy<IParser<char, char>>(
-            () => Match<char>(char.IsDigit).Named("digit")
+            () => Match(char.IsDigit).Named("digit")
         );
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
         private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
-            () => Match<char>(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
+            () => Match(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
         );
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
         private static readonly HashSet<char> _hexDigits = new HashSet<char>("abcdefABCDEF0123456789");
         private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
-            ()=> Match<char>(c => _hexDigits.Contains(c)).Named("hexDigit")
+            ()=> Match(c => _hexDigits.Contains(c)).Named("hexDigit")
         );
 
         /// <summary>

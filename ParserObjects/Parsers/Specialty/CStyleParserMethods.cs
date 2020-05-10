@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Specialty.DigitParserMethods;
 
 namespace ParserObjects.Parsers.Specialty
@@ -15,10 +15,10 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, string>> _comment = new Lazy<IParser<char, string>>(
             () =>
             {
-                var start = Match<char>("/*").Transform(c => "/*");
-                var end = Match<char>("*/").Transform(c => "*/");
+                var start = Match("/*").Transform(c => "/*");
+                var end = Match("*/").Transform(c => "*/");
                 var standaloneAsterisk = Match('*').NotFollowedBy(Match('/'));
-                var notAsterisk = Match<char>(c => c != '*');
+                var notAsterisk = Match(c => c != '*');
 
                 var bodyChar = (standaloneAsterisk, notAsterisk).First();
                 var bodyChars = bodyChar.ListCharToString();
@@ -35,7 +35,7 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
         private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
-            () => (Match<char>("0x"), DigitParserMethods.HexadecimalString())
+            () => (Match("0x"), DigitParserMethods.HexadecimalString())
                 .Produce((prefix, value) => prefix + value)
                 .Named("C-Style Hex String")
         );
@@ -47,7 +47,7 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, int> HexadecimalInteger() => _hexInteger.Value;
 
         private static readonly Lazy<IParser<char, int>> _hexInteger = new Lazy<IParser<char, int>>(
-            () => (Match<char>("0x"), DigitParserMethods.HexadecimalString())
+            () => (Match("0x"), DigitParserMethods.HexadecimalString())
                 .Produce((prefix, value) => int.Parse(value, NumberStyles.HexNumber))
                 .Named("C-Style Hex Literal")
         );
@@ -62,7 +62,7 @@ namespace ParserObjects.Parsers.Specialty
             () =>
             {
                 var maybeMinus = Match('-').Transform(c => "-").Optional(() => string.Empty);
-                var nonZeroDigit = Match<char>(c => char.IsDigit(c) && c != '0');
+                var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
                 var digits = Digit().ListCharToString();
                 var zero = Match('0').Transform(c => "0");
                 var nonZeroNumber = (maybeMinus, nonZeroDigit, digits).Produce((sign, start, body) => sign + start + body);
@@ -116,8 +116,8 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, string>> _identifier = new Lazy<IParser<char, string>>(
             () =>
             {
-                var startChar = Match<char>(c => c == '_' || char.IsLetter(c));
-                var bodyChar = Match<char>(c => c == '_' || char.IsLetterOrDigit(c));
+                var startChar = Match(c => c == '_' || char.IsLetter(c));
+                var bodyChar = Match(c => c == '_' || char.IsLetterOrDigit(c));
                 var bodyChars = bodyChar.ListCharToString();
                 return (startChar, bodyChars)
                     .Produce((start, rest) => start + rest)

@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void FollowedBy_Fail()
         {
-            var parser = Match('[').FollowedBy(Match<char>("~"));
+            var parser = Match('[').FollowedBy(Match("~"));
             var input = new StringCharacterSequence("[test]");
             parser.Parse(input).Success.Should().BeFalse();
         }
@@ -20,7 +20,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void FollowedBy_Success()
         {
-            var parser = Match('[').FollowedBy(Match<char>("~"));
+            var parser = Match('[').FollowedBy(Match("~"));
             var input = new StringCharacterSequence("[~test]");
             parser.Parse(input).Value.Should().Be('[');
         }
@@ -28,7 +28,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
 
             var input = new StringCharacterSequence("abc");
@@ -39,8 +39,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Test()
         {
-            var failParser = Fail<char, char>();
-            var anyParser = Any<char>();
+            var failParser = Fail<char>();
+            var anyParser = Any();
             var parser = PositiveLookahead(failParser);
             parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, object>;
 
@@ -51,7 +51,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Same()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
             var result = parser.ReplaceChild(null, null) as IParser<char, object>;
 
@@ -61,7 +61,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var failParser = Fail<char, char>();
+            var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
             var result = parser.GetChildren().ToList();
             result.Count.Should().Be(1);

@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,8 +12,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ZeroOrMore_Parse_Test()
         {
-            var numberParser = Match<char>(char.IsNumber);
-            var letterParser = Match<char>(char.IsLetter);
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
             var parser = LeftApply(
                 numberParser.Transform(c => c.ToString()),
                 left => Rule(
@@ -33,8 +33,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ZeroOrOne_Parse_Test()
         {
-            var numberParser = Match<char>(char.IsNumber);
-            var letterParser = Match<char>(char.IsLetter);
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
             var parser = LeftApply(
                 numberParser.Transform(c => c.ToString()),
                 left => Rule(
@@ -55,8 +55,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ExactlyOne_Parse_Test()
         {
-            var numberParser = Match<char>(char.IsNumber);
-            var letterParser = Match<char>(char.IsLetter);
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
             var parser = LeftApply(
                 numberParser.Transform(c => c.ToString()),
                 left => Rule(
@@ -77,8 +77,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ZeroOrMore_ParseUntyped_Test()
         {
-            var numberParser = Match<char>(char.IsNumber);
-            var letterParser = Match<char>(char.IsLetter);
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
             var parser = LeftApply(
                 numberParser.Transform(c => c.ToString()),
                 left => Rule(
@@ -98,8 +98,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ZeroOrMore_Parse_NonReference()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
 
             // Just use a parser not a reference to build a parser. Since we aren't composing
             // partial results, the output will just be the last letter
@@ -117,8 +117,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ZeroOrMore_Parse_Fail()
         {
-            var numberParser = Match<char>(char.IsNumber);
-            var letterParser = Match<char>(char.IsLetter);
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
             var parser = LeftApply(
                 numberParser.Transform(c => c.ToString()),
                 left => Rule(
@@ -137,9 +137,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Same()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match<char>(".").Transform(c => c[0].ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+            var dotParser = Match(".").Transform(c => c[0].ToString());
             var parser = LeftApply(
                 numberParser,
                 left => Rule(
@@ -157,9 +157,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Item()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match<char>(".").Transform(c => c[0].ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+            var dotParser = Match(".").Transform(c => c[0].ToString());
             var parser = LeftApply(
                 numberParser,
                 left => Rule(
@@ -184,9 +184,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Right()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match<char>(".").Transform(c => c[0].ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+            var dotParser = Match(".").Transform(c => c[0].ToString());
 
             var parser = LeftApply(
                 numberParser,
@@ -203,8 +203,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
 
             // Just use a parser not a reference to build a parser. Since we aren't composing
             // partial results, the output will just be the last letter

@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Visitors
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Any()
         {
-            var parser = Any<char>().Named("parser");
+            var parser = Any().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .");
         }
@@ -18,7 +18,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Empty()
         {
-            var parser = Empty<char>().Named("parser");
+            var parser = Empty().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := ()");
         }
@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_End()
         {
-            var parser = End<char>().Named("parser");
+            var parser = End().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := END");
         }
@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Fail()
         {
-            var parser = Fail<char, object>().Named("parser");
+            var parser = Fail<object>().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := FAIL");
         }
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         public void ToBnf_First_1()
         {
             var parser = First(
-                Any<char>()
+                Any()
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .");
@@ -53,8 +53,8 @@ namespace ParserObjects.Tests.Parsers.Visitors
         public void ToBnf_First_2()
         {
             var parser = First(
-                Any<char>(),
-                Any<char>()
+                Any(),
+                Any()
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. | .)");
@@ -64,10 +64,10 @@ namespace ParserObjects.Tests.Parsers.Visitors
         public void ToBnf_First_4()
         {
             var parser = First(
-                Any<char>(),
-                Any<char>(),
-                Any<char>(),
-                Any<char>()
+                Any(),
+                Any(),
+                Any(),
+                Any()
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. | . | . | .)");
@@ -77,8 +77,8 @@ namespace ParserObjects.Tests.Parsers.Visitors
         public void ToBnf_First_2_Optional()
         {
             var parser = First(
-                Any<char>(),
-                Produce<char, char>(() => '\0')
+                Any(),
+                Produce(() => '\0')
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (.)?");
@@ -87,7 +87,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_List()
         {
-            var parser = Any<char>().List().Named("parser");
+            var parser = Any().List().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .*");
         }
@@ -95,7 +95,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_List_AtLeastOne()
         {
-            var parser = Any<char>().List(true).Named("parser");
+            var parser = Any().List(true).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .+");
         }
@@ -103,10 +103,10 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_LeftApply()
         {
-            var number = Match<char>(char.IsNumber)
+            var number = Match(char.IsNumber)
                 .Transform(c => c.ToString())
                 .Named("number");
-            var multiply = Match<char>("*")
+            var multiply = Match("*")
                 .Transform(c => c[0].ToString())
                 .Named("asterisk");
             var multiplicative = LeftApply(
@@ -119,7 +119,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
                     )
                 )
                 .Named("multiplicative");
-            var add = Match<char>("+")
+            var add = Match("+")
                 .Transform(c => c[0].ToString())
                 .Named("plus");
             var additive = LeftApply(
@@ -145,7 +145,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_MatchSequence()
         {
-            var parser = Match<char>("test").Named("match");
+            var parser = Match("test").Named("match");
             var result = parser.ToBnf();
             result.Should().Contain("match := 't' 'e' 's' 't'");
         }
@@ -153,7 +153,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_NegativeLookahead()
         {
-            var parser = NegativeLookahead(Any<char>()).Named("parser");
+            var parser = NegativeLookahead(Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (?! . )");
         }
@@ -161,7 +161,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_PositiveLookahead()
         {
-            var parser = PositiveLookahead(Any<char>()).Named("parser");
+            var parser = PositiveLookahead(Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (?= . )");
         }
@@ -169,7 +169,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Produce()
         {
-            var parser = Produce<char, char>(() => 'a').Named("parser");
+            var parser = Produce(() => 'a').Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
         }
@@ -179,10 +179,10 @@ namespace ParserObjects.Tests.Parsers.Visitors
         {
             // In C#, assignment ("=") is right-associative
             // 1=2=3 should parse as 1=(2=3)
-            var number = Match<char>(char.IsNumber)
+            var number = Match(char.IsNumber)
                 .Transform(c => c.ToString())
                 .Named("number");
-            var equals = Match<char>("=")
+            var equals = Match("=")
                 .Transform(c => c[0].ToString())
                 .Named("equals");
             var equality = RightApply(
@@ -200,7 +200,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Rule_2()
         {
-            var parser = (Any<char>(), Any<char>()).Produce((a, b) => "").Named("parser");
+            var parser = (Any(), Any()).Produce((a, b) => "").Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. .)");
         }
@@ -208,7 +208,7 @@ namespace ParserObjects.Tests.Parsers.Visitors
         [Test]
         public void ToBnf_Trie()
         {
-            var parser = Trie<char, string>(trie => trie
+            var parser = Trie<string>(trie => trie
                     .Add("abc")
                     .Add("abd")
                     .Add("xyz")

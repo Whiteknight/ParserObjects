@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {

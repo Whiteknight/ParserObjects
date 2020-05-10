@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Parsers.Specialty
         /// <returns></returns>
         public static IParser<char, char> WhitespaceCharacter() => _whitespaceCharacter.Value;
         private static readonly Lazy<IParser<char, char>> _whitespaceCharacter = new Lazy<IParser<char, char>>(
-            () => Match<char>(char.IsWhiteSpace).Named("ws")
+            () => Match(char.IsWhiteSpace).Named("ws")
         );
 
         /// <summary>

@@ -5,18 +5,8 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    /// <summary>
-    /// Parser methods for building combinators using declarative syntax
-    /// </summary>
     public static class ParserMethods
     {
-        /// <summary>
-        /// Matches anywhere in the sequence except at the end, and consumes 1 token of input
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IParser<T, T> Any<T>() => new AnyParser<T>();
-
         /// <summary>
         /// Convenience method to match a literal sequence of characters and return the
         /// result as a string.
@@ -24,7 +14,20 @@ namespace ParserObjects.Parsers
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<char, string> CharacterString(string pattern)
-            => Match<char>(pattern).Transform(c => pattern);
+            => ParserMethods<char>.Match(pattern).Transform(c => pattern);
+    }
+
+    /// <summary>
+    /// Parser methods for building combinators using declarative syntax
+    /// </summary>
+    public static class ParserMethods<TInput>
+    {
+        /// <summary>
+        /// Matches anywhere in the sequence except at the end, and consumes 1 token of input
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
         /// <summary>
         /// Given a list of parsers, parse each in sequence and return a list of object
@@ -33,7 +36,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(params IParser<TInput>[] parsers)
+        public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
             => new RuleParser<TInput, IReadOnlyList<object>>(parsers, r => r);
 
         /// <summary>
@@ -43,7 +46,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="getParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Deferred<TInput, TOutput>(Func<IParser<TInput, TOutput>> getParser) 
+        public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser) 
             => new DeferredParser<TInput, TOutput>(getParser);
 
         /// <summary>
@@ -51,14 +54,14 @@ namespace ParserObjects.Parsers
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, object> Empty<TInput>() => new EmptyParser<TInput>();
+        public static IParser<TInput, object> Empty() => new EmptyParser<TInput>();
 
         /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, bool> End<TInput>()
+        public static IParser<TInput, bool> End()
             => new EndParser<TInput>();
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace ParserObjects.Parsers
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(IParser<TInput, TOutput> parser, Action<ISequence<TInput>> before = null, Action<ISequence<TInput>, IParseResult<TOutput>> after = null)
+        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ISequence<TInput>> before = null, Action<ISequence<TInput>, IParseResult<TOutput>> after = null)
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
         /// <summary>
@@ -79,7 +82,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Fail<TInput, TOutput>()
+        public static IParser<TInput, TOutput> Fail<TOutput>()
             => new FailParser<TInput, TOutput>();
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> First<TInput, TOutput>(params IParser<TInput, TOutput>[] parsers) 
+        public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers) 
             => new FirstParser<TInput, TOutput>(parsers);
 
         /// <summary>
@@ -101,7 +104,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Flatten<TInput, TCollection, TOutput>(IParser<TInput, TCollection> parser)
+        public static IParser<TInput, TOutput> Flatten<TCollection, TOutput>(IParser<TInput, TCollection> parser)
             where TCollection : IEnumerable<TOutput>
             => new FlattenParser<TInput, TCollection, TOutput>(parser);
 
@@ -117,7 +120,7 @@ namespace ParserObjects.Parsers
         /// <param name="getRight"></param>
         /// <param name="arity"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> LeftApply<TInput, TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplicationArity arity = ApplicationArity.ZeroOrMore)
+        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplicationArity arity = ApplicationArity.ZeroOrMore)
             => new LeftApplyParser<TInput, TOutput>(left, getRight, arity);
 
         /// <summary>
@@ -129,7 +132,7 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
         /// false, an empty list returns success.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, bool atLeastOne) 
+        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne) 
             => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace ParserObjects.Parsers
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
             => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
         /// <summary>
@@ -150,8 +153,8 @@ namespace ParserObjects.Parsers
         /// <typeparam name="T"></typeparam>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static IParser<T, T> Match<T>(Func<T, bool> predicate) 
-            => new MatchPredicateParser<T>(predicate);
+        public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate) 
+            => new MatchPredicateParser<TInput>(predicate);
 
         /// <summary>
         /// Get the next input value and return it if it .Equals() to the given value
@@ -159,8 +162,8 @@ namespace ParserObjects.Parsers
         /// <typeparam name="T"></typeparam>
         /// <param name="pattern"></param>
         /// <returns></returns>
-        public static IParser<T, T> Match<T>(T pattern)
-            => Match<T>(s => s.Equals(pattern));
+        public static IParser<TInput, TInput> Match(TInput pattern)
+            => Match(s => s.Equals(pattern));
 
         /// <summary>
         /// Get the next few input values and compare them one-by-one against an ordered sequence of test
@@ -169,7 +172,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="pattern"></param>
         /// <returns></returns>
-        public static IParser<TInput, IReadOnlyList<TInput>> Match<TInput>(IEnumerable<TInput> pattern)
+        public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
             => new MatchSequenceParser<TInput>(pattern);
 
         /// <summary>
@@ -193,7 +196,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, object> NegativeLookahead<TInput>(IParser<TInput> p)
+        public static IParser<TInput, object> NegativeLookahead(IParser<TInput> p)
             => new NegativeLookaheadParser<TInput>(p);
 
         /// <summary>
@@ -202,8 +205,8 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
-            => First(p, Produce<TInput, TOutput>(getDefault ?? (() => default)));
+        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
+            => First(p, Produce(getDefault ?? (() => default)));
 
         /// <summary>
         /// Attempt to parse an item and return a default value otherwise
@@ -213,7 +216,7 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
+        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
         /// <summary>
@@ -223,7 +226,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, object> PositiveLookahead<TInput>(IParser<TInput> p)
+        public static IParser<TInput, object> PositiveLookahead(IParser<TInput> p)
             => new PositiveLookaheadParser<TInput>(p);
 
         /// <summary>
@@ -233,7 +236,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TInput, TOutput>(Func<TOutput> produce) 
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce) 
             => new ProduceParser<TInput, TOutput>(t => produce());
 
         /// <summary>
@@ -243,7 +246,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TInput, TOutput>(Func<ISequence<TInput>, TOutput> produce) 
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce) 
             => new ProduceParser<TInput, TOutput>(produce);
 
         /// <summary>
@@ -253,7 +256,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(IParser<TInput, TOutput> defaultParser = null) 
+        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null) 
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
@@ -268,7 +271,7 @@ namespace ParserObjects.Parsers
         /// <param name="produce"></param>
         /// <param name="getMissingRight"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> RightApply<TInput, TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
+        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
             => new RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput>(item, middle, produce, getMissingRight);
 
         /// <summary>
@@ -284,7 +287,7 @@ namespace ParserObjects.Parsers
         /// <param name="p2"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, Func<T1, T2, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, Func<T1, T2, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2 },
@@ -305,7 +308,7 @@ namespace ParserObjects.Parsers
         /// <param name="p3"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, Func<T1, T2, T3, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, Func<T1, T2, T3, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3 },
@@ -328,7 +331,7 @@ namespace ParserObjects.Parsers
         /// <param name="p4"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, Func<T1, T2, T3, T4, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, Func<T1, T2, T3, T4, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4 },
@@ -353,7 +356,7 @@ namespace ParserObjects.Parsers
         /// <param name="p5"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, Func<T1, T2, T3, T4, T5, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, Func<T1, T2, T3, T4, T5, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5 },
@@ -380,7 +383,7 @@ namespace ParserObjects.Parsers
         /// <param name="p6"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, Func<T1, T2, T3, T4, T5, T6, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, Func<T1, T2, T3, T4, T5, T6, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6 },
@@ -409,7 +412,7 @@ namespace ParserObjects.Parsers
         /// <param name="p7"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7 },
@@ -440,7 +443,7 @@ namespace ParserObjects.Parsers
         /// <param name="p8"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8 },
@@ -473,7 +476,7 @@ namespace ParserObjects.Parsers
         /// <param name="p9"></param>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, IParser<TInput, T9> p9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce)
+        public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, IParser<TInput, T9> p9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce)
         {
             return new RuleParser<TInput, TOutput>(
                 new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },
@@ -491,7 +494,7 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
         /// if an empty list can be returned.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
+        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
             => SeparatedList(p, separator, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -506,7 +509,7 @@ namespace ParserObjects.Parsers
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TInput, TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
         {
             if (minimum >= 1)
             {
@@ -541,7 +544,7 @@ namespace ParserObjects.Parsers
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
                 ),
-                Produce<TInput, IEnumerable<TOutput>>(() => new List<TOutput>())
+                Produce<IEnumerable<TOutput>>(() => new List<TOutput>())
             );
         }
 
@@ -554,7 +557,7 @@ namespace ParserObjects.Parsers
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
+        public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
 
         /// <summary>
@@ -564,10 +567,10 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="readOnlyTrie"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
+        public static IParser<TInput, TOutput> Trie<TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
             => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
-        public static IParser<TInput, TOutput> Trie<TInput, TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+        public static IParser<TInput, TOutput> Trie<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
         {
             var trie = new InsertOnlyTrie<TInput, TOutput>();
             setupTrie?.Invoke(trie);

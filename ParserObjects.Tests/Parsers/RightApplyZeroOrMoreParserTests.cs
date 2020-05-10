@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,8 +12,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -29,8 +29,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ParseUntyped_Test()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -46,8 +46,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail_MissingFirst()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -62,8 +62,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_MissingMiddle()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -82,8 +82,8 @@ namespace ParserObjects.Tests.Parsers
             // If we match <first> and <middle> but fail to parse <right>, we have an option
             // to generate a synthetic right production and continue the parse, so we don't
             // have a dangling <middle> to be accounted for later.
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -104,8 +104,8 @@ namespace ParserObjects.Tests.Parsers
             // If we match <first> and <middle> but fail to parse <right> and there is
             // no synthetic option specified, we should rewind <middle> and only return
             // <first>
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -124,8 +124,8 @@ namespace ParserObjects.Tests.Parsers
             // We match <first> and <middle>, recurse on <right>, but the recursed rule
             // fails on <recursed.Right>. Rewind back to a success and leave the 
             // unmatched second <middle> on the input sequence
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -144,8 +144,8 @@ namespace ParserObjects.Tests.Parsers
             // We match <first> and <middle>, recurse on <right>, but the recursed rule
             // fails on <recursed.Right> so we use the fallback to produce a synthetic
             // <right>. No rewind.
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
             var parser = RightApply(
                 numberParser,
                 letterParser,
@@ -161,9 +161,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Item()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match<char>(".").Transform(c => c[0].ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+            var dotParser = Match(".").Transform(c => c[0].ToString());
 
             var parser = RightApply(
                 numberParser,
@@ -181,9 +181,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Middle()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match<char>(".").Transform(c => c[0].ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+            var dotParser = Match(".").Transform(c => c[0].ToString());
 
             var parser = RightApply(
                 numberParser,
@@ -201,8 +201,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ReplaceChild_Same()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
 
             var parser = RightApply(
                 numberParser,
@@ -216,8 +216,8 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
 
             var parser = RightApply(
                 numberParser,

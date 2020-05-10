@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,8 +10,8 @@ namespace ParserObjects.Tests.Parsers
         public void AnyEnd_Test()
         {
             var parser = Rule(
-                Any<char>(),
-                End<char>(),
+                Any(),
+                End(),
                 (a, e) => a
             );
             parser.CanMatch("a").Should().BeTrue();

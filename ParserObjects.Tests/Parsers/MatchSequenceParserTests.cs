@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Match<char>("abc");
+            var parser = Match("abc");
             var input = new StringCharacterSequence("abcd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -25,7 +25,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Empty()
         {
-            var parser = Match<char>("");
+            var parser = Match("");
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -35,7 +35,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var parser = Match<char>("abc");
+            var parser = Match("abc");
             var input = new StringCharacterSequence("abcd");
             parser.GetChildren().Count().Should().Be(0);
         }
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void CharacterString_Test()
         {
-            var parser = CharacterString("abc");
+            var parser = ParserObjects.Parsers.ParserMethods.CharacterString("abc");
             var input = new StringCharacterSequence("abcd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

@@ -1,5 +1,5 @@
 ﻿using System;
-using static ParserObjects.Parsers.ParserMethods;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Parsers.Specialty
 {
@@ -38,9 +38,9 @@ namespace ParserObjects.Parsers.Specialty
             var escapedClose = $"{escapeStr}{closeStr}";
             var escapedEscape = $"{escapeStr}{escapeStr}";
             var bodyChar = First(
-                Match<char>(escapedClose).Transform(c => escapedClose),
-                Match<char>(escapedEscape).Transform(c => escapedEscape),
-                Match<char>(c => c != closeStr).Transform(c => c.ToString())
+                Match(escapedClose).Transform(c => escapedClose),
+                Match(escapedEscape).Transform(c => escapedEscape),
+                Match(c => c != closeStr).Transform(c => c.ToString())
             );
             return Rule(
                 Match(openStr).Transform(c => openStr.ToString()),
@@ -84,9 +84,9 @@ namespace ParserObjects.Parsers.Specialty
             var escapedClose = $"{escapeStr}{closeStr}";
             var escapedEscape = $"{escapeStr}{escapeStr}";
             var bodyChar = First(
-                Match<char>(escapedClose).Transform(s => closeStr),
-                Match<char>(escapedEscape).Transform(s => escapeStr),
-                Match<char>(c => c != closeStr)
+                Match(escapedClose).Transform(s => closeStr),
+                Match(escapedEscape).Transform(s => escapeStr),
+                Match(c => c != closeStr)
             );
             return Rule(
                 Match(openStr),

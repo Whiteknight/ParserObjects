@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects.Parsers.Logical
 {
-    public static class ParserMethods
+    public static class ParserMethods<TInput>
     {
         /// <summary>
         /// Tests several parsers sequentially. Returns success if they all succeed, otherwise
@@ -9,7 +9,7 @@
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static IParser<TInput> And<TInput>(params IParser<TInput>[] parsers)
+        public static IParser<TInput> And(params IParser<TInput>[] parsers)
             => new AndParser<TInput>(parsers);
 
         /// <summary>
@@ -21,7 +21,7 @@
         /// <param name="predicate"></param>
         /// <param name="parser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> If<TInput, TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
+        public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
             => new IfParser<TInput, TOutput>(predicate, parser);
 
         /// <summary>
@@ -31,7 +31,7 @@
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p1"></param>
         /// <returns></returns>
-        public static IParser<TInput> Not<TInput>(IParser<TInput> p1)
+        public static IParser<TInput> Not(IParser<TInput> p1)
             => new NotParser<TInput>(p1);
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static IParser<TInput> Or<TInput>(params IParser<TInput>[] parsers)
+        public static IParser<TInput> Or(params IParser<TInput>[] parsers)
             => new OrParser<TInput>(parsers);
     }
 }
