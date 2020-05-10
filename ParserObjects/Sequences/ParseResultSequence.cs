@@ -32,8 +32,6 @@ namespace ParserObjects.Sequences
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Pop();
-            if (_input.IsAtEnd)
-                return default;
             return _parser.Parse(_input);
         }
 

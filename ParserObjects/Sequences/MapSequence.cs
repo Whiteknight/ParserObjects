@@ -40,9 +40,6 @@ namespace ParserObjects.Sequences
                 return _putbacks.Pop();
             }
 
-            if (_inputs.IsAtEnd)
-                return default;
-
             var next = _inputs.GetNext();
             _oldLocations.Add(_inputs.CurrentLocation);
             var output = _map(next);

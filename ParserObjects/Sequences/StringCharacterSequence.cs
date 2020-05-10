@@ -60,7 +60,9 @@ namespace ParserObjects.Sequences
         {
             if (_putbacks.Any())
                 return advance ? _putbacks.Pop() : _putbacks.Peek();
-            var value = _index >= _s.Length ? '\0' : _s[_index];
+            if (_index >= _s.Length)
+                return '\0';
+            var value = _s[_index];
             if (advance)
                 _index++;
             return value;
@@ -81,7 +83,10 @@ namespace ParserObjects.Sequences
 
             // Try to just decrement the pointer if we can, otherwise push it onto the putbacks.
             if (_putbacks.Count == 0 && _index > 0 && _s[_index - 1] == value)
+            {
                 _index--;
+                _column--;
+            }
             else
                 _putbacks.Push(value);
         }
