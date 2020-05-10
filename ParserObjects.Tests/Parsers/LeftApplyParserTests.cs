@@ -135,6 +135,49 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void ExactlyOne_Parse_FailNoRight()
+        {
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplicationArity.ExactlyOne
+            );
+
+            var input = new StringCharacterSequence("1");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void ZeroOrOne_Parse_NoRight()
+        {
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplicationArity.ZeroOrOne
+            );
+
+            var input = new StringCharacterSequence("1");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("1");
+        }
+
+        [Test]
         public void ReplaceChild_Same()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
