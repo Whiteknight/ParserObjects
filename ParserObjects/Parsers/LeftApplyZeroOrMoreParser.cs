@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -9,7 +8,7 @@ namespace ParserObjects.Parsers
     {
         private readonly IParser<TInput, TOutput> _initial;
         private readonly IParser<TInput, TOutput> _right;
-        private readonly LeftValueParser _left;
+        private readonly LeftValueParser<TInput, TOutput> _left;
 
         private string _name;
 
@@ -19,11 +18,11 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(getRight, nameof(getRight));
 
             _initial = initial;
-            _left = new LeftValueParser();
+            _left = new LeftValueParser<TInput, TOutput>();
             _right = getRight(_left);
         }
 
-        private LeftApplyZeroOrMoreParser(IParser<TInput, TOutput> initial, LeftValueParser left, IParser<TInput, TOutput> right)
+        private LeftApplyZeroOrMoreParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right)
         {
             _initial = initial;
             _left = left;
@@ -80,22 +79,6 @@ namespace ParserObjects.Parsers
         {
             var typeName = this.GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
-        }
-
-        public class LeftValueParser : IParser<TInput, TOutput>
-        {
-            public TOutput Value { get; set; }
-            public Location Location { get; set; }
-
-            public IParseResult<TOutput> Parse(ISequence<TInput> t) => new SuccessResult<TOutput>(Value, Location);
-
-            IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => new SuccessResult<object>(Value, Location);
-
-            public string Name { get; set; }
-
-            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-            public IParser ReplaceChild(IParser find, IParser replace) => this;
         }
     }
 }

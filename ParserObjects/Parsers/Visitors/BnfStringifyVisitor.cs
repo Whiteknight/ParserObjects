@@ -194,7 +194,7 @@ namespace ParserObjects.Parsers.Visitors
             VisitChild(initial, state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LeftApplyZeroOrMoreParser<TInput, TOutput>.LeftValueParser p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(LeftValueParser<TInput, TOutput> p, State state)
         { 
         }
 
