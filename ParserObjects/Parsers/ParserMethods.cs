@@ -120,7 +120,7 @@ namespace ParserObjects.Parsers
         /// <param name="getRight"></param>
         /// <param name="arity"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplicationArity arity = ApplicationArity.ZeroOrMore)
+        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplyArity arity = ApplyArity.ZeroOrMore)
             => new LeftApplyParser<TInput, TOutput>(left, getRight, arity);
 
         /// <summary>

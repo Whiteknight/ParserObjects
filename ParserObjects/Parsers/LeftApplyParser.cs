@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    public enum ApplicationArity
+    public enum ApplyArity
     {
         ZeroOrOne,
         ExactlyOne,
@@ -14,13 +14,13 @@ namespace ParserObjects.Parsers
     public class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _initial;
-        private readonly ApplicationArity _arity;
+        private readonly ApplyArity _arity;
         private readonly IParser<TInput, TOutput> _right;
         private readonly LeftValueParser<TInput, TOutput> _left;
 
         private string _name;
 
-        public LeftApplyParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplicationArity arity)
+        public LeftApplyParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplyArity arity)
         {
             Assert.ArgumentNotNull(initial, nameof(initial));
             Assert.ArgumentNotNull(getRight, nameof(getRight));
@@ -31,7 +31,7 @@ namespace ParserObjects.Parsers
             _right = getRight(_left);
         }
 
-        private LeftApplyParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right, ApplicationArity arity)
+        private LeftApplyParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right, ApplyArity arity)
         {
             _initial = initial;
             _left = left;
@@ -44,11 +44,11 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(t, nameof(t));
             switch (_arity)
             {
-                case ApplicationArity.ExactlyOne:
+                case ApplyArity.ExactlyOne:
                     return ParseExactlyOne(t);
-                case ApplicationArity.ZeroOrOne:
+                case ApplyArity.ZeroOrOne:
                     return ParseZeroOrOne(t);
-                case ApplicationArity.ZeroOrMore:
+                case ApplyArity.ZeroOrMore:
                     return ParseZeroOrMore(t);
             }
 

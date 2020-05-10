@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplicationArity.ZeroOrOne
+                ApplyArity.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("1a2b3c4");
@@ -65,7 +65,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplicationArity.ExactlyOne
+                ApplyArity.ExactlyOne
             );
 
             var input = new StringCharacterSequence("1a2b3c4");
@@ -147,7 +147,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplicationArity.ExactlyOne
+                ApplyArity.ExactlyOne
             );
 
             var input = new StringCharacterSequence("1");
@@ -168,7 +168,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplicationArity.ZeroOrOne
+                ApplyArity.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("1");
