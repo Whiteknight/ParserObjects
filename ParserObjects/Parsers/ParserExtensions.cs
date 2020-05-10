@@ -11,6 +11,18 @@ namespace ParserObjects.Parsers
     public static class ParserExtensions
     {
         /// <summary>
+        /// Invoke callbacks before and after a parse
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<ISequence<TInput>> before = null, Action<ISequence<TInput>, IParseResult<TOutput>> after = null)
+            => new ExamineParser<TInput, TOutput>(parser, before, after);
+
+        /// <summary>
         /// Flattens the enumerable result of a given parser.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
