@@ -6,13 +6,17 @@
     <RootNamespace>ParserObjects</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>8.0</LangVersion>
-    <Version>2.0.0-beta1</Version>
+    <Version>2.0.0-beta2</Version>
     <Authors>Andrew F. Whitworth</Authors>
     <Company />
     <Description>Parser abstractions, objects and combinators</Description>
     <Copyright>Copyright 2020</Copyright>
     <PackageProjectUrl>https://github.com/Whiteknight/ParserObjects</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>
