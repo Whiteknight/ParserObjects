@@ -115,7 +115,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrMore_Parse_Fail()
+        public void ZeroOrMore_Parse_FailLeft()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -127,6 +127,48 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 )
+            );
+
+            var input = new StringCharacterSequence("X");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void ExactlyOne_Parse_FailLeft()
+        {
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplyArity.ExactlyOne
+            );
+
+            var input = new StringCharacterSequence("X");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void ZeroOrOne_Parse_FailLeft()
+        {
+            var numberParser = Match(char.IsNumber);
+            var letterParser = Match(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplyArity.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("X");

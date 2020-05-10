@@ -12,13 +12,13 @@ namespace ParserObjects.Tests.Parsers
         public void Method_Test()
         {
             char before = '\0';
-            char after = '\0';
-            var parser = Examine(Any(), i => before = i.Peek(), (i, r) => after = i.Peek());
+            string after = "";
+            var parser = Examine(Any(), i => before = i.Peek(), (i, r) => after = $"{r.Value}{i.Peek()}");
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');
-            after.Should().Be('b');
+            after.Should().Be("ab");
         }
 
         [Test]
