@@ -7,10 +7,10 @@ using static ParserObjects.Parsers.ParserMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
-    public class LeftApplyZeroOrMoreParserTests
+    public class LeftApplyParserTests
     {
         [Test]
-        public void Parse_Test()
+        public void ZeroOrMore_Parse_Test()
         {
             var numberParser = Match<char>(char.IsNumber);
             var letterParser = Match<char>(char.IsLetter);
@@ -31,7 +31,51 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUntyped_Test()
+        public void ZeroOrOne_Parse_Test()
+        {
+            var numberParser = Match<char>(char.IsNumber);
+            var letterParser = Match<char>(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplicationArity.ZeroOrOne
+            );
+
+            var input = new StringCharacterSequence("1a2b3c4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("(1a2)");
+        }
+
+        [Test]
+        public void ExactlyOne_Parse_Test()
+        {
+            var numberParser = Match<char>(char.IsNumber);
+            var letterParser = Match<char>(char.IsLetter);
+            var parser = LeftApply(
+                numberParser.Transform(c => c.ToString()),
+                left => Rule(
+                    left,
+                    letterParser,
+                    numberParser,
+                    (l, op, r) => $"({l}{op}{r})"
+                ),
+                ApplicationArity.ExactlyOne
+            );
+
+            var input = new StringCharacterSequence("1a2b3c4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("(1a2)");
+        }
+
+        [Test]
+        public void ZeroOrMore_ParseUntyped_Test()
         {
             var numberParser = Match<char>(char.IsNumber);
             var letterParser = Match<char>(char.IsLetter);
@@ -52,7 +96,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_NonReference()
+        public void ZeroOrMore_Parse_NonReference()
         {
             var numberParser = Match<char>(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match<char>(char.IsLetter).Transform(c => c.ToString());
@@ -71,7 +115,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Fail()
+        public void ZeroOrMore_Parse_Fail()
         {
             var numberParser = Match<char>(char.IsNumber);
             var letterParser = Match<char>(char.IsLetter);

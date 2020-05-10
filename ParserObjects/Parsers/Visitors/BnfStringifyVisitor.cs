@@ -188,7 +188,7 @@ namespace ParserObjects.Parsers.Visitors
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LeftApplyZeroOrMoreParser<TInput, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(LeftApplyParser<TInput, TOutput> p, State state)
         {
             var children = p.GetChildren().ToArray();
             var initial = children[0];

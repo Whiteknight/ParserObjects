@@ -109,15 +109,16 @@ namespace ParserObjects.Parsers
         /// A left-associative parser where the left item is parsed unconditionally, and the result of the
         /// left parser is applied to the right parser. This new result is then treated as the 'left' value
         /// for the next iteration of the right parser. This can be used when many rules have a common prefix
-        /// and you don't want to backtrack through the prefix on every attempt, 
+        /// and you don't want to backtrack through the prefix on every attempt.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="left"></param>
         /// <param name="getRight"></param>
+        /// <param name="arity"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> LeftApply<TInput, TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight)
-            => new LeftApplyZeroOrMoreParser<TInput, TOutput>(left, getRight);
+        public static IParser<TInput, TOutput> LeftApply<TInput, TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplicationArity arity = ApplicationArity.ZeroOrMore)
+            => new LeftApplyParser<TInput, TOutput>(left, getRight, arity);
 
         /// <summary>
         /// Parse a list of items. 
