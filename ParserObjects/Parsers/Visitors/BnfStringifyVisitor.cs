@@ -139,6 +139,10 @@ namespace ParserObjects.Parsers.Visitors
             state.Current.Append("END");
         }
 
+        protected virtual void VisitTyped<TInput, TOutput>(ExamineParser<TInput, TOutput> p, State state)
+        {
+        }
+
         protected virtual void VisitTyped<TInput, TOutput>(FailParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("FAIL");
