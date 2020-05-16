@@ -25,8 +25,6 @@ namespace ParserObjects.Parsers
             var location = t.CurrentLocation;
 
             // Handle a few small cases where we don't want to allocate a buffer
-            if (t.IsAtEnd && Pattern.Count > 0)
-                return new FailResult<IReadOnlyList<T>>(location);
             if (Pattern.Count == 0)
                 return new SuccessResult<IReadOnlyList<T>>(new T[0], location);
             if (Pattern.Count == 1)

@@ -34,7 +34,7 @@ namespace ParserObjects.Parsers
                 items.Add(result.Value);
             }
 
-            if (items.Count < Minimum)
+            if (Minimum > 0 && items.Count < Minimum)
             {
                 window.Rewind();
                 return new FailResult<IEnumerable<TOutput>>(location);
