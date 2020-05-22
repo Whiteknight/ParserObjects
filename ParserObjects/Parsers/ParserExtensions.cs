@@ -180,6 +180,18 @@ namespace ParserObjects.Parsers
             => new ReplaceableParser<TInput, TOutput>(p);
 
         /// <summary>
+        /// Make this parser replaceable. Gives the parser a name so that it can be easily
+        /// found and replaced
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
+            => new ReplaceableParser<TInput, TOutput>(p).Named(name);
+
+        /// <summary>
         /// Transform the output of the given parser to a new value 
         /// </summary>
         /// <typeparam name="TInput"></typeparam>

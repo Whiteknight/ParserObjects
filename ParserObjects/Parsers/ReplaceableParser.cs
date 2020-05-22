@@ -36,10 +36,12 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceableChild => _value;
 
-        public void SetParser(IParser parser)
+        public SingleReplaceResult SetParser(IParser parser)
         {
+            var previous = _value;
             if (parser is IParser<TInput, TOutput> typed)
                 _value = typed;
+            return new SingleReplaceResult(this, previous, _value);
         }
     }
 }

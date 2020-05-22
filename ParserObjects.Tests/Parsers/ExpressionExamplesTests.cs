@@ -199,5 +199,48 @@ namespace ParserObjects.Tests.Parsers
             var result2 = expr.Parse("1+2");
             result2.Success.Should().BeFalse();
         }
+
+        [Test]
+        public void Replace_WrapOperatorParser()
+        {
+            // Show how we can replace one parser in the tree with another parser.
+            // replace the "add" parser with a "subtract" parser we define later, and
+            // use the new parser tree to parse a modified grammar
+            var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
+            var add = Match("+")
+                .Transform(c => c[0].ToString())
+                .Replaceable()
+                .Named("add");
+            var additive = LeftApply(
+                number,
+                left => Rule(
+                    left,
+                    add,
+                    number,
+                    (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                )
+            );
+            var expr = Rule(
+                additive,
+                End(),
+                (a, eoi) => a
+            );
+
+            expr.Replace<char, string>("add", a => Rule(
+                Match('['),
+                a,
+                Match(']'),
+                (x, y, z) => "[+]"));
+
+            // Show that we can parse the new grammar with '-' 
+            var result1 = expr.Parse("1[+]2").Value as InfixExpressionParseNode;
+            (result1.Left as NumberValueParseNode).Value.Should().Be("1");
+            result1.Operator.Should().Be("[+]");
+            (result1.Right as NumberValueParseNode).Value.Should().Be("2");
+
+            // Show that we can't parse the old grammar with '+'
+            var result2 = expr.Parse("1+2");
+            result2.Success.Should().BeFalse();
+        }
     }
 }

@@ -70,16 +70,20 @@ namespace ParserObjects.Parsers.Visitors
         /// <param name="predicate"></param>
         /// <param name="replacement"></param>
         /// <returns></returns>
-        public static bool Replace(IParser root, Func<IReplaceableParserUntyped, bool> predicate, IParser replacement)
+        public static MultiReplaceResult Replace(IParser root, Func<IReplaceableParserUntyped, bool> predicate, IParser replacement)
         {
             if (root == null || predicate == null || replacement == null)
-                return false;
+                return MultiReplaceResult.Failure();
             var visitor = new FindParserVisitor();
             var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
             visitor.Visit(root, state);
+            var results = new List<SingleReplaceResult>();
             foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
-                found.SetParser(replacement);
-            return true;
+            {
+                var result = found.SetParser(replacement);
+                results.Add(result);
+            }
+            return new MultiReplaceResult(results);
         }
 
         /// <summary>
@@ -91,8 +95,51 @@ namespace ParserObjects.Parsers.Visitors
         /// <param name="name"></param>
         /// <param name="replacement"></param>
         /// <returns></returns>
-        public static bool Replace(IParser root, string name, IParser replacement) 
+        public static MultiReplaceResult Replace(IParser root, string name, IParser replacement) 
             => Replace(root, p => p.Name == name, replacement);
+
+        /// <summary>
+        /// Search for ReplaceableParsers matching a predicate and attempt to transform the contents using
+        /// the given transformation. The contents of the ReplaceableParser will be replaced with the
+        /// transformed result if it is new and valid.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="predicate"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, Func<IReplaceableParserUntyped, bool> predicate, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
+        {
+            if (root == null || predicate == null || transform == null)
+                return MultiReplaceResult.Failure();
+            var visitor = new FindParserVisitor();
+            var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
+            visitor.Visit(root, state);
+            var results = new List<SingleReplaceResult>();
+            foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
+            {
+                var parser = found.ReplaceableChild as IParser<TInput, TOutput>;
+                if (parser == null)
+                    continue;
+                var replacement = transform(parser);
+                if (replacement == null || ReferenceEquals(replacement, parser))
+                    continue;
+                var result = found.SetParser(replacement);
+                results.Add(result);
+            }
+            return new MultiReplaceResult(results);
+        }
+
+        /// <summary>
+        /// Search for ReplaceableParsers with the given name and attempt to transform the contents using
+        /// the given transformation. The contents of the ReplaceableParser will be replaced with the
+        /// transformed result if it is new and valid.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
+            => Replace(root, p => p.Name == name, transform);
 
         private void Visit(IParser parser, State state)
         {
