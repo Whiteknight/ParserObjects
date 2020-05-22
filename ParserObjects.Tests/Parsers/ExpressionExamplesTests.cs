@@ -204,7 +204,7 @@ namespace ParserObjects.Tests.Parsers
         public void Replace_WrapOperatorParser()
         {
             // Show how we can replace one parser in the tree with another parser.
-            // replace the "add" parser with a "subtract" parser we define later, and
+            // wrap the "+" parser with a parser to have brackets, and
             // use the new parser tree to parse a modified grammar
             var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
             var add = Match("+")
