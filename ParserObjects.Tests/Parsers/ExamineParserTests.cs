@@ -13,7 +13,7 @@ namespace ParserObjects.Tests.Parsers
         {
             char before = '\0';
             string after = "";
-            var parser = Examine(Any(), (p, i) => before = i.Peek(), (p, i, r) => after = $"{r.Value}{i.Peek()}");
+            var parser = Examine(Any(), s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers
         {
             char before = '\0';
             char after = '\0';
-            var parser = Any().Examine((p, i) => before = i.Peek(), (p, i, r) => after = i.Peek());
+            var parser = Any().Examine(s => before = s.Input.Peek(), s => after = s.Input.Peek());
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

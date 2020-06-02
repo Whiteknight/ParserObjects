@@ -3,14 +3,27 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
+    public class ParseState<TInput, TOutput>
+    {
+        public ParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, IParseResult<TOutput> result)
+        {
+            Parser = parser;
+            Input = input;
+            Result = result;
+        }
+
+        public IParser<TInput, TOutput> Parser { get; }
+        public ISequence<TInput> Input { get; }
+        public IParseResult<TOutput> Result { get; }
+    }
+
     public class ExamineParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _parser;
-        // TODO: Put together objects for these so we can grow the arg lists arbitrarily
-        private readonly Action<IParser<TInput, TOutput>, ISequence<TInput>> _before;
-        private readonly Action<IParser<TInput, TOutput>, ISequence<TInput>, IParseResult<TOutput>> _after;
+        private readonly Action<ParseState<TInput, TOutput>> _before;
+        private readonly Action<ParseState<TInput, TOutput>> _after;
 
-        public ExamineParser(IParser<TInput, TOutput> parser, Action<IParser<TInput, TOutput>, ISequence<TInput>> before, Action<IParser<TInput, TOutput>, ISequence<TInput>, IParseResult<TOutput>> after)
+        public ExamineParser(IParser<TInput, TOutput> parser, Action<ParseState<TInput, TOutput>> before, Action<ParseState<TInput, TOutput>> after)
         {
             _parser = parser;
             _before = before;
@@ -32,9 +45,9 @@ namespace ParserObjects.Parsers
 
         public IParseResult<TOutput> Parse(ISequence<TInput> t)
         {
-            _before?.Invoke(_parser, t);
+            _before?.Invoke(new ParseState<TInput, TOutput>(_parser, t, null));
             var result = _parser.Parse(t);
-            _after?.Invoke(_parser, t, result);
+            _after?.Invoke(new ParseState<TInput, TOutput>(_parser, t, result));
             return result;
         }
     }
