@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Specialty.DigitParserMethods;
 
@@ -38,19 +39,158 @@ namespace ParserObjects.Parsers.Specialty
                     .NotFollowedBy(lowerCase)
                     .ListCharToString(true);
 
-                var parts = First(
+                var bodyParts = First(
                     digits,
                     upperString,
                     camelCaseString,
                     lowerString
                 );
 
-                return parts.List();
+                // The first part must be a character string, either upper, lower or camel
+                var firstPart = First(
+                    upperString,
+                    lowerString,
+                    camelCaseString
+                );
+
+                // A first part followed by any number of body parts
+                return Rule(
+                    firstPart,
+                    bodyParts.List(),
+                    (first, rest) => new[] { first }.Concat(rest)
+                );
             }
         );
 
-        // TODO: Docs for these methods, when we mature this class a bit more
-        // TODO: spinal-case and snake_case parsers
-        // TODO: Dedicated parsers for lowerCamelCase and UpperCamelCase
+        public static IParser<char, IEnumerable<string>> LowerCamelCase() => _lowerCamelCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _lowerCamelCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var lowerCase = Match(char.IsLower);
+                var upperCase = Match(char.IsUpper);
+
+                // Any run of digits of any length is a string
+                var digits = DigitString();
+
+                // In some cases a string of lower-cases will count
+                var lowerString = lowerCase.ListCharToString(true);
+
+                // A string starting with an upper char and continuing with zero or more lower chars
+                var camelCaseString = Rule(
+                    upperCase,
+                    lowerCase.ListCharToString(),
+                    (u, l) => u + l
+                );
+
+                // A run of all uppercase chars which aren't followed by lower-case chars
+                // can be an abbreviation
+                var upperString = upperCase
+                    .NotFollowedBy(lowerCase)
+                    .ListCharToString(true);
+
+                var bodyParts = First(
+                    digits,
+                    upperString,
+                    camelCaseString,
+                    lowerString
+                );
+
+                return Rule(
+                    lowerString,
+                    bodyParts.List(),
+                    (first, rest) => new[] { first }.Concat(rest)
+                );
+            }
+        );
+
+        public static IParser<char, IEnumerable<string>> UpperCamelCase() => _upperCamelCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _upperCamelCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var lowerCase = Match(char.IsLower);
+                var upperCase = Match(char.IsUpper);
+
+                // Any run of digits of any length is a string
+                var digits = DigitString();
+
+                // In some cases a string of lower-cases will count
+                var lowerString = lowerCase.ListCharToString(true);
+
+                // A string starting with an upper char and continuing with zero or more lower chars
+                var camelCaseString = Rule(
+                    upperCase,
+                    lowerCase.ListCharToString(),
+                    (u, l) => u + l
+                );
+
+                // A run of all uppercase chars which aren't followed by lower-case chars
+                // can be an abbreviation
+                var upperString = upperCase
+                    .NotFollowedBy(lowerCase)
+                    .ListCharToString(true);
+
+                var firstPart = First(
+                    upperString,
+                    camelCaseString
+                );
+
+                var bodyParts = First(
+                    digits,
+                    upperString,
+                    camelCaseString,
+                    lowerString
+                );
+
+                return Rule(
+                    firstPart,
+                    bodyParts.List(),
+                    (first, rest) => new[] { first }.Concat(rest)
+                );
+            }
+        );
+
+        public static IParser<char, IEnumerable<string>> SpinalCase() => _spinalCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _spinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var idChar = Match(c => char.IsLetterOrDigit(c) && c != '-');
+                var word = idChar.ListCharToString();
+                var separator = Match('-');
+                return word.ListSeparatedBy(separator, atLeastOne: true);
+            }
+        );
+
+        public static IParser<char, IEnumerable<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSpinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
+                var word = idChar.ListCharToString();
+                var separator = Match('-');
+                return word.ListSeparatedBy(separator, atLeastOne: true);
+            }
+        );
+
+        public static IParser<char, IEnumerable<string>> SnakeCase() => _snakeCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _snakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var idChar = Match(c => char.IsLetterOrDigit(c) && c != '_');
+                var word = idChar.ListCharToString();
+                var separator = Match('_');
+                return word.ListSeparatedBy(separator, atLeastOne: true);
+            }
+        );
+
+        public static IParser<char, IEnumerable<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSnakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
+            () =>
+            {
+                var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');
+                var word = idChar.ListCharToString();
+                var separator = Match('_');
+                return word.ListSeparatedBy(separator, atLeastOne: true);
+            }
+        );
     }
 }
