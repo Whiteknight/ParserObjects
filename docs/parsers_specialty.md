@@ -1,6 +1,6 @@
 # Specialty Parsers
 
-In addition to the [Core Parsers](parsers_core.md), ParserObjects provides a few pre-built parsers for common and familiar programming tasks. Several of these methods will cache the created instances so you don't recreate them on every call. Exceptions will be noted below.
+In addition to the [Core Parsers](parsers_core.md), ParserObjects provides a few pre-built parsers for common and familiar programming tasks. Several of these methods will cache the created instances so you don't recreate them on every call. Exceptions will be noted below. All of the specialty parsers assume `char` input, because all of these tasks are related to characters and strings.
 
 ## Digit Parsers
 

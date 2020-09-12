@@ -6,7 +6,7 @@ There are three basic styles of declaring parsers. The first is to use normal ob
 
 ```csharp
 var parser = new ListParser<char, char>(
-    new AnyParser<char>()
+    new AnyParser()
 );
 ```
 
@@ -15,8 +15,8 @@ The second is to use some static methods to simplify:
 ```csharp
 using static ParserObjects.Parsers.ParserMethods;
 
-var parser = List<char, char>(
-    Any<char>()
+var parser = List(
+    Any()
 );
 ```
 
@@ -25,36 +25,43 @@ The third is to start with one of the above two styles and use monadic extension
 ```csharp
 using static ParserObjects.Parsers.ParserMethods;
 
-var parser = Any<char>()
+var parser = Any()
     .List();
 ```
 
+In a few cases there are tuple syntaxes available to further simplify. These will be noted in the appropriate sections.
+
 ## Fundamental Parser Types
 
-These parsers represent the theoretical core of the parsing library.
+These parsers represent the theoretical core of the parsing library. To use these, import the methods you're using:
+
+```csharp
+using ParserMethods.Parsers;
+using static ParserMethods.Parsers.ParserMethods;
+```
 
 ### Any Parser
 
-The `Any` parser matches any input value and returns it directly.
+The `Any` parser matches any single input value and returns it directly.
 
 ```csharp
-var anyParser = new AnyParser<char>();
-var anyParser = Any<char>();
+var anyParser = new AnyParser();
+var anyParser = Any();
 ```
 
 It is functionally equivalent to the match predicate parser (described below)
 
 ```csharp
-var anyParser = Match<char>(() => true);
+var anyParser = Match(_ => true);
 ```
 
 ### Empty Parser
 
-The `Empty` parser consumes no input and always returns success with a value of `null`.
+The `Empty` parser consumes no input and always returns success with a default value.
 
 ```csharp
-var parser = new EmptyParser<char>();
-var parser = Empty<char>();
+var parser = new EmptyParser();
+var parser = Empty();
 ```
 
 ### End Parser
@@ -62,8 +69,8 @@ var parser = Empty<char>();
 The `End` parser returns success if the stream is at the end, failure otherwise.
 
 ```csharp
-var parser = new EndParser<char>();
-var parser = End<char>();
+var parser = new EndParser();
+var parser = End();
 ```
 
 ### Fail Parser
@@ -72,7 +79,7 @@ The `Fail` parser returns failure unconditionally.
 
 ```csharp
 var parser = new FailParser<char, char>();
-var parser = Fail<char, char>();
+var parser = Fail<char>();
 ```
 
 ### First Parser
@@ -93,6 +100,8 @@ var parser = First(
 var parser = (parser1, parser2, parser3).First();
 ```
 
+The tuple variant of this parser is limited to 9 child parsers. The other variants can take any number of child parsers.
+
 ### List Parser
 
 The `List` parser attempts to parse the inner parser repeatedly until it fails, and returns an enumeration of the results.
@@ -109,7 +118,7 @@ The `MatchPredicateParser` examines the next input item and returns it if it mat
 
 ```csharp
 var parser = new MatchPredicateParser<char>(c => ...);
-var parser = Match<char>(c => ...);
+var parser = Match(c => ...);
 ```
 
 ### Produce Parser
@@ -118,13 +127,13 @@ The `Produce` parser produces a value but consumes no input.
 
 ```csharp
 var parser = new ProduceParser<char, string>(() => "abcd");
-var parser = Produce<char, string>(() => "abcd");
+var parser = Produce(() => "abcd");
 ```
 
 This is functionally equivalent to a combination of the `Empty` and `Transform` parsers:
 
 ```csharp
-var parser = Empty<char>().Transform(x => "abcd");
+var parser = Empty().Transform(x => "abcd");
 ```
 
 ### Rule Parser
@@ -137,9 +146,12 @@ var parser = new RuleParser<char, string>(
     parser2,
     parser3,
     (r1, r2, r3) => ...
-)
+);
+var parser = Rule(parser1, parser2, parser3, (r1, r2, r3) => ...);
 var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
 ```
+
+All variants of the Rule parser are limited to 9 child parsers. If you need more than 9 child parsers in a rule, consider merging together adjacent parsers to create intermediate values.
 
 ## Matching Parsers
 
@@ -150,13 +162,17 @@ These parsers help to simplify matching of literal patterns.
 The `CharacterString` parser matches a literal string of characters against a `char` input and returns the string on success.
 
 ```csharp
+using ParserObjects.Parsers.ParserMethods;
+```
+
+```csharp
 var parser = CharacterString("abc");
 ```
 
-This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers:
+This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers (both described below):
 
 ```csharp
-var parser = Match<char>("abc").Transform(x => "abc");
+var parser = Match("abc").Transform(x => "abc");
 ```
 
 ### Match Sequence Parser
@@ -166,8 +182,8 @@ The `MatchSequenceParser` takes a literal list of values, and attempts to match 
 ```csharp
 var parser = new MatchSequenceParser<char>(new char[] { 'a', 'b', 'c', 'd' });
 var parser = new MatchSequenceParser<char>("abcd");
-var parser = Match<char>(new char[] { 'a', 'b', 'c', 'd' });
-var parser = Match<char>("abcd");
+var parser = Match(new char[] { 'a', 'b', 'c', 'd' });
+var parser = Match("abcd");
 ```
 
 This is functionally equivalent (though faster and more succinct) to a combination of the `Rule` and `MatchPredicate` parsers:
@@ -184,7 +200,7 @@ var parser = Rule(
 
 ### Trie Parser
 
-The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides an `ITrie<TKey, TResult>` abstraction for this purpose.
+The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides an `IReadOnlyTrie<TKey, TResult>` abstraction for this purpose.
 
 ```csharp
 var parser = new TrieParser<char, string>(trie);
@@ -206,6 +222,8 @@ var parser = new FlattenParser<char, string, char>(sourceParser);
 var parser = Flatten<char, string, char>(sourceParser);
 var parser = sourceParser.Flatten<char, string, char>();
 ```
+
+The `FlattenParser` is conceptually similar to the `.SelectMany()` LINQ method.
 
 ### Transform Parser
 
@@ -237,7 +255,7 @@ The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns
 
 ```csharp
 var parser = new PositiveLookaheadParser<char>(innerParser);
-var parser = PositiveLookahead<char>(innerParser);
+var parser = PositiveLookahead(innerParser);
 var parser = someParser.FollowedBy(innerParser);
 ```
 
@@ -245,16 +263,16 @@ var parser = someParser.FollowedBy(innerParser);
 
 These parsers exist to help simplify recursion scenarios.
 
-### LeftApplyZeroOrMore Parser
+### Left Apply Parser
 
-The `LeftApplyZeroOrMore` parser is a complicated parser for left-associative parsing. The left value is parsed first and the value of it is applied to the right side production rule. The value of the right parser will then be used as the new left value and it will attempt to continue until a right parser does not match. The pseudo-BNF for it is:
+The `LeftApplyParser` is a complicated parser for left-associative parsing. The left value is parsed first and the value of it is applied to the right side production rule. The value of the right parser will then be used as the new left value and it will attempt to continue until a right parser does not match. The pseudo-BNF for it is:
 
 ```
 self := <self> <right> | <left>
 ```
 
 ```csharp
-var parser = new LeftApplyZeroOrMore(
+var parser = new LeftApplyParser<char, object>(
     itemParser, 
     left => ...
 );
@@ -266,7 +284,7 @@ var parser = LeftApply(
 
 ### Right Apply Zero or More Parser
 
-The `RightApplyZeroOrMore` parser is for right-associative recursion. It is conceptually similar to the `LeftApplyZeroOrMore` parser, but with right-recursion. It parses an item and then attempts to parse a separator followed by a recursion to itself. The pseudo-BNF for it is:
+The `RightApplyZeroOrMoreParser` is for right-associative recursion. It is conceptually similar to the `LeftApplyZeroOrMore` parser, but with right-recursion. It parses an item and then attempts to parse a separator followed by a recursion to itself. The pseudo-BNF for it is:
 
 ```
 self := <item> (<middle> <self>)?
@@ -308,7 +326,7 @@ var parser = Deferred(() => targetParser);
 
 ### Replaceable Parser
 
-The `Replaceable` parser references an inner parser and invokes it transparently. However, the replaceable parser allows the inner parser to be replaced in-place without cloning. This is useful in cases where you want to make modifications to the parser tree.
+The `Replaceable` parser references an inner parser and invokes it transparently. However, the replaceable parser allows the inner parser to be replaced in-place without cloning. This is the only parser type in the entire library which is not immutable. This is useful in cases where you want to make modifications to the parser tree without creating a whole new tree.
 
 ```csharp
 var parser = new ReplaceableParser<char, char>(innerParser);

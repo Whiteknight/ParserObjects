@@ -23,6 +23,9 @@ public class Token
 Now we can put together a lexical grammar as a `IParser<char, Token>` that takes characters as input and returns `Token`.  
 
 ```csharp
+using ParserObjects.Parsers;
+using static ParserObjects.Parsers.ParserMethods<char>;
+
 public class LexicalGrammar
 {
     public IParser<char, Token> CreateParser()
@@ -35,16 +38,16 @@ public class LexicalGrammar
 First thing we want to parse are operators. They are simple because each is only one character, and we want to transform these characters into appropriate tokens:
 
 ```csharp
-var addition = Match<char>('+')
+var addition = Match('+')
     .Transform(c => new Token(TokenType.Addition, "+"));
-var multiplication = Match<char>('*')
+var multiplication = Match('*')
     .Transform(c => new Token(TokenType.Multiplication, "*"));
 ```
 
 Now we want to define a parser for reading numbers. Numbers consist of one or more decimal digits. We create a parser to match a digit character, then get a list of subsequent digits, and then transform the list of digit characters into a Token with a string of digits as it's value:
 
 ```csharp
-var number = Match<char>(c => char.IsDigit(c))
+var number = Match(c => char.IsDigit(c))
     .List(atLeastOne: true)
     .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
 ```
@@ -52,7 +55,7 @@ var number = Match<char>(c => char.IsDigit(c))
 We also want to gather up whitespace, but we don't need to transform it because we don't care about the output value:
 
 ```csharp
-var whitespace = Match<char>(c => char.IsWhitespace(c)).List();
+var whitespace = Match(c => char.IsWhitespace(c)).List();
 ```
 
 Now we want to start creating our output rules. Our first rule will attempt to match all the known token types, the second rule will match optional whitespace followed by a token, but only return the token:
@@ -71,11 +74,15 @@ var whitespaceAndToken = Rule(
 )
 ```
 
+Unit tests at this point can show that given an input string of numbers and operators, this tokenizer returns all the correct tokens in sequence.
+
 ## The Expression Grammar
 
 Now we want to write a Parser which takes Tokens as input and returns a numerical value. First, let's create our Expression grammar class:
 
 ```csharp
+using static ParserObjects.Parsers.ParserMethods<Token>;
+
 public class ExpressionGrammar
 {
     public IParser<Token, int> CreateParser()
@@ -88,10 +95,12 @@ public class ExpressionGrammar
 Let's first create a helpful static method for creating a parser to match tokens by type:
 
 ```csharp
+using static ParserObjects.Parsers.ParserMethods<Token>;
+
 public static class TokenParserExtension
 {
     public static IParser<Token, Token> Token(TokenType type)
-        => Match<Token>(t => t.Type == type);
+        => Match(t => t.Type == type);
 }
 ```
 
@@ -206,10 +215,10 @@ Our calculator class needs to take an input, turn it into a sequence of tokens, 
 ```csharp
 public class Calculator
 {
-    public int Calculate(string syntax)
+    public int Calculate(string equation)
     {
         // Turn the input string into a sequence of characters
-        var characterSequence = new StringCharacterSequence(syntax);
+        var characterSequence = new StringCharacterSequence(equation);
 
         // Get the lexical grammar, and use it to create a sequence of tokens
         var lexicalParser = LexicalGrammar.CreateParser();
@@ -234,7 +243,7 @@ We want to make sure we parse the whole input, and we want to alert the user tha
 ```csharp
 var expression = Rule(
     additive,
-    End<char>(),
+    End(),
     (add, end) => add
 );
 ```
@@ -242,8 +251,8 @@ var expression = Rule(
 Now if we don't see end-of-input the parse will fail. We could also be more proactive and throw an exception if we don't see the end of input:
 ```csharp
 var requiredEnd = First(
-    End<Token>(),
-    Produce<Token, object>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
+    End(),
+    Produce<object>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
 );
 var expression = Rule(
     additive,
@@ -267,7 +276,7 @@ The `Produce` parser is expected to return a result value, but it does that by e
 var requiredNumber = First(
     number,
     ThrowError("Expected number")
-)
+);
 var multiplicative = LeftApply(
     number,
     left => First(
@@ -288,7 +297,7 @@ var multiplicative = LeftApply(
 var requiredMultiplicative = First(
     number,
     ThrowError("Expected multiplicative")
-)
+);
 var additive = LeftApply(
     multiplicative,
     left => First(
@@ -306,6 +315,8 @@ var additive = LeftApply(
         )
 );
 ```
+
+What we're doing here is saying that if we see an operator, we must see something on the right side of that operator. We can either have the left value by itself, or the set of (left, operator, right). There's no other permissable combination.
 
 ## Continuing On
 
