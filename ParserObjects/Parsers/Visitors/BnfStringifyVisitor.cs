@@ -67,6 +67,14 @@ namespace ParserObjects.Parsers.Visitors
                     return;
                 }
 
+                if (parser.GetChildren().Count() == 0)
+                {
+                    // if it's a simple parser with no recursion, we can just visit it again.
+                    // No harm because it won't cause a loop
+                    ((dynamic)this).VisitTyped((dynamic)parser, state);
+                    return;
+                }
+
                 state.Current.Append("<ALREADY SEEN UNNAMED PARSER>");
                 return;
             }

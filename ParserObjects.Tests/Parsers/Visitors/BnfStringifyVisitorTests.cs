@@ -9,6 +9,24 @@ namespace ParserObjects.Tests.Parsers.Visitors
     public class BnfStringifyVisitorTests
     {
         [Test]
+        public void ToBnf_AlreadySeenUnnamedParser_RecurseOk()
+        {
+            var offender = Any();
+            var parser = (offender, offender).First().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (. | .)");
+        }
+
+        [Test]
+        public void ToBnf_AlreadySeenUnnamedParser_RecurseFail()
+        {
+            var offender = Deferred(() => Any());
+            var parser = (offender, offender).First().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (. | <ALREADY SEEN UNNAMED PARSER>)");
+        }
+
+        [Test]
         public void ToBnf_And()
         {
             var parser = And(Any(), Any()).Named("parser");
