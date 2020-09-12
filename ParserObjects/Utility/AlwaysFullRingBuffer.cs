@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Utility
+﻿using System.Diagnostics;
+
+namespace ParserObjects.Utility
 {
     /// <summary>
     /// Simplified ring-buffer implementation which makes several assumptions for simplicity
@@ -15,15 +17,20 @@
         private int _index;
 
         public AlwaysFullRingBuffer(int size, T defaultValue = default)
+            : this(size, defaultValue, int.MaxValue >> 1)
+        {
+            // Start _index in the middle of the available number-space so we can move forward and backwards
+            // arbitrarily far (it's possible, though unlikely, that we process over a billion input values)
+        }
+
+        public AlwaysFullRingBuffer(int size, T defaultValue, int startIndex)
         {
             Assert.ArgumentGreaterThan(size, 0, nameof(size));
             _size = size;
             _buffer = new T[size];
             for (int i = 0; i < size; i++)
                 _buffer[i] = defaultValue;
-            // Start _index in the middle of the available number-space so we can move forward and backwards
-            // arbitrarily far (it's possible, though unlikely, that we process over a billion input values)
-            _index = int.MaxValue >> 1;
+            _index = startIndex;
         }
 
         public void Add(T value)
@@ -37,29 +44,28 @@
         {
             if (_index == int.MaxValue)
             {
-                // If we are at max value and would roll-over, instead drop _index to IntMax/4 (since we
-                // are obviously adding much faster than we are putting-back so it wouldn't make sense to
-                // just go to the middle) and then hunt for the next index that puts us at the same 
-                // relative position in the buffer. Then we can continue.
+                // If we are at max value and would roll-over, instead move _index to a position 
+                // near IntMax/4 with the same modulo position in the buffer.
                 var current = _index % _size;
-                _index = int.MaxValue >> 2;
-                while (_index % _size != current)
-                    _index--;
+                var ratio = int.MaxValue / _size;
+                ratio = ratio >> 4;
+                _index = (_size * ratio) + current;
+                Debug.Assert(_index % _size == current);
             }
             _index++;
         }
 
         public void MoveBack()
         {
-            // If we are at 0 and would roll-over to negative, instead reset to the middle of the
-            // number-space and then hunt for an index that would put us back to the same relative position
-            // in the buffer. Then we can continue
+            // If we are at 0 and would roll-over to negative, instead reset to an index near the
+            // middle of number-space that has the same relative modulo position in the buffer.
             if (_index == 0)
             {
                 var current = _index % _size;
-                _index = int.MaxValue >> 1;
-                while (_index % _size != current)
-                    _index++;
+                var ratio = int.MaxValue / _size;
+                ratio = ratio >> 2;
+                _index = (_size * ratio) + current;
+                Debug.Assert(_index % _size == current);
             }
 
             _index--;
