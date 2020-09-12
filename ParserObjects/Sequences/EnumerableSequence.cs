@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -8,7 +8,7 @@ namespace ParserObjects.Sequences
     /// Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse operations
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EnumerableSequence<T> : ISequence<T>, IDisposable
+    public sealed class EnumerableSequence<T> : ISequence<T>, IDisposable
     {
         private readonly IEnumerator<T> _enumerator;
         private readonly T _endValue;

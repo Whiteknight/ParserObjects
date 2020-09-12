@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -23,7 +23,7 @@ namespace ParserObjects.Sequences
 
         public IEnumerator<T> GetEnumerator() => new Enumerator(_inputs);
 
-        private class Enumerator : IEnumerator<T>
+        private sealed class Enumerator : IEnumerator<T>
         {
             private readonly ISequence<T> _input;
 
@@ -45,9 +45,10 @@ namespace ParserObjects.Sequences
 
             public void Dispose()
             {
+                // These enumerator has no state so there is nothing to dispose
             }
 
-            public T Current { get; private set;  }
+            public T Current { get; private set; }
         }
     }
 }

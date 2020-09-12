@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
-    public class StreamByteSequence : ISequence<byte>, IDisposable
+    public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     {
         private const int BufferSize = 128;
 

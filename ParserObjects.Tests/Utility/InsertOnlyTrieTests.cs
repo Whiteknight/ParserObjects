@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
+using System;
+using System.Linq;
 
 namespace ParserObjects.Tests.Utility
 {
@@ -85,7 +85,7 @@ namespace ParserObjects.Tests.Utility
             var target = new InsertOnlyTrie<char, int>();
             target.Add("abc", 1);
             Action act = () => target.Add("abc", 2);
-            act.Should().Throw<Exception>();
+            act.Should().Throw<TrieInsertException>();
         }
 
         [Test]

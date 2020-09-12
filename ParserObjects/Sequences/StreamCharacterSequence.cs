@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
     /// <summary>
     /// A sequence of characters read from a Stream, such as from a file
     /// </summary>
-    public class StreamCharacterSequence : ISequence<char>, IDisposable
+    public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         private const int BufferSize = 128;
         private const int MaxLineLengthsBufferSize = 5;
@@ -117,7 +117,7 @@ namespace ParserObjects.Sequences
                 return advance ? _putbacks.Pop() : _putbacks.Peek();
             if (_isComplete)
                 return '\0';
-            
+
             FillBuffer();
             if (_isComplete || _remainingChars == 0 || _bufferIndex >= BufferSize)
                 return '\0';

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using ParserObjects.Utility;
+﻿using ParserObjects.Utility;
+using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
@@ -11,11 +11,8 @@ namespace ParserObjects.Parsers
         {
             Minimum = minimum < 0 ? 0 : minimum;
             Maximum = maximum;
-            if (Maximum.HasValue)
-            {
-                if (Maximum < Minimum)
-                    Maximum = Minimum;
-            }
+            if (Maximum.HasValue && Maximum < Minimum)
+                Maximum = Minimum;
             Assert.ArgumentNotNull(parser, nameof(parser));
             _parser = parser;
         }

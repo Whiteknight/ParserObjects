@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserObjects.Utility
@@ -123,8 +122,20 @@ namespace ParserObjects.Utility
                 if (Result.Equals(result))
                     return false;
 
-                throw new Exception("The result value has already been set for this input sequence");
+                throw new TrieInsertException("The result value has already been set for this input sequence");
             }
         }
+    }
+
+
+    [System.Serializable]
+    public class TrieInsertException : System.Exception
+    {
+        public TrieInsertException() { }
+        public TrieInsertException(string message) : base(message) { }
+        public TrieInsertException(string message, System.Exception inner) : base(message, inner) { }
+        protected TrieInsertException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

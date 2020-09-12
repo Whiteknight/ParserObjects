@@ -177,12 +177,12 @@ namespace ParserObjects.Parsers.Visitors
 
                 state.Current.Append(" | ");
                 VisitChild(last, state);
-                
+
             }
             state.Current.Append(")");
         }
 
-        protected virtual void VisitTyped<TInput, TCollection, TOutput>(FlattenParser<TInput, TCollection, TOutput> p, State state) 
+        protected virtual void VisitTyped<TInput, TCollection, TOutput>(FlattenParser<TInput, TCollection, TOutput> p, State state)
             where TCollection : IEnumerable<TOutput>
         {
             VisitChild(p.GetChildren().First(), state);
@@ -199,13 +199,7 @@ namespace ParserObjects.Parsers.Visitors
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(LeftValueParser<TInput, TOutput> p, State state)
-        { 
-        }
-
-        protected virtual void VisitTyped<TInput, TOutput>(ListParser<TInput, TOutput> p, State state)
         {
-            VisitChild(p.GetChildren().First(), state);
-            state.Current.Append(p.AtLeastOne ? "+" : "*");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
