@@ -133,7 +133,8 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Named<TInput, TOutput>(this IParser<TInput, TOutput> parser, string name)
+        public static TParser Named<TParser>(this TParser parser, string name)
+             where TParser : IParser
         {
             parser.Name = name;
             return parser;

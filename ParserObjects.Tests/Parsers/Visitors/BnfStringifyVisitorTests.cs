@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
+using static ParserObjects.Parsers.Logical.ParserMethods<char>;
 using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Visitors
@@ -8,9 +9,25 @@ namespace ParserObjects.Tests.Parsers.Visitors
     public class BnfStringifyVisitorTests
     {
         [Test]
+        public void ToBnf_And()
+        {
+            var parser = And(Any(), Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := . && .");
+        }
+
+        [Test]
         public void ToBnf_Any()
         {
             var parser = Any().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Deferred()
+        {
+            var parser = Deferred(() => Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .");
         }
@@ -29,6 +46,14 @@ namespace ParserObjects.Tests.Parsers.Visitors
             var parser = End().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := END");
+        }
+
+        [Test]
+        public void ToBnf_Examine()
+        {
+            var parser = Examine(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
         }
 
         [Test]
@@ -85,7 +110,15 @@ namespace ParserObjects.Tests.Parsers.Visitors
         }
 
         [Test]
-        public void ToBnf_List()
+        public void ToBnf_Flatten()
+        {
+            var parser = Flatten<string, char>(new ProduceParser<char, string>(s => "test")).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := PRODUCE");
+        }
+
+        [Test]
+        public void ToBnf_LimitedList()
         {
             var parser = Any().List().Named("parser");
             var result = parser.ToBnf();
@@ -93,11 +126,27 @@ namespace ParserObjects.Tests.Parsers.Visitors
         }
 
         [Test]
-        public void ToBnf_List_AtLeastOne()
+        public void ToBnf_LimitedList_AtLeastOne()
         {
             var parser = Any().List(true).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .+");
+        }
+
+        [Test]
+        public void ToBnf_LimitedList_Max()
+        {
+            var parser = Any().List(maximum: 5).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .{0, 5}");
+        }
+
+        [Test]
+        public void ToBnf_LimitedList_Min()
+        {
+            var parser = Any().List(minimum: 5).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .{5,}");
         }
 
         [Test]
@@ -156,6 +205,22 @@ namespace ParserObjects.Tests.Parsers.Visitors
             var parser = NegativeLookahead(Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (?! . )");
+        }
+
+        [Test]
+        public void ToBnf_Not()
+        {
+            var parser = Not(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := !.");
+        }
+
+        [Test]
+        public void ToBnf_Or()
+        {
+            var parser = Or(Any(), Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := . || .");
         }
 
         [Test]

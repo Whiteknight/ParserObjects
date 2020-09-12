@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
@@ -206,6 +207,29 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void FileStream_Test()
+        {
+            var fileName = Guid.NewGuid().ToString() + ".txt";
+            try
+            {
+                File.WriteAllText(fileName, "test");
+                using (var target = new StreamCharacterSequence(fileName))
+                {
+                    target.GetNext().Should().Be('t');
+                    target.GetNext().Should().Be('e');
+                    target.GetNext().Should().Be('s');
+                    target.GetNext().Should().Be('t');
+                }
+            }
+            finally
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+
         }
     }
 }

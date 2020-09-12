@@ -141,6 +141,7 @@ namespace ParserObjects.Parsers.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(ExamineParser<TInput, TOutput> p, State state)
         {
+            VisitChild(p.GetChildren().First(), state);
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(FailParser<TInput, TOutput> p, State state)
@@ -241,6 +242,13 @@ namespace ParserObjects.Parsers.Visitors
             state.Current.Append(" )");
         }
 
+        protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
+        {
+            var child = p.GetChildren().First();
+            state.Current.Append("!");
+            VisitChild(child, state);
+        }
+
         protected virtual void VisitTyped<TInput>(OrParser<TInput> p, State state)
         {
             var children = p.GetChildren().ToArray();
@@ -259,13 +267,6 @@ namespace ParserObjects.Parsers.Visitors
         protected virtual void VisitTyped<TInput, TOutput>(ProduceParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("PRODUCE");
-        }
-
-        protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
-        {
-            var child = p.GetChildren().First();
-            state.Current.Append("!");
-            VisitChild(child, state);
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
