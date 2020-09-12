@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Parsers.Logical;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Logical.ParserMethods<char>;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
@@ -15,6 +16,16 @@ namespace ParserObjects.Tests.Parsers.Logical
         public void Parse_Fail()
         {
             var parser = Not(_failParser);
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.ParseUntyped(input);
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
+        public void NotExtension_Parse_Fail()
+        {
+            var parser = _failParser.Not();
 
             var input = new StringCharacterSequence("abc");
             var result = parser.ParseUntyped(input);

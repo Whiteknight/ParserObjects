@@ -229,5 +229,26 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
+
+        [Test]
+        public void Location_Test()
+        {
+            var target = new StringCharacterSequence("a\nbc");
+            target.GetNext().Should().Be('a');
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+
+            target.GetNext().Should().Be('\n');
+
+            target.GetNext().Should().Be('b');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(1);
+
+            target.GetNext().Should().Be('c');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(2);
+
+            target.GetNext().Should().Be('\0');
+        }
     }
 }

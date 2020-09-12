@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Parsers.Logical;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods<char>;
 using static ParserObjects.Parsers.Logical.ParserMethods<char>;
+using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {
@@ -15,6 +16,16 @@ namespace ParserObjects.Tests.Parsers.Logical
         public void Parse_Success_Success()
         {
             var parser = Or(_anyParser, _anyParser);
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.ParseUntyped(input);
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
+        public void OrExtension_Parse_Success_Success()
+        {
+            var parser = _anyParser.Or(_anyParser);
 
             var input = new StringCharacterSequence("abc");
             var result = parser.ParseUntyped(input);

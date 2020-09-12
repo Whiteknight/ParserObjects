@@ -40,7 +40,7 @@ namespace ParserObjects.Tests.Parsers
                     left,
                     multiply,
                     number,
-                    (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                    (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 )
             );
             var add = Match("+").Transform(c => c[0].ToString());
@@ -50,7 +50,7 @@ namespace ParserObjects.Tests.Parsers
                     left,
                     add,
                     multiplicative,
-                    (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                    (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 )
             );
 
@@ -83,7 +83,7 @@ namespace ParserObjects.Tests.Parsers
             var equality = RightApply(
                 number,
                 equals,
-                (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
             );
             var result1 = equality.Parse("1=2=3").Value as InfixExpressionParseNode;
             (result1.Left as NumberValueParseNode).Value.Should().Be("1");
@@ -109,7 +109,7 @@ namespace ParserObjects.Tests.Parsers
                     number,
                     equals,
                     equality,
-                    (l, op, r) => (ParseNode) new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                    (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 ),
                 number
             );
@@ -132,7 +132,7 @@ namespace ParserObjects.Tests.Parsers
                 Rule(
                     minus,
                     number,
-                    (m, n) => (ParseNode) new PrefixExpressionParseNode { Operator = m, Right = n }
+                    (m, n) => (ParseNode)new PrefixExpressionParseNode { Operator = m, Right = n }
                 ),
                 number
             );
@@ -207,8 +207,9 @@ namespace ParserObjects.Tests.Parsers
             // wrap the "+" parser with a parser to have brackets, and
             // use the new parser tree to parse a modified grammar
             var number = Match(char.IsNumber).Transform(c => (ParseNode)new NumberValueParseNode { Value = c.ToString() });
-            var add = Match("+")
-                .Transform(c => c[0].ToString())
+            var previousAdd = Match("+")
+                .Transform(c => c[0].ToString());
+            var add = previousAdd
                 .Replaceable()
                 .Named("add");
             var additive = LeftApply(
@@ -226,11 +227,24 @@ namespace ParserObjects.Tests.Parsers
                 (a, eoi) => a
             );
 
-            expr.Replace<char, string>("add", a => Rule(
-                Match('['),
-                a,
-                Match(']'),
-                (x, y, z) => "[+]"));
+            var replaceResult = expr.Replace<char, string>("add", a =>
+                Rule(
+                    Match('['),
+                    a,
+                    Match(']'),
+                    (x, y, z) => "[+]"
+                )
+                .Named("newAdd")
+            );
+
+            // We really should have some unit tests specifically around the replace visitor,
+            // but this block suffices to cover all that functionality for now
+            replaceResult.IsSuccess.Should().BeTrue();
+            replaceResult.Results.Count.Should().Be(1);
+            replaceResult.Results[0].IsSuccess.Should().BeTrue();
+            replaceResult.Results[0].Replaceable.Should().BeSameAs(add);
+            replaceResult.Results[0].Previous.Should().BeSameAs(previousAdd);
+            replaceResult.Results[0].Current.Name.Should().Be("newAdd");
 
             // Show that we can parse the new grammar with '-' 
             var result1 = expr.Parse("1[+]2").Value as InfixExpressionParseNode;

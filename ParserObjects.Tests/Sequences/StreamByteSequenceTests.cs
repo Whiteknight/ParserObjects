@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Text;
+﻿using System;
+using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -72,6 +72,29 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);
             target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void FileStream_Test()
+        {
+            var fileName = Guid.NewGuid().ToString() + ".txt";
+            try
+            {
+                File.WriteAllText(fileName, "test");
+                using (var target = new StreamByteSequence(fileName))
+                {
+                    target.GetNext().Should().Be((byte)'t');
+                    target.GetNext().Should().Be((byte)'e');
+                    target.GetNext().Should().Be((byte)'s');
+                    target.GetNext().Should().Be((byte)'t');
+                }
+            }
+            finally
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+
         }
     }
 }
