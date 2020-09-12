@@ -25,6 +25,8 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNull(s, nameof(s));
             _s = s;
+            _line = 1;
+            _column = 0;
             _fileName = fileName;
             _putbacks = new Stack<char>();
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);

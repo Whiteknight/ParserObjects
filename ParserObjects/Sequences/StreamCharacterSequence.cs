@@ -1,8 +1,8 @@
-﻿using ParserObjects.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -30,6 +30,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             _fileName = fileName;
+            _line = 1;
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;
             _buffer = new char[BufferSize];
@@ -41,6 +42,7 @@ namespace ParserObjects.Sequences
         public StreamCharacterSequence(StreamReader reader, string fileName = null)
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
+            _line = 1;
             _fileName = fileName;
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;
@@ -52,6 +54,7 @@ namespace ParserObjects.Sequences
         public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
+            _line = 1;
             _fileName = fileName ?? "stream";
             _putbacks = new Stack<char>();
             _bufferIndex = BufferSize;

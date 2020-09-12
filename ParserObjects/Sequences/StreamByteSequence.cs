@@ -1,7 +1,7 @@
-﻿using ParserObjects.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -54,7 +54,7 @@ namespace ParserObjects.Sequences
 
         public byte Peek() => GetNextByteRaw(false);
 
-        public Location CurrentLocation => new Location(_fileName, 0, _index);
+        public Location CurrentLocation => new Location(_fileName, 1, _index);
 
         public bool IsAtEnd => _putbacks.Count == 0 && _isComplete;
 
