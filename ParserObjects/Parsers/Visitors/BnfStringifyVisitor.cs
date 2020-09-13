@@ -67,7 +67,7 @@ namespace ParserObjects.Parsers.Visitors
                     return;
                 }
 
-                if (parser.GetChildren().Count() == 0)
+                if (!parser.GetChildren().Any())
                 {
                     // if it's a simple parser with no recursion, we can just visit it again.
                     // No harm because it won't cause a loop
