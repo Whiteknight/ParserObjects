@@ -2,6 +2,8 @@
 
 We would like to create a calculator routine which parses a string like "1 + 2 * 3" into a result following standard order-of-operations rules. The first operators we will support are "+" and "*", where multiplication has higher precidence and both operators are left-associative. (Notice that I'm not recommending this as the "best" solution to this particular problem, you should probably consider something like [The Shunting Yard algorithm](https://en.wikipedia.org/wiki/Shunting-yard_algorithm) for best results).
 
+Up-to-date working code for this example is part of the [ParserObjects unit test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples/ExprCalculator). Where this documentation may be out of date or contain typos, the code in the unit test suite is guaranteed to build, run and produce the described results.
+
 ## The Lexical Grammar
 
 We could use a scannerless design, but we want to be able to ignore whitespace between tokens and separate some of the low-level character-handling routines into a separate class. First, let's create a `Token` class (We should put in a `.ToString()` method to help with debugging later, but I'll leave that and the definition of the `TokenType` enum as an exercise for the reader):
@@ -295,7 +297,7 @@ var multiplicative = LeftApply(
     )
 );
 var requiredMultiplicative = First(
-    number,
+    multiplicative,
     ThrowError("Expected multiplicative")
 );
 var additive = LeftApply(
