@@ -1,12 +1,8 @@
 # ParserObjects
 
-ParserObjects is a library for object-based parsers, parsing utilities and abstractions.
+ParserObjects is a library for object-based parsers, combinators, parsing utilities and abstractions. See the [Documentation](https://whiteknight.github.io/ParserObjects/) for more details on usage.
 
-## Design Goals
-
-1. Simple building blocks
-1. Create parsers by composing object graphs
-1. Stream inputs and results
+    Install-Package ParserObjects
 
 ## Sequences and Parsers
 
@@ -34,15 +30,6 @@ var result = parser.Parse(sequence);
 
 The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs.
 
-## Constructing a Parser
-
-ParserObjects provides several ways to construct a parser, which can be used depending on style and need. The easiest way to do get started is to import the parser methods:
-
-```csharp
-using static ParserObjects.Parsers.ParserMethods;
-```
-
-
 ## Current Status
 
-ParserObjects library is currently in active development. v0.4.x and above are candidates for a 1.0.0 release.
+ParserObjects library is currently in active development. v2.0.0 is out and is the recommended version to use.
