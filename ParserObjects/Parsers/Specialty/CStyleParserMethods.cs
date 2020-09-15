@@ -85,6 +85,37 @@ namespace ParserObjects.Parsers.Specialty
         );
 
         /// <summary>
+        /// C-style unsigned integer literal returned as a string
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, string> UnsignedIntegerString() => _unsignedIntegerString.Value;
+
+        private static readonly Lazy<IParser<char, string>> _unsignedIntegerString = new Lazy<IParser<char, string>>(
+            () =>
+            {
+                var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
+                var digits = Digit().ListCharToString();
+                var zero = Match('0').Transform(c => "0");
+                var nonZeroNumber = (nonZeroDigit, digits).Produce((start, body) => start + body);
+                return (nonZeroNumber, zero)
+                    .First()
+                    .Named("C-Style Integer String");
+            }
+        );
+
+        /// <summary>
+        /// C-style Unsigned Integer literal returned as a parsed Int32
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, int> UnsignedInteger() => _unsignedInteger.Value;
+
+        private static readonly Lazy<IParser<char, int>> _unsignedInteger = new Lazy<IParser<char, int>>(
+            () => UnsignedIntegerString()
+                .Transform(int.Parse)
+                .Named("C-Style Integer Literal")
+        );
+
+        /// <summary>
         /// C-style Double literal returned as a string
         /// </summary>
         /// <returns></returns>
