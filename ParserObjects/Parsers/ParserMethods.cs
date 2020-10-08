@@ -46,9 +46,10 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="getParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser) 
+        public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
             => new DeferredParser<TInput, TOutput>(getParser);
 
+        // TODO: Should we cache this instance?
         /// <summary>
         /// The empty parser, consumers no input and always returns success at any point.
         /// </summary>
@@ -56,13 +57,13 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, object> Empty() => new EmptyParser<TInput>();
 
+        // TODO: cache this
         /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, bool> End()
-            => new EndParser<TInput>();
+        public static IParser<TInput, bool> End() => new EndParser<TInput>();
 
         /// <summary>
         /// Invoke callbacks before and after a parse
@@ -76,14 +77,14 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ParseState<TInput, TOutput>> before = null, Action<ParseState<TInput, TOutput>> after = null)
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
+        // TODO: Cache this
         /// <summary>
         /// A parser which unconditionally returns failure.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Fail<TOutput>()
-            => new FailParser<TInput, TOutput>();
+        public static IParser<TInput, TOutput> Fail<TOutput>() => new FailParser<TInput, TOutput>();
 
         /// <summary>
         /// Return the result of the first parser which succeeds
@@ -92,7 +93,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers) 
+        public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
             => new FirstParser<TInput, TOutput>(parsers);
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace ParserObjects.Parsers
         /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
         /// false, an empty list returns success.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne) 
+        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
             => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -153,7 +154,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="T"></typeparam>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate) 
+        public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate)
             => new MatchPredicateParser<TInput>(predicate);
 
         /// <summary>
@@ -236,7 +237,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce) 
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
             => new ProduceParser<TInput, TOutput>(t => produce());
 
         /// <summary>
@@ -246,7 +247,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce) 
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce)
             => new ProduceParser<TInput, TOutput>(produce);
 
         /// <summary>
@@ -256,7 +257,7 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null) 
+        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
@@ -522,7 +523,7 @@ namespace ParserObjects.Parsers
                             p,
                             (s, item) => item
                         ),
-                        minimum - 1, 
+                        minimum - 1,
                         maximum - 1
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
@@ -539,7 +540,7 @@ namespace ParserObjects.Parsers
                             p,
                             (s, item) => item
                         ),
-                        minimum - 1, 
+                        minimum - 1,
                         maximum - 1
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
@@ -557,7 +558,7 @@ namespace ParserObjects.Parsers
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
+        public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
 
         /// <summary>
@@ -570,6 +571,13 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Trie<TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
             => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
+        /// <summary>
+        /// Lookup sequences of inputs in an ITrie to greedily find the longest matching sequence.
+        /// Provides a trie instance and a callback to populate it with values
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="setupTrie"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Trie<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
         {
             var trie = new InsertOnlyTrie<TInput, TOutput>();

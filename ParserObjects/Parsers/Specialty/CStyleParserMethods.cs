@@ -99,7 +99,7 @@ namespace ParserObjects.Parsers.Specialty
                 var nonZeroNumber = (nonZeroDigit, digits).Produce((start, body) => start + body);
                 return (nonZeroNumber, zero)
                     .First()
-                    .Named("C-Style Integer String");
+                    .Named("C-Style Unsigned Integer String");
             }
         );
 
@@ -112,7 +112,7 @@ namespace ParserObjects.Parsers.Specialty
         private static readonly Lazy<IParser<char, int>> _unsignedInteger = new Lazy<IParser<char, int>>(
             () => UnsignedIntegerString()
                 .Transform(int.Parse)
-                .Named("C-Style Integer Literal")
+                .Named("C-Style Unsigned Integer Literal")
         );
 
         /// <summary>

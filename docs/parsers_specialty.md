@@ -90,3 +90,17 @@ var parser = StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\');
 ```
 
 The parsers created by these methods are not cached.
+
+## Regexes
+
+You can use basic regular expressions to create a parser:
+
+```csharp
+using static ParserObjects.Parsers.Specialty.RegexParserMethods;
+```
+
+```csharp
+var parser = Regex("(a|b)?c*");
+```
+
+For more details on what syntax is supported by the `Regex` parser, see the [Regexes Page](regexes.md).
