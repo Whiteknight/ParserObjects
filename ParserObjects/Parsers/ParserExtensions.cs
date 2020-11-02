@@ -140,6 +140,18 @@ namespace ParserObjects.Parsers
             => p.List(atLeastOne).Transform(s => string.Join(string.Empty, s));
 
         /// <summary>
+        /// Transform the output of the given parser. Synonym for Transform
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
+            => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
+
+        /// <summary>
         /// Zero-length assertion that the given parser's match result is not followed by a lookahead pattern.
         /// The lookahead is compared but no input is consumed to match it.
         /// </summary>

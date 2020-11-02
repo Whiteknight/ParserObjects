@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Parsers;
 using static ParserObjects.Parsers.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
@@ -14,6 +15,20 @@ namespace ParserObjects.Tests.Parsers
                 Any(),
                 c => int.Parse(c.ToString())
             );
+            parser.Parse("1").Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_Extension()
+        {
+            var parser = Any().Transform(c => int.Parse(c.ToString()));
+            parser.Parse("1").Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_Extension_Map()
+        {
+            var parser = Any().Map(c => int.Parse(c.ToString()));
             parser.Parse("1").Value.Should().Be(1);
         }
 
