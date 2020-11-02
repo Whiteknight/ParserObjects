@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -42,6 +43,14 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be('b');
             target.Parse(input).Value.Should().Be('c');
             target.Parse(input).Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_null()
+        {
+            var target = Deferred(() => (IParser<char, char>)null);
+            Action act = () => target.Parse("abc");
+            act.Should().Throw<InvalidOperationException>();
         }
     }
 }

@@ -223,6 +223,9 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
+        public static IParser<TInput, TOutput> Parser<TOutput>(Func<ISequence<TInput>, IParseResult<TOutput>> func)
+            => new FuncParser<TInput, TOutput>(func);
+
         /// <summary>
         /// Zero-length assertion that the given pattern matches from the current position. No input is
         /// consumed.
