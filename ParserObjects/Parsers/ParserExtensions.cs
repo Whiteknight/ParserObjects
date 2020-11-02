@@ -9,6 +9,12 @@ namespace ParserObjects.Parsers
     /// </summary>
     public static class ParserExtensions
     {
+        public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
+            => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
+
+        public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
+            => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
+
         /// <summary>
         /// Invoke callbacks before and after a parse
         /// </summary>
@@ -54,7 +60,7 @@ namespace ParserObjects.Parsers
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne) 
+        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
             => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -200,7 +206,7 @@ namespace ParserObjects.Parsers
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform) 
+        public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
     }
 }

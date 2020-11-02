@@ -29,6 +29,12 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
+        public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
+            => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
+
+        public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
+            => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
+
         /// <summary>
         /// Given a list of parsers, parse each in sequence and return a list of object
         /// results on success.
