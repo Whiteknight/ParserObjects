@@ -103,4 +103,4 @@ using static ParserObjects.Parsers.Specialty.RegexParserMethods;
 var parser = Regex("(a|b)?c*");
 ```
 
-For more details on what syntax is supported by the `Regex` parser, see the [Regexes Page](regexes.md).
+For more details on what syntax is supported by the `Regex` parser, see the [Regexes Page](regexes.md). Be warned that certain types of patterns may create pathological backtracking behavior which will hurt the performance of your parser. 

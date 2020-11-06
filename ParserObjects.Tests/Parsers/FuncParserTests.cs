@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Parser(t => new SuccessResult<string>($"ok:{t.GetNext()}", t.CurrentLocation));
+            var parser = Function(t => new SuccessResult<string>($"ok:{t.GetNext()}", t.CurrentLocation));
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail()
         {
-            var parser = Parser<object>(t => new FailResult<string>());
+            var parser = Function<object>(t => new FailResult<string>());
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
         }
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Exception()
         {
-            var parser = Parser<object>(t => throw new System.Exception("fail"));
+            var parser = Function<object>(t => throw new System.Exception("fail"));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
         }
@@ -35,7 +35,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren()
         {
-            var parser = Parser(t => new SuccessResult<string>($"ok:{t.GetNext()}", t.CurrentLocation));
+            var parser = Function(t => new SuccessResult<string>($"ok:{t.GetNext()}", t.CurrentLocation));
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }

@@ -55,6 +55,46 @@ It is functionally equivalent to the match predicate parser (described below)
 var anyParser = Match(_ => true);
 ```
 
+### Chain Parser
+
+The `Chain` parser invokes an initial parser to parse a prefix value, then uses that prefix value to select the next parser to invoke.
+
+```csharp
+var parser = new ChainParser<char, char>(initial, c => {
+    if (c == 'a')
+        return new AParser();
+    if (c == 'b')
+        return new BParser();
+});
+var parser = initial.Chain(c => {
+    if (c == 'a')
+        return new AParser();
+    if (c == 'b')
+        return new BParser();
+});
+```
+
+### Choose Parser
+
+The `Choose` parser invokes an initial parser to parse a prefix value without consuming any input, then uses that prefix value to select the next parser to invoke.
+
+```csharp
+var parser = new ChooseParser<char, char>(initial, c => {
+    if (c == 'a')
+        return new AParser();
+    if (c == 'b')
+        return new BParser();
+});
+var parser = initial.Choose(c => {
+    if (c == 'a')
+        return new AParser();
+    if (c == 'b')
+        return new BParser();
+});
+```
+
+The difference between the `Chain` parser and the `Choose` parser is that the chain parser invokes the initial and consumes input, while the choose parser invokes the initial but does not consume input.
+
 ### Empty Parser
 
 The `Empty` parser consumes no input and always returns success with a default value.
@@ -101,6 +141,27 @@ var parser = (parser1, parser2, parser3).First();
 ```
 
 The tuple variant of this parser is limited to 9 child parsers. The other variants can take any number of child parsers.
+
+### Func Parser
+
+The `Func` parser takes a callback function to perform the parse. 
+
+```csharp
+var parser = new FuncParser<char, string>(t => {
+    // for success
+    return new SuccessResult<string>("ok");
+
+    // for failure
+    return new FailResult<string>();
+});
+var parser = Function(t => {
+    // for success
+    return new SuccessResult<string>("ok");
+
+    // for failure
+    return new FailResult<string>();
+});
+```
 
 ### List Parser
 

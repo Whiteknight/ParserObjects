@@ -113,6 +113,16 @@ namespace ParserObjects.Parsers
             => new FlattenParser<TInput, TCollection, TOutput>(parser);
 
         /// <summary>
+        /// Invoke a function callback to perform the parse at the current location in the input
+        /// stream
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<ISequence<TInput>, IParseResult<TOutput>> func)
+            => new FuncParser<TInput, TOutput>(func);
+
+        /// <summary>
         /// A left-associative parser where the left item is parsed unconditionally, and the result of the
         /// left parser is applied to the right parser. This new result is then treated as the 'left' value
         /// for the next iteration of the right parser. This can be used when many rules have a common prefix
@@ -222,9 +232,6 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
-
-        public static IParser<TInput, TOutput> Parser<TOutput>(Func<ISequence<TInput>, IParseResult<TOutput>> func)
-            => new FuncParser<TInput, TOutput>(func);
 
         /// <summary>
         /// Zero-length assertion that the given pattern matches from the current position. No input is
