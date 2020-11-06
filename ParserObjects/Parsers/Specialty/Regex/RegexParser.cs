@@ -36,11 +36,6 @@ namespace ParserObjects.Parsers.Specialty.Regex
 
         private class BacktrackState
         {
-            public BacktrackState()
-            {
-                Consumptions = new Stack<int>();
-            }
-
             public BacktrackState(bool isBacktrackable, RegexState state)
             {
                 IsBacktrackable = isBacktrackable;

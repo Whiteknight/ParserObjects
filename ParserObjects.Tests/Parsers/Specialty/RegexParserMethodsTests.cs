@@ -41,6 +41,15 @@ namespace ParserObjects.Tests.Parsers.Specialty
         }
 
         [Test]
+        public void Regex_MatchZeroOrOne_ZeroEnd()
+        {
+            var parser = Regex("ab?");
+            var result = parser.Parse("a");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("a");
+        }
+
+        [Test]
         public void Regex_MatchZeroOrOne_One()
         {
             var parser = Regex("ab?c");
@@ -360,6 +369,15 @@ namespace ParserObjects.Tests.Parsers.Specialty
             var result = parser.Parse("aa");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("aa");
+        }
+
+        [Test]
+        public void Regex_RangeAtMostThree_MatchZeroEnd()
+        {
+            var parser = Regex("ab{,3}");
+            var result = parser.Parse("a");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("a");
         }
 
         [Test]

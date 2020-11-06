@@ -35,7 +35,33 @@ namespace ParserObjects.Tests.Parsers
             result = parser.Parse("cC");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("cC");
+        }
 
+        [Test]
+        public void Parse_InitialFail()
+        {
+            var parser = Fail<object>().Choose(c => Any());
+            var result = parser.Parse("a");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_NullParser()
+        {
+            var parser = Any().Choose(c => (IParser<char, string>)null);
+            var result = parser.Parse("a");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_ReplaceChild()
+        {
+            var initial = Fail<char>();
+            var parser = initial.Choose(c => Any());
+            parser = parser.ReplaceChild(initial, Any()) as IParser<char, char>;
+            var result = parser.Parse("ab");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be('a');
         }
     }
 }
