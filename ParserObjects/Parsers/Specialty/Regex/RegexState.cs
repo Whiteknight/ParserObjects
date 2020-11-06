@@ -8,8 +8,6 @@ namespace ParserObjects.Parsers.Specialty.Regex
         public RegexStateType Type { get; set; }
         public bool CanBacktrack { get; set; }
         public RegexQuantifier Quantifier { get; set; }
-        //public int MinimumNumber { get; set; }
-        //public int MaximumNumber { get; set; }
         public Func<char, bool> ValuePredicate { get; set; }
         public List<RegexState> Group { get; set; }
 

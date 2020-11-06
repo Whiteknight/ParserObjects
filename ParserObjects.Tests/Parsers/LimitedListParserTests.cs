@@ -23,9 +23,27 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Minimum()
+        public void Parse_Minimum_Fail()
         {
             var parser = List(Any(), 4);
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Exactly_Success()
+        {
+            var parser = List(Any(), 4, 4);
+            var input = new StringCharacterSequence("abcd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
+        public void Parse_Exactly_TooFew()
+        {
+            var parser = List(Any(), 4, 4);
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();

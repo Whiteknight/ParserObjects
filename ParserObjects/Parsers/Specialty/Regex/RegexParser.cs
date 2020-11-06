@@ -156,9 +156,6 @@ namespace ParserObjects.Parsers.Specialty.Regex
 
         private (bool matches, int length) Test(List<RegexState> states, RegexInputBuffer context)
         {
-            // TODO: Can we pull queue and queue management into a separate class? Can we include
-            // backtracking logic?
-            // TODO: Replace this with a LinkedList
             var queue = new List<RegexState>(states);
             int i = 0;
             RegexState getNextState()
@@ -205,7 +202,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 if (couldBacktrack)
                     moveToNextState();
                 return couldBacktrack;
-            };
+            }
 
             while (currentState != null)
             {

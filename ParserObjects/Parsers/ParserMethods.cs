@@ -55,7 +55,6 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
             => new DeferredParser<TInput, TOutput>(getParser);
 
-        // TODO: Should we cache this instance?
         /// <summary>
         /// The empty parser, consumers no input and always returns success at any point.
         /// </summary>
@@ -63,7 +62,6 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public static IParser<TInput, object> Empty() => new EmptyParser<TInput>();
 
-        // TODO: cache this
         /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
@@ -83,7 +81,6 @@ namespace ParserObjects.Parsers
         public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ParseState<TInput, TOutput>> before = null, Action<ParseState<TInput, TOutput>> after = null)
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
-        // TODO: Cache this
         /// <summary>
         /// A parser which unconditionally returns failure.
         /// </summary>
