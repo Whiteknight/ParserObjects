@@ -155,8 +155,5 @@ namespace ParserObjects.Parsers.Specialty
                     .Named("C-Style Identifier");
             }
         );
-
-        // TODO: C-style string literals with escapes
-        // TODO: C-style char literals with escapes
     }
 }

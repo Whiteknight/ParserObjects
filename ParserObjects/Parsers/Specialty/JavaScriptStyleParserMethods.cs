@@ -79,7 +79,5 @@ namespace ParserObjects.Parsers.Specialty
                 .Transform(s => double.Parse(s, NumberStyles.Float))
                 .Named("JavaScript-Style Number Literal")
         );
-
-        // TODO: JS-style string literals with escapes (https://mathiasbynens.be/notes/javascript-escapes)
     }
 }
