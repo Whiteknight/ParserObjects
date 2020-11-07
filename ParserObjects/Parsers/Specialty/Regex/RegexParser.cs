@@ -145,149 +145,105 @@ namespace ParserObjects.Parsers.Specialty.Regex
             }
         }
 
-        private (bool matches, int length) Test(List<RegexState> states, RegexInputBuffer context)
+        private class RegexContext
         {
-            var queue = new List<RegexState>(states);
-            int i = 0;
-            RegexState getNextState()
+            private readonly List<RegexState> _queue;
+            private readonly Stack<BacktrackState> _backtrackStack;
+
+            private int _i;
+
+            public RegexContext(IEnumerable<RegexState> states)
             {
-                if (queue.Count == 0)
-                    return null;
-                var next = queue[0];
-                queue.RemoveAt(0);
-                return next;
+                _queue = new List<RegexState>(states);
+                _backtrackStack = new Stack<BacktrackState>();
+                _i = 0;
             }
 
-            var currentState = getNextState();
+            public RegexState CurrentState { get; private set; }
 
-            void moveToNextState()
+            public int Index => _i;
+
+            public void AdvanceIndex(int i)
             {
-                currentState = getNextState();
+                _i += i;
             }
 
-            var backtrackStack = new Stack<BacktrackState>();
-            bool backtrack()
+            public void MoveToNextState()
             {
-                queue.Insert(0, currentState);
-                var couldBacktrack = false;
-                while (backtrackStack.Count > 0)
+                if (_queue.Count == 0)
                 {
-                    var (isBacktrackable, state, consumptions) = backtrackStack.Pop();
+                    CurrentState = null;
+                    return;
+                }
+                CurrentState = _queue[0];
+                _queue.RemoveAt(0);
+            }
+
+            public bool Backtrack()
+            {
+                _queue.Insert(0, CurrentState);
+                var couldBacktrack = false;
+                while (_backtrackStack.Count > 0)
+                {
+                    var (isBacktrackable, state, consumptions) = _backtrackStack.Pop();
                     if (isBacktrackable)
                     {
                         if (consumptions.Count == 0)
                         {
-                            queue.Insert(0, state);
+                            _queue.Insert(0, state);
                             continue;
                         }
                         var n = consumptions.Pop();
-                        i -= n;
-                        backtrackStack.Push(new BacktrackState(isBacktrackable, state, consumptions));
+                        _i -= n;
+                        _backtrackStack.Push(new BacktrackState(isBacktrackable, state, consumptions));
                         couldBacktrack = true;
                         break;
                     }
-                    queue.Insert(0, state);
+                    _queue.Insert(0, state);
                     foreach (var n in consumptions)
-                        i -= n;
+                        _i -= n;
                 }
                 if (couldBacktrack)
-                    moveToNextState();
+                    MoveToNextState();
                 return couldBacktrack;
             }
 
-            while (currentState != null)
+            public void Push(BacktrackState backtrackState)
             {
-                switch (currentState.Quantifier)
+                _backtrackStack.Push(backtrackState);
+            }
+        }
+
+        private (bool matches, int length) Test(List<RegexState> states, RegexInputBuffer buffer)
+        {
+            var context = new RegexContext(states);
+            context.MoveToNextState();
+
+            while (context.CurrentState != null)
+            {
+                switch (context.CurrentState.Quantifier)
                 {
                     case RegexQuantifier.ExactlyOne:
                     {
-                        var (matches, consumed) = StateMatchesAtCurrentLocation(currentState, context, i);
-                        if (!matches)
-                        {
-                            var indexBeforeBacktracking = i;
-                            var couldBacktrack = backtrack();
-                            if (!couldBacktrack)
-                                return (false, indexBeforeBacktracking);
+                        var indexBeforeBacktracking = context.Index;
+                        var ok = TestExactlyOne(context, buffer);
+                        if (ok)
                             continue;
-                        }
-                        backtrackStack.Push(new BacktrackState(false, currentState, consumed));
-                        i += consumed;
-                        moveToNextState();
-                        continue;
+                        return (false, indexBeforeBacktracking);
                     }
                     case RegexQuantifier.ZeroOrOne:
                     {
-                        if (context.IsPastEnd(i))
-                        {
-                            backtrackStack.Push(new BacktrackState(false, currentState, 0));
-                            currentState = getNextState();
-                            continue;
-                        }
-                        var (matches, consumed) = StateMatchesAtCurrentLocation(currentState, context, i);
-                        backtrackStack.Push(new BacktrackState(matches && consumed > 0, currentState, consumed));
-                        i += consumed;
-                        moveToNextState();
+                        TestZeroOrOne(context, buffer);
                         continue;
                     }
                     case RegexQuantifier.ZeroOrMore:
                     {
-                        var backtrackState = new BacktrackState(true, currentState);
-                        while (true)
-                        {
-                            if (context.IsPastEnd(i))
-                            {
-                                backtrackState.AddZeroConsumed();
-                                backtrackStack.Push(backtrackState);
-                                currentState = getNextState();
-                                break;
-                            }
-
-                            var (matches, consumed) = StateMatchesAtCurrentLocation(currentState, context, i);
-                            if (!matches || consumed == 0)
-                            {
-                                backtrackState.AddZeroConsumed();
-                                backtrackStack.Push(backtrackState);
-                                currentState = getNextState();
-                                break;
-                            }
-
-                            backtrackState.Consumptions.Push(consumed);
-                            i += consumed;
-                        }
+                        TestZeroOrMore(context, buffer);
                         continue;
                     }
                     case RegexQuantifier.Range:
                     {
-                        var backtrackState = new BacktrackState(true, currentState);
-                        int j = 0;
-                        while (true)
-                        {
-                            if (context.IsPastEnd(i))
-                            {
-                                backtrackState.AddZeroConsumed();
-                                backtrackStack.Push(backtrackState);
-                                currentState = getNextState();
-                                break;
-                            }
-
-                            var (matches, consumed) = StateMatchesAtCurrentLocation(currentState, context, i);
-                            if (!matches || consumed == 0)
-                            {
-                                backtrackState.AddZeroConsumed();
-                                backtrackStack.Push(backtrackState);
-                                currentState = getNextState();
-                                break;
-                            }
-
-                            backtrackState.Consumptions.Push(consumed);
-                            i += consumed;
-                            j++;
-                            if (j >= currentState.Maximum)
-                            {
-                                currentState = getNextState();
-                                break;
-                            }
-                        }
+                        TestRange(context, buffer);
                         continue;
                     }
 
@@ -296,10 +252,102 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 }
             }
 
-            return (true, i);
+            return (true, context.Index);
         }
 
-        private (bool matches, int length) StateMatchesAtCurrentLocation(RegexState state, RegexInputBuffer context, int i)
+        private bool TestExactlyOne(RegexContext context, RegexInputBuffer buffer)
+        {
+            var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+            if (matches)
+            {
+                context.Push(new BacktrackState(false, context.CurrentState, consumed));
+                context.AdvanceIndex(consumed);
+                context.MoveToNextState();
+                return true;
+            }
+
+            var couldBacktrack = context.Backtrack();
+            if (couldBacktrack)
+                return true;
+            return false;
+        }
+
+        private void TestZeroOrOne(RegexContext context, RegexInputBuffer buffer)
+        {
+            if (buffer.IsPastEnd(context.Index))
+            {
+                context.Push(new BacktrackState(false, context.CurrentState, 0));
+                context.MoveToNextState();
+                return;
+            }
+            var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+            context.Push(new BacktrackState(matches && consumed > 0, context.CurrentState, consumed));
+            context.AdvanceIndex(consumed);
+            context.MoveToNextState();
+        }
+
+        private void TestZeroOrMore(RegexContext context, RegexInputBuffer buffer)
+        {
+            var backtrackState = new BacktrackState(true, context.CurrentState);
+            while (true)
+            {
+                if (buffer.IsPastEnd(context.Index))
+                {
+                    backtrackState.AddZeroConsumed();
+                    context.Push(backtrackState);
+                    context.MoveToNextState();
+                    break;
+                }
+
+                var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+                if (!matches || consumed == 0)
+                {
+                    backtrackState.AddZeroConsumed();
+                    context.Push(backtrackState);
+                    context.MoveToNextState();
+                    break;
+                }
+
+                backtrackState.Consumptions.Push(consumed);
+                context.AdvanceIndex(consumed);
+            }
+        }
+
+        private void TestRange(RegexContext context, RegexInputBuffer buffer)
+        {
+            var backtrackState = new BacktrackState(true, context.CurrentState);
+            int j = 0;
+            while (true)
+            {
+                if (buffer.IsPastEnd(context.Index))
+                {
+                    backtrackState.AddZeroConsumed();
+                    context.Push(backtrackState);
+                    context.MoveToNextState();
+                    break;
+                }
+
+                var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+                if (!matches || consumed == 0)
+                {
+                    backtrackState.AddZeroConsumed();
+                    context.Push(backtrackState);
+                    context.MoveToNextState();
+                    break;
+                }
+
+                backtrackState.Consumptions.Push(consumed);
+                context.AdvanceIndex(consumed);
+                j++;
+                if (j >= context.CurrentState.Maximum)
+                {
+                    context.MoveToNextState();
+                    break;
+                }
+            }
+        }
+
+        private (bool matches, int length) MatchStateHere(RegexState state, RegexInputBuffer context, int i)
         {
             if (context.IsPastEnd(i))
             {
@@ -334,6 +382,5 @@ namespace ParserObjects.Parsers.Specialty.Regex
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
-
     }
 }
