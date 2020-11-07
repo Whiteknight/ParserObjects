@@ -259,9 +259,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().LastOrDefault();
                 if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
-                {
-                    throw new Exception("Quantifier '?' may only follow an unquantified atom");
-                }
+                    throw new RegexException("Quantifier '?' may only follow an unquantified atom");
                 lastElement.Quantifier = RegexQuantifier.ZeroOrOne;
             }
         }
@@ -282,9 +280,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().Last();
                 if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
-                {
-                    throw new Exception("Quantifier '*' may only follow an unquantified atom");
-                }
+                    throw new RegexException("Quantifier '*' may only follow an unquantified atom");
                 lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
             }
         }
@@ -308,9 +304,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().Last();
                 if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
-                {
-                    throw new Exception("Quantifier '+' may only follow an unquantified atom");
-                }
+                    throw new RegexException("Quantifier '+' may only follow an unquantified atom");
                 lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
             }
         }
@@ -325,9 +319,9 @@ namespace ParserObjects.Parsers.Specialty.Regex
             {
                 _atom = atom;
                 if (_min > _max)
-                    throw new Exception($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
+                    throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
                 if (min < 0 || max == 0 || max < -1)
-                    throw new Exception("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
+                    throw new RegexException("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
                 _min = min;
                 _max = max;
             }
@@ -352,9 +346,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                     _atom.BuildUpStates(states);
                     var lastElement = states.Last().Last();
                     if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
-                    {
-                        throw new Exception("Range maximum may only follow an unquantified atom");
-                    }
+                        throw new RegexException("Range maximum may only follow an unquantified atom");
                     lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
                     return;
                 }
@@ -366,9 +358,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                     _atom.BuildUpStates(states);
                     var lastElement = states.Last().Last();
                     if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
-                    {
-                        throw new Exception("Range maximum may only follow an unquantified atom");
-                    }
+                        throw new RegexException("Range maximum may only follow an unquantified atom");
                     lastElement.Quantifier = RegexQuantifier.Range;
                     lastElement.Maximum = _max - _min;
                 }

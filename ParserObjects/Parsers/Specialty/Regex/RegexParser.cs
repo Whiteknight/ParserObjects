@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserObjects.Parsers.Specialty.Regex
@@ -15,7 +14,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
             var states = new List<List<RegexState>> { new List<RegexState>() };
             regex.BuildUpStates(states);
             if (states.Count != 1)
-                throw new Exception("Invalid regular expression. Too many incomplete groups");
+                throw new RegexException("Invalid regular expression. Too many incomplete groups");
             _states = states[0];
         }
 
@@ -100,10 +99,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 _offset = offset;
             }
 
-            public RegexInputBuffer CopyFrom(int i)
-            {
-                return new RegexInputBuffer(_input, _buffer, i);
-            }
+            public RegexInputBuffer CopyFrom(int i) => new RegexInputBuffer(_input, _buffer, i);
 
             public string Capture(int i)
             {
@@ -296,7 +292,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                     }
 
                     default:
-                        throw new Exception("Unrecognized quantifier");
+                        throw new RegexException("Unrecognized quantifier");
                 }
             }
 
@@ -330,7 +326,7 @@ namespace ParserObjects.Parsers.Specialty.Regex
                 }
                 return (false, 0);
             }
-            throw new Exception("Unsupported state type during match");
+            throw new RegexException("Unsupported state type during match");
         }
 
         public IParseResult<object> ParseUntyped(ISequence<char> t) => Parse(t).Untype();

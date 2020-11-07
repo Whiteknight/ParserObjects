@@ -18,7 +18,7 @@ namespace ParserObjects.Parsers.Specialty
             var regexParser = RegexPattern();
             var result = regexParser.Parse(pattern);
             if (!result.Success)
-                throw new Exception("Could not parse pattern " + pattern);
+                throw new RegexException("Could not parse pattern " + pattern);
             var regexTree = result.Value;
             return new RegexParser(regexTree, pattern);
         }
@@ -134,7 +134,7 @@ namespace ParserObjects.Parsers.Specialty
             );
             var requiredEnd = First(
                 End(),
-                Produce<bool>(t => throw new Exception("Expected end of pattern but found '" + t.GetNext()))
+                Produce<bool>(t => throw new RegexException("Expected end of pattern but found '" + t.GetNext()))
             );
             var regex = (alternation, maybeEndAnchor, requiredEnd).Produce((f, s, e) => RegexNodes.Sequence(new[] { f, s }));
 
