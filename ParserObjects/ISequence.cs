@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Parsers;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -56,6 +58,23 @@ namespace ParserObjects
             => new SequenceEnumerable<T>(input);
 
         /// <summary>
+        /// Use a custom callback function to parse the input sequence
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="parse"></param>
+        /// <returns></returns>
+        public static IParseResult<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, Func<ISequence<TInput>, IParseResult<TOutput>> parse)
+        {
+            Assert.ArgumentNotNull(input, nameof(input));
+            Assert.ArgumentNotNull(parse, nameof(parse));
+            var parser = new FuncParser<TInput, TOutput>(parse);
+            var result = parser.Parse(input);
+            return result;
+        }
+
+        /// <summary>
         /// Transform a sequence of one type into a sequence of another type by applying a transformation
         /// function to every element.
         /// </summary>
@@ -64,7 +83,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="map"></param>
         /// <returns></returns>
-        public static ISequence<TOutput> Select<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map) 
+        public static ISequence<TOutput> Select<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map)
             => new MapSequence<TInput, TOutput>(input, map);
 
         /// <summary>
