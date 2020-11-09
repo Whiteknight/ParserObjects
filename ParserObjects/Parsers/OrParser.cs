@@ -39,9 +39,9 @@ namespace ParserObjects.Parsers
             return new OrParser<TInput>(newList);
         }
 
-        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ISequence<TInput> t)
         {
             // We shouldn't need a window here. Any parsers which fail won't consume input
             // and the one parser which might succeed will consume it's input
@@ -52,7 +52,7 @@ namespace ParserObjects.Parsers
                     return result;
             }
 
-            return new FailResult<object>(t.CurrentLocation);
+            return Result.Fail<object>(t.CurrentLocation);
         }
     }
 }

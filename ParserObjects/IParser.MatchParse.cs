@@ -43,7 +43,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static IParseResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
+        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
             => parser.Parse(new StringCharacterSequence(s));
 
     }

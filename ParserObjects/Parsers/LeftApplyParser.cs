@@ -39,7 +39,7 @@ namespace ParserObjects.Parsers
             _arity = arity;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             switch (_arity)
@@ -52,16 +52,16 @@ namespace ParserObjects.Parsers
                     return ParseZeroOrMore(t);
             }
 
-            return new FailResult<TOutput>(t.CurrentLocation);
+            return Result.Fail<TOutput>(t.CurrentLocation);
         }
 
-        private IParseResult<TOutput> ParseExactlyOne(ISequence<TInput> t)
+        private IResult<TOutput> ParseExactlyOne(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var window = t.Window();
             var leftResult = _initial.Parse(window);
             if (!leftResult.Success)
-                return new FailResult<TOutput>(window.CurrentLocation);
+                return Result.Fail<TOutput>(window.CurrentLocation);
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
@@ -71,14 +71,14 @@ namespace ParserObjects.Parsers
                 return rightResult;
 
             window.Rewind();
-            return new FailResult<TOutput>(t.CurrentLocation);
+            return Result.Fail<TOutput>(t.CurrentLocation);
         }
 
-        private IParseResult<TOutput> ParseZeroOrMore(ISequence<TInput> t)
+        private IResult<TOutput> ParseZeroOrMore(ISequence<TInput> t)
         {
             var result = _initial.Parse(t);
             if (!result.Success)
-                return new FailResult<TOutput>(t.CurrentLocation);
+                return Result.Fail<TOutput>(t.CurrentLocation);
 
             var current = result.Value;
             _left.Value = result.Value;
@@ -87,19 +87,19 @@ namespace ParserObjects.Parsers
             {
                 var rhsResult = _right.Parse(t);
                 if (!rhsResult.Success)
-                    return new SuccessResult<TOutput>(current, result.Location);
+                    return Result.Success(current, result.Location);
 
                 current = rhsResult.Value;
                 _left.Value = current;
             }
         }
 
-        private IParseResult<TOutput> ParseZeroOrOne(ISequence<TInput> t)
+        private IResult<TOutput> ParseZeroOrOne(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var leftResult = _initial.Parse(t);
             if (!leftResult.Success)
-                return new FailResult<TOutput>(t.CurrentLocation);
+                return Result.Fail<TOutput>(t.CurrentLocation);
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
@@ -110,7 +110,7 @@ namespace ParserObjects.Parsers
             return leftResult;
         }
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name
         {

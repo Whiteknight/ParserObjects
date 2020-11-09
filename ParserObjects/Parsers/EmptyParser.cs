@@ -16,12 +16,12 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            return new SuccessResult<object>(null, t.CurrentLocation);
+            return Result.Success<object>(null, t.CurrentLocation);
         }
 
-        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
     }
 }

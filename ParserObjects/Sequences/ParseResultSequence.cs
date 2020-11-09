@@ -8,11 +8,11 @@ namespace ParserObjects.Sequences
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class ParseResultSequence<TInput, TOutput> : ISequence<IParseResult<TOutput>>
+    public class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
     {
         private readonly ISequence<TInput> _input;
         private readonly IParser<TInput, TOutput> _parser;
-        private readonly Stack<IParseResult<TOutput>> _putbacks;
+        private readonly Stack<IResult<TOutput>> _putbacks;
 
         public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser)
         {
@@ -20,22 +20,22 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNull(parser, nameof(parser));
             _input = input;
             _parser = parser;
-            _putbacks = new Stack<IParseResult<TOutput>>();
+            _putbacks = new Stack<IResult<TOutput>>();
         }
 
-        public void PutBack(IParseResult<TOutput> value)
+        public void PutBack(IResult<TOutput> value)
         {
             _putbacks.Push(value);
         }
 
-        public IParseResult<TOutput> GetNext()
+        public IResult<TOutput> GetNext()
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Pop();
             return _parser.Parse(_input);
         }
 
-        public IParseResult<TOutput> Peek()
+        public IResult<TOutput> Peek()
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Peek();

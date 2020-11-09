@@ -21,13 +21,13 @@ namespace ParserObjects.Parsers
             _inner = inner;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var predicatePassed = TestPredicate(t);
             if (predicatePassed)
                 return _inner.Parse(t);
-            return new FailResult<TOutput>(t.CurrentLocation);
+            return Result.Fail<TOutput>(t.CurrentLocation);
         }
 
         private bool TestPredicate(ISequence<TInput> t)
@@ -39,7 +39,7 @@ namespace ParserObjects.Parsers
             return predicatePassed;
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

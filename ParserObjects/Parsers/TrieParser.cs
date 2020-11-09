@@ -20,9 +20,9 @@ namespace ParserObjects.Parsers
             Trie = trie;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t) => Trie.Get(t);
+        public IResult<TOutput> Parse(ISequence<TInput> t) => Trie.Get(t);
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Trie.Get(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Trie.Get(t).Untype();
 
         public string Name { get; set; }
 

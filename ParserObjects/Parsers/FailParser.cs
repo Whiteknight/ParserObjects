@@ -11,13 +11,13 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            return new FailResult<TOutput>(t.CurrentLocation);
+            return Result.Fail<TOutput>(t.CurrentLocation);
         }
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t)
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t)
             => Parse(t).Untype();
 
         public string Name { get; set; }

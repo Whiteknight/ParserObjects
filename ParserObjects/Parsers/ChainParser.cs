@@ -19,24 +19,24 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             var window = t.Window();
             var middle = _inner.Parse(window);
             if (!middle.Success)
-                return new FailResult<TOutput>(t.CurrentLocation);
+                return Result.Fail<TOutput>(t.CurrentLocation);
 
             var nextParser = _getParser(middle.Value);
             if (nextParser == null)
             {
                 window.Rewind();
-                return new FailResult<TOutput>(t.CurrentLocation);
+                return Result.Fail<TOutput>(t.CurrentLocation);
             }
 
             return nextParser.Parse(t);
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

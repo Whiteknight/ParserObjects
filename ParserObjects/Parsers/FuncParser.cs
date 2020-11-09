@@ -12,9 +12,9 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FuncParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        private readonly Func<ISequence<TInput>, IParseResult<TOutput>> _func;
+        private readonly Func<ISequence<TInput>, IResult<TOutput>> _func;
 
-        public FuncParser(Func<ISequence<TInput>, IParseResult<TOutput>> func)
+        public FuncParser(Func<ISequence<TInput>, IResult<TOutput>> func)
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
@@ -22,7 +22,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             var window = t.Window();
             try
@@ -35,11 +35,11 @@ namespace ParserObjects.Parsers
             catch
             {
                 window.Rewind();
-                return new FailResult<TOutput>(window.CurrentLocation);
+                return Result.Fail<TOutput>(window.CurrentLocation);
             }
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

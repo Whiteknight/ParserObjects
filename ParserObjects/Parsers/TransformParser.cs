@@ -23,9 +23,9 @@ namespace ParserObjects.Parsers
             _transform = transform;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t) => _parser.Parse(t).Transform(_transform);
+        public IResult<TOutput> Parse(ISequence<TInput> t) => _parser.Parse(t).Transform(_transform);
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

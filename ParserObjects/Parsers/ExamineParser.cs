@@ -3,20 +3,6 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
-    public class ParseState<TInput, TOutput>
-    {
-        public ParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, IParseResult<TOutput> result)
-        {
-            Parser = parser;
-            Input = input;
-            Result = result;
-        }
-
-        public IParser<TInput, TOutput> Parser { get; }
-        public ISequence<TInput> Input { get; }
-        public IParseResult<TOutput> Result { get; }
-    }
-
     public class ExamineParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _parser;
@@ -41,9 +27,9 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             _before?.Invoke(new ParseState<TInput, TOutput>(_parser, t, null));
             var result = _parser.Parse(t);

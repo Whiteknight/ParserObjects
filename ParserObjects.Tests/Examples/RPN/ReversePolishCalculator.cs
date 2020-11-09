@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 {
                     var token = t.GetNext();
                     if (token == null)
-                        return (IParseResult<int>)new FailResult<int>(t.CurrentLocation);
+                        return Result.Fail<int>(t.CurrentLocation);
                     if (token.Type == RpnTokenType.Number)
                     {
                         stack.Push(int.Parse(token.Value));
@@ -88,7 +88,7 @@ namespace ParserObjects.Tests.Examples.RPN
                         continue;
                     }
                 }
-                return new SuccessResult<int>(stack.Pop(), startingLocation);
+                return Result.Success(stack.Pop(), startingLocation);
             });
 
             if (!result.Success)

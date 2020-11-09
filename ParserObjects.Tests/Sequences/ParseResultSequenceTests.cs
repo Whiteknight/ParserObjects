@@ -23,7 +23,7 @@ namespace ParserObjects.Tests.Sequences
             var parser = new AnyParser<char>();
             var target = new ParseResultSequence<char, char>("ac".AsCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
-            target.PutBack(new SuccessResult<char>('b', null));
+            target.PutBack(Result.Success<char>('b', null));
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');
         }

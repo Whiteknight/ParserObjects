@@ -17,20 +17,20 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             return t.IsAtEnd
-                ? new SuccessResult<object>(true, t.CurrentLocation)
-                : (IParseResult<object>) new FailResult<object>(t.CurrentLocation);
+                ? Result.Success<object>(true, t.CurrentLocation)
+                : Result.Fail<object>(t.CurrentLocation);
         }
 
-        public IParseResult<bool> Parse(ISequence<TInput> t)
+        public IResult<bool> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             return t.IsAtEnd
-                ? new SuccessResult<bool>(true, t.CurrentLocation)
-                : (IParseResult<bool>) new FailResult<bool>(t.CurrentLocation);
+                ? Result.Success<bool>(true, t.CurrentLocation)
+                : Result.Fail<bool>(t.CurrentLocation);
         }
     }
 }

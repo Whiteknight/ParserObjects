@@ -15,7 +15,7 @@ namespace ParserObjects.Parsers
     {
         private readonly IParser<TInput, TCollection> _input;
 
-        private IParseResult<TCollection> _result;
+        private IResult<TCollection> _result;
         private TOutput[] _values;
         private int _index;
 
@@ -25,17 +25,17 @@ namespace ParserObjects.Parsers
             _input = input;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             if (_values != null)
                 return GetNextResult();
 
             var result = _input.Parse(t);
             if (!result.Success)
-                return new FailResult<TOutput>(result.Location);
+                return Result.Fail<TOutput>(result.Location);
             var values = result.Value.ToArray();
             if (values.Length == 0)
-                return new FailResult<TOutput>(result.Location);
+                return Result.Fail<TOutput>(result.Location);
 
             _result = result;
             _values = values;
@@ -43,7 +43,7 @@ namespace ParserObjects.Parsers
             return GetNextResult();
         }
 
-        private IParseResult<TOutput> GetNextResult()
+        private IResult<TOutput> GetNextResult()
         {
             var location = _result.Location;
             var value = _values[_index];
@@ -55,10 +55,10 @@ namespace ParserObjects.Parsers
                 _index = -1;
             }
 
-            return new SuccessResult<TOutput>(value, location);
+            return Result.Success(value, location);
         }
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

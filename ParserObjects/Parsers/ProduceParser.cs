@@ -21,14 +21,14 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t) 
-            => new SuccessResult<TOutput>(_produce(t), t.CurrentLocation);
+        public IResult<TOutput> Parse(ISequence<TInput> t)
+            => Result.Success(_produce(t), t.CurrentLocation);
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) 
-            => new SuccessResult<object>(_produce(t), t.CurrentLocation);
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t)
+            => Result.Success<object>(_produce(t), t.CurrentLocation);
 
         public string Name { get; set; }
-        
+
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;

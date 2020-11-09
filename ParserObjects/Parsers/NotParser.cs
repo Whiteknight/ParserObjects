@@ -29,19 +29,19 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ISequence<TInput> t)
         {
             var window = t.Window();
             var result1 = _inner.ParseUntyped(window);
             if (result1.Success)
             {
                 window.Rewind();
-                return new FailResult<object>(t.CurrentLocation);
+                return Result.Fail<object>(t.CurrentLocation);
             }
 
-            return new SuccessResult<object>(null, result1.Location);
+            return Result.Success<object>(null, result1.Location);
         }
     }
 }

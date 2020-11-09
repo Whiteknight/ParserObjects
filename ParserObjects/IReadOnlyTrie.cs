@@ -16,7 +16,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        IParseResult<TResult> Get(IEnumerable<TKey> keys);
+        IResult<TResult> Get(IEnumerable<TKey> keys);
 
         /// <summary>
         /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
@@ -24,7 +24,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        IParseResult<TResult> Get(ISequence<TKey> keys);
+        IResult<TResult> Get(ISequence<TKey> keys);
 
         /// <summary>
         /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so

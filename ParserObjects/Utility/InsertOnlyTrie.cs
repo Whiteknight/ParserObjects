@@ -33,7 +33,7 @@ namespace ParserObjects.Utility
             return this;
         }
 
-        public IParseResult<TResult> Get(IEnumerable<TKey> keys)
+        public IResult<TResult> Get(IEnumerable<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             var current = _root;
@@ -41,13 +41,13 @@ namespace ParserObjects.Utility
             {
                 current = current.Get(key);
                 if (current == null)
-                    return new FailResult<TResult>();
+                    return Result.Fail<TResult>();
             }
 
-            return current.HasResult ? new SuccessResult<TResult>(current.Result, null) : (IParseResult<TResult>)new FailResult<TResult>();
+            return Result.New(current.HasResult, current.Result);
         }
 
-        public IParseResult<TResult> Get(ISequence<TKey> keys)
+        public IResult<TResult> Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return _root.Get(keys);
@@ -76,18 +76,16 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public IParseResult<TResult> Get(ISequence<TKey> keys)
+            public IResult<TResult> Get(ISequence<TKey> keys)
             {
                 if (HasResult && _children.Count == 0)
-                    return new SuccessResult<TResult>(Result, keys.CurrentLocation);
+                    return ParserObjects.Result.Success(Result, keys.CurrentLocation);
 
                 var key = keys.GetNext();
                 if (!_children.ContainsKey(key))
                 {
                     keys.PutBack(key);
-                    if (HasResult)
-                        return new SuccessResult<TResult>(Result, keys.CurrentLocation);
-                    return new FailResult<TResult>(keys.CurrentLocation);
+                    return ParserObjects.Result.New(HasResult, Result, keys.CurrentLocation);
                 }
 
                 var result = _children[key].Get(keys);
@@ -95,10 +93,10 @@ namespace ParserObjects.Utility
                     return result;
 
                 if (HasResult)
-                    return new SuccessResult<TResult>(Result, keys.CurrentLocation);
+                    return ParserObjects.Result.Success(Result, keys.CurrentLocation);
 
                 keys.PutBack(key);
-                return new FailResult<TResult>(keys.CurrentLocation);
+                return ParserObjects.Result.Fail<TResult>(keys.CurrentLocation);
             }
 
             public Node GetOrAdd(TKey key)

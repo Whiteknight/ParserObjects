@@ -27,18 +27,18 @@ namespace ParserObjects.Parsers
         }
 
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
             var leftResult = _item.Parse(t);
             if (!leftResult.Success)
-                return new FailResult<TOutput>(t.CurrentLocation);
+                return Result.Fail<TOutput>(t.CurrentLocation);
 
             return Parse(t, leftResult);
         }
 
-        private IParseResult<TOutput> Parse(ISequence<TInput> t, IParseResult<TOutput> leftResult)
+        private IResult<TOutput> Parse(ISequence<TInput> t, IResult<TOutput> leftResult)
         {
             var window = new WindowSequence<TInput>(t);
 
@@ -54,21 +54,21 @@ namespace ParserObjects.Parsers
                 var rightResult = selfResult.Success ? selfResult : itemResult;
 
                 var value = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-                return new SuccessResult<TOutput>(value, leftResult.Location);
+                return Result.Success(value, leftResult.Location);
             }
 
             if (_getMissingRight != null)
             {
                 var syntheticRight = _getMissingRight(window);
                 var value = _produce(leftResult.Value, middleResult.Value, syntheticRight);
-                return new SuccessResult<TOutput>(value, window.CurrentLocation);
+                return Result.Success(value, window.CurrentLocation);
             }
 
             window.Rewind();
             return leftResult;
         }
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

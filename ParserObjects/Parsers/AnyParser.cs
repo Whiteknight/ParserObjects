@@ -19,15 +19,15 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
 
-        public IParseResult<object> ParseUntyped(ISequence<T> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ISequence<T> t) => Parse(t).Untype();
 
-        public IParseResult<T> Parse(ISequence<T> t)
+        public IResult<T> Parse(ISequence<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             if (t.IsAtEnd)
-                return new FailResult<T>();
+                return Result.Fail<T>();
             var next = t.GetNext();
-            return new SuccessResult<T>(next, t.CurrentLocation);
+            return Result.Success(next, t.CurrentLocation);
         }
     }
 }

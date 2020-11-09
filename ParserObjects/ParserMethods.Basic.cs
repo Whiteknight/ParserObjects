@@ -106,7 +106,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(Func<ISequence<TInput>, IParseResult<TOutput>> func)
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<ISequence<TInput>, IResult<TOutput>> func)
             => new FuncParser<TInput, TOutput>(func);
 
         /// <summary>

@@ -39,9 +39,9 @@ namespace ParserObjects.Parsers
             return new AndParser<TInput>(newList);
         }
 
-        public IParseResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
 
-        public IParseResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ISequence<TInput> t)
         {
             var window = t.Window();
             foreach (var parser in _parsers)
@@ -50,11 +50,11 @@ namespace ParserObjects.Parsers
                 if (!result.Success)
                 {
                     window.Rewind();
-                    return new FailResult<object>(window.CurrentLocation);
+                    return Result.Fail<object>(window.CurrentLocation);
                 }
             }
 
-            return new SuccessResult<object>(null, window.CurrentLocation);
+            return Result.Success<object>(null, window.CurrentLocation);
         }
     }
 }

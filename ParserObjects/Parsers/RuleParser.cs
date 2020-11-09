@@ -25,13 +25,13 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
-        public IParseResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
             var location = t.CurrentLocation;
             var window = new WindowSequence<TInput>(t);
-            
+
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {
@@ -39,15 +39,15 @@ namespace ParserObjects.Parsers
                 if (!result.Success)
                 {
                     window.Rewind();
-                    return new FailResult<TOutput>(result.Location);
+                    return Result.Fail<TOutput>(result.Location);
                 }
 
                 outputs[i] = result.Value;
             }
-            return new SuccessResult<TOutput>(_produce(outputs), location);
+            return Result.Success(_produce(outputs), location);
         }
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

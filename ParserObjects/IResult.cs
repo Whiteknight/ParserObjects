@@ -6,7 +6,7 @@ namespace ParserObjects
     /// Result object from a Parse operation
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
-    public interface IParseResult<out TValue>
+    public interface IResult<out TValue>
     {
         /// <summary>
         /// Returns true if the parse succeeded, false otherwise.
@@ -31,7 +31,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="transform"></param>
         /// <returns></returns>
-        IParseResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
+        IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
     }
 
     public static class ParseResultExtensions
@@ -42,7 +42,7 @@ namespace ParserObjects
         /// <typeparam name="T"></typeparam>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static IParseResult<object> Untype<T>(this IParseResult<T> result)
-            => result.Transform(x => (object) x);
+        public static IResult<object> Untype<T>(this IResult<T> result)
+            => result.Transform(x => (object)x);
     }
 }

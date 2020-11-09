@@ -17,7 +17,7 @@ namespace ParserObjects.Parsers
             _parser = parser;
         }
 
-        public IParseResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
+        public IResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var window = t.Window();
@@ -34,16 +34,16 @@ namespace ParserObjects.Parsers
             if (Minimum > 0 && items.Count < Minimum)
             {
                 window.Rewind();
-                return new FailResult<IEnumerable<TOutput>>(location);
+                return Result.Fail<IEnumerable<TOutput>>(location);
             }
 
-            return new SuccessResult<IEnumerable<TOutput>>(items, location);
+            return Result.Success<IEnumerable<TOutput>>(items, location);
         }
 
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        IParseResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 
