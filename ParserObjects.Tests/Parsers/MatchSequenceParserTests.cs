@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void CharacterString_Test()
         {
-            var parser = ParserObjects.Parsers.ParserMethods.CharacterString("abc");
+            var parser = ParserMethods.CharacterString("abc");
             var input = new StringCharacterSequence("abcd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

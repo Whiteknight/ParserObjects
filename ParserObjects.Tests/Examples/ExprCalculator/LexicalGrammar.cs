@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
 {

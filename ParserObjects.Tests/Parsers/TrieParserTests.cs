@@ -4,7 +4,7 @@ using NUnit.Framework;
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
-using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {

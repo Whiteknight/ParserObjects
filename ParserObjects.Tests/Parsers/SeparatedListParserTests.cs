@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using static ParserObjects.Parsers.ParserMethods<char>;
-using static ParserObjects.Parsers.Specialty.CStyleParserMethods;
+using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.CStyleParserMethods;
 
 namespace ParserObjects.Tests.Parsers
 {

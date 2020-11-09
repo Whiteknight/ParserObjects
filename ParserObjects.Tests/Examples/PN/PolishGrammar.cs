@@ -1,7 +1,5 @@
-﻿using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods<char>;
-using static ParserObjects.Parsers.Specialty.DigitParserMethods;
-using static ParserObjects.Parsers.Specialty.WhitespaceParserMethods;
+﻿using static ParserObjects.ParserMethods;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Examples.PN
 {
