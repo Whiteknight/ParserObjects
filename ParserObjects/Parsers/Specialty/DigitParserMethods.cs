@@ -40,7 +40,7 @@ namespace ParserObjects.Parsers.Specialty
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
         private static readonly HashSet<char> _hexDigits = new HashSet<char>("abcdefABCDEF0123456789");
         private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
-            ()=> Match(c => _hexDigits.Contains(c)).Named("hexDigit")
+            () => Match(c => _hexDigits.Contains(c)).Named("hexDigit")
         );
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace ParserObjects.Parsers.Specialty
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
-        private static readonly Lazy<IParser<char, string>> _hexadecimalString = new Lazy<IParser<char,string>>(
+        private static readonly Lazy<IParser<char, string>> _hexadecimalString = new Lazy<IParser<char, string>>(
             () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
         );
     }
