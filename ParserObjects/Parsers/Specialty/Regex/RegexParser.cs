@@ -10,13 +10,18 @@ namespace ParserObjects.Parsers.Specialty.Regex
         public RegexParser(IRegexNode regex, string describe)
         {
             if (!string.IsNullOrEmpty(describe))
+            {
                 Name = describe;
+                Pattern = describe;
+            }
             var states = new List<List<RegexState>> { new List<RegexState>() };
             regex.BuildUpStates(states);
             if (states.Count != 1)
                 throw new RegexException("Invalid regular expression. Too many incomplete groups");
             _states = states[0];
         }
+
+        public string Pattern { get; }
 
         public string Name { get; set; }
 

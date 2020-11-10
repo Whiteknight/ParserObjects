@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Parsers.Logical;
+using ParserObjects.Parsers.Specialty.Regex;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Visitors
@@ -132,6 +133,16 @@ namespace ParserObjects.Parsers.Visitors
             state.Current.Append(".");
         }
 
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChainParser<TInput, TMiddle, TOutput> p, State state)
+        {
+            state.Current.Append("Chain");
+        }
+
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChooseParser<TInput, TMiddle, TOutput> p, State state)
+        {
+            state.Current.Append("Choose");
+        }
+
         protected virtual void VisitTyped<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
@@ -195,6 +206,11 @@ namespace ParserObjects.Parsers.Visitors
             where TCollection : IEnumerable<TOutput>
         {
             VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void VisitTyped<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
+        {
+            state.Current.Append("User Function");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(LeftApplyParser<TInput, TOutput> p, State state)
@@ -275,6 +291,11 @@ namespace ParserObjects.Parsers.Visitors
         protected virtual void VisitTyped<TInput, TOutput>(ProduceParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("PRODUCE");
+        }
+
+        protected virtual void VisitTyped(RegexParser p, State state)
+        {
+            state.Current.Append("/" + p.Pattern + "/");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
