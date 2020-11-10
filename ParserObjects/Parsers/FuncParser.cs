@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -12,9 +11,9 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FuncParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        private readonly Func<ISequence<TInput>, IResult<TOutput>> _func;
+        private readonly ParserFunction<TInput, TOutput> _func;
 
-        public FuncParser(Func<ISequence<TInput>, IResult<TOutput>> func)
+        public FuncParser(ParserFunction<TInput, TOutput> func)
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
@@ -27,7 +26,9 @@ namespace ParserObjects.Parsers
             var window = t.Window();
             try
             {
-                var result = _func(window);
+                SuccessFunction<TOutput> onSuccess = (v, l) => Result.Success(v, l ?? window.CurrentLocation);
+                FailFunction<TOutput> onFailure = l => Result.Fail<TOutput>(l ?? window.CurrentLocation);
+                var result = _func(window, onSuccess, onFailure);
                 if (!result.Success)
                     window.Rewind();
                 return result;

@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 operators
             );
             var tokenSequence = tokens.ToSequence(new StringCharacterSequence(s)).Select(r => r.Value);
-            var result = tokenSequence.Parse(t =>
+            var result = tokenSequence.Parse<RpnToken, int>((t, success, fail) =>
             {
                 var startingLocation = t.CurrentLocation;
                 var stack = new Stack<int>();
@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 {
                     var token = t.GetNext();
                     if (token == null)
-                        return Result.Fail<int>(t.CurrentLocation);
+                        return fail();
                     if (token.Type == RpnTokenType.Number)
                     {
                         stack.Push(int.Parse(token.Value));
@@ -88,7 +88,7 @@ namespace ParserObjects.Tests.Examples.RPN
                         continue;
                     }
                 }
-                return Result.Success(stack.Pop(), startingLocation);
+                return success(stack.Pop());
             });
 
             if (!result.Success)

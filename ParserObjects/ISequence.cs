@@ -69,6 +69,15 @@ namespace ParserObjects
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(parse, nameof(parse));
+            var parser = new FuncParser<TInput, TOutput>((t, success, fail) => parse(t));
+            var result = parser.Parse(input);
+            return result;
+        }
+
+        public static IResult<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, ParserFunction<TInput, TOutput> parse)
+        {
+            Assert.ArgumentNotNull(input, nameof(input));
+            Assert.ArgumentNotNull(parse, nameof(parse));
             var parser = new FuncParser<TInput, TOutput>(parse);
             var result = parser.Parse(input);
             return result;
