@@ -11,6 +11,7 @@ namespace ParserObjects.Sequences
     public class WindowSequence<T> : ISequence<T>
     {
         private readonly Stack<T> _window;
+
         private readonly ISequence<T> _inner;
 
         public WindowSequence(ISequence<T> inner)

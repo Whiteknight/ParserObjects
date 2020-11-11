@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
-using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical
 {

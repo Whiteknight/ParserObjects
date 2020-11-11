@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using ParserObjects;
 using ParserObjects.Parsers;
 using ParserObjects.Utility;
 
@@ -135,12 +134,17 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChainParser<TInput, TMiddle, TOutput> p, State state)
         {
-            state.Current.Append("Chain");
+            var child = p.GetChildren().Single();
+            VisitChild(child, state);
+            state.Current.Append("->Chain");
         }
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChooseParser<TInput, TMiddle, TOutput> p, State state)
         {
-            state.Current.Append("Choose");
+            var child = p.GetChildren().Single();
+            state.Current.Append("(?=");
+            VisitChild(child, state);
+            state.Current.Append(")->Choose");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
+using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Visitors
@@ -39,6 +40,22 @@ namespace ParserObjects.Tests.Visitors
             var parser = Any().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Chain()
+        {
+            var parser = Any().Chain(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .->Chain");
+        }
+
+        [Test]
+        public void ToBnf_Choose()
+        {
+            var parser = Any().Choose(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=.)->Choose");
         }
 
         [Test]
@@ -132,6 +149,14 @@ namespace ParserObjects.Tests.Visitors
             var parser = Flatten<string, char>(new ProduceParser<char, string>(s => "test")).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
+        }
+
+        [Test]
+        public void ToBnf_Func()
+        {
+            var parser = Function(t => Result.Success('a')).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := User Function");
         }
 
         [Test]
@@ -254,6 +279,22 @@ namespace ParserObjects.Tests.Visitors
             var parser = Produce(() => 'a').Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
+        }
+
+        [Test]
+        public void ToBnf_Regex()
+        {
+            var parser = Regex("(a|b)c*d").Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := /(a|b)c*d/");
+        }
+
+        [Test]
+        public void ToBnf_Replaceable()
+        {
+            var parser = Replaceable(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
         }
 
         [Test]
