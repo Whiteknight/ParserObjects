@@ -49,7 +49,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <param name="lookahead"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
+        public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TOutput> lookahead)
             => ParserMethods<TInput>.Rule(p, ParserMethods<TInput>.PositiveLookahead(lookahead), (result, match) => result);
 
         /// <summary>

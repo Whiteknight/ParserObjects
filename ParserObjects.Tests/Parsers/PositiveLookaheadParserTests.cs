@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void FollowedBy_Fail()
         {
-            var parser = Match('[').FollowedBy(Match("~"));
+            var parser = Match('[').FollowedBy(Match('~'));
             var input = new StringCharacterSequence("[test]");
             parser.Parse(input).Success.Should().BeFalse();
         }
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void FollowedBy_Success()
         {
-            var parser = Match('[').FollowedBy(Match("~"));
+            var parser = Match('[').FollowedBy(Match('~'));
             var input = new StringCharacterSequence("[~test]");
             parser.Parse(input).Value.Should().Be('[');
         }
@@ -41,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
             var failParser = Fail<char>();
             var anyParser = Any();
             var parser = PositiveLookahead(failParser);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, object>;
+            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, char>;
 
             var input = new StringCharacterSequence("abc");
             parser.Parse(input).Success.Should().Be(true);
@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
-            var result = parser.ReplaceChild(null, null) as IParser<char, object>;
+            var result = parser.ReplaceChild(null, null) as IParser<char, char>;
 
             result.Should().BeSameAs(parser);
         }

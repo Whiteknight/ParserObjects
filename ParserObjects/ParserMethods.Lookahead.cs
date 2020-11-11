@@ -21,7 +21,7 @@ namespace ParserObjects
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, object> PositiveLookahead(IParser<TInput> p)
-            => new PositiveLookaheadParser<TInput>(p);
+        public static IParser<TInput, TOutput> PositiveLookahead<TOutput>(IParser<TInput, TOutput> p)
+            => new PositiveLookaheadParser<TInput, TOutput>(p);
     }
 }

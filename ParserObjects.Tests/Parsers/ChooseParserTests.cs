@@ -37,6 +37,21 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_EquivalentToPositiveLookaheadChain()
+        {
+            var parser1 = Match('a').Choose(a => Match(a + "bc"));
+            var parser2 = PositiveLookahead(Match('a')).Chain(a => Match(a + "bc"));
+
+            var result1 = parser1.Parse("abc");
+            result1.Success.Should().BeTrue();
+            result1.Value.Should().BeEquivalentTo('a', 'b', 'c');
+
+            var result2 = parser1.Parse("abc");
+            result2.Success.Should().BeTrue();
+            result2.Value.Should().BeEquivalentTo('a', 'b', 'c');
+        }
+
+        [Test]
         public void Parse_InitialFail()
         {
             var parser = Fail<object>().Choose(c => Any());

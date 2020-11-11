@@ -285,7 +285,7 @@ namespace ParserObjects.Visitors
             VisitChild(children[1], state);
         }
 
-        protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(PositiveLookaheadParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("(?= ");
             VisitChild(p.GetChildren().First(), state);
