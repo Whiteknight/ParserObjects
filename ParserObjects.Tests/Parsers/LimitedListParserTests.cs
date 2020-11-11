@@ -88,7 +88,7 @@ namespace ParserObjects.Tests.Parsers
             var anyParser = Any();
             var failParser = Fail<char>();
             var parser = List(failParser);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, IEnumerable<char>>;
+            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, IReadOnlyList<char>>;
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
@@ -103,7 +103,7 @@ namespace ParserObjects.Tests.Parsers
         public void ReplaceChild_Same()
         {
             var parser = List(Any());
-            var result = parser.ReplaceChild(null, null) as IParser<char, IEnumerable<char>>;
+            var result = parser.ReplaceChild(null, null) as IParser<char, IReadOnlyList<char>>;
             result.Should().BeSameAs(parser);
         }
     }

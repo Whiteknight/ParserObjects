@@ -61,7 +61,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
+        public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
             => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace ParserObjects
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
             => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace ParserObjects
         /// <param name="separator"></param>
         /// <param name="atLeastOne"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
+        public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
             => ParserMethods<TInput>.SeparatedList(p, separator, atLeastOne);
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace ParserObjects
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
             => ParserMethods<TInput>.SeparatedList(p, separator, minimum, maximum);
 
         /// <summary>

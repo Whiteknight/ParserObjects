@@ -2,8 +2,8 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
 using static ParserObjects.CStyleParserMethods;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -122,7 +122,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = SeparatedList(
                 Integer(),
                 Match(","),
-                0, 
+                0,
                 2
             );
             var input = new StringCharacterSequence("1,2,3");

@@ -15,7 +15,7 @@ namespace ParserObjects
         /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
         /// false, an empty list returns success.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
+        public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
             => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -27,21 +27,20 @@ namespace ParserObjects
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
             => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
         /// <summary>
         /// Parse a list of items separated by a separator pattern.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TSeparator"></typeparam>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>
         /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
         /// if an empty list can be returned.</param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
+        public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
             => SeparatedList(p, separator, atLeastOne ? 1 : 0, null);
 
         /// <summary>
@@ -49,14 +48,13 @@ namespace ParserObjects
         /// maximum item counts
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TSeparator"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>
         /// <param name="minimum"></param>
         /// <param name="maximum"></param>
         /// <returns></returns>
-        public static IParser<TInput, IEnumerable<TOutput>> SeparatedList<TSeparator, TOutput>(IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
+        public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, int minimum = 0, int? maximum = null)
         {
             if (minimum >= 1)
             {
@@ -64,11 +62,10 @@ namespace ParserObjects
                 return Rule(
                     p,
                     List(
-                        Rule(
+                        Combine(
                             separator,
-                            p,
-                            (s, item) => item
-                        ),
+                            p
+                        ).Transform(r => (TOutput)r[1]),
                         minimum - 1,
                         maximum - 1
                     ),
@@ -81,17 +78,16 @@ namespace ParserObjects
                 Rule(
                     p,
                     List(
-                        Rule(
+                        Combine(
                             separator,
-                            p,
-                            (s, item) => item
-                        ),
+                            p
+                        ).Transform(r => (TOutput)r[1]),
                         minimum - 1,
                         maximum - 1
                     ),
                     (first, rest) => new[] { first }.Concat(rest).ToList()
                 ),
-                Produce<IEnumerable<TOutput>>(() => new List<TOutput>())
+                Produce<IReadOnlyList<TOutput>>(() => new List<TOutput>())
             );
         }
     }

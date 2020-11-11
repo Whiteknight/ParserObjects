@@ -1,9 +1,9 @@
-﻿using ParserObjects.Utility;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    public class LimitedListParser<TInput, TOutput> : IParser<TInput, IEnumerable<TOutput>>
+    public class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
     {
         private readonly IParser<TInput, TOutput> _parser;
 
@@ -17,7 +17,7 @@ namespace ParserObjects.Parsers
             _parser = parser;
         }
 
-        public IResult<IEnumerable<TOutput>> Parse(ISequence<TInput> t)
+        public IResult<IReadOnlyList<TOutput>> Parse(ISequence<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var window = t.Window();
@@ -34,10 +34,10 @@ namespace ParserObjects.Parsers
             if (Minimum > 0 && items.Count < Minimum)
             {
                 window.Rewind();
-                return Result.Fail<IEnumerable<TOutput>>(location);
+                return Result.Fail<IReadOnlyList<TOutput>>(location);
             }
 
-            return Result.Success<IEnumerable<TOutput>>(items, location);
+            return Result.Success<IReadOnlyList<TOutput>>(items, location);
         }
 
         public int Minimum { get; }
