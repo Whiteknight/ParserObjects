@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -25,20 +24,20 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
+            var checkpoint = t.Input.Checkpoint();
 
-            var location = t.CurrentLocation;
-            var window = new WindowSequence<TInput>(t);
+            var location = t.Input.CurrentLocation;
 
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {
-                var result = _parsers[i].ParseUntyped(window);
+                var result = _parsers[i].ParseUntyped(t.Input);
                 if (!result.Success)
                 {
-                    window.Rewind();
+                    checkpoint.Rewind();
                     return Result.Fail<TOutput>(result.Location);
                 }
 
@@ -47,7 +46,7 @@ namespace ParserObjects.Parsers
             return Result.Success(_produce(outputs), location);
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

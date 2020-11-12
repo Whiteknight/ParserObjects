@@ -1,8 +1,8 @@
 ﻿namespace ParserObjects.Parsers
 {
-    public class ParseState<TInput, TOutput>
+    public class ExamineParseState<TInput, TOutput>
     {
-        public ParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, IResult<TOutput> result)
+        public ExamineParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, IResult<TOutput> result)
         {
             Parser = parser;
             Input = input;

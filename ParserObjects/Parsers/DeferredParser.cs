@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
             _getParser = getParser;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var parser = _getParser();
             if (parser == null)
@@ -27,7 +27,7 @@ namespace ParserObjects.Parsers
             return parser.Parse(t);
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) 
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
             => _getParser().ParseUntyped(t);
 
         public string Name { get; set; }

@@ -26,17 +26,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<string> Parse(ISequence<char> t)
+        public IResult<string> Parse(ParseState<char> t)
         {
-            var startLocation = t.CurrentLocation;
-            var context = new RegexInputBuffer(t);
+            var startLocation = t.Input.CurrentLocation;
+            var context = new RegexInputBuffer(t.Input);
             var (matches, consumed) = Test(_states, context);
             if (matches)
             {
                 var str = context.Capture(consumed);
-                return Result.Success(str, startLocation);
+                return t.Success(str, startLocation);
             }
-            return Result.Fail<string>();
+            return t.Fail<string>();
         }
 
         private class BacktrackState
@@ -383,7 +383,7 @@ namespace ParserObjects.Parsers
             throw new RegexException("Unsupported state type during match");
         }
 
-        public IResult<object> ParseUntyped(ISequence<char> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<char> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

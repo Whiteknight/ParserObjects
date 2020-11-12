@@ -19,19 +19,19 @@ namespace ParserObjects.Parsers
             _predicate = predicate;
         }
 
-        public IResult<T> Parse(ISequence<T> t)
+        public IResult<T> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            var location = t.CurrentLocation;
-            if (t.IsAtEnd)
-                return Result.Fail<T>(location);
-            var next = t.Peek();
+            var location = t.Input.CurrentLocation;
+            if (t.Input.IsAtEnd)
+                return t.Fail<T>();
+            var next = t.Input.Peek();
             if (!_predicate(next))
-                return Result.Fail<T>(location);
-            return Result.Success(t.GetNext(), location);
+                return t.Fail<T>();
+            return t.Success(t.Input.GetNext(), location);
         }
 
-        public IResult<object> ParseUntyped(ISequence<T> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

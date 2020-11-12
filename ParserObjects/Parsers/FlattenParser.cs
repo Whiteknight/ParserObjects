@@ -25,17 +25,22 @@ namespace ParserObjects.Parsers
             _input = input;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
+            // TODO: If we reference FlattenParser from multiple places in the tree and one call
+            // of it recurses into another call of it we'll step on state.
+            // See if there's something we can do to avoid that.
+            // Consider recursively parsing a data structure like [1, 2, [3, 4], 5]
+            // Maybe we can tie the results to something in t, like the CurrentLocation
             if (_values != null)
                 return GetNextResult();
 
             var result = _input.Parse(t);
             if (!result.Success)
-                return Result.Fail<TOutput>(result.Location);
+                return t.Fail<TOutput>();
             var values = result.Value.ToArray();
             if (values.Length == 0)
-                return Result.Fail<TOutput>(result.Location);
+                return t.Fail<TOutput>();
 
             _result = result;
             _values = values;
@@ -58,7 +63,7 @@ namespace ParserObjects.Parsers
             return Result.Success(value, location);
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

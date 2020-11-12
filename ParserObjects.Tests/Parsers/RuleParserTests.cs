@@ -279,5 +279,20 @@ namespace ParserObjects.Tests.Parsers
             result[0].Should().BeSameAs(_any);
             result[1].Should().BeSameAs(failParser);
         }
+
+        [Test]
+        public void RewindInput_Test()
+        {
+            var parser = Rule(
+                Match('a'),
+                Match('b'),
+                Match('c'),
+                (a, b, c) => "ok"
+            );
+            var input = new StringCharacterSequence("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            input.Peek().Should().Be('a');
+        }
     }
 }

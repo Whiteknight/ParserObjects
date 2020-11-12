@@ -17,15 +17,15 @@ namespace ParserObjects.Parsers
             _parser = parser;
         }
 
-        public IResult<IReadOnlyList<TOutput>> Parse(ISequence<TInput> t)
+        public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            var window = t.Window();
-            var location = t.CurrentLocation;
+            var checkpoint = t.Input.Checkpoint();
+            var location = t.Input.CurrentLocation;
             var items = new List<TOutput>();
             while (Maximum == null || items.Count < Maximum)
             {
-                var result = _parser.Parse(window);
+                var result = _parser.Parse(t);
                 if (!result.Success)
                     break;
                 items.Add(result.Value);
@@ -33,17 +33,17 @@ namespace ParserObjects.Parsers
 
             if (Minimum > 0 && items.Count < Minimum)
             {
-                window.Rewind();
-                return Result.Fail<IReadOnlyList<TOutput>>(location);
+                checkpoint.Rewind();
+                return t.Fail<IReadOnlyList<TOutput>>();
             }
 
-            return Result.Success<IReadOnlyList<TOutput>>(items, location);
+            return t.Success<IReadOnlyList<TOutput>>(items, location);
         }
 
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

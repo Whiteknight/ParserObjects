@@ -87,5 +87,64 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(0);
             target.CurrentLocation.Column.Should().Be(3);
         }
+
+        [Test]
+        public void IsAtEnd_Test()
+        {
+            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(1);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(2);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(3);
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
+        public void Checkpoint_Test()
+        {
+            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(0);
+            cp.Rewind();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void Checkpoint_Putbacks()
+        {
+            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            target.PutBack(4);
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(0);
+            cp.Rewind();
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void Checkpoint_PutbacksIgnored()
+        {
+            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
+            target.GetNext().Should().Be(1);
+
+            var cp = target.Checkpoint();
+            target.PutBack(10);
+            target.PutBack(11);
+            cp.Rewind();
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(0);
+        }
     }
 }

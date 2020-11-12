@@ -43,7 +43,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        IResult<object> ParseUntyped(ISequence<TInput> t);
+        IResult<object> ParseUntyped(ParseState<TInput> t);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        IResult<TOutput> Parse(ISequence<TInput> t);
+        IResult<TOutput> Parse(ParseState<TInput> t);
     }
 
     /// <summary>

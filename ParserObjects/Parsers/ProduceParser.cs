@@ -21,11 +21,11 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
-            => Result.Success(_produce(t), t.CurrentLocation);
+        public IResult<TOutput> Parse(ParseState<TInput> t)
+            => t.Success(_produce(t.Input), t.Input.CurrentLocation);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t)
-            => Result.Success<object>(_produce(t), t.CurrentLocation);
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
+            => t.Success<object>(_produce(t.Input), t.Input.CurrentLocation);
 
         public string Name { get; set; }
 

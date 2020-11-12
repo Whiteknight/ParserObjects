@@ -17,20 +17,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void Reset_Test()
-        {
-            var target = new StringCharacterSequence("abc");
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.Reset();
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
         public void Peek_Test()
         {
             var target = new StringCharacterSequence("abc");
@@ -248,6 +234,72 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Line.Should().Be(2);
             target.CurrentLocation.Column.Should().Be(2);
 
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Reset_Test()
+        {
+            var target = new StringCharacterSequence("abc");
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.Reset();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_Test()
+        {
+            var target = new StringCharacterSequence("abc");
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+            cp.Rewind();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_Putbacks()
+        {
+            var target = new StringCharacterSequence("abc");
+            target.GetNext().Should().Be('a');
+            target.PutBack('Y');
+            target.PutBack('X');
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('Y');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+            cp.Rewind();
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('Y');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_PutbacksIgnored()
+        {
+            var target = new StringCharacterSequence("abc");
+            target.GetNext().Should().Be('a');
+
+            var cp = target.Checkpoint();
+            target.PutBack('Y');
+            target.PutBack('X');
+            cp.Rewind();
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
     }

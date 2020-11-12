@@ -65,7 +65,7 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ParseState<TInput, TOutput>> before = null, Action<ParseState<TInput, TOutput>> after = null)
+        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ExamineParseState<TInput, TOutput>> before = null, Action<ExamineParseState<TInput, TOutput>> after = null)
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(Func<ISequence<TInput>, IResult<TOutput>> func)
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<ParseState<TInput>, IResult<TOutput>> func)
             => new FuncParser<TInput, TOutput>((t, success, fail) => func(t));
 
         public static IParser<TInput, TOutput> Function<TOutput>(ParserFunction<TInput, TOutput> func)
@@ -161,6 +161,9 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
+
+        public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
+            => new SequentialParser<TInput, TOutput>(func);
 
         /// <summary>
         /// Transform one node into another node to fit into the grammar

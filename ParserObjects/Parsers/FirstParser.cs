@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
             _parsers = parsers;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             foreach (var parser in _parsers)
@@ -30,10 +30,10 @@ namespace ParserObjects.Parsers
                     return result;
             }
 
-            return Result.Fail<TOutput>(t.CurrentLocation);
+            return t.Fail<TOutput>();
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

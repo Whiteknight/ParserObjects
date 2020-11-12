@@ -4,8 +4,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Invokes a parser and inverses the result. If the parser succeeds, return Failure. Otherwise
-    /// returns Success. Consumes no input in either case and returns no output.
+    /// Invokes a parser and inverses the result success status. If the parser succeeds, return 
+    /// Failure. Otherwise returns Success. Consumes no input in either case and returns no output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public class NotParser<TInput> : IParser<TInput, object>
@@ -29,19 +29,19 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
-            var window = t.Window();
-            var result1 = _inner.ParseUntyped(window);
+            var checkpoint = t.Input.Checkpoint();
+            var result1 = _inner.ParseUntyped(t);
             if (result1.Success)
             {
-                window.Rewind();
-                return Result.Fail<object>(t.CurrentLocation);
+                checkpoint.Rewind();
+                return t.Fail<object>();
             }
 
-            return Result.Success<object>(null, result1.Location);
+            return t.Success<object>(null, result1.Location);
         }
     }
 }

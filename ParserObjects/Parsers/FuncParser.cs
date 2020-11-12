@@ -21,26 +21,26 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            var window = t.Window();
+            var checkpoint = t.Input.Checkpoint();
             try
             {
-                SuccessFunction<TOutput> onSuccess = (v, l) => Result.Success(v, l ?? window.CurrentLocation);
-                FailFunction<TOutput> onFailure = l => Result.Fail<TOutput>(l ?? window.CurrentLocation);
-                var result = _func(window, onSuccess, onFailure);
+                SuccessFunction<TOutput> onSuccess = (v, l) => Result.Success(v, l ?? t.Input.CurrentLocation);
+                FailFunction<TOutput> onFailure = l => Result.Fail<TOutput>(l ?? t.Input.CurrentLocation);
+                var result = _func(t, onSuccess, onFailure);
                 if (!result.Success)
-                    window.Rewind();
+                    checkpoint.Rewind();
                 return result;
             }
             catch
             {
-                window.Rewind();
-                return Result.Fail<TOutput>(window.CurrentLocation);
+                checkpoint.Rewind();
+                return t.Fail<TOutput>();
             }
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

@@ -39,22 +39,22 @@ namespace ParserObjects.Parsers
             return new AndParser<TInput>(newList);
         }
 
-        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
-            var window = t.Window();
+            var checkpoint = t.Input.Checkpoint();
             foreach (var parser in _parsers)
             {
-                var result = parser.ParseUntyped(window);
+                var result = parser.ParseUntyped(t);
                 if (!result.Success)
                 {
-                    window.Rewind();
-                    return Result.Fail<object>(window.CurrentLocation);
+                    checkpoint.Rewind();
+                    return t.Fail<object>();
                 }
             }
 
-            return Result.Success<object>(null, window.CurrentLocation);
+            return Result.Success<object>(null, t.Input.CurrentLocation);
         }
     }
 }

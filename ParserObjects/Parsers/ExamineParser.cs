@@ -6,10 +6,10 @@ namespace ParserObjects.Parsers
     public class ExamineParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _parser;
-        private readonly Action<ParseState<TInput, TOutput>> _before;
-        private readonly Action<ParseState<TInput, TOutput>> _after;
+        private readonly Action<ExamineParseState<TInput, TOutput>> _before;
+        private readonly Action<ExamineParseState<TInput, TOutput>> _after;
 
-        public ExamineParser(IParser<TInput, TOutput> parser, Action<ParseState<TInput, TOutput>> before, Action<ParseState<TInput, TOutput>> after)
+        public ExamineParser(IParser<TInput, TOutput> parser, Action<ExamineParseState<TInput, TOutput>> before, Action<ExamineParseState<TInput, TOutput>> after)
         {
             _parser = parser;
             _before = before;
@@ -27,13 +27,14 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            _before?.Invoke(new ParseState<TInput, TOutput>(_parser, t, null));
+            // TODO: Should I include ParseState<T> here?
+            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
             var result = _parser.Parse(t);
-            _after?.Invoke(new ParseState<TInput, TOutput>(_parser, t, result));
+            _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));
             return result;
         }
     }

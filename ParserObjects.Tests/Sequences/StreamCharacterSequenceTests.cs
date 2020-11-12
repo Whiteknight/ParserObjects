@@ -9,12 +9,12 @@ namespace ParserObjects.Tests.Sequences
 {
     public class StreamCharacterSequenceTests
     {
-        private static StreamCharacterSequence GetTarget(string sc)
+        private static StreamCharacterSequence GetTarget(string sc, int bufferSize = 32)
         {
             var memoryStream = new MemoryStream();
             memoryStream.Write(Encoding.UTF8.GetBytes(sc));
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamCharacterSequence(memoryStream, Encoding.UTF8);
+            return new StreamCharacterSequence(memoryStream, Encoding.UTF8, bufferSize: bufferSize);
         }
 
         [Test]
@@ -66,6 +66,103 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.PutBack('b');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_SameBuffer()
+        {
+            var target = GetTarget("abc", 5);
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be('a');
+            cp.Rewind();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+            cp.Rewind();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('\0');
+        }
+
+
+        [Test]
+        public void Checkpoint_PreviousBuffer()
+        {
+            var target = GetTarget("abcdef", 5);
+            var cp = target.Checkpoint();
+
+            // Read to the very end of the current buffer then rewind
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('e');
+            cp.Rewind();
+
+            // Now read again from the beginning to the first char of the second buffer then rewind
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+            cp.Rewind();
+
+            // Now read the whole thing to completion and see that we get everything.
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_PreviousBufferWithPutbacks()
+        {
+            var target = GetTarget("abcdef", 5);
+
+            // Read a few chars, putback a few chars, then checkpoint
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.PutBack('Y');
+            target.PutBack('X');
+            var cp = target.Checkpoint();
+
+            // Read chars through the end of the current buffer and rewind
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('Y');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+            cp.Rewind();
+
+            // Now read again from the checkpoint, to see that we get the putbacks again
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('Y');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+        }
+
+        [Test]
+        public void Checkpoint_PutbacksIgnored()
+        {
+            var target = GetTarget("abc", 5);
+            target.GetNext().Should().Be('a');
+
+            var cp = target.Checkpoint();
+            target.PutBack('Y');
+            target.PutBack('X');
+            cp.Rewind();
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');

@@ -6,6 +6,11 @@ using ParserObjects.Utility;
 
 namespace ParserObjects
 {
+    public interface ISequenceCheckpoint
+    {
+        void Rewind();
+    }
+
     /// <summary>
     /// An input sequence of items. Similar to IEnumerable/IEnumerator but with the ability to rewind and
     /// put back items which are not needed.
@@ -44,6 +49,8 @@ namespace ParserObjects
         /// is exhausted and no more values are available.
         /// </summary>
         bool IsAtEnd { get; }
+
+        ISequenceCheckpoint Checkpoint();
     }
 
     public static class SequenceExtensions
@@ -69,8 +76,8 @@ namespace ParserObjects
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(parse, nameof(parse));
-            var parser = new FuncParser<TInput, TOutput>((t, success, fail) => parse(t));
-            var result = parser.Parse(input);
+            var parser = new FuncParser<TInput, TOutput>((t, success, fail) => parse(t.Input));
+            var result = parser.Parse(new ParseState<TInput>(input, null));
             return result;
         }
 
@@ -79,7 +86,7 @@ namespace ParserObjects
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(parse, nameof(parse));
             var parser = new FuncParser<TInput, TOutput>(parse);
-            var result = parser.Parse(input);
+            var result = parser.Parse(new ParseState<TInput>(input, null));
             return result;
         }
 
@@ -104,14 +111,5 @@ namespace ParserObjects
         /// <returns></returns>
         public static ISequence<T> Where<T>(this ISequence<T> input, Func<T, bool> predicate)
             => new FilterSequence<T>(input, predicate);
-
-        /// <summary>
-        /// Creates a window over the current input which can be rewound on parse failure.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static WindowSequence<T> Window<T>(this ISequence<T> input)
-            => new WindowSequence<T>(input);
     }
 }

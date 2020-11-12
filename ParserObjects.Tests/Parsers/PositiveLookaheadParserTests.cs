@@ -14,6 +14,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Match('[').FollowedBy(Match('~'));
             var input = new StringCharacterSequence("[test]");
             parser.Parse(input).Success.Should().BeFalse();
+            input.Peek().Should().Be('[');
         }
 
         [Test]
@@ -22,6 +23,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Match('[').FollowedBy(Match('~'));
             var input = new StringCharacterSequence("[~test]");
             parser.Parse(input).Value.Should().Be('[');
+            input.Peek().Should().Be('~');
         }
 
         [Test]

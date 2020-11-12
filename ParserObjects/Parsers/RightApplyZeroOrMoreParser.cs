@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -26,49 +25,49 @@ namespace ParserObjects.Parsers
             _getMissingRight = getMissingRight;
         }
 
-
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
             var leftResult = _item.Parse(t);
             if (!leftResult.Success)
-                return Result.Fail<TOutput>(t.CurrentLocation);
+                return t.Fail<TOutput>();
 
             return Parse(t, leftResult);
         }
 
-        private IResult<TOutput> Parse(ISequence<TInput> t, IResult<TOutput> leftResult)
+        private IResult<TOutput> Parse(ParseState<TInput> t, IResult<TOutput> leftResult)
         {
-            var window = new WindowSequence<TInput>(t);
+            // TODO: Should be able to convert this into a loop instead of a recusion, to save on
+            // stack and result objects
+            var checkpoint = t.Input.Checkpoint();
 
-            var middleResult = _middle.Parse(window);
+            var middleResult = _middle.Parse(t);
             if (!middleResult.Success)
                 return leftResult;
 
-            var itemResult = _item.Parse(window);
+            var itemResult = _item.Parse(t);
             if (itemResult.Success)
             {
-                // We don't have to use the window here, we no longer need to rewind it
                 var selfResult = Parse(t, itemResult);
                 var rightResult = selfResult.Success ? selfResult : itemResult;
 
                 var value = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-                return Result.Success(value, leftResult.Location);
+                return t.Success(value, leftResult.Location);
             }
 
             if (_getMissingRight != null)
             {
-                var syntheticRight = _getMissingRight(window);
+                var syntheticRight = _getMissingRight(t.Input);
                 var value = _produce(leftResult.Value, middleResult.Value, syntheticRight);
-                return Result.Success(value, window.CurrentLocation);
+                return t.Success(value, t.Input.CurrentLocation);
             }
 
-            window.Rewind();
+            checkpoint.Rewind();
             return leftResult;
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

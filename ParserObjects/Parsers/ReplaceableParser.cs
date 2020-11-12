@@ -19,9 +19,9 @@ namespace ParserObjects.Parsers
             _value = defaultValue;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t) => _value.Parse(t);
+        public IResult<TOutput> Parse(ParseState<TInput> t) => _value.Parse(t);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ISequence<TInput> t) => _value.ParseUntyped(t);
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => _value.ParseUntyped(t);
 
         public string Name { get; set; }
 

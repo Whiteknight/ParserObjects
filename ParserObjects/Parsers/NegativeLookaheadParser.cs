@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Negative lookahead parser. Tests the input to see if the inner parser matches. Return success if the
-    /// parser does not match, fail otherwise. Consumes no input.
+    /// Negative lookahead parser. Tests the input to see if the inner parser matches. Return 
+    /// success if the parser does not match, fail otherwise. Consumes no input.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public class NegativeLookaheadParser<TInput> : IParser<TInput, object>
@@ -30,13 +29,13 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IResult<object> Parse(ISequence<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
-            var window = new WindowSequence<TInput>(t);
-            var result = _inner.ParseUntyped(window);
-            window.Rewind();
+            var checkpoint = t.Input.Checkpoint();
+            var result = _inner.ParseUntyped(t);
+            checkpoint.Rewind();
             return Result.New<object>(!result.Success, null, result.Location);
         }
     }

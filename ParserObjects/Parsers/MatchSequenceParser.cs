@@ -19,34 +19,36 @@ namespace ParserObjects.Parsers
             Pattern = find.ToArray();
         }
 
-        public IResult<IReadOnlyList<T>> Parse(ISequence<T> t)
+        public IResult<IReadOnlyList<T>> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            var location = t.CurrentLocation;
+            var location = t.Input.CurrentLocation;
 
             // Handle a few small cases where we don't want to allocate a buffer
             if (Pattern.Count == 0)
-                return Result.Success<IReadOnlyList<T>>(new T[0], location);
+                return t.Success<IReadOnlyList<T>>(new T[0], location);
             if (Pattern.Count == 1)
-                return t.Peek().Equals(Pattern[0]) ? Result.Success<IReadOnlyList<T>>(new[] { t.GetNext() }, location) : Result.Fail<IReadOnlyList<T>>(location);
+                return t.Input.Peek().Equals(Pattern[0]) ? t.Success<IReadOnlyList<T>>(new[] { t.Input.GetNext() }, location) : t.Fail<IReadOnlyList<T>>();
 
             var buffer = new T[Pattern.Count];
             for (var i = 0; i < Pattern.Count; i++)
             {
-                var c = t.GetNext();
+                var c = t.Input.GetNext();
                 buffer[i] = c;
                 if (c.Equals(Pattern[i]))
                     continue;
 
+                // TODO: See if it's easier to putback the consumed values or just rewind to a 
+                // checkpoint. 
                 for (; i >= 0; i--)
-                    t.PutBack(buffer[i]);
-                return Result.Fail<IReadOnlyList<T>>();
+                    t.Input.PutBack(buffer[i]);
+                return t.Fail<IReadOnlyList<T>>();
             }
 
-            return Result.Success<IReadOnlyList<T>>(buffer, location);
+            return t.Success<IReadOnlyList<T>>(buffer, location);
         }
 
-        public IResult<object> ParseUntyped(ISequence<T> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

@@ -16,6 +16,8 @@ namespace ParserObjects.Sequences
         private readonly Stack<TOutput> _putbacks;
         private readonly AlwaysFullRingBuffer<Location> _oldLocations;
 
+        private Node _current;
+
         public MapSequence(ISequence<TInput> inputs, Func<TInput, TOutput> map)
         {
             Assert.ArgumentNotNull(inputs, nameof(inputs));
@@ -24,6 +26,13 @@ namespace ParserObjects.Sequences
             _map = map;
             _putbacks = new Stack<TOutput>();
             _oldLocations = new AlwaysFullRingBuffer<Location>(5, new Location(null, 0, 0));
+            _current = new Node { Value = default, Next = null };
+        }
+
+        private class Node
+        {
+            public TOutput Value { get; set; }
+            public Node Next { get; set; }
         }
 
         public void PutBack(TOutput value)
@@ -39,10 +48,21 @@ namespace ParserObjects.Sequences
                 _oldLocations.MoveForward();
                 return _putbacks.Pop();
             }
+            if (_current.Next != null)
+            {
+                _current = _current.Next;
+                return _current.Value;
+            }
 
-            var next = _inputs.GetNext();
+            var value = _inputs.GetNext();
+            var output = _map(value);
+
+            var node = new Node { Value = output, Next = null };
+            _current.Next = node;
+            _current = node;
+
             _oldLocations.Add(_inputs.CurrentLocation);
-            var output = _map(next);
+
             return output;
         }
 
@@ -55,8 +75,35 @@ namespace ParserObjects.Sequences
             return next;
         }
 
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _putbacks.ToArray());
+
         public Location CurrentLocation => _oldLocations.GetCurrent() ?? _inputs.CurrentLocation;
 
         public bool IsAtEnd => _putbacks.Count == 0 && _inputs.IsAtEnd;
+
+        private class SequenceCheckpoint : ISequenceCheckpoint
+        {
+            private readonly MapSequence<TInput, TOutput> _s;
+            private readonly Node _node;
+            private readonly TOutput[] _putbacks;
+
+            public SequenceCheckpoint(MapSequence<TInput, TOutput> s, Node node, TOutput[] putbacks)
+            {
+                _s = s;
+                _node = node;
+                _putbacks = putbacks;
+            }
+
+            public void Rewind() => _s.Rewind(_node, _putbacks);
+        }
+
+        private void Rewind(Node node, TOutput[] putbacks)
+        {
+            // TODO: Restore old locations
+            _current = node;
+            _putbacks.Clear();
+            for (int i = putbacks.Length - 1; i >= 0; i--)
+                _putbacks.Push(putbacks[i]);
+        }
     }
 }

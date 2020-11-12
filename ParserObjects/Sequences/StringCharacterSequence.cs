@@ -139,5 +139,41 @@ namespace ParserObjects.Sequences
                 return string.Empty;
             return _s.Substring(_index);
         }
+
+        public ISequenceCheckpoint Checkpoint()
+        {
+            // TODO: Should also keep track of previous end-of-line column info
+            return new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray());
+        }
+
+        private class StringCheckpoint : ISequenceCheckpoint
+        {
+            private readonly StringCharacterSequence _s;
+            private readonly int _index;
+            private readonly int _line;
+            private readonly int _column;
+            private readonly char[] _putbacks;
+
+            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks)
+            {
+                _s = s;
+                _index = index;
+                _line = line;
+                _column = column;
+                _putbacks = putbacks;
+            }
+
+            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks);
+        }
+
+        private void Rollback(int index, int line, int column, char[] putbacks)
+        {
+            _index = index;
+            _line = line;
+            _column = column;
+            _putbacks.Clear();
+            for (int i = putbacks.Length - 1; i >= 0; i--)
+                _putbacks.Push(putbacks[i]);
+        }
     }
 }

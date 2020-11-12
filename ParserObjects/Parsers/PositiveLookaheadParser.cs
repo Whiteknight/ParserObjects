@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -30,19 +29,21 @@ namespace ParserObjects.Parsers
             return this;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            var window = new WindowSequence<TInput>(t);
-            var result = _inner.Parse(window);
-            window.Rewind();
+            var checkpoint = t.Input.Checkpoint();
+            var result = _inner.Parse(t);
+            if (result.Success)
+                checkpoint.Rewind();
             return result;
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t)
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
-            var window = new WindowSequence<TInput>(t);
-            var result = _inner.ParseUntyped(window);
-            window.Rewind();
+            var checkpoint = t.Input.Checkpoint();
+            var result = _inner.ParseUntyped(t);
+            if (result.Success)
+                checkpoint.Rewind();
             return result;
         }
     }

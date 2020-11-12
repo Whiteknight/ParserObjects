@@ -54,11 +54,11 @@ namespace ParserObjects.Tests.Examples.RPN
             var tokenSequence = tokens.ToSequence(new StringCharacterSequence(s)).Select(r => r.Value);
             var result = tokenSequence.Parse<RpnToken, int>((t, success, fail) =>
             {
-                var startingLocation = t.CurrentLocation;
+                var startingLocation = t.Input.CurrentLocation;
                 var stack = new Stack<int>();
-                while (!t.IsAtEnd)
+                while (!t.Input.IsAtEnd)
                 {
-                    var token = t.GetNext();
+                    var token = t.Input.GetNext();
                     if (token == null)
                         return fail();
                     if (token.Type == RpnTokenType.Number)

@@ -21,25 +21,25 @@ namespace ParserObjects.Parsers
             _inner = inner;
         }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var predicatePassed = TestPredicate(t);
             if (predicatePassed)
                 return _inner.Parse(t);
-            return Result.Fail<TOutput>(t.CurrentLocation);
+            return t.Fail<TOutput>();
         }
 
-        private bool TestPredicate(ISequence<TInput> t)
+        private bool TestPredicate(ParseState<TInput> t)
         {
-            var window = t.Window();
-            var result = _predicate.ParseUntyped(window);
-            window.Rewind();
+            var checkpoint = t.Input.Checkpoint();
+            var result = _predicate.ParseUntyped(t);
+            checkpoint.Rewind();
             bool predicatePassed = result.Success;
             return predicatePassed;
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

@@ -18,9 +18,10 @@ namespace ParserObjects
         /// <returns></returns>
         public static bool CanMatch<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
         {
-            var window = new WindowSequence<TInput>(input);
-            var result = parser.Parse(window);
-            window.Rewind();
+            var checkpoint = input.Checkpoint();
+            var state = new ParseState<TInput>(input, null);
+            var result = parser.Parse(state);
+            checkpoint.Rewind();
             return result.Success;
         }
 
@@ -43,8 +44,13 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
-            => parser.Parse(new StringCharacterSequence(s));
+        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, object data = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), data));
 
+        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, object data = null)
+            => parser.Parse(new ParseState<TInput>(input, data));
+
+        public static IResult<object> ParseUntyped<TInput>(this IParser<TInput> parser, ISequence<TInput> input, object data = null)
+            => parser.ParseUntyped(new ParseState<TInput>(input, data));
     }
 }

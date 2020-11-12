@@ -6,9 +6,9 @@ namespace ParserObjects.Parsers
 {
     public class SequentialState<TInput>
     {
-        private readonly ISequence<TInput> _input;
+        private readonly ParseState<TInput> _input;
 
-        public SequentialState(ISequence<TInput> input)
+        public SequentialState(ParseState<TInput> input)
         {
             _input = input;
         }
@@ -43,26 +43,26 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ISequence<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            var startLocation = t.CurrentLocation;
-            var window = t.Window();
+            var startLocation = t.Input.CurrentLocation;
+            var checkpoint = t.Input.Checkpoint();
             try
             {
-                var state = new SequentialState<TInput>(window);
+                var state = new SequentialState<TInput>(t);
                 var result = _func(state);
-                return Result.Success(result, startLocation);
+                return t.Success(result, startLocation);
             }
             catch (SequentialParserException spe)
             {
                 // This exception is part of normal flow-control for this parser
                 // Other exceptions bubble up like normal.
-                window.Rewind();
+                checkpoint.Rewind();
                 return Result.Fail<TOutput>(spe.Location);
             }
         }
 
-        public IResult<object> ParseUntyped(ISequence<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

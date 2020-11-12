@@ -11,54 +11,71 @@ namespace ParserObjects.Sequences
     /// </summary>
     public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {
-        private const int BufferSize = 128;
         private const int MaxLineLengthsBufferSize = 5;
 
+        private readonly int _bufferSize;
         private readonly string _fileName;
         private readonly StreamReader _reader;
         private readonly Stack<char> _putbacks;
-        private readonly char[] _buffer;
         private readonly AlwaysFullRingBuffer<int> _previousEndOfLineColumns;
 
+        private BufferNode _currentBuffer;
         private bool _isComplete;
         private int _remainingChars;
         private int _bufferIndex;
         private int _line;
         private int _column;
 
-        public StreamCharacterSequence(string fileName, Encoding encoding = null)
+        private class BufferNode
+        {
+            public char[] Buffer { get; }
+            public BufferNode Next { get; set; }
+            public int TotalChars { get; }
+
+            public BufferNode(int bufferSize, StreamReader reader)
+            {
+                Buffer = new char[bufferSize];
+                TotalChars = reader.Read(Buffer, 0, bufferSize);
+                Next = null;
+            }
+        }
+
+        public StreamCharacterSequence(string fileName, Encoding encoding = null, int bufferSize = 1024)
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
+            Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
             _fileName = fileName;
             _line = 1;
             _putbacks = new Stack<char>();
-            _bufferIndex = BufferSize;
-            _buffer = new char[BufferSize];
+            _bufferIndex = bufferSize;
+            _bufferSize = bufferSize;
             var stream = File.OpenRead(_fileName);
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
-        public StreamCharacterSequence(StreamReader reader, string fileName = null)
+        public StreamCharacterSequence(StreamReader reader, string fileName = null, int bufferSize = 1024)
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
+            Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
             _line = 1;
             _fileName = fileName;
             _putbacks = new Stack<char>();
-            _bufferIndex = BufferSize;
-            _buffer = new char[BufferSize];
+            _bufferIndex = bufferSize;
+            _bufferSize = bufferSize;
             _reader = reader;
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
 
-        public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null)
+        public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null, int bufferSize = 1024)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
+            Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
             _line = 1;
             _fileName = fileName ?? "stream";
             _putbacks = new Stack<char>();
-            _bufferIndex = BufferSize;
-            _buffer = new char[BufferSize];
+            _bufferIndex = bufferSize;
+            _bufferSize = bufferSize;
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
         }
@@ -122,9 +139,9 @@ namespace ParserObjects.Sequences
                 return '\0';
 
             FillBuffer();
-            if (_isComplete || _remainingChars == 0 || _bufferIndex >= BufferSize)
+            if (_isComplete || _remainingChars == 0 || _bufferIndex >= _bufferSize)
                 return '\0';
-            var c = _buffer[_bufferIndex];
+            var c = _currentBuffer.Buffer[_bufferIndex];
             if (advance)
             {
                 _bufferIndex++;
@@ -136,12 +153,71 @@ namespace ParserObjects.Sequences
 
         private void FillBuffer()
         {
-            if (_remainingChars != 0 && _bufferIndex < BufferSize)
+            if (_remainingChars != 0 && _bufferIndex < _bufferSize)
                 return;
-            _remainingChars = _reader.Read(_buffer, 0, BufferSize);
+
+            // If this isn't the last buffer in the chain, such as during a rollback, we can advance
+            // to the next buffer without reading anything from the stream.
+            if (_currentBuffer?.Next != null)
+            {
+                _currentBuffer = _currentBuffer.Next;
+                _remainingChars = _currentBuffer.TotalChars;
+                _bufferIndex = 0;
+                _isComplete = _remainingChars == 0;
+                return;
+            }
+
+            // Add a new BufferNode to the end of the linked list and update the pointer.
+            // Previous nodes will die from GC unless there is a checkpoint holding on to them
+            var newBuffer = new BufferNode(_bufferSize, _reader);
+            if (_currentBuffer != null)
+                _currentBuffer.Next = newBuffer;
+            _currentBuffer = newBuffer;
+            _remainingChars = _currentBuffer.TotalChars;
+
             if (_remainingChars == 0)
                 _isComplete = true;
             _bufferIndex = 0;
+        }
+
+        private class SequenceCheckpoint : ISequenceCheckpoint
+        {
+            private readonly StreamCharacterSequence _s;
+            private readonly BufferNode _buffer;
+            private readonly int _remainingChars;
+            private readonly int _bufferIndex;
+            private readonly char[] _putbacks;
+
+            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int remainingChars, int bufferIndex, char[] putbacks)
+            {
+                _s = s;
+                _buffer = buffer;
+                _remainingChars = remainingChars;
+                _bufferIndex = bufferIndex;
+                _putbacks = putbacks;
+            }
+
+            public void Rewind() => _s.Rewind(_buffer, _remainingChars, _bufferIndex, _putbacks);
+        }
+
+        public ISequenceCheckpoint Checkpoint()
+        {
+            if (_currentBuffer == null)
+                FillBuffer();
+            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _putbacks.ToArray());
+        }
+
+        private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, char[] putbacks)
+        {
+            // TODO: Restore list of previous end-of-line columns
+            if (_currentBuffer != buffer)
+                _currentBuffer = buffer;
+            _remainingChars = remainingChars;
+            _bufferIndex = bufferIndex;
+            _isComplete = false;
+            _putbacks.Clear();
+            for (int i = putbacks.Length - 1; i >= 0; i--)
+                _putbacks.Push(putbacks[i]);
         }
     }
 }
