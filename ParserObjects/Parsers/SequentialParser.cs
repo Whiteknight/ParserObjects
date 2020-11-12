@@ -66,8 +66,6 @@ namespace ParserObjects.Parsers
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-        // TODO: It would be trivial to add a hashmap oldParser->newParser and do the replacement
-        // in State.Parse(). Is it worth it?
         public IParser ReplaceChild(IParser find, IParser replace) => this;
     }
 }

@@ -31,7 +31,6 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            // TODO: Should I include ParseState<T> here?
             _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
             var result = _parser.Parse(t);
             _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));

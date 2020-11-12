@@ -99,7 +99,6 @@ namespace ParserObjects.Sequences
 
         private void Rewind(Node node, TOutput[] putbacks)
         {
-            // TODO: Restore old locations
             _current = node;
             _putbacks.Clear();
             for (int i = putbacks.Length - 1; i >= 0; i--)

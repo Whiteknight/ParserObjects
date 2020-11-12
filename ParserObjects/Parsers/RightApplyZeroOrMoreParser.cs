@@ -38,8 +38,6 @@ namespace ParserObjects.Parsers
 
         private IResult<TOutput> Parse(ParseState<TInput> t, IResult<TOutput> leftResult)
         {
-            // TODO: Should be able to convert this into a loop instead of a recusion, to save on
-            // stack and result objects
             var checkpoint = t.Input.Checkpoint();
 
             var middleResult = _middle.Parse(t);

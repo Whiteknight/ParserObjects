@@ -209,7 +209,6 @@ namespace ParserObjects.Sequences
 
         private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, char[] putbacks)
         {
-            // TODO: Restore list of previous end-of-line columns
             if (_currentBuffer != buffer)
                 _currentBuffer = buffer;
             _remainingChars = remainingChars;

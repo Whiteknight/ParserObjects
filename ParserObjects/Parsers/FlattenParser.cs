@@ -27,11 +27,6 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
-            // TODO: If we reference FlattenParser from multiple places in the tree and one call
-            // of it recurses into another call of it we'll step on state.
-            // See if there's something we can do to avoid that.
-            // Consider recursively parsing a data structure like [1, 2, [3, 4], 5]
-            // Maybe we can tie the results to something in t, like the CurrentLocation
             if (_values != null)
                 return GetNextResult();
 

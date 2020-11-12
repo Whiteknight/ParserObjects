@@ -142,7 +142,6 @@ namespace ParserObjects.Sequences
 
         public ISequenceCheckpoint Checkpoint()
         {
-            // TODO: Should also keep track of previous end-of-line column info
             return new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray());
         }
 

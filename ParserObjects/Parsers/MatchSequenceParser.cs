@@ -38,8 +38,6 @@ namespace ParserObjects.Parsers
                 if (c.Equals(Pattern[i]))
                     continue;
 
-                // TODO: See if it's easier to putback the consumed values or just rewind to a 
-                // checkpoint. 
                 for (; i >= 0; i--)
                     t.Input.PutBack(buffer[i]);
                 return t.Fail<IReadOnlyList<T>>();
