@@ -32,37 +32,54 @@ namespace ParserObjects.Parsers
             var leftResult = _item.Parse(t);
             if (!leftResult.Success)
                 return t.Fail<TOutput>();
+            var left = leftResult.Value;
 
-            return Parse(t, leftResult);
-        }
+            var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
-        private IResult<TOutput> Parse(ParseState<TInput> t, IResult<TOutput> leftResult)
-        {
-            var checkpoint = t.Input.Checkpoint();
-
-            var middleResult = _middle.Parse(t);
-            if (!middleResult.Success)
-                return leftResult;
-
-            var itemResult = _item.Parse(t);
-            if (itemResult.Success)
+            IResult<TOutput> produceSuccess(TOutput right)
             {
-                var selfResult = Parse(t, itemResult);
-                var rightResult = selfResult.Success ? selfResult : itemResult;
-
-                var value = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-                return t.Success(value, leftResult.Location);
+                while (resultStack.Count > 0)
+                {
+                    var (left, middle) = resultStack.Pop();
+                    right = _produce(left, middle, right);
+                }
+                return t.Success(right, t.Input.CurrentLocation);
             }
 
-            if (_getMissingRight != null)
+            while (true)
             {
-                var syntheticRight = _getMissingRight(t.Input);
-                var value = _produce(leftResult.Value, middleResult.Value, syntheticRight);
-                return t.Success(value, t.Input.CurrentLocation);
-            }
+                var checkpoint = t.Input.Checkpoint();
 
-            checkpoint.Rewind();
-            return leftResult;
+                // We have the left, so parse the middle. If not found, just return left
+                var middleResult = _middle.Parse(t);
+                if (!middleResult.Success)
+                    return produceSuccess(left);
+
+                // We have <left> <middle>, not we have to look for <right>.
+                // If we don't have it, see if we can make a synthetic version. In either case,
+                // we need to return something here.
+                var rightResult = _item.Parse(t);
+                if (!rightResult.Success)
+                {
+                    if (_getMissingRight == null)
+                    {
+                        // We can't make a synthetic right, so rewind to give back the <middle>
+                        checkpoint.Rewind();
+                        return produceSuccess(left);
+                    }
+
+                    // create a synthetic right item and short-circuit exit (we could go around
+                    // again, fail the <middle> and exit at that point, but this is faster and
+                    // doesn't require allocating a new IResult<T>
+                    var syntheticRight = _getMissingRight(t.Input);
+                    resultStack.Push((left, middleResult.Value));
+                    return produceSuccess(syntheticRight);
+                }
+
+                // Add left and middle to the stack, and we'll loop again with the left
+                resultStack.Push((left, middleResult.Value));
+                left = rightResult.Value;
+            }
         }
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

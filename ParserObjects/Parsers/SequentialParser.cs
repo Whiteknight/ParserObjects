@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -45,6 +46,7 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var startLocation = t.Input.CurrentLocation;
             var checkpoint = t.Input.Checkpoint();
             try
