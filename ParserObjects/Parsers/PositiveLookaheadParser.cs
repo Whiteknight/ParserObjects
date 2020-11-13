@@ -20,15 +20,6 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (_inner == find && replace is IParser<TInput, TOutput> typed)
-                return new PositiveLookaheadParser<TInput, TOutput>(typed);
-            return this;
-        }
-
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var checkpoint = t.Input.Checkpoint();
@@ -45,6 +36,15 @@ namespace ParserObjects.Parsers
             if (result.Success)
                 checkpoint.Rewind();
             return result;
+        }
+
+        public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
+
+        public IParser ReplaceChild(IParser find, IParser replace)
+        {
+            if (_inner == find && replace is IParser<TInput, TOutput> typed)
+                return new PositiveLookaheadParser<TInput, TOutput>(typed);
+            return this;
         }
     }
 }

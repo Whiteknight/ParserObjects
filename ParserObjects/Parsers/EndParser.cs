@@ -13,10 +13,6 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-        public IParser ReplaceChild(IParser find, IParser replace) => this;
-
         public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
@@ -32,5 +28,9 @@ namespace ParserObjects.Parsers
                 ? t.Success(true)
                 : t.Fail<bool>();
         }
+
+        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+        public IParser ReplaceChild(IParser find, IParser replace) => this;
     }
 }

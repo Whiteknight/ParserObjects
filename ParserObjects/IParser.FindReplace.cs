@@ -4,7 +4,6 @@ using ParserObjects.Visitors;
 
 namespace ParserObjects
 {
-
     public static class ParserFindReplaceExtensions
     {
         /// <summary>

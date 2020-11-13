@@ -20,6 +20,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
+
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        {
+            Assert.ArgumentNotNull(t, nameof(t));
+            var checkpoint = t.Input.Checkpoint();
+            var result = _inner.ParseUntyped(t);
+            checkpoint.Rewind();
+            return Result.New<object>(!result.Success, null, result.Location);
+        }
+
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)
@@ -27,16 +38,6 @@ namespace ParserObjects.Parsers
             if (_inner == find && replace is IParser<TInput> typed)
                 return new NegativeLookaheadParser<TInput>(typed);
             return this;
-        }
-
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
-        {
-            var checkpoint = t.Input.Checkpoint();
-            var result = _inner.ParseUntyped(t);
-            checkpoint.Rewind();
-            return Result.New<object>(!result.Success, null, result.Location);
         }
     }
 }

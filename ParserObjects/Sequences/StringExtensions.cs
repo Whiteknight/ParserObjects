@@ -7,7 +7,7 @@
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static ISequence<char> AsCharacterSequence(this string str)
+        public static ISequence<char> ToCharacterSequence(this string str)
             => new StringCharacterSequence(str);
     }
 }

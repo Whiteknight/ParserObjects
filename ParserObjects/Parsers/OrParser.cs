@@ -21,6 +21,20 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
+
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        {
+            foreach (var parser in _parsers)
+            {
+                var result = parser.ParseUntyped(t);
+                if (result.Success)
+                    return result;
+            }
+
+            return t.Fail<object>();
+        }
+
         public IEnumerable<IParser> GetChildren() => _parsers;
 
         public IParser ReplaceChild(IParser find, IParser replace)
@@ -37,20 +51,6 @@ namespace ParserObjects.Parsers
             }
 
             return new OrParser<TInput>(newList);
-        }
-
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
-        {
-            foreach (var parser in _parsers)
-            {
-                var result = parser.ParseUntyped(t);
-                if (result.Success)
-                    return result;
-            }
-
-            return t.Fail<object>();
         }
     }
 }

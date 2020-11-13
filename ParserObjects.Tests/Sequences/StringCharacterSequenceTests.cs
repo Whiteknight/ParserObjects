@@ -35,7 +35,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void AsCharacterSequence_GetNext_Test()
         {
-            var target = "abc".AsCharacterSequence();
+            var target = "abc".ToCharacterSequence();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');

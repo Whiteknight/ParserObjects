@@ -12,7 +12,7 @@ namespace ParserObjects.Sequences
         /// <param name="enumerable"></param>
         /// <param name="endValue">An end value to return when the sequence is exhausted</param>
         /// <returns></returns>
-        public static ISequence<T> AsSequence<T>(this IEnumerable<T> enumerable, T endValue = default)
+        public static ISequence<T> ToSequence<T>(this IEnumerable<T> enumerable, T endValue = default)
             => new EnumerableSequence<T>(enumerable, endValue);
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace ParserObjects.Sequences
         /// <param name="enumerable"></param>
         /// <param name="getEndValue">Get a value to return when the sequence is exhausted</param>
         /// <returns></returns>
-        public static ISequence<T> AsSequence<T>(this IEnumerable<T> enumerable, Func<T> getEndValue)
+        public static ISequence<T> ToSequence<T>(this IEnumerable<T> enumerable, Func<T> getEndValue)
             => new EnumerableSequence<T>(enumerable, getEndValue);
     }
 }

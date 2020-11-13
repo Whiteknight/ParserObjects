@@ -5,7 +5,7 @@ ParserObjects contains parsers for some common constructs from modern programmin
 ## C Parsers
 
 ```csharp
-using static ParserObjects.Parsers.Specialty.CStyleParserMethods;
+using static ParserObjects.CStyleParserMethods;
 ```
 
 ### Comments
@@ -50,7 +50,7 @@ var parser = Identifier();
 ## C++ Parsers
 
 ```csharp
-using static ParserObjects.Parsers.Specialty.CPlusPlusStyleParsersMethods;
+using static ParserObjects.CPlusPlusStyleParsersMethods;
 ```
 
 ### Comments
@@ -75,7 +75,7 @@ var parser = Number();
 ## SQL Parsers
 
 ```csharp
-using static ParserObjects.Parsers.Specialty.SqlStyleParserMethods;
+using static ParserObjects.SqlStyleParserMethods;
 ```
 
 ### Comments

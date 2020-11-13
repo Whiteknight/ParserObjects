@@ -15,10 +15,6 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-        public IParser ReplaceChild(IParser find, IParser replace) => this;
-
         public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
 
         public IResult<T> Parse(ParseState<T> t)
@@ -30,5 +26,9 @@ namespace ParserObjects.Parsers
             var next = t.Input.GetNext();
             return t.Success(next, location);
         }
+
+        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+        public IParser ReplaceChild(IParser find, IParser replace) => this;
     }
 }

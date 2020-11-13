@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -18,6 +19,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+
+        public IResult<TOutput> Parse(ParseState<TInput> t)
+        {
+            Assert.ArgumentNotNull(t, nameof(t));
+            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
+            var result = _parser.Parse(t);
+            _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));
+            return result;
+        }
+
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
         public IParser ReplaceChild(IParser find, IParser replace)
@@ -25,16 +37,6 @@ namespace ParserObjects.Parsers
             if (find == _parser && replace is IParser<TInput, TOutput> typedReplace)
                 return new ExamineParser<TInput, TOutput>(typedReplace, _before, _after);
             return this;
-        }
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public IResult<TOutput> Parse(ParseState<TInput> t)
-        {
-            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
-            var result = _parser.Parse(t);
-            _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));
-            return result;
         }
     }
 }

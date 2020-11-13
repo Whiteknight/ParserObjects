@@ -20,19 +20,11 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _inner && replace is IParser<TInput, bool> typed1)
-                return new NotParser<TInput>(typed1);
-            return this;
-        }
-
         public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
         public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
             var result1 = _inner.ParseUntyped(t);
             if (result1.Success)
@@ -42,6 +34,15 @@ namespace ParserObjects.Parsers
             }
 
             return t.Success<object>(null, result1.Location);
+        }
+
+        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+        public IParser ReplaceChild(IParser find, IParser replace)
+        {
+            if (find == _inner && replace is IParser<TInput, bool> typed1)
+                return new NotParser<TInput>(typed1);
+            return this;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace ParserObjects.Parsers
 
         private IResult<TOutput> ParseExactlyOne(ParseState<TInput> t)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            // Parse the left. Parse the right exactly once. Return the result
             var checkpoint = t.Input.Checkpoint();
 
             var leftResult = _initial.Parse(t);
@@ -68,15 +68,19 @@ namespace ParserObjects.Parsers
             _left.Location = leftResult.Location;
 
             var rightResult = _right.Parse(t);
-            if (rightResult.Success)
-                return rightResult;
+            if (!rightResult.Success)
+            {
+                checkpoint.Rewind();
+                return t.Fail<TOutput>();
+            }
 
-            checkpoint.Rewind();
-            return t.Fail<TOutput>();
+            return rightResult;
         }
 
         private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> t)
         {
+            // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
+            // point, return whatever is the last value we had
             var result = _initial.Parse(t);
             if (!result.Success)
                 return t.Fail<TOutput>();
@@ -97,7 +101,7 @@ namespace ParserObjects.Parsers
 
         private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> t)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            // Parse the left. Maybe parse the right. If <right> return that, otherwise <left>
             var leftResult = _initial.Parse(t);
             if (!leftResult.Success)
                 return t.Fail<TOutput>();

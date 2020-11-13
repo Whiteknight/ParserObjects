@@ -1,8 +1,12 @@
 # Core Parsers
 
+The core parsers are all generic, and they can operate on any type of input sequence. For a list of additional parsers which are related strictly to parsing strings with character input sequences, see the [String/Character Parsers](parsers_chars.md) page. In addition, there are several specialty parsers related to parsing common patterns from programming languages, which also take character input sequences. You can find these in the [Programming Parsers](parsers_programming.md) page.
+
+Throughout the descriptions of these parsers, examples will be shown where one parser is functionally or logically equivalent to a combination of other parsers. This is done to give multiple possible ways to understand some of the trickier concepts.
+
 ## Declaration Styles
 
-There are three basic styles of declaring parsers. The first is to use normal object constructors and methods:
+There are three basic styles of declaring parsers. The first is to use normal object constructors and methods (change `<char>` to be whatever input type your parser methods are consuming):
 
 ```csharp
 var parser = new ListParser<char, char>(
@@ -36,8 +40,8 @@ In a few cases there are tuple syntaxes available to further simplify. These wil
 These parsers represent the theoretical core of the parsing library. To use these, import the methods you're using:
 
 ```csharp
-using ParserMethods.Parsers;
-using static ParserMethods.Parsers.ParserMethods;
+using ParserObjects.Parsers;
+using static ParserObjects.ParserMethods<char>;
 ```
 
 ### Any Parser
@@ -93,7 +97,19 @@ var parser = initial.Choose(c => {
 });
 ```
 
-The difference between the `Chain` parser and the `Choose` parser is that the chain parser invokes the initial and consumes input, while the choose parser invokes the initial but does not consume input.
+The difference between the `Chain` parser and the `Choose` parser is that the chain parser invokes the initial and consumes input, while the choose parser invokes the initial but does not consume input. The choose parser is functionally equivalent to a combination of `PositiveLookahead` and `Chain`:
+
+```csharp
+var parser = initial.Choose(value => ... );
+var parser = PositiveLookahead(intial).Chain(value => ... );
+```
+
+### Combine Parser
+
+The `Combine` parser takes a list of parsers, parses each in sequence, and returns a list of `object` results. You can transform or filter these results as appropriate for your application.
+
+```csharp
+var parser = Combine()
 
 ### Empty Parser
 
@@ -142,9 +158,9 @@ var parser = (parser1, parser2, parser3).First();
 
 The tuple variant of this parser is limited to 9 child parsers. The other variants can take any number of child parsers.
 
-### Func Parser
+### Function Parser
 
-The `Func` parser takes a callback function to perform the parse. 
+The `Function` parser takes a callback function to perform the parse. 
 
 ```csharp
 var parser = new FuncParser<char, string>(t => {
@@ -199,7 +215,7 @@ var parser = Empty().Transform(x => "abcd");
 
 ### Rule Parser
 
-The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewinded and the whole parser fails.
+The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewinded and the whole parser fails. You can create rule parsers by using the `.Produce()` extension method on a `Tuple` or `ValueTuple` of parser objects, which may be cleaner to read and write in some situations
 
 ```csharp
 var parser = new RuleParser<char, string>(
@@ -208,33 +224,46 @@ var parser = new RuleParser<char, string>(
     parser3,
     (r1, r2, r3) => ...
 );
-var parser = Rule(parser1, parser2, parser3, (r1, r2, r3) => ...);
+var parser = Rule(
+    parser1, 
+    parser2, 
+    parser3, 
+    (r1, r2, r3) => ...
+);
 var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
 ```
 
 All variants of the Rule parser are limited to 9 child parsers. If you need more than 9 child parsers in a rule, consider merging together adjacent parsers to create intermediate values.
 
+### Sequential Parser
+
+The `Sequential` parser allows turning a parser graph into a block of sequential code. This allows you to use procedural logic to aid in parsing and to set breakpoints between parsers to get maximum debuggability. Some grammars are best parsed using a stack or other The downside is that the Sequential Parser does not work with some features like BNF stringification or `.Replace()`/`.ReplaceChild()` operations.
+
+```csharp
+var parser = new SequentialParser(t => 
+{
+    var type = t.Parse(Word());
+    if (type == 'decimal')
+    {
+        var colon = t.Parse(Match(':'));
+        var value = t.Parse(Integer());
+        return value;
+    }
+    if (type == 'hex')
+    {
+        var colon = t.Parse(Match(':'));
+        var value = t.Parse(HexadecimalInteger());
+        return value;
+    }
+    return 0;
+});
+```
+
+The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
+
 ## Matching Parsers
 
 These parsers help to simplify matching of literal patterns.
-
-### Character String Parser
-
-The `CharacterString` parser matches a literal string of characters against a `char` input and returns the string on success.
-
-```csharp
-using ParserObjects.Parsers.ParserMethods;
-```
-
-```csharp
-var parser = CharacterString("abc");
-```
-
-This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers (both described below):
-
-```csharp
-var parser = Match("abc").Transform(x => "abc");
-```
 
 ### Match Sequence Parser
 
@@ -244,7 +273,7 @@ The `MatchSequenceParser` takes a literal list of values, and attempts to match 
 var parser = new MatchSequenceParser<char>(new char[] { 'a', 'b', 'c', 'd' });
 var parser = new MatchSequenceParser<char>("abcd");
 var parser = Match(new char[] { 'a', 'b', 'c', 'd' });
-var parser = Match("abcd");
+var parser = Match("abcd"); // a string is an IEnumerable<char>, so we can use a string to match chars
 ```
 
 This is functionally equivalent (though faster and more succinct) to a combination of the `Rule` and `MatchPredicate` parsers:
@@ -286,6 +315,8 @@ var parser = sourceParser.Flatten<char, string, char>();
 
 The `FlattenParser` is conceptually similar to the `.SelectMany()` LINQ method.
 
+**Noticed** that the `Flatten` parser is not currently reentrant. If you recurse into the same instance of the `Flatten` parser, the results will be jumbled and appear out of order.
+
 ### Transform Parser
 
 The `Transform` parser transforms the output of an inner parser. If the inner parser fails the `Transform` parser fails. If the inner parser succeeds, the `Transform` parser will return a transformed result.
@@ -298,11 +329,11 @@ var parser = innerParser.Transform(r => ...);
 
 ## Lookahead Parsers
 
-Lookahead parsers attempt to match a pattern but consume no input.
+Lookahead parsers attempt to match a pattern but consume no input. These are useful when you want to see what is coming next in the input sequence, and make decisions about what to parse based on that information.
 
 ### Negative Lookahead Parser
 
-The `NegativeLookaheadParser` invokes a parser, but consumes no input. It returns success if the parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`.
+The `NegativeLookaheadParser` invokes a parser, but consumes no input. It returns success if the parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`. The negative lookahead parser does not return a value, only success or failure (If the inner parser fails, there is no result to return, and if the inner parser succeeds the negative lookahead parser would fail and return no value).
 
 ```csharp
 var parser = new NegativeLookaheadParser<char>(innerParser);
@@ -312,12 +343,28 @@ var parser = someParser.NotFollowedBy(innerParser);
 
 ### Positive Lookahead Parser
 
-The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns success if the parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`.
+The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns success and the parsed value if the parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`. The `.FollowedBy()` extension method uses a positive lookahead parser to match a pattern, and only return a successful result if the first pattern is followed by the second pattern (but no input is consumed by the second pattern).
 
 ```csharp
 var parser = new PositiveLookaheadParser<char>(innerParser);
 var parser = PositiveLookahead(innerParser);
 var parser = someParser.FollowedBy(innerParser);
+```
+
+The `PositiveLookahead` parser is functionally equivalent to a combination of `Choose` and `Empty`:
+
+```csharp
+var parser = innerParser.Choose(v => Empty<TValue>());
+```
+
+The `.FollowedBy()` method is functionally equivalent to a combination of `Rule` parser and `PositiveLookahead` parser:
+
+```csharp
+var parser = Rule(
+    someParser,
+    PositiveLookahead(innerParser),
+    (first, followed) => first
+);
 ```
 
 ## Recursive Parsers

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -11,13 +10,9 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public IResult<TOutput> Parse(ParseState<TInput> t)
-        {
-            Assert.ArgumentNotNull(t, nameof(t));
-            return t.Fail<TOutput>();
-        }
+        public IResult<TOutput> Parse(ParseState<TInput> t) => Result.Fail<TOutput>(t?.Input.CurrentLocation);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => t.Fail<object>();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Result.Fail<object>(t?.Input.CurrentLocation);
 
         public string Name { get; set; }
 

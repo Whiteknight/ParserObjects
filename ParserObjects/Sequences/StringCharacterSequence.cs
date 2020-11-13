@@ -141,9 +141,7 @@ namespace ParserObjects.Sequences
         }
 
         public ISequenceCheckpoint Checkpoint()
-        {
-            return new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray());
-        }
+            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray());
 
         private class StringCheckpoint : ISequenceCheckpoint
         {

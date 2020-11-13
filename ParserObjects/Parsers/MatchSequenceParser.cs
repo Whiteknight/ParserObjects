@@ -30,6 +30,7 @@ namespace ParserObjects.Parsers
             if (Pattern.Count == 1)
                 return t.Input.Peek().Equals(Pattern[0]) ? t.Success<IReadOnlyList<T>>(new[] { t.Input.GetNext() }, location) : t.Fail<IReadOnlyList<T>>();
 
+            var checkpoint = t.Input.Checkpoint();
             var buffer = new T[Pattern.Count];
             for (var i = 0; i < Pattern.Count; i++)
             {
@@ -38,8 +39,7 @@ namespace ParserObjects.Parsers
                 if (c.Equals(Pattern[i]))
                     continue;
 
-                for (; i >= 0; i--)
-                    t.Input.PutBack(buffer[i]);
+                checkpoint.Rewind();
                 return t.Fail<IReadOnlyList<T>>();
             }
 

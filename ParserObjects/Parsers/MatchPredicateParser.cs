@@ -22,12 +22,16 @@ namespace ParserObjects.Parsers
         public IResult<T> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
+
             var location = t.Input.CurrentLocation;
+
             if (t.Input.IsAtEnd)
                 return t.Fail<T>();
+
             var next = t.Input.Peek();
             if (!_predicate(next))
                 return t.Fail<T>();
+
             return t.Success(t.Input.GetNext(), location);
         }
 

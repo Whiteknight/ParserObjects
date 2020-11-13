@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -12,16 +11,12 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Result.Success<object>(null, t?.Input.CurrentLocation);
+
+        public IResult<object> Parse(ParseState<TInput> t) => Result.Success<object>(null, t?.Input.CurrentLocation);
+
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public IParser ReplaceChild(IParser find, IParser replace) => this;
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
-        {
-            Assert.ArgumentNotNull(t, nameof(t));
-            return t.Success<object>(null);
-        }
-
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
     }
 }

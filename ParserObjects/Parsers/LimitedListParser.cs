@@ -17,12 +17,18 @@ namespace ParserObjects.Parsers
             _parser = parser;
         }
 
+        public string Name { get; set; }
+        public int Minimum { get; }
+        public int? Maximum { get; }
+
         public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
+
             var checkpoint = t.Input.Checkpoint();
             var location = t.Input.CurrentLocation;
             var items = new List<TOutput>();
+
             while (Maximum == null || items.Count < Maximum)
             {
                 var result = _parser.Parse(t);
@@ -40,12 +46,7 @@ namespace ParserObjects.Parsers
             return t.Success<IReadOnlyList<TOutput>>(items, location);
         }
 
-        public int Minimum { get; }
-        public int? Maximum { get; }
-
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public string Name { get; set; }
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 

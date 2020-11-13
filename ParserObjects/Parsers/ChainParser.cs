@@ -21,6 +21,8 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
+            Assert.ArgumentNotNull(t, nameof(t));
+
             var checkpoint = t.Input.Checkpoint();
             var middle = _inner.Parse(t);
             if (!middle.Success)

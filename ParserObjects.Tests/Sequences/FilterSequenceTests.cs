@@ -93,7 +93,7 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_Test()
         {
             var target = new FilterSequence<char>(
-                "aBcDeFgH".AsCharacterSequence(),
+                "aBcDeFgH".ToCharacterSequence(),
                 x => char.IsUpper(x)
             );
             target.GetNext().Should().Be('B');
@@ -113,7 +113,7 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_Putbacks()
         {
             var target = new FilterSequence<char>(
-                "aBcDeF".AsCharacterSequence(),
+                "aBcDeF".ToCharacterSequence(),
                 x => char.IsUpper(x)
             );
             target.GetNext().Should().Be('B');
@@ -136,7 +136,7 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_PutbacksIgnored()
         {
             var target = new FilterSequence<char>(
-                "aBcDeF".AsCharacterSequence(),
+                "aBcDeF".ToCharacterSequence(),
                 x => char.IsUpper(x)
             );
             target.GetNext().Should().Be('B');
