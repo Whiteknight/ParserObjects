@@ -86,9 +86,11 @@ namespace ParserObjects.Sequences
             if (c == '\0')
                 return c;
             if (c == '\r')
+            {
+                if (GetNextCharRaw(false) == '\n')
+                    GetNextCharRaw(true);
                 c = '\n';
-            else if (c == '\n' && GetNextCharRaw(false) == '\r')
-                GetNextCharRaw(true);
+            }
 
             _column++;
             if (c == '\n')

@@ -37,12 +37,14 @@ namespace ParserObjects.Sequences
             var next = GetNextInternal(true);
 
             // If \r replace with \n
-            // If \n\r advance through the \r
+            // If \r\n advance through the \n and only return \n
             // We only return \n for newlines
             if (next == '\r')
+            {
+                if (GetNextInternal(false) == '\n')
+                    GetNextInternal(true);
                 next = '\n';
-            else if (next == '\n' && GetNextInternal(false) == '\r')
-                GetNextInternal(true);
+            }
 
             // If we have a newline, update the line-tracking.
             if (next == '\n')

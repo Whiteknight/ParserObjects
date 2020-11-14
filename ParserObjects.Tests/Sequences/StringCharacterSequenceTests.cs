@@ -109,7 +109,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_WindowsNewlines()
         {
-            var target = new StringCharacterSequence("\n\ra\n\r");
+            var target = new StringCharacterSequence("\r\na\r\n");
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
@@ -139,7 +139,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_WindowsNewlines()
         {
-            var target = new StringCharacterSequence("\n\ra\n\r");
+            var target = new StringCharacterSequence("\r\na\r\n");
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -179,11 +179,11 @@ namespace ParserObjects.Tests.Sequences
         public void PutBack_WindowsNewlines()
         {
             var target = new StringCharacterSequence("");
-            target.PutBack('\r');
             target.PutBack('\n');
+            target.PutBack('\r');
             target.PutBack('a');
-            target.PutBack('\r');
             target.PutBack('\n');
+            target.PutBack('\r');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
