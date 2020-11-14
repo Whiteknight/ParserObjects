@@ -252,6 +252,31 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void IsAtEnd_Test()
+        {
+            var target = new StringCharacterSequence("abc");
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
+        public void IsAtEnd_PutBack()
+        {
+            var target = new StringCharacterSequence("a");
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+            target.PutBack('b');
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Checkpoint_Test()
         {
             var target = new StringCharacterSequence("abc");

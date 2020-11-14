@@ -81,6 +81,8 @@ namespace ParserObjects.Sequences
             {
                 _bufferIndex++;
                 _remainingBytes--;
+                if (_remainingBytes == 0)
+                    FillBuffer();
             }
             return b;
         }

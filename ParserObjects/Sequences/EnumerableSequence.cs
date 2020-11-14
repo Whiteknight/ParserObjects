@@ -112,7 +112,7 @@ namespace ParserObjects.Sequences
 
         public Location CurrentLocation => new Location(null, 0, _index);
 
-        public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null;
+        public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null && _putbacks.Count == 0;
 
         public void Dispose()
         {

@@ -42,6 +42,33 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void IsAtEnd_Test()
+        {
+            var parser = new AnyParser<char>();
+            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
+        public void IsAtEnd_PutBack()
+        {
+            var parser = new AnyParser<char>();
+            var target = new ParseResultSequence<char, char>("a".ToCharacterSequence(), parser);
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+            target.PutBack(new Result<char>(null, true, 'Y', null, null));
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Checkpoint_Test()
         {
             var parser = new AnyParser<char>();

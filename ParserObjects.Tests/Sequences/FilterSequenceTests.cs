@@ -38,6 +38,24 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void IsAtEnd_PutBack()
+        {
+            var target = new FilterSequence<int>(
+               new EnumerableSequence<int>(
+                   new[] { 1, 2, 3 },
+                   () => 0
+               ),
+               x => x % 2 == 0
+           );
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+            target.PutBack(4);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Peek_Test()
         {
             var target = new FilterSequence<int>(

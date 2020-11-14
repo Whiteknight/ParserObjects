@@ -72,6 +72,31 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void IsAtEnd_Test()
+        {
+            var target = GetTarget("abc");
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
+        public void IsAtEnd_PutBack()
+        {
+            var target = GetTarget("a");
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+            target.PutBack('b');
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Checkpoint_SameBuffer()
         {
             var target = GetTarget("abc", 5);

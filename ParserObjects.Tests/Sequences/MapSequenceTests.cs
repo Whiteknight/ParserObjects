@@ -54,6 +54,39 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void IsAtEnd_Test()
+        {
+            var source = new EnumerableSequence<int>(
+                new[] { 1, 2, 3 },
+                () => 0
+            );
+            var target = source.Select(x => x * 2);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(2);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(4);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(6);
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
+        public void IsAtEnd_PutBack()
+        {
+            var source = new EnumerableSequence<int>(
+                new[] { 1 },
+                () => 0
+            );
+            var target = source.Select(x => x * 2);
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+            target.PutBack(10);
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext();
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Location_Test()
         {
             var target = new MapSequence<int, int>(
