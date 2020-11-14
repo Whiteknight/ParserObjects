@@ -56,37 +56,28 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, int minimum = 0, int? maximum = null)
         {
+            var atLeastOneItemList = Rule(
+                p,
+                List(
+                    Combine(
+                        separator,
+                        p
+                    ).Transform(r => (TOutput)r[1]),
+                    minimum - 1,
+                    maximum - 1
+                ),
+                (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
+            );
+
             if (minimum >= 1)
             {
                 // <p> (<separator> <p>)*
-                return Rule(
-                    p,
-                    List(
-                        Combine(
-                            separator,
-                            p
-                        ).Transform(r => (TOutput)r[1]),
-                        minimum - 1,
-                        maximum - 1
-                    ),
-                    (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
-                );
+                return atLeastOneItemList;
             }
 
             // (<p> (<separator> <p>)*) | empty
             return First(
-                Rule(
-                    p,
-                    List(
-                        Combine(
-                            separator,
-                            p
-                        ).Transform(r => (TOutput)r[1]),
-                        minimum - 1,
-                        maximum - 1
-                    ),
-                    (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
-                ),
+                atLeastOneItemList,
                 Produce<IReadOnlyList<TOutput>>(() => new List<TOutput>())
             );
         }
