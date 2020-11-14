@@ -20,9 +20,15 @@ namespace ParserObjects.Parsers
             Trie = trie;
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t) => Trie.Get(t.Input);
+        public IResult<TOutput> Parse(ParseState<TInput> t)
+        {
+            var (success, value, location) = Trie.Get(t.Input);
+            if (!success)
+                return t.Fail(this, "Trie did not contain matching value");
+            return t.Success(this, value, location);
+        }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Trie.Get(t.Input).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

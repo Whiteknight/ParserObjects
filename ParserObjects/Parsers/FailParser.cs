@@ -10,11 +10,19 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public IResult<TOutput> Parse(ParseState<TInput> t) => Result.Fail<TOutput>(t?.Input.CurrentLocation);
-
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Result.Fail<object>(t?.Input.CurrentLocation);
+        public FailParser(string errorMessage = null)
+        {
+            ErrorMessage = errorMessage ?? "Guaranteed fail";
+        }
 
         public string Name { get; set; }
+        public string ErrorMessage { get; }
+
+        public IResult<TOutput> Parse(ParseState<TInput> t)
+            => t.Fail(this, ErrorMessage);
+
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
+            => t.FailUntyped(this, ErrorMessage);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

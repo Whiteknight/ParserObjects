@@ -23,7 +23,7 @@ namespace ParserObjects.Tests.Sequences
             var parser = new AnyParser<char>();
             var target = new ParseResultSequence<char, char>("ac".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
-            target.PutBack(Result.Success<char>('b', null));
+            target.PutBack(new Result<char>(null, true, 'b', null));
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');
         }
@@ -67,8 +67,8 @@ namespace ParserObjects.Tests.Sequences
             var target = new ParseResultSequence<char, char>("abcde".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
-            target.PutBack(Result.Success('Y'));
-            target.PutBack(Result.Success('X'));
+            target.PutBack(new Result<char>(null, true, 'Y', null));
+            target.PutBack(new Result<char>(null, true, 'X', null));
             var cp = target.Checkpoint();
             target.GetNext().Value.Should().Be('X');
             target.GetNext().Value.Should().Be('Y');
@@ -93,8 +93,8 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Value.Should().Be('a');
 
             var cp = target.Checkpoint();
-            target.PutBack(Result.Success('Y'));
-            target.PutBack(Result.Success('X'));
+            target.PutBack(new Result<char>(null, true, 'Y', null));
+            target.PutBack(new Result<char>(null, true, 'X', null));
             cp.Rewind();
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');

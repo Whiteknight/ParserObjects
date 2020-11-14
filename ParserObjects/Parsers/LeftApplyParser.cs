@@ -52,7 +52,7 @@ namespace ParserObjects.Parsers
                     return ParseZeroOrMore(t);
             }
 
-            return t.Fail<TOutput>();
+            return t.Fail(this, "Unknown arity value");
         }
 
         private IResult<TOutput> ParseExactlyOne(ParseState<TInput> t)
@@ -62,7 +62,7 @@ namespace ParserObjects.Parsers
 
             var leftResult = _initial.Parse(t);
             if (!leftResult.Success)
-                return t.Fail<TOutput>();
+                return leftResult;
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
@@ -71,7 +71,7 @@ namespace ParserObjects.Parsers
             if (!rightResult.Success)
             {
                 checkpoint.Rewind();
-                return t.Fail<TOutput>();
+                return t.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
             }
 
             return rightResult;
@@ -83,7 +83,7 @@ namespace ParserObjects.Parsers
             // point, return whatever is the last value we had
             var result = _initial.Parse(t);
             if (!result.Success)
-                return t.Fail<TOutput>();
+                return result;
 
             var current = result.Value;
             _left.Value = result.Value;
@@ -92,7 +92,7 @@ namespace ParserObjects.Parsers
             {
                 var rhsResult = _right.Parse(t);
                 if (!rhsResult.Success)
-                    return t.Success(current, result.Location);
+                    return t.Success(this, current, result.Location);
 
                 current = rhsResult.Value;
                 _left.Value = current;
@@ -101,18 +101,16 @@ namespace ParserObjects.Parsers
 
         private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> t)
         {
-            // Parse the left. Maybe parse the right. If <right> return that, otherwise <left>
+            // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
             var leftResult = _initial.Parse(t);
             if (!leftResult.Success)
-                return t.Fail<TOutput>();
+                return leftResult;
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
 
             var rightResult = _right.Parse(t);
-            if (rightResult.Success)
-                return rightResult;
-            return leftResult;
+            return rightResult.Success ? rightResult : leftResult;
         }
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

@@ -14,9 +14,9 @@ namespace ParserObjects.Parsers
         public TOutput Value { get; set; }
         public Location Location { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t) => t.Success(Value, Location);
+        public IResult<TOutput> Parse(ParseState<TInput> t) => t.Success(this, Value, Location);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => t.Success<object>(Value, Location);
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

@@ -25,6 +25,7 @@ namespace ParserObjects.Parsers
 
         public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
+            var startLocation = t.Input.CurrentLocation;
             var checkpoint = t.Input.Checkpoint();
             foreach (var parser in _parsers)
             {
@@ -32,11 +33,11 @@ namespace ParserObjects.Parsers
                 if (!result.Success)
                 {
                     checkpoint.Rewind();
-                    return t.Fail<object>();
+                    return result;
                 }
             }
 
-            return Result.Success<object>(null, t.Input.CurrentLocation);
+            return t.Success(this, null, startLocation);
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

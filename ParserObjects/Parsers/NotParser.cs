@@ -30,10 +30,10 @@ namespace ParserObjects.Parsers
             if (result1.Success)
             {
                 checkpoint.Rewind();
-                return t.Fail<object>();
+                return t.Fail(this, "Parser matched but was not supposed to");
             }
 
-            return t.Success<object>(null, result1.Location);
+            return t.Success(this, null, result1.Location);
         }
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };

@@ -18,19 +18,21 @@ namespace ParserObjects.Parsers
         {
             var result = p.Parse(_input);
             if (!result.Success)
-                throw new SequentialParserException(result.Location);
+                throw new SequentialParserException(result);
             return result.Value;
         }
     }
 
     public class SequentialParserException : Exception
     {
-        public SequentialParserException(Location location)
+        public SequentialParserException(IResult result)
         {
-            Location = location;
+            Location = result.Location;
+            Result = result;
         }
 
         public Location Location { get; }
+        public IResult Result { get; }
     }
 
     public class SequentialParser<TInput, TOutput> : IParser<TInput, TOutput>
@@ -53,14 +55,15 @@ namespace ParserObjects.Parsers
             {
                 var state = new SequentialState<TInput>(t);
                 var result = _func(state);
-                return t.Success(result, startLocation);
+                return t.Success(this, result, startLocation);
             }
             catch (SequentialParserException spe)
             {
                 // This exception is part of normal flow-control for this parser
                 // Other exceptions bubble up like normal.
                 checkpoint.Rewind();
-                return Result.Fail<TOutput>(spe.Location);
+                var result = spe.Result;
+                return t.Fail(this, "Error during parsing: " + result.Message, spe.Location);
             }
         }
 

@@ -9,14 +9,14 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public interface IReadOnlyTrie<TKey, out TResult>
+    public interface IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>
         /// Given a composite key, search for a value at that location in the trie
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        IResult<TResult> Get(IEnumerable<TKey> keys);
+        (bool Success, TResult Value) Get(IEnumerable<TKey> keys);
 
         /// <summary>
         /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
@@ -24,7 +24,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        IResult<TResult> Get(ISequence<TKey> keys);
+        (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys);
 
         /// <summary>
         /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so

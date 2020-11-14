@@ -26,13 +26,13 @@ namespace ParserObjects.Parsers
             var location = t.Input.CurrentLocation;
 
             if (t.Input.IsAtEnd)
-                return t.Fail<T>();
+                return t.Fail(this, "Expected a matching item, but found End");
 
             var next = t.Input.Peek();
             if (!_predicate(next))
-                return t.Fail<T>();
+                return t.Fail(this, "Next item does not match the predicate");
 
-            return t.Success(t.Input.GetNext(), location);
+            return t.Success(this, t.Input.GetNext(), location);
         }
 
         public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();

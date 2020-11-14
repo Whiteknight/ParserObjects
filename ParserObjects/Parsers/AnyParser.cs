@@ -21,10 +21,10 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(t, nameof(t));
             if (t.Input.IsAtEnd)
-                return t.Fail<T>();
+                return t.Fail(this, "Expected any but found End");
             var location = t.Input.CurrentLocation;
             var next = t.Input.GetNext();
-            return t.Success(next, location);
+            return t.Success(this, next, location);
         }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

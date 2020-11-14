@@ -24,15 +24,15 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(t, nameof(t));
 
             var checkpoint = t.Input.Checkpoint();
-            var middle = _inner.Parse(t);
-            if (!middle.Success)
-                return t.Fail<TOutput>();
+            var initial = _inner.Parse(t);
+            if (!initial.Success)
+                return initial.Transform(v => default(TOutput));
 
-            var nextParser = _getParser(middle.Value);
+            var nextParser = _getParser(initial.Value);
             if (nextParser == null)
             {
                 checkpoint.Rewind();
-                return t.Fail<TOutput>();
+                return t.Fail(this, "Get parser callback returned null");
             }
 
             return nextParser.Parse(t);

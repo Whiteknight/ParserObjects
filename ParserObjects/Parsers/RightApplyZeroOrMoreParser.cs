@@ -31,7 +31,7 @@ namespace ParserObjects.Parsers
 
             var leftResult = _item.Parse(t);
             if (!leftResult.Success)
-                return t.Fail<TOutput>();
+                return leftResult;
             var left = leftResult.Value;
 
             var resultStack = new Stack<(TOutput left, TMiddle middle)>();
@@ -43,7 +43,7 @@ namespace ParserObjects.Parsers
                     var (left, middle) = resultStack.Pop();
                     right = _produce(left, middle, right);
                 }
-                return t.Success(right, t.Input.CurrentLocation);
+                return t.Success(this, right, t.Input.CurrentLocation);
             }
 
             while (true)

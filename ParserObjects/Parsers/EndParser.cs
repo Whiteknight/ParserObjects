@@ -13,20 +13,14 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
-        {
-            Assert.ArgumentNotNull(t, nameof(t));
-            return t.Input.IsAtEnd
-                ? t.Success<object>(true)
-                : t.Fail<object>();
-        }
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IResult<bool> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             return t.Input.IsAtEnd
-                ? t.Success(true)
-                : t.Fail<bool>();
+                ? t.Success(this, true)
+                : t.Fail(this, "Expected end of Input but found " + t.Input.Peek().ToString());
         }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

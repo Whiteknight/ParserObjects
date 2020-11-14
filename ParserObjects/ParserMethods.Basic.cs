@@ -74,7 +74,8 @@ namespace ParserObjects
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Fail<TOutput>() => new FailParser<TInput, TOutput>();
+        public static IParser<TInput, TOutput> Fail<TOutput>(string error = null)
+            => new FailParser<TInput, TOutput>(error);
 
         /// <summary>
         /// Return the result of the first parser which succeeds
@@ -106,9 +107,6 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(Func<ParseState<TInput>, IResult<TOutput>> func)
-            => new FuncParser<TInput, TOutput>((t, success, fail) => func(t));
-
         public static IParser<TInput, TOutput> Function<TOutput>(ParserFunction<TInput, TOutput> func)
             => new FuncParser<TInput, TOutput>(func);
 

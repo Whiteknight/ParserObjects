@@ -24,19 +24,12 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            var predicatePassed = TestPredicate(t);
-            if (predicatePassed)
-                return _inner.Parse(t);
-            return t.Fail<TOutput>();
-        }
-
-        private bool TestPredicate(ParseState<TInput> t)
-        {
             var checkpoint = t.Input.Checkpoint();
             var result = _predicate.ParseUntyped(t);
             checkpoint.Rewind();
-            bool predicatePassed = result.Success;
-            return predicatePassed;
+            if (result.Success)
+                return _inner.Parse(t);
+            return t.Fail(this, "Predicate failed");
         }
 
         public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

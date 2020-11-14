@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 {
                     var token = t.Input.GetNext();
                     if (token == null)
-                        return fail();
+                        return fail("Received null token");
                     if (token.Type == RpnTokenType.Number)
                     {
                         stack.Push(int.Parse(token.Value));
@@ -88,6 +88,8 @@ namespace ParserObjects.Tests.Examples.RPN
                         continue;
                     }
                 }
+                if (stack.Count != 1)
+                    return fail("Invalid sequence, expected to have 1 token remaining");
                 return success(stack.Pop());
             });
 

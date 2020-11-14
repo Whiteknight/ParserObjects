@@ -38,12 +38,15 @@ namespace ParserObjects.Parsers
                 if (!result.Success)
                 {
                     checkpoint.Rewind();
-                    return Result.Fail<TOutput>(result.Location);
+                    var name = _parsers[i].Name;
+                    if (string.IsNullOrEmpty(name))
+                        name = "(Unnamed)";
+                    return t.Fail(this, $"Parser {i} {name} failed", result.Location);
                 }
 
                 outputs[i] = result.Value;
             }
-            return Result.Success(_produce(outputs), location);
+            return t.Success(this, _produce(outputs), location);
         }
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

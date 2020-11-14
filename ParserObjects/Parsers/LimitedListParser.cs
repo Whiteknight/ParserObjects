@@ -40,10 +40,10 @@ namespace ParserObjects.Parsers
             if (Minimum > 0 && items.Count < Minimum)
             {
                 checkpoint.Rewind();
-                return t.Fail<IReadOnlyList<TOutput>>();
+                return t.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", location);
             }
 
-            return t.Success<IReadOnlyList<TOutput>>(items, location);
+            return t.Success(this, items, location);
         }
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

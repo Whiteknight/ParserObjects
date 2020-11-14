@@ -33,7 +33,7 @@ namespace ParserObjects.Utility
             return this;
         }
 
-        public IResult<TResult> Get(IEnumerable<TKey> keys)
+        public (bool Success, TResult Value) Get(IEnumerable<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             var current = _root;
@@ -41,13 +41,13 @@ namespace ParserObjects.Utility
             {
                 current = current.Get(key);
                 if (current == null)
-                    return Result.Fail<TResult>();
+                    return (false, default);
             }
 
-            return Result.New(current.HasResult, current.Result);
+            return (current.HasResult, current.Result);
         }
 
-        public IResult<TResult> Get(ISequence<TKey> keys)
+        public (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return _root.Get(keys);
@@ -76,16 +76,16 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public IResult<TResult> Get(ISequence<TKey> keys)
+            public (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys)
             {
                 if (HasResult && _children.Count == 0)
-                    return ParserObjects.Result.Success(Result, keys.CurrentLocation);
+                    return (true, Result, keys.CurrentLocation);
 
                 var key = keys.GetNext();
                 if (!_children.ContainsKey(key))
                 {
                     keys.PutBack(key);
-                    return ParserObjects.Result.New(HasResult, Result, keys.CurrentLocation);
+                    return (HasResult, Result, keys.CurrentLocation);
                 }
 
                 var result = _children[key].Get(keys);
@@ -93,10 +93,10 @@ namespace ParserObjects.Utility
                     return result;
 
                 if (HasResult)
-                    return ParserObjects.Result.Success(Result, keys.CurrentLocation);
+                    return (true, Result, keys.CurrentLocation);
 
                 keys.PutBack(key);
-                return ParserObjects.Result.Fail<TResult>(keys.CurrentLocation);
+                return (false, default, keys.CurrentLocation);
             }
 
             public Node GetOrAdd(TKey key)

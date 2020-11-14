@@ -28,22 +28,23 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             if (_values != null)
-                return GetNextResult();
+                return GetNextResult(t);
 
             var result = _input.Parse(t);
             if (!result.Success)
-                return t.Fail<TOutput>();
+                return result.Transform(_ => default(TOutput));
+
             var values = result.Value.ToArray();
             if (values.Length == 0)
-                return t.Fail<TOutput>();
+                return t.Fail(this, "Inner parser returned an empy collection", result.Location);
 
             _result = result;
             _values = values;
             _index = 0;
-            return GetNextResult();
+            return GetNextResult(t);
         }
 
-        private IResult<TOutput> GetNextResult()
+        private IResult<TOutput> GetNextResult(ParseState<TInput> t)
         {
             var location = _result.Location;
             var value = _values[_index];
@@ -55,7 +56,7 @@ namespace ParserObjects.Parsers
                 _index = -1;
             }
 
-            return Result.Success(value, location);
+            return t.Success(this, value, location);
         }
 
         public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

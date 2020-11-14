@@ -154,7 +154,7 @@ namespace ParserObjects.Tests.Visitors
         [Test]
         public void ToBnf_Func()
         {
-            var parser = Function(t => Result.Success('a')).Named("parser");
+            var parser = Function<string>((t, s, f) => s("")).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := User Function");
         }

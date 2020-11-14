@@ -11,12 +11,29 @@ namespace ParserObjects
         void Rewind();
     }
 
+    public interface ISequence
+    {
+        /// <summary>
+        /// The approximate location from the source data where the current input item was located, if
+        /// available.
+        /// </summary>
+        Location CurrentLocation { get; }
+
+        /// <summary>
+        /// True if the sequence is at the end and no more values may be retrieved. False if the sequence
+        /// is exhausted and no more values are available.
+        /// </summary>
+        bool IsAtEnd { get; }
+
+        ISequenceCheckpoint Checkpoint();
+    }
+
     /// <summary>
     /// An input sequence of items. Similar to IEnumerable/IEnumerator but with the ability to rewind and
     /// put back items which are not needed.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ISequence<T>
+    public interface ISequence<T> : ISequence
     {
         /// <summary>
         /// Put back the given value to the head of the sequence. This value does not need to be a value
@@ -37,20 +54,6 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         T Peek();
-
-        /// <summary>
-        /// The approximate location from the source data where the current input item was located, if
-        /// available.
-        /// </summary>
-        Location CurrentLocation { get; }
-
-        /// <summary>
-        /// True if the sequence is at the end and no more values may be retrieved. False if the sequence
-        /// is exhausted and no more values are available.
-        /// </summary>
-        bool IsAtEnd { get; }
-
-        ISequenceCheckpoint Checkpoint();
     }
 
     public static class SequenceExtensions

@@ -34,9 +34,9 @@ namespace ParserObjects.Parsers
             if (matches)
             {
                 var str = context.Capture(consumed);
-                return t.Success(str, startLocation);
+                return t.Success(this, str, startLocation);
             }
-            return t.Fail<string>();
+            return t.Fail(this, $"Pattern failed at position {consumed}");
         }
 
         private class BacktrackState

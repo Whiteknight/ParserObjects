@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Function(t => Result.Success($"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
+            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail()
         {
-            var parser = Function<object>(t => Result.Fail<string>());
+            var parser = Function<object>((t, success, fail) => fail(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
         }
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Exception()
         {
-            var parser = Function<object>(t => throw new System.Exception("fail"));
+            var parser = Function<object>((t, success, fail) => throw new System.Exception("fail"));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
         }
@@ -44,7 +44,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Full_Fail()
         {
-            var parser = Function<object>((t, success, fail) => fail());
+            var parser = Function<object>((t, success, fail) => fail(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
         }
@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren()
         {
-            var parser = Function(t => Result.Success($"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
+            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }

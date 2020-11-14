@@ -32,7 +32,7 @@ namespace ParserObjects.Parsers
                     return result;
             }
 
-            return t.Fail<object>();
+            return t.Fail(this, "None of the given parser match");
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

@@ -23,14 +23,15 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
+            IResult<TOutput> last = null;
             foreach (var parser in _parsers)
             {
-                var result = parser.Parse(t);
-                if (result.Success)
-                    return result;
+                last = parser.Parse(t);
+                if (last.Success)
+                    return last;
             }
 
-            return t.Fail<TOutput>();
+            return last ?? t.Fail(this, "No parsers given or none match");
         }
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

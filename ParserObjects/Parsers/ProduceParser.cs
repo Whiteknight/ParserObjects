@@ -22,10 +22,9 @@ namespace ParserObjects.Parsers
         }
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
-            => t.Success(_produce(t.Input), t.Input.CurrentLocation);
+            => t.Success(this, _produce(t.Input), t.Input.CurrentLocation);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
-            => t.Success<object>(_produce(t.Input), t.Input.CurrentLocation);
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

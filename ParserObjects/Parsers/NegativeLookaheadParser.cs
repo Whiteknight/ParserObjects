@@ -28,7 +28,9 @@ namespace ParserObjects.Parsers
             var checkpoint = t.Input.Checkpoint();
             var result = _inner.ParseUntyped(t);
             checkpoint.Rewind();
-            return Result.New<object>(!result.Success, null, result.Location);
+            if (result.Success)
+                return t.Fail(this, "Lookahead pattern existed but was not supposed to");
+            return t.Success(this, null);
         }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
