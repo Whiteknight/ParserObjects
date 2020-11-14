@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -38,12 +39,17 @@ namespace ParserObjects.Parsers
         }
     }
 
-    public class SequentialParserException : Exception
+    [Serializable]
+    public sealed class SequentialParserException : Exception
     {
         public SequentialParserException(IResult result)
         {
             Location = result.Location;
             Result = result;
+        }
+
+        public SequentialParserException(SerializationInfo info, StreamingContext context)
+        {
         }
 
         public Location Location { get; }
