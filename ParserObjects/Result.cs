@@ -37,11 +37,17 @@ namespace ParserObjects
         {
             string parserName = "";
             if (Parser != null)
-                parserName = !string.IsNullOrEmpty(Parser.Name) ? Parser.Name + " " : Parser.GetType().Name;
+                parserName = (!string.IsNullOrEmpty(Parser.Name) ? Parser.Name : Parser.GetType().Name) + " ";
             var status = Success ? "Ok" : "Fail";
             var message = string.IsNullOrEmpty(Message) ? "" : ": " + Message;
             var location = Location == null ? "" : " at " + Location.ToString();
             return parserName + status + message + location;
+        }
+
+        public void Deconstruct(out bool success, out TValue value)
+        {
+            success = Success;
+            value = Value;
         }
     }
 }

@@ -1,21 +1,23 @@
 ﻿using System;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
     public sealed class ParseState<TInput>
     {
-        private Action<string> _logCallback;
+        private readonly Action<string> _logCallback;
+        private readonly CascadingKeyValueStore _store;
 
-        public ParseState(ISequence<TInput> input, object data, Action<string> logCallback = null)
+        public ParseState(ISequence<TInput> input, Action<string> logCallback = null)
         {
             Input = input;
-            Data = data;
+            _store = new CascadingKeyValueStore();
             _logCallback = logCallback;
         }
 
         public ISequence<TInput> Input { get; }
 
-        public object Data { get; set; }
+        public IDataStore Data => _store;
 
         public void Log(string message)
             => _logCallback?.Invoke(message);

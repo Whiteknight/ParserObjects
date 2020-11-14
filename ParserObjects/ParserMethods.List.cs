@@ -69,7 +69,7 @@ namespace ParserObjects
                         minimum - 1,
                         maximum - 1
                     ),
-                    (first, rest) => new[] { first }.Concat(rest).ToList()
+                    (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
                 );
             }
 
@@ -85,7 +85,7 @@ namespace ParserObjects
                         minimum - 1,
                         maximum - 1
                     ),
-                    (first, rest) => new[] { first }.Concat(rest).ToList()
+                    (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
                 ),
                 Produce<IReadOnlyList<TOutput>>(() => new List<TOutput>())
             );

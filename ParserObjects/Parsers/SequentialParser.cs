@@ -14,12 +14,27 @@ namespace ParserObjects.Parsers
             _input = input;
         }
 
-        public TValue Parse<TValue>(IParser<TInput, TValue> p)
+        public IDataStore Data => _input.Data;
+
+        public TOutput Parse<TOutput>(IParser<TInput, TOutput> p)
         {
             var result = p.Parse(_input);
             if (!result.Success)
                 throw new SequentialParserException(result);
             return result.Value;
+        }
+
+        public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
+        {
+            return p.Parse(_input);
+        }
+
+        public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
+        {
+            var checkpoint = _input.Input.Checkpoint();
+            var result = p.Parse(_input);
+            checkpoint.Rewind();
+            return result;
         }
     }
 

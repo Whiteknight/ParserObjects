@@ -6,9 +6,9 @@ namespace ParserObjects.Parsers
     public class TransformResultParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _inner;
-        private readonly Func<IResult<TOutput>, IResult<TOutput>> _transform;
+        private readonly Func<ParseState<TInput>, IResult<TOutput>, IResult<TOutput>> _transform;
 
-        public TransformResultParser(IParser<TInput, TOutput> inner, Func<IResult<TOutput>, IResult<TOutput>> transform)
+        public TransformResultParser(IParser<TInput, TOutput> inner, Func<ParseState<TInput>, IResult<TOutput>, IResult<TOutput>> transform)
         {
             _inner = inner;
             _transform = transform;
@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var result = _inner.Parse(t);
-            return _transform(result);
+            return _transform(t, result);
         }
 
         public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();

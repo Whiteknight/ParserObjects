@@ -1,7 +1,7 @@
 ﻿using System;
 using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Parsers.Specialty
+namespace ParserObjects
 {
     public static partial class ParserMethods
     {

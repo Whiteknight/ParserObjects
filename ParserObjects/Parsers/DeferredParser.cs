@@ -19,6 +19,8 @@ namespace ParserObjects.Parsers
             _getParser = getParser;
         }
 
+        public string Name { get; set; }
+
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var parser = _getParser();
@@ -29,8 +31,6 @@ namespace ParserObjects.Parsers
 
         IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
             => _getParser().ParseUntyped(t);
-
-        public string Name { get; set; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
 

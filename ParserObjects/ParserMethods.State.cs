@@ -1,31 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
+using ParserObjects.Parsers;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
     public static partial class ParserMethods<TInput>
     {
-        public static IParser<TInput, TState> GetData<TState>()
-            where TState : class
-            => Function<TState>((t, success, fail) => success(t.Data as TState));
+        public static IParser<TInput, TOutput> Create<TOutput>(Func<ParseState<TInput>, IParser<TInput, TOutput>> create)
+            => new CreateParser<TInput, TOutput>(create);
 
-        public static IParser<TInput, TValue> GetData<TState, TValue>(Func<TState, TValue> getValue)
-            where TState : class
-            => Function<TValue>((t, success, fail) => success(getValue(t.Data as TState)));
-
-        public static IParser<TInput, TState> SetData<TState>(Func<TState, TState> set)
-            where TState : class
-            => Function<TState>((t, success, fail) =>
+        public static IParser<TInput, TValue> GetData<TValue>(string name)
+            => Function<TValue>((t, success, fail) =>
             {
-                t.Data = set(t.Data as TState);
-                return success(t.Data as TState);
+                var (has, value) = t.Data.Get<TValue>(name);
+                if (has)
+                    return success(value);
+                return fail($"State data '{name}' does not exist");
             });
 
-        public static IParser<TInput, TState> UpdateData<TState>(Action<TState> update)
-            where TState : class
-            => Function<TState>((t, success, fail) =>
+        public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
+            => Function<TValue>((t, success, fail) =>
             {
-                update(t.Data as TState);
-                return success(t.Data as TState);
+                t.Data.Set(name, value);
+                return success(value);
             });
+
+        public static IParser<TInput, TOutput> RecurseData<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values = null)
+            => Function<TOutput>((t, success, fail) =>
+            {
+                try
+                {
+                    // We hide push/pop methods behind the interface, for now, because we don't
+                    // want downstream users monkeying with push/pop and unbalancing the whole thing
+                    (t.Data as CascadingKeyValueStore)?.PushFrame();
+                    if (values != null)
+                    {
+                        foreach (var kvp in values)
+                            t.Data.Set(kvp.Key, kvp.Value);
+                    }
+                    return inner.Parse(t);
+                }
+                finally
+                {
+                    (t.Data as CascadingKeyValueStore)?.PopFrame();
+                }
+            });
+
+        public static IParser<TInput, TOutput> RecurseData<TOutput>(IParser<TInput, TOutput> inner, string name, object value)
+            => RecurseData(inner, new Dictionary<string, object> { { name, value } });
     }
 }
