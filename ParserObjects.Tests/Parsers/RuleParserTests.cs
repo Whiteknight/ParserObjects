@@ -35,6 +35,16 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void ValueTuple_Combine_2_Test()
+        {
+            var target = (_any, _any).Combine();
+
+            var input = new StringCharacterSequence("abc");
+
+            target.Parse(input).Value.Count.Should().Be(2);
+        }
+
+        [Test]
         public void Rule_3_Test()
         {
             var target = Rule(
@@ -57,6 +67,16 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
 
             target.Parse(input).Value.Should().Be("abc");
+        }
+
+        [Test]
+        public void ValueTuple_Combine_3_Test()
+        {
+            var target = (_any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abc");
+
+            target.Parse(input).Value.Count.Should().Be(3);
         }
 
         [Test]
@@ -83,6 +103,16 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcd");
+        }
+
+        [Test]
+        public void ValueTuple_Combine_4_Test()
+        {
+            var target = (_any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            target.Parse(input).Value.Count.Should().Be(4);
         }
 
         [Test]
@@ -114,6 +144,16 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void ValueTuple_Combine_5_Test()
+        {
+            var target = (_any, _any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            target.Parse(input).Value.Count.Should().Be(5);
+        }
+
+        [Test]
         public void Rule_6_Test()
         {
             var target = Rule(
@@ -139,6 +179,16 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdef");
+        }
+
+        [Test]
+        public void ValueTuple_Combine_6_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            target.Parse(input).Value.Count.Should().Be(6);
         }
 
         [Test]
@@ -171,6 +221,16 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void ValueTuple_Combine_7_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            target.Parse(input).Value.Count.Should().Be(7);
+        }
+
+        [Test]
         public void Rule_8_Test()
         {
             var target = Rule(
@@ -198,6 +258,16 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefgh");
+        }
+
+        [Test]
+        public void ValueTuple_Combine_8_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            target.Parse(input).Value.Count.Should().Be(8);
         }
 
 
@@ -230,6 +300,17 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefghi");
+        }
+
+        [Test]
+        public void ValueTuple_Combine_9_Test()
+        {
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Combine();
+
+            var input = new StringCharacterSequence("abcdefghi");
+
+            var result = target.Parse(input).Value;
+            result.Count.Should().Be(9);
         }
 
         [Test]
