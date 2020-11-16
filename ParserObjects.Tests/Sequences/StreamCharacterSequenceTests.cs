@@ -353,5 +353,101 @@ namespace ParserObjects.Tests.Sequences
             }
 
         }
+
+        [Test]
+        public void Location_Test()
+        {
+            var target = GetTarget("a\nbc");
+            target.GetNext().Should().Be('a');
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+
+            target.GetNext().Should().Be('\n');
+
+            target.GetNext().Should().Be('b');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(1);
+
+            target.GetNext().Should().Be('c');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(2);
+
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Location_Putback()
+        {
+            var target = GetTarget("abc\nde");
+            target.GetNext();
+            target.GetNext();
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+
+            target.GetNext().Should().Be('\n');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(0);
+
+            target.PutBack('\n');
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+        }
+
+        [Test]
+        public void Location_Rewind()
+        {
+            var target = GetTarget("abc\nde");
+            target.GetNext();
+            target.GetNext();
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+            var checkpoint = target.Checkpoint();
+
+            target.GetNext().Should().Be('\n');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(0);
+
+            checkpoint.Rewind();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+        }
+
+        [Test]
+        public void Location_Rewind_Putback()
+        {
+            var target = GetTarget("abc\nd\ne");
+            target.GetNext();
+            target.GetNext();
+            target.GetNext();
+
+            // Position after 'c' is (1,3)
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+
+            // Position after the first '\n' is (2,0). Set a checkpoint here
+            target.GetNext().Should().Be('\n');
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(0);
+            var checkpoint = target.Checkpoint();
+
+            // Get 'd', '\n'. Position should be (3,0)
+            target.GetNext().Should().Be('d');
+            target.GetNext().Should().Be('\n');
+            target.CurrentLocation.Line.Should().Be(3);
+            target.CurrentLocation.Column.Should().Be(0);
+
+            // Rewind back to (2,0)
+            checkpoint.Rewind();
+            target.CurrentLocation.Line.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(0);
+
+            // Put back a newline, taking us to the position (1,3) right after the 'c'
+            target.PutBack('\n');
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+        }
+
     }
 }

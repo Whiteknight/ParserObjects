@@ -69,6 +69,42 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void Location_Test()
+        {
+            var parser = new AnyParser<char>();
+            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser);
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(0);
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(2);
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(3);
+        }
+
+        [Test]
+        public void Location_PutBack()
+        {
+            var parser = new AnyParser<char>();
+            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser);
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(0);
+            target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+            var b = target.GetNext();
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(2);
+            target.PutBack(b);
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
+        }
+
+        [Test]
         public void Checkpoint_Test()
         {
             var parser = new AnyParser<char>();

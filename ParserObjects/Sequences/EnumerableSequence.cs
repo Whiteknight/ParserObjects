@@ -110,7 +110,7 @@ namespace ParserObjects.Sequences
             return _current.Next.Value;
         }
 
-        public Location CurrentLocation => new Location(null, 0, _index);
+        public Location CurrentLocation => new Location(null, 1, _index);
 
         public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null && _putbacks.Count == 0;
 
@@ -119,31 +119,34 @@ namespace ParserObjects.Sequences
             _enumerator?.Dispose();
         }
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _enumeratorIsAtEnd, _putbacks.ToArray());
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _enumeratorIsAtEnd, _putbacks.ToArray());
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly EnumerableSequence<T> _s;
             private readonly Node _node;
+            private readonly int _index;
             private readonly bool _enumeratorIsAtEnd;
             private readonly T[] _putbacks;
 
-            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, bool enumeratorIsAtEnd, T[] putbacks)
+            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd, T[] putbacks)
             {
                 _s = s;
                 _node = node;
+                _index = index;
                 _enumeratorIsAtEnd = enumeratorIsAtEnd;
                 _putbacks = putbacks;
             }
 
-            public void Rewind() => _s.Rewind(_node, _enumeratorIsAtEnd, _putbacks);
+            public void Rewind() => _s.Rewind(_node, _index, _enumeratorIsAtEnd, _putbacks);
         }
 
-        private void Rewind(Node node, bool isAtEnd, T[] putbacks)
+        private void Rewind(Node node, int index, bool isAtEnd, T[] putbacks)
         {
             _current = node;
             _enumeratorIsAtEnd = isAtEnd;
             _putbacks.Clear();
+            _index = index;
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
         }

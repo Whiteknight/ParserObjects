@@ -45,12 +45,9 @@ namespace ParserObjects.Utility
             if (_index == int.MaxValue)
             {
                 // If we are at max value and would roll-over, instead move _index to a position 
-                // near IntMax/4 with the same modulo position in the buffer.
+                // near IntMax/2 with the same modulo position in the buffer.
                 var current = _index % _size;
-                var ratio = int.MaxValue / _size;
-                ratio = ratio >> 4;
-                _index = (_size * ratio) + current;
-                Debug.Assert(_index % _size == current);
+                ResetIndexToMidRange(current);
             }
             _index++;
         }
@@ -62,19 +59,60 @@ namespace ParserObjects.Utility
             if (_index == 0)
             {
                 var current = _index % _size;
-                var ratio = int.MaxValue / _size;
-                ratio = ratio >> 2;
-                _index = (_size * ratio) + current;
-                Debug.Assert(_index % _size == current);
+                ResetIndexToMidRange(current);
             }
 
             _index--;
+        }
+
+        private void ResetIndexToMidRange(int current)
+        {
+            // For example, we have a number space of 100 and a _size of 9. 100/9=11, so there are
+            // 11 module ranges in the number space. ratio>>1 gives us 5. So we're looking for a
+            // position in range 5 where the module is current. We get that by jumping to
+            // position (_size*5), which is by definition position 0 after module _size, then we
+            // add the current index. Now ((_size*ratio)+current)%_size == current, and we are
+            // far away from the edge of number space.
+            var ratio = int.MaxValue / _size;
+            ratio = ratio >> 1;
+            _index = (_size * ratio) + current;
+            Debug.Assert(_index % _size == current);
         }
 
         public T GetCurrent()
         {
             var index = _index % _size;
             return _buffer[index];
+        }
+
+        public T[] ToArray()
+        {
+            var newArray = new T[_size];
+            var startIndex = _index % _size;
+            for (int i = 0; i < _size; i++)
+            {
+                var currentIdex = (i + startIndex) % _size;
+                newArray[i] = _buffer[currentIdex];
+            }
+            return newArray;
+        }
+
+        public void OverwriteFromArray(T[] array)
+        {
+            Debug.Assert(array.Length == _size);
+
+            // Copy the array over, starting at buffer position 0 (regardless of where _index is
+            // right now)
+            for (int i = 0; i < _size; i++)
+            {
+                _buffer[i] = array[i];
+                _index = 0;
+            }
+
+            // Reset _index to be in the middle of the number range such that it is pointing to
+            // position 0 after the modulo. That way we can just keep moving from the start of
+            // the buffer
+            ResetIndexToMidRange(0);
         }
     }
 }

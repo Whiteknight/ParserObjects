@@ -78,18 +78,21 @@ namespace ParserObjects.Sequences
             if (value == '\0')
                 return;
             // If the user insists on PutBack('\r') our _line numbers can get screwed up
+            bool hasColumn = false;
             if (value == '\n')
             {
                 _line--;
-                _previousEndOfLineColumns.MoveBack();
                 _column = _previousEndOfLineColumns.GetCurrent();
+                _previousEndOfLineColumns.MoveBack();
+                hasColumn = true;
             }
 
             // Try to just decrement the pointer if we can, otherwise push it onto the putbacks.
             if (_putbacks.Count == 0 && _index > 0 && _s[_index - 1] == value)
             {
                 _index--;
-                _column--;
+                if (!hasColumn)
+                    _column--;
             }
             else
                 _putbacks.Push(value);
@@ -143,7 +146,7 @@ namespace ParserObjects.Sequences
         }
 
         public ISequenceCheckpoint Checkpoint()
-            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray());
+            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray());
 
         private class StringCheckpoint : ISequenceCheckpoint
         {
@@ -152,20 +155,22 @@ namespace ParserObjects.Sequences
             private readonly int _line;
             private readonly int _column;
             private readonly char[] _putbacks;
+            private readonly int[] _lineEndCols;
 
-            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks)
+            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks, int[] lineEndCols)
             {
                 _s = s;
                 _index = index;
                 _line = line;
                 _column = column;
                 _putbacks = putbacks;
+                _lineEndCols = lineEndCols;
             }
 
-            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks);
+            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks, _lineEndCols);
         }
 
-        private void Rollback(int index, int line, int column, char[] putbacks)
+        private void Rollback(int index, int line, int column, char[] putbacks, int[] lineEndCols)
         {
             _index = index;
             _line = line;
@@ -173,6 +178,7 @@ namespace ParserObjects.Sequences
             _putbacks.Clear();
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
+            _previousEndOfLineColumns.OverwriteFromArray(lineEndCols);
         }
     }
 }

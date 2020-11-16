@@ -92,14 +92,15 @@ namespace ParserObjects.Sequences
                 c = '\n';
             }
 
-            _column++;
             if (c == '\n')
             {
                 _line++;
-                _previousEndOfLineColumns.Add(_column - 1);
+                _previousEndOfLineColumns.Add(_column);
                 _column = 0;
+                return c;
             }
 
+            _column++;
             return c;
         }
 
@@ -111,8 +112,8 @@ namespace ParserObjects.Sequences
             if (value == '\n')
             {
                 _line--;
-                _previousEndOfLineColumns.MoveBack();
                 _column = _previousEndOfLineColumns.GetCurrent();
+                _previousEndOfLineColumns.MoveBack();
             }
         }
 
@@ -184,43 +185,52 @@ namespace ParserObjects.Sequences
             _bufferIndex = 0;
         }
 
+        public ISequenceCheckpoint Checkpoint()
+        {
+            if (_currentBuffer == null)
+                FillBuffer();
+            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray());
+        }
+
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly StreamCharacterSequence _s;
             private readonly BufferNode _buffer;
             private readonly int _remainingChars;
             private readonly int _bufferIndex;
+            private readonly int _line;
+            private readonly int _column;
             private readonly char[] _putbacks;
+            private readonly int[] _lineEndCols;
 
-            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int remainingChars, int bufferIndex, char[] putbacks)
+            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols)
             {
                 _s = s;
                 _buffer = buffer;
                 _remainingChars = remainingChars;
                 _bufferIndex = bufferIndex;
+                _line = line;
+                _column = column;
                 _putbacks = putbacks;
+                _lineEndCols = lineEndCols;
             }
 
-            public void Rewind() => _s.Rewind(_buffer, _remainingChars, _bufferIndex, _putbacks);
+            public void Rewind() => _s.Rewind(_buffer, _remainingChars, _bufferIndex, _line, _column, _putbacks, _lineEndCols);
         }
 
-        public ISequenceCheckpoint Checkpoint()
-        {
-            if (_currentBuffer == null)
-                FillBuffer();
-            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _putbacks.ToArray());
-        }
-
-        private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, char[] putbacks)
+        private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols)
         {
             if (_currentBuffer != buffer)
                 _currentBuffer = buffer;
             _remainingChars = remainingChars;
             _bufferIndex = bufferIndex;
             _isComplete = false;
+            _line = line;
+            _column = column;
             _putbacks.Clear();
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
+            _previousEndOfLineColumns.OverwriteFromArray(lineEndCols);
         }
     }
 }
