@@ -2,6 +2,7 @@
 {
     public enum TokenType
     {
+        Error,
         Addition,
         Division,
         Multiplication,

@@ -9,6 +9,8 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
             => Match(t => t.Type == type);
 
         public static IParser<Token, int> ThrowError(string message)
-            => Produce<int>(t => throw new Exception($"{message} at {t.CurrentLocation}"));
+            => Produce<int>(t => throw new Exception($"{message} at {t.CurrentLocation} ({t})"));
+
+
     }
 }

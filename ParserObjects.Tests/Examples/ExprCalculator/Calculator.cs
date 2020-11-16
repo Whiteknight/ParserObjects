@@ -1,5 +1,4 @@
-﻿using ParserObjects;
-using ParserObjects.Sequences;
+﻿using ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
 {
@@ -12,7 +11,12 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
 
             // Get the lexical grammar, and use it to create a sequence of tokens
             var lexicalParser = LexicalGrammar.CreateParser();
-            var tokenSequence = lexicalParser.ToSequence(characterSequence).Select(r => r.Value);
+            var tokenSequence = lexicalParser.ToSequence(characterSequence).Select(r =>
+            {
+                if (r.Success)
+                    return r.Value;
+                return new Token(TokenType.Error, r.ToString());
+            });
 
             // Get the expression grammar and parse the token sequence into a result
             var expressionParser = ExpressionGrammar.CreateParser();

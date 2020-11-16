@@ -9,14 +9,16 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
         public static IParser<Token, int> CreateParser()
         {
             var number = Token(TokenType.Number).Transform(t => int.Parse(t.Value));
+
             var requiredNumber = First(
                 number,
                 ThrowError("Expected number")
             );
+
             var multiplicative = LeftApply(
                 number,
                 left => First(
-                     Rule(
+                    Rule(
                         left,
                         Token(TokenType.Multiplication),
                         requiredNumber,
@@ -30,10 +32,12 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
                     )
                 )
             );
+
             var requiredMultiplicative = First(
                 multiplicative,
                 ThrowError("Expected multiplicative")
             );
+
             var additive = LeftApply(
                 multiplicative,
                 left => First(
@@ -51,10 +55,12 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
                     )
                 )
             );
+
             var requiredEnd = First(
                 End(),
                 Produce<bool>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
             );
+
             var expression = Rule(
                 additive,
                 requiredEnd,

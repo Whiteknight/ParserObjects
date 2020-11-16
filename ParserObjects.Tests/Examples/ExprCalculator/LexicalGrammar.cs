@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
@@ -9,15 +10,27 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
         {
             var addition = Match('+')
                 .Transform(c => new Token(TokenType.Addition, "+"));
+
+            var subtraction = Match('-')
+                .Transform(c => new Token(TokenType.Subtraction, "-"));
+
             var multiplication = Match('*')
                 .Transform(c => new Token(TokenType.Multiplication, "*"));
+
+            var division = Match('*')
+                .Transform(c => new Token(TokenType.Division, "/"));
+
             var number = Match(c => char.IsDigit(c))
                 .List(atLeastOne: true)
                 .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
-            var whitespace = Match(c => char.IsWhiteSpace(c)).List();
+
+            var whitespace = OptionalWhitespace();
+
             var anyToken = First(
                 addition,
+                subtraction,
                 multiplication,
+                division,
                 number
             );
 
@@ -26,6 +39,7 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
                 anyToken,
                 (ws, t) => t
             );
+
             return whitespaceAndToken;
         }
     }
