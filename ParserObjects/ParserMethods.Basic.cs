@@ -88,19 +88,6 @@ namespace ParserObjects
             => new FirstParser<TInput, TOutput>(parsers);
 
         /// <summary>
-        /// Flattens the result of a parser which returns an enumerable type into a parser which returns
-        /// individual items.
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TCollection"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Flatten<TCollection, TOutput>(IParser<TInput, TCollection> parser)
-            where TCollection : IEnumerable<TOutput>
-            => new FlattenParser<TInput, TCollection, TOutput>(parser);
-
-        /// <summary>
         /// Invoke a function callback to perform the parse at the current location in the input
         /// stream
         /// </summary>

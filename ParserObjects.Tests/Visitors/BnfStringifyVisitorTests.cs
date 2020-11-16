@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using ParserObjects.Parsers;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
@@ -141,14 +140,6 @@ namespace ParserObjects.Tests.Visitors
             ).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (.)?");
-        }
-
-        [Test]
-        public void ToBnf_Flatten()
-        {
-            var parser = Flatten<string, char>(new ProduceParser<char, string>(s => "test")).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := PRODUCE");
         }
 
         [Test]

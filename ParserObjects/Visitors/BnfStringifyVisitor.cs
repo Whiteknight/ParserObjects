@@ -206,12 +206,6 @@ namespace ParserObjects.Visitors
             state.Current.Append(")");
         }
 
-        protected virtual void VisitTyped<TInput, TCollection, TOutput>(FlattenParser<TInput, TCollection, TOutput> p, State state)
-            where TCollection : IEnumerable<TOutput>
-        {
-            VisitChild(p.GetChildren().First(), state);
-        }
-
         protected virtual void VisitTyped<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("User Function");

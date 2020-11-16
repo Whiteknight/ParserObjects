@@ -29,18 +29,6 @@ namespace ParserObjects
             => new ExamineParser<TInput, TOutput>(parser, before, after);
 
         /// <summary>
-        /// Flattens the enumerable result of a given parser.
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TCollection"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Flatten<TInput, TCollection, TOutput>(this IParser<TInput, TCollection> parser)
-            where TCollection : IEnumerable<TOutput>
-            => new FlattenParser<TInput, TCollection, TOutput>(parser);
-
-        /// <summary>
         /// Zero-length assertion that the given parser's result is followed by another sequence.
         /// The lookahead sequence is matched but not consumed
         /// </summary>
