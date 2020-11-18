@@ -11,39 +11,44 @@ namespace ParserObjects.Parsers
     public class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput> _predicate;
-        private readonly IParser<TInput, TOutput> _inner;
+        private readonly IParser<TInput, TOutput> _onSuccess;
+        private readonly IParser<TInput, TOutput> _onFail;
 
-        public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> inner)
+        public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail)
         {
             Assert.ArgumentNotNull(predicate, nameof(predicate));
-            Assert.ArgumentNotNull(inner, nameof(inner));
+            Assert.ArgumentNotNull(onSuccess, nameof(onSuccess));
+            Assert.ArgumentNotNull(onFail, nameof(onFail));
             _predicate = predicate;
-            _inner = inner;
+            _onSuccess = onSuccess;
+            _onFail = onFail;
         }
+
+        public string Name { get; set; }
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result = _predicate.ParseUntyped(t);
+            var result = _predicate.Parse(t);
             checkpoint.Rewind();
             if (result.Success)
-                return _inner.Parse(t);
-            return t.Fail(this, "Predicate failed");
+                return _onSuccess.Parse(t);
+            return _onFail.Parse(t);
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
-        public string Name { get; set; }
-
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _inner };
+        public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess };
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
             if (find == _predicate && replace is IParser<TInput> predicate)
-                return new IfParser<TInput, TOutput>(predicate, _inner);
-            if (find == _inner && replace is IParser<TInput, TOutput> inner)
-                return new IfParser<TInput, TOutput>(_predicate, inner);
+                return new IfParser<TInput, TOutput>(predicate, _onSuccess, _onFail);
+            if (find == _onSuccess && replace is IParser<TInput, TOutput> onSuccess)
+                return new IfParser<TInput, TOutput>(_predicate, onSuccess, _onFail);
+            if (find == _onFail && replace is IParser<TInput, TOutput> onFail)
+                return new IfParser<TInput, TOutput>(_predicate, _onSuccess, onFail);
             return this;
         }
     }

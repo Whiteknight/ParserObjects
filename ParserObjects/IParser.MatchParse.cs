@@ -12,11 +12,10 @@ namespace ParserObjects
         /// succeeded or false otherwise.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static bool CanMatch<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
+        public static bool CanMatch<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
         {
             var checkpoint = input.Checkpoint();
             var state = new ParseState<TInput>(input, null);
@@ -29,11 +28,10 @@ namespace ParserObjects
         /// Convenience method for parsers which act on character sequences. Attempts a parse but does not
         /// consume any input. Returns true if the parse would succeed, false otherwise.
         /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static bool CanMatch<TOutput>(this IParser<char, TOutput> parser, string input)
+        public static bool CanMatch(this IParser<char> parser, string input)
             => CanMatch(parser, new StringCharacterSequence(input));
 
         /// <summary>
@@ -50,7 +48,7 @@ namespace ParserObjects
         public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
             => parser.Parse(new ParseState<TInput>(input));
 
-        public static IResult<object> ParseUntyped<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
-            => parser.ParseUntyped(new ParseState<TInput>(input));
+        public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
+            => parser.Parse(new ParseState<TInput>(input));
     }
 }

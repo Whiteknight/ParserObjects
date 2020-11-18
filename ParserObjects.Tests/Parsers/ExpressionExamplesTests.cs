@@ -178,11 +178,7 @@ namespace ParserObjects.Tests.Parsers
                     (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 )
             );
-            var expr = Rule(
-                additive,
-                End(),
-                (a, eoi) => a
-            );
+            var expr = additive.FollowedBy(End());
 
             var subtract = Match("-")
                 .Transform(c => c[0].ToString());
@@ -220,11 +216,7 @@ namespace ParserObjects.Tests.Parsers
                     (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
                 )
             );
-            var expr = Rule(
-                additive,
-                End(),
-                (a, eoi) => a
-            );
+            var expr = additive.FollowedBy(End());
 
             var replaceResult = expr.Replace<char, string>("add", a =>
                 Rule(

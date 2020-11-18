@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
             var failParser = Fail<char>();
             var anyParser = Any();
             var parser = PositiveLookahead(failParser);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, char>;
+            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char>;
 
             var input = new StringCharacterSequence("abc");
             parser.Parse(input).Success.Should().Be(true);
@@ -54,7 +54,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
-            var result = parser.ReplaceChild(null, null) as IParser<char, char>;
+            var result = parser.ReplaceChild(null, null) as IParser<char>;
 
             result.Should().BeSameAs(parser);
         }

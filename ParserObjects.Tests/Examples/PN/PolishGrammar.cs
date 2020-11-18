@@ -59,10 +59,9 @@ namespace ParserObjects.Tests.Examples.PN
             return Rule(
                 OptionalWhitespace(),
                 valueInternal,
-                End(),
 
-                (ws, v, end) => v
-            );
+                (ws, v) => v
+            ).FollowedBy(End());
         }
     }
 }

@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers
     /// success if the parser does not match, fail otherwise. Consumes no input.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class NegativeLookaheadParser<TInput> : IParser<TInput, object>
+    public class NegativeLookaheadParser<TInput> : IParser<TInput>
     {
         private readonly IParser<TInput> _inner;
 
@@ -20,13 +20,11 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result = _inner.ParseUntyped(t);
+            var result = _inner.Parse(t);
             checkpoint.Rewind();
             if (result.Success)
                 return t.Fail(this, "Lookahead pattern existed but was not supposed to");

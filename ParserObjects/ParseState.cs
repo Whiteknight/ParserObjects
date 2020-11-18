@@ -27,7 +27,7 @@ namespace ParserObjects
             return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
         }
 
-        public IResult<object> FailUntyped(IParser<TInput> parser, string error, Location location = null)
+        public IResult Fail(IParser<TInput> parser, string error, Location location = null)
         {
             return new Result<object>(parser, false, default, location ?? Input.CurrentLocation, error);
         }
@@ -35,6 +35,11 @@ namespace ParserObjects
         public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, Location location = null)
         {
             return new Result<TOutput>(parser, true, output, location ?? Input.CurrentLocation, null);
+        }
+
+        public IResult<object> Success(IParser<TInput> parser, object output, Location location = null)
+        {
+            return new Result<object>(parser, true, output, location ?? Input.CurrentLocation, null);
         }
     }
 }

@@ -20,6 +20,8 @@ namespace ParserObjects.Parsers
             Trie = trie;
         }
 
+        public string Name { get; set; }
+
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var (success, value, location) = Trie.Get(t.Input);
@@ -28,9 +30,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, value, location);
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public string Name { get; set; }
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

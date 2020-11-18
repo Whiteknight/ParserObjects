@@ -19,16 +19,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUnTyped_Test()
-        {
-            var parser = Empty();
-            var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be(null);
-        }
-
-        [Test]
         public void Parse_End()
         {
             var parser = Empty();

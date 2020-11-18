@@ -26,23 +26,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUntyped_Test()
-        {
-            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
-            var parser = RightApply(
-                numberParser,
-                letterParser,
-                (l, m, r) => $"({l}{m}{r})"
-            );
-
-            var input = new StringCharacterSequence("1a2b3c4");
-            var result = parser.ParseUntyped(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("(1a(2b(3c4)))");
-        }
-
-        [Test]
         public void Parse_Fail_MissingFirst()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());

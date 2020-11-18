@@ -82,7 +82,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public string Name { get; set; }
 

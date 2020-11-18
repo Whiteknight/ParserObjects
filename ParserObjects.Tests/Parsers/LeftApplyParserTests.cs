@@ -75,27 +75,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrMore_ParseUntyped_Test()
-        {
-            var numberParser = Match(char.IsNumber);
-            var letterParser = Match(char.IsLetter);
-            var parser = LeftApply(
-                numberParser.Transform(c => c.ToString()),
-                left => Rule(
-                    left,
-                    letterParser,
-                    numberParser,
-                    (l, op, r) => $"({l}{op}{r})"
-                )
-            );
-
-            var input = new StringCharacterSequence("1a2b3c4");
-            var result = parser.ParseUntyped(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("(((1a2)b3)c4)");
-        }
-
-        [Test]
         public void ZeroOrMore_Parse_NonReference()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());

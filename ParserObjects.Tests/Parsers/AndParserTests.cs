@@ -16,7 +16,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = And(_anyParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = _anyParser.And(_anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -37,7 +37,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = And(_anyParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
 
@@ -47,7 +47,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = And(_failParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
 
@@ -57,7 +57,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = And(_failParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
 
@@ -68,7 +68,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -76,10 +76,10 @@ namespace ParserObjects.Tests.Parsers.Logical
         public void Parse_ReplaceChild_2()
         {
             var parser = And(_anyParser, _failParser);
-            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char, object>;
+            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
     }

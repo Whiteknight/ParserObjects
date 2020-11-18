@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers
     /// Failure. Consumes input but returns no explicit output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class AndParser<TInput> : IParser<TInput, object>
+    public class AndParser<TInput> : IParser<TInput>
     {
         private readonly IReadOnlyList<IParser<TInput>> _parsers;
 
@@ -21,15 +21,13 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             var startLocation = t.Input.CurrentLocation;
             var checkpoint = t.Input.Checkpoint();
             foreach (var parser in _parsers)
             {
-                var result = parser.ParseUntyped(t);
+                var result = parser.Parse(t);
                 if (!result.Success)
                 {
                     checkpoint.Rewind();

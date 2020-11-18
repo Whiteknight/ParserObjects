@@ -21,10 +21,13 @@ namespace ParserObjects
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="predicate"></param>
-        /// <param name="parser"></param>
+        /// <param name="onSuccess"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> parser)
-            => new IfParser<TInput, TOutput>(predicate, parser);
+        public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess)
+            => new IfParser<TInput, TOutput>(predicate, onSuccess, Fail<TOutput>());
+
+        public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail)
+            => new IfParser<TInput, TOutput>(predicate, onSuccess, onFail);
 
         /// <summary>
         /// Invoke the given parser and invert the result. On Success return Failure, on Failure return

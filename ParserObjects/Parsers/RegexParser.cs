@@ -383,7 +383,7 @@ namespace ParserObjects.Parsers
             throw new RegexException("Unsupported state type during match");
         }
 
-        public IResult<object> ParseUntyped(ParseState<char> t) => Parse(t).Untype();
+        IResult IParser<char>.Parse(ParseState<char> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

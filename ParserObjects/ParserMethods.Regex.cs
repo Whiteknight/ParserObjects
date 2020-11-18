@@ -133,16 +133,13 @@ namespace ParserObjects
                 Match('$').Transform(dollar => RegexNodes.EndAnchor()),
                 Empty().Transform(_ => RegexNodes.Nothing())
             );
-            var requiredEnd = First(
-                End(),
-                Produce(ThrowEndOfPatternException)
-            );
+            var requiredEnd = If(End(), Empty(), Produce(ThrowEndOfPatternException));
             var regex = (alternation, maybeEndAnchor, requiredEnd).Produce((f, s, e) => RegexNodes.Sequence(new[] { f, s }));
 
             return regex;
         }
 
-        private static bool ThrowEndOfPatternException(ISequence<char> t)
+        private static object ThrowEndOfPatternException(ISequence<char> t)
             => throw new RegexException("Expected end of pattern but found '" + t.GetNext());
     }
 }

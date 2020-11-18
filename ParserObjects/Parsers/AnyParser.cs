@@ -15,8 +15,6 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
-
         public IResult<T> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
@@ -26,6 +24,8 @@ namespace ParserObjects.Parsers
             var next = t.Input.GetNext();
             return t.Success(this, next, location);
         }
+
+        IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

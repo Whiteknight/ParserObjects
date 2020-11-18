@@ -20,16 +20,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUntyped_Test()
-        {
-            var anyParser = Any();
-            var target = Replaceable(anyParser);
-            var input = new StringCharacterSequence("abc");
-            var result = target.ParseUntyped(input);
-            result.Value.Should().Be('a');
-        }
-
-        [Test]
         public void SetParser_Test()
         {
             var anyParser = Any();

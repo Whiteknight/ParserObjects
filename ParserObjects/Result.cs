@@ -18,6 +18,8 @@ namespace ParserObjects
 
         public TValue Value { get; }
 
+        object IResult.Value => Value;
+
         public Location Location { get; }
 
         public string Message { get; }

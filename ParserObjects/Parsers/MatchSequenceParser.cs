@@ -19,6 +19,8 @@ namespace ParserObjects.Parsers
             Pattern = find.ToArray();
         }
 
+        public string Name { get; set; }
+
         public IResult<IReadOnlyList<T>> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
@@ -52,9 +54,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, buffer, location);
         }
 
-        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
-
-        public string Name { get; set; }
+        IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

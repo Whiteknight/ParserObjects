@@ -54,7 +54,7 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, bool> End() => new EndParser<TInput>();
+        public static IParser<TInput> End() => new EndParser<TInput>();
 
         /// <summary>
         /// Invoke callbacks before and after a parse

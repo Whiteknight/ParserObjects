@@ -38,7 +38,7 @@ namespace ParserObjects.Parsers
             return nextParser.Parse(t);
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

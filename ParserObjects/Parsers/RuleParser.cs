@@ -34,7 +34,7 @@ namespace ParserObjects.Parsers
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {
-                var result = _parsers[i].ParseUntyped(t);
+                var result = _parsers[i].Parse(t);
                 if (!result.Success)
                 {
                     checkpoint.Rewind();
@@ -49,7 +49,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, _produce(outputs), location);
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public string Name { get; set; }
 

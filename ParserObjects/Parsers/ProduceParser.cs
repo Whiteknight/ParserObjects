@@ -20,13 +20,13 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(produce, nameof(produce));
             _produce = produce;
         }
+        public string Name { get; set; }
 
         public IResult<TOutput> Parse(ParseState<TInput> t)
             => t.Success(this, _produce(t.Input), t.Input.CurrentLocation);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public string Name { get; set; }
+        IResult IParser<TInput>.Parse(ParseState<TInput> t)
+            => t.Success(this, _produce(t.Input), t.Input.CurrentLocation);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

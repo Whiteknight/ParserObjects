@@ -9,13 +9,11 @@ namespace ParserObjects.Parsers
     /// end.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class EndParser<TInput> : IParser<TInput, bool>
+    public class EndParser<TInput> : IParser<TInput>
     {
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public IResult<bool> Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             return t.Input.IsAtEnd

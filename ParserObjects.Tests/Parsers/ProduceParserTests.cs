@@ -17,14 +17,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUntyped_Test()
-        {
-            var target = Produce(x => 5);
-            var input = new StringCharacterSequence("abc");
-            target.ParseUntyped(input).Value.Should().Be(5);
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var target = Produce(x => 5);

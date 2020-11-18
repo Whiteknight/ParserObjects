@@ -54,30 +54,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ParseUntyped_Operators()
-        {
-            var trie = new InsertOnlyTrie<char, string>();
-            trie.Add("=", "=");
-            trie.Add("==", "==");
-            trie.Add(">=", ">=");
-            trie.Add("<=", "<=");
-            trie.Add("<", "<");
-            trie.Add(">", ">");
-            var target = new TrieParser<char, string>(trie);
-
-            var input = new StringCharacterSequence("===>=<=><<==");
-
-            target.ParseUntyped(input).Value.Should().Be("==");
-            target.ParseUntyped(input).Value.Should().Be("=");
-            target.ParseUntyped(input).Value.Should().Be(">=");
-            target.ParseUntyped(input).Value.Should().Be("<=");
-            target.ParseUntyped(input).Value.Should().Be(">");
-            target.ParseUntyped(input).Value.Should().Be("<");
-            target.ParseUntyped(input).Value.Should().Be("<=");
-            target.ParseUntyped(input).Value.Should().Be("=");
-        }
-
-        [Test]
         public void Parse_Operators_Fail()
         {
             var trie = new InsertOnlyTrie<char, string>();

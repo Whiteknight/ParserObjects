@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers
     /// Failure. Otherwise returns Success. Consumes no input in either case and returns no output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class NotParser<TInput> : IParser<TInput, object>
+    public class NotParser<TInput> : IParser<TInput>
     {
         private readonly IParser<TInput> _inner;
 
@@ -20,13 +20,11 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result1 = _inner.ParseUntyped(t);
+            var result1 = _inner.Parse(t);
             if (result1.Success)
             {
                 checkpoint.Rewind();

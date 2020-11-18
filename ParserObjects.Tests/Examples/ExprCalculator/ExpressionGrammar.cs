@@ -56,10 +56,7 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
                 )
             );
 
-            var requiredEnd = First(
-                End(),
-                Produce<bool>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
-            );
+            var requiredEnd = If(End(), Empty(), Produce<object>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}")));
 
             var expression = Rule(
                 additive,

@@ -11,9 +11,9 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => t.Success(this, null);
-
         public IResult<object> Parse(ParseState<TInput> t) => t.Success(this, null);
+
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

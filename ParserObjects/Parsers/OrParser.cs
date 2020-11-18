@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers
     /// otherwise. Consumes input but returns no explicit output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class OrParser<TInput> : IParser<TInput, object>
+    public class OrParser<TInput> : IParser<TInput>
     {
         private readonly IReadOnlyList<IParser<TInput>> _parsers;
 
@@ -21,13 +21,11 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
-
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             foreach (var parser in _parsers)
             {
-                var result = parser.ParseUntyped(t);
+                var result = parser.Parse(t);
                 if (result.Success)
                     return result;
             }

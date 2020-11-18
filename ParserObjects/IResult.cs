@@ -19,6 +19,8 @@ namespace ParserObjects
         Location Location { get; }
 
         string Message { get; }
+
+        object Value { get; }
     }
 
     /// <summary>
@@ -30,7 +32,7 @@ namespace ParserObjects
         /// <summary>
         /// The produced value from the successful parse. If Success is false, this value is undefined.
         /// </summary>
-        TValue Value { get; }
+        new TValue Value { get; }
 
         /// <summary>
         /// Transforms the Value of the result to a new form
@@ -43,15 +45,6 @@ namespace ParserObjects
 
     public static class ParseResultExtensions
     {
-        /// <summary>
-        /// Transforms the Value of the result to type object
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public static IResult<object> Untype<T>(this IResult<T> result)
-            => result.Transform(x => (object)x);
-
         public static IResult<T> WithError<T>(this IResult<T> result, string error)
             => new Result<T>(result.Parser, result.Success, result.Value, result.Location, error);
 

@@ -39,6 +39,16 @@ namespace ParserObjects.Parsers
             _arity = arity;
         }
 
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
+            }
+        }
+
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
@@ -113,17 +123,7 @@ namespace ParserObjects.Parsers
             return rightResult.Success ? rightResult : leftResult;
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
-
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
-            }
-        }
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 

@@ -8,11 +8,11 @@ namespace ParserObjects.Parsers
     /// consume any actual input
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class PositiveLookaheadParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public class PositiveLookaheadParser<TInput> : IParser<TInput>
     {
-        private readonly IParser<TInput, TOutput> _inner;
+        private readonly IParser<TInput> _inner;
 
-        public PositiveLookaheadParser(IParser<TInput, TOutput> inner)
+        public PositiveLookaheadParser(IParser<TInput> inner)
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> t)
         {
             var checkpoint = t.Input.Checkpoint();
             var result = _inner.Parse(t);
@@ -29,21 +29,14 @@ namespace ParserObjects.Parsers
             return result;
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
-        {
-            var checkpoint = t.Input.Checkpoint();
-            var result = _inner.ParseUntyped(t);
-            if (result.Success)
-                checkpoint.Rewind();
-            return result;
-        }
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (_inner == find && replace is IParser<TInput, TOutput> typed)
-                return new PositiveLookaheadParser<TInput, TOutput>(typed);
+            if (_inner == find && replace is IParser<TInput> typed)
+                return new PositiveLookaheadParser<TInput>(typed);
             return this;
         }
     }

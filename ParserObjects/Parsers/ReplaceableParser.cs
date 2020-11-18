@@ -19,11 +19,11 @@ namespace ParserObjects.Parsers
             _value = defaultValue;
         }
 
+        public string Name { get; set; }
+
         public IResult<TOutput> Parse(ParseState<TInput> t) => _value.Parse(t);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => _value.ParseUntyped(t);
-
-        public string Name { get; set; }
+        IResult IParser<TInput>.Parse(ParseState<TInput> t) => _value.Parse(t);
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 

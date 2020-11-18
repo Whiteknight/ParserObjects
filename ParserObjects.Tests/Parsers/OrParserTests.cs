@@ -16,7 +16,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = Or(_anyParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = _anyParser.Or(_anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -36,7 +36,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = Or(_anyParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -46,7 +46,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = Or(_failParser, _anyParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -56,7 +56,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var parser = Or(_failParser, _failParser);
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
 
@@ -65,10 +65,10 @@ namespace ParserObjects.Tests.Parsers.Logical
         {
             var fail2 = Fail<char>();
             var parser = Or(_failParser, fail2);
-            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char, object>;
+            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
 
@@ -77,10 +77,10 @@ namespace ParserObjects.Tests.Parsers.Logical
         {
             var fail2 = Fail<char>();
             var parser = Or(fail2, _failParser);
-            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char, object>;
+            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
 
             var input = new StringCharacterSequence("abc");
-            var result = parser.ParseUntyped(input);
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
         }
     }
