@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
@@ -153,6 +154,226 @@ namespace ParserObjects
                 return (startChar, bodyChars)
                     .Produce((start, rest) => start + rest)
                     .Named("C-Style Identifier");
+            }
+        );
+
+        private static readonly Dictionary<char, string> _escapableStringChars = new Dictionary<char, string>
+        {
+            { 'a', "\a" },
+            { 'b', "\b" },
+            { 'f', "\f" },
+            { 'n', "\n" },
+            { 'r', "\r" },
+            { 't', "\t" },
+            { 'v', "\v" },
+            { '\\', "\\" },
+            { '?', "?" }
+        };
+
+        public static IParser<char, string> StrippedString() => _strippedString.Value;
+        private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
+            () =>
+            {
+
+                var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => _escapableStringChars[c]);
+                var octalSequence = Match(c => c >= '0' && c <= '7').List(3, 3).Transform(oct =>
+                {
+                    int value = 0;
+                    for (int i = 0; i < oct.Count; i++)
+                        value = (value * 8) + (int)(oct[i] - '0');
+                    return ((char)value).ToString();
+                });
+                var hexSequence = Rule(
+                    Match('x'),
+                    HexadecimalDigit().ListCharToString(2, 4),
+                    (x, hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString()
+                );
+                var lowUnicodeSequence = Rule(
+                    Match('u'),
+                    HexadecimalDigit().ListCharToString(4, 4),
+                    (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
+                );
+                var highUnicodeSequence = Rule(
+                    Match('U'),
+                    HexadecimalDigit().ListCharToString(8, 8),
+                    (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
+                );
+                var escapeSequence = Rule(
+                    Match('\\'),
+                    First(
+                        Match('"').Transform(_ => "\""),
+                        escapeCharacter,
+                        octalSequence,
+                        hexSequence,
+                        lowUnicodeSequence,
+                        highUnicodeSequence
+                    ),
+                    (slash, escape) => escape
+                );
+
+                var bodyChar = First(
+                    escapeSequence,
+                    Match(c => c != '\\' && c != '"').Transform(c => c.ToString())
+                );
+
+                return Rule(
+                    Match('"'),
+                    bodyChar.ListStringsToString(),
+                    Match('"'),
+                    (open, body, close) => body
+                );
+            }
+        );
+
+        public static IParser<char, string> String() => _string.Value;
+        private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
+            () =>
+            {
+                var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
+                var octalSequence = Match(c => c >= '0' && c <= '7').ListCharToString(3, 3);
+                var hexSequence = Rule(
+                    Match('x'),
+                    HexadecimalDigit().ListCharToString(2, 4),
+                    (x, hex) => "x" + hex
+                );
+                var lowUnicodeSequence = Rule(
+                    Match('u'),
+                    HexadecimalDigit().ListCharToString(4, 4),
+                    (u, hex) => "u" + hex
+                );
+                var highUnicodeSequence = Rule(
+                    Match('U'),
+                    HexadecimalDigit().ListCharToString(8, 8),
+                    (u, hex) => "U" + hex
+                );
+                var escapeSequence = Rule(
+                    Match('\\'),
+                    First(
+                        Match('"').Transform(_ => "\""),
+                        escapeCharacter,
+                        octalSequence,
+                        hexSequence,
+                        lowUnicodeSequence,
+                        highUnicodeSequence
+                    ),
+                    (slash, escape) => "\\" + escape
+                );
+
+                var bodyChar = First(
+                    escapeSequence,
+                    Match(c => c != '\\' && c != '"').Transform(c => c.ToString())
+                );
+
+                return Rule(
+                    Match('"'),
+                    bodyChar.ListStringsToString(),
+                    Match('"'),
+                    (open, body, close) => "\"" + body + "\""
+                );
+            }
+        );
+
+        public static IParser<char, char> StrippedCharacter() => _strippedCharacter.Value;
+        private static readonly Lazy<IParser<char, char>> _strippedCharacter = new Lazy<IParser<char, char>>(
+            () =>
+            {
+                var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => _escapableStringChars[c][0]);
+                var octalSequence = Match(c => c >= '0' && c <= '7').List(3, 3).Transform(oct =>
+                {
+                    int value = 0;
+                    for (int i = 0; i < oct.Count; i++)
+                        value = (value * 8) + (int)(oct[i] - '0');
+                    return (char)value;
+                });
+                var hexSequence = Rule(
+                    Match('x'),
+                    HexadecimalDigit().ListCharToString(2, 4),
+                    (x, hex) => (char)int.Parse(hex, NumberStyles.HexNumber)
+                );
+                var lowUnicodeSequence = Rule(
+                    Match('u'),
+                    HexadecimalDigit().ListCharToString(4, 4),
+                    (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))[0]
+                );
+                var highUnicodeSequence = Rule(
+                    Match('U'),
+                    HexadecimalDigit().ListCharToString(8, 8),
+                    (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))[0]
+                );
+                var escapeSequence = Rule(
+                    Match('\\'),
+                    First(
+                        Match('\'').Transform(_ => '\''),
+                        Match('0').Transform(_ => '\0'),
+                        escapeCharacter,
+                        octalSequence,
+                        hexSequence,
+                        lowUnicodeSequence,
+                        highUnicodeSequence
+                    ),
+                    (slash, escape) => escape
+                );
+
+                var bodyChar = First(
+                    escapeSequence,
+                    Match(c => c != '\\' && c != '\'')
+                );
+
+                return Rule(
+                    Match('\''),
+                    bodyChar,
+                    Match('\''),
+                    (open, body, close) => body
+                );
+            }
+        );
+
+        public static IParser<char, string> Character() => _character.Value;
+        private static readonly Lazy<IParser<char, string>> _character = new Lazy<IParser<char, string>>(
+            () =>
+            {
+                var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
+                var octalSequence = Match(c => c >= '0' && c <= '7').ListCharToString(3, 3);
+                var hexSequence = Rule(
+                    Match('x'),
+                    HexadecimalDigit().ListCharToString(2, 4),
+                    (x, hex) => "x" + hex
+                );
+                var lowUnicodeSequence = Rule(
+                    Match('u'),
+                    HexadecimalDigit().ListCharToString(4, 4),
+                    (u, hex) => "u" + hex
+                );
+                var highUnicodeSequence = Rule(
+                    Match('U'),
+                    HexadecimalDigit().ListCharToString(8, 8),
+                    (u, hex) => "U" + hex
+                );
+                var escapeSequence = Rule(
+                    Match('\\'),
+                    First(
+                        Match('\'').Transform(_ => "'"),
+                        Match('0').Transform(_ => "0"),
+                        escapeCharacter,
+                        octalSequence,
+                        hexSequence,
+                        lowUnicodeSequence,
+                        highUnicodeSequence
+                    ),
+                    (slash, escape) => "\\" + escape
+                );
+
+                var bodyChar = First(
+                    escapeSequence,
+                    Match(c => c != '\\' && c != '\'').Transform(c => c.ToString())
+                );
+
+                return Rule(
+                    Match('\''),
+                    bodyChar,
+                    Match('\''),
+                    (open, body, close) => "'" + body + "'"
+                );
             }
         );
     }
