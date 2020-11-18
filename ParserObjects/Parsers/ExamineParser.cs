@@ -19,12 +19,12 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
+            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, default));
             var result = _parser.Parse(t);
             _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));
             return result;

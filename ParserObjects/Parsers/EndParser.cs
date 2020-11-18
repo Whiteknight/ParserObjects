@@ -13,9 +13,9 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
-        public IResult<bool> Parse(ParseState<TInput> t)
+        public Result<bool> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             return t.Input.IsAtEnd

@@ -25,7 +25,7 @@ namespace ParserObjects.Parsers
             _getMissingRight = getMissingRight;
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
@@ -36,7 +36,7 @@ namespace ParserObjects.Parsers
 
             var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
-            IResult<TOutput> produceSuccess(TOutput right)
+            Result<TOutput> produceSuccess(TOutput right)
             {
                 while (resultStack.Count > 0)
                 {
@@ -55,7 +55,7 @@ namespace ParserObjects.Parsers
                 if (!middleResult.Success)
                     return produceSuccess(left);
 
-                // We have <left> <middle>, not we have to look for <right>.
+                // We have <left> <middle>, now we have to look for <right>.
                 // If we don't have it, see if we can make a synthetic version. In either case,
                 // we need to return something here.
                 var rightResult = _item.Parse(t);
@@ -70,7 +70,7 @@ namespace ParserObjects.Parsers
 
                     // create a synthetic right item and short-circuit exit (we could go around
                     // again, fail the <middle> and exit at that point, but this is faster and
-                    // doesn't require allocating a new IResult<T>
+                    // doesn't require allocating a new Result<T>
                     var syntheticRight = _getMissingRight(t.Input);
                     resultStack.Push((left, middleResult.Value));
                     return produceSuccess(syntheticRight);
@@ -82,7 +82,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

@@ -20,15 +20,15 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
+        public Result<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public Result<object> ParseUntyped(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result = _inner.ParseUntyped(t);
+            var (success, _) = _inner.ParseUntyped(t);
             checkpoint.Rewind();
-            if (result.Success)
+            if (success)
                 return t.Fail(this, "Lookahead pattern existed but was not supposed to");
             return t.Success(this, null);
         }

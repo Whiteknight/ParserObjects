@@ -5,8 +5,8 @@
         public static XmlNode Parse(string xml)
         {
             var parser = XmlGrammar.CreateParser();
-            var result = parser.Parse(xml);
-            return result.Success ? result.Value : null;
+            var (success, value) = parser.Parse(xml);
+            return success ? value : null;
         }
     }
 }

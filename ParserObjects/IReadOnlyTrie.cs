@@ -5,7 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects
 {
     /// <summary>
-    /// A trie type which allows using a composite key to search for values
+    /// A trie type which allows using a composite key to search for values. These Trie types do
+    /// not support updates or deletes of values once inserted.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>

@@ -44,13 +44,13 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
+        public static Result<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
             => parser.Parse(new ParseState<char>(new StringCharacterSequence(s)));
 
-        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
+        public static Result<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
             => parser.Parse(new ParseState<TInput>(input));
 
-        public static IResult<object> ParseUntyped<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
+        public static Result<object> ParseUntyped<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
             => parser.ParseUntyped(new ParseState<TInput>(input));
     }
 }

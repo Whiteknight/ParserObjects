@@ -21,18 +21,18 @@ namespace ParserObjects.Parsers
             _inner = inner;
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result = _predicate.ParseUntyped(t);
+            var (success, _) = _predicate.ParseUntyped(t);
             checkpoint.Rewind();
-            if (result.Success)
+            if (success)
                 return _inner.Parse(t);
             return t.Fail(this, "Predicate failed");
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

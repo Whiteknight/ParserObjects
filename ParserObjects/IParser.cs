@@ -43,7 +43,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        IResult<object> ParseUntyped(ParseState<TInput> t);
+        Result<object> ParseUntyped(ParseState<TInput> t);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public interface IParser<TInput, out TOutput> : IParser<TInput>
+    public interface IParser<TInput, TOutput> : IParser<TInput>
     {
         /// <summary>
         /// Attempt to parse the input sequence and produce an output result. If the parse fails, it is
@@ -60,7 +60,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        IResult<TOutput> Parse(ParseState<TInput> t);
+        Result<TOutput> Parse(ParseState<TInput> t);
     }
 
     /// <summary>

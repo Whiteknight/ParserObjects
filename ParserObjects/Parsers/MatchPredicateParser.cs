@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
             _predicate = predicate;
         }
 
-        public IResult<T> Parse(ParseState<T> t)
+        public Result<T> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
@@ -35,7 +35,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, t.Input.GetNext(), location);
         }
 
-        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

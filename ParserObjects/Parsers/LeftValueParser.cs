@@ -11,12 +11,16 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class LeftValueParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public TOutput Value { get; set; }
-        public Location Location { get; set; }
+        private Result<TOutput> _result;
 
-        public IResult<TOutput> Parse(ParseState<TInput> t) => t.Success(this, Value, Location);
+        public void SetResult(Result<TOutput> result)
+        {
+            _result = result;
+        }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public Result<TOutput> Parse(ParseState<TInput> t) => _result;
+
+        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => _result.Untype();
 
         public string Name { get; set; }
 

@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
             Pattern = find.ToArray();
         }
 
-        public IResult<IReadOnlyList<T>> Parse(ParseState<T> t)
+        public Result<IReadOnlyList<T>> Parse(ParseState<T> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var location = t.Input.CurrentLocation;
@@ -52,7 +52,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, buffer, location);
         }
 
-        public IResult<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<T> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

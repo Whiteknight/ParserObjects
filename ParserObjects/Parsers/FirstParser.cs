@@ -20,21 +20,23 @@ namespace ParserObjects.Parsers
             _parsers = parsers;
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
-            IResult<TOutput> last = null;
-            foreach (var parser in _parsers)
-            {
-                last = parser.Parse(t);
-                if (last.Success)
-                    return last;
-            }
+            if (_parsers.Count == 0)
+                return t.Fail(this, "No parsers given");
 
-            return last ?? t.Fail(this, "No parsers given or none match");
+            for (int i = 0; i < _parsers.Count - 1; i++)
+            {
+                var parser = _parsers[i];
+                var result = parser.Parse(t);
+                if (result.Success)
+                    return result;
+            }
+            return _parsers[_parsers.Count - 1].Parse(t);
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

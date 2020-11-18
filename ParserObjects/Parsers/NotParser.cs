@@ -20,20 +20,20 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
+        public Result<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public Result<object> ParseUntyped(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
-            var result1 = _inner.ParseUntyped(t);
-            if (result1.Success)
+            var (success, _, location) = _inner.ParseUntyped(t);
+            if (success)
             {
                 checkpoint.Rewind();
                 return t.Fail(this, "Parser matched but was not supposed to");
             }
 
-            return t.Success(this, null, result1.Location);
+            return t.Success(this, null, location);
         }
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };

@@ -21,7 +21,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             var parser = _getParser();
             if (parser == null)
@@ -29,7 +29,7 @@ namespace ParserObjects.Parsers
             return parser.Parse(t);
         }
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
+        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
             => _getParser().ParseUntyped(t);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
@@ -37,7 +37,7 @@ namespace ParserObjects.Parsers
         public IParser ReplaceChild(IParser find, IParser replace)
         {
             if (find == _getParser() && replace is IParser<TInput, TOutput> realReplace)
-                return realReplace;
+                return new DeferredParser<TInput, TOutput>(() => realReplace);
             return this;
         }
 

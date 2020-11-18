@@ -22,17 +22,17 @@ namespace ParserObjects
         public void Log(string message)
             => _logCallback?.Invoke(message);
 
-        public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
+        public Result<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
         {
             return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
         }
 
-        public IResult<object> FailUntyped(IParser<TInput> parser, string error, Location location = null)
+        public Result<object> FailUntyped(IParser<TInput> parser, string error, Location location = null)
         {
             return new Result<object>(parser, false, default, location ?? Input.CurrentLocation, error);
         }
 
-        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, Location location = null)
+        public Result<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, Location location = null)
         {
             return new Result<TOutput>(parser, true, output, location ?? Input.CurrentLocation, null);
         }

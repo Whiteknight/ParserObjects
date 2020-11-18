@@ -22,7 +22,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
@@ -43,7 +43,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

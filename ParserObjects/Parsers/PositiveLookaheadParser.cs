@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
         {
             var checkpoint = t.Input.Checkpoint();
             var result = _inner.Parse(t);
@@ -29,7 +29,7 @@ namespace ParserObjects.Parsers
             return result;
         }
 
-        public IResult<object> ParseUntyped(ParseState<TInput> t)
+        public Result<object> ParseUntyped(ParseState<TInput> t)
         {
             var checkpoint = t.Input.Checkpoint();
             var result = _inner.ParseUntyped(t);

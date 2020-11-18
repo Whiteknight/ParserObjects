@@ -16,12 +16,13 @@ namespace ParserObjects.Parsers
         }
 
         public string Name { get; set; }
+
         public string ErrorMessage { get; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public Result<TOutput> Parse(ParseState<TInput> t)
             => t.Fail(this, ErrorMessage);
 
-        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
+        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t)
             => t.FailUntyped(this, ErrorMessage);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
