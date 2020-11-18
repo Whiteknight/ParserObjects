@@ -8,12 +8,12 @@ namespace ParserObjects.Sequences
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOutput>>
+    public class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
     {
         private readonly ISequence<TInput> _input;
         private readonly ParseState<TInput> _state;
         private readonly IParser<TInput, TOutput> _parser;
-        private readonly Stack<Result<TOutput>> _putbacks;
+        private readonly Stack<IResult<TOutput>> _putbacks;
 
         public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser)
         {
@@ -22,22 +22,22 @@ namespace ParserObjects.Sequences
             _state = new ParseState<TInput>(input, null);
             _input = input;
             _parser = parser;
-            _putbacks = new Stack<Result<TOutput>>();
+            _putbacks = new Stack<IResult<TOutput>>();
         }
 
-        public void PutBack(Result<TOutput> value)
+        public void PutBack(IResult<TOutput> value)
         {
             _putbacks.Push(value);
         }
 
-        public Result<TOutput> GetNext()
+        public IResult<TOutput> GetNext()
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Pop();
             return _parser.Parse(_state);
         }
 
-        public Result<TOutput> Peek()
+        public IResult<TOutput> Peek()
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Peek();
@@ -61,9 +61,9 @@ namespace ParserObjects.Sequences
         {
             private readonly ParseResultSequence<TInput, TOutput> _s;
             private readonly ISequenceCheckpoint _inner;
-            private readonly Result<TOutput>[] _putbacks;
+            private readonly IResult<TOutput>[] _putbacks;
 
-            public SequenceCheckpoint(ParseResultSequence<TInput, TOutput> s, ISequenceCheckpoint inner, Result<TOutput>[] putbacks)
+            public SequenceCheckpoint(ParseResultSequence<TInput, TOutput> s, ISequenceCheckpoint inner, IResult<TOutput>[] putbacks)
             {
                 _s = s;
                 _inner = inner;
@@ -76,7 +76,7 @@ namespace ParserObjects.Sequences
             }
         }
 
-        private void Rewind(Result<TOutput>[] putbacks)
+        private void Rewind(IResult<TOutput>[] putbacks)
         {
             _putbacks.Clear();
             for (int i = putbacks.Length - 1; i >= 0; i--)

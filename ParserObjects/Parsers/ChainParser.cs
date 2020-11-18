@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public Result<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
@@ -38,7 +38,7 @@ namespace ParserObjects.Parsers
             return nextParser.Parse(t);
         }
 
-        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

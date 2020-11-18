@@ -2,7 +2,7 @@
 {
     public class ExamineParseState<TInput, TOutput>
     {
-        public ExamineParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, Result<TOutput> result)
+        public ExamineParseState(IParser<TInput, TOutput> parser, ISequence<TInput> input, IResult<TOutput> result)
         {
             Parser = parser;
             Input = input;
@@ -10,9 +10,7 @@
         }
 
         public IParser<TInput, TOutput> Parser { get; }
-
         public ISequence<TInput> Input { get; }
-
-        public Result<TOutput> Result { get; }
+        public IResult<TOutput> Result { get; }
     }
 }

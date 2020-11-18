@@ -75,7 +75,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="parse"></param>
         /// <returns></returns>
-        public static Result<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, Func<ISequence<TInput>, Result<TOutput>> parse)
+        public static IResult<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, Func<ISequence<TInput>, IResult<TOutput>> parse)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(parse, nameof(parse));
@@ -84,7 +84,7 @@ namespace ParserObjects
             return result;
         }
 
-        public static Result<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, ParserFunction<TInput, TOutput> parse)
+        public static IResult<TOutput> Parse<TInput, TOutput>(this ISequence<TInput> input, ParserFunction<TInput, TOutput> parse)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(parse, nameof(parse));

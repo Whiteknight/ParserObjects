@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
             Trie = trie;
         }
 
-        public Result<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             var (success, value, location) = Trie.Get(t.Input);
             if (!success)
@@ -28,7 +28,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, value, location);
         }
 
-        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

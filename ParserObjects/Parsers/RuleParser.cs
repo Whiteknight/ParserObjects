@@ -24,32 +24,32 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
-        public Result<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
 
-            var startLocation = t.Input.CurrentLocation;
+            var location = t.Input.CurrentLocation;
 
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {
-                var (success, value, location) = _parsers[i].ParseUntyped(t);
-                if (!success)
+                var result = _parsers[i].ParseUntyped(t);
+                if (!result.Success)
                 {
                     checkpoint.Rewind();
                     var name = _parsers[i].Name;
                     if (string.IsNullOrEmpty(name))
                         name = "(Unnamed)";
-                    return t.Fail(this, $"Parser {i} {name} failed", location);
+                    return t.Fail(this, $"Parser {i} {name} failed", result.Location);
                 }
 
-                outputs[i] = value;
+                outputs[i] = result.Value;
             }
-            return t.Success(this, _produce(outputs), startLocation);
+            return t.Success(this, _produce(outputs), location);
         }
 
-        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

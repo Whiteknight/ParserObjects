@@ -21,9 +21,9 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public Result<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
+        public IResult<object> Parse(ParseState<TInput> t) => ParseUntyped(t);
 
-        public Result<object> ParseUntyped(ParseState<TInput> t)
+        public IResult<object> ParseUntyped(ParseState<TInput> t)
         {
             var startLocation = t.Input.CurrentLocation;
             var checkpoint = t.Input.Checkpoint();

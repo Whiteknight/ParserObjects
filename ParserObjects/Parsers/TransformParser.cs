@@ -23,9 +23,9 @@ namespace ParserObjects.Parsers
             _transform = transform;
         }
 
-        public Result<TOutput> Parse(ParseState<TInput> t) => _parser.Parse(t).Transform(_transform);
+        public IResult<TOutput> Parse(ParseState<TInput> t) => _parser.Parse(t).Transform(_transform);
 
-        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public string Name { get; set; }
 

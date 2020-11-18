@@ -26,7 +26,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public Result<string> Parse(ParseState<char> t)
+        public IResult<string> Parse(ParseState<char> t)
         {
             var startLocation = t.Input.CurrentLocation;
             var context = new RegexInputBuffer(t.Input);
@@ -383,7 +383,7 @@ namespace ParserObjects.Parsers
             throw new RegexException("Unsupported state type during match");
         }
 
-        public Result<object> ParseUntyped(ParseState<char> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<char> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

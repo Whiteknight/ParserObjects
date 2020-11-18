@@ -7,10 +7,10 @@ namespace ParserObjects.Tests.Examples.PN
         public int Calculate(string s)
         {
             var parser = PolishGrammar.GetParser();
-            var (success, value) = parser.Parse(s);
-            if (!success)
+            var result = parser.Parse(s);
+            if (!result.Success)
                 throw new Exception("Parse failed");
-            return value;
+            return result.Value;
         }
     }
 }

@@ -25,12 +25,12 @@ namespace ParserObjects.Parsers
             return result.Value;
         }
 
-        public Result<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
+        public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
         {
             return p.Parse(_input);
         }
 
-        public Result<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
+        public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
         {
             var checkpoint = _input.Input.Checkpoint();
             var result = p.Parse(_input);
@@ -67,7 +67,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public Result<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var startLocation = t.Input.CurrentLocation;
@@ -88,7 +88,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

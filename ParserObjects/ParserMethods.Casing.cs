@@ -148,8 +148,8 @@ namespace ParserObjects
             }
         );
 
-        public static IParser<char, IReadOnlyList<string>> SpinalCase() => _spinalCase.Value;
-        private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _spinalCase = new Lazy<IParser<char, IReadOnlyList<string>>>(
+        public static IParser<char, IEnumerable<string>> SpinalCase() => _spinalCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _spinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
             {
                 var idChar = Match(c => char.IsLetterOrDigit(c) && c != '-');
@@ -159,8 +159,8 @@ namespace ParserObjects
             }
         );
 
-        public static IParser<char, IReadOnlyList<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
-        private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSpinalCase = new Lazy<IParser<char, IReadOnlyList<string>>>(
+        public static IParser<char, IEnumerable<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSpinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
             {
                 var idChar = Match(c => (char.IsLetter(c) && char.IsUpper(c) || char.IsDigit(c)) && c != '-');
@@ -170,8 +170,8 @@ namespace ParserObjects
             }
         );
 
-        public static IParser<char, IReadOnlyList<string>> SnakeCase() => _snakeCase.Value;
-        private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _snakeCase = new Lazy<IParser<char, IReadOnlyList<string>>>(
+        public static IParser<char, IEnumerable<string>> SnakeCase() => _snakeCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _snakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
             {
                 var idChar = Match(c => char.IsLetterOrDigit(c) && c != '_');
@@ -181,8 +181,8 @@ namespace ParserObjects
             }
         );
 
-        public static IParser<char, IReadOnlyList<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
-        private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSnakeCase = new Lazy<IParser<char, IReadOnlyList<string>>>(
+        public static IParser<char, IEnumerable<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
+        private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSnakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
             () =>
             {
                 var idChar = Match(c => (char.IsLetter(c) && char.IsUpper(c) || char.IsDigit(c)) && c != '_');

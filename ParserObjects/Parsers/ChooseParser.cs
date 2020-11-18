@@ -19,7 +19,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public Result<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
             var checkpoint = t.Input.Checkpoint();
@@ -32,12 +32,12 @@ namespace ParserObjects.Parsers
 
             var nextParser = _getParser(initial.Value);
             if (nextParser == null)
-                return t.Fail(this, "Get-parser callback returned null");
+                return t.Fail(this, "Get parser callback returned null");
 
             return nextParser.Parse(t);
         }
 
-        public Result<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        public IResult<object> ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

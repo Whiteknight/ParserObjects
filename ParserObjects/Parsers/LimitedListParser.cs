@@ -21,7 +21,7 @@ namespace ParserObjects.Parsers
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        public Result<IReadOnlyList<TOutput>> Parse(ParseState<TInput> t)
+        public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
 
@@ -31,10 +31,10 @@ namespace ParserObjects.Parsers
 
             while (Maximum == null || items.Count < Maximum)
             {
-                var (success, value) = _parser.Parse(t);
-                if (!success)
+                var result = _parser.Parse(t);
+                if (!result.Success)
                     break;
-                items.Add(value);
+                items.Add(result.Value);
             }
 
             if (Minimum > 0 && items.Count < Minimum)
@@ -46,7 +46,7 @@ namespace ParserObjects.Parsers
             return t.Success(this, items, location);
         }
 
-        Result<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
+        IResult<object> IParser<TInput>.ParseUntyped(ParseState<TInput> t) => Parse(t).Untype();
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 

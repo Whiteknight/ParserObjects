@@ -38,7 +38,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static ISequence<Result<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
+        public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
             => new ParseResultSequence<TInput, TOutput>(input, parser);
     }
 }
