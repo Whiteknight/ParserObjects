@@ -1,6 +1,6 @@
 # ParserObjects
 
-ParserObjects is a library for object-based parsers, combinators, parsing utilities and abstractions. See the [Documentation](https://whiteknight.github.io/ParserObjects/) for more details on usage.
+ParserObjects is a library for object-based parsers, combinators, parsing utilities and abstractions. See the [Documentation](https://whiteknight.github.io/ParserObjects/v3) for more details on usage.
 
     Install-Package ParserObjects
 
