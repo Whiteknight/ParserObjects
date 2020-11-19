@@ -77,7 +77,7 @@ namespace ParserObjects.Sequences
 
         public Location CurrentLocation => _oldLocations.GetCurrent() ?? _inputs.CurrentLocation;
 
-        public bool IsAtEnd => _putbacks.Count == 0 && _inputs.IsAtEnd;
+        public bool IsAtEnd => _putbacks.Count == 0 && _current.Next == null && _inputs.IsAtEnd;
 
         public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _putbacks.ToArray());
 

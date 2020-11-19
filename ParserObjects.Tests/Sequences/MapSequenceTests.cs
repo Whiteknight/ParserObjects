@@ -197,5 +197,28 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
         }
+
+        [Test]
+        public void Checkpoint_IsAtEndRewind()
+        {
+            var target = new MapSequence<int, int>(
+                new EnumerableSequence<int>(
+                    new[] { 1, 2, 3 },
+                    () => 0
+                ),
+                x => x * 2
+            );
+            target.GetNext().Should().Be(2);
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(0);
+            target.IsAtEnd.Should().BeTrue();
+            cp.Rewind();
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(0);
+        }
     }
 }
