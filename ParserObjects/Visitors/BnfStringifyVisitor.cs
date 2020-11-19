@@ -162,7 +162,12 @@ namespace ParserObjects.Visitors
             state.Current.Append("END");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(ExamineParser<TInput, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void VisitTyped<TInput>(Examine<TInput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }

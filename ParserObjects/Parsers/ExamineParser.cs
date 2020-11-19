@@ -4,39 +4,111 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    public class ExamineParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public abstract class Examine<TInput, TOutput>
     {
-        private readonly IParser<TInput, TOutput> _parser;
-        private readonly Action<ExamineParseState<TInput, TOutput>> _before;
-        private readonly Action<ExamineParseState<TInput, TOutput>> _after;
-
-        public ExamineParser(IParser<TInput, TOutput> parser, Action<ExamineParseState<TInput, TOutput>> before, Action<ExamineParseState<TInput, TOutput>> after)
+        public class Parser : IParser<TInput, TOutput>
         {
-            _parser = parser;
-            _before = before;
-            _after = after;
+            private readonly IParser<TInput, TOutput> _parser;
+            private readonly Action<Context> _before;
+            private readonly Action<Context> _after;
+
+            public Parser(IParser<TInput, TOutput> parser, Action<Context> before, Action<Context> after)
+            {
+                _parser = parser;
+                _before = before;
+                _after = after;
+            }
+
+            public string Name { get; set; }
+
+            public IResult<TOutput> Parse(ParseState<TInput> t)
+            {
+                Assert.ArgumentNotNull(t, nameof(t));
+                _before?.Invoke(new Context(_parser, t, null));
+                var result = _parser.Parse(t);
+                _after?.Invoke(new Context(_parser, t, result));
+                return result;
+            }
+
+            IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+
+            public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+
+            public IParser ReplaceChild(IParser find, IParser replace)
+            {
+                if (find == _parser && replace is IParser<TInput, TOutput> typedReplace)
+                    return new Parser(typedReplace, _before, _after);
+                return this;
+            }
         }
 
-        public string Name { get; set; }
-
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public class Context
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            _before?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, null));
-            var result = _parser.Parse(t);
-            _after?.Invoke(new ExamineParseState<TInput, TOutput>(_parser, t.Input, result));
-            return result;
+            public Context(IParser<TInput, TOutput> parser, ParseState<TInput> state, IResult<TOutput> result)
+            {
+                State = state;
+                Parser = parser;
+                Result = result;
+            }
+
+            public ParseState<TInput> State { get; }
+            public IDataStore Data => State.Data;
+            public IParser<TInput, TOutput> Parser { get; }
+            public ISequence<TInput> Input => State.Input;
+            public IResult<TOutput> Result { get; }
+        }
+    }
+
+    public abstract class Examine<TInput>
+    {
+        public class Parser : IParser<TInput>
+        {
+            private readonly IParser<TInput> _parser;
+            private readonly Action<Context> _before;
+            private readonly Action<Context> _after;
+
+            public Parser(IParser<TInput> parser, Action<Context> before, Action<Context> after)
+            {
+                _parser = parser;
+                _before = before;
+                _after = after;
+            }
+
+            public string Name { get; set; }
+
+            public IResult Parse(ParseState<TInput> t)
+            {
+                Assert.ArgumentNotNull(t, nameof(t));
+                _before?.Invoke(new Context(_parser, t, null));
+                var result = _parser.Parse(t);
+                _after?.Invoke(new Context(_parser, t, result));
+                return result;
+            }
+
+            public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+
+            public IParser ReplaceChild(IParser find, IParser replace)
+            {
+                if (find == _parser && replace is IParser<TInput> typedReplace)
+                    return new Parser(typedReplace, _before, _after);
+                return this;
+            }
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
-
-        public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
+        public class Context
         {
-            if (find == _parser && replace is IParser<TInput, TOutput> typedReplace)
-                return new ExamineParser<TInput, TOutput>(typedReplace, _before, _after);
-            return this;
+            public Context(IParser<TInput> parser, ParseState<TInput> state, IResult result)
+            {
+                State = state;
+                Parser = parser;
+                Result = result;
+            }
+
+            public ParseState<TInput> State { get; }
+            public IDataStore Data => State.Data;
+            public IParser<TInput> Parser { get; }
+            public ISequence<TInput> Input => State.Input;
+            public IResult Result { get; }
         }
     }
 }

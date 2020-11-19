@@ -65,8 +65,11 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<ExamineParseState<TInput, TOutput>> before = null, Action<ExamineParseState<TInput, TOutput>> after = null)
-            => new ExamineParser<TInput, TOutput>(parser, before, after);
+        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context> before = null, Action<Examine<TInput, TOutput>.Context> after = null)
+            => new Examine<TInput, TOutput>.Parser(parser, before, after);
+
+        public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context> before = null, Action<Examine<TInput>.Context> after = null)
+            => new Examine<TInput>.Parser(parser, before, after);
 
         /// <summary>
         /// A parser which unconditionally returns failure.
