@@ -33,7 +33,7 @@ namespace ParserObjects
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
-            => new MatchSequenceParser<TInput>(pattern);
+            => new MatchPatternParser<TInput>(pattern);
 
         /// <summary>
         /// Optimized implementation of First() which returns an input which matches any of the given pattern

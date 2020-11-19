@@ -256,7 +256,7 @@ namespace ParserObjects.Visitors
             state.Current.Append("MATCH");
         }
 
-        protected virtual void VisitTyped<TInput>(MatchSequenceParser<TInput> p, State state)
+        protected virtual void VisitTyped<TInput>(MatchPatternParser<TInput> p, State state)
         {
             var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i.ToString()}'"));
             state.Current.Append(pattern);

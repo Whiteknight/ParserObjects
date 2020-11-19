@@ -9,11 +9,11 @@ namespace ParserObjects.Parsers
     /// series matches, return it
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MatchSequenceParser<T> : IParser<T, IReadOnlyList<T>>
+    public class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
     {
         public IReadOnlyList<T> Pattern { get; }
 
-        public MatchSequenceParser(IEnumerable<T> find)
+        public MatchPatternParser(IEnumerable<T> find)
         {
             Assert.ArgumentNotNull(find, nameof(find));
             Pattern = find.ToArray();
@@ -30,7 +30,8 @@ namespace ParserObjects.Parsers
             if (Pattern.Count == 0)
                 return t.Success(this, new T[0], location);
 
-            // If the pattern has exactly one item in it, check for equality without a loop
+            // If the pattern has exactly one item in it, check for equality without a loop 
+            // or allocating a buffer
             if (Pattern.Count == 1)
             {
                 if (t.Input.Peek().Equals(Pattern[0]))
