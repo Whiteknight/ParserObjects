@@ -64,7 +64,9 @@ namespace ParserObjects.Parsers
             }
 
             public bool IsBacktrackable { get; set; }
+
             public RegexState State { get; set; }
+
             public Stack<int> Consumptions { get; }
 
             public void Deconstruct(out bool isBacktrackable, out RegexState state, out Stack<int> consumptions)
