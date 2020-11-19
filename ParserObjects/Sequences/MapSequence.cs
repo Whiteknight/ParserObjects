@@ -5,7 +5,10 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// A sequence decorator which takes items from the input sequence and transforms them
+    /// A sequence decorator which takes items from the input sequence and transforms them. Notice
+    /// that when using MapSequence, you should not directly access the underlying sequence
+    /// anymore. Data may be lost, because items put back to the MapSequence cannot be un-mapped
+    /// and put back to the underlying sequence.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
