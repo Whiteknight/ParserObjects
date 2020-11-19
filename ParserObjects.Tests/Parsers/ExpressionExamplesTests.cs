@@ -218,7 +218,7 @@ namespace ParserObjects.Tests.Parsers
             );
             var expr = additive.FollowedBy(End());
 
-            var replaceResult = expr.Replace<char, string>("add", a =>
+            var (replaceSuccess, results) = expr.Replace<char, string>("add", a =>
                 Rule(
                     Match('['),
                     a,
@@ -230,12 +230,14 @@ namespace ParserObjects.Tests.Parsers
 
             // We really should have some unit tests specifically around the replace visitor,
             // but this block suffices to cover all that functionality for now
-            replaceResult.IsSuccess.Should().BeTrue();
-            replaceResult.Results.Count.Should().Be(1);
-            replaceResult.Results[0].IsSuccess.Should().BeTrue();
-            replaceResult.Results[0].Replaceable.Should().BeSameAs(add);
-            replaceResult.Results[0].Previous.Should().BeSameAs(previousAdd);
-            replaceResult.Results[0].Current.Name.Should().Be("newAdd");
+            replaceSuccess.Should().BeTrue();
+            results.Count.Should().Be(1);
+            var (success, previous, current, replaceable) = results[0];
+
+            success.Should().BeTrue();
+            replaceable.Should().BeSameAs(add);
+            previous.Should().BeSameAs(previousAdd);
+            current.Name.Should().Be("newAdd");
 
             // Show that we can parse the new grammar with '-' 
             var result1 = expr.Parse("1[+]2").Value as InfixExpressionParseNode;

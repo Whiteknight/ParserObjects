@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace(null, r => false, needle);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace(haystack, (Func<IReplaceableParserUntyped, bool>)null, needle);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace(haystack, r => false, null);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace<char, char>(null, r => false, old => needle);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace<char, char>(haystack, (Func<IReplaceableParserUntyped, bool>)null, old => needle);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace ParserObjects.Tests.Visitors
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
             var result = FindParserVisitor.Replace<char, char>(haystack, r => false, null);
-            result.IsSuccess.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
     }
 }
