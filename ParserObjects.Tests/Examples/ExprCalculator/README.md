@@ -14,7 +14,7 @@ var whitespaceAndToken = Rule(
 );
 ```
 
-Here we are looking for optional whitespace, followed by any matching token token rule, but we only return the token. Whitespace is ignored. In this way, the expression grammar can completely ignore whitespace and make simpler rules to only work with meaningful tokens.
+Here we are looking for optional whitespace, followed by any matching token token rule, but we only return the token. Whitespace is ignored. In this way, the expression grammar can completely ignore whitespace and make simpler rules to only work with meaningful tokens. We could also create Whitespace Tokens and return those from the lexical grammar, and use the `.Where(t => t.Type != TokenType.Whitespace)` method on our sequence. The two results would be identical.
 
 
 In the expression grammar, there are a few things to pay attention to. The first is this idiom, which is repeated several times:
