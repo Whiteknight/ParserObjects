@@ -50,7 +50,7 @@ namespace ParserObjects.Utility
         public (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
-            return _root.Get(keys);
+            return Node.Get(_root, keys);
         }
 
         public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
@@ -76,27 +76,44 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys)
+            public static (bool Success, TResult Value, Location location) Get(Node thisNode, ISequence<TKey> keys)
             {
-                if (HasResult && _children.Count == 0)
-                    return (true, Result, keys.CurrentLocation);
+                var current = thisNode;
+                // The node and the key we apply to that node
+                var previous = new Stack<(Node node, TKey key)>();
 
-                var key = keys.GetNext();
-                if (!_children.ContainsKey(key))
+                while (true)
                 {
-                    keys.PutBack(key);
-                    return (HasResult, Result, keys.CurrentLocation);
+                    // Quick degenerate case. We're at the final leaf of the trie, so return a 
+                    // value if we have it.
+                    if (current.HasResult && current._children.Count == 0)
+                        return (true, current.Result, keys.CurrentLocation);
+
+                    // Get the next key and push onto the stack
+                    var key = keys.GetNext();
+                    previous.Push((current, key));
+
+                    // If this node has a matching child, set that as the current node and jump
+                    // back to the top of the loop
+                    if (current._children.ContainsKey(key))
+                    {
+                        current = current._children[key];
+                        continue;
+                    }
+
+                    // No matching child. So start looping over the nodes in the stack, looking
+                    // for the first one with a value, and putting back all keys along the way.
+                    while (previous.Count > 0)
+                    {
+                        var (node, oldKey) = previous.Pop();
+                        keys.PutBack(oldKey);
+                        if (node.HasResult)
+                            return (true, node.Result, keys.CurrentLocation);
+                    }
+
+                    // No node matched, so return failure
+                    return (false, default, keys.CurrentLocation);
                 }
-
-                var result = _children[key].Get(keys);
-                if (result.Success)
-                    return result;
-
-                if (HasResult)
-                    return (true, Result, keys.CurrentLocation);
-
-                keys.PutBack(key);
-                return (false, default, keys.CurrentLocation);
             }
 
             public Node GetOrAdd(TKey key)
