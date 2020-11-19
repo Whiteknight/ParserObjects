@@ -26,6 +26,27 @@ namespace ParserObjects
                 return success(value);
             });
 
+        public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
+            => new TransformResultParser<TInput, TOutput>(p, (t, r) =>
+            {
+                if (!r.Success)
+                    return r;
+
+                t.Data.Set(name, r.Value);
+                return r;
+            });
+
+        public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
+            => new TransformResultParser<TInput, TOutput>(p, (t, r) =>
+            {
+                if (!r.Success)
+                    return r;
+
+                var value = getValue(r.Value);
+                t.Data.Set(name, value);
+                return r;
+            });
+
         public static IParser<TInput, TOutput> RecurseData<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values = null)
             => Function<TOutput>((t, success, fail) =>
             {

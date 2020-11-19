@@ -32,7 +32,14 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <returns></returns>
         public static bool CanMatch(this IParser<char> parser, string input)
-            => CanMatch(parser, new StringCharacterSequence(input));
+        {
+            // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
+            // reuse it
+            var sequence = new StringCharacterSequence(input);
+            var state = new ParseState<char>(sequence, null);
+            var result = parser.Parse(state);
+            return result.Success;
+        }
 
         /// <summary>
         /// Convenience method for parser which act on character sequences. Parse the given input string

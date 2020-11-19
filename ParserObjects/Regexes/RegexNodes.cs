@@ -82,9 +82,9 @@ namespace ParserObjects.Regexes
             {
                 if (_exactChars.Contains(c))
                     return true;
-                foreach (var range in _ranges)
+                foreach (var (low, high) in _ranges)
                 {
-                    if (range.low <= c && c <= range.high)
+                    if (low <= c && c <= high)
                         return true;
                 }
                 return false;

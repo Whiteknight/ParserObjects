@@ -24,7 +24,7 @@ namespace ParserObjects.Tests.Examples.XML
             var openTag = (Match('<'), nodeName, Match('>'))
                 .Produce((open, name, close) => new XmlNode(name))
                 .Named("openTag")
-                .SetResultState("tag");
+                .SetResultData("tag");
 
             // closeTagName gets the current XmlNode instance from the current data frame, and
             // creates a Match() parser to match it. 

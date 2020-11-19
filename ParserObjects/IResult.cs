@@ -50,5 +50,18 @@ namespace ParserObjects
 
         public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
             => new Result<T>(result.Parser, result.Success, result.Value, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
+
+        public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value)
+        {
+            success = result.Success;
+            value = result.Value;
+        }
+
+        public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value, out Location location)
+        {
+            success = result.Success;
+            value = result.Value;
+            location = result.Location;
+        }
     }
 }

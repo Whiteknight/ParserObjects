@@ -45,11 +45,5 @@ namespace ParserObjects
             var location = Location == null ? "" : " at " + Location.ToString();
             return parserName + status + message + location;
         }
-
-        public void Deconstruct(out bool success, out TValue value)
-        {
-            success = Success;
-            value = Value;
-        }
     }
 }
