@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
-    public class TransformResultParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public class TransformResultParser<TInput, TOutput1, TOutput2> : IParser<TInput, TOutput2>
     {
-        private readonly IParser<TInput, TOutput> _inner;
-        private readonly Func<ParseState<TInput>, IResult<TOutput>, IResult<TOutput>> _transform;
+        private readonly IParser<TInput, TOutput1> _inner;
+        private readonly Func<ParseState<TInput>, IResult<TOutput1>, IResult<TOutput2>> _transform;
 
-        public TransformResultParser(IParser<TInput, TOutput> inner, Func<ParseState<TInput>, IResult<TOutput>, IResult<TOutput>> transform)
+        public TransformResultParser(IParser<TInput, TOutput1> inner, Func<ParseState<TInput>, IResult<TOutput1>, IResult<TOutput2>> transform)
         {
             _inner = inner;
             _transform = transform;
@@ -16,7 +16,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput2> Parse(ParseState<TInput> t)
         {
             var result = _inner.Parse(t);
             return _transform(t, result);
@@ -28,8 +28,8 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (find == _inner && replace is IParser<TInput, TOutput> typedReplace)
-                return new TransformResultParser<TInput, TOutput>(typedReplace, _transform);
+            if (find == _inner && replace is IParser<TInput, TOutput1> typedReplace)
+                return new TransformResultParser<TInput, TOutput1, TOutput2>(typedReplace, _transform);
             return this;
         }
     }

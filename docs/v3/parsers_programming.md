@@ -4,13 +4,15 @@ ParserObjects contains parsers for some common constructs from modern programmin
 
 ## C Parsers
 
+The C-Style parsers are used to parse some common constructs from C and programming languages derived from it.
+
 ```csharp
 using static ParserObjects.CStyleParserMethods;
 ```
 
 ### Comments
 
-A C-style comment starts with `/*` and ends with `*/` and can go across multiple lines. This is also known as a "multi-line comment in C, C++, C# and other similar languages.
+A C-style comment starts with `/*` and ends with `*/` and can go across multiple lines. This is also known as a "multi-line comment" in C, C++, C# and other similar languages.
 
 ```csharp
 var parser = Comment();
@@ -45,6 +47,15 @@ A C-style identifier may start with an underscore (`_`) or a letter, and may be 
 
 ```csharp
 var parser = Identifier();
+```
+
+### String
+
+A C-style string uses double-quotes and backslash-escapes with a few predefined escape sequences, hex codes, octal codes, and unicode code points. The `String` parser parses the literal string and returns the whole thing as-written, including quotes and escapes. The `StrippedString` parser removes the quotes and replaces the escape sequences with the characters they represent.
+
+```csharp
+var parser = String();
+var parser = StrippedString();
 ```
 
 ## C++ Parsers
@@ -84,4 +95,13 @@ An SQL comment starts with the prefix "`--`" and continues to the end of the lin
 
 ```csharp
 var parser = Comment();
+```
+
+### Strings
+
+JavaScript-style strings may be single- or double-quoted, they use backslash-escapes including hex escapes and unicode code points. The `String` parser returns the whole literal string, including quotes and escapes. The `StrippedString` parser returns the value of the string, without the quotes and with the backslash escapes converted into their actual byte forms.
+
+```csharp
+var parser = String();
+var parser = StrippedString();
 ```

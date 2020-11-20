@@ -97,19 +97,17 @@ var parser = initial.Choose(c => {
 });
 ```
 
-The difference between the `Chain` parser and the `Choose` parser is that the chain parser invokes the initial and consumes input, while the choose parser invokes the initial but does not consume input. The choose parser is functionally equivalent to a combination of `PositiveLookahead` and `Chain`:
-
-```csharp
-var parser = initial.Choose(value => ... );
-var parser = PositiveLookahead(intial).Chain(value => ... );
-```
+The difference between the `Chain` parser and the `Choose` parser is that the chain parser invokes the initial and consumes input, while the choose parser invokes the initial but does not consume input.
 
 ### Combine Parser
 
 The `Combine` parser takes a list of parsers, parses each in sequence, and returns a list of `object` results. You can transform or filter these results as appropriate for your application.
 
 ```csharp
-var parser = Combine()
+var parser = Combine(p1, p2, p3,...);
+```
+
+The Combine parser is implemented using the `RuleParser`.
 
 ### Empty Parser
 
@@ -127,6 +125,15 @@ The `End` parser returns success if the stream is at the end, failure otherwise.
 ```csharp
 var parser = new EndParser();
 var parser = End();
+```
+
+### Examine Parser
+
+The `Examine` parser allows inserting callbacks before or after any other parser, and is primarily used for debugging. You can also use the Examine parser to make adjustments to the input stream or state data before the parse, and augment the result after a parse.
+
+```csharp
+var parser = new Examine<TInput, TOutput>.Parser(inner, c => { ... }, c => { ... });
+var parser = inner.Examine(c => { ... }, c => { ... });
 ```
 
 ### Fail Parser
@@ -160,24 +167,26 @@ The tuple variant of this parser is limited to 9 child parsers. The other varian
 
 ### Function Parser
 
-The `Function` parser takes a callback function to perform the parse. 
+The `Function` parser takes a callback function to perform the parse. The callback takes `success` and `fail` arguments, which are functions to generate the correct result object with filled-in metadata.
 
 ```csharp
-var parser = new FuncParser<char, string>(t => {
+var parser = new FuncParser<char, string>((t, success, fail) => {
     // for success
-    return new SuccessResult<string>("ok");
+    return success("Ok");
 
     // for failure
-    return new FailResult<string>();
+    return fail("parse failed");
 });
-var parser = Function(t => {
+var parser = Function((t, success, fail) => {
     // for success
-    return new SuccessResult<string>("ok");
+    return success("ok");
 
     // for failure
-    return new FailResult<string>();
+    return fail("parse failed");
 });
 ```
+
+The Function parser is very similar to the `Sequential` parser. Both use a callback to execute the parse. The Function parser is almost completely free from structure and does not assume that the parse internally is performed using `IParser`s. The Sequential parser, on the other hand provides a state object which should be used to perform parses, and expects that the parsing internally will be done using `IParser` instances.
 
 ### List Parser
 
@@ -219,10 +228,12 @@ The `Rule` parser attempts to execute a list of parsers, and then return a combi
 
 ```csharp
 var parser = new RuleParser<char, string>(
-    parser1,
-    parser2,
-    parser3,
-    (r1, r2, r3) => ...
+    new IParser[] {
+        parser1,
+        parser2,
+        parser3
+    },
+    r => ...
 );
 var parser = Rule(
     parser1, 
@@ -233,7 +244,7 @@ var parser = Rule(
 var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
 ```
 
-All variants of the Rule parser are limited to 9 child parsers. If you need more than 9 child parsers in a rule, consider merging together adjacent parsers to create intermediate values.
+The `RuleParser` class is not designed to be used directly. It is instead the mechanism by which the `Rule()` and `Combine()` methods are implemented, and these should be preferred instead. The `Rule()` method gives strong-typing for all parameters (up to 9) and the `Combine()` parser returns an `IReadOnlyList<object>` of all results (any number);
 
 ### Sequential Parser
 
@@ -265,13 +276,13 @@ The `t` object assists in performing the parse and it has ability to handle erro
 
 These parsers help to simplify matching of literal patterns.
 
-### Match Sequence Parser
+### Match Pattern Parser
 
-The `MatchSequenceParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list. (some of the below examples take advantage of the fact that a `string` is an `IEnumerable<char>` to help simplify)
+The `MatchPatternParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list. (some of the below examples take advantage of the fact that a `string` is an `IEnumerable<char>` to help simplify)
 
 ```csharp
-var parser = new MatchSequenceParser<char>(new char[] { 'a', 'b', 'c', 'd' });
-var parser = new MatchSequenceParser<char>("abcd");
+var parser = new MatchPatternParser<char>(new char[] { 'a', 'b', 'c', 'd' });
+var parser = new MatchPatternParser<char>("abcd");
 var parser = Match(new char[] { 'a', 'b', 'c', 'd' });
 var parser = Match("abcd"); // a string is an IEnumerable<char>, so we can use a string to match chars
 ```
@@ -290,7 +301,7 @@ var parser = Rule(
 
 ### Trie Parser
 
-The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides an `IReadOnlyTrie<TKey, TResult>` abstraction for this purpose.
+The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides `IReadOnlyTrie<TKey, TResult>` and `IInsertableTrie<TKey, TResult>` abstractions for this purpose.
 
 ```csharp
 var parser = new TrieParser<char, string>(trie);
@@ -303,20 +314,6 @@ var parser = Trie(trie => trie.Add(...));
 
 These parsers exist to transform results from one form to another.
 
-### Flatten Parser
-
-The `Flatten` parser transforms a parser which returns `IEnumerable<TOutput>` into a parser which returns `TOutput`. It does this by caching values and needs to be invoked multiple times to get all results.
-
-```csharp
-var parser = new FlattenParser<char, string, char>(sourceParser);
-var parser = Flatten<char, string, char>(sourceParser);
-var parser = sourceParser.Flatten<char, string, char>();
-```
-
-The `FlattenParser` is conceptually similar to the `.SelectMany()` LINQ method.
-
-**Noticed** that the `Flatten` parser is not currently reentrant. If you recurse into the same instance of the `Flatten` parser, the results will be jumbled and appear out of order.
-
 ### Transform Parser
 
 The `Transform` parser transforms the output of an inner parser. If the inner parser fails the `Transform` parser fails. If the inner parser succeeds, the `Transform` parser will return a transformed result.
@@ -327,49 +324,25 @@ var parser = Transform(innerParser, r => ...);
 var parser = innerParser.Transform(r => ...);
 ```
 
-## Lookahead Parsers
+### Transform Result Parser
 
-Lookahead parsers attempt to match a pattern but consume no input. These are useful when you want to see what is coming next in the input sequence, and make decisions about what to parse based on that information.
-
-### Negative Lookahead Parser
-
-The `NegativeLookaheadParser` invokes a parser, but consumes no input. It returns success if the parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`. The negative lookahead parser does not return a value, only success or failure (If the inner parser fails, there is no result to return, and if the inner parser succeeds the negative lookahead parser would fail and return no value).
+The `TransformResult` parser has an opportunity to transform the entire result, including all metadata, and it operates even when the result is a failure result. 
 
 ```csharp
-var parser = new NegativeLookaheadParser<char>(innerParser);
-var parser = NegativeLookahead(innerParser);
-var parser = someParser.NotFollowedBy(innerParser);
+var parser = new TransformResultParser<TInput, TOriginal, TOutput>(inner, (state, result) => { ... });
 ```
 
-### Positive Lookahead Parser
+### Transform Error Parser
 
-The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns success and the parsed value if the parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`. The `.FollowedBy()` extension method uses a positive lookahead parser to match a pattern, and only return a successful result if the first pattern is followed by the second pattern (but no input is consumed by the second pattern).
-
-```csharp
-var parser = new PositiveLookaheadParser<char>(innerParser);
-var parser = PositiveLookahead(innerParser);
-var parser = someParser.FollowedBy(innerParser);
-```
-
-The `PositiveLookahead` parser is functionally equivalent to a combination of `Choose` and `Empty`:
+The `TransformError` parser is implemented by the `TransformResult` parser, but the callback only executes when the result is a failure. This is used to transform the result to, for example, provide a better error message.
 
 ```csharp
-var parser = innerParser.Choose(v => Empty<TValue>());
-```
-
-The `.FollowedBy()` method is functionally equivalent to a combination of `Rule` parser and `PositiveLookahead` parser:
-
-```csharp
-var parser = Rule(
-    someParser,
-    PositiveLookahead(innerParser),
-    (first, followed) => first
-);
+var parser = TransformError(parser, (state, errorResult) => { ... });
 ```
 
 ## Recursive Parsers
 
-These parsers exist to help simplify recursion scenarios.
+These parsers exist to help simplify certain recursion scenarios, especially in parsing equations and mathematical expressions. They are not helpful in all recursion scenarios.
 
 ### Left Apply Parser
 
@@ -421,20 +394,29 @@ parserCore = First(
 
 ## Referencing Parsers
 
-These parsers exist to help with referencing issues.
+These parsers exist to help with referencing issues, to help resolve circular dependencies or decide on which parser to use at parse-time.
+
+### Create Parser
+
+The `Create` parser creates a parser at parse time using information available in the current parse state. Create parser looks similar to the `Deferred` parser, though has a few important semantic differences: The create callback takes the `ParseState`, and it cannot be used with find/replace operations. The Create parser is expected to create new parser instances at different times, so it is not considered to have "children". 
+
+```csharp
+var parser = new CreateParser<TInput, TOutput>(state => { ... });
+var parser = Create(state => { ... });
+```
 
 ### Deferred Parser
 
-The `Deferred` parser references another parser and resolves the reference at parse time instead of at declaration time. This allows your parser to handle recursion and circular references.
+The `Deferred` parser references another parser and resolves the reference at parse time instead of at declaration time. This allows your parser to handle recursion and circular references. The parser returned from the Deferred parser is expected by the system to be the same throughout the entire parse and may be cached. Deferred parser can be used with find/replace operations, unlike the `Create` parser.
 
 ```csharp
-var parser = new DeferredParser(() => targetParser);
+var parser = new DeferredParser<TInput, TOutput>(() => targetParser);
 var parser = Deferred(() => targetParser);
 ```
 
 ### Replaceable Parser
 
-The `Replaceable` parser references an inner parser and invokes it transparently. However, the replaceable parser allows the inner parser to be replaced in-place without cloning. This is the only parser type in the entire library which is not immutable. This is useful in cases where you want to make modifications to the parser tree without creating a whole new tree.
+The `Replaceable` parser references an inner parser and invokes it transparently. However, the replaceable parser allows the inner parser to be replaced in-place without cloning.  This is useful in cases where you want to make modifications to the parser tree without creating a whole new tree.
 
 ```csharp
 var parser = new ReplaceableParser<char, char>(innerParser);
