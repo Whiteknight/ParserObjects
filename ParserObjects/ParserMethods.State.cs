@@ -27,7 +27,7 @@ namespace ParserObjects
             });
 
         public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
-            => new TransformResultParser<TInput, TOutput>(p, (t, r) =>
+            => new TransformResultParser<TInput, TOutput, TOutput>(p, (t, r) =>
             {
                 if (!r.Success)
                     return r;
@@ -37,7 +37,7 @@ namespace ParserObjects
             });
 
         public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-            => new TransformResultParser<TInput, TOutput>(p, (t, r) =>
+            => new TransformResultParser<TInput, TOutput, TOutput>(p, (t, r) =>
             {
                 if (!r.Success)
                     return r;
