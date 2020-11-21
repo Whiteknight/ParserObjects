@@ -9,10 +9,8 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput, T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
@@ -29,7 +27,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -50,7 +47,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -73,7 +69,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -98,7 +93,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -125,7 +119,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -154,7 +147,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
@@ -185,7 +177,6 @@ namespace ParserObjects
         /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback
         /// all and return failure
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>

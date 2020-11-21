@@ -11,7 +11,6 @@ namespace ParserObjects
         /// for the next iteration of the right parser. This can be used when many rules have a common prefix
         /// and you don't want to backtrack through the prefix on every attempt.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="left"></param>
         /// <param name="getRight"></param>
@@ -24,7 +23,6 @@ namespace ParserObjects
         /// a right-associative parser where the parser attempts to parse a sequence of items and middles
         /// recursively: self := &lt;item&gt; (&lt;middle&gt; &lt;self&gt;)*. 
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="item"></param>

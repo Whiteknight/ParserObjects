@@ -10,7 +10,6 @@ namespace ParserObjects
         /// Parse a list of items. 
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="atLeastOne">If true, the list must have at least one element or the parse fails. If
         /// false, an empty list returns success.</param>
@@ -21,7 +20,6 @@ namespace ParserObjects
         /// <summary>
         /// Parse a list of items with defined minimum and maximum quantities.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="minimum"></param>
@@ -34,7 +32,6 @@ namespace ParserObjects
         /// Parse a list of items separated by a separator pattern.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>
         /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
@@ -47,7 +44,6 @@ namespace ParserObjects
         /// Parse a list of items separated by a separator pattern, with minimum and
         /// maximum item counts
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="separator"></param>

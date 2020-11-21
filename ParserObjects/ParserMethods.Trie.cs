@@ -9,7 +9,6 @@ namespace ParserObjects
         /// <summary>
         /// Look up sequences of inputs in an ITrie to greedily find the longest matching sequence
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="readOnlyTrie"></param>
         /// <returns></returns>

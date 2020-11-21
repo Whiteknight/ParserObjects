@@ -12,7 +12,6 @@ namespace ParserObjects
         /// <summary>
         /// Matches anywhere in the sequence except at the end, and consumes 1 token of input
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
@@ -26,7 +25,6 @@ namespace ParserObjects
         /// Given a list of parsers, parse each in sequence and return a list of object
         /// results on success.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
         public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
@@ -36,7 +34,6 @@ namespace ParserObjects
         /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="getParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
@@ -45,21 +42,18 @@ namespace ParserObjects
         /// <summary>
         /// The empty parser, consumers no input and always returns success at any point.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, object> Empty() => new EmptyParser<TInput>();
 
         /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput> End() => new EndParser<TInput>();
 
         /// <summary>
         /// Invoke callbacks before and after a parse
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="before"></param>
@@ -74,7 +68,6 @@ namespace ParserObjects
         /// <summary>
         /// A parser which unconditionally returns failure.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Fail<TOutput>(string error = null)
@@ -84,7 +77,6 @@ namespace ParserObjects
         /// Return the result of the first parser which succeeds
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="parsers"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
@@ -113,7 +105,6 @@ namespace ParserObjects
         /// Attempt to parse an item and return a default value otherwise
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
@@ -124,7 +115,6 @@ namespace ParserObjects
         /// Produce a value without consuming anything out of the input sequence
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
@@ -133,7 +123,6 @@ namespace ParserObjects
         /// <summary>
         /// Produce a value given the current state of the input sequence.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
@@ -143,7 +132,6 @@ namespace ParserObjects
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
@@ -156,7 +144,6 @@ namespace ParserObjects
         /// <summary>
         /// Transform one node into another node to fit into the grammar
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
         /// <param name="parser"></param>

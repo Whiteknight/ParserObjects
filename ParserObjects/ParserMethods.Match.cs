@@ -10,7 +10,6 @@ namespace ParserObjects
         /// <summary>
         /// Test the next input value and return it, if it matches the predicate
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="predicate"></param>
         /// <returns></returns>
         public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate)
@@ -19,7 +18,6 @@ namespace ParserObjects
         /// <summary>
         /// Get the next input value and return it if it .Equals() to the given value
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<TInput, TInput> Match(TInput pattern)
@@ -29,7 +27,6 @@ namespace ParserObjects
         /// Get the next few input values and compare them one-by-one against an ordered sequence of test
         /// values. If every value in the sequence matches, return the sequence as a list.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)

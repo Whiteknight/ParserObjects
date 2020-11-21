@@ -8,8 +8,7 @@ namespace ParserObjects
         /// <summary>
         /// Specify a name for the parser with function syntax.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TParser"></typeparam>
         /// <param name="parser"></param>
         /// <param name="name"></param>
         /// <returns></returns>
