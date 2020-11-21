@@ -21,13 +21,14 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
-            var startLocation = t.Input.CurrentLocation;
-            var checkpoint = t.Input.Checkpoint();
+            Assert.ArgumentNotNull(state, nameof(state));
+            var startLocation = state.Input.CurrentLocation;
+            var checkpoint = state.Input.Checkpoint();
             foreach (var parser in _parsers)
             {
-                var result = parser.Parse(t);
+                var result = parser.Parse(state);
                 if (!result.Success)
                 {
                     checkpoint.Rewind();
@@ -35,7 +36,7 @@ namespace ParserObjects.Parsers
                 }
             }
 
-            return t.Success(this, null, startLocation);
+            return state.Success(this, null, startLocation);
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

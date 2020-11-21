@@ -19,12 +19,12 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            Assert.ArgumentNotNull(state, nameof(state));
 
-            var checkpoint = t.Input.Checkpoint();
-            var initial = _inner.Parse(t);
+            var checkpoint = state.Input.Checkpoint();
+            var initial = _inner.Parse(state);
             if (!initial.Success)
                 return initial.Transform(v => default(TOutput));
 
@@ -32,13 +32,13 @@ namespace ParserObjects.Parsers
             if (nextParser == null)
             {
                 checkpoint.Rewind();
-                return t.Fail(this, "Get parser callback returned null");
+                return state.Fail(this, "Get parser callback returned null");
             }
 
-            return nextParser.Parse(t);
+            return nextParser.Parse(state);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

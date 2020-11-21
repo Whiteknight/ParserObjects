@@ -21,16 +21,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
+            Assert.ArgumentNotNull(state, nameof(state));
             foreach (var parser in _parsers)
             {
-                var result = parser.Parse(t);
+                var result = parser.Parse(state);
                 if (result.Success)
                     return result;
             }
 
-            return t.Fail(this, "None of the given parser match");
+            return state.Fail(this, "None of the given parser match");
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

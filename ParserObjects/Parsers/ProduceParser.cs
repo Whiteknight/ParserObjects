@@ -22,11 +22,13 @@ namespace ParserObjects.Parsers
         }
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
-            => t.Success(this, _produce(t.Input), t.Input.CurrentLocation);
+        public IResult<TOutput> Parse(ParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+            return state.Success(this, _produce(state.Input), state.Input.CurrentLocation);
+        }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t)
-            => t.Success(this, _produce(t.Input), t.Input.CurrentLocation);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

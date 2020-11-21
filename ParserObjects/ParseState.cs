@@ -19,7 +19,7 @@ namespace ParserObjects
 
         public IDataStore Data => _store;
 
-        public void Log(string message) => _logCallback?.Invoke(message);
+        public void Log(IParser parser, string message) => _logCallback?.Invoke($"{parser}: {message}");
 
         public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
             => new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);

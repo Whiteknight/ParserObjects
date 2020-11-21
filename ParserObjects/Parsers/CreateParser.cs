@@ -17,15 +17,15 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            var parser = _getParser(t);
+            var parser = _getParser(state);
             if (parser == null)
                 throw new InvalidOperationException("Create parser value must not be null");
-            return parser.Parse(t);
+            return parser.Parse(state);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

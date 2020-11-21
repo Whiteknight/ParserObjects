@@ -15,17 +15,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<T> Parse(ParseState<T> t)
+        public IResult<T> Parse(ParseState<T> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            if (t.Input.IsAtEnd)
-                return t.Fail(this, "Expected any but found End");
-            var location = t.Input.CurrentLocation;
-            var next = t.Input.GetNext();
-            return t.Success(this, next, location);
+            Assert.ArgumentNotNull(state, nameof(state));
+            if (state.Input.IsAtEnd)
+                return state.Fail(this, "Expected any but found End");
+            var location = state.Input.CurrentLocation;
+            var next = state.Input.GetNext();
+            return state.Success(this, next, location);
         }
 
-        IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);
+        IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

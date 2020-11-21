@@ -20,15 +20,15 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var checkpoint = t.Input.Checkpoint();
-            var result = _inner.Parse(t);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var checkpoint = state.Input.Checkpoint();
+            var result = _inner.Parse(state);
             checkpoint.Rewind();
             if (result.Success)
-                return t.Fail(this, "Lookahead pattern existed but was not supposed to");
-            return t.Success(this, null);
+                return state.Fail(this, "Lookahead pattern existed but was not supposed to");
+            return state.Success(this, null);
         }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };

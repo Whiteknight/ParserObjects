@@ -25,9 +25,9 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t) => _parser.Parse(t).Transform(_transform);
+        public IResult<TOutput> Parse(ParseState<TInput> state) => _parser.Parse(state).Transform(_transform);
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => _parser.Parse(state).Transform(_transform);
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 

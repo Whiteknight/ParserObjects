@@ -17,9 +17,9 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t) => t.Success(this, Value, Location);
+        public IResult<TOutput> Parse(ParseState<TInput> state) => state.Success(this, Value, Location);
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => t.Success(this, Value, Location);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => state.Success(this, Value, Location);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

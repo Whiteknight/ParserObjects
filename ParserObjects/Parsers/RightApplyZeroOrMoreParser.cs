@@ -27,11 +27,11 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            Assert.ArgumentNotNull(state, nameof(state));
 
-            var leftResult = _item.Parse(t);
+            var leftResult = _item.Parse(state);
             if (!leftResult.Success)
                 return leftResult;
             var left = leftResult.Value;
@@ -45,42 +45,43 @@ namespace ParserObjects.Parsers
                     var (left, middle) = resultStack.Pop();
                     right = _produce(left, middle, right);
                 }
-                return t.Success(this, right, t.Input.CurrentLocation);
+                return state.Success(this, right, state.Input.CurrentLocation);
             }
 
             while (true)
             {
-                var checkpoint = t.Input.Checkpoint();
+                var checkpoint = state.Input.Checkpoint();
 
                 // We have the left, so parse the middle. If not found, just return left
-                var middleResult = _middle.Parse(t);
+                var middleResult = _middle.Parse(state);
                 if (!middleResult.Success)
                     return produceSuccess(left);
 
-                // We have <left> <middle>, not we have to look for <right>.
-                // If we don't have it, see if we can make a synthetic version. In either case,
-                // we need to return something here.
-                var rightResult = _item.Parse(t);
-                if (!rightResult.Success)
+                // We have <left> <middle>, now we have to look for <right>.
+                // if we have it, push state, set right as the new left, and repeat loop
+                var rightResult = _item.Parse(state);
+                if (rightResult.Success)
                 {
-                    if (_getMissingRight == null)
-                    {
-                        // We can't make a synthetic right, so rewind to give back the <middle>
-                        checkpoint.Rewind();
-                        return produceSuccess(left);
-                    }
+                    // Add left and middle to the stack, and we'll loop again with the left
+                    resultStack.Push((left, middleResult.Value));
+                    left = rightResult.Value;
+                    continue;
+                }
 
+                // We have <left> <middle> but no <right>. See if we can make a synthetic one
+                if (_getMissingRight != null)
+                {
                     // create a synthetic right item and short-circuit exit (we could go around
                     // again, fail the <middle> and exit at that point, but this is faster and
                     // doesn't require allocating a new IResult<T>
-                    var syntheticRight = _getMissingRight(t.Input);
+                    var syntheticRight = _getMissingRight(state.Input);
                     resultStack.Push((left, middleResult.Value));
                     return produceSuccess(syntheticRight);
                 }
 
-                // Add left and middle to the stack, and we'll loop again with the left
-                resultStack.Push((left, middleResult.Value));
-                left = rightResult.Value;
+                // We can't make a synthetic right, so rewind to give back the <middle>
+                checkpoint.Rewind();
+                return produceSuccess(left);
             }
         }
 

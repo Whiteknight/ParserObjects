@@ -21,17 +21,17 @@ namespace ParserObjects.Parsers
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> t)
+        public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            Assert.ArgumentNotNull(state, nameof(state));
 
-            var checkpoint = t.Input.Checkpoint();
-            var location = t.Input.CurrentLocation;
+            var checkpoint = state.Input.Checkpoint();
+            var location = state.Input.CurrentLocation;
             var items = new List<TOutput>();
 
             while (Maximum == null || items.Count < Maximum)
             {
-                var result = _parser.Parse(t);
+                var result = _parser.Parse(state);
                 if (!result.Success)
                     break;
                 items.Add(result.Value);
@@ -40,10 +40,10 @@ namespace ParserObjects.Parsers
             if (Minimum > 0 && items.Count < Minimum)
             {
                 checkpoint.Rewind();
-                return t.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", location);
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", location);
             }
 
-            return t.Success(this, items, location);
+            return state.Success(this, items, location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Regexes;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
@@ -26,17 +27,18 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<string> Parse(ParseState<char> t)
+        public IResult<string> Parse(ParseState<char> state)
         {
-            var startLocation = t.Input.CurrentLocation;
-            var context = new RegexInputBuffer(t.Input);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var startLocation = state.Input.CurrentLocation;
+            var context = new RegexInputBuffer(state.Input);
             var (matches, consumed) = Test(_states, context);
             if (matches)
             {
                 var str = context.Capture(consumed);
-                return t.Success(this, str, startLocation);
+                return state.Success(this, str, startLocation);
             }
-            return t.Fail(this, $"Pattern failed at position {consumed}");
+            return state.Fail(this, $"Pattern failed at position {consumed}");
         }
 
         private class BacktrackState

@@ -26,18 +26,18 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var checkpoint = t.Input.Checkpoint();
-            var result = _predicate.Parse(t);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var checkpoint = state.Input.Checkpoint();
+            var result = _predicate.Parse(state);
             checkpoint.Rewind();
             if (result.Success)
-                return _onSuccess.Parse(t);
-            return _onFail.Parse(t);
+                return _onSuccess.Parse(state);
+            return _onFail.Parse(state);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess };
 

@@ -41,9 +41,9 @@ namespace ParserObjects
         /// fails, it is expected that this method will return the input sequence to the state it was at
         /// before the parse was attempted.
         /// </summary>
-        /// <param name="t"></param>
+        /// <param name="state"></param>
         /// <returns></returns>
-        IResult Parse(ParseState<TInput> t);
+        IResult Parse(ParseState<TInput> state);
     }
 
     /// <summary>
@@ -58,9 +58,9 @@ namespace ParserObjects
         /// expected that this method will return the input sequence to the state it was at before the
         /// parse was attempted.
         /// </summary>
-        /// <param name="t"></param>
+        /// <param name="state"></param>
         /// <returns></returns>
-        new IResult<TOutput> Parse(ParseState<TInput> t);
+        new IResult<TOutput> Parse(ParseState<TInput> state);
     }
 
     /// <summary>

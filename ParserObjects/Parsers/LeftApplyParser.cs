@@ -49,49 +49,49 @@ namespace ParserObjects.Parsers
             }
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            Assert.ArgumentNotNull(state, nameof(state));
             switch (_arity)
             {
                 case ApplyArity.ExactlyOne:
-                    return ParseExactlyOne(t);
+                    return ParseExactlyOne(state);
                 case ApplyArity.ZeroOrOne:
-                    return ParseZeroOrOne(t);
+                    return ParseZeroOrOne(state);
                 case ApplyArity.ZeroOrMore:
-                    return ParseZeroOrMore(t);
+                    return ParseZeroOrMore(state);
             }
 
-            return t.Fail(this, "Unknown arity value");
+            return state.Fail(this, "Unknown arity value");
         }
 
-        private IResult<TOutput> ParseExactlyOne(ParseState<TInput> t)
+        private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
         {
             // Parse the left. Parse the right exactly once. Return the result
-            var checkpoint = t.Input.Checkpoint();
+            var checkpoint = state.Input.Checkpoint();
 
-            var leftResult = _initial.Parse(t);
+            var leftResult = _initial.Parse(state);
             if (!leftResult.Success)
                 return leftResult;
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
 
-            var rightResult = _right.Parse(t);
+            var rightResult = _right.Parse(state);
             if (!rightResult.Success)
             {
                 checkpoint.Rewind();
-                return t.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
+                return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
             }
 
             return rightResult;
         }
 
-        private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> t)
+        private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> state)
         {
             // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
             // point, return whatever is the last value we had
-            var result = _initial.Parse(t);
+            var result = _initial.Parse(state);
             if (!result.Success)
                 return result;
 
@@ -100,26 +100,26 @@ namespace ParserObjects.Parsers
             _left.Location = result.Location;
             while (true)
             {
-                var rhsResult = _right.Parse(t);
+                var rhsResult = _right.Parse(state);
                 if (!rhsResult.Success)
-                    return t.Success(this, current, result.Location);
+                    return state.Success(this, current, result.Location);
 
                 current = rhsResult.Value;
                 _left.Value = current;
             }
         }
 
-        private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> t)
+        private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> state)
         {
             // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
-            var leftResult = _initial.Parse(t);
+            var leftResult = _initial.Parse(state);
             if (!leftResult.Success)
                 return leftResult;
 
             _left.Value = leftResult.Value;
             _left.Location = leftResult.Location;
 
-            var rightResult = _right.Parse(t);
+            var rightResult = _right.Parse(state);
             return rightResult.Success ? rightResult : leftResult;
         }
 

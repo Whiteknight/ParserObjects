@@ -22,12 +22,13 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            var (success, value, location) = Trie.Get(t.Input);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var (success, value, location) = Trie.Get(state.Input);
             if (!success)
-                return t.Fail(this, "Trie did not contain matching value");
-            return t.Success(this, value, location);
+                return state.Fail(this, "Trie did not contain matching value");
+            return state.Success(this, value, location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);

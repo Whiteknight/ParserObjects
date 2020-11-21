@@ -53,6 +53,7 @@ namespace ParserObjects.Parsers
         }
 
         public Location Location { get; }
+
         public IResult Result { get; }
     }
 
@@ -67,16 +68,16 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var startLocation = t.Input.CurrentLocation;
-            var checkpoint = t.Input.Checkpoint();
+            Assert.ArgumentNotNull(state, nameof(state));
+            var startLocation = state.Input.CurrentLocation;
+            var checkpoint = state.Input.Checkpoint();
             try
             {
-                var state = new SequentialState<TInput>(t);
-                var result = _func(state);
-                return t.Success(this, result, startLocation);
+                var seqState = new SequentialState<TInput>(state);
+                var result = _func(seqState);
+                return state.Success(this, result, startLocation);
             }
             catch (SequentialParserException spe)
             {
@@ -84,7 +85,8 @@ namespace ParserObjects.Parsers
                 // Other exceptions bubble up like normal.
                 checkpoint.Rewind();
                 var result = spe.Result;
-                return t.Fail(this, "Error during parsing: " + result.Message, spe.Location);
+                state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
+                return state.Fail(this, $"Error during parsing: {result.Parser} {result.Message} at {result.Location}");
             }
         }
 

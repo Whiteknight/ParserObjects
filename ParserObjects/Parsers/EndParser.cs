@@ -13,12 +13,12 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            return t.Input.IsAtEnd
-                ? t.Success(this, true)
-                : t.Fail(this, "Expected end of Input but found " + t.Input.Peek().ToString());
+            Assert.ArgumentNotNull(state, nameof(state));
+            return state.Input.IsAtEnd
+                ? state.Success(this, true)
+                : state.Fail(this, "Expected end of Input but found " + state.Input.Peek().ToString());
         }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

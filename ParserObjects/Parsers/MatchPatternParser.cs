@@ -21,38 +21,41 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<IReadOnlyList<T>> Parse(ParseState<T> t)
+        public IResult<IReadOnlyList<T>> Parse(ParseState<T> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var location = t.Input.CurrentLocation;
+            Assert.ArgumentNotNull(state, nameof(state));
+            var location = state.Input.CurrentLocation;
 
             // If the pattern is empty, return success.
             if (Pattern.Count == 0)
-                return t.Success(this, new T[0], location);
+            {
+                state.Log(this, "Pattern has 0 items in it, this is functionally equivalent to Empty() ");
+                return state.Success(this, new T[0], location);
+            }
 
             // If the pattern has exactly one item in it, check for equality without a loop 
             // or allocating a buffer
             if (Pattern.Count == 1)
             {
-                if (t.Input.Peek().Equals(Pattern[0]))
-                    return t.Success(this, new[] { t.Input.GetNext() }, location);
-                return t.Fail(this, "Item does not match");
+                if (state.Input.Peek().Equals(Pattern[0]))
+                    return state.Success(this, new[] { state.Input.GetNext() }, location);
+                return state.Fail(this, "Item does not match");
             }
 
-            var checkpoint = t.Input.Checkpoint();
+            var checkpoint = state.Input.Checkpoint();
             var buffer = new T[Pattern.Count];
             for (var i = 0; i < Pattern.Count; i++)
             {
-                var c = t.Input.GetNext();
+                var c = state.Input.GetNext();
                 buffer[i] = c;
                 if (c.Equals(Pattern[i]))
                     continue;
 
                 checkpoint.Rewind();
-                return t.Fail(this, $"Item does not match at position {i}");
+                return state.Fail(this, $"Item does not match at position {i}");
             }
 
-            return t.Success(this, buffer, location);
+            return state.Success(this, buffer, location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);

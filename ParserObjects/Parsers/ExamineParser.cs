@@ -21,16 +21,16 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> t)
+            public IResult<TOutput> Parse(ParseState<TInput> state)
             {
-                Assert.ArgumentNotNull(t, nameof(t));
-                _before?.Invoke(new Context(_parser, t, null));
-                var result = _parser.Parse(t);
-                _after?.Invoke(new Context(_parser, t, result));
+                Assert.ArgumentNotNull(state, nameof(state));
+                _before?.Invoke(new Context(_parser, state, null));
+                var result = _parser.Parse(state);
+                _after?.Invoke(new Context(_parser, state, result));
                 return result;
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 

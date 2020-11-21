@@ -16,10 +16,10 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput2> Parse(ParseState<TInput> t)
+        public IResult<TOutput2> Parse(ParseState<TInput> state)
         {
-            var result = _inner.Parse(t);
-            return _transform(t, result);
+            var result = _inner.Parse(state);
+            return _transform(state, result);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);

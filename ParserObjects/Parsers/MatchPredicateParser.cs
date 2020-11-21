@@ -21,20 +21,20 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<T> Parse(ParseState<T> t)
+        public IResult<T> Parse(ParseState<T> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
+            Assert.ArgumentNotNull(state, nameof(state));
 
-            var location = t.Input.CurrentLocation;
+            var location = state.Input.CurrentLocation;
 
-            if (t.Input.IsAtEnd)
-                return t.Fail(this, "Expected a matching item, but found End");
+            if (state.Input.IsAtEnd)
+                return state.Fail(this, "Expected a matching item, but found End");
 
-            var next = t.Input.Peek();
+            var next = state.Input.Peek();
             if (!_predicate(next))
-                return t.Fail(this, "Next item does not match the predicate");
+                return state.Fail(this, "Next item does not match the predicate");
 
-            return t.Success(this, t.Input.GetNext(), location);
+            return state.Success(this, state.Input.GetNext(), location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);

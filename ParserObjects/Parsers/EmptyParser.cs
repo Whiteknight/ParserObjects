@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ParserObjects.Utility;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserObjects.Parsers
@@ -11,9 +12,13 @@ namespace ParserObjects.Parsers
     {
         public string Name { get; set; }
 
-        public IResult<object> Parse(ParseState<TInput> t) => t.Success(this, null);
+        public IResult<object> Parse(ParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+            return state.Success(this, null);
+        }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

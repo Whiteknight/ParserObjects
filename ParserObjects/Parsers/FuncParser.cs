@@ -22,15 +22,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var checkpoint = t.Input.Checkpoint();
+            Assert.ArgumentNotNull(state, nameof(state));
+            var checkpoint = state.Input.Checkpoint();
             try
             {
-                SuccessFunction<TOutput> onSuccess = (value, loc) => t.Success(this, value, loc ?? t.Input.CurrentLocation);
-                FailFunction<TOutput> onFailure = (err, loc) => t.Fail(this, err, loc ?? t.Input.CurrentLocation);
-                var result = _func(t, onSuccess, onFailure);
+                IResult<TOutput> onSuccess(TOutput value, Location loc = null) 
+                    => state.Success(this, value, loc ?? state.Input.CurrentLocation);
+                IResult<TOutput> onFailure(string err, Location loc = null) 
+                    => state.Fail(this, err, loc ?? state.Input.CurrentLocation);
+                var result = _func(state, onSuccess, onFailure);
                 if (!result.Success)
                     checkpoint.Rewind();
                 return result;
@@ -38,12 +40,12 @@ namespace ParserObjects.Parsers
             catch (Exception e)
             {
                 checkpoint.Rewind();
-                t.Log("Unhandled exception while executing Function callback: " + e.Message + "\n\n" + e.StackTrace);
-                return t.Fail(this, "Unhandled exception while executing Function callback: " + e.Message);
+                state.Log(this, "Unhandled exception while executing Function callback: " + e.Message + "\n\n" + e.StackTrace);
+                return state.Fail(this, "Unhandled exception while executing Function callback: " + e.Message);
             }
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

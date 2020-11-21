@@ -20,18 +20,18 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var checkpoint = t.Input.Checkpoint();
-            var result1 = _inner.Parse(t);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var checkpoint = state.Input.Checkpoint();
+            var result1 = _inner.Parse(state);
             if (result1.Success)
             {
                 checkpoint.Rewind();
-                return t.Fail(this, "Parser matched but was not supposed to");
+                return state.Fail(this, "Parser matched but was not supposed to");
             }
 
-            return t.Success(this, null, result1.Location);
+            return state.Success(this, null, result1.Location);
         }
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };

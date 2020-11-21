@@ -20,16 +20,17 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult Parse(ParseState<TInput> t)
+        public IResult Parse(ParseState<TInput> state)
         {
-            var checkpoint = t.Input.Checkpoint();
-            var result = _inner.Parse(t);
+            Assert.ArgumentNotNull(state, nameof(state));
+            var checkpoint = state.Input.Checkpoint();
+            var result = _inner.Parse(state);
             if (result.Success)
                 checkpoint.Rewind();
             return result;
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
 

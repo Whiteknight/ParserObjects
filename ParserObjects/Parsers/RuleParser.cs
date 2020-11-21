@@ -26,29 +26,29 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> t)
+        public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(t, nameof(t));
-            var checkpoint = t.Input.Checkpoint();
+            Assert.ArgumentNotNull(state, nameof(state));
 
-            var location = t.Input.CurrentLocation;
+            var checkpoint = state.Input.Checkpoint();
+            var location = state.Input.CurrentLocation;
 
             var outputs = new object[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)
             {
-                var result = _parsers[i].Parse(t);
-                if (!result.Success)
+                var result = _parsers[i].Parse(state);
+                if (result.Success)
                 {
-                    checkpoint.Rewind();
-                    var name = _parsers[i].Name;
-                    if (string.IsNullOrEmpty(name))
-                        name = "(Unnamed)";
-                    return t.Fail(this, $"Parser {i} {name} failed", result.Location);
+                    outputs[i] = result.Value;
+                    continue;
                 }
-
-                outputs[i] = result.Value;
+                checkpoint.Rewind();
+                var name = _parsers[i].Name;
+                if (string.IsNullOrEmpty(name))
+                    name = "(Unnamed)";
+                return state.Fail(this, $"Parser {i} {name} failed", result.Location);
             }
-            return t.Success(this, _produce(outputs), location);
+            return state.Success(this, _produce(outputs), location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
