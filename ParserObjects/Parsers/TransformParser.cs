@@ -23,11 +23,11 @@ namespace ParserObjects.Parsers
             _transform = transform;
         }
 
+        public string Name { get; set; }
+
         public IResult<TOutput> Parse(ParseState<TInput> t) => _parser.Parse(t).Transform(_transform);
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
-
-        public string Name { get; set; }
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 

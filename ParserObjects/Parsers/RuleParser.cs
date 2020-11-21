@@ -24,6 +24,8 @@ namespace ParserObjects.Parsers
             _produce = produce;
         }
 
+        public string Name { get; set; }
+
         public IResult<TOutput> Parse(ParseState<TInput> t)
         {
             Assert.ArgumentNotNull(t, nameof(t));
@@ -50,8 +52,6 @@ namespace ParserObjects.Parsers
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
-
-        public string Name { get; set; }
 
         public IEnumerable<IParser> GetChildren() => _parsers;
 
