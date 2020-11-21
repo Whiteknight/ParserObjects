@@ -22,7 +22,7 @@ namespace ParserObjects.Parsers
             return _transform(state, result);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 

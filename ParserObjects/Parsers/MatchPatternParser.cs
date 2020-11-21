@@ -58,7 +58,7 @@ namespace ParserObjects.Parsers
             return state.Success(this, buffer, location);
         }
 
-        IResult IParser<T>.Parse(ParseState<T> t) => Parse(t);
+        IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

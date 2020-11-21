@@ -40,15 +40,20 @@ namespace ParserObjects.Parsers
     }
 
     [Serializable]
-    public sealed class SequentialParserException : Exception
+    public class SequentialParserException : Exception
     {
+        public SequentialParserException()
+        {
+        }
+
         public SequentialParserException(IResult result)
         {
             Location = result.Location;
             Result = result;
         }
 
-        public SequentialParserException(SerializationInfo info, StreamingContext context)
+        protected SequentialParserException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 
@@ -56,6 +61,7 @@ namespace ParserObjects.Parsers
 
         public IResult Result { get; }
     }
+
 
     public class SequentialParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
@@ -90,7 +96,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> t) => Parse(t);
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

@@ -76,12 +76,12 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult Parse(ParseState<TInput> t)
+            public IResult Parse(ParseState<TInput> state)
             {
-                Assert.ArgumentNotNull(t, nameof(t));
-                _before?.Invoke(new Context(_parser, t, null));
-                var result = _parser.Parse(t);
-                _after?.Invoke(new Context(_parser, t, result));
+                Assert.ArgumentNotNull(state, nameof(state));
+                _before?.Invoke(new Context(_parser, state, null));
+                var result = _parser.Parse(state);
+                _after?.Invoke(new Context(_parser, state, result));
                 return result;
             }
 

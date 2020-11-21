@@ -180,7 +180,7 @@ namespace ParserObjects
                 {
                     int value = 0;
                     for (int i = 0; i < oct.Count; i++)
-                        value = (value * 8) + (int)(oct[i] - '0');
+                        value = (value * 8) + (oct[i] - '0');
                     return ((char)value).ToString();
                 });
                 var hexSequence = Rule(
@@ -282,7 +282,7 @@ namespace ParserObjects
                 {
                     int value = 0;
                     for (int i = 0; i < oct.Count; i++)
-                        value = (value * 8) + (int)(oct[i] - '0');
+                        value = (value * 8) + (oct[i] - '0');
                     return (char)value;
                 });
                 var hexSequence = Rule(
