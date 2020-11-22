@@ -221,7 +221,7 @@ namespace ParserObjects
                     bodyChar.ListStringsToString(),
                     Match('"'),
                     (open, body, close) => body
-                );
+                ).Named("C-Style Stripped String");
             }
         );
 
@@ -269,7 +269,7 @@ namespace ParserObjects
                     bodyChar.ListStringsToString(),
                     Match('"'),
                     (open, body, close) => "\"" + body + "\""
-                );
+                ).Named("C-Style String");
             }
         );
 
@@ -324,7 +324,7 @@ namespace ParserObjects
                     bodyChar,
                     Match('\''),
                     (open, body, close) => body
-                );
+                ).Named("C-Style Stripped Character");
             }
         );
 
@@ -373,7 +373,7 @@ namespace ParserObjects
                     bodyChar,
                     Match('\''),
                     (open, body, close) => "'" + body + "'"
-                );
+                ).Named("C-Style Character");
             }
         );
     }

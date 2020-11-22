@@ -141,7 +141,7 @@ namespace ParserObjects
                     bodyCharForSingleQuotedString.ListStringsToString(),
                     Match('\''),
                     (open, body, close) => body
-                );
+                ).Named("JavaScript-Style Single-Quoted Stripped String");
 
                 var escapeSequenceForDoubleQuotedString = Rule(
                     Match('\\'),
@@ -166,12 +166,12 @@ namespace ParserObjects
                     bodyCharForDoubleQuotedString.ListStringsToString(),
                     Match('"'),
                     (open, body, close) => body
-                );
+                ).Named("JavaScript-Style Double-Quoted Stripped String");
 
                 return First(
                     doubleQuotedString,
                     singleQuotedString
-                );
+                ).Named("JavaScript-Style Stripped String");
             }
         );
 
@@ -223,7 +223,7 @@ namespace ParserObjects
                     bodyCharForSingleQuotedString.ListStringsToString(),
                     Match('\''),
                     (open, body, close) => "'" + body + "'"
-                );
+                ).Named("JavaScript-Style Single-Quoted String");
 
                 var escapeSequenceForDoubleQuotedString = Rule(
                     Match('\\'),
@@ -248,12 +248,12 @@ namespace ParserObjects
                     bodyCharForDoubleQuotedString.ListStringsToString(),
                     Match('"'),
                     (open, body, close) => "\"" + body + "\""
-                );
+                ).Named("JavaScript-Style Double-Quoted String");
 
                 return First(
                     doubleQuotedString,
                     singleQuotedString
-                );
+                ).Named("JavaScript-Style String");
             }
         );
     }
