@@ -5,8 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parser which wraps an ITrie to be able to return elements which match one of several possible
-    /// input patterns. Adaptor from ITrie to IParser.
+    /// Uses an ITrie to match the longest pattern.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

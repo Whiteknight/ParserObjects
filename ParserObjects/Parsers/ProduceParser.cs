@@ -6,26 +6,28 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parser to produce an output node unconditionally. Consumes no input.
-    /// This is used to provide a default node value
+    /// Produces an output value unconditionally. Consumes no input. The callback has access to
+    /// both the input sequence and the current contextual data, to help crafting the value.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
     public class ProduceParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        private readonly Func<ISequence<TInput>, TOutput> _produce;
+        private readonly Func<ISequence<TInput>, IDataStore, TOutput> _produce;
 
-        public ProduceParser(Func<ISequence<TInput>, TOutput> produce)
+        public ProduceParser(Func<ISequence<TInput>, IDataStore, TOutput> produce)
         {
             Assert.ArgumentNotNull(produce, nameof(produce));
             _produce = produce;
         }
+
         public string Name { get; set; }
 
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            return state.Success(this, _produce(state.Input), state.Input.CurrentLocation);
+            var value = _produce(state.Input, state.Data);
+            return state.Success(this, value, state.Input.CurrentLocation);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

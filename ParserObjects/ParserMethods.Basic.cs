@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Parsers;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -118,7 +119,7 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-            => new ProduceParser<TInput, TOutput>(t => produce());
+            => new ProduceParser<TInput, TOutput>((input, data) => produce());
 
         /// <summary>
         /// Produce a value given the current state of the input sequence.
@@ -127,6 +128,9 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce)
+            => new ProduceParser<TInput, TOutput>((input, data) => produce(input));
+
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, IDataStore, TOutput> produce)
             => new ProduceParser<TInput, TOutput>(produce);
 
         /// <summary>

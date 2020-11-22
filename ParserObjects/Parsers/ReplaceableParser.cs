@@ -4,8 +4,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Delegates to an internal parser, and allows the internal parser to be replaced in-place without
-    /// returning a new instance or causing a tree rewrite. 
+    /// Delegates to an internal parser, and allows the internal parser to be replaced in-place 
+    /// without returning a new instance or causing a tree rewrite.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

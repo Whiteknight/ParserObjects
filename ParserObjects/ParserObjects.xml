@@ -1405,40 +1405,69 @@
         </member>
         <member name="T:ParserObjects.Parsers.ProduceParser`2">
             <summary>
-            Parser to produce an output node unconditionally. Consumes no input.
-            This is used to provide a default node value
+            Produces an output value unconditionally. Consumes no input. The callback has access
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.RegexParser">
+            <summary>
+            Uses limited Regular Expression syntax to match a pattern of characters. 
+            </summary>
+        </member>
         <member name="T:ParserObjects.Parsers.ReplaceableParser`2">
             <summary>
-            Delegates to an internal parser, and allows the internal parser to be replaced in-place without
-            returning a new instance or causing a tree rewrite. 
+            Delegates to an internal parser, and allows the internal parser to be replaced in-place 
+            without returning a new instance or causing a tree rewrite.
             </summary>
             <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.RightApplyZeroOrMoreParser`3">
+            <summary>
+            Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
+            situations, especially for parsing expressions
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.RuleParser`2">
             <summary>
-            Parses a list of steps in sequence and produces a single output as a combination of outputs of
-            each step. Succeeds or fails as an atomic unit.
+            Parses a list of steps in sequence and produces a single output as a combination of outputs 
+            of each step. Succeeds or fails as an atomic unit.
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.SequentialState`1">
+            <summary>
+            Allows executing a parse sequentially in a special callback. Useful for debugging purposes
+            or cases where procedural logic should be intermixed with parser logic.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+        </member>
         <member name="T:ParserObjects.Parsers.TransformParser`3">
             <summary>
-            Transforms the output of one parser into a different form based on context
+            Transforms the output of one parser into a different value. Only used to transform success
+            values.
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TMiddle"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.TransformResultParser`3">
+            <summary>
+            Transforms the raw result object, including the result type, result value, success flag or 
+            error message.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput1"></typeparam>
+            <typeparam name="TOutput2"></typeparam>
+        </member>
         <member name="T:ParserObjects.Parsers.TrieParser`2">
             <summary>
-            Parser which wraps an ITrie to be able to return elements which match one of several possible
-            input patterns. Adaptor from ITrie to IParser.
+            Uses an ITrie to match the longest pattern.
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>

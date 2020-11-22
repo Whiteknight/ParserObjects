@@ -3,6 +3,13 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Transforms the raw result object, including the result type, result value, success flag or 
+    /// error message.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput1"></typeparam>
+    /// <typeparam name="TOutput2"></typeparam>
     public class TransformResultParser<TInput, TOutput1, TOutput2> : IParser<TInput, TOutput2>
     {
         private readonly IParser<TInput, TOutput1> _inner;

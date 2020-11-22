@@ -5,7 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Transforms the output of one parser into a different form based on context
+    /// Transforms the output of one parser into a different value. Only used to transform success
+    /// values.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>

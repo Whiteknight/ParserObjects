@@ -6,6 +6,11 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Allows executing a parse sequentially in a special callback. Useful for debugging purposes
+    /// or cases where procedural logic should be intermixed with parser logic.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public class SequentialState<TInput>
     {
         private readonly ParseState<TInput> _input;

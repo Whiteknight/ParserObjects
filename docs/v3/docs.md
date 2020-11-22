@@ -187,7 +187,9 @@
   - [Trie\`\`1(setupTrie)](#M-ParserObjects-ParserMethods`1-Trie``1-System-Action{ParserObjects-IInsertableTrie{`0,``0}}- 'ParserObjects.ParserMethods`1.Trie``1(System.Action{ParserObjects.IInsertableTrie{`0,``0}})')
 - [PositiveLookaheadParser\`1](#T-ParserObjects-Parsers-PositiveLookaheadParser`1 'ParserObjects.Parsers.PositiveLookaheadParser`1')
 - [ProduceParser\`2](#T-ParserObjects-Parsers-ProduceParser`2 'ParserObjects.Parsers.ProduceParser`2')
+- [RegexParser](#T-ParserObjects-Parsers-RegexParser 'ParserObjects.Parsers.RegexParser')
 - [ReplaceableParser\`2](#T-ParserObjects-Parsers-ReplaceableParser`2 'ParserObjects.Parsers.ReplaceableParser`2')
+- [RightApplyZeroOrMoreParser\`3](#T-ParserObjects-Parsers-RightApplyZeroOrMoreParser`3 'ParserObjects.Parsers.RightApplyZeroOrMoreParser`3')
 - [RuleParser\`2](#T-ParserObjects-Parsers-RuleParser`2 'ParserObjects.Parsers.RuleParser`2')
 - [SequenceEnumerable\`1](#T-ParserObjects-Sequences-SequenceEnumerable`1 'ParserObjects.Sequences.SequenceEnumerable`1')
 - [SequenceExtensions](#T-ParserObjects-SequenceExtensions 'ParserObjects.SequenceExtensions')
@@ -195,6 +197,7 @@
   - [Parse\`\`2(input,parse)](#M-ParserObjects-SequenceExtensions-Parse``2-ParserObjects-ISequence{``0},System-Func{ParserObjects-ISequence{``0},ParserObjects-IResult{``1}}- 'ParserObjects.SequenceExtensions.Parse``2(ParserObjects.ISequence{``0},System.Func{ParserObjects.ISequence{``0},ParserObjects.IResult{``1}})')
   - [Select\`\`2(input,map)](#M-ParserObjects-SequenceExtensions-Select``2-ParserObjects-ISequence{``0},System-Func{``0,``1}- 'ParserObjects.SequenceExtensions.Select``2(ParserObjects.ISequence{``0},System.Func{``0,``1})')
   - [Where\`\`1(input,predicate)](#M-ParserObjects-SequenceExtensions-Where``1-ParserObjects-ISequence{``0},System-Func{``0,System-Boolean}- 'ParserObjects.SequenceExtensions.Where``1(ParserObjects.ISequence{``0},System.Func{``0,System.Boolean})')
+- [SequentialState\`1](#T-ParserObjects-Parsers-SequentialState`1 'ParserObjects.Parsers.SequentialState`1')
 - [SqlStyleParserMethods](#T-ParserObjects-SqlStyleParserMethods 'ParserObjects.SqlStyleParserMethods')
   - [Comment()](#M-ParserObjects-SqlStyleParserMethods-Comment 'ParserObjects.SqlStyleParserMethods.Comment')
 - [StreamCharacterSequence](#T-ParserObjects-Sequences-StreamCharacterSequence 'ParserObjects.Sequences.StreamCharacterSequence')
@@ -202,6 +205,7 @@
 - [StringExtensions](#T-ParserObjects-Sequences-StringExtensions 'ParserObjects.Sequences.StringExtensions')
   - [ToCharacterSequence(str)](#M-ParserObjects-Sequences-StringExtensions-ToCharacterSequence-System-String- 'ParserObjects.Sequences.StringExtensions.ToCharacterSequence(System.String)')
 - [TransformParser\`3](#T-ParserObjects-Parsers-TransformParser`3 'ParserObjects.Parsers.TransformParser`3')
+- [TransformResultParser\`3](#T-ParserObjects-Parsers-TransformResultParser`3 'ParserObjects.Parsers.TransformResultParser`3')
 - [TrieExtensions](#T-ParserObjects-TrieExtensions 'ParserObjects.TrieExtensions')
   - [Add(readOnlyTrie,value)](#M-ParserObjects-TrieExtensions-Add-ParserObjects-IInsertableTrie{System-Char,System-String},System-String- 'ParserObjects.TrieExtensions.Add(ParserObjects.IInsertableTrie{System.Char,System.String},System.String)')
   - [AddMany(readOnlyTrie,values)](#M-ParserObjects-TrieExtensions-AddMany-ParserObjects-IInsertableTrie{System-Char,System-String},System-String[]- 'ParserObjects.TrieExtensions.AddMany(ParserObjects.IInsertableTrie{System.Char,System.String},System.String[])')
@@ -3634,8 +3638,7 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Parser to produce an output node unconditionally. Consumes no input.
-This is used to provide a default node value
+Produces an output value unconditionally. Consumes no input. The callback has access
 
 ##### Generic Types
 
@@ -3643,6 +3646,17 @@ This is used to provide a default node value
 | ---- | ----------- |
 | TOutput |  |
 | TInput |  |
+
+<a name='T-ParserObjects-Parsers-RegexParser'></a>
+## RegexParser `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Uses limited Regular Expression syntax to match a pattern of characters.
 
 <a name='T-ParserObjects-Parsers-ReplaceableParser`2'></a>
 ## ReplaceableParser\`2 `type`
@@ -3653,14 +3667,34 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Delegates to an internal parser, and allows the internal parser to be replaced in-place without
-returning a new instance or causing a tree rewrite.
+Delegates to an internal parser, and allows the internal parser to be replaced in-place 
+without returning a new instance or causing a tree rewrite.
 
 ##### Generic Types
 
 | Name | Description |
 | ---- | ----------- |
 | TInput |  |
+| TOutput |  |
+
+<a name='T-ParserObjects-Parsers-RightApplyZeroOrMoreParser`3'></a>
+## RightApplyZeroOrMoreParser\`3 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
+situations, especially for parsing expressions
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TMiddle |  |
 | TOutput |  |
 
 <a name='T-ParserObjects-Parsers-RuleParser`2'></a>
@@ -3672,8 +3706,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Parses a list of steps in sequence and produces a single output as a combination of outputs of
-each step. Succeeds or fails as an atomic unit.
+Parses a list of steps in sequence and produces a single output as a combination of outputs 
+of each step. Succeeds or fails as an atomic unit.
 
 ##### Generic Types
 
@@ -3804,6 +3838,24 @@ Filter elements in a sequence to only return items which match a predicate
 | ---- | ----------- |
 | T |  |
 
+<a name='T-ParserObjects-Parsers-SequentialState`1'></a>
+## SequentialState\`1 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Allows executing a parse sequentially in a special callback. Useful for debugging purposes
+or cases where procedural logic should be intermixed with parser logic.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+
 <a name='T-ParserObjects-SqlStyleParserMethods'></a>
 ## SqlStyleParserMethods `type`
 
@@ -3881,7 +3933,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Transforms the output of one parser into a different form based on context
+Transforms the output of one parser into a different value. Only used to transform success
+values.
 
 ##### Generic Types
 
@@ -3890,6 +3943,26 @@ Transforms the output of one parser into a different form based on context
 | TOutput |  |
 | TInput |  |
 | TMiddle |  |
+
+<a name='T-ParserObjects-Parsers-TransformResultParser`3'></a>
+## TransformResultParser\`3 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Transforms the raw result object, including the result type, result value, success flag or 
+error message.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TOutput1 |  |
+| TOutput2 |  |
 
 <a name='T-ParserObjects-TrieExtensions'></a>
 ## TrieExtensions `type`
@@ -3967,8 +4040,7 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Parser which wraps an ITrie to be able to return elements which match one of several possible
-input patterns. Adaptor from ITrie to IParser.
+Uses an ITrie to match the longest pattern.
 
 ##### Generic Types
 

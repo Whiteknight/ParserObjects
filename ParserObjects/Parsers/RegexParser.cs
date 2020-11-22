@@ -5,6 +5,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Uses limited Regular Expression syntax to match a pattern of characters. 
+    /// </summary>
     public class RegexParser : IParser<char, string>
     {
         private readonly List<RegexState> _states;

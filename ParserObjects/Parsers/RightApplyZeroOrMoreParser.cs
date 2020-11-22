@@ -4,6 +4,13 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
+    /// situations, especially for parsing expressions
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _item;

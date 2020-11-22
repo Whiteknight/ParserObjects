@@ -6,8 +6,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parses a list of steps in sequence and produces a single output as a combination of outputs of
-    /// each step. Succeeds or fails as an atomic unit.
+    /// Parses a list of steps in sequence and produces a single output as a combination of outputs 
+    /// of each step. Succeeds or fails as an atomic unit.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
