@@ -5,7 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Matches any input item that isn't the end of input. Consumes exactly one input item.
+    /// Matches any input item that isn't the end of input. Consumes exactly one input item and
+    /// returns it.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class AnyParser<T> : IParser<T, T>

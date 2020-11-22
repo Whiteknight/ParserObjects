@@ -714,7 +714,7 @@
             Parser methods for building combinators using declarative syntax
             </summary>
         </member>
-        <member name="M:ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}},ParserObjects.Parsers.ApplyArity)">
+        <member name="M:ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}},ParserObjects.Quantifier)">
             <summary>
             A left-associative parser where the left item is parsed unconditionally, and the result of the
             left parser is applied to the right parser. This new result is then treated as the 'left' value
@@ -724,7 +724,7 @@
             <typeparam name="TOutput"></typeparam>
             <param name="left"></param>
             <param name="getRight"></param>
-            <param name="arity"></param>
+            <param name="quantifier"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},System.Func{``1,``0,``1,``1},System.Func{ParserObjects.ISequence{`0},``1})">
@@ -744,6 +744,34 @@
             <summary>
             Matches anywhere in the sequence except at the end, and consumes 1 token of input
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Bool(ParserObjects.IParser{`0})">
+            <summary>
+            Parses a parser, returns true if the parser succeeds, false if it fails
+            </summary>
+            <param name="p"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Chain``2(ParserObjects.IParser{`0,``0},System.Func{``0,ParserObjects.IParser{`0,``1}})">
+            <summary>
+            Executes a parser, and uses the value to determine the next parser to execute
+            </summary>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="p"></param>
+            <param name="getNext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Choose``2(ParserObjects.IParser{`0,``0},System.Func{``0,ParserObjects.IParser{`0,``1}})">
+            <summary>
+            Executes a parser without consuming any input, and uses the value to determine the next
+            parser to execute
+            </summary>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="p"></param>
+            <param name="getNext"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserMethods`1.Combine(ParserObjects.IParser{`0}[])">
@@ -779,6 +807,15 @@
             Invoke callbacks before and after a parse
             </summary>
             <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="before"></param>
+            <param name="after"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Examine(ParserObjects.IParser{`0},System.Action{ParserObjects.Parsers.Examine{`0}.Context},System.Action{ParserObjects.Parsers.Examine{`0}.Context})">
+            <summary>
+            Invoke callbacks before and after a parse
+            </summary>
             <param name="parser"></param>
             <param name="before"></param>
             <param name="after"></param>
@@ -835,7 +872,15 @@
         </member>
         <member name="M:ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},``0})">
             <summary>
-            Produce a value given the current state of the input sequence.
+            Produce a value given the input sequence.
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="produce"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},ParserObjects.Utility.IDataStore,``0})">
+            <summary>
+            Produces a value given the input sequence and the current contextual data
             </summary>
             <typeparam name="TOutput"></typeparam>
             <param name="produce"></param>
@@ -1294,20 +1339,47 @@
         </member>
         <member name="T:ParserObjects.Parsers.AndParser`1">
             <summary>
-            Tests several parsers sequentially. If all of them succeed return Success. If any Fail, return
-            Failure. Consumes input but returns no explicit output.
+            Tests several parsers sequentially. If all of them succeed return Success. If any Fail, 
+            return Failure. Consumes input but returns no explicit output.
             </summary>
             <typeparam name="TInput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.AnyParser`1">
             <summary>
-            Matches any input item that isn't the end of input. Consumes exactly one input item.
+            Matches any input item that isn't the end of input. Consumes exactly one input item and
+            returns it.
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.ChainParser`3">
+            <summary>
+            Executes the given parser and uses the value returned to select the next parser to execute
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.ChooseParser`3">
+            <summary>
+            Attempt to match a parser without consuming any input, and use the output value to choose
+            the next parser to execute.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.CreateParser`2">
+            <summary>
+            Create a parser dynamically using information from the parse state. The parser created is 
+            not expected to be constant and will not be cached.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
         <member name="T:ParserObjects.Parsers.DeferredParser`2">
             <summary>
-            Looks up a parser at Parse() time, to avoid circular references in the grammar
+            Looks up a parser at parse time, to avoid circular references in the grammar. The parser
+            looked up is expected to be constant for the duration of the parse and may be cached.
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
@@ -1320,10 +1392,18 @@
         </member>
         <member name="T:ParserObjects.Parsers.EndParser`1">
             <summary>
-            Matches at the end of the input sequence. Fails if the input sequence is at any point besides the
-            end.
+            Matches at the end of the input sequence. Fails if the input sequence is at any point 
+            besides the end.
             </summary>
             <typeparam name="TInput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.Examine`2">
+            <summary>
+            Inserts a callback before and after the specified parser. Useful for debugging purposes
+            and to adjust the input/output of a parser.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.FailParser`2">
             <summary>
@@ -1342,30 +1422,48 @@
         </member>
         <member name="T:ParserObjects.Parsers.FuncParser`2">
             <summary>
-            Invokes a delegate to perform the parse
+            Invokes a delegate to perform the parse. The delegate may perform any logic necessary.
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.IfParser`2">
             <summary>
-            Attempts to match a predicate condition and, on success, invokes a parser.
+            Attempts to match a predicate condition and, invokes a specified parser on success or
+            failure
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.LeftApplyParser`2">
+            <summary>
+            Parser to help with left-associative or left-recursive parse situations. Executes an
+            initial parser, and then passes that value to the right-hand-side production. The right
+            value is then used as the new left value and the loop repeats.
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.LeftValueParser`2">
             <summary>
-            A parser for holding a parsed result from left application. Do not use this type
+            A parser for holding a parsed result from left application. Do not use this type directly
             directly.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.LimitedListParser`2">
+            <summary>
+            Executes an inner parser repeatedly, until it fails. All values are returned as a list.
+            Expects a number of matches between minimum and maximum values, inclusive.
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.MatchPatternParser`1">
             <summary>
-            Given a literal sequence of values, pull values off the input sequence to match. If the entire
-            series matches, return it
+            Given a literal sequence of values, pull values off the input sequence to match. If the 
+            entire series matches, return it
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -1398,14 +1496,15 @@
         </member>
         <member name="T:ParserObjects.Parsers.PositiveLookaheadParser`1">
             <summary>
-            Does a lookahead to see if there is a match. Returns a success or failure result, but does not
-            consume any actual input
+            Does a lookahead to see if there is a match. Returns a success or failure result, but does 
+            not consume any actual input.
             </summary>
             <typeparam name="TInput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.ProduceParser`2">
             <summary>
-            Produces an output value unconditionally. Consumes no input. The callback has access
+            Produces an output value unconditionally. Consumes no input. The callback has access to
+            both the input sequence and the current contextual data, to help crafting the value.
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>

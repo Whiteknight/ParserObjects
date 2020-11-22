@@ -236,7 +236,7 @@ namespace ParserObjects.Parsers
             {
                 switch (context.CurrentState.Quantifier)
                 {
-                    case RegexQuantifier.ExactlyOne:
+                    case Quantifier.ExactlyOne:
                     {
                         var indexBeforeBacktracking = context.Index;
                         var ok = TestExactlyOne(context, buffer);
@@ -244,17 +244,17 @@ namespace ParserObjects.Parsers
                             continue;
                         return (false, indexBeforeBacktracking);
                     }
-                    case RegexQuantifier.ZeroOrOne:
+                    case Quantifier.ZeroOrOne:
                     {
                         TestZeroOrOne(context, buffer);
                         continue;
                     }
-                    case RegexQuantifier.ZeroOrMore:
+                    case Quantifier.ZeroOrMore:
                     {
                         TestZeroOrMore(context, buffer);
                         continue;
                     }
-                    case RegexQuantifier.Range:
+                    case Quantifier.Range:
                     {
                         TestRange(context, buffer);
                         continue;

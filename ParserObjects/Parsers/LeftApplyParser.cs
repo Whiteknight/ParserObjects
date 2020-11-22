@@ -4,39 +4,39 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    public enum ApplyArity
-    {
-        ZeroOrOne,
-        ExactlyOne,
-        ZeroOrMore
-    }
-
+    /// <summary>
+    /// Parser to help with left-associative or left-recursive parse situations. Executes an
+    /// initial parser, and then passes that value to the right-hand-side production. The right
+    /// value is then used as the new left value and the loop repeats.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _initial;
-        private readonly ApplyArity _arity;
+        private readonly Quantifier _quantifier;
         private readonly IParser<TInput, TOutput> _right;
         private readonly LeftValueParser<TInput, TOutput> _left;
 
         private string _name;
 
-        public LeftApplyParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, ApplyArity arity)
+        public LeftApplyParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity)
         {
             Assert.ArgumentNotNull(initial, nameof(initial));
             Assert.ArgumentNotNull(getRight, nameof(getRight));
 
             _initial = initial;
-            _arity = arity;
+            _quantifier = arity;
             _left = new LeftValueParser<TInput, TOutput>();
             _right = getRight(_left);
         }
 
-        private LeftApplyParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right, ApplyArity arity)
+        private LeftApplyParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right, Quantifier arity)
         {
             _initial = initial;
             _left = left;
             _right = right;
-            _arity = arity;
+            _quantifier = arity;
         }
 
         public string Name
@@ -52,17 +52,17 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            switch (_arity)
+            switch (_quantifier)
             {
-                case ApplyArity.ExactlyOne:
+                case Quantifier.ExactlyOne:
                     return ParseExactlyOne(state);
-                case ApplyArity.ZeroOrOne:
+                case Quantifier.ZeroOrOne:
                     return ParseZeroOrOne(state);
-                case ApplyArity.ZeroOrMore:
+                case Quantifier.ZeroOrMore:
                     return ParseZeroOrMore(state);
             }
 
-            return state.Fail(this, "Unknown arity value");
+            return state.Fail(this, $"Quantifier value {_quantifier} not supported");
         }
 
         private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
@@ -130,10 +130,10 @@ namespace ParserObjects.Parsers
         public IParser ReplaceChild(IParser find, IParser replace)
         {
             if (_initial == find && replace is IParser<TInput, TOutput> initialTyped)
-                return new LeftApplyParser<TInput, TOutput>(initialTyped, _left, _right, _arity);
+                return new LeftApplyParser<TInput, TOutput>(initialTyped, _left, _right, _quantifier);
 
             if (_right == find && replace is IParser<TInput, TOutput> rightTyped)
-                return new LeftApplyParser<TInput, TOutput>(_initial, _left, rightTyped, _arity);
+                return new LeftApplyParser<TInput, TOutput>(_initial, _left, rightTyped, _quantifier);
 
             return this;
         }

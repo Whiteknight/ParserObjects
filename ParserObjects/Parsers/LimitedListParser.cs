@@ -3,6 +3,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Executes an inner parser repeatedly, until it fails. All values are returned as a list.
+    /// Expects a number of matches between minimum and maximum values, inclusive.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
     {
         private readonly IParser<TInput, TOutput> _parser;

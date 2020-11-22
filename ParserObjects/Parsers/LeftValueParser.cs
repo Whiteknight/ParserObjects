@@ -4,7 +4,7 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// A parser for holding a parsed result from left application. Do not use this type
+    /// A parser for holding a parsed result from left application. Do not use this type directly
     /// directly.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>

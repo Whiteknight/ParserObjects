@@ -108,7 +108,7 @@ namespace ParserObjects.Regexes
                 {
                     Type = RegexStateType.MatchValue,
                     ValuePredicate = c => _matcher.IsMatch(c),
-                    Quantifier = RegexQuantifier.ExactlyOne,
+                    Quantifier = Quantifier.ExactlyOne,
                     Description = Description
                 });
             }
@@ -211,7 +211,7 @@ namespace ParserObjects.Regexes
                 {
                     Type = RegexStateType.Group,
                     Group = groupStates,
-                    Quantifier = RegexQuantifier.ExactlyOne,
+                    Quantifier = Quantifier.ExactlyOne,
                     Description = Description
                 });
             }
@@ -235,7 +235,7 @@ namespace ParserObjects.Regexes
                 {
                     Type = RegexStateType.MatchValue,
                     ValuePredicate = _predicate,
-                    Quantifier = RegexQuantifier.ExactlyOne,
+                    Quantifier = Quantifier.ExactlyOne,
                     Description = Description
                 });
             }
@@ -258,9 +258,9 @@ namespace ParserObjects.Regexes
             {
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().LastOrDefault();
-                if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
+                if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
                     throw new RegexException("Quantifier '?' may only follow an unquantified atom");
-                lastElement.Quantifier = RegexQuantifier.ZeroOrOne;
+                lastElement.Quantifier = Quantifier.ZeroOrOne;
             }
         }
 
@@ -279,9 +279,9 @@ namespace ParserObjects.Regexes
             {
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().Last();
-                if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
+                if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
                     throw new RegexException("Quantifier '*' may only follow an unquantified atom");
-                lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
+                lastElement.Quantifier = Quantifier.ZeroOrMore;
             }
         }
 
@@ -303,9 +303,9 @@ namespace ParserObjects.Regexes
                 _atom.BuildUpStates(states);
                 _atom.BuildUpStates(states);
                 var lastElement = states.Last().Last();
-                if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
+                if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
                     throw new RegexException("Quantifier '+' may only follow an unquantified atom");
-                lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
+                lastElement.Quantifier = Quantifier.ZeroOrMore;
             }
         }
 
@@ -345,9 +345,9 @@ namespace ParserObjects.Regexes
                     // No maximum, so we can treat the remainder like ZeroOrMore
                     _atom.BuildUpStates(states);
                     var lastElement = states.Last().Last();
-                    if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
+                    if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
                         throw new RegexException("Range maximum may only follow an unquantified atom");
-                    lastElement.Quantifier = RegexQuantifier.ZeroOrMore;
+                    lastElement.Quantifier = Quantifier.ZeroOrMore;
                     return;
                 }
 
@@ -357,9 +357,9 @@ namespace ParserObjects.Regexes
                     // We have a maximum value, so add a new state and set it's quantifier to range
                     _atom.BuildUpStates(states);
                     var lastElement = states.Last().Last();
-                    if (lastElement == null || lastElement.Quantifier != RegexQuantifier.ExactlyOne)
+                    if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
                         throw new RegexException("Range maximum may only follow an unquantified atom");
-                    lastElement.Quantifier = RegexQuantifier.Range;
+                    lastElement.Quantifier = Quantifier.Range;
                     lastElement.Maximum = _max - _min;
                 }
             }

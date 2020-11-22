@@ -4,7 +4,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Attempts to match a predicate condition and, on success, invokes a parser.
+    /// Attempts to match a predicate condition and, invokes a specified parser on success or
+    /// failure
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

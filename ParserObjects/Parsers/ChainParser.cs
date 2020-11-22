@@ -4,6 +4,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Executes the given parser and uses the value returned to select the next parser to execute
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class ChainParser<TInput, TMiddle, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TMiddle> _inner;

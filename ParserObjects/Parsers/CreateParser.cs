@@ -5,6 +5,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Create a parser dynamically using information from the parse state. The parser created is 
+    /// not expected to be constant and will not be cached.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class CreateParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly Func<ParseState<TInput>, IParser<TInput, TOutput>> _getParser;

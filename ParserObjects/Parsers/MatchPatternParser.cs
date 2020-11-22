@@ -5,8 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Given a literal sequence of values, pull values off the input sequence to match. If the entire
-    /// series matches, return it
+    /// Given a literal sequence of values, pull values off the input sequence to match. If the 
+    /// entire series matches, return it
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>

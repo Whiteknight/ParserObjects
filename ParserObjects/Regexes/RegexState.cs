@@ -7,7 +7,7 @@ namespace ParserObjects.Regexes
     {
         public RegexStateType Type { get; set; }
         public bool CanBacktrack { get; set; }
-        public RegexQuantifier Quantifier { get; set; }
+        public Quantifier Quantifier { get; set; }
         public Func<char, bool> ValuePredicate { get; set; }
         public List<RegexState> Group { get; set; }
 

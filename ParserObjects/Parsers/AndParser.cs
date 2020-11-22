@@ -5,8 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Tests several parsers sequentially. If all of them succeed return Success. If any Fail, return
-    /// Failure. Consumes input but returns no explicit output.
+    /// Tests several parsers sequentially. If all of them succeed return Success. If any Fail, 
+    /// return Failure. Consumes input but returns no explicit output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public class AndParser<TInput> : IParser<TInput>

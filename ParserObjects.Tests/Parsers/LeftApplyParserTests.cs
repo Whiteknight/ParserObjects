@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ZeroOrOne
+                Quantifier.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("1a2b3c4");
@@ -65,7 +65,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ExactlyOne
+                Quantifier.ExactlyOne
             );
 
             var input = new StringCharacterSequence("1a2b3c4");
@@ -126,7 +126,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ExactlyOne
+                Quantifier.ExactlyOne
             );
 
             var input = new StringCharacterSequence("X");
@@ -147,7 +147,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ZeroOrOne
+                Quantifier.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("X");
@@ -168,7 +168,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ExactlyOne
+                Quantifier.ExactlyOne
             );
 
             var input = new StringCharacterSequence("1");
@@ -189,7 +189,7 @@ namespace ParserObjects.Tests.Parsers
                     numberParser,
                     (l, op, r) => $"({l}{op}{r})"
                 ),
-                ApplyArity.ZeroOrOne
+                Quantifier.ZeroOrOne
             );
 
             var input = new StringCharacterSequence("1");

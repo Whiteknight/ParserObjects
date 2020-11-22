@@ -6,7 +6,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Invokes a delegate to perform the parse
+    /// Invokes a delegate to perform the parse. The delegate may perform any logic necessary.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

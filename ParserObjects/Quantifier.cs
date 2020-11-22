@@ -1,6 +1,6 @@
-﻿namespace ParserObjects.Regexes
+﻿namespace ParserObjects
 {
-    public enum RegexQuantifier
+    public enum Quantifier
     {
         ExactlyOne,
         ZeroOrOne,

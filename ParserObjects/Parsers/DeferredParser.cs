@@ -5,7 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Looks up a parser at Parse() time, to avoid circular references in the grammar
+    /// Looks up a parser at parse time, to avoid circular references in the grammar. The parser
+    /// looked up is expected to be constant for the duration of the parse and may be cached.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>

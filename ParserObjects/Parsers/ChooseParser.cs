@@ -4,6 +4,13 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Attempt to match a parser without consuming any input, and use the output value to choose
+    /// the next parser to execute.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class ChooseParser<TInput, TMiddle, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TMiddle> _inner;

@@ -20,6 +20,9 @@
   - [IntegerString()](#M-ParserObjects-CStyleParserMethods-IntegerString 'ParserObjects.CStyleParserMethods.IntegerString')
   - [UnsignedInteger()](#M-ParserObjects-CStyleParserMethods-UnsignedInteger 'ParserObjects.CStyleParserMethods.UnsignedInteger')
   - [UnsignedIntegerString()](#M-ParserObjects-CStyleParserMethods-UnsignedIntegerString 'ParserObjects.CStyleParserMethods.UnsignedIntegerString')
+- [ChainParser\`3](#T-ParserObjects-Parsers-ChainParser`3 'ParserObjects.Parsers.ChainParser`3')
+- [ChooseParser\`3](#T-ParserObjects-Parsers-ChooseParser`3 'ParserObjects.Parsers.ChooseParser`3')
+- [CreateParser\`2](#T-ParserObjects-Parsers-CreateParser`2 'ParserObjects.Parsers.CreateParser`2')
 - [DeferredParser\`2](#T-ParserObjects-Parsers-DeferredParser`2 'ParserObjects.Parsers.DeferredParser`2')
 - [EmptyParser\`1](#T-ParserObjects-Parsers-EmptyParser`1 'ParserObjects.Parsers.EmptyParser`1')
 - [EndParser\`1](#T-ParserObjects-Parsers-EndParser`1 'ParserObjects.Parsers.EndParser`1')
@@ -27,6 +30,7 @@
   - [ToSequence\`\`1(enumerable,endValue)](#M-ParserObjects-Sequences-EnumerableExtensions-ToSequence``1-System-Collections-Generic-IEnumerable{``0},``0- 'ParserObjects.Sequences.EnumerableExtensions.ToSequence``1(System.Collections.Generic.IEnumerable{``0},``0)')
   - [ToSequence\`\`1(enumerable,getEndValue)](#M-ParserObjects-Sequences-EnumerableExtensions-ToSequence``1-System-Collections-Generic-IEnumerable{``0},System-Func{``0}- 'ParserObjects.Sequences.EnumerableExtensions.ToSequence``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0})')
 - [EnumerableSequence\`1](#T-ParserObjects-Sequences-EnumerableSequence`1 'ParserObjects.Sequences.EnumerableSequence`1')
+- [Examine\`2](#T-ParserObjects-Parsers-Examine`2 'ParserObjects.Parsers.Examine`2')
 - [FailParser\`2](#T-ParserObjects-Parsers-FailParser`2 'ParserObjects.Parsers.FailParser`2')
 - [FilterSequence\`1](#T-ParserObjects-Sequences-FilterSequence`1 'ParserObjects.Sequences.FilterSequence`1')
 - [FindParserVisitor](#T-ParserObjects-Visitors-FindParserVisitor 'ParserObjects.Visitors.FindParserVisitor')
@@ -73,7 +77,9 @@
 - [JavaScriptStyleParserMethods](#T-ParserObjects-JavaScriptStyleParserMethods 'ParserObjects.JavaScriptStyleParserMethods')
   - [Number()](#M-ParserObjects-JavaScriptStyleParserMethods-Number 'ParserObjects.JavaScriptStyleParserMethods.Number')
   - [NumberString()](#M-ParserObjects-JavaScriptStyleParserMethods-NumberString 'ParserObjects.JavaScriptStyleParserMethods.NumberString')
+- [LeftApplyParser\`2](#T-ParserObjects-Parsers-LeftApplyParser`2 'ParserObjects.Parsers.LeftApplyParser`2')
 - [LeftValueParser\`2](#T-ParserObjects-Parsers-LeftValueParser`2 'ParserObjects.Parsers.LeftValueParser`2')
+- [LimitedListParser\`2](#T-ParserObjects-Parsers-LimitedListParser`2 'ParserObjects.Parsers.LimitedListParser`2')
 - [Location](#T-ParserObjects-Location 'ParserObjects.Location')
   - [Column](#P-ParserObjects-Location-Column 'ParserObjects.Location.Column')
   - [FileName](#P-ParserObjects-Location-FileName 'ParserObjects.Location.FileName')
@@ -146,16 +152,20 @@
 - [ParserMethods\`1](#T-ParserObjects-ParserMethods`1 'ParserObjects.ParserMethods`1')
   - [And(parsers)](#M-ParserObjects-ParserMethods`1-And-ParserObjects-IParser{`0}[]- 'ParserObjects.ParserMethods`1.And(ParserObjects.IParser{`0}[])')
   - [Any()](#M-ParserObjects-ParserMethods`1-Any 'ParserObjects.ParserMethods`1.Any')
+  - [Bool(p)](#M-ParserObjects-ParserMethods`1-Bool-ParserObjects-IParser{`0}- 'ParserObjects.ParserMethods`1.Bool(ParserObjects.IParser{`0})')
+  - [Chain\`\`2(p,getNext)](#M-ParserObjects-ParserMethods`1-Chain``2-ParserObjects-IParser{`0,``0},System-Func{``0,ParserObjects-IParser{`0,``1}}- 'ParserObjects.ParserMethods`1.Chain``2(ParserObjects.IParser{`0,``0},System.Func{``0,ParserObjects.IParser{`0,``1}})')
+  - [Choose\`\`2(p,getNext)](#M-ParserObjects-ParserMethods`1-Choose``2-ParserObjects-IParser{`0,``0},System-Func{``0,ParserObjects-IParser{`0,``1}}- 'ParserObjects.ParserMethods`1.Choose``2(ParserObjects.IParser{`0,``0},System.Func{``0,ParserObjects.IParser{`0,``1}})')
   - [Combine(parsers)](#M-ParserObjects-ParserMethods`1-Combine-ParserObjects-IParser{`0}[]- 'ParserObjects.ParserMethods`1.Combine(ParserObjects.IParser{`0}[])')
   - [Deferred\`\`1(getParser)](#M-ParserObjects-ParserMethods`1-Deferred``1-System-Func{ParserObjects-IParser{`0,``0}}- 'ParserObjects.ParserMethods`1.Deferred``1(System.Func{ParserObjects.IParser{`0,``0}})')
   - [Empty()](#M-ParserObjects-ParserMethods`1-Empty 'ParserObjects.ParserMethods`1.Empty')
   - [End()](#M-ParserObjects-ParserMethods`1-End 'ParserObjects.ParserMethods`1.End')
+  - [Examine(parser,before,after)](#M-ParserObjects-ParserMethods`1-Examine-ParserObjects-IParser{`0},System-Action{ParserObjects-Parsers-Examine{`0}-Context},System-Action{ParserObjects-Parsers-Examine{`0}-Context}- 'ParserObjects.ParserMethods`1.Examine(ParserObjects.IParser{`0},System.Action{ParserObjects.Parsers.Examine{`0}.Context},System.Action{ParserObjects.Parsers.Examine{`0}.Context})')
   - [Examine\`\`1(parser,before,after)](#M-ParserObjects-ParserMethods`1-Examine``1-ParserObjects-IParser{`0,``0},System-Action{ParserObjects-Parsers-Examine{`0,``0}-Context},System-Action{ParserObjects-Parsers-Examine{`0,``0}-Context}- 'ParserObjects.ParserMethods`1.Examine``1(ParserObjects.IParser{`0,``0},System.Action{ParserObjects.Parsers.Examine{`0,``0}.Context},System.Action{ParserObjects.Parsers.Examine{`0,``0}.Context})')
   - [Fail\`\`1()](#M-ParserObjects-ParserMethods`1-Fail``1-System-String- 'ParserObjects.ParserMethods`1.Fail``1(System.String)')
   - [First\`\`1(parsers)](#M-ParserObjects-ParserMethods`1-First``1-ParserObjects-IParser{`0,``0}[]- 'ParserObjects.ParserMethods`1.First``1(ParserObjects.IParser{`0,``0}[])')
   - [Function\`\`1(func)](#M-ParserObjects-ParserMethods`1-Function``1-ParserObjects-ParserFunction{`0,``0}- 'ParserObjects.ParserMethods`1.Function``1(ParserObjects.ParserFunction{`0,``0})')
   - [If\`\`1(predicate,onSuccess)](#M-ParserObjects-ParserMethods`1-If``1-ParserObjects-IParser{`0},ParserObjects-IParser{`0,``0}- 'ParserObjects.ParserMethods`1.If``1(ParserObjects.IParser{`0},ParserObjects.IParser{`0,``0})')
-  - [LeftApply\`\`1(left,getRight,arity)](#M-ParserObjects-ParserMethods`1-LeftApply``1-ParserObjects-IParser{`0,``0},System-Func{ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``0}},ParserObjects-Parsers-ApplyArity- 'ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}},ParserObjects.Parsers.ApplyArity)')
+  - [LeftApply\`\`1(left,getRight,quantifier)](#M-ParserObjects-ParserMethods`1-LeftApply``1-ParserObjects-IParser{`0,``0},System-Func{ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``0}},ParserObjects-Quantifier- 'ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}},ParserObjects.Quantifier)')
   - [List\`\`1(p,atLeastOne)](#M-ParserObjects-ParserMethods`1-List``1-ParserObjects-IParser{`0,``0},System-Boolean- 'ParserObjects.ParserMethods`1.List``1(ParserObjects.IParser{`0,``0},System.Boolean)')
   - [List\`\`1(p,minimum,maximum)](#M-ParserObjects-ParserMethods`1-List``1-ParserObjects-IParser{`0,``0},System-Int32,System-Nullable{System-Int32}- 'ParserObjects.ParserMethods`1.List``1(ParserObjects.IParser{`0,``0},System.Int32,System.Nullable{System.Int32})')
   - [Match(predicate)](#M-ParserObjects-ParserMethods`1-Match-System-Func{`0,System-Boolean}- 'ParserObjects.ParserMethods`1.Match(System.Func{`0,System.Boolean})')
@@ -170,6 +180,7 @@
   - [PositiveLookahead(p)](#M-ParserObjects-ParserMethods`1-PositiveLookahead-ParserObjects-IParser{`0}- 'ParserObjects.ParserMethods`1.PositiveLookahead(ParserObjects.IParser{`0})')
   - [Produce\`\`1(produce)](#M-ParserObjects-ParserMethods`1-Produce``1-System-Func{``0}- 'ParserObjects.ParserMethods`1.Produce``1(System.Func{``0})')
   - [Produce\`\`1(produce)](#M-ParserObjects-ParserMethods`1-Produce``1-System-Func{ParserObjects-ISequence{`0},``0}- 'ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},``0})')
+  - [Produce\`\`1(produce)](#M-ParserObjects-ParserMethods`1-Produce``1-System-Func{ParserObjects-ISequence{`0},ParserObjects-Utility-IDataStore,``0}- 'ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},ParserObjects.Utility.IDataStore,``0})')
   - [Replaceable\`\`1(defaultParser)](#M-ParserObjects-ParserMethods`1-Replaceable``1-ParserObjects-IParser{`0,``0}- 'ParserObjects.ParserMethods`1.Replaceable``1(ParserObjects.IParser{`0,``0})')
   - [RightApply\`\`2(item,middle,produce,getMissingRight)](#M-ParserObjects-ParserMethods`1-RightApply``2-ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``0},System-Func{``1,``0,``1,``1},System-Func{ParserObjects-ISequence{`0},``1}- 'ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},System.Func{``1,``0,``1,``1},System.Func{ParserObjects.ISequence{`0},``1})')
   - [Rule\`\`10(p1,p2,p3,p4,p5,p6,p7,p8,p9,produce)](#M-ParserObjects-ParserMethods`1-Rule``10-ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``2},ParserObjects-IParser{`0,``3},ParserObjects-IParser{`0,``4},ParserObjects-IParser{`0,``5},ParserObjects-IParser{`0,``6},ParserObjects-IParser{`0,``7},ParserObjects-IParser{`0,``8},System-Func{``0,``1,``2,``3,``4,``5,``6,``7,``8,``9}- 'ParserObjects.ParserMethods`1.Rule``10(ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``2},ParserObjects.IParser{`0,``3},ParserObjects.IParser{`0,``4},ParserObjects.IParser{`0,``5},ParserObjects.IParser{`0,``6},ParserObjects.IParser{`0,``7},ParserObjects.IParser{`0,``8},System.Func{``0,``1,``2,``3,``4,``5,``6,``7,``8,``9})')
@@ -238,8 +249,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Tests several parsers sequentially. If all of them succeed return Success. If any Fail, return
-Failure. Consumes input but returns no explicit output.
+Tests several parsers sequentially. If all of them succeed return Success. If any Fail, 
+return Failure. Consumes input but returns no explicit output.
 
 ##### Generic Types
 
@@ -256,7 +267,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Matches any input item that isn't the end of input. Consumes exactly one input item.
+Matches any input item that isn't the end of input. Consumes exactly one input item and
+returns it.
 
 ##### Generic Types
 
@@ -458,6 +470,64 @@ C-style unsigned integer literal returned as a string
 
 This method has no parameters.
 
+<a name='T-ParserObjects-Parsers-ChainParser`3'></a>
+## ChainParser\`3 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Executes the given parser and uses the value returned to select the next parser to execute
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TMiddle |  |
+| TOutput |  |
+
+<a name='T-ParserObjects-Parsers-ChooseParser`3'></a>
+## ChooseParser\`3 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Attempt to match a parser without consuming any input, and use the output value to choose
+the next parser to execute.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TMiddle |  |
+| TOutput |  |
+
+<a name='T-ParserObjects-Parsers-CreateParser`2'></a>
+## CreateParser\`2 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Create a parser dynamically using information from the parse state. The parser created is 
+not expected to be constant and will not be cached.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TOutput |  |
+
 <a name='T-ParserObjects-Parsers-DeferredParser`2'></a>
 ## DeferredParser\`2 `type`
 
@@ -467,7 +537,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Looks up a parser at Parse() time, to avoid circular references in the grammar
+Looks up a parser at parse time, to avoid circular references in the grammar. The parser
+looked up is expected to be constant for the duration of the parse and may be cached.
 
 ##### Generic Types
 
@@ -502,8 +573,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Matches at the end of the input sequence. Fails if the input sequence is at any point besides the
-end.
+Matches at the end of the input sequence. Fails if the input sequence is at any point 
+besides the end.
 
 ##### Generic Types
 
@@ -582,6 +653,25 @@ Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable
 | Name | Description |
 | ---- | ----------- |
 | T |  |
+
+<a name='T-ParserObjects-Parsers-Examine`2'></a>
+## Examine\`2 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Inserts a callback before and after the specified parser. Useful for debugging purposes
+and to adjust the input/output of a parser.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TOutput |  |
 
 <a name='T-ParserObjects-Parsers-FailParser`2'></a>
 ## FailParser\`2 `type`
@@ -782,7 +872,7 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Invokes a delegate to perform the parse
+Invokes a delegate to perform the parse. The delegate may perform any logic necessary.
 
 ##### Generic Types
 
@@ -1208,7 +1298,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Attempts to match a predicate condition and, on success, invokes a parser.
+Attempts to match a predicate condition and, invokes a specified parser on success or
+failure
 
 ##### Generic Types
 
@@ -1273,6 +1364,26 @@ JavaScript-style number literal, returned as a string
 
 This method has no parameters.
 
+<a name='T-ParserObjects-Parsers-LeftApplyParser`2'></a>
+## LeftApplyParser\`2 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Parser to help with left-associative or left-recursive parse situations. Executes an
+initial parser, and then passes that value to the right-hand-side production. The right
+value is then used as the new left value and the loop repeats.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TOutput |  |
+
 <a name='T-ParserObjects-Parsers-LeftValueParser`2'></a>
 ## LeftValueParser\`2 `type`
 
@@ -1282,8 +1393,27 @@ ParserObjects.Parsers
 
 ##### Summary
 
-A parser for holding a parsed result from left application. Do not use this type
+A parser for holding a parsed result from left application. Do not use this type directly
 directly.
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TInput |  |
+| TOutput |  |
+
+<a name='T-ParserObjects-Parsers-LimitedListParser`2'></a>
+## LimitedListParser\`2 `type`
+
+##### Namespace
+
+ParserObjects.Parsers
+
+##### Summary
+
+Executes an inner parser repeatedly, until it fails. All values are returned as a list.
+Expects a number of matches between minimum and maximum values, inclusive.
 
 ##### Generic Types
 
@@ -1355,8 +1485,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Given a literal sequence of values, pull values off the input sequence to match. If the entire
-series matches, return it
+Given a literal sequence of values, pull values off the input sequence to match. If the 
+entire series matches, return it
 
 ##### Generic Types
 
@@ -2658,6 +2788,74 @@ Matches anywhere in the sequence except at the end, and consumes 1 token of inpu
 
 This method has no parameters.
 
+<a name='M-ParserObjects-ParserMethods`1-Bool-ParserObjects-IParser{`0}-'></a>
+### Bool(p) `method`
+
+##### Summary
+
+Parses a parser, returns true if the parser succeeds, false if it fails
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| p | [ParserObjects.IParser{\`0}](#T-ParserObjects-IParser{`0} 'ParserObjects.IParser{`0}') |  |
+
+<a name='M-ParserObjects-ParserMethods`1-Chain``2-ParserObjects-IParser{`0,``0},System-Func{``0,ParserObjects-IParser{`0,``1}}-'></a>
+### Chain\`\`2(p,getNext) `method`
+
+##### Summary
+
+Executes a parser, and uses the value to determine the next parser to execute
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| p | [ParserObjects.IParser{\`0,\`\`0}](#T-ParserObjects-IParser{`0,``0} 'ParserObjects.IParser{`0,``0}') |  |
+| getNext | [System.Func{\`\`0,ParserObjects.IParser{\`0,\`\`1}}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{``0,ParserObjects.IParser{`0,``1}}') |  |
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TMiddle |  |
+| TOutput |  |
+
+<a name='M-ParserObjects-ParserMethods`1-Choose``2-ParserObjects-IParser{`0,``0},System-Func{``0,ParserObjects-IParser{`0,``1}}-'></a>
+### Choose\`\`2(p,getNext) `method`
+
+##### Summary
+
+Executes a parser without consuming any input, and uses the value to determine the next
+parser to execute
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| p | [ParserObjects.IParser{\`0,\`\`0}](#T-ParserObjects-IParser{`0,``0} 'ParserObjects.IParser{`0,``0}') |  |
+| getNext | [System.Func{\`\`0,ParserObjects.IParser{\`0,\`\`1}}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{``0,ParserObjects.IParser{`0,``1}}') |  |
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TMiddle |  |
+| TOutput |  |
+
 <a name='M-ParserObjects-ParserMethods`1-Combine-ParserObjects-IParser{`0}[]-'></a>
 ### Combine(parsers) `method`
 
@@ -2728,6 +2926,25 @@ Matches affirmatively at the end of the input, fails everywhere else.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='M-ParserObjects-ParserMethods`1-Examine-ParserObjects-IParser{`0},System-Action{ParserObjects-Parsers-Examine{`0}-Context},System-Action{ParserObjects-Parsers-Examine{`0}-Context}-'></a>
+### Examine(parser,before,after) `method`
+
+##### Summary
+
+Invoke callbacks before and after a parse
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| parser | [ParserObjects.IParser{\`0}](#T-ParserObjects-IParser{`0} 'ParserObjects.IParser{`0}') |  |
+| before | [System.Action{ParserObjects.Parsers.Examine{\`0}.Context}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Action 'System.Action{ParserObjects.Parsers.Examine{`0}.Context}') |  |
+| after | [System.Action{ParserObjects.Parsers.Examine{\`0}.Context}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Action 'System.Action{ParserObjects.Parsers.Examine{`0}.Context}') |  |
 
 <a name='M-ParserObjects-ParserMethods`1-Examine``1-ParserObjects-IParser{`0,``0},System-Action{ParserObjects-Parsers-Examine{`0,``0}-Context},System-Action{ParserObjects-Parsers-Examine{`0,``0}-Context}-'></a>
 ### Examine\`\`1(parser,before,after) `method`
@@ -2847,8 +3064,8 @@ Otherwise return Failure.
 | ---- | ----------- |
 | TOutput |  |
 
-<a name='M-ParserObjects-ParserMethods`1-LeftApply``1-ParserObjects-IParser{`0,``0},System-Func{ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``0}},ParserObjects-Parsers-ApplyArity-'></a>
-### LeftApply\`\`1(left,getRight,arity) `method`
+<a name='M-ParserObjects-ParserMethods`1-LeftApply``1-ParserObjects-IParser{`0,``0},System-Func{ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``0}},ParserObjects-Quantifier-'></a>
+### LeftApply\`\`1(left,getRight,quantifier) `method`
 
 ##### Summary
 
@@ -2867,7 +3084,7 @@ and you don't want to backtrack through the prefix on every attempt.
 | ---- | ---- | ----------- |
 | left | [ParserObjects.IParser{\`0,\`\`0}](#T-ParserObjects-IParser{`0,``0} 'ParserObjects.IParser{`0,``0}') |  |
 | getRight | [System.Func{ParserObjects.IParser{\`0,\`\`0},ParserObjects.IParser{\`0,\`\`0}}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}}') |  |
-| arity | [ParserObjects.Parsers.ApplyArity](#T-ParserObjects-Parsers-ApplyArity 'ParserObjects.Parsers.ApplyArity') |  |
+| quantifier | [ParserObjects.Quantifier](#T-ParserObjects-Quantifier 'ParserObjects.Quantifier') |  |
 
 ##### Generic Types
 
@@ -3137,7 +3354,7 @@ Produce a value without consuming anything out of the input sequence
 
 ##### Summary
 
-Produce a value given the current state of the input sequence.
+Produce a value given the input sequence.
 
 ##### Returns
 
@@ -3148,6 +3365,29 @@ Produce a value given the current state of the input sequence.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | produce | [System.Func{ParserObjects.ISequence{\`0},\`\`0}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{ParserObjects.ISequence{`0},``0}') |  |
+
+##### Generic Types
+
+| Name | Description |
+| ---- | ----------- |
+| TOutput |  |
+
+<a name='M-ParserObjects-ParserMethods`1-Produce``1-System-Func{ParserObjects-ISequence{`0},ParserObjects-Utility-IDataStore,``0}-'></a>
+### Produce\`\`1(produce) `method`
+
+##### Summary
+
+Produces a value given the input sequence and the current contextual data
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| produce | [System.Func{ParserObjects.ISequence{\`0},ParserObjects.Utility.IDataStore,\`\`0}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{ParserObjects.ISequence{`0},ParserObjects.Utility.IDataStore,``0}') |  |
 
 ##### Generic Types
 
@@ -3620,8 +3860,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Does a lookahead to see if there is a match. Returns a success or failure result, but does not
-consume any actual input
+Does a lookahead to see if there is a match. Returns a success or failure result, but does 
+not consume any actual input.
 
 ##### Generic Types
 
@@ -3638,7 +3878,8 @@ ParserObjects.Parsers
 
 ##### Summary
 
-Produces an output value unconditionally. Consumes no input. The callback has access
+Produces an output value unconditionally. Consumes no input. The callback has access to
+both the input sequence and the current contextual data, to help crafting the value.
 
 ##### Generic Types
 

@@ -24,9 +24,26 @@ namespace ParserObjects
         public static IParser<TInput, bool> Bool(IParser<TInput> p)
             => If(p, Produce(() => true), Produce(() => false));
 
+        /// <summary>
+        /// Executes a parser, and uses the value to determine the next parser to execute
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
             => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
 
+        /// <summary>
+        /// Executes a parser without consuming any input, and uses the value to determine the next
+        /// parser to execute
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
             => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
 
@@ -71,6 +88,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context> before = null, Action<Examine<TInput, TOutput>.Context> after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
+        /// <summary>
+        /// Invoke callbacks before and after a parse
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <returns></returns>
         public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context> before = null, Action<Examine<TInput>.Context> after = null)
             => new Examine<TInput>.Parser(parser, before, after);
 
@@ -130,7 +154,7 @@ namespace ParserObjects
             => new ProduceParser<TInput, TOutput>((input, data) => produce());
 
         /// <summary>
-        /// Produce a value given the current state of the input sequence.
+        /// Produce a value given the input sequence.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
@@ -138,6 +162,12 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce)
             => new ProduceParser<TInput, TOutput>((input, data) => produce(input));
 
+        /// <summary>
+        /// Produces a value given the input sequence and the current contextual data
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="produce"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, IDataStore, TOutput> produce)
             => new ProduceParser<TInput, TOutput>(produce);
 

@@ -4,6 +4,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Inserts a callback before and after the specified parser. Useful for debugging purposes
+    /// and to adjust the input/output of a parser.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class Examine<TInput, TOutput>
     {
         public class Parser : IParser<TInput, TOutput>
