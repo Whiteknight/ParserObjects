@@ -16,6 +16,14 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
+        /// <summary>
+        /// Parses a parser, returns true if the parser succeeds, false if it fails
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static IParser<TInput, bool> Bool(IParser<TInput> p)
+            => If(p, Produce(() => true), Produce(() => false));
+
         public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
             => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
 
