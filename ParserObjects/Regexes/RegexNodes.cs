@@ -4,12 +4,20 @@ using System.Linq;
 
 namespace ParserObjects.Regexes
 {
+    /// <summary>
+    /// An abstract syntax node for a regex pattern. Represents a single construct in the regex
+    /// pattern. Used to create a list of RegexState objects for performing the actual match. 
+    /// </summary>
     public interface IRegexNode
     {
         void BuildUpStates(List<List<RegexState>> states);
         string Description { get; }
     }
 
+    /// <summary>
+    /// Abstract factory class to create regex nodes. Used by the parser to create nodes according
+    /// to the current construct in the pattern.
+    /// </summary>
     public static class RegexNodes
     {
         public static IRegexNode Wildcard() => new MatchRegexNode(x => x != '\0', "Match any");

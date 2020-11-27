@@ -1571,6 +1571,24 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Regexes.IRegexNode">
+            <summary>
+            An abstract syntax node for a regex pattern. Represents a single construct in the regex
+            pattern. Used to create a list of RegexState objects for performing the actual match. 
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Regexes.RegexNodes">
+            <summary>
+            Abstract factory class to create regex nodes. Used by the parser to create nodes according
+            to the current construct in the pattern.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Regexes.RegexState">
+            <summary>
+            Represents a state at a point in evaluating a regular expression. At each point, the
+            regex will attempt to match the current state against the current input
+            </summary>
+        </member>
         <member name="M:ParserObjects.Sequences.EnumerableExtensions.ToSequence``1(System.Collections.Generic.IEnumerable{``0},``0)">
             <summary>
             Wrap the enumerable as a sequence.

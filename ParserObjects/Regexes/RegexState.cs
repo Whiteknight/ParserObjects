@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Regexes
 {
+    /// <summary>
+    /// Represents a state at a point in evaluating a regular expression. At each point, the
+    /// regex will attempt to match the current state against the current input
+    /// </summary>
     public class RegexState
     {
         public RegexStateType Type { get; set; }

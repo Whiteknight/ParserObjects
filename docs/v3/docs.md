@@ -56,6 +56,7 @@
   - [Get(keys)](#M-ParserObjects-IReadOnlyTrie`2-Get-System-Collections-Generic-IEnumerable{`0}- 'ParserObjects.IReadOnlyTrie`2.Get(System.Collections.Generic.IEnumerable{`0})')
   - [Get(keys)](#M-ParserObjects-IReadOnlyTrie`2-Get-ParserObjects-ISequence{`0}- 'ParserObjects.IReadOnlyTrie`2.Get(ParserObjects.ISequence{`0})')
   - [GetAllPatterns()](#M-ParserObjects-IReadOnlyTrie`2-GetAllPatterns 'ParserObjects.IReadOnlyTrie`2.GetAllPatterns')
+- [IRegexNode](#T-ParserObjects-Regexes-IRegexNode 'ParserObjects.Regexes.IRegexNode')
 - [IReplaceableParserUntyped](#T-ParserObjects-IReplaceableParserUntyped 'ParserObjects.IReplaceableParserUntyped')
   - [ReplaceableChild](#P-ParserObjects-IReplaceableParserUntyped-ReplaceableChild 'ParserObjects.IReplaceableParserUntyped.ReplaceableChild')
   - [SetParser(parser)](#M-ParserObjects-IReplaceableParserUntyped-SetParser-ParserObjects-IParser- 'ParserObjects.IReplaceableParserUntyped.SetParser(ParserObjects.IParser)')
@@ -198,7 +199,9 @@
   - [Trie\`\`1(setupTrie)](#M-ParserObjects-ParserMethods`1-Trie``1-System-Action{ParserObjects-IInsertableTrie{`0,``0}}- 'ParserObjects.ParserMethods`1.Trie``1(System.Action{ParserObjects.IInsertableTrie{`0,``0}})')
 - [PositiveLookaheadParser\`1](#T-ParserObjects-Parsers-PositiveLookaheadParser`1 'ParserObjects.Parsers.PositiveLookaheadParser`1')
 - [ProduceParser\`2](#T-ParserObjects-Parsers-ProduceParser`2 'ParserObjects.Parsers.ProduceParser`2')
+- [RegexNodes](#T-ParserObjects-Regexes-RegexNodes 'ParserObjects.Regexes.RegexNodes')
 - [RegexParser](#T-ParserObjects-Parsers-RegexParser 'ParserObjects.Parsers.RegexParser')
+- [RegexState](#T-ParserObjects-Regexes-RegexState 'ParserObjects.Regexes.RegexState')
 - [ReplaceableParser\`2](#T-ParserObjects-Parsers-ReplaceableParser`2 'ParserObjects.Parsers.ReplaceableParser`2')
 - [RightApplyZeroOrMoreParser\`3](#T-ParserObjects-Parsers-RightApplyZeroOrMoreParser`3 'ParserObjects.Parsers.RightApplyZeroOrMoreParser`3')
 - [RuleParser\`2](#T-ParserObjects-Parsers-RuleParser`2 'ParserObjects.Parsers.RuleParser`2')
@@ -1100,6 +1103,18 @@ the results should be cached if possible.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='T-ParserObjects-Regexes-IRegexNode'></a>
+## IRegexNode `type`
+
+##### Namespace
+
+ParserObjects.Regexes
+
+##### Summary
+
+An abstract syntax node for a regex pattern. Represents a single construct in the regex
+pattern. Used to create a list of RegexState objects for performing the actual match.
 
 <a name='T-ParserObjects-IReplaceableParserUntyped'></a>
 ## IReplaceableParserUntyped `type`
@@ -3888,6 +3903,18 @@ both the input sequence and the current contextual data, to help crafting the va
 | TOutput |  |
 | TInput |  |
 
+<a name='T-ParserObjects-Regexes-RegexNodes'></a>
+## RegexNodes `type`
+
+##### Namespace
+
+ParserObjects.Regexes
+
+##### Summary
+
+Abstract factory class to create regex nodes. Used by the parser to create nodes according
+to the current construct in the pattern.
+
 <a name='T-ParserObjects-Parsers-RegexParser'></a>
 ## RegexParser `type`
 
@@ -3898,6 +3925,18 @@ ParserObjects.Parsers
 ##### Summary
 
 Uses limited Regular Expression syntax to match a pattern of characters.
+
+<a name='T-ParserObjects-Regexes-RegexState'></a>
+## RegexState `type`
+
+##### Namespace
+
+ParserObjects.Regexes
+
+##### Summary
+
+Represents a state at a point in evaluating a regular expression. At each point, the
+regex will attempt to match the current state against the current input
 
 <a name='T-ParserObjects-Parsers-ReplaceableParser`2'></a>
 ## ReplaceableParser\`2 `type`
