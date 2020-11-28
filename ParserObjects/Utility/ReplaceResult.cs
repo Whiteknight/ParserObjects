@@ -3,19 +3,12 @@ using System.Linq;
 
 namespace ParserObjects.Utility
 {
-    public class SingleReplaceResult
+    public record SingleReplaceResult (
+        IReplaceableParserUntyped Replaceable,
+        IParser Previous,
+        IParser Current
+    )
     {
-        public SingleReplaceResult(IReplaceableParserUntyped replaceable, IParser previous, IParser current)
-        {
-            Replaceable = replaceable;
-            Previous = previous;
-            Current = current;
-        }
-
-        public IReplaceableParserUntyped Replaceable { get; }
-        public IParser Previous { get; }
-        public IParser Current { get; }
-
         public bool Success => !ReferenceEquals(Previous, Current);
 
         public void Deconstruct(out bool success, out IParser previous, out IParser current)

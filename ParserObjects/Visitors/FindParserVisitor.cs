@@ -17,13 +17,12 @@ namespace ParserObjects.Visitors
             public IList<IParser> Found { get; }
             public ICollection<IParser> Seen { get; }
 
-            public bool CanStop { get; set; }
+            public bool CanStop => JustOne && Found.Count > 0;
 
             public State(Func<IParser, bool> predicate, bool justOne)
             {
                 Predicate = predicate;
                 JustOne = justOne;
-                CanStop = false;
                 Found = new List<IParser>();
                 Seen = new HashSet<IParser>();
             }
@@ -158,10 +157,7 @@ namespace ParserObjects.Visitors
             {
                 state.Found.Add(parser);
                 if (state.JustOne)
-                {
-                    state.CanStop = true;
                     return;
-                }
             }
 
             foreach (var child in parser.GetChildren())

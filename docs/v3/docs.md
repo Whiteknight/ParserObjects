@@ -82,9 +82,7 @@
 - [LeftValueParser\`2](#T-ParserObjects-Parsers-LeftValueParser`2 'ParserObjects.Parsers.LeftValueParser`2')
 - [LimitedListParser\`2](#T-ParserObjects-Parsers-LimitedListParser`2 'ParserObjects.Parsers.LimitedListParser`2')
 - [Location](#T-ParserObjects-Location 'ParserObjects.Location')
-  - [Column](#P-ParserObjects-Location-Column 'ParserObjects.Location.Column')
-  - [FileName](#P-ParserObjects-Location-FileName 'ParserObjects.Location.FileName')
-  - [Line](#P-ParserObjects-Location-Line 'ParserObjects.Location.Line')
+  - [#ctor()](#M-ParserObjects-Location-#ctor-System-String,System-Int32,System-Int32- 'ParserObjects.Location.#ctor(System.String,System.Int32,System.Int32)')
 - [MapSequence\`2](#T-ParserObjects-Sequences-MapSequence`2 'ParserObjects.Sequences.MapSequence`2')
 - [MatchPatternParser\`1](#T-ParserObjects-Parsers-MatchPatternParser`1 'ParserObjects.Parsers.MatchPatternParser`1')
 - [MatchPredicateParser\`1](#T-ParserObjects-Parsers-MatchPredicateParser`1 'ParserObjects.Parsers.MatchPredicateParser`1')
@@ -1449,26 +1447,17 @@ ParserObjects
 An approximate description of the location in the data source where an item is located. Notice
 that some types of input may not make this information precisely knowable.
 
-<a name='P-ParserObjects-Location-Column'></a>
-### Column `property`
+<a name='M-ParserObjects-Location-#ctor-System-String,System-Int32,System-Int32-'></a>
+### #ctor() `constructor`
 
 ##### Summary
 
-The index of the item in the current file and line
+An approximate description of the location in the data source where an item is located. Notice
+that some types of input may not make this information precisely knowable.
 
-<a name='P-ParserObjects-Location-FileName'></a>
-### FileName `property`
+##### Parameters
 
-##### Summary
-
-The name of the file, if the input source is a file
-
-<a name='P-ParserObjects-Location-Line'></a>
-### Line `property`
-
-##### Summary
-
-The line number, if the input is on multiple lines
+This constructor has no parameters.
 
 <a name='T-ParserObjects-Sequences-MapSequence`2'></a>
 ## MapSequence\`2 `type`

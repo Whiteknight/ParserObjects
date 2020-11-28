@@ -48,20 +48,14 @@ namespace ParserObjects.Parsers
             }
         }
 
-        public class Context
+        public record Context(
+            IParser<TInput, TOutput> Parser,
+            ParseState<TInput> State,
+            IResult<TOutput> Result
+        )
         {
-            public Context(IParser<TInput, TOutput> parser, ParseState<TInput> state, IResult<TOutput> result)
-            {
-                State = state;
-                Parser = parser;
-                Result = result;
-            }
-
-            public ParseState<TInput> State { get; }
             public IDataStore Data => State.Data;
-            public IParser<TInput, TOutput> Parser { get; }
             public ISequence<TInput> Input => State.Input;
-            public IResult<TOutput> Result { get; }
         }
     }
 
@@ -101,20 +95,14 @@ namespace ParserObjects.Parsers
             }
         }
 
-        public class Context
+        public record Context(
+            IParser<TInput> Parser,
+            ParseState<TInput> State,
+            IResult Result
+        )
         {
-            public Context(IParser<TInput> parser, ParseState<TInput> state, IResult result)
-            {
-                State = state;
-                Parser = parser;
-                Result = result;
-            }
-
-            public ParseState<TInput> State { get; }
             public IDataStore Data => State.Data;
-            public IParser<TInput> Parser { get; }
             public ISequence<TInput> Input => State.Input;
-            public IResult Result { get; }
         }
     }
 }

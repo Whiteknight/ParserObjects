@@ -3,28 +3,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects
 {
-    public class Result<TValue> : IResult<TValue>
+    public record Result<TValue>(IParser Parser, bool Success, TValue Value, Location Location, string Message) : IResult<TValue>
     {
-        public Result(IParser parser, bool success, TValue value, Location location, string message)
-        {
-            Parser = parser;
-            Success = success;
-            Value = value;
-            Location = location;
-            Message = message;
-        }
-
-        public bool Success { get; }
-
-        public TValue Value { get; }
-
         object IResult.Value => Value;
-
-        public Location Location { get; }
-
-        public string Message { get; }
-
-        public IParser Parser { get; }
 
         public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
         {
