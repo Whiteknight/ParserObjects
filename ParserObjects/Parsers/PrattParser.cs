@@ -6,81 +6,43 @@ namespace ParserObjects.Parsers
 {
     public class Pratt<TInput, TOperator, TOutput>
     {
+        // See https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
+
         public static IConfiguration CreateConfiguration() => new Configuration();
 
-        private class InfixOperator
-        {
-            public InfixOperator(IParser<TInput, TOperator> parser, int leftAssociativity, int rightAssociativity, Func<TOutput, TOperator, TOutput, TOutput> produce)
-            {
-                Parser = parser;
-                LeftAssociativity = leftAssociativity;
-                RightAssociativity = rightAssociativity;
-                Produce = produce;
-            }
+        private record InfixOperator (
+            IParser<TInput, TOperator> Parser,
+            int LeftAssociativity,
+            int RightAssociativity,
+            Func<TOutput, TOperator, TOutput, TOutput> Produce
+        );
 
-            public IParser<TInput, TOperator> Parser { get; }
-            public int LeftAssociativity { get; }
-            public int RightAssociativity { get; }
-            public Func<TOutput, TOperator, TOutput, TOutput> Produce { get; }
-        }
+        private record PrefixOperator (
+            IParser<TInput, TOperator> Parser,
+            int RightAssociativity,
+            Func<TOperator, TOutput, TOutput> Produce
+        );
+        
 
-        private class PrefixOperator
-        {
-            public PrefixOperator(IParser<TInput, TOperator> parser, int rightAssociativity, Func<TOperator, TOutput, TOutput> produce)
-            {
-                Parser = parser;
-                RightAssociativity = rightAssociativity;
-                Produce = produce;
-            }
+        private record PostfixOperator (
+            IParser<TInput, TOperator> Parser,
+            int LeftAssociativity,
+            Func<TOutput, TOperator, TOutput> Produce 
+        );
+        
 
-            public IParser<TInput, TOperator> Parser { get; }
-            public int RightAssociativity { get; }
-            public Func<TOperator, TOutput, TOutput> Produce { get; }
-        }
+        private record CircumfixOperator(
+            IParser<TInput, TOperator> StartParser,
+            IParser<TInput, TOperator> EndParser,
+            Func<TOperator, TOutput, TOperator, TOutput> Produce
+        );
 
-        private class PostfixOperator
-        {
-            public PostfixOperator(IParser<TInput, TOperator> parser, int leftAssociativity, Func<TOutput, TOperator, TOutput> produce)
-            {
-                Parser = parser;
-                LeftAssociativity = leftAssociativity;
-                Produce = produce;
-            }
-
-            public IParser<TInput, TOperator> Parser { get; }
-            public int LeftAssociativity { get; }
-            public Func<TOutput, TOperator, TOutput> Produce { get; }
-        }
-
-        private class CircumfixOperator
-        {
-            public CircumfixOperator(IParser<TInput, TOperator> startParser, IParser<TInput, TOperator> endParser, Func<TOperator, TOutput, TOperator, TOutput> produce)
-            {
-                StartParser = startParser;
-                EndParser = endParser;
-                Produce = produce;
-            }
-
-            public IParser<TInput, TOperator> StartParser { get; }
-            public IParser<TInput, TOperator> EndParser { get; }
-            public Func<TOperator, TOutput, TOperator, TOutput> Produce { get; }
-        }
-
-        private class PostcircumfixOperator
-        {
-            public PostcircumfixOperator(IParser<TInput, TOperator> startParser, IParser<TInput, TOperator> endParser, int leftAssociativity, Func<TOutput, TOperator, TOutput, TOperator, TOutput> produce)
-            {
-                StartParser = startParser;
-                EndParser = endParser;
-                LeftAssociativity = leftAssociativity;
-                Produce = produce;
-            }
-
-            public int LeftAssociativity { get; }
-            public IParser<TInput, TOperator> StartParser { get; }
-            public IParser<TInput, TOperator> EndParser { get; }
-            public Func<TOutput, TOperator, TOutput, TOperator, TOutput> Produce { get; }
-        }
+        private record PostcircumfixOperator(
+            IParser<TInput, TOperator> StartParser,
+            IParser<TInput, TOperator> EndParser,
+            int LeftAssociativity,
+            Func<TOutput, TOperator, TOutput, TOperator, TOutput> Produce
+        );
 
         public interface IConfiguration
         {
@@ -169,7 +131,7 @@ namespace ParserObjects.Parsers
                     any = true;
                     infix = new List<InfixOperator>();
                     foreach (var op in InfixOperators)
-                        infix.Add(op.Parser == find ? new InfixOperator(typed, op.LeftAssociativity, op.RightAssociativity, op.Produce) : op);
+                        infix.Add(op.Parser == find ? op with { Parser = typed } : op);
                 }
 
                 List<PrefixOperator> prefix = null;
@@ -178,7 +140,7 @@ namespace ParserObjects.Parsers
                     any = true;
                     prefix = new List<PrefixOperator>();
                     foreach (var op in PrefixOperators)
-                        prefix.Add(op.Parser == find ? new PrefixOperator(typed, op.RightAssociativity, op.Produce) : op);
+                        prefix.Add(op.Parser == find ? op with { Parser = typed } : op);
                 }
 
                 List<PostfixOperator> postfix = null;
@@ -187,7 +149,7 @@ namespace ParserObjects.Parsers
                     any = true;
                     postfix = new List<PostfixOperator>();
                     foreach (var op in PostfixOperators)
-                        postfix.Add(op.Parser == find ? new PostfixOperator(typed, op.LeftAssociativity, op.Produce) : op);
+                        postfix.Add(op.Parser == find ? op with { Parser = typed } : op);
                 }
 
                 List<CircumfixOperator> circumfix = null;
@@ -199,7 +161,7 @@ namespace ParserObjects.Parsers
                     {
                         var start = op.StartParser == find ? typed : op.StartParser;
                         var end = op.EndParser == find ? typed : op.EndParser;
-                        circumfix.Add(start != op.StartParser || end != op.EndParser ? new CircumfixOperator(start, end, op.Produce) : op);
+                        circumfix.Add(start != op.StartParser || end != op.EndParser ? op with { StartParser = start, EndParser = end } : op);
                     }
                 }
 
@@ -212,7 +174,7 @@ namespace ParserObjects.Parsers
                     {
                         var start = op.StartParser == find ? typed : op.StartParser;
                         var end = op.EndParser == find ? typed : op.EndParser;
-                        postcircumfix.Add(start != op.StartParser || end != op.EndParser ? new PostcircumfixOperator(start, end, op.LeftAssociativity, op.Produce) : op);
+                        postcircumfix.Add(start != op.StartParser || end != op.EndParser ? op with { StartParser = start, EndParser = end } : op);
                     }
                 }
 
@@ -230,9 +192,9 @@ namespace ParserObjects.Parsers
 
         public class Parser : IParser<TInput, TOutput>
         {
-            private IParser<TInput, TOutput> _values;
+            private readonly IParser<TInput, TOutput> _values;
 
-            private Configuration _config;
+            private readonly Configuration _config;
 
             public Parser(IParser<TInput, TOutput> values, IConfiguration config)
             {
@@ -244,55 +206,80 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> Parse(ParseState<TInput> state) => ParsePrecidence(state, 0);
 
+            private struct GetPostfixOperatorResult
+            {
+                public GetPostfixOperatorResult(int leftAssociativity, Func<TOutput, TOutput> produce)
+                {
+                    LeftAssociativity = leftAssociativity;
+                    Produce = produce;
+                }
+
+                public bool Success => Produce != null;
+                public int LeftAssociativity { get; }
+                public Func<TOutput, TOutput> Produce { get;  }
+            }
+
+            private struct GetInfixOperatorResult
+            {
+                public GetInfixOperatorResult(int leftAssociativity, int rightAssociativity, Func<TOutput, TOutput, TOutput> produce)
+                {
+                    LeftAssociativity = leftAssociativity;
+                    RightAssociativity = rightAssociativity;
+                    Produce = produce;
+                }
+
+                public bool Success => Produce != null;
+                public int LeftAssociativity { get; }
+                public int RightAssociativity { get; }
+                public Func<TOutput, TOutput, TOutput> Produce { get; }
+            }
+
             private IResult<TOutput> ParsePrecidence(ParseState<TInput> state, int minBp)
             {
                 if (state.Input.IsAtEnd)
                     return state.Fail(this, "Sequence is at end");
 
-                var (hasLhs, lhs) = GetLeftHandSide(state);
-                if (!hasLhs)
+                var (hasLeft, left) = GetLeftHandSide(state);
+                if (!hasLeft)
                     return state.Fail(this, "Expected terminal/value result");
 
-                while (true)
+                while (!state.Input.IsAtEnd)
                 {
-                    if (state.Input.IsAtEnd)
-                        break;
-
                     // If we parse an operator but it's at the wrong level of precidence, we need
                     // to rewind and adjust the level of recursion.
                     var checkpoint = state.Input.Checkpoint();
 
                     // First see if we can attach a postfix or postcircumfix operator at this
                     // point. 
-                    var (hasPOp, plbp, pproduce) = GetPostfixOperator(state);
-                    if (hasPOp)
+                    var postfixResult = GetPostfixOperator(state);
+                    if (postfixResult.Success)
                     {
-                        if (plbp < minBp)
+                        if (postfixResult.LeftAssociativity < minBp)
                         {
                             checkpoint.Rewind();
                             break;
                         }
-                        lhs = pproduce(lhs);
+                        left = postfixResult.Produce(left);
                         continue;
                     }
 
                     // Second see if we can parse an infix operator at this point.
-                    var (hasIOp, lbp, rbp, produce) = GetInfixOperator(state);
-                    if (hasIOp)
+                    var infixResult = GetInfixOperator(state);
+                    if (infixResult.Success)
                     {
-                        if (lbp < minBp)
+                        if (infixResult.LeftAssociativity < minBp)
                         {
                             checkpoint.Rewind();
                             break;
                         }
-                        var rhsResult = ParsePrecidence(state, rbp);
+                        var rhsResult = ParsePrecidence(state, infixResult.RightAssociativity);
                         if (!rhsResult.Success)
                         {
                             checkpoint.Rewind();
                             break;
                         }
 
-                        lhs = produce(lhs, rhsResult.Value);
+                        left = infixResult.Produce(left, rhsResult.Value);
                         continue;
                     }
 
@@ -300,12 +287,13 @@ namespace ParserObjects.Parsers
                     break;
                 }
 
-                return state.Success(this, lhs);
+                return state.Success(this, left);
             }
 
             private (bool success, TOutput value) GetLeftHandSide(ParseState<TInput> state)
             {
                 var checkpoint = state.Input.Checkpoint();
+
                 // Check all possible circumfix operators. Once we see the start production, we
                 // have to rewind if there are any failures.
                 foreach (var opParser in _config.CircumfixOperators)
@@ -348,11 +336,10 @@ namespace ParserObjects.Parsers
                 }
 
                 // No operators, try to parse a terminal value
-                var (hasValue, value) = _values.Parse(state);
-                return (hasValue, value);
+                return (_, _) = _values.Parse(state);
             }
 
-            private (bool success, int lbp, Func<TOutput, TOutput> produce) GetPostfixOperator(ParseState<TInput> state)
+            private GetPostfixOperatorResult GetPostfixOperator(ParseState<TInput> state)
             {
                 // Try to parse the postfix operators. These are atomic, so if there's a failure
                 // we don't need to rewind.
@@ -361,9 +348,8 @@ namespace ParserObjects.Parsers
                     var opResult = opParser.Parser.Parse(state);
                     if (!opResult.Success)
                         continue;
-                    TOutput produce(TOutput lhs) => opParser.Produce(lhs, opResult.Value);
-                    return (true, opParser.LeftAssociativity, produce);
-
+                    TOutput produce(TOutput left) => opParser.Produce(left, opResult.Value);
+                    return new GetPostfixOperatorResult(opParser.LeftAssociativity, produce);
                 }
 
                 // Check postcircumfix operators. Once we start matching things, if we see a
@@ -386,15 +372,15 @@ namespace ParserObjects.Parsers
                         checkpoint.Rewind();
                         continue;
                     }
-                    TOutput produce(TOutput lhs) => opParser.Produce(lhs, startResult.Value, contents.Value, endResult.Value);
-                    return (true, opParser.LeftAssociativity, produce);
+                    TOutput produce(TOutput left) => opParser.Produce(left, startResult.Value, contents.Value, endResult.Value);
+                    return new GetPostfixOperatorResult(opParser.LeftAssociativity, produce);
                 }
 
                 // No postfix or postcircumfix operators, so return nothing
-                return (false, 0, null);
+                return new GetPostfixOperatorResult();
             }
 
-            private (bool success, int lbp, int rbp, Func<TOutput, TOutput, TOutput> produce) GetInfixOperator(ParseState<TInput> state)
+            private GetInfixOperatorResult GetInfixOperator(ParseState<TInput> state)
             {
                 // Check the infix operators to see if we have a match. Rewinds will happen
                 // in the caller if the pattern doesn't work out, because of the recursion.
@@ -403,10 +389,10 @@ namespace ParserObjects.Parsers
                     var opResult = opParser.Parser.Parse(state);
                     if (!opResult.Success)
                         continue;
-                    TOutput produce(TOutput lhs, TOutput rhs) => opParser.Produce(lhs, opResult.Value, rhs);
-                    return (true, opParser.LeftAssociativity, opParser.RightAssociativity, produce);
+                    TOutput produce(TOutput leftAssoc, TOutput rightAssoc) => opParser.Produce(leftAssoc, opResult.Value, rightAssoc);
+                    return new GetInfixOperatorResult(opParser.LeftAssociativity, opParser.RightAssociativity, produce);
                 }
-                return (false, 0, 0, null);
+                return new GetInfixOperatorResult();
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

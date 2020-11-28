@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Sequences
         private static StreamByteSequence GetTarget(params byte[] b)
         {
             var memoryStream = new MemoryStream();
-            memoryStream.Write(b);
+            memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return new StreamByteSequence(memoryStream, bufferSize: 5);
         }
@@ -150,7 +150,7 @@ namespace ParserObjects.Tests.Sequences
         public void ToByteSequence_Test()
         {
             var memoryStream = new MemoryStream();
-            memoryStream.Write(new byte[] { 1, 2, 3, });
+            memoryStream.Write(new byte[] { 1, 2, 3, }, 0, 3);
             memoryStream.Seek(0, SeekOrigin.Begin);
             var target = memoryStream.ToByteSequence();
 

@@ -12,7 +12,8 @@ namespace ParserObjects.Tests.Sequences
         private static StreamCharacterSequence GetTarget(string sc, int bufferSize = 32)
         {
             var memoryStream = new MemoryStream();
-            memoryStream.Write(Encoding.UTF8.GetBytes(sc));
+            var b = Encoding.UTF8.GetBytes(sc);
+            memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return new StreamCharacterSequence(memoryStream, Encoding.UTF8, bufferSize: bufferSize);
         }
@@ -308,7 +309,8 @@ namespace ParserObjects.Tests.Sequences
         public void ToCharSequence_Stream()
         {
             var memoryStream = new MemoryStream();
-            memoryStream.Write(Encoding.UTF8.GetBytes("abc"));
+            var b = Encoding.UTF8.GetBytes("abc");
+            memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
             var target = memoryStream.ToCharSequence();
             target.GetNext().Should().Be('a');
@@ -321,7 +323,8 @@ namespace ParserObjects.Tests.Sequences
         public void ToCharSequence_StreamReader()
         {
             var memoryStream = new MemoryStream();
-            memoryStream.Write(Encoding.UTF8.GetBytes("abc"));
+            var b = Encoding.UTF8.GetBytes("abc");
+            memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
             var reader = new StreamReader(memoryStream);
             var target = reader.ToCharSequence();
