@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Parsers;
@@ -256,12 +257,24 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 left => letterParser
             );
-            parser = parser.ReplaceChild(letterParser, dotParser) as IParser<char, string>;
+            Action act = () => parser = parser.ReplaceChild(letterParser, dotParser) as IParser<char, string>;
+            act.Should().Throw<InvalidOperationException>();
+        }
 
-            var input = new StringCharacterSequence("1.");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be(".");
+        [Test]
+        public void ReplaceChild_LeftValue()
+        {
+            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
+            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
+
+            // Contrived recursive example, do not do this.
+            var parser = LeftApply(
+                numberParser,
+                left => left
+            );
+            var leftValueParser = parser.GetChildren().ToList()[1];
+            Action act = () => parser = parser.ReplaceChild(leftValueParser, letterParser) as IParser<char, string>;
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Test]

@@ -14,6 +14,7 @@ namespace ParserObjects.Parsers
     public class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _initial;
+        private readonly Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> _getRight;
         private readonly Quantifier _quantifier;
         private readonly IParser<TInput, TOutput> _right;
         private readonly LeftValueParser<TInput, TOutput> _left;
@@ -26,17 +27,10 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(getRight, nameof(getRight));
 
             _initial = initial;
+            _getRight = getRight;
             _quantifier = arity;
             _left = new LeftValueParser<TInput, TOutput>();
             _right = getRight(_left);
-        }
-
-        private LeftApplyParser(IParser<TInput, TOutput> initial, LeftValueParser<TInput, TOutput> left, IParser<TInput, TOutput> right, Quantifier arity)
-        {
-            _initial = initial;
-            _left = left;
-            _right = right;
-            _quantifier = arity;
         }
 
         public string Name
@@ -129,11 +123,18 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
+            // Notice that replacing the initial parser causes a close of the right parser to be
+            // created. This may be unexpected for the user, but it's the only way to guarantee
+            // correctness and not have shared mutable state.
             if (_initial == find && replace is IParser<TInput, TOutput> initialTyped)
-                return new LeftApplyParser<TInput, TOutput>(initialTyped, _left, _right, _quantifier);
+                return new LeftApplyParser<TInput, TOutput>(initialTyped, _getRight, _quantifier);
 
-            if (_right == find && replace is IParser<TInput, TOutput> rightTyped)
-                return new LeftApplyParser<TInput, TOutput>(_initial, _left, rightTyped, _quantifier);
+            // Replacing _right here will detach it from _left, and it will be impossible to use
+            if (_right == find)
+                ThrowCannotReplaceRightParserException();
+
+            if (_left == find)
+                ThrowCannotReplaceLeftValueParserException();
 
             return this;
         }
@@ -142,6 +143,25 @@ namespace ParserObjects.Parsers
         {
             var typeName = this.GetType().Name;
             return Name == null ? base.ToString() : $"{typeName} {Name}";
+        }
+
+        private static void ThrowCannotReplaceRightParserException()
+        {
+            throw new InvalidOperationException(
+                "Cannot replace the right parser. " +
+                "The right parser must have a reference to the current left parser for " +
+                "recursion to work correctly. " +
+                "Please consider replacing the entire LeftApplyParser instead of just " +
+                "the right parser.");
+        }
+
+        private static void ThrowCannotReplaceLeftValueParserException()
+        {
+            throw new InvalidOperationException(
+                "Cannot replace the internal left value parser. " +
+                "This parser is for holding internal state only and should not " +
+                "be modified externally. Please create a new LeftApplyParser with " +
+                "your changes instead.");
         }
     }
 }
