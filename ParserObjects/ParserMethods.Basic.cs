@@ -144,6 +144,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
+        public static IParser<TInput, TOutput> Predict<TOutput>(Action<Predict<TInput,TOutput>.IConfiguration> setup)
+        {
+            var config = Predict<TInput, TOutput>.CreateConfiguration();
+            setup(config);
+            return new Predict<TInput, TOutput>.Parser(config);
+        }
+
         /// <summary>
         /// Produce a value without consuming anything out of the input sequence
         /// </summary>
