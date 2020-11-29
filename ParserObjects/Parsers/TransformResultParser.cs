@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace ParserObjects.Parsers
@@ -10,34 +11,42 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput1"></typeparam>
     /// <typeparam name="TOutput2"></typeparam>
-    public class TransformResultParser<TInput, TOutput1, TOutput2> : IParser<TInput, TOutput2>
+    public static class TransformResult<TInput, TOutput1, TOutput2>
     {
-        private readonly IParser<TInput, TOutput1> _inner;
-        private readonly Func<ParseState<TInput>, IResult<TOutput1>, IResult<TOutput2>> _transform;
+        public delegate IResult<TOutput2> Function(ParseState<TInput> state, IResult<TOutput1> result);
 
-        public TransformResultParser(IParser<TInput, TOutput1> inner, Func<ParseState<TInput>, IResult<TOutput1>, IResult<TOutput2>> transform)
+        public class Parser : IParser<TInput, TOutput2>
         {
-            _inner = inner;
-            _transform = transform;
-        }
+            private readonly IParser<TInput, TOutput1> _inner;
+            private readonly Function _transform;
 
-        public string Name { get; set; }
+            public Parser(IParser<TInput, TOutput1> inner, Function transform)
+            {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(transform, nameof(transform));
+                _inner = inner;
+                _transform = transform;
+            }
 
-        public IResult<TOutput2> Parse(ParseState<TInput> state)
-        {
-            var result = _inner.Parse(state);
-            return _transform(state, result);
-        }
+            public string Name { get; set; }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            public IResult<TOutput2> Parse(ParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                var result = _inner.Parse(state);
+                return _transform(state, result);
+            }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _inner && replace is IParser<TInput, TOutput1> typedReplace)
-                return new TransformResultParser<TInput, TOutput1, TOutput2>(typedReplace, _transform);
-            return this;
+            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+            public IParser ReplaceChild(IParser find, IParser replace)
+            {
+                if (find == _inner && replace is IParser<TInput, TOutput1> typedReplace)
+                    return new Parser(typedReplace, _transform);
+                return this;
+            }
         }
     }
 }

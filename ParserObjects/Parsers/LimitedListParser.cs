@@ -15,11 +15,13 @@ namespace ParserObjects.Parsers
 
         public LimitedListParser(IParser<TInput, TOutput> parser, int minimum, int? maximum)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
+
             Minimum = minimum < 0 ? 0 : minimum;
             Maximum = maximum;
             if (Maximum.HasValue && Maximum < Minimum)
                 Maximum = Minimum;
-            Assert.ArgumentNotNull(parser, nameof(parser));
+            
             _parser = parser;
         }
 

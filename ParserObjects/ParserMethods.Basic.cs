@@ -158,7 +158,7 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-            => new ProduceParser<TInput, TOutput>((input, data) => produce());
+            => new Produce<TInput, TOutput>.Parser((input, data) => produce());
 
         /// <summary>
         /// Produce a value given the input sequence.
@@ -167,7 +167,7 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce)
-            => new ProduceParser<TInput, TOutput>((input, data) => produce(input));
+            => new Produce<TInput, TOutput>.Parser((input, data) => produce(input));
 
         /// <summary>
         /// Produces a value given the input sequence and the current contextual data
@@ -175,8 +175,8 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, IDataStore, TOutput> produce)
-            => new ProduceParser<TInput, TOutput>(produce);
+        public static IParser<TInput, TOutput> Produce<TOutput>(Produce<TInput, TOutput>.Function produce)
+            => new Produce<TInput, TOutput>.Parser(produce);
 
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -187,8 +187,8 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
-        public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
-            => new SequentialParser<TInput, TOutput>(func);
+        public static IParser<TInput, TOutput> Sequential<TOutput>(Func<Sequential.State<TInput>, TOutput> func)
+            => new Sequential.Parser<TInput, TOutput>(func);
 
         /// <summary>
         /// Transform one node into another node to fit into the grammar

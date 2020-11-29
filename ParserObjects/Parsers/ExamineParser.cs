@@ -20,6 +20,7 @@ namespace ParserObjects.Parsers
 
             public Parser(IParser<TInput, TOutput> parser, Action<Context> before, Action<Context> after)
             {
+                Assert.ArgumentNotNull(parser, nameof(parser));
                 _parser = parser;
                 _before = before;
                 _after = after;

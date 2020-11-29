@@ -198,7 +198,7 @@ namespace ParserObjects.Visitors
             if (children.Count >= 2)
             {
                 var last = children[children.Count - 1];
-                if (last is ProduceParser<TInput, TOutput>)
+                if (last is Produce<TInput, TOutput>.Parser)
                 {
                     state.Current.Append(")?");
                     return;
@@ -216,7 +216,7 @@ namespace ParserObjects.Visitors
             state.Current.Append("User Function");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LeftApplyParser<TInput, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(LeftApply<TInput, TOutput>.Parser p, State state)
         {
             var children = p.GetChildren().ToArray();
             var initial = children[0];
@@ -291,7 +291,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(" )");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(ProduceParser<TInput, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(Produce<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("PRODUCE");
         }

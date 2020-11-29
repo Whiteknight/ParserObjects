@@ -16,7 +16,7 @@ namespace ParserObjects.Parsers
 
         public FirstParser(params IParser<TInput, TOutput>[] parsers)
         {
-            Assert.ArgumentNotNull(parsers, nameof(parsers));
+            Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
             _parsers = parsers;
         }
 
@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceChild(IParser find, IParser replace)
         {
-            if (!_parsers.Contains(find) || !(replace is IParser<TInput, TOutput> realReplace))
+            if (!_parsers.Contains(find) || replace is not IParser<TInput, TOutput> realReplace)
                 return this;
             var newList = new IParser<TInput, TOutput>[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)

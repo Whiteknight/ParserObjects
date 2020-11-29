@@ -705,7 +705,7 @@
             Parser methods for building combinators using declarative syntax
             </summary>
         </member>
-        <member name="M:ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},System.Func{ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0}},ParserObjects.Quantifier)">
+        <member name="M:ParserObjects.ParserMethods`1.LeftApply``1(ParserObjects.IParser{`0,``0},ParserObjects.Parsers.LeftApply{`0,``0}.GetRightFunc,ParserObjects.Quantifier)">
             <summary>
             A left-associative parser where the left item is parsed unconditionally, and the result of the
             left parser is applied to the right parser. This new result is then treated as the 'left' value
@@ -869,7 +869,7 @@
             <param name="produce"></param>
             <returns></returns>
         </member>
-        <member name="M:ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},ParserObjects.Utility.IDataStore,``0})">
+        <member name="M:ParserObjects.ParserMethods`1.Produce``1(ParserObjects.Parsers.Produce{`0,``0}.Function)">
             <summary>
             Produces a value given the input sequence and the current contextual data
             </summary>
@@ -1359,13 +1359,11 @@
             <typeparam name="TMiddle"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.CreateParser`2">
+        <member name="T:ParserObjects.Parsers.Create`2.Parser">
             <summary>
             Create a parser dynamically using information from the parse state. The parser created is 
             not expected to be constant and will not be cached.
             </summary>
-            <typeparam name="TInput"></typeparam>
-            <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.DeferredParser`2">
             <summary>
@@ -1426,7 +1424,7 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.LeftApplyParser`2">
+        <member name="T:ParserObjects.Parsers.LeftApply`2">
             <summary>
             Parser to help with left-associative or left-recursive parse situations. Executes an
             initial parser, and then passes that value to the right-hand-side production. The right
@@ -1492,13 +1490,11 @@
             </summary>
             <typeparam name="TInput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.ProduceParser`2">
+        <member name="T:ParserObjects.Parsers.Produce`2.Parser">
             <summary>
             Produces an output value unconditionally. Consumes no input. The callback has access to
             both the input sequence and the current contextual data, to help crafting the value.
             </summary>
-            <typeparam name="TOutput"></typeparam>
-            <typeparam name="TInput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.RegexParser">
             <summary>
@@ -1530,13 +1526,6 @@
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.SequentialState`1">
-            <summary>
-            Allows executing a parse sequentially in a special callback. Useful for debugging purposes
-            or cases where procedural logic should be intermixed with parser logic.
-            </summary>
-            <typeparam name="TInput"></typeparam>
-        </member>
         <member name="T:ParserObjects.Parsers.TransformParser`3">
             <summary>
             Transforms the output of one parser into a different value. Only used to transform success
@@ -1546,7 +1535,7 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TMiddle"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.TransformResultParser`3">
+        <member name="T:ParserObjects.Parsers.TransformResult`3">
             <summary>
             Transforms the raw result object, including the result type, result value, success flag or 
             error message.
@@ -1743,16 +1732,6 @@
             <param name="name"></param>
             <param name="transform"></param>
             <returns></returns>
-        </member>
-        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
-            <summary>
-                Reserved to be used by the compiler for tracking metadata.
-                This class should not be used by developers in source code.
-            </summary>
-            <remarks>
-                This definition is provided by the <i>IsExternalInit</i> NuGet package (https://www.nuget.org/packages/IsExternalInit).
-                Please see https://github.com/manuelroemer/IsExternalInit for more information.
-            </remarks>
         </member>
     </members>
 </doc>

@@ -5,42 +5,45 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    /// <summary>
-    /// Create a parser dynamically using information from the parse state. The parser created is 
-    /// not expected to be constant and will not be cached.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    public class CreateParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public static class Create<TInput, TOutput>
     {
-        private readonly Func<ParseState<TInput>, IParser<TInput, TOutput>> _getParser;
+        public delegate IParser<TInput, TOutput> Function(ParseState<TInput> state);
 
-        public CreateParser(Func<ParseState<TInput>, IParser<TInput, TOutput>> getParser)
+        /// <summary>
+        /// Create a parser dynamically using information from the parse state. The parser created is 
+        /// not expected to be constant and will not be cached.
+        /// </summary>
+        public class Parser : IParser<TInput, TOutput>
         {
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
-            _getParser = getParser;
-        }
+            private readonly Function _getParser;
 
-        public string Name { get; set; }
+            public Parser(Function getParser)
+            {
+                Assert.ArgumentNotNull(getParser, nameof(getParser));
+                _getParser = getParser;
+            }
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
-        {
-            var parser = _getParser(state);
-            if (parser == null)
-                throw new InvalidOperationException("Create parser value must not be null");
-            return parser.Parse(state);
-        }
+            public string Name { get; set; }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            public IResult<TOutput> Parse(ParseState<TInput> state)
+            {
+                var parser = _getParser(state);
+                if (parser == null)
+                    throw new InvalidOperationException("Create parser value must not be null");
+                return parser.Parse(state);
+            }
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
-        public IParser ReplaceChild(IParser find, IParser replace) => this;
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-        public override string ToString()
-        {
-            var typeName = this.GetType().Name;
-            return Name == null ? base.ToString() : $"{typeName} {Name}";
+            public IParser ReplaceChild(IParser find, IParser replace) => this;
+
+            public override string ToString()
+            {
+                var typeName = this.GetType().Name;
+                return Name == null ? base.ToString() : $"{typeName} {Name}";
+            }
         }
     }
 }

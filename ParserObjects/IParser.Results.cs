@@ -1,12 +1,11 @@
-﻿using System;
-using ParserObjects.Parsers;
+﻿using ParserObjects.Parsers;
 
 namespace ParserObjects
 {
     public static class ParserResultsExtensions
     {
-        public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, Func<ParseState<TInput>, IResult<TOutput>, IResult<TOutput>> transform)
-            => new TransformResultParser<TInput, TOutput, TOutput>(parser, (t, r) =>
+        public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, TransformResult<TInput, TOutput, TOutput>.Function transform)
+            => new TransformResult<TInput, TOutput, TOutput>.Parser(parser, (t, r) =>
             {
                 if (r.Success)
                     return r;

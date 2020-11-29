@@ -15,7 +15,7 @@ namespace ParserObjects.Parsers
 
         public AndParser(params IParser<TInput>[] parsers)
         {
-            Assert.ArgumentNotNull(parsers, nameof(parsers));
+            Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
             _parsers = parsers;
         }
 

@@ -40,7 +40,7 @@ namespace ParserObjects.Parsers
         {
             if (find == null || replace == null)
                 return this;
-            if (!_parsers.Contains(find) || !(replace is IParser<TInput> realReplace))
+            if (!_parsers.Contains(find) || replace is not IParser<TInput> realReplace)
                 return this;
             var newList = new IParser<TInput>[_parsers.Count];
             for (int i = 0; i < _parsers.Count; i++)

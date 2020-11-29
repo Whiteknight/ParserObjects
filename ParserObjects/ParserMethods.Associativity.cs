@@ -16,8 +16,8 @@ namespace ParserObjects
         /// <param name="getRight"></param>
         /// <param name="quantifier"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier quantifier = Quantifier.ZeroOrMore)
-            => new LeftApplyParser<TInput, TOutput>(left, getRight, quantifier);
+        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, LeftApply<TInput, TOutput>.GetRightFunc getRight, Quantifier quantifier = Quantifier.ZeroOrMore)
+            => new LeftApply<TInput, TOutput>.Parser(left, getRight, quantifier);
 
         /// <summary>
         /// a right-associative parser where the parser attempts to parse a sequence of items and middles

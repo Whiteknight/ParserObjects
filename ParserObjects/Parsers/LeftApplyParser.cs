@@ -11,157 +11,162 @@ namespace ParserObjects.Parsers
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public static class LeftApply<TInput, TOutput>
     {
-        private readonly IParser<TInput, TOutput> _initial;
-        private readonly Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> _getRight;
-        private readonly Quantifier _quantifier;
-        private readonly IParser<TInput, TOutput> _right;
-        private readonly LeftValueParser<TInput, TOutput> _left;
+        public delegate IParser<TInput, TOutput> GetRightFunc(IParser<TInput, TOutput> left);
 
-        private string _name;
-
-        public LeftApplyParser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity)
+        public class Parser : IParser<TInput, TOutput>
         {
-            Assert.ArgumentNotNull(initial, nameof(initial));
-            Assert.ArgumentNotNull(getRight, nameof(getRight));
+            private readonly IParser<TInput, TOutput> _initial;
+            private readonly GetRightFunc _getRight;
+            private readonly Quantifier _quantifier;
+            private readonly IParser<TInput, TOutput> _right;
+            private readonly LeftValueParser<TInput, TOutput> _left;
 
-            _initial = initial;
-            _getRight = getRight;
-            _quantifier = arity;
-            _left = new LeftValueParser<TInput, TOutput>();
-            _right = getRight(_left);
-        }
+            private string _name;
 
-        public string Name
-        {
-            get => _name;
-            set
+            public Parser(IParser<TInput, TOutput> initial, GetRightFunc getRight, Quantifier arity)
             {
-                _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
-            }
-        }
+                Assert.ArgumentNotNull(initial, nameof(initial));
+                Assert.ArgumentNotNull(getRight, nameof(getRight));
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
-        {
-            Assert.ArgumentNotNull(state, nameof(state));
-            switch (_quantifier)
-            {
-                case Quantifier.ExactlyOne:
-                    return ParseExactlyOne(state);
-                case Quantifier.ZeroOrOne:
-                    return ParseZeroOrOne(state);
-                case Quantifier.ZeroOrMore:
-                    return ParseZeroOrMore(state);
+                _initial = initial;
+                _getRight = getRight;
+                _quantifier = arity;
+                _left = new LeftValueParser<TInput, TOutput>();
+                _right = getRight(_left);
             }
 
-            return state.Fail(this, $"Quantifier value {_quantifier} not supported");
-        }
-
-        private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
-        {
-            // Parse the left. Parse the right exactly once. Return the result
-            var checkpoint = state.Input.Checkpoint();
-
-            var leftResult = _initial.Parse(state);
-            if (!leftResult.Success)
-                return leftResult;
-
-            _left.Value = leftResult.Value;
-            _left.Location = leftResult.Location;
-
-            var rightResult = _right.Parse(state);
-            if (!rightResult.Success)
+            public string Name
             {
-                checkpoint.Rewind();
-                return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
+                get => _name;
+                set
+                {
+                    _name = value;
+                    _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
+                }
             }
 
-            return rightResult;
-        }
-
-        private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> state)
-        {
-            // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
-            // point, return whatever is the last value we had
-            var result = _initial.Parse(state);
-            if (!result.Success)
-                return result;
-
-            var current = result.Value;
-            _left.Value = result.Value;
-            _left.Location = result.Location;
-            while (true)
+            public IResult<TOutput> Parse(ParseState<TInput> state)
             {
-                var rhsResult = _right.Parse(state);
-                if (!rhsResult.Success)
-                    return state.Success(this, current, result.Location);
+                Assert.ArgumentNotNull(state, nameof(state));
+                switch (_quantifier)
+                {
+                    case Quantifier.ExactlyOne:
+                        return ParseExactlyOne(state);
+                    case Quantifier.ZeroOrOne:
+                        return ParseZeroOrOne(state);
+                    case Quantifier.ZeroOrMore:
+                        return ParseZeroOrMore(state);
+                }
 
-                current = rhsResult.Value;
-                _left.Value = current;
+                return state.Fail(this, $"Quantifier value {_quantifier} not supported");
             }
-        }
 
-        private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> state)
-        {
-            // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
-            var leftResult = _initial.Parse(state);
-            if (!leftResult.Success)
-                return leftResult;
+            private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
+            {
+                // Parse the left. Parse the right exactly once. Return the result
+                var checkpoint = state.Input.Checkpoint();
 
-            _left.Value = leftResult.Value;
-            _left.Location = leftResult.Location;
+                var leftResult = _initial.Parse(state);
+                if (!leftResult.Success)
+                    return leftResult;
 
-            var rightResult = _right.Parse(state);
-            return rightResult.Success ? rightResult : leftResult;
-        }
+                _left.Value = leftResult.Value;
+                _left.Location = leftResult.Location;
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+                var rightResult = _right.Parse(state);
+                if (!rightResult.Success)
+                {
+                    checkpoint.Rewind();
+                    return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
+                }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
+                return rightResult;
+            }
 
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            // Notice that replacing the initial parser causes a close of the right parser to be
-            // created. This may be unexpected for the user, but it's the only way to guarantee
-            // correctness and not have shared mutable state.
-            if (_initial == find && replace is IParser<TInput, TOutput> initialTyped)
-                return new LeftApplyParser<TInput, TOutput>(initialTyped, _getRight, _quantifier);
+            private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> state)
+            {
+                // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
+                // point, return whatever is the last value we had
+                var result = _initial.Parse(state);
+                if (!result.Success)
+                    return result;
 
-            // Replacing _right here will detach it from _left, and it will be impossible to use
-            if (_right == find)
-                ThrowCannotReplaceRightParserException();
+                var current = result.Value;
+                _left.Value = result.Value;
+                _left.Location = result.Location;
+                while (true)
+                {
+                    var rhsResult = _right.Parse(state);
+                    if (!rhsResult.Success)
+                        return state.Success(this, current, result.Location);
 
-            if (_left == find)
-                ThrowCannotReplaceLeftValueParserException();
+                    current = rhsResult.Value;
+                    _left.Value = current;
+                }
+            }
 
-            return this;
-        }
+            private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> state)
+            {
+                // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
+                var leftResult = _initial.Parse(state);
+                if (!leftResult.Success)
+                    return leftResult;
 
-        public override string ToString()
-        {
-            var typeName = this.GetType().Name;
-            return Name == null ? base.ToString() : $"{typeName} {Name}";
-        }
+                _left.Value = leftResult.Value;
+                _left.Location = leftResult.Location;
 
-        private static void ThrowCannotReplaceRightParserException()
-        {
-            throw new InvalidOperationException(
-                "Cannot replace the right parser. " +
-                "The right parser must have a reference to the current left parser for " +
-                "recursion to work correctly. " +
-                "Please consider replacing the entire LeftApplyParser instead of just " +
-                "the right parser.");
-        }
+                var rightResult = _right.Parse(state);
+                return rightResult.Success ? rightResult : leftResult;
+            }
 
-        private static void ThrowCannotReplaceLeftValueParserException()
-        {
-            throw new InvalidOperationException(
-                "Cannot replace the internal left value parser. " +
-                "This parser is for holding internal state only and should not " +
-                "be modified externally. Please create a new LeftApplyParser with " +
-                "your changes instead.");
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
+
+            public IParser ReplaceChild(IParser find, IParser replace)
+            {
+                // Notice that replacing the initial parser causes a close of the right parser to be
+                // created. This may be unexpected for the user, but it's the only way to guarantee
+                // correctness and not have shared mutable state.
+                if (_initial == find && replace is IParser<TInput, TOutput> initialTyped)
+                    return new Parser(initialTyped, _getRight, _quantifier);
+
+                // Replacing _right here will detach it from _left, and it will be impossible to use
+                if (_right == find)
+                    ThrowCannotReplaceRightParserException();
+
+                if (_left == find)
+                    ThrowCannotReplaceLeftValueParserException();
+
+                return this;
+            }
+
+            public override string ToString()
+            {
+                var typeName = this.GetType().Name;
+                return Name == null ? base.ToString() : $"{typeName} {Name}";
+            }
+
+            private static void ThrowCannotReplaceRightParserException()
+            {
+                throw new InvalidOperationException(
+                    "Cannot replace the right parser. " +
+                    "The right parser must have a reference to the current left parser for " +
+                    "recursion to work correctly. " +
+                    "Please consider replacing the entire LeftApplyParser instead of just " +
+                    "the right parser.");
+            }
+
+            private static void ThrowCannotReplaceLeftValueParserException()
+            {
+                throw new InvalidOperationException(
+                    "Cannot replace the internal left value parser. " +
+                    "This parser is for holding internal state only and should not " +
+                    "be modified externally. Please create a new LeftApplyParser with " +
+                    "your changes instead.");
+            }
         }
     }
 }

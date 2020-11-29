@@ -7,8 +7,8 @@ namespace ParserObjects
 {
     public static partial class ParserMethods<TInput>
     {
-        public static IParser<TInput, TOutput> Create<TOutput>(Func<ParseState<TInput>, IParser<TInput, TOutput>> create)
-            => new CreateParser<TInput, TOutput>(create);
+        public static IParser<TInput, TOutput> Create<TOutput>(Create<TInput, TOutput>.Function create)
+            => new Create<TInput, TOutput>.Parser(create);
 
         public static IParser<TInput, TValue> GetData<TValue>(string name)
             => Function<TValue>((t, success, fail) =>
@@ -27,7 +27,7 @@ namespace ParserObjects
             });
 
         public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
-            => new TransformResultParser<TInput, TOutput, TOutput>(p, (t, r) =>
+            => new TransformResult<TInput, TOutput, TOutput>.Parser(p, (t, r) =>
             {
                 if (!r.Success)
                     return r;
@@ -37,7 +37,7 @@ namespace ParserObjects
             });
 
         public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-            => new TransformResultParser<TInput, TOutput, TOutput>(p, (t, r) =>
+            => new TransformResult<TInput, TOutput, TOutput>.Parser(p, (t, r) =>
             {
                 if (!r.Success)
                     return r;

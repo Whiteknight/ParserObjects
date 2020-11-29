@@ -14,6 +14,7 @@ namespace ParserObjects.Parsers
 
         public RegexParser(IRegexNode regex, string describe)
         {
+            Assert.ArgumentNotNull(regex, nameof(regex));
             if (!string.IsNullOrEmpty(describe))
             {
                 Name = describe;
