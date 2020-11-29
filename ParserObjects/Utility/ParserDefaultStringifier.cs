@@ -6,7 +6,10 @@
         {
             if (!string.IsNullOrEmpty(parser.Name))
                 return $"<{parser.Name}>";
-            return parser.GetType().Name;
+            var parserType = parser.GetType();
+            if (parserType.DeclaringType != null)
+                return $"{parserType.DeclaringType.Name}.{parserType.Name}";
+            return parserType.Name;
         }
     }
 }

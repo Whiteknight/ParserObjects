@@ -110,7 +110,7 @@
 - [ParserExtensions](#T-ParserObjects-ParserExtensions 'ParserObjects.ParserExtensions')
   - [Named\`\`1(parser,name)](#M-ParserObjects-ParserExtensions-Named``1-``0,System-String- 'ParserObjects.ParserExtensions.Named``1(``0,System.String)')
   - [ToBnf(parser)](#M-ParserObjects-ParserExtensions-ToBnf-ParserObjects-IParser- 'ParserObjects.ParserExtensions.ToBnf(ParserObjects.IParser)')
-  - [ToSequence\`\`2(parser,input)](#M-ParserObjects-ParserExtensions-ToSequence``2-ParserObjects-IParser{``0,``1},ParserObjects-ISequence{``0}- 'ParserObjects.ParserExtensions.ToSequence``2(ParserObjects.IParser{``0,``1},ParserObjects.ISequence{``0})')
+  - [ToSequence\`\`2(parser,input,log)](#M-ParserObjects-ParserExtensions-ToSequence``2-ParserObjects-IParser{``0,``1},ParserObjects-ISequence{``0},System-Action{System-String}- 'ParserObjects.ParserExtensions.ToSequence``2(ParserObjects.IParser{``0,``1},ParserObjects.ISequence{``0},System.Action{System.String})')
 - [ParserFindReplaceExtensions](#T-ParserObjects-ParserFindReplaceExtensions 'ParserObjects.ParserFindReplaceExtensions')
   - [FindNamed(root,name)](#M-ParserObjects-ParserFindReplaceExtensions-FindNamed-ParserObjects-IParser,System-String- 'ParserObjects.ParserFindReplaceExtensions.FindNamed(ParserObjects.IParser,System.String)')
   - [Replace(root,predicate,replacement)](#M-ParserObjects-ParserFindReplaceExtensions-Replace-ParserObjects-IParser,System-Func{ParserObjects-IParser,System-Boolean},ParserObjects-IParser- 'ParserObjects.ParserFindReplaceExtensions.Replace(ParserObjects.IParser,System.Func{ParserObjects.IParser,System.Boolean},ParserObjects.IParser)')
@@ -2026,8 +2026,8 @@ BnfStringifyVisitor subclass to account for it.
 | ---- | ---- | ----------- |
 | parser | [ParserObjects.IParser](#T-ParserObjects-IParser 'ParserObjects.IParser') |  |
 
-<a name='M-ParserObjects-ParserExtensions-ToSequence``2-ParserObjects-IParser{``0,``1},ParserObjects-ISequence{``0}-'></a>
-### ToSequence\`\`2(parser,input) `method`
+<a name='M-ParserObjects-ParserExtensions-ToSequence``2-ParserObjects-IParser{``0,``1},ParserObjects-ISequence{``0},System-Action{System-String}-'></a>
+### ToSequence\`\`2(parser,input,log) `method`
 
 ##### Summary
 
@@ -2043,6 +2043,7 @@ Convert a parser and it's input sequence into a new sequence of parse result val
 | ---- | ---- | ----------- |
 | parser | [ParserObjects.IParser{\`\`0,\`\`1}](#T-ParserObjects-IParser{``0,``1} 'ParserObjects.IParser{``0,``1}') |  |
 | input | [ParserObjects.ISequence{\`\`0}](#T-ParserObjects-ISequence{``0} 'ParserObjects.ISequence{``0}') |  |
+| log | [System.Action{System.String}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Action 'System.Action{System.String}') |  |
 
 ##### Generic Types
 
