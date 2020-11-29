@@ -20,8 +20,8 @@ namespace ParserObjects
             var result = regexParser.Parse(pattern);
             if (!result.Success)
                 throw new RegexException("Could not parse pattern " + pattern);
-            var regexTree = result.Value;
-            return new RegexParser(regexTree, pattern);
+            var regex = new Regex(result.Value);
+            return new RegexParser(regex, pattern);
         }
 
         public static IParser<char, IRegexNode> RegexPattern() => _regexPattern.Value;

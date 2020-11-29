@@ -74,6 +74,7 @@
   - [PutBack(value)](#M-ParserObjects-ISequence`1-PutBack-`0- 'ParserObjects.ISequence`1.PutBack(`0)')
 - [IfParser\`2](#T-ParserObjects-Parsers-IfParser`2 'ParserObjects.Parsers.IfParser`2')
 - [InsertOnlyTrie\`2](#T-ParserObjects-Utility-InsertOnlyTrie`2 'ParserObjects.Utility.InsertOnlyTrie`2')
+- [IsExternalInit](#T-System-Runtime-CompilerServices-IsExternalInit 'System.Runtime.CompilerServices.IsExternalInit')
 - [JavaScriptStyleParserMethods](#T-ParserObjects-JavaScriptStyleParserMethods 'ParserObjects.JavaScriptStyleParserMethods')
   - [Number()](#M-ParserObjects-JavaScriptStyleParserMethods-Number 'ParserObjects.JavaScriptStyleParserMethods.Number')
   - [NumberString()](#M-ParserObjects-JavaScriptStyleParserMethods-NumberString 'ParserObjects.JavaScriptStyleParserMethods.NumberString')
@@ -1319,6 +1320,23 @@ inserted into the trie, it cannot be removed or modified
 | ---- | ----------- |
 | TKey |  |
 | TResult |  |
+
+<a name='T-System-Runtime-CompilerServices-IsExternalInit'></a>
+## IsExternalInit `type`
+
+##### Namespace
+
+System.Runtime.CompilerServices
+
+##### Summary
+
+Reserved to be used by the compiler for tracking metadata.
+    This class should not be used by developers in source code.
+
+##### Remarks
+
+This definition is provided by the NuGet package (https://www.nuget.org/packages/IsExternalInit).
+    Please see https://github.com/manuelroemer/IsExternalInit for more information.
 
 <a name='T-ParserObjects-JavaScriptStyleParserMethods'></a>
 ## JavaScriptStyleParserMethods `type`
