@@ -40,6 +40,8 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
 
         public record Context(
@@ -80,6 +82,8 @@ namespace ParserObjects.Parsers
             }
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
 
         public record Context(

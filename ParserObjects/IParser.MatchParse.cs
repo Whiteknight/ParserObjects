@@ -1,4 +1,5 @@
 ﻿using ParserObjects.Sequences;
+using System;
 
 namespace ParserObjects
 {
@@ -48,14 +49,15 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="s"></param>
+        /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s)
-            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s)));
+        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, Action<string> log = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log));
 
-        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input)
-            => parser.Parse(new ParseState<TInput>(input));
+        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string> log = null)
+            => parser.Parse(new ParseState<TInput>(input, log));
 
-        public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
-            => parser.Parse(new ParseState<TInput>(input));
+        public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input, Action<string> log = null)
+            => parser.Parse(new ParseState<TInput>(input, log));
     }
 }

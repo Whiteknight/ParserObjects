@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -127,13 +128,19 @@ namespace ParserObjects.Parsers
 
             public Parser(IParser<TInput, TOutput> values, IConfiguration config)
             {
+                Assert.ArgumentNotNull(values, nameof(values));
+                Assert.ArgumentNotNull(config, nameof(config));
                 _values = values;
                 _config = config as Configuration ?? throw new ArgumentException("Expected Pratt.Configuration. You cannot use a subclass for this purpose. Use Pratt.CreateConfiguration() to create a configuration object.", nameof(config));
             }
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state) => ParsePrecidence(state, 0);
+            public IResult<TOutput> Parse(ParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                return ParsePrecidence(state, 0);
+            }
 
             private struct GetPostfixOperatorResult
             {
@@ -332,6 +339,8 @@ namespace ParserObjects.Parsers
                 _config.AppendParsers(list);
                 return list;
             }
+
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
     }
 }

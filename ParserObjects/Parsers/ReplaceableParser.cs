@@ -36,5 +36,7 @@ namespace ParserObjects.Parsers
                 _value = typed;
             return new SingleReplaceResult(this, previous, _value);
         }
+
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }

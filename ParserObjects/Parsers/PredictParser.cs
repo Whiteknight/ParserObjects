@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParserObjects.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -66,6 +67,7 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
+                Assert.ArgumentNotNull(state, nameof(state));
                 var next = state.Input.Peek();
                 var parser = _config.Pick(next);
                 if (parser == null)
@@ -76,6 +78,8 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => _config.GetChildren();
+
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
     }
 }

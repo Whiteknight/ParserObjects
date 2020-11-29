@@ -20,7 +20,7 @@ namespace ParserObjects.Parsers
             _engine = new RegexEngine();
             if (!string.IsNullOrEmpty(describe))
             {
-                Name = describe;
+                Name = $"/{describe}/";
                 Pattern = describe;
             }
         }
@@ -42,5 +42,7 @@ namespace ParserObjects.Parsers
         IResult IParser<char>.Parse(ParseState<char> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }

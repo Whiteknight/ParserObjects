@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 operators
             );
             var tokenSequence = tokens.ToSequence(new StringCharacterSequence(s)).Select(r => r.Value);
-            var result = tokenSequence.Parse<RpnToken, int>((t, success, fail) =>
+            var parser = ParserMethods<RpnToken>.Function<int>((t, success, fail) =>
             {
                 var startingLocation = t.Input.CurrentLocation;
                 var stack = new Stack<int>();
@@ -92,7 +92,7 @@ namespace ParserObjects.Tests.Examples.RPN
                     return fail("Invalid sequence, expected to have 1 token remaining");
                 return success(stack.Pop());
             });
-
+            var result = parser.Parse(tokenSequence);
             if (!result.Success)
                 throw new Exception("Parse failed");
             return result.Value;

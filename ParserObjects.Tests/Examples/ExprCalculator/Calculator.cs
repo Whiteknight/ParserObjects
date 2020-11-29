@@ -1,4 +1,5 @@
 ﻿using ParserObjects.Sequences;
+using System.Diagnostics;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
 {
@@ -20,7 +21,7 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
 
             // Get the expression grammar and parse the token sequence into a result
             var expressionParser = ExpressionGrammar.CreateParser();
-            var result = expressionParser.Parse(tokenSequence);
+            var result = expressionParser.Parse(tokenSequence, s => Debug.WriteLine(s));
 
             // Get the value of the result
             return result.Value;

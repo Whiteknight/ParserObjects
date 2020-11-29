@@ -21,5 +21,7 @@ namespace ParserObjects.Parsers
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }

@@ -276,7 +276,7 @@
             <param name="input"></param>
             <returns></returns>
         </member>
-        <member name="M:ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{System.Char,``0},System.String)">
+        <member name="M:ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{System.Char,``0},System.String,System.Action{System.String})">
             <summary>
             Convenience method for parser which act on character sequences. Parse the given input string
             and return the first value or failure.
@@ -284,6 +284,7 @@
             <typeparam name="TOutput"></typeparam>
             <param name="parser"></param>
             <param name="s"></param>
+            <param name="log"></param>
             <returns></returns>
         </member>
         <member name="T:ParserObjects.ParserCombinatorExtensions">
@@ -635,16 +636,6 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="input"></param>
-            <returns></returns>
-        </member>
-        <member name="M:ParserObjects.SequenceExtensions.Parse``2(ParserObjects.ISequence{``0},System.Func{ParserObjects.ISequence{``0},ParserObjects.IResult{``1}})">
-            <summary>
-            Use a custom callback function to parse the input sequence
-            </summary>
-            <typeparam name="TInput"></typeparam>
-            <typeparam name="TOutput"></typeparam>
-            <param name="input"></param>
-            <param name="parse"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.SequenceExtensions.Select``2(ParserObjects.ISequence{``0},System.Func{``0,``1})">
@@ -1713,16 +1704,6 @@
             <param name="name"></param>
             <param name="transform"></param>
             <returns></returns>
-        </member>
-        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
-            <summary>
-                Reserved to be used by the compiler for tracking metadata.
-                This class should not be used by developers in source code.
-            </summary>
-            <remarks>
-                This definition is provided by the <i>IsExternalInit</i> NuGet package (https://www.nuget.org/packages/IsExternalInit).
-                Please see https://github.com/manuelroemer/IsExternalInit for more information.
-            </remarks>
         </member>
     </members>
 </doc>

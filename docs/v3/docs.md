@@ -73,7 +73,6 @@
   - [PutBack(value)](#M-ParserObjects-ISequence`1-PutBack-`0- 'ParserObjects.ISequence`1.PutBack(`0)')
 - [IfParser\`2](#T-ParserObjects-Parsers-IfParser`2 'ParserObjects.Parsers.IfParser`2')
 - [InsertOnlyTrie\`2](#T-ParserObjects-Utility-InsertOnlyTrie`2 'ParserObjects.Utility.InsertOnlyTrie`2')
-- [IsExternalInit](#T-System-Runtime-CompilerServices-IsExternalInit 'System.Runtime.CompilerServices.IsExternalInit')
 - [JavaScriptStyleParserMethods](#T-ParserObjects-JavaScriptStyleParserMethods 'ParserObjects.JavaScriptStyleParserMethods')
   - [Number()](#M-ParserObjects-JavaScriptStyleParserMethods-Number 'ParserObjects.JavaScriptStyleParserMethods.Number')
   - [NumberString()](#M-ParserObjects-JavaScriptStyleParserMethods-NumberString 'ParserObjects.JavaScriptStyleParserMethods.NumberString')
@@ -128,7 +127,7 @@
 - [ParserMatchParseExtensions](#T-ParserObjects-ParserMatchParseExtensions 'ParserObjects.ParserMatchParseExtensions')
   - [CanMatch(parser,input)](#M-ParserObjects-ParserMatchParseExtensions-CanMatch-ParserObjects-IParser{System-Char},System-String- 'ParserObjects.ParserMatchParseExtensions.CanMatch(ParserObjects.IParser{System.Char},System.String)')
   - [CanMatch\`\`1(parser,input)](#M-ParserObjects-ParserMatchParseExtensions-CanMatch``1-ParserObjects-IParser{``0},ParserObjects-ISequence{``0}- 'ParserObjects.ParserMatchParseExtensions.CanMatch``1(ParserObjects.IParser{``0},ParserObjects.ISequence{``0})')
-  - [Parse\`\`1(parser,s)](#M-ParserObjects-ParserMatchParseExtensions-Parse``1-ParserObjects-IParser{System-Char,``0},System-String- 'ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{System.Char,``0},System.String)')
+  - [Parse\`\`1(parser,s,log)](#M-ParserObjects-ParserMatchParseExtensions-Parse``1-ParserObjects-IParser{System-Char,``0},System-String,System-Action{System-String}- 'ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{System.Char,``0},System.String,System.Action{System.String})')
 - [ParserMethods](#T-ParserObjects-ParserMethods 'ParserObjects.ParserMethods')
   - [CamelCase()](#M-ParserObjects-ParserMethods-CamelCase 'ParserObjects.ParserMethods.CamelCase')
   - [CharacterString(pattern)](#M-ParserObjects-ParserMethods-CharacterString-System-String- 'ParserObjects.ParserMethods.CharacterString(System.String)')
@@ -205,7 +204,6 @@
 - [SequenceEnumerable\`1](#T-ParserObjects-Sequences-SequenceEnumerable`1 'ParserObjects.Sequences.SequenceEnumerable`1')
 - [SequenceExtensions](#T-ParserObjects-SequenceExtensions 'ParserObjects.SequenceExtensions')
   - [AsEnumerable\`\`1(input)](#M-ParserObjects-SequenceExtensions-AsEnumerable``1-ParserObjects-ISequence{``0}- 'ParserObjects.SequenceExtensions.AsEnumerable``1(ParserObjects.ISequence{``0})')
-  - [Parse\`\`2(input,parse)](#M-ParserObjects-SequenceExtensions-Parse``2-ParserObjects-ISequence{``0},System-Func{ParserObjects-ISequence{``0},ParserObjects-IResult{``1}}- 'ParserObjects.SequenceExtensions.Parse``2(ParserObjects.ISequence{``0},System.Func{ParserObjects.ISequence{``0},ParserObjects.IResult{``1}})')
   - [Select\`\`2(input,map)](#M-ParserObjects-SequenceExtensions-Select``2-ParserObjects-ISequence{``0},System-Func{``0,``1}- 'ParserObjects.SequenceExtensions.Select``2(ParserObjects.ISequence{``0},System.Func{``0,``1})')
   - [Where\`\`1(input,predicate)](#M-ParserObjects-SequenceExtensions-Where``1-ParserObjects-ISequence{``0},System-Func{``0,System-Boolean}- 'ParserObjects.SequenceExtensions.Where``1(ParserObjects.ISequence{``0},System.Func{``0,System.Boolean})')
 - [SqlStyleParserMethods](#T-ParserObjects-SqlStyleParserMethods 'ParserObjects.SqlStyleParserMethods')
@@ -1300,23 +1298,6 @@ inserted into the trie, it cannot be removed or modified
 | TKey |  |
 | TResult |  |
 
-<a name='T-System-Runtime-CompilerServices-IsExternalInit'></a>
-## IsExternalInit `type`
-
-##### Namespace
-
-System.Runtime.CompilerServices
-
-##### Summary
-
-Reserved to be used by the compiler for tracking metadata.
-    This class should not be used by developers in source code.
-
-##### Remarks
-
-This definition is provided by the NuGet package (https://www.nuget.org/packages/IsExternalInit).
-    Please see https://github.com/manuelroemer/IsExternalInit for more information.
-
 <a name='T-ParserObjects-JavaScriptStyleParserMethods'></a>
 ## JavaScriptStyleParserMethods `type`
 
@@ -2401,8 +2382,8 @@ succeeded or false otherwise.
 | ---- | ----------- |
 | TInput |  |
 
-<a name='M-ParserObjects-ParserMatchParseExtensions-Parse``1-ParserObjects-IParser{System-Char,``0},System-String-'></a>
-### Parse\`\`1(parser,s) `method`
+<a name='M-ParserObjects-ParserMatchParseExtensions-Parse``1-ParserObjects-IParser{System-Char,``0},System-String,System-Action{System-String}-'></a>
+### Parse\`\`1(parser,s,log) `method`
 
 ##### Summary
 
@@ -2419,6 +2400,7 @@ and return the first value or failure.
 | ---- | ---- | ----------- |
 | parser | [ParserObjects.IParser{System.Char,\`\`0}](#T-ParserObjects-IParser{System-Char,``0} 'ParserObjects.IParser{System.Char,``0}') |  |
 | s | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') |  |
+| log | [System.Action{System.String}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Action 'System.Action{System.String}') |  |
 
 ##### Generic Types
 
@@ -3987,31 +3969,6 @@ Convert the sequence to an IEnumerable
 | Name | Description |
 | ---- | ----------- |
 | T |  |
-
-<a name='M-ParserObjects-SequenceExtensions-Parse``2-ParserObjects-ISequence{``0},System-Func{ParserObjects-ISequence{``0},ParserObjects-IResult{``1}}-'></a>
-### Parse\`\`2(input,parse) `method`
-
-##### Summary
-
-Use a custom callback function to parse the input sequence
-
-##### Returns
-
-
-
-##### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| input | [ParserObjects.ISequence{\`\`0}](#T-ParserObjects-ISequence{``0} 'ParserObjects.ISequence{``0}') |  |
-| parse | [System.Func{ParserObjects.ISequence{\`\`0},ParserObjects.IResult{\`\`1}}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{ParserObjects.ISequence{``0},ParserObjects.IResult{``1}}') |  |
-
-##### Generic Types
-
-| Name | Description |
-| ---- | ----------- |
-| TInput |  |
-| TOutput |  |
 
 <a name='M-ParserObjects-SequenceExtensions-Select``2-ParserObjects-ISequence{``0},System-Func{``0,``1}-'></a>
 ### Select\`\`2(input,map) `method`

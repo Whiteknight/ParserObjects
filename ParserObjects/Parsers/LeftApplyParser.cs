@@ -19,7 +19,6 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TOutput> _initial;
-            private readonly GetRightFunc _getRight;
             private readonly Quantifier _quantifier;
             private readonly IParser<TInput, TOutput> _right;
             private readonly LeftValue _left;
@@ -32,7 +31,6 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(getRight, nameof(getRight));
 
                 _initial = initial;
-                _getRight = getRight;
                 _quantifier = arity;
                 _left = new LeftValue();
                 _right = getRight(_left);
@@ -126,30 +124,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
-            public override string ToString()
-            {
-                var typeName = this.GetType().Name;
-                return Name == null ? base.ToString() : $"{typeName} {Name}";
-            }
-
-            private static void ThrowCannotReplaceRightParserException()
-            {
-                throw new InvalidOperationException(
-                    "Cannot replace the right parser. " +
-                    "The right parser must have a reference to the current left parser for " +
-                    "recursion to work correctly. " +
-                    "Please consider replacing the entire LeftApplyParser instead of just " +
-                    "the right parser.");
-            }
-
-            private static void ThrowCannotReplaceLeftValueParserException()
-            {
-                throw new InvalidOperationException(
-                    "Cannot replace the internal left value parser. " +
-                    "This parser is for holding internal state only and should not " +
-                    "be modified externally. Please create a new LeftApplyParser with " +
-                    "your changes instead.");
-            }
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
 
         private class LeftValue : IParser<TInput, TOutput>
@@ -166,7 +141,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-            public IParser ReplaceChild(IParser find, IParser replace) => this;
+            public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
     }
 }

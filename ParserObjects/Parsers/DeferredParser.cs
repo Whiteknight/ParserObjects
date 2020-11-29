@@ -34,10 +34,6 @@ namespace ParserObjects.Parsers
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
 
-        public override string ToString()
-        {
-            var typeName = this.GetType().Name;
-            return Name == null ? base.ToString() : $"{typeName} {Name}";
-        }
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }

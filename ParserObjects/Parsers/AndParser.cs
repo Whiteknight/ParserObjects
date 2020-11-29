@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -40,5 +39,7 @@ namespace ParserObjects.Parsers
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;
+
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }

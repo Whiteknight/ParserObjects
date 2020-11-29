@@ -47,5 +47,7 @@ namespace ParserObjects.Parsers
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+        public override string ToString() => ParserDefaultStringifier.ToString(this);
     }
 }
