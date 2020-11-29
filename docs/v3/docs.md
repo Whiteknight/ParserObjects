@@ -74,12 +74,10 @@
   - [PutBack(value)](#M-ParserObjects-ISequence`1-PutBack-`0- 'ParserObjects.ISequence`1.PutBack(`0)')
 - [IfParser\`2](#T-ParserObjects-Parsers-IfParser`2 'ParserObjects.Parsers.IfParser`2')
 - [InsertOnlyTrie\`2](#T-ParserObjects-Utility-InsertOnlyTrie`2 'ParserObjects.Utility.InsertOnlyTrie`2')
-- [IsExternalInit](#T-System-Runtime-CompilerServices-IsExternalInit 'System.Runtime.CompilerServices.IsExternalInit')
 - [JavaScriptStyleParserMethods](#T-ParserObjects-JavaScriptStyleParserMethods 'ParserObjects.JavaScriptStyleParserMethods')
   - [Number()](#M-ParserObjects-JavaScriptStyleParserMethods-Number 'ParserObjects.JavaScriptStyleParserMethods.Number')
   - [NumberString()](#M-ParserObjects-JavaScriptStyleParserMethods-NumberString 'ParserObjects.JavaScriptStyleParserMethods.NumberString')
 - [LeftApply\`2](#T-ParserObjects-Parsers-LeftApply`2 'ParserObjects.Parsers.LeftApply`2')
-- [LeftValueParser\`2](#T-ParserObjects-Parsers-LeftValueParser`2 'ParserObjects.Parsers.LeftValueParser`2')
 - [LimitedListParser\`2](#T-ParserObjects-Parsers-LimitedListParser`2 'ParserObjects.Parsers.LimitedListParser`2')
 - [Location](#T-ParserObjects-Location 'ParserObjects.Location')
   - [#ctor()](#M-ParserObjects-Location-#ctor-System-String,System-Int32,System-Int32- 'ParserObjects.Location.#ctor(System.String,System.Int32,System.Int32)')
@@ -92,6 +90,7 @@
 - [ParseResultSequence\`2](#T-ParserObjects-Sequences-ParseResultSequence`2 'ParserObjects.Sequences.ParseResultSequence`2')
 - [Parser](#T-ParserObjects-Parsers-Create`2-Parser 'ParserObjects.Parsers.Create`2.Parser')
 - [Parser](#T-ParserObjects-Parsers-Produce`2-Parser 'ParserObjects.Parsers.Produce`2.Parser')
+- [Parser](#T-ParserObjects-Parsers-RightApply`3-Parser 'ParserObjects.Parsers.RightApply`3.Parser')
 - [ParserCombinatorExtensions](#T-ParserObjects-ParserCombinatorExtensions 'ParserObjects.ParserCombinatorExtensions')
   - [Examine\`\`2(parser,before,after)](#M-ParserObjects-ParserCombinatorExtensions-Examine``2-ParserObjects-IParser{``0,``1},System-Action{ParserObjects-Parsers-Examine{``0,``1}-Context},System-Action{ParserObjects-Parsers-Examine{``0,``1}-Context}- 'ParserObjects.ParserCombinatorExtensions.Examine``2(ParserObjects.IParser{``0,``1},System.Action{ParserObjects.Parsers.Examine{``0,``1}.Context},System.Action{ParserObjects.Parsers.Examine{``0,``1}.Context})')
   - [FollowedBy\`\`2(p,lookahead)](#M-ParserObjects-ParserCombinatorExtensions-FollowedBy``2-ParserObjects-IParser{``0,``1},ParserObjects-IParser{``0}- 'ParserObjects.ParserCombinatorExtensions.FollowedBy``2(ParserObjects.IParser{``0,``1},ParserObjects.IParser{``0})')
@@ -183,7 +182,7 @@
   - [Produce\`\`1(produce)](#M-ParserObjects-ParserMethods`1-Produce``1-System-Func{ParserObjects-ISequence{`0},``0}- 'ParserObjects.ParserMethods`1.Produce``1(System.Func{ParserObjects.ISequence{`0},``0})')
   - [Produce\`\`1(produce)](#M-ParserObjects-ParserMethods`1-Produce``1-ParserObjects-Parsers-Produce{`0,``0}-Function- 'ParserObjects.ParserMethods`1.Produce``1(ParserObjects.Parsers.Produce{`0,``0}.Function)')
   - [Replaceable\`\`1(defaultParser)](#M-ParserObjects-ParserMethods`1-Replaceable``1-ParserObjects-IParser{`0,``0}- 'ParserObjects.ParserMethods`1.Replaceable``1(ParserObjects.IParser{`0,``0})')
-  - [RightApply\`\`2(item,middle,produce,getMissingRight)](#M-ParserObjects-ParserMethods`1-RightApply``2-ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``0},System-Func{``1,``0,``1,``1},System-Func{ParserObjects-ISequence{`0},``1}- 'ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},System.Func{``1,``0,``1,``1},System.Func{ParserObjects.ISequence{`0},``1})')
+  - [RightApply\`\`2(item,middle,produce,getMissingRight,quantifier)](#M-ParserObjects-ParserMethods`1-RightApply``2-ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``0},ParserObjects-Parsers-RightApply{`0,``0,``1}-Produce,ParserObjects-Parsers-RightApply{`0,``0,``1}-Create,ParserObjects-Quantifier- 'ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},ParserObjects.Parsers.RightApply{`0,``0,``1}.Produce,ParserObjects.Parsers.RightApply{`0,``0,``1}.Create,ParserObjects.Quantifier)')
   - [Rule\`\`10(p1,p2,p3,p4,p5,p6,p7,p8,p9,produce)](#M-ParserObjects-ParserMethods`1-Rule``10-ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``2},ParserObjects-IParser{`0,``3},ParserObjects-IParser{`0,``4},ParserObjects-IParser{`0,``5},ParserObjects-IParser{`0,``6},ParserObjects-IParser{`0,``7},ParserObjects-IParser{`0,``8},System-Func{``0,``1,``2,``3,``4,``5,``6,``7,``8,``9}- 'ParserObjects.ParserMethods`1.Rule``10(ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``2},ParserObjects.IParser{`0,``3},ParserObjects.IParser{`0,``4},ParserObjects.IParser{`0,``5},ParserObjects.IParser{`0,``6},ParserObjects.IParser{`0,``7},ParserObjects.IParser{`0,``8},System.Func{``0,``1,``2,``3,``4,``5,``6,``7,``8,``9})')
   - [Rule\`\`3(p1,p2,produce)](#M-ParserObjects-ParserMethods`1-Rule``3-ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``1},System-Func{``0,``1,``2}- 'ParserObjects.ParserMethods`1.Rule``3(ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``1},System.Func{``0,``1,``2})')
   - [Rule\`\`4(p1,p2,p3,produce)](#M-ParserObjects-ParserMethods`1-Rule``4-ParserObjects-IParser{`0,``0},ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``2},System-Func{``0,``1,``2,``3}- 'ParserObjects.ParserMethods`1.Rule``4(ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``2},System.Func{``0,``1,``2,``3})')
@@ -202,7 +201,6 @@
 - [RegexParser](#T-ParserObjects-Parsers-RegexParser 'ParserObjects.Parsers.RegexParser')
 - [RegexState](#T-ParserObjects-Regexes-RegexState 'ParserObjects.Regexes.RegexState')
 - [ReplaceableParser\`2](#T-ParserObjects-Parsers-ReplaceableParser`2 'ParserObjects.Parsers.ReplaceableParser`2')
-- [RightApplyZeroOrMoreParser\`3](#T-ParserObjects-Parsers-RightApplyZeroOrMoreParser`3 'ParserObjects.Parsers.RightApplyZeroOrMoreParser`3')
 - [RuleParser\`2](#T-ParserObjects-Parsers-RuleParser`2 'ParserObjects.Parsers.RuleParser`2')
 - [SequenceEnumerable\`1](#T-ParserObjects-Sequences-SequenceEnumerable`1 'ParserObjects.Sequences.SequenceEnumerable`1')
 - [SequenceExtensions](#T-ParserObjects-SequenceExtensions 'ParserObjects.SequenceExtensions')
@@ -1321,23 +1319,6 @@ inserted into the trie, it cannot be removed or modified
 | TKey |  |
 | TResult |  |
 
-<a name='T-System-Runtime-CompilerServices-IsExternalInit'></a>
-## IsExternalInit `type`
-
-##### Namespace
-
-System.Runtime.CompilerServices
-
-##### Summary
-
-Reserved to be used by the compiler for tracking metadata.
-    This class should not be used by developers in source code.
-
-##### Remarks
-
-This definition is provided by the NuGet package (https://www.nuget.org/packages/IsExternalInit).
-    Please see https://github.com/manuelroemer/IsExternalInit for more information.
-
 <a name='T-ParserObjects-JavaScriptStyleParserMethods'></a>
 ## JavaScriptStyleParserMethods `type`
 
@@ -1387,25 +1368,6 @@ ParserObjects.Parsers
 Parser to help with left-associative or left-recursive parse situations. Executes an
 initial parser, and then passes that value to the right-hand-side production. The right
 value is then used as the new left value and the loop repeats.
-
-##### Generic Types
-
-| Name | Description |
-| ---- | ----------- |
-| TInput |  |
-| TOutput |  |
-
-<a name='T-ParserObjects-Parsers-LeftValueParser`2'></a>
-## LeftValueParser\`2 `type`
-
-##### Namespace
-
-ParserObjects.Parsers
-
-##### Summary
-
-A parser for holding a parsed result from left application. Do not use this type directly
-directly.
 
 ##### Generic Types
 
@@ -1608,6 +1570,18 @@ ParserObjects.Parsers.Produce`2
 
 Produces an output value unconditionally. Consumes no input. The callback has access to
 both the input sequence and the current contextual data, to help crafting the value.
+
+<a name='T-ParserObjects-Parsers-RightApply`3-Parser'></a>
+## Parser `type`
+
+##### Namespace
+
+ParserObjects.Parsers.RightApply`3
+
+##### Summary
+
+Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
+situations, especially for parsing expressions
 
 <a name='T-ParserObjects-ParserCombinatorExtensions'></a>
 ## ParserCombinatorExtensions `type`
@@ -3444,8 +3418,8 @@ Serves as a placeholder in the parser tree where an in-place replacement can be 
 | ---- | ----------- |
 | TOutput |  |
 
-<a name='M-ParserObjects-ParserMethods`1-RightApply``2-ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``0},System-Func{``1,``0,``1,``1},System-Func{ParserObjects-ISequence{`0},``1}-'></a>
-### RightApply\`\`2(item,middle,produce,getMissingRight) `method`
+<a name='M-ParserObjects-ParserMethods`1-RightApply``2-ParserObjects-IParser{`0,``1},ParserObjects-IParser{`0,``0},ParserObjects-Parsers-RightApply{`0,``0,``1}-Produce,ParserObjects-Parsers-RightApply{`0,``0,``1}-Create,ParserObjects-Quantifier-'></a>
+### RightApply\`\`2(item,middle,produce,getMissingRight,quantifier) `method`
 
 ##### Summary
 
@@ -3462,8 +3436,9 @@ recursively: self := <item> (<middle> <self>)*.
 | ---- | ---- | ----------- |
 | item | [ParserObjects.IParser{\`0,\`\`1}](#T-ParserObjects-IParser{`0,``1} 'ParserObjects.IParser{`0,``1}') |  |
 | middle | [ParserObjects.IParser{\`0,\`\`0}](#T-ParserObjects-IParser{`0,``0} 'ParserObjects.IParser{`0,``0}') |  |
-| produce | [System.Func{\`\`1,\`\`0,\`\`1,\`\`1}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{``1,``0,``1,``1}') |  |
-| getMissingRight | [System.Func{ParserObjects.ISequence{\`0},\`\`1}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Func 'System.Func{ParserObjects.ISequence{`0},``1}') |  |
+| produce | [ParserObjects.Parsers.RightApply{\`0,\`\`0,\`\`1}.Produce](#T-ParserObjects-Parsers-RightApply{`0,``0,``1}-Produce 'ParserObjects.Parsers.RightApply{`0,``0,``1}.Produce') |  |
+| getMissingRight | [ParserObjects.Parsers.RightApply{\`0,\`\`0,\`\`1}.Create](#T-ParserObjects-Parsers-RightApply{`0,``0,``1}-Create 'ParserObjects.Parsers.RightApply{`0,``0,``1}.Create') |  |
+| quantifier | [ParserObjects.Quantifier](#T-ParserObjects-Quantifier 'ParserObjects.Quantifier') |  |
 
 ##### Generic Types
 
@@ -3947,26 +3922,6 @@ without returning a new instance or causing a tree rewrite.
 | Name | Description |
 | ---- | ----------- |
 | TInput |  |
-| TOutput |  |
-
-<a name='T-ParserObjects-Parsers-RightApplyZeroOrMoreParser`3'></a>
-## RightApplyZeroOrMoreParser\`3 `type`
-
-##### Namespace
-
-ParserObjects.Parsers
-
-##### Summary
-
-Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
-situations, especially for parsing expressions
-
-##### Generic Types
-
-| Name | Description |
-| ---- | ----------- |
-| TInput |  |
-| TMiddle |  |
 | TOutput |  |
 
 <a name='T-ParserObjects-Parsers-RuleParser`2'></a>

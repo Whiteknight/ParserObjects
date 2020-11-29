@@ -718,7 +718,7 @@
             <param name="quantifier"></param>
             <returns></returns>
         </member>
-        <member name="M:ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},System.Func{``1,``0,``1,``1},System.Func{ParserObjects.ISequence{`0},``1})">
+        <member name="M:ParserObjects.ParserMethods`1.RightApply``2(ParserObjects.IParser{`0,``1},ParserObjects.IParser{`0,``0},ParserObjects.Parsers.RightApply{`0,``0,``1}.Produce,ParserObjects.Parsers.RightApply{`0,``0,``1}.Create,ParserObjects.Quantifier)">
             <summary>
             a right-associative parser where the parser attempts to parse a sequence of items and middles
             recursively: self := &lt;item&gt; (&lt;middle&gt; &lt;self&gt;)*. 
@@ -729,6 +729,7 @@
             <param name="middle"></param>
             <param name="produce"></param>
             <param name="getMissingRight"></param>
+            <param name="quantifier"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserMethods`1.Any">
@@ -1433,14 +1434,6 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.LeftValueParser`2">
-            <summary>
-            A parser for holding a parsed result from left application. Do not use this type directly
-            directly.
-            </summary>
-            <typeparam name="TInput"></typeparam>
-            <typeparam name="TOutput"></typeparam>
-        </member>
         <member name="T:ParserObjects.Parsers.LimitedListParser`2">
             <summary>
             Executes an inner parser repeatedly, until it fails. All values are returned as a list.
@@ -1509,14 +1502,11 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
-        <member name="T:ParserObjects.Parsers.RightApplyZeroOrMoreParser`3">
+        <member name="T:ParserObjects.Parsers.RightApply`3.Parser">
             <summary>
             Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
             situations, especially for parsing expressions
             </summary>
-            <typeparam name="TInput"></typeparam>
-            <typeparam name="TMiddle"></typeparam>
-            <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.RuleParser`2">
             <summary>
@@ -1732,18 +1722,6 @@
             <param name="name"></param>
             <param name="transform"></param>
             <returns></returns>
-        </member>
-    </members>
-</doc>
-System.Runtime.CompilerServices.IsExternalInit">
-            <summary>
-                Reserved to be used by the compiler for tracking metadata.
-                This class should not be used by developers in source code.
-            </summary>
-            <remarks>
-                This definition is provided by the <i>IsExternalInit</i> NuGet package (https://www.nuget.org/packages/IsExternalInit).
-                Please see https://github.com/manuelroemer/IsExternalInit for more information.
-            </remarks>
         </member>
     </members>
 </doc>

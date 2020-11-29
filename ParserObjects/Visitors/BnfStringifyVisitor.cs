@@ -226,10 +226,6 @@ namespace ParserObjects.Visitors
             VisitChild(initial, state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LeftValueParser<TInput, TOutput> p, State state)
-        {
-        }
-
         protected virtual void VisitTyped<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
@@ -306,7 +302,7 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(RightApply<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var children = p.GetChildren().ToArray();
             VisitChild(children[0], state);

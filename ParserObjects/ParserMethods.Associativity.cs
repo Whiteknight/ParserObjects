@@ -29,8 +29,9 @@ namespace ParserObjects
         /// <param name="middle"></param>
         /// <param name="produce"></param>
         /// <param name="getMissingRight"></param>
+        /// <param name="quantifier"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<ISequence<TInput>, TOutput> getMissingRight = null)
-            => new RightApplyZeroOrMoreParser<TInput, TMiddle, TOutput>(item, middle, produce, getMissingRight);
+        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, RightApply<TInput, TMiddle, TOutput>.Produce produce, RightApply<TInput, TMiddle, TOutput>.Create getMissingRight = null, Quantifier quantifier = Quantifier.ZeroOrMore)
+            => new RightApply<TInput, TMiddle, TOutput>.Parser(item, middle, produce, quantifier, getMissingRight);
     }
 }

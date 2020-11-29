@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -21,7 +22,7 @@ namespace ParserObjects.Parsers
             private readonly GetRightFunc _getRight;
             private readonly Quantifier _quantifier;
             private readonly IParser<TInput, TOutput> _right;
-            private readonly LeftValueParser<TInput, TOutput> _left;
+            private readonly LeftValue _left;
 
             private string _name;
 
@@ -33,7 +34,7 @@ namespace ParserObjects.Parsers
                 _initial = initial;
                 _getRight = getRight;
                 _quantifier = arity;
-                _left = new LeftValueParser<TInput, TOutput>();
+                _left = new LeftValue();
                 _right = getRight(_left);
             }
 
@@ -167,6 +168,23 @@ namespace ParserObjects.Parsers
                     "be modified externally. Please create a new LeftApplyParser with " +
                     "your changes instead.");
             }
+        }
+
+        private class LeftValue : IParser<TInput, TOutput>
+        {
+            public TOutput Value { get; set; }
+
+            public Location Location { get; set; }
+
+            public string Name { get; set; }
+
+            public IResult<TOutput> Parse(ParseState<TInput> state) => state.Success(this, Value, Location);
+
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => state.Success(this, Value, Location);
+
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+            public IParser ReplaceChild(IParser find, IParser replace) => this;
         }
     }
 }

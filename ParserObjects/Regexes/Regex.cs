@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Regexes
@@ -15,6 +17,7 @@ namespace ParserObjects.Regexes
             if (states.Count != 1)
                 throw new RegexException("Invalid regular expression. Too many incomplete groups");
             States = states[0];
+            Debug.Assert(States.All(s => s != null));
         }
     }
 }

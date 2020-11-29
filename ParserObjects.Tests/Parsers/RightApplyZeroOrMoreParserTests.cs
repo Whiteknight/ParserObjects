@@ -70,7 +70,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                t => "X"
+                (t, d) => "X"
             );
 
             var input = new StringCharacterSequence("1a");
@@ -132,7 +132,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                t => "X"
+                (t, d) => "X"
             );
 
             var input = new StringCharacterSequence("1a2b");
