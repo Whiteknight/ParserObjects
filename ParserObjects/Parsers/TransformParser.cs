@@ -32,13 +32,6 @@ namespace ParserObjects.Parsers
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _parser && replace is IParser<TInput, TMiddle> realReplace)
-                return new TransformParser<TInput, TMiddle, TOutput>(realReplace, _transform);
-            return this;
-        }
-
         public override string ToString()
         {
             var typeName = GetType().Name;

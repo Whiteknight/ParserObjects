@@ -45,21 +45,5 @@ namespace ParserObjects.Tests.Parsers
             children.Count().Should().Be(1);
             children.Single().Should().BeSameAs(anyParser);
         }
-
-        [Test]
-        public void ReplaceChild_Test()
-        {
-            char before = '\0';
-            string after = "";
-            var any = Any();
-            var parser = Examine(any, s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
-            var fail = Fail<char>();
-
-            var newParser = parser.ReplaceChild(any, fail);
-
-            var children = newParser.GetChildren();
-            children.Count().Should().Be(1);
-            children.Single().Should().BeSameAs(fail);
-        }
     }
 }

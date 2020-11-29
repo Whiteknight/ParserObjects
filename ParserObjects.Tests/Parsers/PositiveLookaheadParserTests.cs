@@ -38,28 +38,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ReplaceChild_Test()
-        {
-            var failParser = Fail<char>();
-            var anyParser = Any();
-            var parser = PositiveLookahead(failParser);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char>;
-
-            var input = new StringCharacterSequence("abc");
-            parser.Parse(input).Success.Should().Be(true);
-        }
-
-        [Test]
-        public void ReplaceChild_Same()
-        {
-            var failParser = Fail<char>();
-            var parser = PositiveLookahead(failParser);
-            var result = parser.ReplaceChild(null, null) as IParser<char>;
-
-            result.Should().BeSameAs(parser);
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var failParser = Fail<char>();

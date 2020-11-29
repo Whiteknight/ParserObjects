@@ -43,43 +43,6 @@ namespace ParserObjects.Tests.Parsers
             results[2].Should().Be(oneParser);
         }
 
-        [Test]
-        public void ReplaceChild_Test()
-        {
-            var aParser = Match('a');
-            var XParser = Match('X');
-            var oneParser = Match('1');
-            var bParser = Match('b');
-            var parser = First(
-                aParser,
-                XParser,
-                oneParser
-            );
-            parser = parser.ReplaceChild(XParser, bParser) as IParser<char, char>;
-
-            parser.CanMatch("a").Should().BeTrue();
-            parser.CanMatch("X").Should().BeFalse();
-            parser.CanMatch("1").Should().BeTrue();
-
-            parser.CanMatch("b").Should().BeTrue();
-        }
-
-        [Test]
-        public void ReplaceChild_Same()
-        {
-            var aParser = Match('a');
-            var XParser = Match('X');
-            var oneParser = Match('1');
-            var bParser = Match('b');
-            var parser = First(
-                aParser,
-                XParser,
-                oneParser
-            );
-            var result = parser.ReplaceChild(null, null) as IParser<char, char>;
-            result.Should().BeSameAs(parser);
-        }
-
         private IParser<char, char> _a = Match('a');
         private IParser<char, char> _b = Match('b');
         private IParser<char, char> _c = Match('c');

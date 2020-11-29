@@ -19,15 +19,6 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         IEnumerable<IParser> GetChildren();
-
-        /// <summary>
-        /// Return a parser exactly like this parser but with one of it's children replaced. If no
-        /// replacement is made, this parser may be returned. 
-        /// </summary>
-        /// <param name="find"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        IParser ReplaceChild(IParser find, IParser replace);
     }
 
     /// <summary>

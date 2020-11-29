@@ -58,13 +58,6 @@ namespace ParserObjects.Parsers
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (_parser == find && replace is IParser<TInput, TOutput> realReplace)
-                return new LimitedListParser<TInput, TOutput>(realReplace, Minimum, Maximum);
-            return this;
-        }
-
         public override string ToString()
         {
             var typeName = GetType().Name;

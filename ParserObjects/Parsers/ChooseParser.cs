@@ -47,12 +47,5 @@ namespace ParserObjects.Parsers
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _inner && replace is IParser<TInput, TMiddle> replaceTyped)
-                return new ChooseParser<TInput, TMiddle, TOutput>(replaceTyped, _getParser);
-            return this;
-        }
     }
 }

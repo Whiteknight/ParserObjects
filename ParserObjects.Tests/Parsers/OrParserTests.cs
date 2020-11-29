@@ -59,29 +59,5 @@ namespace ParserObjects.Tests.Parsers.Logical
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
-
-        [Test]
-        public void Parse_ReplaceChild_1()
-        {
-            var fail2 = Fail<char>();
-            var parser = Or(_failParser, fail2);
-            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-        }
-
-        [Test]
-        public void Parse_ReplaceChild_2()
-        {
-            var fail2 = Fail<char>();
-            var parser = Or(fail2, _failParser);
-            parser = parser.ReplaceChild(_failParser, _anyParser) as IParser<char>;
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-        }
     }
 }

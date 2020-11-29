@@ -33,12 +33,5 @@ namespace ParserObjects.Parsers
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (_inner == find && replace is IParser<TInput> typed)
-                return new PositiveLookaheadParser<TInput>(typed);
-            return this;
-        }
     }
 }

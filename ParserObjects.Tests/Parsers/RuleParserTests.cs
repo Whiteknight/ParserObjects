@@ -314,38 +314,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ReplaceChild_Test()
-        {
-            var failParser = Fail<char>();
-
-            var target = Rule(
-                _any,
-                failParser,
-                (a, b) => $"{a}{b}"
-            );
-
-            target = target.ReplaceChild(failParser, _any) as IParser<char, string>;
-            var input = new StringCharacterSequence("abc");
-
-            target.Parse(input).Value.Should().Be("ab");
-        }
-
-        [Test]
-        public void ReplaceChild_NotFound()
-        {
-            var failParser = Fail<char>();
-
-            var target = Rule(
-                _any,
-                failParser,
-                (a, b) => $"{a}{b}"
-            );
-
-            var result = target.ReplaceChild(null, null);
-            result.Should().BeSameAs(target);
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var failParser = Fail<char>();

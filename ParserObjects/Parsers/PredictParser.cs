@@ -76,15 +76,6 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => _config.GetChildren();
-
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                var newConfig = _config.ReplaceChild(find, replace);
-                if (newConfig == null || ReferenceEquals(newConfig, _config))
-                    return this;
-                return new Parser(newConfig);
-            }
         }
-             
     }
 }

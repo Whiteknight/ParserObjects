@@ -141,61 +141,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ReplaceChild_Item()
-        {
-            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match(".").Transform(c => c[0].ToString());
-
-            var parser = RightApply(
-                numberParser,
-                letterParser,
-                (l, m, r) => $"({l}{m}{r})"
-            );
-            parser = parser.ReplaceChild(numberParser, dotParser) as IParser<char, string>;
-
-            var input = new StringCharacterSequence(".a.b.c.");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("(.a(.b(.c.)))");
-        }
-
-        [Test]
-        public void ReplaceChild_Middle()
-        {
-            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
-            var dotParser = Match(".").Transform(c => c[0].ToString());
-
-            var parser = RightApply(
-                numberParser,
-                letterParser,
-                (l, m, r) => $"({l}{m}{r})"
-            );
-            parser = parser.ReplaceChild(letterParser, dotParser) as IParser<char, string>;
-
-            var input = new StringCharacterSequence("1.2.3.4");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("(1.(2.(3.4)))");
-        }
-
-        [Test]
-        public void ReplaceChild_Same()
-        {
-            var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
-            var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
-
-            var parser = RightApply(
-                numberParser,
-                letterParser,
-                (l, m, r) => $"({l}{m}{r})"
-            );
-            var result = parser.ReplaceChild(null, null);
-            result.Should().BeSameAs(parser);
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());

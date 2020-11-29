@@ -41,16 +41,5 @@ namespace ParserObjects.Parsers
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _predicate && replace is IParser<TInput> predicate)
-                return new IfParser<TInput, TOutput>(predicate, _onSuccess, _onFail);
-            if (find == _onSuccess && replace is IParser<TInput, TOutput> onSuccess)
-                return new IfParser<TInput, TOutput>(_predicate, onSuccess, _onFail);
-            if (find == _onFail && replace is IParser<TInput, TOutput> onFail)
-                return new IfParser<TInput, TOutput>(_predicate, _onSuccess, onFail);
-            return this;
-        }
     }
 }

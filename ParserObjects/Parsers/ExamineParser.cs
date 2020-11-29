@@ -40,13 +40,6 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
-
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                if (find == _parser && replace is IParser<TInput, TOutput> typedReplace)
-                    return new Parser(typedReplace, _before, _after);
-                return this;
-            }
         }
 
         public record Context(
@@ -87,13 +80,6 @@ namespace ParserObjects.Parsers
             }
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
-
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                if (find == _parser && replace is IParser<TInput> typedReplace)
-                    return new Parser(typedReplace, _before, _after);
-                return this;
-            }
         }
 
         public record Context(

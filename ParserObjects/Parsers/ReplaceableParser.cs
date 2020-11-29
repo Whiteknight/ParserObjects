@@ -21,20 +21,13 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
+        public IParser ReplaceableChild => _value;
+
         public IResult<TOutput> Parse(ParseState<TInput> state) => _value.Parse(state);
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => _value.Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (_value == find && replace is IParser<TInput, TOutput> realReplace)
-                _value = realReplace;
-            return this;
-        }
-
-        public IParser ReplaceableChild => _value;
 
         public SingleReplaceResult SetParser(IParser parser)
         {

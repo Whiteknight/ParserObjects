@@ -22,13 +22,5 @@ namespace ParserObjects.Tests.Parsers
             var target = Produce(x => 5);
             target.GetChildren().Count().Should().Be(0);
         }
-
-        [Test]
-        public void ReplaceChild_Test()
-        {
-            var target = Produce(x => 5);
-            var input = new StringCharacterSequence("abc");
-            target.ReplaceChild(null, null).Should().Be(target);
-        }
     }
 }

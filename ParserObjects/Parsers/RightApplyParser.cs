@@ -170,16 +170,6 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
-
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                if (_item == find && replace is IParser<TInput, TOutput> itemTyped)
-                    return new Parser(itemTyped, _middle, _produce, _quantifier, _getMissingRight);
-                if (_middle == find && replace is IParser<TInput, TMiddle> middleTyped)
-                    return new Parser(_item, middleTyped, _produce, _quantifier, _getMissingRight);
-
-                return this;
-            }
         }
     }
 }

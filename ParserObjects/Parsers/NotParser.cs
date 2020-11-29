@@ -35,12 +35,5 @@ namespace ParserObjects.Parsers
         }
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == _inner && replace is IParser<TInput, bool> typed1)
-                return new NotParser<TInput>(typed1);
-            return this;
-        }
     }
 }

@@ -42,18 +42,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ReplaceChild_Test()
-        {
-            var failParser = Fail<char>();
-            var parser = Transform(
-                failParser,
-                c => int.Parse(c.ToString())
-            );
-            parser = parser.ReplaceChild(failParser, Any()) as IParser<char, int>;
-            parser.Parse("1").Value.Should().Be(1);
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var failParser = Fail<char>();

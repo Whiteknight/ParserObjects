@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -35,21 +34,5 @@ namespace ParserObjects.Parsers
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == null || replace == null)
-                return this;
-            if (!_parsers.Contains(find) || replace is not IParser<TInput> realReplace)
-                return this;
-            var newList = new IParser<TInput>[_parsers.Count];
-            for (int i = 0; i < _parsers.Count; i++)
-            {
-                var child = _parsers[i];
-                newList[i] = child == find ? realReplace : child;
-            }
-
-            return new OrParser<TInput>(newList);
-        }
     }
 }

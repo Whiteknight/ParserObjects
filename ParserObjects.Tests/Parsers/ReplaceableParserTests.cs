@@ -32,18 +32,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ReplaceChild_Test()
-        {
-            var anyParser = Any();
-            var failParser = Fail<char>();
-            var target = Replaceable(failParser);
-            target = target.ReplaceChild(failParser, anyParser) as IParser<char, char>;
-            var input = new StringCharacterSequence("abc");
-            var result = target.Parse(input);
-            result.Value.Should().Be('a');
-        }
-
-        [Test]
         public void GetChildren_Test()
         {
             var anyParser = Any();

@@ -126,24 +126,6 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                // Notice that replacing the initial parser causes a close of the right parser to be
-                // created. This may be unexpected for the user, but it's the only way to guarantee
-                // correctness and not have shared mutable state.
-                if (_initial == find && replace is IParser<TInput, TOutput> initialTyped)
-                    return new Parser(initialTyped, _getRight, _quantifier);
-
-                // Replacing _right here will detach it from _left, and it will be impossible to use
-                if (_right == find)
-                    ThrowCannotReplaceRightParserException();
-
-                if (_left == find)
-                    ThrowCannotReplaceLeftValueParserException();
-
-                return this;
-            }
-
             public override string ToString()
             {
                 var typeName = this.GetType().Name;

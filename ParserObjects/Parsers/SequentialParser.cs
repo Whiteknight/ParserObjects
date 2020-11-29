@@ -101,8 +101,6 @@ namespace ParserObjects.Parsers
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-            public IParser ReplaceChild(IParser find, IParser replace) => this;
         }
     }
 }

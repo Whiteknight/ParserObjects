@@ -46,7 +46,6 @@
 - [IParser](#T-ParserObjects-IParser 'ParserObjects.IParser')
   - [Name](#P-ParserObjects-IParser-Name 'ParserObjects.IParser.Name')
   - [GetChildren()](#M-ParserObjects-IParser-GetChildren 'ParserObjects.IParser.GetChildren')
-  - [ReplaceChild(find,replace)](#M-ParserObjects-IParser-ReplaceChild-ParserObjects-IParser,ParserObjects-IParser- 'ParserObjects.IParser.ReplaceChild(ParserObjects.IParser,ParserObjects.IParser)')
 - [IParser\`1](#T-ParserObjects-IParser`1 'ParserObjects.IParser`1')
   - [Parse(state)](#M-ParserObjects-IParser`1-Parse-ParserObjects-ParseState{`0}- 'ParserObjects.IParser`1.Parse(ParserObjects.ParseState{`0})')
 - [IParser\`2](#T-ParserObjects-IParser`2 'ParserObjects.IParser`2')
@@ -74,6 +73,7 @@
   - [PutBack(value)](#M-ParserObjects-ISequence`1-PutBack-`0- 'ParserObjects.ISequence`1.PutBack(`0)')
 - [IfParser\`2](#T-ParserObjects-Parsers-IfParser`2 'ParserObjects.Parsers.IfParser`2')
 - [InsertOnlyTrie\`2](#T-ParserObjects-Utility-InsertOnlyTrie`2 'ParserObjects.Utility.InsertOnlyTrie`2')
+- [IsExternalInit](#T-System-Runtime-CompilerServices-IsExternalInit 'System.Runtime.CompilerServices.IsExternalInit')
 - [JavaScriptStyleParserMethods](#T-ParserObjects-JavaScriptStyleParserMethods 'ParserObjects.JavaScriptStyleParserMethods')
   - [Number()](#M-ParserObjects-JavaScriptStyleParserMethods-Number 'ParserObjects.JavaScriptStyleParserMethods.Number')
   - [NumberString()](#M-ParserObjects-JavaScriptStyleParserMethods-NumberString 'ParserObjects.JavaScriptStyleParserMethods.NumberString')
@@ -920,25 +920,6 @@ Get a list of child parsers, if any.
 
 This method has no parameters.
 
-<a name='M-ParserObjects-IParser-ReplaceChild-ParserObjects-IParser,ParserObjects-IParser-'></a>
-### ReplaceChild(find,replace) `method`
-
-##### Summary
-
-Return a parser exactly like this parser but with one of it's children replaced. If no
-replacement is made, this parser may be returned.
-
-##### Returns
-
-
-
-##### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| find | [ParserObjects.IParser](#T-ParserObjects-IParser 'ParserObjects.IParser') |  |
-| replace | [ParserObjects.IParser](#T-ParserObjects-IParser 'ParserObjects.IParser') |  |
-
 <a name='T-ParserObjects-IParser`1'></a>
 ## IParser\`1 `type`
 
@@ -1318,6 +1299,23 @@ inserted into the trie, it cannot be removed or modified
 | ---- | ----------- |
 | TKey |  |
 | TResult |  |
+
+<a name='T-System-Runtime-CompilerServices-IsExternalInit'></a>
+## IsExternalInit `type`
+
+##### Namespace
+
+System.Runtime.CompilerServices
+
+##### Summary
+
+Reserved to be used by the compiler for tracking metadata.
+    This class should not be used by developers in source code.
+
+##### Remarks
+
+This definition is provided by the NuGet package (https://www.nuget.org/packages/IsExternalInit).
+    Please see https://github.com/manuelroemer/IsExternalInit for more information.
 
 <a name='T-ParserObjects-JavaScriptStyleParserMethods'></a>
 ## JavaScriptStyleParserMethods `type`

@@ -51,16 +51,5 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse("a");
             result.Success.Should().BeFalse();
         }
-
-        [Test]
-        public void Parse_ReplaceChild()
-        {
-            var initial = Fail<char>();
-            var parser = initial.Choose(c => Any());
-            parser = parser.ReplaceChild(initial, Any()) as IParser<char, char>;
-            var result = parser.Parse("ab");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
-        }
     }
 }

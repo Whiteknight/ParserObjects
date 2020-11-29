@@ -41,30 +41,5 @@ namespace ParserObjects.Tests.Parsers
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(anyParser);
         }
-
-        [Test]
-        public void ReplaceChild_Test()
-        {
-            var anyParser = Any();
-            var failParser = Fail<char>();
-            var parser = List(failParser, false);
-            parser = parser.ReplaceChild(failParser, anyParser) as IParser<char, IReadOnlyList<char>>;
-
-            var input = new StringCharacterSequence("abc");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            var list = result.Value.ToList();
-            list[0].Should().Be('a');
-            list[1].Should().Be('b');
-            list[2].Should().Be('c');
-        }
-
-        [Test]
-        public void ReplaceChild_Same()
-        {
-            var parser = List(Any());
-            var result = parser.ReplaceChild(null, null) as IParser<char, IReadOnlyList<char>>;
-            result.Should().BeSameAs(parser);
-        }
     }
 }

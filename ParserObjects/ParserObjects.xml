@@ -87,15 +87,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:ParserObjects.IParser.ReplaceChild(ParserObjects.IParser,ParserObjects.IParser)">
-            <summary>
-            Return a parser exactly like this parser but with one of it's children replaced. If no
-            replacement is made, this parser may be returned. 
-            </summary>
-            <param name="find"></param>
-            <param name="replace"></param>
-            <returns></returns>
-        </member>
         <member name="T:ParserObjects.IParser`1">
             <summary>
             Parser object which allows getting the result without type information
@@ -1722,6 +1713,16 @@
             <param name="name"></param>
             <param name="transform"></param>
             <returns></returns>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+                Reserved to be used by the compiler for tracking metadata.
+                This class should not be used by developers in source code.
+            </summary>
+            <remarks>
+                This definition is provided by the <i>IsExternalInit</i> NuGet package (https://www.nuget.org/packages/IsExternalInit).
+                Please see https://github.com/manuelroemer/IsExternalInit for more information.
+            </remarks>
         </member>
     </members>
 </doc>

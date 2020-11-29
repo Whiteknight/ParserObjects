@@ -40,21 +40,5 @@ namespace ParserObjects.Parsers
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;
-
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (find == null || replace == null)
-                return this;
-            if (!_parsers.Contains(find) || !(replace is IParser<TInput> realReplace))
-                return this;
-            var newList = new IParser<TInput>[_parsers.Count];
-            for (int i = 0; i < _parsers.Count; i++)
-            {
-                var child = _parsers[i];
-                newList[i] = child == find ? realReplace : child;
-            }
-
-            return new AndParser<TInput>(newList);
-        }
     }
 }

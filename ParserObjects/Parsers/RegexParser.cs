@@ -42,7 +42,5 @@ namespace ParserObjects.Parsers
         IResult IParser<char>.Parse(ParseState<char> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-        public IParser ReplaceChild(IParser find, IParser replace) => this;
     }
 }

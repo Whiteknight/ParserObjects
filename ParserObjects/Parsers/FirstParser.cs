@@ -43,20 +43,6 @@ namespace ParserObjects.Parsers
 
         public IEnumerable<IParser> GetChildren() => _parsers;
 
-        public IParser ReplaceChild(IParser find, IParser replace)
-        {
-            if (!_parsers.Contains(find) || replace is not IParser<TInput, TOutput> realReplace)
-                return this;
-            var newList = new IParser<TInput, TOutput>[_parsers.Count];
-            for (int i = 0; i < _parsers.Count; i++)
-            {
-                var child = _parsers[i];
-                newList[i] = child == find ? realReplace : child;
-            }
-
-            return new FirstParser<TInput, TOutput>(newList);
-        }
-
         public override string ToString()
         {
             var typeName = GetType().Name;

@@ -117,77 +117,6 @@ namespace ParserObjects.Parsers
                 parsers.AddRange(PostfixOperators.Select(c => c.Parser));
                 parsers.AddRange(PrefixOperators.Select(c => c.Parser));
             }
-
-            public Configuration TryReplace(IParser find, IParser replace)
-            {
-                if (replace is not IParser<TInput, TOperator> typed)
-                    return this;
-
-                var any = false;
-
-                List<InfixOperator> infix = null;
-                if (InfixOperators.Any(op => op.Parser == find))
-                {
-                    any = true;
-                    infix = new List<InfixOperator>();
-                    foreach (var op in InfixOperators)
-                        infix.Add(op.Parser == find ? op with { Parser = typed } : op);
-                }
-
-                List<PrefixOperator> prefix = null;
-                if (PrefixOperators.Any(op => op.Parser == find))
-                {
-                    any = true;
-                    prefix = new List<PrefixOperator>();
-                    foreach (var op in PrefixOperators)
-                        prefix.Add(op.Parser == find ? op with { Parser = typed } : op);
-                }
-
-                List<PostfixOperator> postfix = null;
-                if (PostfixOperators.Any(op => op.Parser == find))
-                {
-                    any = true;
-                    postfix = new List<PostfixOperator>();
-                    foreach (var op in PostfixOperators)
-                        postfix.Add(op.Parser == find ? op with { Parser = typed } : op);
-                }
-
-                List<CircumfixOperator> circumfix = null;
-                if (CircumfixOperators.Any(op => op.StartParser == find || op.EndParser == find))
-                {
-                    any = true;
-                    circumfix = new List<CircumfixOperator>();
-                    foreach (var op in CircumfixOperators)
-                    {
-                        var start = op.StartParser == find ? typed : op.StartParser;
-                        var end = op.EndParser == find ? typed : op.EndParser;
-                        circumfix.Add(start != op.StartParser || end != op.EndParser ? op with { StartParser = start, EndParser = end } : op);
-                    }
-                }
-
-                List<PostcircumfixOperator> postcircumfix = null;
-                if (PostcircumfixOperators.Any(op => op.StartParser == find || op.EndParser == find))
-                {
-                    any = true;
-                    postcircumfix = new List<PostcircumfixOperator>();
-                    foreach (var op in PostcircumfixOperators)
-                    {
-                        var start = op.StartParser == find ? typed : op.StartParser;
-                        var end = op.EndParser == find ? typed : op.EndParser;
-                        postcircumfix.Add(start != op.StartParser || end != op.EndParser ? op with { StartParser = start, EndParser = end } : op);
-                    }
-                }
-
-                if (!any)
-                    return this;
-                return new Configuration(
-                    infix ?? InfixOperators,
-                    prefix ?? PrefixOperators,
-                    postfix ?? PostfixOperators,
-                    circumfix ?? CircumfixOperators,
-                    postcircumfix ?? PostcircumfixOperators
-                );
-            }
         }
 
         public class Parser : IParser<TInput, TOutput>
@@ -396,16 +325,6 @@ namespace ParserObjects.Parsers
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
-
-            public IParser ReplaceChild(IParser find, IParser replace)
-            {
-                if (find == _values && replace is IParser<TInput, TOutput> typed)
-                    return new Parser(typed, _config);
-                var newConfig = _config.TryReplace(find, replace);
-                if (newConfig != null && newConfig != _config)
-                    return new Parser(_values, newConfig);
-                return this;
-            }
 
             public IEnumerable<IParser> GetChildren()
             {

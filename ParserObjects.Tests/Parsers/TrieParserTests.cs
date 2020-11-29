@@ -142,13 +142,5 @@ namespace ParserObjects.Tests.Parsers
             var target = new TrieParser<char, string>(trie);
             target.GetChildren().Count().Should().Be(0);
         }
-
-        [Test]
-        public void ReplaceChild_Test()
-        {
-            var trie = new InsertOnlyTrie<char, string>();
-            var target = new TrieParser<char, string>(trie);
-            target.ReplaceChild(Empty(), Produce(() => "")).Should().BeSameAs(target);
-        }
     }
 }
