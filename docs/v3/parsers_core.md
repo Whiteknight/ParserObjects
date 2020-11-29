@@ -392,6 +392,16 @@ parserCore = First(
 );
 ```
 
+### Pratt Parser
+
+The `Pratt` parser is an implementation of the Pratt parsing algorithm, with specific focus on parsing mathematical expressions. 
+
+```csharp
+var parser = Pratt(valueParser, config => { ... });
+```
+
+For detailed information about configuring and using the `Pratt` parser, see the [Pratt Parser page](parsers_pratt.md)
+
 ## Referencing Parsers
 
 These parsers exist to help with referencing issues, to help resolve circular dependencies or decide on which parser to use at parse-time.
