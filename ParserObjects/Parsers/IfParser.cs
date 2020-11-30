@@ -30,9 +30,7 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var checkpoint = state.Input.Checkpoint();
             var result = _predicate.Parse(state);
-            checkpoint.Rewind();
             if (result.Success)
                 return _onSuccess.Parse(state);
             return _onFail.Parse(state);

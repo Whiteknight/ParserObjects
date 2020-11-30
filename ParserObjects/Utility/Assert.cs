@@ -2,6 +2,9 @@
 
 namespace ParserObjects.Utility
 {
+    /// <summary>
+    /// Helper methods for enforcing invariants
+    /// </summary>
     public static class Assert
     {
         public static void ArgumentNotNull(object value, string parameterName)

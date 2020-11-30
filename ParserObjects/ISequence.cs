@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
-using ParserObjects.Utility;
 
 namespace ParserObjects
 {
+    /// <summary>
+    /// A snapshot of a sequence at a specific point. Can be used to return the sequence to that
+    /// point.
+    /// </summary>
     public interface ISequenceCheckpoint
     {
+        /// <summary>
+        /// Return the sequence to the state it was when the checkpoint was taken.
+        /// </summary>
         void Rewind();
     }
 
+    /// <summary>
+    /// An input stream with metadata
+    /// </summary>
     public interface ISequence
     {
         /// <summary>
@@ -25,6 +33,11 @@ namespace ParserObjects
         /// </summary>
         bool IsAtEnd { get; }
 
+        /// <summary>
+        /// Take a snapshot of the state of the sequence, which can be returned to later if the
+        /// sequence needs to be rewound.
+        /// </summary>
+        /// <returns></returns>
         ISequenceCheckpoint Checkpoint();
     }
 

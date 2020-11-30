@@ -3,14 +3,26 @@ using System.Linq;
 
 namespace ParserObjects.Utility
 {
+    /// <summary>
+    /// Result of a single replacement operation
+    /// </summary>
     public record SingleReplaceResult (
         IReplaceableParserUntyped Replaceable,
         IParser Previous,
         IParser Current
     )
     {
+        /// <summary>
+        /// True if the replace happened, false if it did not
+        /// </summary>
         public bool Success => !ReferenceEquals(Previous, Current);
 
+        /// <summary>
+        /// Get the previous and current parser value
+        /// </summary>
+        /// <param name="success"></param>
+        /// <param name="previous"></param>
+        /// <param name="current"></param>
         public void Deconstruct(out bool success, out IParser previous, out IParser current)
         {
             success = Success;
@@ -18,6 +30,13 @@ namespace ParserObjects.Utility
             current = Current;
         }
 
+        /// <summary>
+        /// Get the previous parser, current parser, and the ReplaceableParser parent
+        /// </summary>
+        /// <param name="success"></param>
+        /// <param name="previous"></param>
+        /// <param name="current"></param>
+        /// <param name="replaceable"></param>
         public void Deconstruct(out bool success, out IParser previous, out IParser current, out IReplaceableParserUntyped replaceable)
         {
             success = Success;
@@ -27,6 +46,9 @@ namespace ParserObjects.Utility
         }
     }
 
+    /// <summary>
+    /// Contains the results of multiple replaces from the parser graph
+    /// </summary>
     public struct MultiReplaceResult
     {
         public MultiReplaceResult(IEnumerable<SingleReplaceResult> results)
@@ -34,8 +56,15 @@ namespace ParserObjects.Utility
             Results = results.ToList();
         }
 
+        /// <summary>
+        /// The individual replace results
+        /// </summary>
         public IReadOnlyList<SingleReplaceResult> Results { get; }
 
+        /// <summary>
+        /// True if all replacements succeeded, false if no attempts were made or if any result
+        /// failed
+        /// </summary>
         public bool Success => Results != null && Results.Count > 0 && Results.All(r => r.Success);
 
         public static MultiReplaceResult Failure() => default;

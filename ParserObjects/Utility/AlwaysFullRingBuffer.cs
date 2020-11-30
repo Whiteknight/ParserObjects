@@ -3,7 +3,10 @@
 namespace ParserObjects.Utility
 {
     /// <summary>
-    /// Simplified ring-buffer implementation which makes several assumptions for simplicity
+    /// Simplified ring-buffer ('circular buffer') implementation which makes several assumptions 
+    /// for simplicity and performance. The buffer is always considered full (reading more data
+    /// than has been written will return default values) and values are not modifiable. This class
+    /// is not concurrency-safe.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class AlwaysFullRingBuffer<T>

@@ -6,7 +6,8 @@ namespace ParserObjects
     public static class SqlStyleParserMethods
     {
         /// <summary>
-        /// SQL-style comment '--' ....
+        /// SQL-style comment which starts with '--' and includes all characters until the end
+        /// of line
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;

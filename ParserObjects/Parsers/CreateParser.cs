@@ -5,6 +5,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Create a new parser instance on invocation, using information available from the current
+    /// parse state.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class Create<TInput, TOutput>
     {
         public delegate IParser<TInput, TOutput> Function(ParseState<TInput> state);

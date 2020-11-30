@@ -170,6 +170,11 @@ namespace ParserObjects
             { '?', "?" }
         };
 
+        /// <summary>
+        /// Parse a C-style string, removing quotes and replacing escape sequences with their
+        /// proper values
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;
         private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
             () =>
@@ -225,6 +230,10 @@ namespace ParserObjects
             }
         );
 
+        /// <summary>
+        /// Parse a C-style string, keeping quotes and escape sequences.
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> String() => _string.Value;
         private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
             () =>
@@ -273,6 +282,10 @@ namespace ParserObjects
             }
         );
 
+        /// <summary>
+        /// Parses a C-style char literal, removing quotes and resolving escape sequences.
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, char> StrippedCharacter() => _strippedCharacter.Value;
         private static readonly Lazy<IParser<char, char>> _strippedCharacter = new Lazy<IParser<char, char>>(
             () =>
@@ -328,6 +341,10 @@ namespace ParserObjects
             }
         );
 
+        /// <summary>
+        /// Parse a C-style char literal, keeping the quotes and escape sequences
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> Character() => _character.Value;
         private static readonly Lazy<IParser<char, string>> _character = new Lazy<IParser<char, string>>(
             () =>

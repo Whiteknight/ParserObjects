@@ -5,7 +5,7 @@ using System.Linq;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Returns unconditional failure
+    /// Returns unconditional failure, optionally with a helpful error message
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

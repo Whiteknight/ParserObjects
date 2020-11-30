@@ -6,12 +6,16 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Inserts a callback before and after the specified parser. Useful for debugging purposes
-    /// and to adjust the input/output of a parser.
+    /// and to adjust the input/output of a parser. Contains parsers and related machinery
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     public abstract class Examine<TInput, TOutput>
     {
+        /// <summary>
+        /// Examine parser for parsers which return typed output. Executes callbacks before and
+        /// after the parse.
+        /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TOutput> _parser;
@@ -44,6 +48,9 @@ namespace ParserObjects.Parsers
             public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
 
+        /// <summary>
+        /// Context information available during an examination. 
+        /// </summary>
         public record Context(
             IParser<TInput, TOutput> Parser,
             ParseState<TInput> State,
@@ -55,8 +62,16 @@ namespace ParserObjects.Parsers
         }
     }
 
+    /// <summary>
+    /// Inserts a callback before and after parser execution. Used for parsers with untyped output
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public abstract class Examine<TInput>
     {
+        /// <summary>
+        /// The examine parser. Executes callbacks before and after the parser. Does not return
+        /// typed output
+        /// </summary>
         public class Parser : IParser<TInput>
         {
             private readonly IParser<TInput> _parser;
@@ -86,6 +101,9 @@ namespace ParserObjects.Parsers
             public override string ToString() => ParserDefaultStringifier.ToString(this);
         }
 
+        /// <summary>
+        /// The context object which holds information able to be examined.
+        /// </summary>
         public record Context(
             IParser<TInput> Parser,
             ParseState<TInput> State,

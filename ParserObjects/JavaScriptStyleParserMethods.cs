@@ -93,6 +93,11 @@ namespace ParserObjects
             { '\\', "\\" }
         };
 
+        /// <summary>
+        /// Parse a JavaScript-style string, removing quotes and replacing escape sequences
+        /// with their literal values
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;
         private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
             () =>
@@ -175,6 +180,11 @@ namespace ParserObjects
             }
         );
 
+        /// <summary>
+        /// Parse a JavaScript-style string, returning the complete string literal with quotes
+        /// and escape sequences unmodified.
+        /// </summary>
+        /// <returns></returns>
         public static IParser<char, string> String() => _string.Value;
         private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
             () =>

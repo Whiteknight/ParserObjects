@@ -6,8 +6,16 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Sequential parser and related classes
+    /// </summary>
     public static class Sequential
     {
+        /// <summary>
+        /// State object for a sequential parse. Handles control flow and input sequence 
+        /// management.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
         public class State<TInput>
         {
             private readonly ParseState<TInput> _input;
@@ -64,7 +72,13 @@ namespace ParserObjects.Parsers
             public IResult Result { get; }
         }
 
-
+        /// <summary>
+        /// Parser for sequential callbacks. Executes a specially-structured callback with a state
+        /// object so the user can control the flow of data between parsers and set breakpoints
+        /// during debugging.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         public class Parser<TInput, TOutput> : IParser<TInput, TOutput>
         {
             private readonly Func<State<TInput>, TOutput> _func;

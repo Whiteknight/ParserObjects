@@ -6,7 +6,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse operations
+    /// Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse 
+    /// operations
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class EnumerableSequence<T> : ISequence<T>, IDisposable

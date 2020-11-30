@@ -6,7 +6,8 @@ using System.Collections.Generic;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// Adaptor to convert ISequence to IEnumerable
+    /// Adaptor to convert ISequence to IEnumerable. The enumerable should only be enumerated once
+    /// because the stream will not automatically rewind to an earlier position.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SequenceEnumerable<T> : IEnumerable<T>

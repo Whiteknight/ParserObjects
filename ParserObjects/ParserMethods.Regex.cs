@@ -20,17 +20,22 @@ namespace ParserObjects
             var result = regexParser.Parse(pattern);
             if (!result.Success)
                 throw new RegexException("Could not parse pattern " + pattern);
-            var regex = new Regex(result.Value);
-            return new RegexParser(regex, pattern);
+            
+            return new RegexParser(result.Value, pattern);
         }
 
-        public static IParser<char, IRegexNode> RegexPattern() => _regexPattern.Value;
-        private static Lazy<IParser<char, IRegexNode>> _regexPattern => new Lazy<IParser<char, IRegexNode>>(GetRegexPatternParser);
+        /// <summary>
+        /// Creates a parser which parses a regex pattern string into a Regex object for work with
+        /// the RegexParser and RegexEngine
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
+        private static Lazy<IParser<char, Regex>> _regexPattern => new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
 
         private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|' };
         private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']' };
 
-        private static IParser<char, IRegexNode> GetRegexPatternParser()
+        private static IParser<char, Regex> GetRegexPatternParser()
         {
             IParser<char, IRegexNode> alternationInner = null;
             var alternation = Deferred(() => alternationInner);
@@ -136,7 +141,9 @@ namespace ParserObjects
             var requiredEnd = If(End(), Empty(), Produce(ThrowEndOfPatternException));
             var regex = (alternation, maybeEndAnchor, requiredEnd).Produce((f, s, e) => RegexNodes.Sequence(new[] { f, s }));
 
-            return regex;
+            return regex
+                .Transform(r => new Regex(r))
+                .Named("RegexPattern"); 
         }
 
         private static object ThrowEndOfPatternException(ISequence<char> t)

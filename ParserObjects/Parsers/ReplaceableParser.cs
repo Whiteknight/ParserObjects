@@ -5,7 +5,8 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Delegates to an internal parser, and allows the internal parser to be replaced in-place 
-    /// without returning a new instance or causing a tree rewrite.
+    /// after the parser graph has been created. Useful for cases where grammar extensions or
+    /// modifications need to be made after the parser has been created.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

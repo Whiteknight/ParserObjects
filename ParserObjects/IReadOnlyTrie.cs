@@ -5,7 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects
 {
     /// <summary>
-    /// A trie type which allows using a composite key to search for values
+    /// A trie type which allows using a composite key to search for values. This trie cannot be
+    /// modified once created
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
@@ -34,6 +35,11 @@ namespace ParserObjects
         IEnumerable<IReadOnlyList<TKey>> GetAllPatterns();
     }
 
+    /// <summary>
+    /// A trie to which items can be added
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
     public interface IInsertableTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>

@@ -5,10 +5,21 @@ using System.Linq;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Expression-oriented implementation of the Pratt parsing algorithm. Contains the parser,
+    /// configuration and related machinery
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOperator"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class Pratt<TInput, TOperator, TOutput>
     {
         // See https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
+        /// <summary>
+        /// Create a new Configuration
+        /// </summary>
+        /// <returns></returns>
         public static IConfiguration CreateConfiguration() => new Configuration();
 
         private record InfixOperator (
@@ -45,6 +56,9 @@ namespace ParserObjects.Parsers
             Func<TOutput, TOperator, TOutput, TOperator, TOutput> Produce
         );
 
+        /// <summary>
+        /// Configuration for the parser. Allows adding and configuring new operators
+        /// </summary>
         public interface IConfiguration
         {
             IConfiguration AddInfixOperator(IParser<TInput, TOperator> matchOperator, int leftAssociativity, int rightAssociativity, Func<TOutput, TOperator, TOutput, TOutput> produce);
@@ -120,6 +134,9 @@ namespace ParserObjects.Parsers
             }
         }
 
+        /// <summary>
+        /// Pratt parser implementation. Uses configuration values to control the parse.
+        /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TOutput> _values;

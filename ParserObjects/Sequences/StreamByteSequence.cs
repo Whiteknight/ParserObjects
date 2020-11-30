@@ -5,6 +5,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
+    /// <summary>
+    /// A sequence of bytes pulled from a Stream or StreamReader
+    /// </summary>
     public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     {
         private readonly string _fileName;

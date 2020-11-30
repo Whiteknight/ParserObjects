@@ -2,7 +2,6 @@
 
 namespace ParserObjects.Utility
 {
-
     public class CascadingKeyValueStore : IDataStore
     {
         private readonly LinkedList<Dictionary<string, object>> _store;
@@ -13,7 +12,7 @@ namespace ParserObjects.Utility
             _store.AddLast(new Dictionary<string, object>());
         }
 
-        public (bool Success, T Value) Get<T>(string name)
+        public (bool success, T value) Get<T>(string name)
         {
             var node = _store.Last;
             while (node != null)

@@ -5,16 +5,29 @@ using System.Linq;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parser and related machinery to use a lookahead value to control the parse
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class Predict<TInput, TOutput>
     {
+        /// <summary>
+        /// Create a new Configuration object
+        /// </summary>
+        /// <returns></returns>
         public static IConfiguration CreateConfiguration() => new Configuration();
 
+        /// <summary>
+        /// Configuration for a predict parser. Allows setting a list of predicates and the parser
+        /// to invoke when the predicate succeeds
+        /// </summary>
         public interface IConfiguration
         {
             IConfiguration Add(Func<TInput, bool> equals, IParser<TInput, TOutput> parser);
         }
 
-        public class Configuration : IConfiguration
+        class Configuration : IConfiguration
         {
             private readonly List<(Func<TInput, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
 
@@ -54,6 +67,10 @@ namespace ParserObjects.Parsers
             }
         }
 
+        /// <summary>
+        /// Parser to use the next lookahead item to determine which parser to invoke next. Does
+        /// not consume the lookahead value.
+        /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly Configuration _config;

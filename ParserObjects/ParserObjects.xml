@@ -70,6 +70,53 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.CStyleParserMethods.StrippedString">
+            <summary>
+            Parse a C-style string, removing quotes and replacing escape sequences with their
+            proper values
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.CStyleParserMethods.String">
+            <summary>
+            Parse a C-style string, keeping quotes and escape sequences.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.CStyleParserMethods.StrippedCharacter">
+            <summary>
+            Parses a C-style char literal, removing quotes and resolving escape sequences.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.CStyleParserMethods.Character">
+            <summary>
+            Parse a C-style char literal, keeping the quotes and escape sequences
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.IDataStore">
+            <summary>
+            Storage for contextual/state data during a parse
+            </summary>
+        </member>
+        <member name="M:ParserObjects.IDataStore.Get``1(System.String)">
+            <summary>
+            Get the data value with the given name, cast to type T. If the data does not exist
+            or is not assignable to T, the call fails
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.IDataStore.Set``1(System.String,``0)">
+            <summary>
+            Set a data value with type T to the given name in the current data frame
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="value"></param>
+        </member>
         <member name="T:ParserObjects.IParser">
             <summary>
             Parser base type.
@@ -279,7 +326,8 @@
         <member name="M:ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{System.Char,``0},System.String,System.Action{System.String})">
             <summary>
             Convenience method for parser which act on character sequences. Parse the given input string
-            and return the first value or failure.
+            and return the first value or failure. Creates a character sequence from the string
+            and the ParseState object
             </summary>
             <typeparam name="TOutput"></typeparam>
             <param name="parser"></param>
@@ -287,10 +335,67 @@
             <param name="log"></param>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.ParserMatchParseExtensions.Parse``2(ParserObjects.IParser{``0,``1},ParserObjects.ISequence{``0},System.Action{System.String})">
+            <summary>
+            Convenience method to invoke a parser which acts on an input sequence. Creates the
+            necessary ParseState.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="input"></param>
+            <param name="log"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMatchParseExtensions.Parse``1(ParserObjects.IParser{``0},ParserObjects.ISequence{``0},System.Action{System.String})">
+            <summary>
+            Covenience method to invoke a parser which does not return a value. Creates the
+            necessary ParseState.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <param name="parser"></param>
+            <param name="input"></param>
+            <param name="log"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserResultsExtensions.TransformError``2(ParserObjects.IParser{``0,``1},ParserObjects.Parsers.TransformResult{``0,``1,``1}.Function)">
+            <summary>
+            If the result is an error, invoke the callback to modify the result and result
+            metadata. If the original result is success, return it without modification.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="transform"></param>
+            <returns></returns>
+        </member>
         <member name="T:ParserObjects.ParserCombinatorExtensions">
             <summary>
             IParser extension methods for building combinators using fluent syntax
             </summary>
+        </member>
+        <member name="M:ParserObjects.ParserCombinatorExtensions.Chain``3(ParserObjects.IParser{``0,``1},System.Func{``1,ParserObjects.IParser{``0,``2}})">
+            <summary>
+            Execute a parser and use the result to select the next parser to invoke
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="p"></param>
+            <param name="getNext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserCombinatorExtensions.Choose``3(ParserObjects.IParser{``0,``1},System.Func{``1,ParserObjects.IParser{``0,``2}})">
+            <summary>
+            Execute a parser but consume no input. Use the result to select the next parser to
+            invoke
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="p"></param>
+            <param name="getNext"></param>
+            <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserCombinatorExtensions.Examine``2(ParserObjects.IParser{``0,``1},System.Action{ParserObjects.Parsers.Examine{``0,``1}.Context},System.Action{ParserObjects.Parsers.Examine{``0,``1}.Context})">
             <summary>
@@ -298,6 +403,16 @@
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="before"></param>
+            <param name="after"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserCombinatorExtensions.Examine``1(ParserObjects.IParser{``0},System.Action{ParserObjects.Parsers.Examine{``0}.Context},System.Action{ParserObjects.Parsers.Examine{``0}.Context})">
+            <summary>
+            Invoke callbacks before and after a parse
+            </summary>
+            <typeparam name="TInput"></typeparam>
             <param name="parser"></param>
             <param name="before"></param>
             <param name="after"></param>
@@ -501,7 +616,8 @@
         </member>
         <member name="T:ParserObjects.IReadOnlyTrie`2">
             <summary>
-            A trie type which allows using a composite key to search for values
+            A trie type which allows using a composite key to search for values. This trie cannot be
+            modified once created
             </summary>
             <typeparam name="TKey"></typeparam>
             <typeparam name="TResult"></typeparam>
@@ -527,6 +643,13 @@
             the results should be cached if possible.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:ParserObjects.IInsertableTrie`2">
+            <summary>
+            A trie to which items can be added
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TResult"></typeparam>
         </member>
         <member name="M:ParserObjects.IInsertableTrie`2.Add(System.Collections.Generic.IEnumerable{`0},`1)">
             <summary>
@@ -561,6 +684,11 @@
             <param name="values"></param>
             <returns></returns>
         </member>
+        <member name="T:ParserObjects.IResult">
+            <summary>
+            Result object from a Parse operation
+            </summary>
+        </member>
         <member name="P:ParserObjects.IResult.Success">
             <summary>
             Returns true if the parse succeeded, false otherwise.
@@ -592,6 +720,61 @@
             <param name="transform"></param>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.ParseResultExtensions.WithError``1(ParserObjects.IResult{``0},System.String)">
+            <summary>
+            Create a copy of the result, with a new error message. If the original result is
+            Success, the result is returned unmodified.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="result"></param>
+            <param name="error"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParseResultExtensions.WithError``1(ParserObjects.IResult{``0},System.Func{System.String,System.String})">
+            <summary>
+            Create a copy of the result with a modified error message. If the original result is
+            Success, the result is returned unmodified.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="result"></param>
+            <param name="mutateError"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParseResultExtensions.Deconstruct``1(ParserObjects.IResult{``0},System.Boolean@,``0@)">
+            <summary>
+            Get the success flag and, if success is true, the result value
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <param name="result"></param>
+            <param name="success"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:ParserObjects.ParseResultExtensions.Deconstruct``1(ParserObjects.IResult{``0},System.Boolean@,``0@,ParserObjects.Location@)">
+            <summary>
+            Get the success flag and location and, if success is true, the result value
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <param name="result"></param>
+            <param name="success"></param>
+            <param name="value"></param>
+            <param name="location"></param>
+        </member>
+        <member name="T:ParserObjects.ISequenceCheckpoint">
+            <summary>
+            A snapshot of a sequence at a specific point. Can be used to return the sequence to that
+            point.
+            </summary>
+        </member>
+        <member name="M:ParserObjects.ISequenceCheckpoint.Rewind">
+            <summary>
+            Return the sequence to the state it was when the checkpoint was taken.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.ISequence">
+            <summary>
+            An input stream with metadata
+            </summary>
+        </member>
         <member name="P:ParserObjects.ISequence.CurrentLocation">
             <summary>
             The approximate location from the source data where the current input item was located, if
@@ -603,6 +786,13 @@
             True if the sequence is at the end and no more values may be retrieved. False if the sequence
             is exhausted and no more values are available.
             </summary>
+        </member>
+        <member name="M:ParserObjects.ISequence.Checkpoint">
+            <summary>
+            Take a snapshot of the state of the sequence, which can be returned to later if the
+            sequence needs to be rewound.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:ParserObjects.ISequence`1">
             <summary>
@@ -671,6 +861,20 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.JavaScriptStyleParserMethods.StrippedString">
+            <summary>
+            Parse a JavaScript-style string, removing quotes and replacing escape sequences
+            with their literal values
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.JavaScriptStyleParserMethods.String">
+            <summary>
+            Parse a JavaScript-style string, returning the complete string literal with quotes
+            and escape sequences unmodified.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:ParserObjects.Location">
             <summary>
             An approximate description of the location in the data source where an item is located. Notice
@@ -682,6 +886,36 @@
             An approximate description of the location in the data source where an item is located. Notice
             that some types of input may not make this information precisely knowable.
             </summary>
+        </member>
+        <member name="T:ParserObjects.FailFunction`1">
+            <summary>
+            Create a failure result with the given error message
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="error"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.SuccessFunction`1">
+            <summary>
+            Create a success result with the given value
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="value"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.ParserFunction`2">
+            <summary>
+            Execute a parse callback, with success and failure factory methods to create the necessary
+            results
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+            <param name="t"></param>
+            <param name="success"></param>
+            <param name="fail"></param>
+            <returns></returns>
         </member>
         <member name="T:ParserObjects.ParserMethods`1">
             <summary>
@@ -837,6 +1071,15 @@
             <param name="getDefault"></param>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.ParserMethods`1.Predict``1(System.Action{ParserObjects.Parsers.Predict{`0,``0}.IConfiguration})">
+            <summary>
+            Given the next input lookahead value, select the appropriate parser to use to continue
+            the parse
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="setup"></param>
+            <returns></returns>
+        </member>
         <member name="M:ParserObjects.ParserMethods`1.Produce``1(System.Func{``0})">
             <summary>
             Produce a value without consuming anything out of the input sequence
@@ -867,6 +1110,15 @@
             </summary>
             <typeparam name="TOutput"></typeparam>
             <param name="defaultParser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.Sequential``1(System.Func{ParserObjects.Parsers.Sequential.State{`0},``0})">
+            <summary>
+            Execute a specially-structured callback to turn a parse into sequential, procedural
+            code.
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="func"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserMethods`1.Transform``2(ParserObjects.IParser{`0,``0},System.Func{``0,``1})">
@@ -932,12 +1184,23 @@
         </member>
         <member name="M:ParserObjects.ParserMethods`1.If``1(ParserObjects.IParser{`0},ParserObjects.IParser{`0,``0})">
             <summary>
-            Tests the predicate parser, consuming no input. If the predicate succeeds, perform the parse.
+            Tests the predicate parser. If the predicate succeeds, invoke the success parser
             Otherwise return Failure.
             </summary>
             <typeparam name="TOutput"></typeparam>
             <param name="predicate"></param>
             <param name="onSuccess"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods`1.If``1(ParserObjects.IParser{`0},ParserObjects.IParser{`0,``0},ParserObjects.IParser{`0,``0})">
+            <summary>
+            Tests the predicate parser. If the predicate succeeds, invoke the success parser.
+            Otherwise invokes the failure parser.
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="predicate"></param>
+            <param name="onSuccess"></param>
+            <param name="onFail"></param>
             <returns></returns>
         </member>
         <member name="M:ParserObjects.ParserMethods`1.Not(ParserObjects.IParser{`0})">
@@ -1186,6 +1449,78 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.ParserMethods.LowerCamelCase">
+            <summary>
+            Parses a lowerCamelCase identifier. If the first character is a letter, it is 
+            expected to be lower-case
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.UpperCamelCase">
+            <summary>
+            Parses an UpperCamelCase string. If the first character is a letter, it is expected to
+            be upper-case. Also known as 'Pascal Case'
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.SpinalCase">
+            <summary>
+            Matches a spinal-case identifier, with words separated by dashes. Characters can be
+            letters of any case or digits. This is also known as 'kebab-case' or 'lisp-case'
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.ScreamingSpinalCase">
+            <summary>
+            Matches a SCREAMING-SPINAL-CASE identifier, with all-upper-case words separated by
+            dashes. Words may contain upper-case letters or digits.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.SnakeCase">
+            <summary>
+            Matches snake_case identifiers of letters (any case) or digits separated by
+            underscores. Also known as pothole_case
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.ScreamingSnakeCase">
+            <summary>
+            Matches SCREAMING_SNAKE_CASE with upper-case letters and digits separated by
+            underscores. Also known as MACRO_CASE or CONSTANT_CASE
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.Letter">
+            <summary>
+            Matches a Letter character
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.Word">
+            <summary>
+            Matches a series of consecutive letter characters
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.UpperCase">
+            <summary>
+            Matches an upper-case letter character
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.LowerCase">
+            <summary>
+            Matches a lower-case letter character
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParserMethods.Symbol">
+            <summary>
+            Matches a symbol or punctuation character.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:ParserObjects.ParserMethods.CharacterString(System.String)">
             <summary>
             Convenience method to match a literal sequence of characters and return the
@@ -1294,6 +1629,13 @@
             <param name="pattern"></param>
             <returns></returns>
         </member>
+        <member name="M:ParserObjects.ParserMethods.RegexPattern">
+            <summary>
+            Creates a parser which parses a regex pattern string into a Regex object for work with
+            the RegexParser and RegexEngine
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:ParserObjects.ParserMethods.WhitespaceCharacter">
             <summary>
             Parses a single character of whitespace (' ', '\t', '\r', '\n','\v', etc)
@@ -1343,6 +1685,14 @@
             <typeparam name="TMiddle"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.Create`2">
+            <summary>
+            Create a new parser instance on invocation, using information available from the current
+            parse state.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
         <member name="T:ParserObjects.Parsers.Create`2.Parser">
             <summary>
             Create a parser dynamically using information from the parse state. The parser created is 
@@ -1373,14 +1723,52 @@
         <member name="T:ParserObjects.Parsers.Examine`2">
             <summary>
             Inserts a callback before and after the specified parser. Useful for debugging purposes
-            and to adjust the input/output of a parser.
+            and to adjust the input/output of a parser. Contains parsers and related machinery
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.Examine`2.Parser">
+            <summary>
+            Examine parser for parsers which return typed output. Executes callbacks before and
+            after the parse.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Examine`2.Context">
+            <summary>
+            Context information available during an examination. 
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Parsers.Examine`2.Context.#ctor(ParserObjects.IParser{`0,`1},ParserObjects.ParseState{`0},ParserObjects.IResult{`1})">
+            <summary>
+            Context information available during an examination. 
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Examine`1">
+            <summary>
+            Inserts a callback before and after parser execution. Used for parsers with untyped output
+            </summary>
+            <typeparam name="TInput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.Examine`1.Parser">
+            <summary>
+            The examine parser. Executes callbacks before and after the parser. Does not return
+            typed output
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Examine`1.Context">
+            <summary>
+            The context object which holds information able to be examined.
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Parsers.Examine`1.Context.#ctor(ParserObjects.IParser{`0},ParserObjects.ParseState{`0},ParserObjects.IResult)">
+            <summary>
+            The context object which holds information able to be examined.
+            </summary>
+        </member>
         <member name="T:ParserObjects.Parsers.FailParser`2">
             <summary>
-            Returns unconditional failure
+            Returns unconditional failure, optionally with a helpful error message
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
@@ -1395,7 +1783,8 @@
         </member>
         <member name="T:ParserObjects.Parsers.FuncParser`2">
             <summary>
-            Invokes a delegate to perform the parse. The delegate may perform any logic necessary.
+            Invokes a delegate to perform the parse. The delegate may perform any logic necessary and
+            imposes no particular structure.
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
@@ -1412,10 +1801,16 @@
             <summary>
             Parser to help with left-associative or left-recursive parse situations. Executes an
             initial parser, and then passes that value to the right-hand-side production. The right
-            value is then used as the new left value and the loop repeats.
+            value is then used as the new left value and the loop repeats. Contains the parser and
+            related machinery
             </summary>
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.LeftApply`2.Parser">
+            <summary>
+            The left-apply parser, which handles left-associative parses without recursion. 
+            </summary>
         </member>
         <member name="T:ParserObjects.Parsers.LimitedListParser`2">
             <summary>
@@ -1466,6 +1861,63 @@
             </summary>
             <typeparam name="TInput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Parsers.Pratt`3">
+            <summary>
+            Expression-oriented implementation of the Pratt parsing algorithm. Contains the parser,
+            configuration and related machinery
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOperator"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="M:ParserObjects.Parsers.Pratt`3.CreateConfiguration">
+            <summary>
+            Create a new Configuration
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.Parsers.Pratt`3.IConfiguration">
+            <summary>
+            Configuration for the parser. Allows adding and configuring new operators
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Pratt`3.Parser">
+            <summary>
+            Pratt parser implementation. Uses configuration values to control the parse.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Predict`2">
+            <summary>
+            Parser and related machinery to use a lookahead value to control the parse
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="M:ParserObjects.Parsers.Predict`2.CreateConfiguration">
+            <summary>
+            Create a new Configuration object
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.Parsers.Predict`2.IConfiguration">
+            <summary>
+            Configuration for a predict parser. Allows setting a list of predicates and the parser
+            to invoke when the predicate succeeds
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Predict`2.Parser">
+            <summary>
+            Parser to use the next lookahead item to determine which parser to invoke next. Does
+            not consume the lookahead value.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Produce`2">
+            <summary>
+            Parser and related machinery to create a constant value during a parse
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
         <member name="T:ParserObjects.Parsers.Produce`2.Parser">
             <summary>
             Produces an output value unconditionally. Consumes no input. The callback has access to
@@ -1480,9 +1932,18 @@
         <member name="T:ParserObjects.Parsers.ReplaceableParser`2">
             <summary>
             Delegates to an internal parser, and allows the internal parser to be replaced in-place 
-            without returning a new instance or causing a tree rewrite.
+            after the parser graph has been created. Useful for cases where grammar extensions or
+            modifications need to be made after the parser has been created.
             </summary>
             <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.RightApply`3">
+            <summary>
+            Parser and related machinery for handling a right-associative parse
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TMiddle"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.RightApply`3.Parser">
@@ -1498,6 +1959,27 @@
             </summary>
             <typeparam name="TOutput"></typeparam>
             <typeparam name="TInput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.Sequential">
+            <summary>
+            Sequential parser and related classes
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Parsers.Sequential.State`1">
+            <summary>
+            State object for a sequential parse. Handles control flow and input sequence 
+            management.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Parsers.Sequential.Parser`2">
+            <summary>
+            Parser for sequential callbacks. Executes a specially-structured callback with a state
+            object so the user can control the flow of data between parsers and set breakpoints
+            during debugging.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <typeparam name="TOutput"></typeparam>
         </member>
         <member name="T:ParserObjects.Parsers.TransformParser`3">
             <summary>
@@ -1524,6 +2006,123 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
+        <member name="T:ParserObjects.ParseState`1">
+            <summary>
+            Contains state data and metadata about the progress of the parse. Provides references to
+            useful objects which may affect the parse.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+        </member>
+        <member name="P:ParserObjects.ParseState`1.Input">
+            <summary>
+            The input sequence being used by the parser
+            </summary>
+        </member>
+        <member name="P:ParserObjects.ParseState`1.Data">
+            <summary>
+            The current contextual state data used by the parser
+            </summary>
+        </member>
+        <member name="M:ParserObjects.ParseState`1.Log(ParserObjects.IParser,System.String)">
+            <summary>
+            If a log callback is provided, pass a log message to the callback
+            </summary>
+            <param name="parser"></param>
+            <param name="message"></param>
+        </member>
+        <member name="M:ParserObjects.ParseState`1.Fail``1(ParserObjects.IParser{`0,``0},System.String,ParserObjects.Location)">
+            <summary>
+            Create a Failure result for the given parser with the given error information
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="error"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParseState`1.Fail(ParserObjects.IParser{`0},System.String,ParserObjects.Location)">
+            <summary>
+            Create a failure result for the given parser with the given error information
+            </summary>
+            <param name="parser"></param>
+            <param name="error"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParseState`1.Success``1(ParserObjects.IParser{`0,``0},``0,ParserObjects.Location)">
+            <summary>
+            Create a success result for the given parser with the given result value
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <param name="parser"></param>
+            <param name="output"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.ParseState`1.Success(ParserObjects.IParser{`0},System.Object,ParserObjects.Location)">
+            <summary>
+            Create a success result for the given parser with the given result value, if any
+            </summary>
+            <param name="parser"></param>
+            <param name="output"></param>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.Quantifier">
+            <summary>
+            Flag to tell how many items a parser should match, if the parser is capable of matching
+            more than one item. Not all parsers with repetition will support all Quantifiers.
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Quantifier.ExactlyOne">
+            <summary>
+            The parser should match exactly one item. The parser will return an error if there are
+            no matching items, and will ignore additional matches
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Quantifier.ZeroOrOne">
+            <summary>
+            The parser should match one optional item. The parser will return success whether it
+            matches an item or not, and will ignore any potential matches after the first one.
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Quantifier.ZeroOrMore">
+            <summary>
+            The parser should match any number of items. The parser will return success if there
+            are no matches. If there are matches, the parser will attempt to match as many as
+            there are.
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Quantifier.Range">
+            <summary>
+            The parser expects to match a number of items in a given range. The bounds of the range
+            are passed separately
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Regexes.Regex">
+            <summary>
+            Represents a compiled regex pattern. Used by the RegexEngine to perform a match.
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Regexes.RegexEngine">
+            <summary>
+            Engine to execute regex pattern matching given a Regex and an input sequence
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Regexes.RegexEngine.GetMatch(ParserObjects.ISequence{System.Char},ParserObjects.Regexes.Regex)">
+            <summary>
+            Attempts to match the given regex pattern on the given input starting at it's current
+            location.
+            </summary>
+            <param name="input"></param>
+            <param name="regex"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.Regexes.RegexException">
+            <summary>
+            Exception thrown during Regex pattern parsing and regex engine execution
+            </summary>
+        </member>
         <member name="T:ParserObjects.Regexes.IRegexNode">
             <summary>
             An abstract syntax node for a regex pattern. Represents a single construct in the regex
@@ -1541,6 +2140,84 @@
             Represents a state at a point in evaluating a regular expression. At each point, the
             regex will attempt to match the current state against the current input
             </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Type">
+            <summary>
+            The type of state
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.CanBacktrack">
+            <summary>
+            Whether or not this state supports backtracking.
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Quantifier">
+            <summary>
+            The quantifier that controls how many times this state should match.
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.ValuePredicate">
+            <summary>
+            A predicate that determines whether a value matches
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Group">
+            <summary>
+            All substates if this state is a group
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Alternations">
+            <summary>
+            All possibilities in an alternation
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Description">
+            <summary>
+            A brief description of the state, to help with tracing/debugging
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Regexes.RegexState.Maximum">
+            <summary>
+            The maximum number of times this state can match, if it supports more than one. Used
+            with Range quantifiers
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Regexes.RegexStateType">
+            <summary>
+            Type of the regex state. Used internally by the engine to dispatch matching logic
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Regexes.RegexStateType.EndOfInput">
+            <summary>
+            The end state
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Regexes.RegexStateType.Group">
+            <summary>
+            The state is a nested, parenthesized grouping of one or more substates
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Regexes.RegexStateType.MatchValue">
+            <summary>
+            The state requires matching a value
+            </summary>
+        </member>
+        <member name="F:ParserObjects.Regexes.RegexStateType.Alternation">
+            <summary>
+            The state is an alternation of substates
+            </summary>
+        </member>
+        <member name="T:ParserObjects.Result`1">
+            <summary>
+            Parser result object which holds the result value and helpful metadata
+            </summary>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="M:ParserObjects.Result`1.#ctor(ParserObjects.IParser,System.Boolean,`0,ParserObjects.Location,System.String)">
+            <summary>
+            Parser result object which holds the result value and helpful metadata
+            </summary>
+            <typeparam name="TValue"></typeparam>
         </member>
         <member name="M:ParserObjects.Sequences.EnumerableExtensions.ToSequence``1(System.Collections.Generic.IEnumerable{``0},``0)">
             <summary>
@@ -1562,7 +2239,8 @@
         </member>
         <member name="T:ParserObjects.Sequences.EnumerableSequence`1">
             <summary>
-            Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse operations
+            Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse 
+            operations
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -1589,16 +2267,55 @@
             <typeparam name="TInput"></typeparam>
             <typeparam name="TOutput"></typeparam>
         </member>
+        <member name="T:ParserObjects.Sequences.SequenceBuffer">
+            <summary>
+            Adaptor to represent a sequence as an indexable buffer like an array or list
+            </summary>
+        </member>
         <member name="T:ParserObjects.Sequences.SequenceEnumerable`1">
             <summary>
-            Adaptor to convert ISequence to IEnumerable
+            Adaptor to convert ISequence to IEnumerable. The enumerable should only be enumerated once
+            because the stream will not automatically rewind to an earlier position.
             </summary>
             <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Sequences.StreamByteSequence">
+            <summary>
+            A sequence of bytes pulled from a Stream or StreamReader
+            </summary>
         </member>
         <member name="T:ParserObjects.Sequences.StreamCharacterSequence">
             <summary>
             A sequence of characters read from a Stream, such as from a file
             </summary>
+        </member>
+        <member name="M:ParserObjects.Sequences.StreamExtensions.ToByteSequence(System.IO.Stream,System.String)">
+            <summary>
+            Converts an existing  Stream to an ISequence of byte. Calling .Dispose() on the sequence
+            will dispose the stream as well.
+            </summary>
+            <param name="stream"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.Sequences.StreamExtensions.ToCharSequence(System.IO.Stream,System.Text.Encoding,System.String)">
+            <summary>
+            Converts an existing Stream to a sequence of char using the provided encoding (UTF-8 by
+            default). Calling .Dispose() on the sequence will dispose the stream as well.
+            </summary>
+            <param name="stream"></param>
+            <param name="encoding"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ParserObjects.Sequences.StreamExtensions.ToCharSequence(System.IO.StreamReader,System.String)">
+            <summary>
+            Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
+            sequence will dispose the reader as well.
+            </summary>
+            <param name="streamReader"></param>
+            <param name="fileName"></param>
+            <returns></returns>
         </member>
         <member name="T:ParserObjects.Sequences.StringCharacterSequence">
             <summary>
@@ -1614,15 +2331,24 @@
         </member>
         <member name="M:ParserObjects.SqlStyleParserMethods.Comment">
             <summary>
-            SQL-style comment '--' ....
+            SQL-style comment which starts with '--' and includes all characters until the end
+            of line
             </summary>
             <returns></returns>
         </member>
         <member name="T:ParserObjects.Utility.AlwaysFullRingBuffer`1">
             <summary>
-            Simplified ring-buffer implementation which makes several assumptions for simplicity
+            Simplified ring-buffer ('circular buffer') implementation which makes several assumptions 
+            for simplicity and performance. The buffer is always considered full (reading more data
+            than has been written will return default values) and values are not modifiable. This class
+            is not concurrency-safe.
             </summary>
             <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Utility.Assert">
+            <summary>
+            Helper methods for enforcing invariants
+            </summary>
         </member>
         <member name="T:ParserObjects.Utility.InsertOnlyTrie`2">
             <summary>
@@ -1631,6 +2357,67 @@
             </summary>
             <typeparam name="TKey"></typeparam>
             <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="T:ParserObjects.Utility.ParserDefaultStringifier">
+            <summary>
+            Default logic for implementing IParser.ToString()
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Utility.ParserDefaultStringifier.ToString(ParserObjects.IParser)">
+            <summary>
+            Attempts to create a string representation of a string which is both sufficiently
+            helpful but not overly verbose. Use the .Name if provided.
+            </summary>
+            <param name="parser"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ParserObjects.Utility.SingleReplaceResult">
+            <summary>
+            Result of a single replacement operation
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Utility.SingleReplaceResult.#ctor(ParserObjects.IReplaceableParserUntyped,ParserObjects.IParser,ParserObjects.IParser)">
+            <summary>
+            Result of a single replacement operation
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Utility.SingleReplaceResult.Success">
+            <summary>
+            True if the replace happened, false if it did not
+            </summary>
+        </member>
+        <member name="M:ParserObjects.Utility.SingleReplaceResult.Deconstruct(System.Boolean@,ParserObjects.IParser@,ParserObjects.IParser@)">
+            <summary>
+            Get the previous and current parser value
+            </summary>
+            <param name="success"></param>
+            <param name="previous"></param>
+            <param name="current"></param>
+        </member>
+        <member name="M:ParserObjects.Utility.SingleReplaceResult.Deconstruct(System.Boolean@,ParserObjects.IParser@,ParserObjects.IParser@,ParserObjects.IReplaceableParserUntyped@)">
+            <summary>
+            Get the previous parser, current parser, and the ReplaceableParser parent
+            </summary>
+            <param name="success"></param>
+            <param name="previous"></param>
+            <param name="current"></param>
+            <param name="replaceable"></param>
+        </member>
+        <member name="T:ParserObjects.Utility.MultiReplaceResult">
+            <summary>
+            Contains the results of multiple replaces from the parser graph
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Utility.MultiReplaceResult.Results">
+            <summary>
+            The individual replace results
+            </summary>
+        </member>
+        <member name="P:ParserObjects.Utility.MultiReplaceResult.Success">
+            <summary>
+            True if all replacements succeeded, false if no attempts were made or if any result
+            failed
+            </summary>
         </member>
         <member name="T:ParserObjects.Visitors.BnfStringifyVisitor">
             <summary>

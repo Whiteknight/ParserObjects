@@ -3,6 +3,10 @@ using ParserObjects.Utility;
 
 namespace ParserObjects
 {
+    /// <summary>
+    /// Parser result object which holds the result value and helpful metadata
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public record Result<TValue>(IParser Parser, bool Success, TValue Value, Location Location, string Message) : IResult<TValue>
     {
         object IResult.Value => Value;

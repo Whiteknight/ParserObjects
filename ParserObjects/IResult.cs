@@ -2,6 +2,9 @@
 
 namespace ParserObjects
 {
+    /// <summary>
+    /// Result object from a Parse operation
+    /// </summary>
     public interface IResult
     {
         IParser Parser { get; }
@@ -45,18 +48,49 @@ namespace ParserObjects
 
     public static class ParseResultExtensions
     {
+        /// <summary>
+        /// Create a copy of the result, with a new error message. If the original result is
+        /// Success, the result is returned unmodified.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, string error)
-            => new Result<T>(result.Parser, result.Success, result.Value, result.Location, error);
+            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, error);
 
+        /// <summary>
+        /// Create a copy of the result with a modified error message. If the original result is
+        /// Success, the result is returned unmodified.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="mutateError"></param>
+        /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
-            => new Result<T>(result.Parser, result.Success, result.Value, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
+            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
 
+        /// <summary>
+        /// Get the success flag and, if success is true, the result value
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="success"></param>
+        /// <param name="value"></param>
         public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value)
         {
             success = result.Success;
             value = result.Value;
         }
 
+        /// <summary>
+        /// Get the success flag and location and, if success is true, the result value
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="success"></param>
+        /// <param name="value"></param>
+        /// <param name="location"></param>
         public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value, out Location location)
         {
             success = result.Success;

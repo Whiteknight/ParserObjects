@@ -10,9 +10,28 @@ namespace ParserObjects
     /// </summary>
     public static class ParserCombinatorExtensions
     {
+        /// <summary>
+        /// Execute a parser and use the result to select the next parser to invoke
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
             => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
 
+        /// <summary>
+        /// Execute a parser but consume no input. Use the result to select the next parser to
+        /// invoke
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
             => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
 
@@ -28,6 +47,14 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context> before = null, Action<Examine<TInput, TOutput>.Context> after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
+        /// <summary>
+        /// Invoke callbacks before and after a parse
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <returns></returns>
         public static IParser<TInput> Examine<TInput>(this IParser<TInput> parser, Action<Examine<TInput>.Context> before = null, Action<Examine<TInput>.Context> after = null)
             => new Examine<TInput>.Parser(parser, before, after);
 

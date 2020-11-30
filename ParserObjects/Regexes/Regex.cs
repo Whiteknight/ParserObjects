@@ -5,6 +5,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Regexes
 {
+    /// <summary>
+    /// Represents a compiled regex pattern. Used by the RegexEngine to perform a match.
+    /// </summary>
     public class Regex
     {
         public IReadOnlyList<RegexState> States { get; }

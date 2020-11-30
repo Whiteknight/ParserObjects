@@ -28,8 +28,8 @@ An `IParser` is an object that attempts to match a pattern in an input sequence.
 var result = parser.Parse(sequence);
 ```
 
-The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs.
+The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs. Please see the documentation for more information, and the test suite for usage examples.
 
 ## Current Status
 
-ParserObjects library is currently in active development. v2.0.0 is out and is the recommended version to use.
+ParserObjects library is currently in active development. v3.0.0 is out and is the recommended version for use. v3.0.0 is not backwards-compatible with v2.X or v1.X versions.

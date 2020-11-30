@@ -4,6 +4,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parser and related machinery for handling a right-associative parse
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class RightApply<TInput, TMiddle, TOutput>
     {
         public delegate TOutput Produce(TOutput left, TMiddle middle, TOutput right);

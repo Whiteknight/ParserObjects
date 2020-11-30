@@ -4,8 +4,10 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
-    // Uses a buffer to represent the _input sequence as an array
-    public class SequenceBuffer
+    /// <summary>
+    /// Adaptor to represent a sequence as an indexable buffer like an array or list
+    /// </summary>
+    public class SequenceBuffer 
     {
         private readonly ISequence<char> _input;
         private readonly List<char> _buffer;

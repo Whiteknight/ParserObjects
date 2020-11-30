@@ -1,5 +1,4 @@
-﻿using System;
-using ParserObjects.Parsers;
+﻿using ParserObjects.Parsers;
 
 namespace ParserObjects
 {

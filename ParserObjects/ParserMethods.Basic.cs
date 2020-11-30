@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Parsers;
-using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -144,6 +143,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
+        /// <summary>
+        /// Given the next input lookahead value, select the appropriate parser to use to continue
+        /// the parse
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="setup"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Predict<TOutput>(Action<Predict<TInput,TOutput>.IConfiguration> setup)
         {
             var config = Predict<TInput, TOutput>.CreateConfiguration();
@@ -187,6 +193,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
+        /// <summary>
+        /// Execute a specially-structured callback to turn a parse into sequential, procedural
+        /// code.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Sequential<TOutput>(Func<Sequential.State<TInput>, TOutput> func)
             => new Sequential.Parser<TInput, TOutput>(func);
 

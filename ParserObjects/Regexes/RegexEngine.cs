@@ -4,6 +4,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Regexes
 {
+    /// <summary>
+    /// Engine to execute regex pattern matching given a Regex and an input sequence
+    /// </summary>
     public class RegexEngine
     {
         private class BacktrackState
@@ -122,6 +125,13 @@ namespace ParserObjects.Regexes
             }
         }
 
+        /// <summary>
+        /// Attempts to match the given regex pattern on the given input starting at it's current
+        /// location.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="regex"></param>
+        /// <returns></returns>
         public (bool matches, string value, int consumed) GetMatch(ISequence<char> input, Regex regex)
         {
             Assert.ArgumentNotNull(input, nameof(input));

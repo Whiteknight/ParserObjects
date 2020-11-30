@@ -14,7 +14,7 @@ namespace ParserObjects
             => new AndParser<TInput>(parsers);
 
         /// <summary>
-        /// Tests the predicate parser, consuming no input. If the predicate succeeds, perform the parse.
+        /// Tests the predicate parser. If the predicate succeeds, invoke the success parser
         /// Otherwise return Failure.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
@@ -24,6 +24,15 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess)
             => new IfParser<TInput, TOutput>(predicate, onSuccess, Fail<TOutput>());
 
+        /// <summary>
+        /// Tests the predicate parser. If the predicate succeeds, invoke the success parser.
+        /// Otherwise invokes the failure parser.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="onSuccess"></param>
+        /// <param name="onFail"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail)
             => new IfParser<TInput, TOutput>(predicate, onSuccess, onFail);
 
