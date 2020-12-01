@@ -13,8 +13,18 @@ namespace ParserObjects.Tests.Parsers.Logical
         {
             var any = Any().Transform(c => c.ToString());
             var bracketed = If(
-                And(Match('['), Any()),
-                Rule(Match('['), any, Match(']'), (o, a, c) => $"{o}{a}{c}")
+                None(
+                    And(
+                        Match('['), 
+                        Any()
+                    )
+                ),
+                Rule(
+                    Match('['), 
+                    any, 
+                    Match(']'), 
+                    (o, a, c) => $"{o}{a}{c}"
+                )
             );
             var parser = First(
                 bracketed,

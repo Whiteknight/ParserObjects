@@ -18,7 +18,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
+            result.Value.Should().Be('b');
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
+            result.Value.Should().Be('b');
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Parsers.Logical
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
+            result.Value.Should().Be('b');
         }
 
         [Test]

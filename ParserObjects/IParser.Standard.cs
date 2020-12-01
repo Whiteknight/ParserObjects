@@ -171,6 +171,25 @@ namespace ParserObjects
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
 
         /// <summary>
+        /// Wraps the given parser to guarantee that it consumes no input
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="inner"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> None<TInput, TOutput>(this IParser<TInput, TOutput> inner)
+            => new NoneParser<TInput, TOutput>(inner);
+
+        /// <summary>
+        /// Wraps the given parser to guarantee that it consumes no input
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="inner"></param>
+        /// <returns></returns>
+        public static IParser<TInput> None<TInput>(this IParser<TInput> inner)
+            => new NoneParser<TInput>(inner);
+
+        /// <summary>
         /// Zero-length assertion that the given parser's match result is not followed by a lookahead pattern.
         /// The lookahead is compared but no input is consumed to match it.
         /// </summary>

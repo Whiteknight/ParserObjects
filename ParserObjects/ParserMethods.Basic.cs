@@ -125,6 +125,23 @@ namespace ParserObjects
             => new FuncParser<TInput, TOutput>(func);
 
         /// <summary>
+        /// Wraps the parser to guarantee that it consumes no input.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="inner"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> inner)
+            => new NoneParser<TInput, TOutput>(inner);
+
+        /// <summary>
+        /// Wraps the parser to guarantee that it consumes no input.
+        /// </summary>
+        /// <param name="inner"></param>
+        /// <returns></returns>
+        public static IParser<TInput> None(IParser<TInput> inner)
+            => new NoneParser<TInput>(inner);
+
+        /// <summary>
         /// Attempt to parse an item and return a default value otherwise
         /// </summary>
         /// <param name="p"></param>
