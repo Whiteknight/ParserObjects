@@ -13,6 +13,13 @@ namespace ParserObjects.Tests.Examples.Parens
         }
 
         [Test]
+        public void InfixOperators_Whitespace()
+        {
+            var result = ExpressionParenthesizer.Parenthesize("1 + 2 * 3 - 4 / 5");
+            result.Should().Be("((1+(2*3))-(4/5))");
+        }
+
+        [Test]
         public void PrefixAndPostfix_Test()
         {
             var result = ExpressionParenthesizer.Parenthesize("-1!");

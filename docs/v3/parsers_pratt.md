@@ -1,6 +1,6 @@
 # Pratt Parsers
 
-Pratt parsers are a special type of [Operator Precidence Parser](https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing) which can dramatically simplify some expression-parsing scenarios. Setting up a Pratt parser is a little different from other parsers because you have to know the type of operator you are parsing, and explicitly set precidence strenght values for both left and right association.
+Pratt parsers are a special type of [Operator Precidence Parser](https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing) which can dramatically simplify some parsing scenarios, especially mathematical expression parsing. Setting up a Pratt parser is a little different from other parsers because you have to know the type of operator you are parsing, and explicitly set precidence strength values for both left and right association.
 
 ## Basic Operation
 
@@ -9,88 +9,124 @@ using static ParserObjects.ParserMethods<char>;
 ```
 
 ```csharp
-var target = Pratt(config => {
+var target = Pratt<MyValue>(config => {
     ...
 });
 ```
 
-## Operator Types
-
-### Infix
-
-Infix operators are operators which go between two operands. For example, the `+` in `"1 + 2"`. By common convention, for mathematical formulas, `+` and `-` operators are low precidence while `*` and `/` are higher precidence. 
-
-Infix operations can be inserted by calling `.AddInfixOperator` with a parser to match the required operators. Infix operations take two precidence or "binding strength" values, one for the left side and one for the right side. These values generally should be consecutive integers, and should not overlap with binding strength numbers from other operators. If the left value is higher than the right value, the operator will be left-associative. Otherwise it will be right-associative.
+The Pratt parser works by adding rules along with the explicit precidence and association values. Each rule must first provide a parser, which gathers the next value to be wrapped as a token. After this, the rule may specify one or both production callbacks for left and right productions.
 
 ```csharp
-config
-    .AddInfixOperator(Match('+'), 1, 2, (left, op, right) => left + right)
-    ;
+.Add(p => p
+    .Parse(Match('-'))
+    ...
+)
 ```
 
-### Prefix
-
-Prefix operators are operators which go before a single operand, such as the `-` sign in `"-1"`.
-
-Prefix operators take a single binding strength value, for how strongly it binds to the right-hand operand. This value should not overlap with a range from other operators which also affect operands on the right.
+A right production rule is used for prefixes. These are things which appear first, and modify or operate upon something to the left of it. In this case, the unary `'-'` operator is used to turn another value negative. In this example, we use the `ctx` parameter to recurse back into the parser to get the right-hand operand:
 
 ```csharp
-config
-    .AddPrefixOperator(Match('-'), 3, (op, right) => -right)
-    ;
+.Add(p => p
+    .Parse(Match('-'))
+    .ProduceRight((ctx, neg) => -ctx.Parse())
+)
 ```
 
-### Postfix
-
-Postfix operators are operators which go after a single operand, such as the `!` factorial sign in `"5!"`.
-
-Postfix operators take a single binding strength parameter for how tightly they bind to the operand on the left. This value should not overlap with a range from other operators which also affect operands on the left.
+A left production rule is used for suffixes, or things which appear after a value and modify or operate on that value. In this case, the unary `'!'` factorial symbol is a suffix which returns an integer that is the product of all integers between 0 and the value:
 
 ```csharp
-config
-    .AddPostfixOperator(Match('!'), 6, (left, op) => Factorial(left))
-    ;
+.Add(p => p
+    .Parse(Match('!'))
+    .ProduceLeft((ctx, left, fact) => {
+        var result = 1;
+        for (int i = 1; i <= left; i++)
+            result = result * i;
+        return result;
+    })
+)
 ```
 
-### Circumfix
-
-Circumfix operators are operators which surround an operand, such as the parenthesis `(` and `)` in `"(1 + 2)"`
-
-Circumfix operators do not have a precidence or binding strength parameter, because the internal contents are clearly delimited without any concern for ordering. Circumfix operators require two parsers, one for the starting or opening operator and one for the ending or closing operator.
+An infix operator is an operator which binds on the left, but also recurses to get a value on the right:
 
 ```csharp
-config
-    .AddCircumfixOperator(Match('('), Match(')'), (open, contents, close) => contents)
-    ;
+.Add(p => p
+    .Parse(Match('-'))
+    .ProduceLeft((ctx, left, op) => {
+        var right = ctx.Parse();
+        return left - right;
+    })
+)
 ```
 
-### Postcircumfix
-
-Postcircumfix operators are a special case combined from postfix and circumfix. A good example is the common array-indexing syntax of `[` and `]` in `"a[b]"`
-
-Postcircumfix operators take two parsers for opening and closing symbols, like circumfix parsers do, and they also take a left associativity value like postfix parsers do. This binding strength value should not overlap with any other binding strength ranges for other operators which bind to operands on the left.
+Notice that a single operator may bind on both left or right, depending on the situation. The `'-'` operator is an example, it can be both a unary prefix and an infix operator:
 
 ```csharp
-config
-    .AddPostcircumfixOperator(Match('['), Match(']'), 8, (left, open, right, close) => GetArrayIndex(left, right))
-    ;
+.Add(p => p
+    .Parse(Match('-'))
+    .ProduceRight((ctx, neg) => -ctx.Parse())
+    .ProduceLeft((ctx, left, op) => {
+        var right = ctx.Parse();
+        return left - right;
+    })
+)
 ```
 
-### Unsupported Types
+The parser will invoke the correct production callback depending on the situation where the token is found.
 
-The Pratt parser implementation in ParserObjects does not currently support other types of operator constructs. For example, "precircumfix" types (like the cast in `"(int)value"` from C-like languages), or operators with more than three operands (like the ternary operator `?` `:` in `"ok ? 5 : 7"`). These things could be added in future releases if needed, or they can be implemented by the user.
+## Precidence and Association
 
-## Associativity Strength
+Pratt parsers implement precidence and association using values called *binding power*. Every rule has potentially two binding power values: one for the left and one for the right. Rules with higher binding power values have higher precidence. By default, in this Pratt parser, the Left Binding Power defaults to 0 unless otherwise set, and the Right Binding Power defaults to be the same as the Left Bindign Power unless otherwise set. In this example, the `'-'` has a binding power of 1 (very low) when used as an infix operator on the left, and a binding power of 7 (much higher) when used as a unary operator on the right:
 
-The difficulty in using Pratt parsers comes from having to manually setup and keep track of associativity values for all of your precidence levels. By general convention, the left and right precidence values should be consecutive values if possible, and values should not generally be reused. While most operator types take only a single associativity value, the infix operators take two. You should come up with a convention for your own code, such as every parser should use two consecutive numbers, with the even number being lower and the odd number being higher. `(1, 2)` or `(2, 1)` would be the first range (depending on direction), `(3, 4)` or `(4, 3)` would be the second range, etc. If the operator in question doesn't use both values from the given range, silently ignore the unused value and use the next range for the next operator level. 
 
 ```csharp
-config
-    .AddInfixOperator(Match('+'), 1, 2, (left, op, right) => left + right)
-    .AddInfixOperator(Match('='), 4, 3, (left, op, right) => left + right)
-    .AddPrefixOperator(Match('-'), 5, (op, right) => -right)               
-    .AddPostfixOperator(Match('!'), 7, (left, op) => Factorial(left))
-    ;
+.Add(p => p
+    .Parse(Match('-'))
+
+    .LeftBindingPower(1)
+    .ProduceLeft((ctx, left, op) => {
+        var right = ctx.Parse();
+        return left - right;
+    })
+
+    .RightBindingPower(7)
+    .ProduceRight((ctx, neg) => -ctx.Parse())
+)
 ```
 
-Notice in this example that the first parser, `+`, uses range `(1, 2)` and is right associative. The second parser `=` uses range `(3, 4)` and is left associative. The third parser `-` uses range `(5, 6)` though the 6 is not used, and is right associative. The fourth parser `!` uses range `(7, 8)` though the 8 is not used and is left associative. The more you can do to keep track of precidence ranges, the more maintainable and modifiable your parser will be.
+Infix operators can be changed from left-associative to right-associative by changing the binding powers. An infix operator is left-associative if the Left Binding Power is lower than or equal to the Right Binding Power. It is Right-Associative if the Right Binding Power is lower. For example, in C and C-like languages, the `'+'` operator binds left-associative, but the `'='` operator is right-associative with lower precidence. We would indicate that with this example code:
+
+```csharp
+var parser = Pratt<string>(c => c
+    .Add(p => p
+        .Parse(DigitString())
+        .LeftBindingPower(0)
+        .ProduceRight((ctx, value) => value)
+    )
+    .Add(p => p
+        .Parse(Identifier())
+        .LeftBindingPower(0)
+        .ProduceRight((ctx, value) => value)
+    )
+    .Add(p => p
+        .Parse(Match('+'))
+
+        .LeftBindingPower(3)
+        .ProduceLeft((ctx, left, op) => {
+            var right = ctx.Parse();
+            return $"({left}+{right})";
+        })
+    )
+    .Add(p => p
+        .Parse(Match('='))
+        .LeftBindingPower(2)
+        .RightBindingPower(1)
+        .ProduceLeft((ctx, left, op) => {
+            var right = ctx.Parse();
+            return $"({left}={right})";
+        })
+    )
+);
+```
+
+With this parser, an input string like `"a=b=4+5+6"` would be correctly parenthesized as `"(a=(b=((4+5)+6)))".
+

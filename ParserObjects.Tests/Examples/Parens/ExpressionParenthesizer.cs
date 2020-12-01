@@ -7,15 +7,71 @@ namespace ParserObjects.Tests.Examples.Parens
     {
         public static string Parenthesize(string expr)
         {
-            var number = DigitString();
-            var target = Pratt<char, string>(number, config => config
-                .AddInfixOperator((Match('+'), Match('-')).First(), 1, 2, (l, op, r) => $"({l}{op}{r})")
-                .AddInfixOperator((Match('*'), Match('/')).First(), 3, 4, (l, op, r) => $"({l}{op}{r})")
-                .AddPostcircumfixOperator(Match('('), Match(')'), 5, (left, open, contents, close) => $"({left}*({contents}))")
-                .AddPrefixOperator(Match('-'), 7, (op, r) => $"({op}{r})")
-                .AddPostfixOperator(Match('!'), 9, (op, r) => $"({op}{r})")
-                .AddCircumfixOperator(Match('('), Match(')'), (open, contents, close) => $"({contents})")
-                
+            var target = Pratt<string>(config => config
+                .Add(Whitespace(), c => c
+                    .RightBindingPower(100)
+                    .ProduceRight((ctx, value) => ctx.Parse())
+                    .LeftBindingPower(100)
+                    .ProduceLeft((ctx, left, value) => left.Value)
+                    .Named("whitespace")
+                )
+                .Add(DigitString(), c => c
+                    .ProduceRight((ctx, value) => value.Value)
+                    .Named("number")
+                )
+                .Add(Match('+'), c => c
+                    .LeftBindingPower(1)
+                    .ProduceLeft((ctx, l, op) =>
+                    {
+                        var r = ctx.Parse();
+                        return $"({l.Value}{op.Value}{r})";
+                    })
+                    .Named("Addition")
+                )
+                .Add((Match('*'), Match('/')).First(), c => c
+                    .LeftBindingPower(3)
+                    .ProduceLeft((ctx, l, op) =>
+                    {
+                        var r = ctx.Parse();
+                        return $"({l.Value}{op.Value}{r})";
+                    })
+                    .Named("Multiply/Divide")
+                )
+                .Add(Match('('), c => c
+                    .LeftBindingPower(9)
+                    .ProduceLeft((ctx, l, op) =>
+                    {
+                        var contents = ctx.Parse(0);
+                        ctx.Expect(Match(')'));
+                        return $"({l.Value}*({contents}))";
+                    })
+                    .RightBindingPower(0)
+                    .ProduceRight((ctx, op) =>
+                    {
+                        var r = ctx.Parse();
+                        return $"({op.Value}{r})";
+                    })
+                    .Named("Parenthesis")
+                )
+                .Add(Match('-'), c => c
+                    .LeftBindingPower(1)
+                    .ProduceRight((ctx, op) =>
+                    {
+                        var r = ctx.Parse(7);
+                        return $"({op.Value}{r})";
+                    })
+                    .ProduceLeft((ctx, l, op) =>
+                    {
+                        var r = ctx.Parse();
+                        return $"({l.Value}{op.Value}{r})";
+                    })
+                    .Named("Subtract/Negate")
+                )
+                .Add(Match('!'), c => c
+                    .LeftBindingPower(9)
+                    .ProduceLeft((ctx, l, op) => $"({l}{op})")
+                    .Named("Factorial")
+                )
             );
             var result = target.Parse(expr);
             return result.Success ? result.Value : null;

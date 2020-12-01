@@ -35,5 +35,15 @@ namespace ParserObjects.Utility
             if (value <= limit)
                 throw new ArgumentException($"Value {value} must be greater than {limit}", parameterName);
         }
+
+        public static TSubclass ArgumentIsType<TSubclass>(object value, string parameterName)
+            where TSubclass : class
+        {
+            ArgumentNotNull(value, parameterName);
+            var typed = value as TSubclass;
+            if (typed == null)
+                throw new ArgumentException($"Expected object to be of type {typeof(TSubclass).Name} but found {value.GetType().Name}");
+            return typed;
+        }
     }
 }
