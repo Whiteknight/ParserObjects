@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserObjects.Parsers
 {
@@ -92,12 +93,15 @@ namespace ParserObjects.Parsers
                 Parselets.Add(parselet);
                 return this;
             }
+
+            public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser);
         }
 
         private class ParseletConfiguration<TValue> : IParseletConfiguration<TValue>
         {
+            private readonly IParser<TInput, TValue> _matcher;
+
             private int _typeId;
-            private IParser<TInput, TValue> _matcher;
             private int _lbp;
             private int _rbp;
             private NudFunc<TValue> _getNud;

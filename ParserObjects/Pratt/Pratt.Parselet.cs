@@ -9,6 +9,7 @@
             int Rbp { get; }
             string Name { get; }
             (bool success, IToken token) TryGetNext(ParseState<TInput> state);
+            IParser Parser { get; }
         }
 
         // user-configured Parselet rule, which contains a parser to match an input token and 
@@ -34,6 +35,7 @@
             public int Lbp { get; }
             public int Rbp { get; }
             public string Name { get; }
+            public IParser Parser => _match;
 
             public (bool success, IToken token) TryGetNext(ParseState<TInput> state)
             {

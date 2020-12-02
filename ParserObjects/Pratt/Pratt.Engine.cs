@@ -75,7 +75,7 @@ namespace ParserObjects.Parsers
         // control-flow exception type, so that errors during user-callbacks can return to the
         // engine immediately and be considered a failure of the current rule.
         [Serializable]
-        private class ParseException : Exception
+        private class ParseException : ControlFlowException
         {
             public ParseException() { }
             public ParseException(string message) : base(message) { }

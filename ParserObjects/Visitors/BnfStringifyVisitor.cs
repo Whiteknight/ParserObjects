@@ -61,9 +61,9 @@ namespace ParserObjects.Visitors
             {
                 if (!string.IsNullOrEmpty(parser.Name))
                 {
-                    state.Current.Append("<");
+                    state.Current.Append('<');
                     state.Current.Append(parser.Name);
-                    state.Current.Append(">");
+                    state.Current.Append('>');
                     return;
                 }
 
@@ -88,9 +88,9 @@ namespace ParserObjects.Visitors
             }
 
             // If the parser does have a name, write a tag for it
-            state.Current.Append("<");
+            state.Current.Append('<');
             state.Current.Append(parser.Name);
-            state.Current.Append(">");
+            state.Current.Append('>');
 
             // Start a new builder, so we can start stringifying this new parser on it's own line.
             state.History.Push(state.Current);
@@ -105,7 +105,7 @@ namespace ParserObjects.Visitors
             {
                 state.Builder.Append(parser.Name);
                 state.Builder.Append(" := ");
-                state.Builder.Append(state.Current.ToString());
+                state.Builder.Append(state.Current);
                 state.Builder.AppendLine(";");
             }
 
@@ -186,7 +186,7 @@ namespace ParserObjects.Visitors
                 return;
             }
 
-            state.Current.Append("(");
+            state.Current.Append('(');
             VisitChild(children.First(), state);
 
             for (int i = 1; i <= children.Count - 2; i++)
@@ -208,7 +208,7 @@ namespace ParserObjects.Visitors
                 VisitChild(last, state);
 
             }
-            state.Current.Append(")");
+            state.Current.Append(')');
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
@@ -239,9 +239,9 @@ namespace ParserObjects.Visitors
             else
             {
                 if (p.Minimum == 0)
-                    state.Current.Append("*");
+                    state.Current.Append('*');
                 else if (p.Minimum == 1)
-                    state.Current.Append("+");
+                    state.Current.Append('+');
                 else
                     state.Current.Append($"{{{p.Minimum},}}");
             }
@@ -268,7 +268,7 @@ namespace ParserObjects.Visitors
         protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
         {
             var child = p.GetChildren().First();
-            state.Current.Append("!");
+            state.Current.Append('!');
             VisitChild(child, state);
         }
 
@@ -294,7 +294,7 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped(RegexParser p, State state)
         {
-            state.Current.Append("/" + p.Pattern + "/");
+            state.Current.Append($"/{p.Pattern}/");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
@@ -313,16 +313,16 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput, TOutput>(RuleParser<TInput, TOutput> p, State state)
         {
-            state.Current.Append("(");
+            state.Current.Append('(');
             var children = p.GetChildren().ToArray();
             VisitChild(children[0], state);
             foreach (var child in children.Skip(1))
             {
-                state.Current.Append(" ");
+                state.Current.Append(' ');
                 VisitChild(child, state);
             }
 
-            state.Current.Append(")");
+            state.Current.Append(')');
         }
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(TransformParser<TInput, TMiddle, TOutput> p, State state)
@@ -338,9 +338,9 @@ namespace ParserObjects.Visitors
 
             void PrintPattern(IEnumerable<TInput> pattern, State s)
             {
-                s.Current.Append("(");
+                s.Current.Append('(');
                 s.Current.Append(string.Join(" ", pattern.Select(item => $"'{item}'")));
-                s.Current.Append(")");
+                s.Current.Append(')');
             }
 
             PrintPattern(allPatterns[0], state);

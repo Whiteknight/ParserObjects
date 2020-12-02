@@ -1,7 +1,6 @@
 ﻿using ParserObjects.Utility;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ParserObjects.Parsers
 {
@@ -46,13 +45,7 @@ namespace ParserObjects.Parsers
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
-            public IEnumerable<IParser> GetChildren()
-            {
-                //var list = new List<IParser> { _values };
-                //_config.AppendParsers(list);
-                //return list;
-                return Enumerable.Empty<IParser>();
-            }
+            public IEnumerable<IParser> GetChildren() => _config.GetParsers();
 
             public override string ToString() => ParserDefaultStringifier.ToString(this);
         }

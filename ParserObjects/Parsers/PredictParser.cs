@@ -50,21 +50,6 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren()
                 => _parsers.Select(v => v.parser);
-
-            public Configuration ReplaceChild(IParser find, IParser replace)
-            {
-                if (replace is not IParser<TInput, TOutput> typed)
-                    return this;
-                if (!_parsers.Any(p => ReferenceEquals(p.parser, find)))
-                    return this;
-                var newConfig = new Configuration();
-                foreach (var (equals, parser) in _parsers)
-                {
-                    var newParser = ReferenceEquals(parser, find) ? typed : parser;
-                    newConfig._parsers.Add((equals, newParser));
-                }
-                return newConfig;
-            }
         }
 
         /// <summary>

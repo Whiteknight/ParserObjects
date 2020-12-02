@@ -50,7 +50,7 @@ namespace ParserObjects.Parsers
         }
 
         [Serializable]
-        class ParseFailedException : Exception
+        private class ParseFailedException : ControlFlowException
         {
             public ParseFailedException()
             {

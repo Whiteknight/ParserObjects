@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -30,7 +31,7 @@ namespace ParserObjects.Parsers
             if (Pattern.Count == 0)
             {
                 state.Log(this, "Pattern has 0 items in it, this is functionally equivalent to Empty() ");
-                return state.Success(this, new T[0], location);
+                return state.Success(this, Array.Empty<T>(), location);
             }
 
             // If the pattern has exactly one item in it, check for equality without a loop 
