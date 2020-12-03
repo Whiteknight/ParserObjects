@@ -61,6 +61,4 @@ namespace ParserObjects
                 list => produce((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
         }
     }
-
-
 }

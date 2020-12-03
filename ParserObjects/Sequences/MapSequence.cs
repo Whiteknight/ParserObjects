@@ -51,6 +51,7 @@ namespace ParserObjects.Sequences
                 _oldLocations.MoveForward();
                 return _putbacks.Pop();
             }
+
             if (_current.Next != null)
             {
                 _current = _current.Next;

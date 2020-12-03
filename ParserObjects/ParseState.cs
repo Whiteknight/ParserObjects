@@ -21,24 +21,24 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// The input sequence being used by the parser
+        /// Gets the input sequence being used by the parser.
         /// </summary>
         public ISequence<TInput> Input { get; }
 
         /// <summary>
-        /// The current contextual state data used by the parser
+        /// Gets the current contextual state data used by the parser.
         /// </summary>
         public IDataStore Data => _store;
 
         /// <summary>
-        /// If a log callback is provided, pass a log message to the callback
+        /// If a log callback is provided, pass a log message to the callback.
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="message"></param>
         public void Log(IParser parser, string message) => _logCallback?.Invoke($"{parser}: {message}");
 
         /// <summary>
-        /// Create a Failure result for the given parser with the given error information
+        /// Create a Failure result for the given parser with the given error information.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
@@ -52,7 +52,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Create a failure result for the given parser with the given error information
+        /// Create a failure result for the given parser with the given error information.
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="error"></param>
@@ -65,7 +65,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Create a success result for the given parser with the given result value
+        /// Create a success result for the given parser with the given result value.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
@@ -79,7 +79,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Create a success result for the given parser with the given result value, if any
+        /// Create a success result for the given parser with the given result value, if any.
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="output"></param>

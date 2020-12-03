@@ -52,7 +52,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Given a parser tree, find a ReplaceableParser with the given name and replace it's child parser
-        /// with the given replacement parser
+        /// with the given replacement parser.
         /// </summary>
         /// <param name="root"></param>
         /// <param name="name"></param>

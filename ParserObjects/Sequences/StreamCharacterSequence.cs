@@ -7,7 +7,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// A sequence of characters read from a Stream, such as from a file
+    /// A sequence of characters read from a Stream, such as from a file.
     /// </summary>
     public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {

@@ -8,8 +8,8 @@ namespace ParserObjects.Parsers
     /// Looks up a parser at parse time, to avoid circular references in the grammar. The parser
     /// looked up is expected to be constant for the duration of the parse and may be cached.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class DeferredParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly Func<IParser<TInput, TOutput>> _getParser;

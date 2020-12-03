@@ -7,7 +7,7 @@ namespace ParserObjects
     public static partial class ParserMethods<TInput>
     {
         /// <summary>
-        /// Look up sequences of inputs in an ITrie to greedily find the longest matching sequence
+        /// Look up sequences of inputs in an ITrie to greedily find the longest matching sequence.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="readOnlyTrie"></param>
@@ -17,7 +17,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Lookup sequences of inputs in an ITrie to greedily find the longest matching sequence.
-        /// Provides a trie instance and a callback to populate it with values
+        /// Provides a trie instance and a callback to populate it with values.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="setupTrie"></param>

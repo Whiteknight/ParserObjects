@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace ParserObjects.Tests.Parsers
 {

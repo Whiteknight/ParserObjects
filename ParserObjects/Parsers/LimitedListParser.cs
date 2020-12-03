@@ -21,7 +21,7 @@ namespace ParserObjects.Parsers
             Maximum = maximum;
             if (Maximum.HasValue && Maximum < Minimum)
                 Maximum = Minimum;
-            
+
             _parser = parser;
         }
 

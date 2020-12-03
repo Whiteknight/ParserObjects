@@ -9,7 +9,7 @@ namespace ParserObjects
     public static class CStyleParserMethods
     {
         /// <summary>
-        /// C-style comment with '/*' ... '*/' delimiters
+        /// C-style comment with '/*' ... '*/' delimiters.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;
@@ -31,7 +31,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style hexadecimal literal returned as a string
+        /// C-style hexadecimal literal returned as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
@@ -42,7 +42,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style hexadecimal literal returned as a parsed integer
+        /// C-style hexadecimal literal returned as a parsed integer.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> HexadecimalInteger() => _hexInteger.Value;
@@ -54,7 +54,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style integer literal returned as a string
+        /// C-style integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> IntegerString() => _integerString.Value;
@@ -74,7 +74,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style Integer literal returned as a parsed Int32
+        /// C-style Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> Integer() => _integer.Value;
@@ -86,7 +86,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style unsigned integer literal returned as a string
+        /// C-style unsigned integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> UnsignedIntegerString() => _unsignedIntegerString.Value;
@@ -105,7 +105,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style Unsigned Integer literal returned as a parsed Int32
+        /// C-style Unsigned Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, int> UnsignedInteger() => _unsignedInteger.Value;
@@ -117,7 +117,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style Double literal returned as a string
+        /// C-style Double literal returned as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> DoubleString() => _doubleString.Value;
@@ -125,10 +125,11 @@ namespace ParserObjects
         private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
             () => (IntegerString(), Match('.'), DigitString())
                 .Produce((whole, dot, fract) => whole + dot + fract)
-                .Named("C-Style Double String"));
+                .Named("C-Style Double String")
+        );
 
         /// <summary>
-        /// C-style float/double literal returned as a parsed Double
+        /// C-style float/double literal returned as a parsed Double.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> Double() => _double.Value;
@@ -140,7 +141,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// C-style Identifier
+        /// C-style Identifier.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Identifier() => _identifier.Value;
@@ -172,14 +173,13 @@ namespace ParserObjects
 
         /// <summary>
         /// Parse a C-style string, removing quotes and replacing escape sequences with their
-        /// proper values
+        /// proper values.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;
         private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
             () =>
             {
-
                 var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => _escapableStringChars[c]);
                 var octalSequence = Match(c => c >= '0' && c <= '7').List(3, 3).Transform(oct =>
                 {
@@ -342,7 +342,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Parse a C-style char literal, keeping the quotes and escape sequences
+        /// Parse a C-style char literal, keeping the quotes and escape sequences.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Character() => _character.Value;

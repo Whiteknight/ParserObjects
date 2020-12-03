@@ -7,7 +7,7 @@ namespace ParserObjects
     {
         /// <summary>
         /// Double-quoted string literal, with backslash-escaped quotes. The returned string is the string
-        /// literal with quotes and escapes
+        /// literal with quotes and escapes.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> DoubleQuotedString() => _doubleQuotedString.Value;
@@ -17,7 +17,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Single-quoted string literal, with backslash-escaped quotes. The returned string is the string
-        /// literal with quotes and escapes
+        /// literal with quotes and escapes.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> SingleQuotedString() => _singleQuotedString.Value;
@@ -27,7 +27,7 @@ namespace ParserObjects
 
         /// <summary>
         /// A parser for delimited strings. Returns the string literal with open sequence, close sequence,
-        /// and internal escape sequences
+        /// and internal escape sequences.
         /// </summary>
         /// <param name="openStr"></param>
         /// <param name="closeStr"></param>
@@ -46,14 +46,13 @@ namespace ParserObjects
                 Match(openStr).Transform(c => openStr.ToString()),
                 bodyChar.ListStringsToString(),
                 Match(closeStr).Transform(c => closeStr.ToString()),
-
                 (open, body, close) => open + body + close
             );
         }
 
         /// <summary>
         /// Double-quoted string with backslash-escaped quotes. The returned string is the string without
-        /// quotes and without internal escape sequences
+        /// quotes and without internal escape sequences.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedDoubleQuotedString() => _strippedDoubleQuotedString.Value;
@@ -63,7 +62,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Single-quoted string with backslash-escaped quotes. The returned string is the string without
-        /// quotes and without internal escape sequences
+        /// quotes and without internal escape sequences.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedSingleQuotedString() => _strippedSingleQuotedString.Value;
@@ -92,7 +91,6 @@ namespace ParserObjects
                 Match(openStr),
                 bodyChar.ListCharToString(),
                 Match(closeStr),
-
                 (open, body, close) => body
             );
         }

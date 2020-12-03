@@ -10,7 +10,5 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
 
         public static IParser<Token, int> ThrowError(string message)
             => Produce<int>(t => throw new Exception($"{message} at {t.CurrentLocation} ({t})"));
-
-
     }
 }

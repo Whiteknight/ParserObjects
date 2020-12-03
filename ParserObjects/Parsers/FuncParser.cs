@@ -29,11 +29,13 @@ namespace ParserObjects.Parsers
             var checkpoint = state.Input.Checkpoint();
             try
             {
-                IResult<TOutput> onSuccess(TOutput value, Location loc = null) 
+                IResult<TOutput> OnSuccess(TOutput value, Location loc = null)
                     => state.Success(this, value, loc ?? state.Input.CurrentLocation);
-                IResult<TOutput> onFailure(string err, Location loc = null) 
+
+                IResult<TOutput> OnFailure(string err, Location loc = null)
                     => state.Fail(this, err, loc ?? state.Input.CurrentLocation);
-                var result = _func(state, onSuccess, onFailure);
+
+                var result = _func(state, OnSuccess, OnFailure);
                 if (!result.Success)
                     checkpoint.Rewind();
                 return result;

@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parser and related machinery for handling a right-associative parse
+    /// Parser and related machinery for handling a right-associative parse.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TMiddle"></typeparam>
@@ -18,7 +18,7 @@ namespace ParserObjects.Parsers
 
         /// <summary>
         /// Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
-        /// situations, especially for parsing expressions
+        /// situations, especially for parsing expressions.
         /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {
@@ -66,13 +66,14 @@ namespace ParserObjects.Parsers
             {
                 var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
-                IResult<TOutput> produceSuccess(TOutput right)
+                IResult<TOutput> ProduceSuccess(TOutput right)
                 {
                     while (resultStack.Count > 0)
                     {
                         var (left, middle) = resultStack.Pop();
                         right = _produce(left, middle, right);
                     }
+
                     return state.Success(this, right, state.Input.CurrentLocation);
                 }
 
@@ -85,7 +86,7 @@ namespace ParserObjects.Parsers
                     // We have the left, so parse the middle. If not found, just return left
                     var middleResult = _middle.Parse(state);
                     if (!middleResult.Success)
-                        return produceSuccess(left);
+                        return ProduceSuccess(left);
 
                     // We have <left> <middle>, now we have to look for <right>.
                     // if we have it, push state, set right as the new left, and repeat loop
@@ -106,12 +107,12 @@ namespace ParserObjects.Parsers
                         // doesn't require allocating a new IResult<T>
                         var syntheticRight = _getMissingRight(state.Input, state.Data);
                         resultStack.Push((left, middleResult.Value));
-                        return produceSuccess(syntheticRight);
+                        return ProduceSuccess(syntheticRight);
                     }
 
                     // We can't make a synthetic right, so rewind to give back the <middle>
                     checkpoint.Rewind();
-                    return produceSuccess(left);
+                    return ProduceSuccess(left);
                 }
             }
 
@@ -128,6 +129,7 @@ namespace ParserObjects.Parsers
                     var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
                     return state.Success(this, result);
                 }
+
                 checkpoint.Rewind();
 
                 // We have <left> <middle> but no <right>. See if we can make a synthetic one
@@ -157,6 +159,7 @@ namespace ParserObjects.Parsers
                     var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
                     return state.Success(this, result);
                 }
+
                 checkpoint.Rewind();
 
                 // We have <left> <middle> but no <right>. See if we can make a synthetic one

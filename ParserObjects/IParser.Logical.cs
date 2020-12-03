@@ -42,7 +42,7 @@ namespace ParserObjects
         /// <summary>
         /// Attempts to parse with each parser successively, returning Success if any parser succeeds
         /// or Failure if none do. Consumes input but returns no output. Will probably be used by
-        /// Positive- or Negative-lookahed or If
+        /// Positive- or Negative-lookahed or If.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="p1"></param>

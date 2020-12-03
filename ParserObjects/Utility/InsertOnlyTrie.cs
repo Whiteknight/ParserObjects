@@ -5,7 +5,7 @@ namespace ParserObjects.Utility
 {
     /// <summary>
     /// Trie implementation which allows inserts of values but not updates of values. Once a value is
-    /// inserted into the trie, it cannot be removed or modified
+    /// inserted into the trie, it cannot be removed or modified.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
@@ -84,7 +84,7 @@ namespace ParserObjects.Utility
 
                 while (true)
                 {
-                    // Quick degenerate case. We're at the final leaf of the trie, so return a 
+                    // Quick degenerate case. We're at the final leaf of the trie, so return a
                     // value if we have it.
                     if (current.HasResult && current._children.Count == 0)
                         return (true, current.Result, keys.CurrentLocation);
@@ -141,7 +141,6 @@ namespace ParserObjects.Utility
             }
         }
     }
-
 
     [System.Serializable]
     public class TrieInsertException : System.Exception

@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Negative lookahead parser. Tests the input to see if the inner parser matches. Return 
+    /// Negative lookahead parser. Tests the input to see if the inner parser matches. Return
     /// success if the parser does not match, fail otherwise. Consumes no input.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>

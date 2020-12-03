@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B56D9886-D8CA-4DFF-96EF-A7D9626DECA3}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		StyleCop.ruleset = StyleCop.ruleset
 	EndProjectSection
 EndProject
 Global

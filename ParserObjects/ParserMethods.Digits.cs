@@ -7,7 +7,7 @@ namespace ParserObjects
     public static partial class ParserMethods
     {
         /// <summary>
-        /// Parses a single digit 0-9
+        /// Parses a single digit 0-9.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> Digit() => _digit.Value;
@@ -16,7 +16,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Parses a single non-zero digit 1-9
+        /// Parses a single non-zero digit 1-9.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
@@ -25,7 +25,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Parses digits in series and returns them as a string
+        /// Parses digits in series and returns them as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> DigitString() => _digitString.Value;
@@ -34,7 +34,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Returns a single hexadecimal digit: 0-9, a-f, A-F
+        /// Returns a single hexadecimal digit: 0-9, a-f, A-F.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;

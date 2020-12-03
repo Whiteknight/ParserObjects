@@ -44,7 +44,6 @@ namespace ParserObjects.Tests.Examples.RPN
                     Match('/')
                 ),
                 OptionalWhitespace(),
-
                 (op, ws) => new RpnToken(op.ToString(), RpnTokenType.Operator)
             );
             var tokens = First(
@@ -66,6 +65,7 @@ namespace ParserObjects.Tests.Examples.RPN
                         stack.Push(int.Parse(token.Value));
                         continue;
                     }
+
                     if (token.Type == RpnTokenType.Operator)
                     {
                         var b = stack.Pop();
@@ -85,9 +85,11 @@ namespace ParserObjects.Tests.Examples.RPN
                                 stack.Push(a / b);
                                 break;
                         }
+
                         continue;
                     }
                 }
+
                 if (stack.Count != 1)
                     return fail("Invalid sequence, expected to have 1 token remaining");
                 return success(stack.Pop());
@@ -99,4 +101,3 @@ namespace ParserObjects.Tests.Examples.RPN
         }
     }
 }
-

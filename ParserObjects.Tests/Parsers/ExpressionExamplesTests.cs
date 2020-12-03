@@ -184,7 +184,7 @@ namespace ParserObjects.Tests.Parsers
                 .Transform(c => c[0].ToString());
             expr.Replace("add", subtract);
 
-            // Show that we can parse the new grammar with '-' 
+            // Show that we can parse the new grammar with '-'
             var result1 = expr.Parse("1-2").Value as InfixExpressionParseNode;
             (result1.Left as NumberValueParseNode).Value.Should().Be("1");
             result1.Operator.Should().Be("-");
@@ -239,7 +239,7 @@ namespace ParserObjects.Tests.Parsers
             previous.Should().BeSameAs(previousAdd);
             current.Name.Should().Be("newAdd");
 
-            // Show that we can parse the new grammar with '-' 
+            // Show that we can parse the new grammar with '-'
             var result1 = expr.Parse("1[+]2").Value as InfixExpressionParseNode;
             (result1.Left as NumberValueParseNode).Value.Should().Be("1");
             result1.Operator.Should().Be("[+]");

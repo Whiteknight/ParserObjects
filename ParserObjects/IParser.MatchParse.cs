@@ -1,10 +1,10 @@
-﻿using ParserObjects.Sequences;
-using System;
+﻿using System;
+using ParserObjects.Sequences;
 
 namespace ParserObjects
 {
     /// <summary>
-    /// General-purpose extensions for IParser and descendents
+    /// General-purpose extensions for IParser and descendents.
     /// </summary>
     public static class ParserMatchParseExtensions
     {
@@ -45,7 +45,7 @@ namespace ParserObjects
         /// <summary>
         /// Convenience method for parser which act on character sequences. Parse the given input string
         /// and return the first value or failure. Creates a character sequence from the string
-        /// and the ParseState object
+        /// and the ParseState object.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>

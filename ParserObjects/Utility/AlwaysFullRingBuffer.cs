@@ -3,7 +3,7 @@
 namespace ParserObjects.Utility
 {
     /// <summary>
-    /// Simplified ring-buffer ('circular buffer') implementation which makes several assumptions 
+    /// Simplified ring-buffer ('circular buffer') implementation which makes several assumptions
     /// for simplicity and performance. The buffer is always considered full (reading more data
     /// than has been written will return default values) and values are not modifiable. This class
     /// is not concurrency-safe.
@@ -47,11 +47,12 @@ namespace ParserObjects.Utility
         {
             if (_index == int.MaxValue)
             {
-                // If we are at max value and would roll-over, instead move _index to a position 
+                // If we are at max value and would roll-over, instead move _index to a position
                 // near IntMax/2 with the same modulo position in the buffer.
                 var current = _index % _size;
                 ResetIndexToMidRange(current);
             }
+
             _index++;
         }
 
@@ -79,7 +80,7 @@ namespace ParserObjects.Utility
             var ratio = int.MaxValue / _size;
             ratio = ratio >> 1;
             _index = (_size * ratio) + current;
-            Debug.Assert(_index % _size == current);
+            Debug.Assert(_index % _size == current, "Index changed after reset");
         }
 
         public T GetCurrent()
@@ -97,12 +98,13 @@ namespace ParserObjects.Utility
                 var currentIdex = (i + startIndex) % _size;
                 newArray[i] = _buffer[currentIdex];
             }
+
             return newArray;
         }
 
         public void OverwriteFromArray(T[] array)
         {
-            Debug.Assert(array.Length == _size);
+            Debug.Assert(array.Length == _size, "The array is not the correct size for this buffer");
 
             // Copy the array over, starting at buffer position 0 (regardless of where _index is
             // right now)

@@ -9,7 +9,7 @@ namespace ParserObjects
     public interface IParser
     {
         /// <summary>
-        /// The name of the parser. This value is only used for bookkeeping information and does not have
+        /// Gets or Sets the name of the parser. This value is only used for bookkeeping information and does not have
         /// an affect on the parse.
         /// </summary>
         string Name { get; set; }
@@ -22,7 +22,7 @@ namespace ParserObjects
     }
 
     /// <summary>
-    /// Parser object which allows getting the result without type information
+    /// Parser object which allows getting the result without type information.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public interface IParser<TInput> : IParser
@@ -56,17 +56,17 @@ namespace ParserObjects
 
     /// <summary>
     /// A parser which has an in-place replaceable child. Used to identify parsers which can participate in
-    /// certain find/replace operations
+    /// certain find/replace operations.
     /// </summary>
     public interface IReplaceableParserUntyped : IParser
     {
         /// <summary>
-        /// The child parser which can be replaced without cloning
+        /// Gets the child parser which can be replaced without cloning.
         /// </summary>
         IParser ReplaceableChild { get; }
 
         /// <summary>
-        /// Set the new child parser without cloning
+        /// Set the new child parser without cloning.
         /// </summary>
         /// <param name="parser"></param>
         SingleReplaceResult SetParser(IParser parser);

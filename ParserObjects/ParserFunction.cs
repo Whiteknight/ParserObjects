@@ -1,7 +1,7 @@
 ﻿namespace ParserObjects
 {
     /// <summary>
-    /// Create a failure result with the given error message
+    /// Create a failure result with the given error message.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="error"></param>
@@ -10,7 +10,7 @@
     public delegate IResult<TOutput> FailFunction<out TOutput>(string error, Location location = null);
 
     /// <summary>
-    /// Create a success result with the given value
+    /// Create a success result with the given value.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="value"></param>
@@ -20,7 +20,7 @@
 
     /// <summary>
     /// Execute a parse callback, with success and failure factory methods to create the necessary
-    /// results
+    /// results.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

@@ -8,9 +8,9 @@ namespace ParserObjects.Parsers
     /// Transforms the output of one parser into a different value. Only used to transform success
     /// values.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class TransformParser<TInput, TMiddle, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TMiddle> _parser;

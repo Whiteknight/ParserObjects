@@ -15,14 +15,14 @@ namespace ParserObjects.Tests.Parsers.Logical
             var bracketed = If(
                 None(
                     And(
-                        Match('['), 
+                        Match('['),
                         Any()
                     )
                 ),
                 Rule(
-                    Match('['), 
-                    any, 
-                    Match(']'), 
+                    Match('['),
+                    any,
+                    Match(']'),
                     (o, a, c) => $"{o}{a}{c}"
                 )
             );

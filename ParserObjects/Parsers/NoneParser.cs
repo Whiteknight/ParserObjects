@@ -1,5 +1,5 @@
-﻿using ParserObjects.Utility;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {

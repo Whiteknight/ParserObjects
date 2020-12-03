@@ -7,7 +7,7 @@ namespace ParserObjects
     {
         /// <summary>
         /// SQL-style comment which starts with '--' and includes all characters until the end
-        /// of line
+        /// of line.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;

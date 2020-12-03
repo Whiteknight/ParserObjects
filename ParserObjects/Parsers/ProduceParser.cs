@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parser and related machinery to create a constant value during a parse
+    /// Parser and related machinery to create a constant value during a parse.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Invokes a parser and inverses the result success status. If the parser succeeds, return 
+    /// Invokes a parser and inverses the result success status. If the parser succeeds, return
     /// Failure. Otherwise returns Success. Consumes no input in either case and returns no output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>

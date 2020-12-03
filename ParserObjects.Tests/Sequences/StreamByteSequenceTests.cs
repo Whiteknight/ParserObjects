@@ -167,20 +167,17 @@ namespace ParserObjects.Tests.Sequences
             try
             {
                 File.WriteAllText(fileName, "test");
-                using (var target = new StreamByteSequence(fileName))
-                {
-                    target.GetNext().Should().Be((byte)'t');
-                    target.GetNext().Should().Be((byte)'e');
-                    target.GetNext().Should().Be((byte)'s');
-                    target.GetNext().Should().Be((byte)'t');
-                }
+                using var target = new StreamByteSequence(fileName);
+                target.GetNext().Should().Be((byte)'t');
+                target.GetNext().Should().Be((byte)'e');
+                target.GetNext().Should().Be((byte)'s');
+                target.GetNext().Should().Be((byte)'t');
             }
             finally
             {
                 if (File.Exists(fileName))
                     File.Delete(fileName);
             }
-
         }
     }
 }

@@ -7,12 +7,12 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Sequential parser and related classes
+    /// Sequential parser and related classes.
     /// </summary>
     public static class Sequential
     {
         /// <summary>
-        /// State object for a sequential parse. Handles control flow and input sequence 
+        /// State object for a sequential parse. Handles control flow and input sequence
         /// management.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>

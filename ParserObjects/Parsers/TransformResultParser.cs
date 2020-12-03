@@ -1,10 +1,10 @@
-﻿using ParserObjects.Utility;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Transforms the raw result object, including the result type, result value, success flag or 
+    /// Transforms the raw result object, including the result type, result value, success flag or
     /// error message.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>

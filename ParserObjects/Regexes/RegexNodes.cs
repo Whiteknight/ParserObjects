@@ -6,7 +6,7 @@ namespace ParserObjects.Regexes
 {
     /// <summary>
     /// An abstract syntax node for a regex pattern. Represents a single construct in the regex
-    /// pattern. Used to create a list of RegexState objects for performing the actual match. 
+    /// pattern. Used to create a list of RegexState objects for performing the actual match.
     /// </summary>
     public interface IRegexNode
     {
@@ -77,6 +77,7 @@ namespace ParserObjects.Regexes
                     else
                         rangeList.Add(range);
                 }
+
                 _ranges = rangeList;
             }
 
@@ -95,6 +96,7 @@ namespace ParserObjects.Regexes
                     if (low <= c && c <= high)
                         return true;
                 }
+
                 return false;
             }
         }
@@ -215,6 +217,7 @@ namespace ParserObjects.Regexes
                     states.Last().Add(groupStates[0]);
                     return;
                 }
+
                 states.Last().Add(new RegexState
                 {
                     Type = RegexStateType.Group,

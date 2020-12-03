@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// An adaptor to change output values from an IParser into an ISequence of results
+    /// An adaptor to change output values from an IParser into an ISequence of results.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
@@ -70,6 +70,7 @@ namespace ParserObjects.Sequences
                 _inner = inner;
                 _putbacks = putbacks;
             }
+
             public void Rewind()
             {
                 _inner.Rewind();

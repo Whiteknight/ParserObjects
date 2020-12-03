@@ -5,11 +5,11 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parses a list of steps in sequence and produces a single output as a combination of outputs 
+    /// Parses a list of steps in sequence and produces a single output as a combination of outputs
     /// of each step. Succeeds or fails as an atomic unit.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class RuleParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IReadOnlyList<IParser<TInput>> _parsers;
@@ -41,12 +41,14 @@ namespace ParserObjects.Parsers
                     outputs[i] = result.Value;
                     continue;
                 }
+
                 checkpoint.Rewind();
                 var name = _parsers[i].Name;
                 if (string.IsNullOrEmpty(name))
                     name = "(Unnamed)";
                 return state.Fail(this, $"Parser {i} {name} failed", result.Location);
             }
+
             return state.Success(this, _produce(outputs), location);
         }
 

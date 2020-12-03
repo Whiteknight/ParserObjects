@@ -8,7 +8,7 @@ namespace ParserObjects
     public static partial class ParserMethods<TInput>
     {
         /// <summary>
-        /// Test the next input value and return it, if it matches the predicate
+        /// Test the next input value and return it, if it matches the predicate.
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
@@ -16,7 +16,7 @@ namespace ParserObjects
             => new MatchPredicateParser<TInput>(predicate);
 
         /// <summary>
-        /// Get the next input value and return it if it .Equals() to the given value
+        /// Get the next input value and return it if it .Equals() to the given value.
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
@@ -34,7 +34,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Optimized implementation of First() which returns an input which matches any of the given pattern
-        /// strings. Uses a Trie internally to greedily match the longest matching input sequence
+        /// strings. Uses a Trie internally to greedily match the longest matching input sequence.
         /// </summary>
         /// <param name="patterns"></param>
         /// <returns></returns>

@@ -1,33 +1,33 @@
-﻿using ParserObjects.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Parser and related machinery to use a lookahead value to control the parse
+    /// Parser and related machinery to use a lookahead value to control the parse.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     public static class Predict<TInput, TOutput>
     {
         /// <summary>
-        /// Create a new Configuration object
+        /// Create a new Configuration object.
         /// </summary>
         /// <returns></returns>
         public static IConfiguration CreateConfiguration() => new Configuration();
 
         /// <summary>
         /// Configuration for a predict parser. Allows setting a list of predicates and the parser
-        /// to invoke when the predicate succeeds
+        /// to invoke when the predicate succeeds.
         /// </summary>
         public interface IConfiguration
         {
             IConfiguration Add(Func<TInput, bool> equals, IParser<TInput, TOutput> parser);
         }
 
-        class Configuration : IConfiguration
+        private class Configuration : IConfiguration
         {
             private readonly List<(Func<TInput, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
 
@@ -42,7 +42,7 @@ namespace ParserObjects.Parsers
                 return this;
             }
 
-            public IParser<TInput, TOutput> Pick(TInput next) 
+            public IParser<TInput, TOutput> Pick(TInput next)
                 => _parsers
                     .Where(rule => rule.equals(next))
                     .Select(rule => rule.parser)

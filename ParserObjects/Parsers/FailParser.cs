@@ -1,11 +1,11 @@
-﻿using ParserObjects.Utility;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Returns unconditional failure, optionally with a helpful error message
+    /// Returns unconditional failure, optionally with a helpful error message.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

@@ -9,7 +9,7 @@ namespace ParserObjects
     public static class JavaScriptStyleParserMethods
     {
         /// <summary>
-        /// JavaScript-style number literal, returned as a string
+        /// JavaScript-style number literal, returned as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> NumberString() => _numberString.Value;
@@ -53,7 +53,6 @@ namespace ParserObjects
                         Produce(() => "+")
                     ),
                     DigitString(),
-
                     (e, sign, value) => e + sign + value
                 );
 
@@ -71,7 +70,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// JavaScript-style number literal returned as a parsed Double
+        /// JavaScript-style number literal returned as a parsed Double.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> Number() => _number.Value;
@@ -95,7 +94,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Parse a JavaScript-style string, removing quotes and replacing escape sequences
-        /// with their literal values
+        /// with their literal values.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;

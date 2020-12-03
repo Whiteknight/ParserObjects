@@ -6,7 +6,7 @@ namespace ParserObjects
     public static partial class ParserMethods
     {
         /// <summary>
-        /// Matches a Letter character
+        /// Matches a Letter character.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> Letter() => _letter.Value;
@@ -15,7 +15,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Matches a series of consecutive letter characters
+        /// Matches a series of consecutive letter characters.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Word() => _word.Value;
@@ -24,7 +24,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Matches an upper-case letter character
+        /// Matches an upper-case letter character.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> UpperCase() => _upperCase.Value;
@@ -33,7 +33,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Matches a lower-case letter character
+        /// Matches a lower-case letter character.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> LowerCase() => _lowerCase.Value;

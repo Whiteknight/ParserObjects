@@ -6,7 +6,7 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Inserts a callback before and after the specified parser. Useful for debugging purposes
-    /// and to adjust the input/output of a parser. Contains parsers and related machinery
+    /// and to adjust the input/output of a parser. Contains parsers and related machinery.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
@@ -49,7 +49,7 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Context information available during an examination. 
+        /// Context information available during an examination.
         /// </summary>
         public record Context(
             IParser<TInput, TOutput> Parser,
@@ -63,14 +63,14 @@ namespace ParserObjects.Parsers
     }
 
     /// <summary>
-    /// Inserts a callback before and after parser execution. Used for parsers with untyped output
+    /// Inserts a callback before and after parser execution. Used for parsers with untyped output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public abstract class Examine<TInput>
     {
         /// <summary>
         /// The examine parser. Executes callbacks before and after the parser. Does not return
-        /// typed output
+        /// typed output.
         /// </summary>
         public class Parser : IParser<TInput>
         {

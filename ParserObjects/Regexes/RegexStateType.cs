@@ -1,7 +1,7 @@
 ﻿namespace ParserObjects.Regexes
 {
     /// <summary>
-    /// Type of the regex state. Used internally by the engine to dispatch matching logic
+    /// Type of the regex state. Used internally by the engine to dispatch matching logic.
     /// </summary>
     public enum RegexStateType
     {

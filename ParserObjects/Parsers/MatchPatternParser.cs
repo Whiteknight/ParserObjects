@@ -6,8 +6,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Given a literal sequence of values, pull values off the input sequence to match. If the 
-    /// entire series matches, return it
+    /// Given a literal sequence of values, pull values off the input sequence to match. If the
+    /// entire series matches, return it.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
@@ -34,7 +34,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, Array.Empty<T>(), location);
             }
 
-            // If the pattern has exactly one item in it, check for equality without a loop 
+            // If the pattern has exactly one item in it, check for equality without a loop
             // or allocating a buffer
             if (Pattern.Count == 1)
             {

@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
 {

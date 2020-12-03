@@ -7,7 +7,7 @@ namespace ParserObjects
     public static partial class ParserMethods<TInput>
     {
         /// <summary>
-        /// Parse a list of items. 
+        /// Parse a list of items.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
@@ -42,7 +42,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Parse a list of items separated by a separator pattern, with minimum and
-        /// maximum item counts
+        /// maximum item counts.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>

@@ -1,12 +1,12 @@
-﻿using ParserObjects.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Expression-oriented implementation of the Pratt parsing algorithm. Contains the parser,
-    /// configuration and related machinery
+    /// configuration and related machinery.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

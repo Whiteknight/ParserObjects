@@ -1,11 +1,11 @@
-﻿using ParserObjects.Utility;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// The empty parser, consumes no input and always returns success
+    /// The empty parser, consumes no input and always returns success.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     public class EmptyParser<TInput> : IParser<TInput, object>

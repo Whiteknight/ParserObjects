@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// Filter a sequence to only return items which match a predicate
+    /// Filter a sequence to only return items which match a predicate.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class FilterSequence<T> : ISequence<T>

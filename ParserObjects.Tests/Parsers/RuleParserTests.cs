@@ -132,7 +132,6 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("abcde");
         }
 
-
         [Test]
         public void ValueTuple_Produce_5_Test()
         {
@@ -269,7 +268,6 @@ namespace ParserObjects.Tests.Parsers
 
             target.Parse(input).Value.Count.Should().Be(8);
         }
-
 
         [Test]
         public void Rule_9_Test()

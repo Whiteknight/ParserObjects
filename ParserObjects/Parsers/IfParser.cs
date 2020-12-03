@@ -5,7 +5,7 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Attempts to match a predicate condition and, invokes a specified parser on success or
-    /// failure
+    /// failure.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

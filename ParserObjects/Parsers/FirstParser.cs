@@ -5,10 +5,10 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Takes a list of parsers and attempts each one in order. Returns as soon as the first parser
-    /// succeeds
+    /// succeeds.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class FirstParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;

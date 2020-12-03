@@ -77,7 +77,6 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
-
         }
 
         [Test]
@@ -104,7 +103,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_MissingRight_Recursed_Rewind()
         {
             // We match <first> and <middle>, recurse on <right>, but the recursed rule
-            // fails on <recursed.Right>. Rewind back to a success and leave the 
+            // fails on <recursed.Right>. Rewind back to a success and leave the
             // unmatched second <middle> on the input sequence
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match(char.IsLetter).Transform(c => c.ToString());

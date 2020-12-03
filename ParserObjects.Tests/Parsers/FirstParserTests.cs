@@ -28,18 +28,18 @@ namespace ParserObjects.Tests.Parsers
         public void GetChildren_Test()
         {
             var aParser = Match('a');
-            var XParser = Match('X');
+            var xParser = Match('X');
             var oneParser = Match('1');
             var bParser = Match('b');
             var parser = First(
                 aParser,
-                XParser,
+                xParser,
                 oneParser
             );
             var results = parser.GetChildren().ToList();
             results.Count.Should().Be(3);
             results[0].Should().Be(aParser);
-            results[1].Should().Be(XParser);
+            results[1].Should().Be(xParser);
             results[2].Should().Be(oneParser);
         }
 

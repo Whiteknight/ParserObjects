@@ -7,19 +7,19 @@ namespace ParserObjects.Parsers
     {
         /// <summary>
         /// Parse context object which allows recursing into the parser from a user-supplied
-        /// callback
+        /// callback.
         /// </summary>
         public interface IParseContext
         {
             /// <summary>
             /// Parse the next expression from the parser, using the binding power of the current
-            /// parselet
+            /// parselet.
             /// </summary>
             /// <returns></returns>
             TOutput Parse();
 
             /// <summary>
-            /// Parse the next expression from the parser using the given binding power
+            /// Parse the next expression from the parser using the given binding power.
             /// </summary>
             /// <param name="rbp"></param>
             /// <returns></returns>
@@ -34,8 +34,8 @@ namespace ParserObjects.Parsers
             void Expect(IParser<TInput> parser);
 
             // TODO: These
-            //TOutput Parse(IParser<TInput, TOutput> parser);
-            //void Fail();
+            // TOutput Parse(IParser<TInput, TOutput> parser);
+            // void Fail();
         }
 
         // Simple contextual wrapper, so that private Engine methods can be
@@ -61,7 +61,6 @@ namespace ParserObjects.Parsers
                 if (!success)
                     throw new ParseException();
                 return value;
-
             }
 
             public void Expect(IParser<TInput> parser)
@@ -134,6 +133,7 @@ namespace ParserObjects.Parsers
                     // the loop
                     left = right;
                 }
+
                 return (true, left.Value);
             }
 

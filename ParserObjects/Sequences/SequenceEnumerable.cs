@@ -1,7 +1,7 @@
-﻿using ParserObjects.Utility;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {

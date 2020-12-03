@@ -10,7 +10,7 @@ namespace ParserObjects
     {
         /// <summary>
         /// Creates a parser which attempts to match the given regular expression from the current
-        /// position of the input stream
+        /// position of the input stream.
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
@@ -20,18 +20,17 @@ namespace ParserObjects
             var result = regexParser.Parse(pattern);
             if (!result.Success)
                 throw new RegexException("Could not parse pattern " + pattern);
-            
+
             return new RegexParser(result.Value, pattern);
         }
 
         /// <summary>
         /// Creates a parser which parses a regex pattern string into a Regex object for work with
-        /// the RegexParser and RegexEngine
+        /// the RegexParser and RegexEngine.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
-        private static Lazy<IParser<char, Regex>> _regexPattern => new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
-
+        private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
         private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|' };
         private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']' };
 
@@ -61,9 +60,19 @@ namespace ParserObjects
                 (open, maybeNot, contents, close) => RegexNodes.CharacterClass(maybeNot == '^', contents)
             );
 
+            // These groupings will not be captured like in a normal regex
+            var groupedAlternation = Rule(
+                Match('('),
+                alternation,
+                Match(')'),
+                (open, atoms, close) => RegexNodes.Group(atoms)
+            );
+
+            // Literal match of any non-slash and non-control character
+            var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c)).Transform(c => RegexNodes.Match(c));
+
             var atom = First(
                 Match('.').Transform(c => RegexNodes.Wildcard()),
-
                 Match("\\d").Transform(_ => RegexNodes.Match(c => char.IsDigit(c), "digit")),
                 Match("\\D").Transform(_ => RegexNodes.Match(c => !char.IsDigit(c), "non-digit")),
                 Match("\\w").Transform(_ => RegexNodes.Match(c => char.IsLetterOrDigit(c) || c == '_', "word")),
@@ -71,19 +80,9 @@ namespace ParserObjects
                 Match("\\s").Transform(_ => RegexNodes.Match(c => char.IsWhiteSpace(c), "whitespace")),
                 Match("\\S").Transform(_ => RegexNodes.Match(c => !char.IsWhiteSpace(c), "non-whitespace")),
                 (Match('\\'), Any()).Produce((slash, c) => RegexNodes.Match(c)),
-
-                // These groupings will not be captured like in a normal regex
-                Rule(
-                    Match('('),
-                    alternation,
-                    Match(')'),
-                    (open, atoms, close) => RegexNodes.Group(atoms)
-                ),
-
+                groupedAlternation,
                 characterClass,
-
-                // Literal match of any non-slash and non-control character
-                Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c)).Transform(c => RegexNodes.Match(c))
+                normalChar
             );
             var digits = CStyleParserMethods.UnsignedInteger();
 
@@ -143,7 +142,7 @@ namespace ParserObjects
 
             return regex
                 .Transform(r => new Regex(r))
-                .Named("RegexPattern"); 
+                .Named("RegexPattern");
         }
 
         private static object ThrowEndOfPatternException(ISequence<char> t)

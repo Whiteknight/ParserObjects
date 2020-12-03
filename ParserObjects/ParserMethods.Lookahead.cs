@@ -6,7 +6,7 @@ namespace ParserObjects
     {
         /// <summary>
         /// Zero-length assertion that the given pattern does not match from the current position. No
-        /// input is consumed
+        /// input is consumed.
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>

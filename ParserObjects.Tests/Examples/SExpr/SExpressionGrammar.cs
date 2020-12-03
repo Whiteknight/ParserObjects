@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.SExpr.Token>;
+using static ParserObjects.Tests.Examples.SExpr.TokenParserMethods;
 
 namespace ParserObjects.Tests.Examples.SExpr
 {
-    using static ParserObjects.ParserMethods<Token>;
-    using static ParserObjects.Tests.Examples.SExpr.TokenParserMethods;
-
     public static class SExpressionGrammar
     {
         public static IParser<Token, INode> CreateParser()

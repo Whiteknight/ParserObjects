@@ -20,7 +20,6 @@ namespace ParserObjects.Tests.Parsers
             result.Value[1].Should().Be('b');
             result.Value[2].Should().Be('c');
         }
-        
 
         [Test]
         public void Parse_Empty()

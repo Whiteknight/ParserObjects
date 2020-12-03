@@ -7,7 +7,7 @@ namespace ParserObjects
     public static partial class ParserMethods
     {
         /// <summary>
-        /// Parses a single character of whitespace (' ', '\t', '\r', '\n','\v', etc)
+        /// Parses a single character of whitespace (' ', '\t', '\r', '\n','\v', etc).
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> WhitespaceCharacter() => _whitespaceCharacter.Value;
@@ -16,7 +16,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Parses a series of required whitespace characters and returns them as a string
+        /// Parses a series of required whitespace characters and returns them as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Whitespace() => _whitespace.Value;
@@ -28,7 +28,7 @@ namespace ParserObjects
         );
 
         /// <summary>
-        /// Parses an optional series of whitespace characters and returns them as a string
+        /// Parses an optional series of whitespace characters and returns them as a string.
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> OptionalWhitespace() => _optionalWhitespace.Value;

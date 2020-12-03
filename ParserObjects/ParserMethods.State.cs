@@ -60,6 +60,7 @@ namespace ParserObjects
                         foreach (var kvp in values)
                             t.Data.Set(kvp.Key, kvp.Value);
                     }
+
                     return inner.Parse(t);
                 }
                 finally

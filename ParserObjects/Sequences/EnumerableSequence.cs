@@ -6,8 +6,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse 
-    /// operations
+    /// Wraps an IEnumerable as an ISequence. Makes the items from the enumerable usable in parse
+    /// operations.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class EnumerableSequence<T> : ISequence<T>, IDisposable
@@ -51,6 +51,7 @@ namespace ParserObjects.Sequences
                 var node = new Node { Value = _enumerator.Current, Next = null };
                 _current.Next = node;
             }
+
             _index = 0;
         }
 
@@ -96,7 +97,7 @@ namespace ParserObjects.Sequences
             if (_enumeratorIsAtEnd)
                 return value;
 
-            Debug.Assert(_current.Next == null);
+            Debug.Assert(_current.Next == null, "The linked list is broken");
             var node = new Node { Value = _enumerator.Current, Next = null };
             _current.Next = node;
             return value;

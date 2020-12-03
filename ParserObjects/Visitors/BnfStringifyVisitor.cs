@@ -78,6 +78,7 @@ namespace ParserObjects.Visitors
                 state.Current.Append("<ALREADY SEEN UNNAMED PARSER>");
                 return;
             }
+
             state.Seen.Add(parser);
 
             // If the parser doesn't have a name, recursively visit it in-place
@@ -206,8 +207,8 @@ namespace ParserObjects.Visitors
 
                 state.Current.Append(" | ");
                 VisitChild(last, state);
-
             }
+
             state.Current.Append(')');
         }
 

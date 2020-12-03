@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Examples.XML
                 .SetResultData("tag");
 
             // closeTagName gets the current XmlNode instance from the current data frame, and
-            // creates a Match() parser to match it. 
+            // creates a Match() parser to match it.
             var closeTagName = Create(t =>
             {
                 var (has, node) = t.Data.Get<XmlNode>("tag");
@@ -41,7 +41,7 @@ namespace ParserObjects.Tests.Examples.XML
                 .Produce((open, name, close) => (object)null)
                 .Named("closeTag");
 
-            // nodeInternal is the implementation of node above, it is an open tag and matching 
+            // nodeInternal is the implementation of node above, it is an open tag and matching
             // close tag, with zero or more children
             nodeInternal = Rule(
                 openTag,

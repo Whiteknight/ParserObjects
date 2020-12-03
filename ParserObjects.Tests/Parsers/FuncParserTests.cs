@@ -56,6 +56,5 @@ namespace ParserObjects.Tests.Parsers
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }
-
     }
 }

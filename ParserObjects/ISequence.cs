@@ -17,19 +17,19 @@ namespace ParserObjects
     }
 
     /// <summary>
-    /// An input stream with metadata
+    /// An input stream with metadata.
     /// </summary>
     public interface ISequence
     {
         /// <summary>
-        /// The approximate location from the source data where the current input item was located, if
+        /// Gets the approximate location from the source data where the current input item was located, if
         /// available.
         /// </summary>
         Location CurrentLocation { get; }
 
         /// <summary>
-        /// True if the sequence is at the end and no more values may be retrieved. False if the sequence
-        /// is exhausted and no more values are available.
+        /// Gets a value indicating whether the sequence is at the end and no more values may be
+        /// retrieved. False if the sequence is exhausted and no more values are available.
         /// </summary>
         bool IsAtEnd { get; }
 
@@ -57,13 +57,13 @@ namespace ParserObjects
 
         /// <summary>
         /// Get the next value from the sequence or a default value if the sequence is at the end, and
-        /// increments the location
+        /// increments the location.
         /// </summary>
         /// <returns></returns>
         T GetNext();
 
         /// <summary>
-        /// Gets the next value off the sequence but does not advance the location
+        /// Gets the next value off the sequence but does not advance the location.
         /// </summary>
         /// <returns></returns>
         T Peek();
@@ -72,7 +72,7 @@ namespace ParserObjects
     public static class SequenceExtensions
     {
         /// <summary>
-        /// Convert the sequence to an IEnumerable
+        /// Convert the sequence to an IEnumerable.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
@@ -93,7 +93,7 @@ namespace ParserObjects
             => new MapSequence<TInput, TOutput>(input, map);
 
         /// <summary>
-        /// Filter elements in a sequence to only return items which match a predicate
+        /// Filter elements in a sequence to only return items which match a predicate.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>

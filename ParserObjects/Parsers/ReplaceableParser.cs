@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Delegates to an internal parser, and allows the internal parser to be replaced in-place 
+    /// Delegates to an internal parser, and allows the internal parser to be replaced in-place
     /// after the parser graph has been created. Useful for cases where grammar extensions or
     /// modifications need to be made after the parser has been created.
     /// </summary>

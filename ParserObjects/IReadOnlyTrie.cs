@@ -6,14 +6,14 @@ namespace ParserObjects
 {
     /// <summary>
     /// A trie type which allows using a composite key to search for values. This trie cannot be
-    /// modified once created
+    /// modified once created.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     public interface IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>
-        /// Given a composite key, search for a value at that location in the trie
+        /// Given a composite key, search for a value at that location in the trie.
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
@@ -36,14 +36,14 @@ namespace ParserObjects
     }
 
     /// <summary>
-    /// A trie to which items can be added
+    /// A trie to which items can be added.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     public interface IInsertableTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>
-        /// Given a composite key and a value, insert the value at the location described by the key
+        /// Given a composite key and a value, insert the value at the location described by the key.
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="result"></param>
@@ -54,7 +54,7 @@ namespace ParserObjects
     public static class TrieExtensions
     {
         /// <summary>
-        /// Wrap the Trie in a TrieParser
+        /// Wrap the Trie in a TrieParser.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TResult"></typeparam>
@@ -64,7 +64,7 @@ namespace ParserObjects
             => new TrieParser<TKey, TResult>(readOnlyTrie);
 
         /// <summary>
-        /// Convenience method to add a string value with char keys
+        /// Convenience method to add a string value with char keys.
         /// </summary>
         /// <param name="readOnlyTrie"></param>
         /// <param name="value"></param>
@@ -76,7 +76,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Convenience method to add strings to the trie with char keys
+        /// Convenience method to add strings to the trie with char keys.
         /// </summary>
         /// <param name="readOnlyTrie"></param>
         /// <param name="values"></param>

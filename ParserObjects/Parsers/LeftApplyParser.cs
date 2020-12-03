@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers
     /// Parser to help with left-associative or left-recursive parse situations. Executes an
     /// initial parser, and then passes that value to the right-hand-side production. The right
     /// value is then used as the new left value and the loop repeats. Contains the parser and
-    /// related machinery
+    /// related machinery.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
@@ -17,7 +17,7 @@ namespace ParserObjects.Parsers
         public delegate IParser<TInput, TOutput> GetRightFunc(IParser<TInput, TOutput> left);
 
         /// <summary>
-        /// The left-apply parser, which handles left-associative parses without recursion. 
+        /// The left-apply parser, which handles left-associative parses without recursion.
         /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {

@@ -6,7 +6,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// A sequence of characters read from a string
+    /// A sequence of characters read from a string.
     /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {

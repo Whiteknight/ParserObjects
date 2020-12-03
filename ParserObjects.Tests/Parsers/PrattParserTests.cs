@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
-using static ParserObjects.CStyleParserMethods;
-using static ParserObjects.ParserMethods<char>;
-using static ParserObjects.ParserMethods;
-using FluentAssertions;
+﻿using FluentAssertions;
+using NUnit.Framework;
 using ParserObjects.Sequences;
+using static ParserObjects.CStyleParserMethods;
+using static ParserObjects.ParserMethods;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -71,7 +71,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Infix_AdditionSubtractionChain()
         {
-            // In most C-like languages and others, +/- have the same precidence and are 
+            // In most C-like languages and others, +/- have the same precidence and are
             // left associative
             var target = Pratt<string>(c => c
                 .Add(DigitString(), p => p
@@ -95,7 +95,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Infix_MixedPrecidenceChain()
         {
-            // In most C-like languages and others, +/- have the same precidence and are 
+            // In most C-like languages and others, +/- have the same precidence and are
             // left associative
             var target = Pratt<string>(c => c
                 .Add(DigitString(), p => p
@@ -302,36 +302,5 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(a=(b=((4+5)+6)))");
         }
-
-        //[Test]
-        //public void GetChildren_Test()
-        //{
-        //    var number = Digit().Transform(c => c.ToString());
-        //    var plus = Match('+');
-        //    var neg = Match('-');
-        //    var bang = Match('!');
-        //    var oParen = Match('(');
-        //    var cParen = Match(')');
-        //    var oBracket = Match('[');
-        //    var cBracket = Match(']');
-        //    var target = Pratt<char, string>(number, config => config
-        //        .AddInfix(plus, 1, 2, (_, _, _) => null)
-        //        .AddPrefix(neg, 3, (_, _) => null)
-        //        .AddPostfix(bang, 5, (_, _) => null)
-        //        .AddCircumfix(oParen, cParen, (_, _, _) => null)
-        //        .AddPostcircumfix(oBracket, cBracket, 7, (_, _, _, _) => null)
-        //    );
-
-        //    var children = target.GetChildren().ToList();
-        //    children.Count.Should().Be(8);
-        //    children.Should().Contain(number);
-        //    children.Should().Contain(plus);
-        //    children.Should().Contain(neg);
-        //    children.Should().Contain(bang);
-        //    children.Should().Contain(oParen);
-        //    children.Should().Contain(cParen);
-        //    children.Should().Contain(oBracket);
-        //    children.Should().Contain(cBracket);
-        //}
     }
 }

@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Regexes
 {
     /// <summary>
-    /// Engine to execute regex pattern matching given a Regex and an input sequence
+    /// Engine to execute regex pattern matching given a Regex and an input sequence.
     /// </summary>
     public class RegexEngine
     {
@@ -86,6 +86,7 @@ namespace ParserObjects.Regexes
                     CurrentState = null;
                     return;
                 }
+
                 CurrentState = _queue[0];
                 _queue.RemoveAt(0);
             }
@@ -104,16 +105,19 @@ namespace ParserObjects.Regexes
                             _queue.Insert(0, state);
                             continue;
                         }
+
                         var n = consumptions.Pop();
                         _i -= n;
                         _backtrackStack.Push(new BacktrackState(isBacktrackable, state, consumptions));
                         couldBacktrack = true;
                         break;
                     }
+
                     _queue.Insert(0, state);
                     foreach (var n in consumptions)
                         _i -= n;
                 }
+
                 if (couldBacktrack)
                     MoveToNextState();
                 return couldBacktrack;
@@ -144,6 +148,7 @@ namespace ParserObjects.Regexes
                 var str = context.Capture(consumed);
                 return (true, str, consumed);
             }
+
             return (false, null, consumed);
         }
 
@@ -164,16 +169,19 @@ namespace ParserObjects.Regexes
                             continue;
                         return (false, indexBeforeBacktracking);
                     }
+
                     case Quantifier.ZeroOrOne:
                     {
                         TestZeroOrOne(context, buffer);
                         continue;
                     }
+
                     case Quantifier.ZeroOrMore:
                     {
                         TestZeroOrMore(context, buffer);
                         continue;
                     }
+
                     case Quantifier.Range:
                     {
                         TestRange(context, buffer);
@@ -213,6 +221,7 @@ namespace ParserObjects.Regexes
                 context.MoveToNextState();
                 return;
             }
+
             var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
             context.Push(new BacktrackState(matches && consumed > 0, context.CurrentState, consumed));
             context.AdvanceIndex(consumed);
@@ -288,6 +297,7 @@ namespace ParserObjects.Regexes
                     return (true, 0);
                 return (false, 0);
             }
+
             if (state.Type == RegexStateType.EndOfInput)
                 return (false, 0);
             if (state.Type == RegexStateType.MatchValue)
@@ -295,6 +305,7 @@ namespace ParserObjects.Regexes
                 var match = state.ValuePredicate?.Invoke(context[i]) ?? false;
                 return (match, match ? 1 : 0);
             }
+
             if (state.Type == RegexStateType.Group)
                 return Test(state.Group, context.CopyFrom(i));
             if (state.Type == RegexStateType.Alternation)
@@ -305,8 +316,10 @@ namespace ParserObjects.Regexes
                     if (matches)
                         return (true, consumed);
                 }
+
                 return (false, 0);
             }
+
             throw new RegexException("Unsupported state type during match");
         }
     }

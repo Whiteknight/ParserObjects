@@ -20,7 +20,7 @@ namespace ParserObjects
 
         /// <summary>
         /// a right-associative parser where the parser attempts to parse a sequence of items and middles
-        /// recursively: self := &lt;item&gt; (&lt;middle&gt; &lt;self&gt;)*. 
+        /// recursively: self := &lt;item&gt; (&lt;middle&gt; &lt;self&gt;)*.
         /// </summary>
         /// <typeparam name="TMiddle"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

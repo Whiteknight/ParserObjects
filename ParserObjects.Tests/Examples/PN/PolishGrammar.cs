@@ -16,7 +16,6 @@ namespace ParserObjects.Tests.Examples.PN
             var value = Rule(
                 Deferred(() => valueInternal),
                 OptionalWhitespace(),
-
                 (v, ws) => v
             );
 
@@ -28,7 +27,6 @@ namespace ParserObjects.Tests.Examples.PN
                     Match('/')
                 ),
                 OptionalWhitespace(),
-
                 (op, ws) => op
             );
 
@@ -59,10 +57,8 @@ namespace ParserObjects.Tests.Examples.PN
             return Rule(
                 OptionalWhitespace(),
                 valueInternal,
-
                 (ws, v) => v
             ).FollowedBy(End());
         }
     }
 }
-

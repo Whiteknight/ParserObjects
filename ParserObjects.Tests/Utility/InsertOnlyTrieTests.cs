@@ -1,9 +1,9 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
-using System;
-using System.Linq;
 
 namespace ParserObjects.Tests.Utility
 {

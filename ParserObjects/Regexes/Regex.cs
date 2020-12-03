@@ -20,7 +20,7 @@ namespace ParserObjects.Regexes
             if (states.Count != 1)
                 throw new RegexException("Invalid regular expression. Too many incomplete groups");
             States = states[0];
-            Debug.Assert(States.All(s => s != null));
+            Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
         }
     }
 }

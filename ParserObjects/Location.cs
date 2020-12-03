@@ -6,7 +6,7 @@
     /// </summary>
     public record Location(string FileName, int Line, int Column)
     {
-        public override string ToString() 
+        public override string ToString()
             => !string.IsNullOrEmpty(FileName) ? $"File {FileName} at Line {Line} Column {Column}" : $"Line {Line} Column {Column}";
     }
 }

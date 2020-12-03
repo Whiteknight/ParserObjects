@@ -115,7 +115,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-
         [Test]
         public void Checkpoint_PreviousBuffer()
         {
@@ -193,7 +192,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
-
 
         [Test]
         public void GetNext_WindowsNewlines()
@@ -354,7 +352,6 @@ namespace ParserObjects.Tests.Sequences
                 if (File.Exists(fileName))
                     File.Delete(fileName);
             }
-
         }
 
         [Test]
@@ -451,6 +448,5 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(3);
         }
-
     }
 }

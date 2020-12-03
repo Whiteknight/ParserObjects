@@ -1,7 +1,7 @@
 ﻿namespace ParserObjects.Utility
 {
     /// <summary>
-    /// Default logic for implementing IParser.ToString()
+    /// Default logic for implementing IParser.ToString().
     /// </summary>
     public static class ParserDefaultStringifier
     {

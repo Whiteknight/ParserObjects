@@ -6,12 +6,12 @@ using ParserObjects.Parsers;
 namespace ParserObjects
 {
     /// <summary>
-    /// IParser extension methods for building combinators using fluent syntax
+    /// IParser extension methods for building combinators using fluent syntax.
     /// </summary>
     public static class ParserCombinatorExtensions
     {
         /// <summary>
-        /// Execute a parser and use the result to select the next parser to invoke
+        /// Execute a parser and use the result to select the next parser to invoke.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
@@ -24,7 +24,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Execute a parser but consume no input. Use the result to select the next parser to
-        /// invoke
+        /// invoke.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
@@ -36,7 +36,7 @@ namespace ParserObjects
             => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
 
         /// <summary>
-        /// Invoke callbacks before and after a parse
+        /// Invoke callbacks before and after a parse.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -48,7 +48,7 @@ namespace ParserObjects
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
         /// <summary>
-        /// Invoke callbacks before and after a parse
+        /// Invoke callbacks before and after a parse.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="parser"></param>
@@ -60,7 +60,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Zero-length assertion that the given parser's result is followed by another sequence.
-        /// The lookahead sequence is matched but not consumed
+        /// The lookahead sequence is matched but not consumed.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -98,7 +98,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Given a parser which parses characters, parse a list of characters and return the sequence as a
-        /// string
+        /// string.
         /// </summary>
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
@@ -135,7 +135,7 @@ namespace ParserObjects
         /// <summary>
         /// Returns a list of results from the given parser separated by a separator
         /// pattern. Continues until the item or separator pattern return failure, or
-        /// the minimum/maximum counts are not satisfied. Returns an enumeration of results
+        /// the minimum/maximum counts are not satisfied. Returns an enumeration of results.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TSeparator"></typeparam>
@@ -150,7 +150,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
-        /// string
+        /// string.
         /// </summary>
         /// <param name="p"></param>
         /// <param name="atLeastOne"></param>
@@ -159,7 +159,7 @@ namespace ParserObjects
             => p.List(atLeastOne).Transform(s => string.Join(string.Empty, s));
 
         /// <summary>
-        /// Transform the output of the given parser. Synonym for Transform
+        /// Transform the output of the given parser. Synonym for Transform.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
@@ -171,7 +171,7 @@ namespace ParserObjects
             => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
 
         /// <summary>
-        /// Wraps the given parser to guarantee that it consumes no input
+        /// Wraps the given parser to guarantee that it consumes no input.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -181,7 +181,7 @@ namespace ParserObjects
             => new NoneParser<TInput, TOutput>(inner);
 
         /// <summary>
-        /// Wraps the given parser to guarantee that it consumes no input
+        /// Wraps the given parser to guarantee that it consumes no input.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="inner"></param>
@@ -203,7 +203,7 @@ namespace ParserObjects
 
         /// <summary>
         /// The results of the given parser are optional. If the given parser fails, a default value will
-        /// be provided 
+        /// be provided.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -215,7 +215,7 @@ namespace ParserObjects
 
         /// <summary>
         /// The results of the given parser are optiona. If the given parser fails, a default value will be
-        /// provided
+        /// provided.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -226,7 +226,7 @@ namespace ParserObjects
             => ParserMethods<TInput>.First(p, ParserMethods<TInput>.Produce(getDefault ?? (t => default)));
 
         /// <summary>
-        /// Make this parser replaceable
+        /// Make this parser replaceable.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -237,7 +237,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Make this parser replaceable. Gives the parser a name so that it can be easily
-        /// found and replaced
+        /// found and replaced.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -248,7 +248,7 @@ namespace ParserObjects
             => new ReplaceableParser<TInput, TOutput>(p).Named(name);
 
         /// <summary>
-        /// Transform the output of the given parser to a new value 
+        /// Transform the output of the given parser to a new value.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>

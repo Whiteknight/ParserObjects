@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Does a lookahead to see if there is a match. Returns a success or failure result, but does 
+    /// Does a lookahead to see if there is a match. Returns a success or failure result, but does
     /// not consume any actual input.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>

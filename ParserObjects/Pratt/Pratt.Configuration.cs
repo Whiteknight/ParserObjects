@@ -7,7 +7,7 @@ namespace ParserObjects.Parsers
     public static partial class Pratt<TInput, TOutput>
     {
         /// <summary>
-        /// Configures a parselet rule for the Pratt parser
+        /// Configures a parselet rule for the Pratt parser.
         /// </summary>
         /// <typeparam name="TValue"></typeparam>
         public interface IParseletConfiguration<TValue>
@@ -15,7 +15,7 @@ namespace ParserObjects.Parsers
             IParseletConfiguration<TValue> TypeId(int id);
 
             /// <summary>
-            /// The name of this parselet
+            /// The name of this parselet.
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
@@ -44,7 +44,7 @@ namespace ParserObjects.Parsers
             /// <summary>
             /// If this operator interacts with a value on the left, the ProduceLeft callback is
             /// invoked, taking both the left value and the current value, and producing a new
-            /// output. This callback may recurse into the parser using the context object, if 
+            /// output. This callback may recurse into the parser using the context object, if
             /// additional values are required (for example, an infix operator requiring a right
             /// operands as well).
             /// </summary>
@@ -63,13 +63,14 @@ namespace ParserObjects.Parsers
         }
 
         /// <summary>
-        /// Configuration object for a Pratt parser
+        /// Configuration object for a Pratt parser.
         /// </summary>
         public interface IConfiguration
         {
             /// <summary>
-            /// Add a parselet
+            /// Add a parselet.
             /// </summary>
+            /// <typeparam name="TValue"></typeparam>
             /// <param name="matcher"></param>
             /// <param name="setup"></param>
             /// <returns></returns>

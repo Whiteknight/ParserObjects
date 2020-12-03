@@ -12,7 +12,7 @@
             IParser Parser { get; }
         }
 
-        // user-configured Parselet rule, which contains a parser to match an input token and 
+        // user-configured Parselet rule, which contains a parser to match an input token and
         // some rules about precidence, associativity and converstion into output tokens
         private class Parselet<TValue> : IParselet
         {

@@ -24,8 +24,10 @@ namespace ParserObjects.Utility
                         return (true, typed);
                     return (false, default);
                 }
+
                 node = node.Previous;
             }
+
             return (false, default);
         }
 

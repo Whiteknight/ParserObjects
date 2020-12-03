@@ -16,7 +16,7 @@ namespace ParserObjects.Parsers
         public delegate IParser<TInput, TOutput> Function(ParseState<TInput> state);
 
         /// <summary>
-        /// Create a parser dynamically using information from the parse state. The parser created is 
+        /// Create a parser dynamically using information from the parse state. The parser created is
         /// not expected to be constant and will not be cached.
         /// </summary>
         public class Parser : IParser<TInput, TOutput>

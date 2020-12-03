@@ -1,6 +1,6 @@
-﻿using ParserObjects.Sequences;
+﻿using System;
+using ParserObjects.Sequences;
 using ParserObjects.Visitors;
-using System;
 
 namespace ParserObjects
 {
@@ -31,7 +31,7 @@ namespace ParserObjects
             => new BnfStringifyVisitor().ToBnf(parser);
 
         /// <summary>
-        /// Convert a parser and it's input sequence into a new sequence of parse result values
+        /// Convert a parser and it's input sequence into a new sequence of parse result values.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

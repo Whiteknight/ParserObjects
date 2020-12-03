@@ -5,18 +5,19 @@ using ParserObjects.Parsers;
 namespace ParserObjects
 {
     /// <summary>
-    /// Parser methods for building combinators using declarative syntax
+    /// Parser methods for building combinators using declarative syntax.
     /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public static partial class ParserMethods<TInput>
     {
         /// <summary>
-        /// Matches anywhere in the sequence except at the end, and consumes 1 token of input
+        /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
         /// </summary>
         /// <returns></returns>
         public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
         /// <summary>
-        /// Parses a parser, returns true if the parser succeeds, false if it fails
+        /// Parses a parser, returns true if the parser succeeds, false if it fails.
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -24,7 +25,7 @@ namespace ParserObjects
             => If(p, Produce(() => true), Produce(() => false));
 
         /// <summary>
-        /// Executes a parser, and uses the value to determine the next parser to execute
+        /// Executes a parser, and uses the value to determine the next parser to execute.
         /// </summary>
         /// <typeparam name="TMiddle"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -36,7 +37,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Executes a parser without consuming any input, and uses the value to determine the next
-        /// parser to execute
+        /// parser to execute.
         /// </summary>
         /// <typeparam name="TMiddle"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -56,7 +57,7 @@ namespace ParserObjects
             => new RuleParser<TInput, IReadOnlyList<object>>(parsers, r => r);
 
         /// <summary>
-        /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar
+        /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="getParser"></param>
@@ -77,7 +78,7 @@ namespace ParserObjects
         public static IParser<TInput> End() => new EndParser<TInput>();
 
         /// <summary>
-        /// Invoke callbacks before and after a parse
+        /// Invoke callbacks before and after a parse.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
@@ -88,7 +89,7 @@ namespace ParserObjects
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
         /// <summary>
-        /// Invoke callbacks before and after a parse
+        /// Invoke callbacks before and after a parse.
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="before"></param>
@@ -106,7 +107,7 @@ namespace ParserObjects
             => new FailParser<TInput, TOutput>(error);
 
         /// <summary>
-        /// Return the result of the first parser which succeeds
+        /// Return the result of the first parser which succeeds.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parsers"></param>
@@ -116,7 +117,7 @@ namespace ParserObjects
 
         /// <summary>
         /// Invoke a function callback to perform the parse at the current location in the input
-        /// stream
+        /// stream.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
@@ -142,8 +143,9 @@ namespace ParserObjects
             => new NoneParser<TInput>(inner);
 
         /// <summary>
-        /// Attempt to parse an item and return a default value otherwise
+        /// Attempt to parse an item and return a default value otherwise.
         /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
@@ -151,7 +153,7 @@ namespace ParserObjects
             => First(p, Produce(getDefault ?? (() => default)));
 
         /// <summary>
-        /// Attempt to parse an item and return a default value otherwise
+        /// Attempt to parse an item and return a default value otherwise.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
@@ -162,12 +164,12 @@ namespace ParserObjects
 
         /// <summary>
         /// Given the next input lookahead value, select the appropriate parser to use to continue
-        /// the parse
+        /// the parse.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="setup"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Predict<TOutput>(Action<Predict<TInput,TOutput>.IConfiguration> setup)
+        public static IParser<TInput, TOutput> Predict<TOutput>(Action<Predict<TInput, TOutput>.IConfiguration> setup)
         {
             var config = Predict<TInput, TOutput>.CreateConfiguration();
             setup(config);
@@ -175,7 +177,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Produce a value without consuming anything out of the input sequence
+        /// Produce a value without consuming anything out of the input sequence.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
@@ -193,7 +195,7 @@ namespace ParserObjects
             => new Produce<TInput, TOutput>.Parser((input, data) => produce(input));
 
         /// <summary>
-        /// Produces a value given the input sequence and the current contextual data
+        /// Produces a value given the input sequence and the current contextual data.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="produce"></param>
@@ -221,10 +223,10 @@ namespace ParserObjects
             => new Sequential.Parser<TInput, TOutput>(func);
 
         /// <summary>
-        /// Transform one node into another node to fit into the grammar
+        /// Transform one node into another node to fit into the grammar.
         /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>

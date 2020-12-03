@@ -3,7 +3,7 @@
     public static class StringExtensions
     {
         /// <summary>
-        /// Wrap the string as a sequence of characters
+        /// Wrap the string as a sequence of characters.
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>

@@ -29,7 +29,7 @@ namespace ParserObjects.Visitors
         }
 
         /// <summary>
-        /// Search for a parser with the given Name. Returns only the first result in case of duplicates
+        /// Search for a parser with the given Name. Returns only the first result in case of duplicates.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="root"></param>
@@ -82,6 +82,7 @@ namespace ParserObjects.Visitors
                 var result = found.SetParser(replacement);
                 results.Add(result);
             }
+
             return new MultiReplaceResult(results);
         }
 
@@ -102,6 +103,8 @@ namespace ParserObjects.Visitors
         /// the given transformation. The contents of the ReplaceableParser will be replaced with the
         /// transformed result if it is new and valid.
         /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         /// <param name="root"></param>
         /// <param name="predicate"></param>
         /// <param name="transform"></param>
@@ -125,6 +128,7 @@ namespace ParserObjects.Visitors
                 var result = found.SetParser(replacement);
                 results.Add(result);
             }
+
             return new MultiReplaceResult(results);
         }
 
@@ -133,6 +137,8 @@ namespace ParserObjects.Visitors
         /// the given transformation. The contents of the ReplaceableParser will be replaced with the
         /// transformed result if it is new and valid.
         /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         /// <param name="root"></param>
         /// <param name="name"></param>
         /// <param name="transform"></param>

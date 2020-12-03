@@ -6,19 +6,19 @@ namespace ParserObjects.Utility
     /// <summary>
     /// Result of a single replacement operation
     /// </summary>
-    public record SingleReplaceResult (
+    public record SingleReplaceResult(
         IReplaceableParserUntyped Replaceable,
         IParser Previous,
         IParser Current
     )
     {
         /// <summary>
-        /// True if the replace happened, false if it did not
+        /// Gets a value indicating whether the replace happened, false if it did not.
         /// </summary>
         public bool Success => !ReferenceEquals(Previous, Current);
 
         /// <summary>
-        /// Get the previous and current parser value
+        /// Get the previous and current parser value.
         /// </summary>
         /// <param name="success"></param>
         /// <param name="previous"></param>
@@ -31,7 +31,7 @@ namespace ParserObjects.Utility
         }
 
         /// <summary>
-        /// Get the previous parser, current parser, and the ReplaceableParser parent
+        /// Get the previous parser, current parser, and the ReplaceableParser parent.
         /// </summary>
         /// <param name="success"></param>
         /// <param name="previous"></param>
@@ -47,7 +47,7 @@ namespace ParserObjects.Utility
     }
 
     /// <summary>
-    /// Contains the results of multiple replaces from the parser graph
+    /// Contains the results of multiple replaces from the parser graph.
     /// </summary>
     public struct MultiReplaceResult
     {
@@ -57,13 +57,14 @@ namespace ParserObjects.Utility
         }
 
         /// <summary>
-        /// The individual replace results
+        /// Gets the individual replace results.
         /// </summary>
         public IReadOnlyList<SingleReplaceResult> Results { get; }
 
         /// <summary>
-        /// True if all replacements succeeded, false if no attempts were made or if any result
-        /// failed
+        /// Gets a value indicating whether all replacements succeeded. False if no attempts were
+        /// made or if any result
+        /// failed.
         /// </summary>
         public bool Success => Results != null && Results.Count > 0 && Results.All(r => r.Success);
 
