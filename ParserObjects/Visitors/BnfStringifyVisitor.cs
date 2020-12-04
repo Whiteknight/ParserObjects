@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Parsers;
+using ParserObjects.Parsers.Multi;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Visitors
@@ -61,9 +62,7 @@ namespace ParserObjects.Visitors
             {
                 if (!string.IsNullOrEmpty(parser.Name))
                 {
-                    state.Current.Append('<');
-                    state.Current.Append(parser.Name);
-                    state.Current.Append('>');
+                    state.Current.Append('<').Append(parser.Name).Append('>');
                     return;
                 }
 
@@ -157,6 +156,12 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().Single(), state);
         }
 
+        protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWithParser<TInput, TMulti, TOutput> p, State state)
+        {
+            VisitChild(p.GetChildren().Single(), state);
+            state.Current.Append(" CONTINUE");
+        }
+
         protected virtual void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("CREATE");
@@ -165,6 +170,11 @@ namespace ParserObjects.Visitors
         protected virtual void Accept<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Earley<TInput, TOutput>.Parser p, State state)
+        {
+            state.Current.Append(p.GetBnf());
         }
 
         protected virtual void Accept<TInput>(EmptyParser<TInput> p, State state)
@@ -364,6 +374,12 @@ namespace ParserObjects.Visitors
             state.Current.Append("PRODUCE");
         }
 
+        protected virtual void Accept<TInput, TMulti, TOutput>(ReduceParser<TInput, TMulti, TOutput> p, State state)
+        {
+            state.Current.Append("REDUCE ");
+            VisitChild(p.GetChildren().Single(), state);
+        }
+
         protected virtual void Accept(RegexParser p, State state)
         {
             state.Current.Append($"/{p.Pattern}/");
@@ -395,6 +411,12 @@ namespace ParserObjects.Visitors
             }
 
             state.Current.Append(')');
+        }
+
+        protected virtual void Accept<TInput, TOutput>(SelectSingleResultParser<TInput, TOutput> p, State state)
+        {
+            state.Current.Append("SELECT ");
+            VisitChild(p.GetChildren().Single(), state);
         }
 
         protected virtual void Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> p, State state)
