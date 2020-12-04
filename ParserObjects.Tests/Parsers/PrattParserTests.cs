@@ -13,9 +13,7 @@ namespace ParserObjects.Tests.Parsers
         public void SingleNumber()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
             );
             var result = target.Parse("1");
             result.Success.Should().BeTrue();
@@ -26,9 +24,7 @@ namespace ParserObjects.Tests.Parsers
         public void GracefulFail()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
             );
             var input = new StringCharacterSequence("+!@#");
             var result = target.Parse(input);
@@ -40,9 +36,7 @@ namespace ParserObjects.Tests.Parsers
         public void SingleNumber_Remainder()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
             );
             var input = new StringCharacterSequence("1a");
             var result = target.Parse(input);
@@ -55,9 +49,7 @@ namespace ParserObjects.Tests.Parsers
         public void Infix_Addition()
         {
             var target = Pratt<int>(c => c
-                .Add(Integer(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(Integer())
                 .Add(Match('+'), p => p
                     .LeftBindingPower(1)
                     .ProduceLeft((ctx, l, op) => l.Value + ctx.Parse())
@@ -74,9 +66,7 @@ namespace ParserObjects.Tests.Parsers
             // In most C-like languages and others, +/- have the same precidence and are
             // left associative
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
                 .Add((Match('+'), Match('-')).First(), p => p
                     .LeftBindingPower(1)
                     .ProduceLeft((ctx, l, op) =>
@@ -98,9 +88,7 @@ namespace ParserObjects.Tests.Parsers
             // In most C-like languages and others, +/- have the same precidence and are
             // left associative
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
                 .Add((Match('+'), Match('-')).First(), p => p
                     .LeftBindingPower(1)
                     .ProduceLeft((ctx, l, op) =>
@@ -128,9 +116,7 @@ namespace ParserObjects.Tests.Parsers
         {
             // In most C-like languages and others, = is right-associative
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
                 .Add(Match('='), p => p
                     .LeftBindingPower(2)
                     .RightBindingPower(1)
@@ -150,9 +136,7 @@ namespace ParserObjects.Tests.Parsers
         public void Prefix_Negation()
         {
             var target = Pratt<int>(c => c
-                .Add(UnsignedInteger(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(UnsignedInteger())
                 .Add(Match('-'), p => p
                     .LeftBindingPower(1)
                     .ProduceRight((ctx, op) => -ctx.Parse())
@@ -167,9 +151,7 @@ namespace ParserObjects.Tests.Parsers
         public void Postfix_Factorial()
         {
             var target = Pratt<int>(c => c
-                .Add(UnsignedInteger(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(UnsignedInteger())
                 .Add(Match('!'), p => p
                     .LeftBindingPower(1)
                     .ProduceLeft((ctx, l, op) =>
@@ -190,14 +172,12 @@ namespace ParserObjects.Tests.Parsers
         public void Circumfix_NestedParens()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
                 .Add(Match('('), p => p
                     .LeftBindingPower(0)
                     .ProduceRight((ctx, op) =>
                     {
-                        var contents = ctx.Parse(0);
+                        var contents = ctx.Parse();
                         ctx.Expect(Match(')'));
                         return contents;
                     })
@@ -212,9 +192,7 @@ namespace ParserObjects.Tests.Parsers
         public void Circumfix_Brackets()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .ProduceRight((ctx, v) => v.Value)
-                )
+                .Add(DigitString())
                 .Add(Match('['), p => p
                     .LeftBindingPower(0)
                     .ProduceRight((ctx, op) =>
@@ -242,9 +220,7 @@ namespace ParserObjects.Tests.Parsers
         public void Postcircumfix_BracketsIndex()
         {
             var target = Pratt<string>(c => c
-               .Add(DigitString(), p => p
-                   .ProduceRight((ctx, v) => v.Value)
-               )
+               .Add(DigitString())
                .Add(Match('['), p => p
                    .LeftBindingPower(1)
                    .ProduceLeft((ctx, l, op) =>
@@ -272,10 +248,7 @@ namespace ParserObjects.Tests.Parsers
         public void MixedAssociation_Test()
         {
             var target = Pratt<string>(c => c
-                .Add(DigitString(), p => p
-                    .LeftBindingPower(0)
-                    .ProduceRight((ctx, value) => value.Value)
-                )
+                .Add(DigitString())
                 .Add(Identifier(), p => p
                     .LeftBindingPower(0)
                     .ProduceRight((ctx, value) => value.Value)

@@ -75,6 +75,7 @@ namespace ParserObjects.Parsers
             /// <param name="setup"></param>
             /// <returns></returns>
             IConfiguration Add<TValue>(IParser<TInput, TValue> matcher, Action<IParseletConfiguration<TValue>> setup);
+            IConfiguration Add(IParser<TInput, TOutput> matcher);
         }
 
         private class Configuration : IConfiguration
@@ -94,6 +95,8 @@ namespace ParserObjects.Parsers
                 Parselets.Add(parselet);
                 return this;
             }
+
+            public IConfiguration Add(IParser<TInput, TOutput> matcher) => Add(matcher, p => p.ProduceRight((ctx, v) => v.Value));
 
             public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser);
         }

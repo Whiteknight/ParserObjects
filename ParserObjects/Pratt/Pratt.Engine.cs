@@ -33,9 +33,9 @@ namespace ParserObjects.Parsers
             /// <param name="parser"></param>
             void Expect(IParser<TInput> parser);
 
-            // TODO: These
-            // TOutput Parse(IParser<TInput, TOutput> parser);
-            // void Fail();
+            TOutput Parse(IParser<TInput, TOutput> parser);
+
+            void Fail();
         }
 
         // Simple contextual wrapper, so that private Engine methods can be
@@ -69,6 +69,16 @@ namespace ParserObjects.Parsers
                 if (!result.Success)
                     throw new ParseException();
             }
+
+            public TOutput Parse(IParser<TInput, TOutput> parser)
+            {
+                var result = parser.Parse(_state);
+                if (!result.Success)
+                    throw new ParseException();
+                return result.Value;
+            }
+
+            public void Fail() => throw new ParseException();
         }
 
         // control-flow exception type, so that errors during user-callbacks can return to the
