@@ -36,11 +36,20 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
-                Assert.ArgumentNotNull(state, nameof(state));
-                var (success, value) = _engine.Parse(state);
-                if (success)
-                    return state.Success(this, value);
-                return state.Fail(this, "whatever");
+                var startCp = state.Input.Checkpoint();
+                try
+                {
+                    Assert.ArgumentNotNull(state, nameof(state));
+                    var (success, value, error) = _engine.Parse(state);
+                    if (success)
+                        return state.Success(this, value);
+                    return state.Fail(this, error);
+                }
+                catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
+                {
+                    startCp.Rewind();
+                    return state.Fail<TOutput>(pe.Parser ?? this, pe.Message, pe.Location);
+                }
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

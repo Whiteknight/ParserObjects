@@ -39,9 +39,9 @@ namespace ParserObjects.Tests.Examples.Classes
                     {
                         var def = ctx.Parse();
                         if (string.IsNullOrEmpty(def.StructureType))
-                            ctx.Fail($"Definition {def.Name} must declare as {am} {def.StructureType}, not the other way around");
+                            ctx.FailLevel($"Definition {def.Name} must declare as {am} {def.StructureType}, not the other way around");
                         if (!string.IsNullOrEmpty(def.AccessModifier))
-                            ctx.Fail($"Definition {def.Name} already has an access modifier");
+                            ctx.FailLevel($"Definition {def.Name} already has an access modifier");
                         def.AccessModifier = am.Value;
                         return def;
                     })
@@ -52,9 +52,9 @@ namespace ParserObjects.Tests.Examples.Classes
                     {
                         var def = ctx.Parse();
                         if (!string.IsNullOrEmpty(def.StructureType))
-                            ctx.Fail($"Definition {def.Name} already has a type");
+                            ctx.FailLevel($"Definition {def.Name} already has a type");
                         if (!string.IsNullOrEmpty(def.AccessModifier))
-                            ctx.Fail($"Definition {def.Name} must declare as {def.AccessModifier} {st.Value}, not the other way around");
+                            ctx.FailLevel($"Definition {def.Name} must declare as {def.AccessModifier} {st.Value}, not the other way around");
                         def.StructureType = st.Value;
                         return def;
                     })
@@ -66,7 +66,7 @@ namespace ParserObjects.Tests.Examples.Classes
                         var def = defToken.Value;
 
                         if (def.Children != null)
-                            ctx.Fail($"{def.Name} already has a body");
+                            ctx.FailRule($"{def.Name} already has a body");
 
                         var children = new List<Definition>();
                         while (true)
@@ -75,7 +75,7 @@ namespace ParserObjects.Tests.Examples.Classes
                             if (!hasChild)
                                 break;
                             if (def.StructureType == "interface")
-                                ctx.Fail("Interfaces may not contain child classes/interfaces");
+                                ctx.FailAll("Interfaces may not contain child classes/interfaces");
                             children.Add(childDef);
                         }
 

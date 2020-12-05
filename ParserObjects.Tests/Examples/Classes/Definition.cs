@@ -14,16 +14,5 @@ namespace ParserObjects.Tests.Examples.Classes
         public string Name { get; }
 
         public List<Definition> Children { get; set; }
-
-        public bool Validate()
-        {
-            var hasRequiredFields = !string.IsNullOrEmpty(AccessModifier)
-                && !string.IsNullOrEmpty(StructureType)
-                && !string.IsNullOrEmpty(Name);
-            if (!hasRequiredFields)
-                return false;
-
-            return Children != null;
-        }
     }
 }

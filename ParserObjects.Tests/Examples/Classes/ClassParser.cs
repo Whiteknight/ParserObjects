@@ -9,8 +9,6 @@
             if (!result.Success)
                 return null;
             var def = result.Value;
-            if (!def.Validate())
-                return null;
             return def;
         }
     }

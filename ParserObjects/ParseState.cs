@@ -51,6 +51,12 @@ namespace ParserObjects
             return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
         }
 
+        public IResult<TOutput> Fail<TOutput>(IParser parser, string error, Location location = null)
+        {
+            Log(parser, "Failed with error " + error);
+            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
+        }
+
         /// <summary>
         /// Create a failure result for the given parser with the given error information.
         /// </summary>

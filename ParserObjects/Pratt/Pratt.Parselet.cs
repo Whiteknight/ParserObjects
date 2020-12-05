@@ -55,7 +55,7 @@
                     var resultValue = nud(context, value);
                     return (true, new Token<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name));
                 }
-                catch (ParseException)
+                catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
                 {
                     return (false, default);
                 }
@@ -71,7 +71,7 @@
                     var resultValue = led(context, left, value);
                     return (true, new Token<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name));
                 }
-                catch (ParseException)
+                catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
                 {
                     return (false, default);
                 }

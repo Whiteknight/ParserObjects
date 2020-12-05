@@ -76,3 +76,16 @@ if (string.IsNullOrEmpty(def.StructureType))
 Because of the recursive nature of the parser, the `accessModifier` "public" will be seen first, it will recurse to the `structureType` value "class", and then will find the name. At that point the recursions unwind, filling in the `structureType` value and then filling in the `accessModifier` value. So, to verify that things are happening in the correct order, we check while filling in the `structureType` that we don't already have an `accessModifier` (remember it gets filled in later, despite appearing first in the input sequence), and while filling in the `accessModifier` value we check that we do have a `structureType`. In this way we can detect errors that the structure of the parser itself cannot detect for us.
 
 One other limitation we have here is that an `interface` cannot contain child definitions. There is no good way to implement this check inside the parser as it's currently structured. Instead we add a validation phase with the `Definition.Validate()` method, which checks that an interface cannot have child definitions and fails the parse otherwise. When we call `ctx.Fail()` in that method when a child is found for an interface, the `openBracket` rule fails, but the parser returns success with the `Definition` object, with `definition.Children == null`. The validation step checks this condition and propagates errors to the test method.
+
+## Required Components
+
+One unit test in particular tells the story:
+
+```csharp
+var target = new ClassParser();
+var result = target.Parse("class MyClass { }");
+result.Should().NotBeNull();
+result.AccessModifier.Should().BeNull();
+```
+
+While it is acceptable C# syntax for a class definition to not have an access modifier, there's no good way within the Pratt parser to require any particular prefix or suffix to exist. A validation step would have to be added after the parse to make sure all fields were properly initialized. The same limitation is the same for the "class" keyword and the `{ }` class body. The parser will report success despite missing any or all of these.
