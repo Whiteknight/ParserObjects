@@ -76,6 +76,8 @@
                     return (false, default);
                 }
             }
+
+            public override string ToString() => Name ?? _match.Name ?? base.ToString();
         }
     }
 }

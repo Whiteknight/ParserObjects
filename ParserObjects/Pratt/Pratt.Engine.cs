@@ -25,6 +25,8 @@ namespace ParserObjects.Parsers
             /// <returns></returns>
             TOutput Parse(int rbp);
 
+            TValue Parse<TValue>(IParser<TInput, TValue> parser);
+
             /// <summary>
             /// Parse a value on the input, but do not return a value. If the value does not
             /// exist, the parse aborts, the input rewinds, and the parser returns to a previous
@@ -33,9 +35,11 @@ namespace ParserObjects.Parsers
             /// <param name="parser"></param>
             void Expect(IParser<TInput> parser);
 
-            TOutput Parse(IParser<TInput, TOutput> parser);
+            (bool success, TOutput value) TryParse();
+            (bool success, TOutput value) TryParse(int rbp);
+            (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser);
 
-            void Fail();
+            void Fail(string message = "");
         }
 
         // Simple contextual wrapper, so that private Engine methods can be
@@ -52,6 +56,8 @@ namespace ParserObjects.Parsers
                 _engine = engine;
                 _rbp = rbp;
             }
+
+            public IDataStore Data => _state.Data;
 
             public TOutput Parse() => Parse(_rbp);
 
@@ -70,7 +76,7 @@ namespace ParserObjects.Parsers
                     throw new ParseException();
             }
 
-            public TOutput Parse(IParser<TInput, TOutput> parser)
+            public TValue Parse<TValue>(IParser<TInput, TValue> parser)
             {
                 var result = parser.Parse(_state);
                 if (!result.Success)
@@ -78,7 +84,17 @@ namespace ParserObjects.Parsers
                 return result.Value;
             }
 
-            public void Fail() => throw new ParseException();
+            public void Fail(string message = "") => throw new ParseException(message ?? "");
+
+            public (bool success, TOutput value) TryParse() => _engine.Expression(_state, _rbp);
+
+            public (bool success, TOutput value) TryParse(int rbp) => _engine.Expression(_state, rbp);
+
+            public (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser)
+            {
+                var result = parser.Parse(_state);
+                return (_, _) = result;
+            }
         }
 
         // control-flow exception type, so that errors during user-callbacks can return to the
