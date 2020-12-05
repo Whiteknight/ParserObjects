@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         private readonly IParser<char, bool> _failParser = Fail<bool>();
 
         [Test]
-        public void Ext_Then_Success()
+        public void ExtThen_Success_ThenSuccess()
         {
             var parser = _successParser.Then(Any());
 
@@ -22,7 +22,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_Then_Fail()
+        public void ExtThen_Fail_ThenSuccess()
         {
             var parser = _failParser.Then(Any());
 
@@ -32,7 +32,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_If_Success()
+        public void ExtIf_Success_ThenSuccess()
         {
             var parser = Any().If(_successParser);
 
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Ext_If_Fail()
+        public void ExtIf_Fail_ThenSuccess()
         {
             var parser = Any().If(_failParser);
 
@@ -53,7 +53,7 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Parse_Success()
+        public void Parse_Success_ThenSuccess()
         {
             var parser = If(_successParser, Any());
 
@@ -64,13 +64,24 @@ namespace ParserObjects.Tests.Parsers.Logical
         }
 
         [Test]
-        public void Parse_Fail()
+        public void Parse_Fail_ThenSuccess()
         {
             var parser = If(_failParser, Any());
 
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Success_ThenFail()
+        {
+            var parser = If(_successParser, _failParser, Produce(() => true));
+
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            input.Peek().Should().Be('a');
         }
     }
 }

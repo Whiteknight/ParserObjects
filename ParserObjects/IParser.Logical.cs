@@ -52,7 +52,7 @@ namespace ParserObjects
             => new OrParser<TInput>(new[] { p1 }.Concat(parsers).ToArray());
 
         /// <summary>
-        /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
+        /// Attempt to parse with a predicate parser. If the predicate parser succeeds,
         /// parse with the given parser. This is the same operation as If with different order of operands.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
