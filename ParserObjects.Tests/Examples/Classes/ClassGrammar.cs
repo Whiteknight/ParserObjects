@@ -32,17 +32,14 @@ namespace ParserObjects.Tests.Examples.Classes
             var closeBracket = ows.Then(Match('}')).Named("Close Bracket");
 
             var definition = Pratt<Definition>(setup => setup
-                .Add(name, p => p
-                    .ProduceRight((ctx, n) =>
-                    new Definition(n.Value))
-                )
+                .Add(name, p => p.ProduceRight((ctx, n) => new Definition(n.Value)))
                 .Add(accessModifier, p => p
                     .RightBindingPower(3)
                     .ProduceRight((ctx, am) =>
                     {
                         var def = ctx.Parse();
                         if (string.IsNullOrEmpty(def.StructureType))
-                            ctx.Fail($"Definition {def.Name} access modifier should come before structure type");
+                            ctx.Fail($"Definition {def.Name} must declare as {am} {def.StructureType}, not the other way around");
                         if (!string.IsNullOrEmpty(def.AccessModifier))
                             ctx.Fail($"Definition {def.Name} already has an access modifier");
                         def.AccessModifier = am.Value;
@@ -56,6 +53,8 @@ namespace ParserObjects.Tests.Examples.Classes
                         var def = ctx.Parse();
                         if (!string.IsNullOrEmpty(def.StructureType))
                             ctx.Fail($"Definition {def.Name} already has a type");
+                        if (!string.IsNullOrEmpty(def.AccessModifier))
+                            ctx.Fail($"Definition {def.Name} must declare as {def.AccessModifier} {st.Value}, not the other way around");
                         def.StructureType = st.Value;
                         return def;
                     })
