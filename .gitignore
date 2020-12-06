@@ -66,6 +66,9 @@ artifacts/
 # StyleCop
 StyleCopReport.xml
 
+# CodeMaid
+CodeMaid.config
+
 # Files built by Visual Studio
 *_i.c
 *_p.c
