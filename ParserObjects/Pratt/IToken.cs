@@ -16,7 +16,7 @@
     /// by the engine.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
-    public interface IToken<TValue> : IToken
+    public interface IToken<out TValue> : IToken
     {
         TValue Value { get; }
     }

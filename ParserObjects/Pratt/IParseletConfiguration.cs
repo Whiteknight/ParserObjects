@@ -17,6 +17,8 @@ namespace ParserObjects.Pratt
         /// <returns></returns>
         IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed);
 
+        IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed);
+
         IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(NudFunc<TInput, TValue, TOutput> getNud);
 
         /// <summary>
@@ -28,7 +30,5 @@ namespace ParserObjects.Pratt
         /// <param name="getNud"></param>
         /// <returns></returns>
         IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(int rbp, NudFunc<TInput, TValue, TOutput> getNud);
-
-        IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed);
     }
 }

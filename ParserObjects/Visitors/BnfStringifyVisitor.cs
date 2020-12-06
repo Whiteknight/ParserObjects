@@ -130,7 +130,7 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput>(AnyParser<TInput> p, State state)
         {
-            state.Current.Append(".");
+            state.Current.Append('.');
         }
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChainParser<TInput, TMiddle, TOutput> p, State state)
@@ -163,12 +163,12 @@ namespace ParserObjects.Visitors
             state.Current.Append("END");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
+        protected virtual void VisitTyped<TInput>(Examine<TInput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput>(Examine<TInput>.Parser p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
@@ -279,6 +279,22 @@ namespace ParserObjects.Visitors
             VisitChild(children[0], state);
             state.Current.Append(" || ");
             VisitChild(children[1], state);
+        }
+
+        protected virtual void VisitTyped<TInput, TOutput>(PrattParser<TInput, TOutput> p, State state)
+        {
+            var children = p.GetChildren().ToArray();
+            if (children.Length == 0)
+                return;
+            state.Current.Append("PRATT(");
+            VisitChild(children[0], state);
+            for (int i = 1; i < children.Length; i++)
+            {
+                state.Current.Append(", ");
+                VisitChild(children[i], state);
+            }
+
+            state.Current.Append(")");
         }
 
         protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)

@@ -84,6 +84,14 @@ namespace ParserObjects.Tests.Visitors
         [Test]
         public void ToBnf_Examine()
         {
+            var parser = Examine(End()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := END");
+        }
+
+        [Test]
+        public void ToBnf_Examine_Output()
+        {
             var parser = Examine(Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .");
@@ -262,6 +270,17 @@ namespace ParserObjects.Tests.Visitors
             var parser = PositiveLookahead(Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (?= . )");
+        }
+
+        [Test]
+        public void ToBnf_Pratt()
+        {
+            var parser = Pratt<char>(c => c
+                .Add(Match('+'))
+                .Add(Match('-'))
+            ).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().StartWith("parser := PRATT(MATCH, MATCH);");
         }
 
         [Test]
