@@ -6,14 +6,8 @@ namespace ParserObjects
     /// <summary>
     /// Parser base type.
     /// </summary>
-    public interface IParser
+    public interface IParser : INamed
     {
-        /// <summary>
-        /// Gets or Sets the name of the parser. This value is only used for bookkeeping information and does not have
-        /// an affect on the parse.
-        /// </summary>
-        string Name { get; set; }
-
         /// <summary>
         /// Get a list of child parsers, if any.
         /// </summary>

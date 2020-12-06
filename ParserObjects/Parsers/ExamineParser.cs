@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
         /// <summary>

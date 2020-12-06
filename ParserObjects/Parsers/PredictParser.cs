@@ -81,7 +81,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => _config.GetChildren();
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
     }
 }

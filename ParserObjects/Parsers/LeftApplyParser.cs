@@ -56,8 +56,10 @@ namespace ParserObjects.Parsers
                 {
                     case Quantifier.ExactlyOne:
                         return ParseExactlyOne(state);
+
                     case Quantifier.ZeroOrOne:
                         return ParseZeroOrOne(state);
+
                     case Quantifier.ZeroOrMore:
                         return ParseZeroOrMore(state);
                 }
@@ -127,7 +129,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
         private class LeftValue : IParser<TInput, TOutput>
@@ -144,7 +146,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
     }
 }

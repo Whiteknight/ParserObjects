@@ -180,7 +180,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
 
-            public override string ToString() => ParserDefaultStringifier.ToString(this);
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
     }
 }
