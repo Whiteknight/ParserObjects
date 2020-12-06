@@ -35,7 +35,7 @@ namespace ParserObjects.Tests.Examples.Classes
             var result = target.Parse("class MyClass { }");
             result.Should().NotBeNull();
             result.AccessModifier.Should().BeNull();
-            //result.Should().BeNull();
+            // result.Should().BeNull();
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace ParserObjects.Tests.Examples.Classes
         {
             var target = new ClassParser();
             var c1 = target.Parse(@"
-public class MyClass1 { 
+public class MyClass1 {
     private struct MyClass2 {
         internal interface MyClass3 {
         }
@@ -83,7 +83,7 @@ public class MyClass1 {
         {
             var target = new ClassParser();
             var c1 = target.Parse(@"
-public interface Interface1 { 
+public interface Interface1 {
     private class MyClass2 {
     }
 }");

@@ -1,4 +1,4 @@
-﻿namespace ParserObjects.Pratt
+namespace ParserObjects.Pratt
 {
     public class ParseletConfiguration<TInput, TValue, TOutput> : IParseletConfiguration<TInput, TValue, TOutput>
     {
@@ -9,6 +9,7 @@
         private int _rbp;
         private NudFunc<TInput, TValue, TOutput> _getNud;
         private LedFunc<TInput, TValue, TOutput> _getLed;
+        private string _name;
 
         public ParseletConfiguration(IParser<TInput, TValue> matcher)
         {
@@ -17,7 +18,7 @@
 
         public string Name { get; set; }
 
-        public IParselet Build()
+        public IParselet<TInput, TOutput> Build()
         {
             return new Parselet<TInput, TValue, TOutput>(
                 _typeId,
@@ -26,7 +27,7 @@
                 _getLed,
                 _lbp,
                 _rbp <= 0 ? _lbp + 1 : _rbp,
-                Name ?? _matcher.Name ?? _typeId.ToString()
+                _name ?? _matcher.Name ?? _typeId.ToString()
             );
         }
 
@@ -62,7 +63,7 @@
 
         public IParseletConfiguration<TInput, TValue, TOutput> Named(string name)
         {
-            Name = name;
+            _name = name;
             return this;
         }
     }

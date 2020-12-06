@@ -1,4 +1,4 @@
-﻿namespace ParserObjects.Pratt
+namespace ParserObjects.Pratt
 {
     /// <summary>
     /// User-configured parselet rule, which acts as an adaptor for IParser to IParselet.
@@ -32,6 +32,10 @@
         public NudFunc<TInput, TValue, TOutput> Nud { get; }
 
         public LedFunc<TInput, TValue, TOutput> Led { get; }
+
+        public bool CanNud => Nud != null;
+
+        public bool CanLed => Led != null;
 
         public (bool success, IToken<TInput, TOutput> token) TryGetNext(ParseState<TInput> state)
         {

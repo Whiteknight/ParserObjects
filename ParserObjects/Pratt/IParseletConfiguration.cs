@@ -1,8 +1,15 @@
-﻿namespace ParserObjects.Pratt
+namespace ParserObjects.Pratt
 {
     public interface IParseletConfiguration<TInput, TValue, TOutput> : INamed
     {
         IParseletConfiguration<TInput, TValue, TOutput> TypeId(int id);
+
+        /// <summary>
+        /// The name of this parselet.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        IParseletConfiguration<TInput, TValue, TOutput> Named(string name);
 
         /// <summary>
         /// The binding power (precidence) of this value to the value on the left. For a
