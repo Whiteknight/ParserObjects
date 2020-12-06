@@ -11,31 +11,44 @@ namespace ParserObjects.Tests.Examples.Classes
         {
             var ws = Whitespace();
             var ows = OptionalWhitespace();
-            var accessModifier = ows.Then(
-                Trie<string>(trie => trie
-                    .Add("public")
-                    .Add("internal")
-                    .Add("private")
+
+            var accessModifier = ows
+                .Then(
+                    Trie<string>(trie => trie
+                        .Add("public")
+                        .Add("internal")
+                        .Add("private")
+                    )
                 )
-            ).Named("Access Modifier");
-            var structureType = ows.Then(
-                Trie<string>(trie => trie
-                    .Add("class")
-                    .Add("interface")
-                    .Add("struct")
+                .Named("Access Modifier");
+
+            var structureType = ows
+                .Then(
+                    Trie<string>(trie => trie
+                        .Add("class")
+                        .Add("interface")
+                        .Add("struct")
+                    )
                 )
-            ).Named("Structure Type");
-            var name = ows.Then(
-                If((accessModifier, structureType).First(), Fail<string>(), Identifier())
-            ).Named("Name");
+                .Named("Structure Type");
+
+            var name = ows
+                .Then(
+                    If(
+                        (accessModifier, structureType).First(),
+                        Fail<string>(),
+                        Identifier()
+                    )
+                )
+                .Named("Name");
+
             var openBracket = ows.Then(Match('{')).Named("Open Bracket");
             var closeBracket = ows.Then(Match('}')).Named("Close Bracket");
 
             var definition = Pratt<Definition>(setup => setup
-                .Add(name, p => p.ProduceRight((ctx, n) => new Definition(n.Value)))
+                .Add(name, p => p.ProduceRight(0, (ctx, n) => new Definition(n.Value)))
                 .Add(accessModifier, p => p
-                    .RightBindingPower(3)
-                    .ProduceRight((ctx, am) =>
+                    .ProduceRight(3, (ctx, am) =>
                     {
                         var def = ctx.Parse();
                         if (string.IsNullOrEmpty(def.StructureType))
@@ -47,8 +60,7 @@ namespace ParserObjects.Tests.Examples.Classes
                     })
                 )
                 .Add(structureType, p => p
-                    .RightBindingPower(5)
-                    .ProduceRight((ctx, st) =>
+                    .ProduceRight(5, (ctx, st) =>
                     {
                         var def = ctx.Parse();
                         if (!string.IsNullOrEmpty(def.StructureType))
@@ -60,8 +72,7 @@ namespace ParserObjects.Tests.Examples.Classes
                     })
                 )
                 .Add(openBracket, p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, defToken, _) =>
+                    .ProduceLeft(1, (ctx, defToken, _) =>
                     {
                         var def = defToken.Value;
 

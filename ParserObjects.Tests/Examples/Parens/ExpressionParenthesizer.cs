@@ -9,19 +9,16 @@ namespace ParserObjects.Tests.Examples.Parens
         {
             var target = Pratt<string>(config => config
                 .Add(Whitespace(), c => c
-                    .RightBindingPower(100)
-                    .ProduceRight((ctx, value) => ctx.Parse())
-                    .LeftBindingPower(100)
-                    .ProduceLeft((ctx, left, value) => left.Value)
+                    .ProduceRight(100, (ctx, value) => ctx.Parse())
+                    .ProduceLeft(100, (ctx, left, value) => left.Value)
                     .Named("whitespace")
                 )
                 .Add(DigitString(), c => c
-                    .ProduceRight((ctx, value) => value.Value)
+                    .ProduceRight(0, (ctx, value) => value.Value)
                     .Named("number")
                 )
                 .Add(Match('+'), c => c
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l.Value}{op.Value}{r})";
@@ -29,8 +26,7 @@ namespace ParserObjects.Tests.Examples.Parens
                     .Named("Addition")
                 )
                 .Add((Match('*'), Match('/')).First(), c => c
-                    .LeftBindingPower(3)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(3, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l.Value}{op.Value}{r})";
@@ -38,15 +34,13 @@ namespace ParserObjects.Tests.Examples.Parens
                     .Named("Multiply/Divide")
                 )
                 .Add(Match('('), c => c
-                    .LeftBindingPower(9)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(9, (ctx, l, op) =>
                     {
                         var contents = ctx.Parse(0);
                         ctx.Expect(Match(')'));
                         return $"({l.Value}*({contents}))";
                     })
-                    .RightBindingPower(0)
-                    .ProduceRight((ctx, op) =>
+                    .ProduceRight(0, (ctx, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({op.Value}{r})";
@@ -54,13 +48,12 @@ namespace ParserObjects.Tests.Examples.Parens
                     .Named("Parenthesis")
                 )
                 .Add(Match('-'), c => c
-                    .LeftBindingPower(1)
-                    .ProduceRight((ctx, op) =>
+                    .ProduceRight(1, (ctx, op) =>
                     {
                         var r = ctx.Parse(7);
                         return $"({op.Value}{r})";
                     })
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l.Value}{op.Value}{r})";
@@ -68,8 +61,7 @@ namespace ParserObjects.Tests.Examples.Parens
                     .Named("Subtract/Negate")
                 )
                 .Add(Match('!'), c => c
-                    .LeftBindingPower(9)
-                    .ProduceLeft((ctx, l, op) => $"({l}{op})")
+                    .ProduceLeft(9, (ctx, l, op) => $"({l}{op})")
                     .Named("Factorial")
                 )
             );

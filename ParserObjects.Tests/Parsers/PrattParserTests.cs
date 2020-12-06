@@ -51,8 +51,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<int>(c => c
                 .Add(Integer())
                 .Add(Match('+'), p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) => l.Value + ctx.Parse())
+                    .ProduceLeft(1, (ctx, l, op) => l.Value + ctx.Parse())
                 )
             );
             var result = target.Parse("1+2");
@@ -68,8 +67,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add((Match('+'), Match('-')).First(), p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l}{op}{r})";
@@ -90,16 +88,14 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add((Match('+'), Match('-')).First(), p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l}{op}{r})";
                     })
                 )
                 .Add((Match('*'), Match('/')).First(), p => p
-                    .LeftBindingPower(3)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(3, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l}{op}{r})";
@@ -118,9 +114,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add(Match('='), p => p
-                    .LeftBindingPower(2)
-                    .RightBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(2, 1, (ctx, l, op) =>
                     {
                         var r = ctx.Parse();
                         return $"({l}{op}{r})";
@@ -138,8 +132,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<int>(c => c
                 .Add(UnsignedInteger())
                 .Add(Match('-'), p => p
-                    .LeftBindingPower(1)
-                    .ProduceRight((ctx, op) => -ctx.Parse())
+                    .ProduceRight(1, (ctx, op) => -ctx.Parse())
                 )
             );
             var result = target.Parse("-1");
@@ -153,8 +146,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<int>(c => c
                 .Add(UnsignedInteger())
                 .Add(Match('!'), p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var accumulate = 1;
                         for (int i = 1; i <= l.Value; i++)
@@ -174,7 +166,6 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add(Match('('), p => p
-                    .LeftBindingPower(0)
                     .ProduceRight((ctx, op) =>
                     {
                         var contents = ctx.Parse();
@@ -194,7 +185,6 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add(Match('['), p => p
-                    .LeftBindingPower(0)
                     .ProduceRight((ctx, op) =>
                     {
                         var contents = ctx.Parse(0);
@@ -203,8 +193,7 @@ namespace ParserObjects.Tests.Parsers
                     })
                 )
                 .Add(Match('+'), p => p
-                    .LeftBindingPower(1)
-                    .ProduceLeft((ctx, l, op) =>
+                    .ProduceLeft(1, (ctx, l, op) =>
                     {
                         var right = ctx.Parse();
                         return $"({l}{op}{right})";
@@ -222,8 +211,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                .Add(DigitString())
                .Add(Match('['), p => p
-                   .LeftBindingPower(1)
-                   .ProduceLeft((ctx, l, op) =>
+                   .ProduceLeft(1, (ctx, l, op) =>
                    {
                        var contents = ctx.Parse(0);
                        ctx.Expect(Match(']'));
@@ -231,8 +219,7 @@ namespace ParserObjects.Tests.Parsers
                    })
                )
                .Add(Match('+'), p => p
-                   .LeftBindingPower(1)
-                   .ProduceLeft((ctx, l, op) =>
+                   .ProduceLeft(1, (ctx, l, op) =>
                    {
                        var right = ctx.Parse();
                        return $"({l}{op}{right})";
@@ -250,21 +237,17 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
                 .Add(Identifier(), p => p
-                    .LeftBindingPower(0)
                     .ProduceRight((ctx, value) => value.Value)
                 )
                 .Add(Match('+'), p => p
-                    .LeftBindingPower(3)
-                    .ProduceLeft((ctx, left, op) =>
+                    .ProduceLeft(3, (ctx, left, op) =>
                     {
                         var right = ctx.Parse();
                         return $"({left}+{right})";
                     })
                 )
                 .Add(Match('='), p => p
-                    .LeftBindingPower(2)
-                    .RightBindingPower(1)
-                    .ProduceLeft((ctx, left, op) =>
+                    .ProduceLeft(2, 1, (ctx, left, op) =>
                     {
                         var right = ctx.Parse();
                         return $"({left}={right})";
@@ -274,6 +257,68 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("a=b=4+5+6");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(a=(b=((4+5)+6)))");
+        }
+
+        [Test]
+        public void Postfix_MultiMatch()
+        {
+            var target = Pratt<string>(c => c
+                .Add(DigitString())
+                .Add(Match('a'), p => p
+                    .ProduceLeft(1, (ctx, lt, op) =>
+                    {
+                        var l = lt.Value;
+                        if (l.Length % 2 == 0)
+                            ctx.FailRule("Expected odd number");
+                        return $"odd({l})";
+                    })
+                    .ProduceLeft(1, (ctx, lt, op) =>
+                    {
+                        var l = lt.Value;
+                        if (l.Length % 2 == 1)
+                            ctx.FailRule("Expected even number");
+                        return $"even({l})";
+                    })
+                )
+            );
+            var result = target.Parse("123a");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("odd(123)");
+
+            result = target.Parse("1234a");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("even(1234)");
+        }
+
+        [Test]
+        public void Prefix_MultiMatch()
+        {
+            var target = Pratt<string>(c => c
+                .Add(DigitString())
+                .Add(Match('a'), p => p
+                    .ProduceRight(1, (ctx, op) =>
+                    {
+                        var r = ctx.Parse();
+                        if (r.Length % 2 == 0)
+                            ctx.FailRule("Expected odd number");
+                        return $"odd({r})";
+                    })
+                    .ProduceRight(1, (ctx, op) =>
+                    {
+                        var r = ctx.Parse();
+                        if (r.Length % 2 == 1)
+                            ctx.FailRule("Expected even number");
+                        return $"even({r})";
+                    })
+                )
+            );
+            var result = target.Parse("a123");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("odd(123)");
+
+            result = target.Parse("a1234");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("even(1234)");
         }
     }
 }

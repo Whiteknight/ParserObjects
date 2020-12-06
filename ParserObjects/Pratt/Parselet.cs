@@ -20,7 +20,7 @@ namespace ParserObjects.Pratt
             Led = led;
             Lbp = lbp;
             Rbp = rbp;
-            Name = name;
+            Name = name ?? _match.Name ?? ((TokenTypeId > 0) ? TokenTypeId.ToString() : base.ToString());
         }
 
         public int TokenTypeId { get; }
@@ -45,6 +45,6 @@ namespace ParserObjects.Pratt
             return (true, new Token<TInput, TValue, TOutput>(this, result.Value));
         }
 
-        public override string ToString() => Name ?? _match.Name ?? base.ToString();
+        public override string ToString() => Name;
     }
 }

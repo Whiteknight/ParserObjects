@@ -1,34 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace ParserObjects.Pratt
 {
     public class ParseletConfiguration<TInput, TValue, TOutput> : IParseletConfiguration<TInput, TValue, TOutput>
     {
+        private readonly List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>> _getParselets;
         private readonly IParser<TInput, TValue> _matcher;
 
         private int _typeId;
-        private int _lbp;
-        private int _rbp;
-        private NudFunc<TInput, TValue, TOutput> _getNud;
-        private LedFunc<TInput, TValue, TOutput> _getLed;
-        private string _name;
 
         public ParseletConfiguration(IParser<TInput, TValue> matcher)
         {
             _matcher = matcher;
+            _getParselets = new List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>>();
         }
 
         public string Name { get; set; }
 
-        public IParselet<TInput, TOutput> Build()
+        public IEnumerable<IParselet<TInput, TOutput>> Build()
         {
-            return new Parselet<TInput, TValue, TOutput>(
-                _typeId,
-                _matcher,
-                _getNud,
-                _getLed,
-                _lbp,
-                _rbp <= 0 ? _lbp + 1 : _rbp,
-                _name ?? _matcher.Name ?? _typeId.ToString()
-            );
+            var parselets = _getParselets.Select(f => f(_matcher, _typeId, Name)).ToList();
+            _getParselets.Clear();
+            return parselets;
         }
 
         public IParseletConfiguration<TInput, TValue, TOutput> TypeId(int id)
@@ -38,32 +33,36 @@ namespace ParserObjects.Pratt
         }
 
         public IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(NudFunc<TInput, TValue, TOutput> getNud)
+            => ProduceRight(0, getNud);
+
+        public IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
         {
-            _getNud = getNud;
+            _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
+                tid,
+                m,
+                getNud,
+                null,
+                rbp,
+                rbp,
+                n
+            ));
             return this;
         }
 
-        public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(LedFunc<TInput, TValue, TOutput> getLed)
-        {
-            _getLed = getLed;
-            return this;
-        }
+        public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed)
+            => ProduceLeft(lbp, lbp + 1, getLed);
 
-        public IParseletConfiguration<TInput, TValue, TOutput> LeftBindingPower(int lbp)
+        public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
         {
-            _lbp = lbp;
-            return this;
-        }
-
-        public IParseletConfiguration<TInput, TValue, TOutput> RightBindingPower(int rbp)
-        {
-            _rbp = rbp;
-            return this;
-        }
-
-        public IParseletConfiguration<TInput, TValue, TOutput> Named(string name)
-        {
-            _name = name;
+            _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
+                tid,
+                m,
+                null,
+                getLed,
+                lbp,
+                rbp,
+                n
+            ));
             return this;
         }
     }

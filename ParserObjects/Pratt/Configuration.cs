@@ -17,12 +17,13 @@ namespace ParserObjects.Pratt
         {
             var parseletConfig = new ParseletConfiguration<TInput, TValue, TOutput>(matcher);
             setup(parseletConfig);
-            var parselet = parseletConfig.Build();
-            Parselets.Add(parselet);
+            var parselets = parseletConfig.Build();
+            Parselets.AddRange(parselets);
             return this;
         }
 
-        public IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher) => Add(matcher, p => p.ProduceRight((ctx, v) => v.Value));
+        public IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher)
+            => Add(matcher, p => p.ProduceRight(0, (ctx, v) => v.Value));
 
         public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser);
     }

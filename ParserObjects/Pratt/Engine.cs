@@ -33,63 +33,84 @@ namespace ParserObjects.Pratt
             }
         }
 
+        // TODO: Need to test what happens if we have an end-of-input parselet added,
+        // which will continue to succeed and consume zero input. Will probably break the
+        // loop because it has the same binding power.
+
         private (bool success, TOutput value, string error) Parse(ParseState<TInput> state, int rbp)
         {
-            // Get the first "left" token. This token may have any type output by the parser
-            var (hasLeftToken, leftToken, leftContext) = GetNextToken(state, _nudableParselets);
-            if (!hasLeftToken)
-                return (false, default, "Could not match any tokens");
-
-            // Transform the IToken into IToken<TInput> using the NullDenominator rule
-            var (hasLeft, left) = leftToken.NullDenominator(leftContext);
+            var (hasLeft, leftToken, error) = GetLeft(state);
             if (!hasLeft)
-                return (false, default, "Left Denominator failed");
+                return (false, default, error);
 
             while (true)
             {
-                var cp = state.Input.Checkpoint();
-
-                // Now get the next "right" token. This token may have any type output by the
-                // parser.
-                var (hasRightToken, rightToken, rightContext) = GetNextToken(state, _ledableParselets);
-                if (!hasRightToken || rbp >= rightToken.LeftBindingPower)
-                {
-                    cp.Rewind();
+                var rightToken = GetRight(state, rbp, leftToken);
+                if (rightToken == null)
                     break;
-                }
-
-                // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
-                // the current left value
-                var (hasRight, right) = rightToken.LeftDenominator(rightContext, left);
-                if (!hasRight)
-                {
-                    cp.Rewind();
-                    break;
-                }
 
                 // Set the next left value to be the current combined right value and continue
                 // the loop
-                left = right;
+                leftToken = rightToken;
             }
 
-            return (true, left.Value, null);
+            return (true, leftToken.Value, null);
         }
 
-        private (bool, IToken<TInput, TOutput>, ParseContext<TInput, TOutput>) GetNextToken(ParseState<TInput> state, IEnumerable<IParselet<TInput, TOutput>> parselets)
+        private IToken<TOutput> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
-            foreach (var parselet in parselets)
+            var cp = state.Input.Checkpoint();
+            foreach (var parselet in _ledableParselets)
             {
                 var (success, token) = parselet.TryGetNext(state);
-                if (success)
-                    return (true, token, new ParseContext<TInput, TOutput>(state, this, parselet.Rbp));
+                if (!success)
+                    continue;
+                if (rbp >= token.LeftBindingPower)
+                {
+                    cp.Rewind();
+                    continue;
+                }
+
+                var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp);
+
+                // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
+                // the current left value
+                var (hasRight, rightToken) = token.LeftDenominator(rightContext, leftToken);
+                if (!hasRight)
+                {
+                    cp.Rewind();
+                    continue;
+                }
+
+                return rightToken;
             }
 
-            // This is both the "no match" result. It will also be the "end of input" result
-            // unless an explicit "end of input" parselet has been added.
-            // TODO: Need to test what happens if we have an end-of-input parselet added,
-            // which will continue to succeed and consume zero input. Will probably break the
-            // loop because it has the same binding power.
-            return (false, null, null);
+            return null;
+        }
+
+        private (bool success, IToken<TOutput> leftToken, string error) GetLeft(ParseState<TInput> state)
+        {
+            var cp = state.Input.Checkpoint();
+            foreach (var parselet in _nudableParselets)
+            {
+                var (success, token) = parselet.TryGetNext(state);
+                if (!success)
+                    continue;
+
+                var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp);
+
+                // Transform the IToken into IToken<TInput> using the NullDenominator rule
+                var (hasLeft, leftToken) = token.NullDenominator(leftContext);
+                if (!hasLeft)
+                {
+                    cp.Rewind();
+                    continue;
+                }
+
+                return (true, leftToken, null);
+            }
+
+            return (false, default, "No parselets matched and transformed at the current position.");
         }
     }
 }
