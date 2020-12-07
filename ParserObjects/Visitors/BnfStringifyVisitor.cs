@@ -294,7 +294,7 @@ namespace ParserObjects.Visitors
                 VisitChild(children[i], state);
             }
 
-            state.Current.Append(")");
+            state.Current.Append(')');
         }
 
         protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)

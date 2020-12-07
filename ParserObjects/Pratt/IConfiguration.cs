@@ -14,5 +14,7 @@ namespace ParserObjects.Pratt
         IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IParseletConfiguration<TInput, TValue, TOutput>> setup);
 
         IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher);
+
+        IConfiguration<TInput, TOutput> Reference(IParser parser);
     }
 }

@@ -6,9 +6,12 @@ namespace ParserObjects.Pratt
 {
     public class Configuration<TInput, TOutput> : IConfiguration<TInput, TOutput>
     {
+        private readonly List<IParser> _references;
+
         public Configuration()
         {
             Parselets = new List<IParselet<TInput, TOutput>>();
+            _references = new List<IParser>();
         }
 
         public List<IParselet<TInput, TOutput>> Parselets { get; }
@@ -25,6 +28,12 @@ namespace ParserObjects.Pratt
         public IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher)
             => Add(matcher, p => p.ProduceRight(0, (ctx, v) => v.Value));
 
-        public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser);
+        public IConfiguration<TInput, TOutput> Reference(IParser parser)
+        {
+            _references.Add(parser);
+            return this;
+        }
+
+        public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser).Concat(_references);
     }
 }

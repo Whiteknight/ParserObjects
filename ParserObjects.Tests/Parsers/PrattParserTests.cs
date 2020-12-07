@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
 using static ParserObjects.CStyleParserMethods;
@@ -319,6 +320,21 @@ namespace ParserObjects.Tests.Parsers
             result = target.Parse("a1234");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("even(1234)");
+        }
+
+        [Test]
+        public void GetChildren_Test()
+        {
+            var a = Any();
+            var b = Fail<char>();
+            var target = Pratt<char>(p => p
+                .Add(a)
+                .Reference(b)
+            );
+            var results = target.GetChildren().ToList();
+            results.Count.Should().Be(2);
+            results.Should().Contain(a);
+            results.Should().Contain(b);
         }
     }
 }
