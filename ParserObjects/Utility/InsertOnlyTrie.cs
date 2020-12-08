@@ -79,6 +79,9 @@ namespace ParserObjects.Utility
 
             public static (bool Success, TResult Value, int consumed, Location location) Get(Node thisNode, ISequence<TKey> keys)
             {
+                if (keys.IsAtEnd)
+                    return (false, default, 0, keys.CurrentLocation);
+
                 var current = thisNode;
                 // The node and the key we apply to that node
                 var previous = new Stack<(Node node, TKey key)>();
@@ -96,9 +99,9 @@ namespace ParserObjects.Utility
                     previous.Push((current, key));
                     consumed++;
 
-                    // If this node has a matching child, set that as the current node and jump
+                    // If we have more input to read, and if this node has a matching child, set that as the current node and jump
                     // back to the top of the loop
-                    if (current._children.ContainsKey(key))
+                    if (current._children.ContainsKey(key) && !keys.IsAtEnd)
                     {
                         current = current._children[key];
                         continue;

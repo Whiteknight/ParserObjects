@@ -163,6 +163,20 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_IsAtEnd()
+        {
+            var target = Trie<string>(trie => trie
+                .Add("\0\0\0", "ok")
+            );
+
+            var input = new StringCharacterSequence("");
+
+            var result = target.Parse(input);
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var trie = new InsertOnlyTrie<char, string>();
