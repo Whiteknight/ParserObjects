@@ -360,5 +360,21 @@ namespace ParserObjects.Tests.Parsers
             result[0].Should().BeSameAs(numberParser);
             result[1].Should().BeSameAs(letterParser);
         }
+
+        [Test]
+        public void ZeroOrMore_Empty()
+        {
+            var parser = RightApply(
+                Empty(),
+                Empty(),
+                (l, m, r) => null
+            );
+
+            var input = new StringCharacterSequence("1a2b3c4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(null);
+            result.Consumed.Should().Be(0);
+        }
     }
 }

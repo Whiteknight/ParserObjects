@@ -20,7 +20,7 @@ namespace ParserObjects.Pratt
             Led = led;
             Lbp = lbp;
             Rbp = rbp;
-            Name = name ?? _match.Name ?? ((TokenTypeId > 0) ? TokenTypeId.ToString() : base.ToString());
+            Name = name ?? _match.Name ?? ((TokenTypeId > 0) ? TokenTypeId.ToString() : match.ToString());
         }
 
         public int TokenTypeId { get; }

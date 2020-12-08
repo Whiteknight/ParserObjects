@@ -340,6 +340,37 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Empty_ProduceRight()
+        {
+            // Tests that if a NUD/Prefix rule consumes zero tokens, the parse fails
+            var target = Pratt<string>(c => c
+                .Add(Produce(() => "a"), p => p
+                    .ProduceRight(1, (ctx, op) => "")
+                )
+            );
+            var result = target.Parse("123");
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Empty_ProduceLeft()
+        {
+            // Tests that if a LED/Suffix rule consumes zero tokens, we break the loop and only
+            // execute the suffix once.
+            var target = Pratt<string>(c => c
+                .Add(DigitString())
+                .Add(Produce(() => "a"), p => p
+                    .ProduceLeft(1, (ctx, l, op) => op + l.Value)
+                )
+            );
+            var result = target.Parse("123");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
+            result.Value.Should().Be("a123");
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var a = Any();

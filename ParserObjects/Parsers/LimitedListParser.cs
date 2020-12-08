@@ -45,6 +45,8 @@ namespace ParserObjects.Parsers
                     break;
                 consumed += result.Consumed;
                 items.Add(result.Value);
+                if (items.Count >= Minimum && result.Consumed == 0)
+                    break;
             }
 
             if (Minimum > 0 && items.Count < Minimum)

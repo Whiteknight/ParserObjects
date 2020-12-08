@@ -91,15 +91,20 @@ namespace ParserObjects.Parsers
                     if (!middleResult.Success)
                         return ProduceSuccess(left, consumed);
 
+                    int rightConsumed = middleResult.Consumed;
+
                     // We have <left> <middle>, now we have to look for <right>.
                     // if we have it, push state, set right as the new left, and repeat loop
                     var rightResult = _item.Parse(state);
                     if (rightResult.Success)
                     {
                         // Add left and middle to the stack, and we'll loop again with the left
-                        consumed += middleResult.Consumed + rightResult.Consumed;
+                        rightConsumed += rightResult.Consumed;
+                        consumed += rightConsumed;
                         resultStack.Push((left, middleResult.Value));
                         left = rightResult.Value;
+                        if (rightConsumed == 0)
+                            return ProduceSuccess(rightResult.Value, consumed);
                         continue;
                     }
 

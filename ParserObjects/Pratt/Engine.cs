@@ -53,6 +53,11 @@ namespace ParserObjects.Pratt
                 // the loop
                 consumed += rightConsumed;
                 leftToken = rightToken;
+
+                // If we have success, but did not consume any input, we will get into an infinite
+                // loop if we don't break. One zero-length suffix rule is the maximum
+                if (rightConsumed == 0)
+                    break;
             }
 
             return (true, leftToken.Value, null, consumed);
@@ -98,6 +103,12 @@ namespace ParserObjects.Pratt
                 var (success, token, consumed) = parselet.TryGetNext(state);
                 if (!success)
                     continue;
+
+                // get-left rules which succeed but consume zero input are treated as errors. This
+                // would lead to infinite left recursion with no obvious programmatic ways to
+                // prevent it.
+                if (consumed == 0)
+                    return (false, default, $"Parselet {parselet} consumed no input and would have caused infinite recursion", 0);
 
                 var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp);
 

@@ -17,7 +17,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(3);
-            var list = result.Value.ToList();
+            var list = result.Value;
             list[0].Should().Be('a');
             list[1].Should().Be('b');
             list[2].Should().Be('c');
@@ -61,7 +61,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(2);
-            var list = result.Value.ToList();
+            var list = result.Value;
             list.Count.Should().Be(2);
             list[0].Should().Be('a');
             list[1].Should().Be('b');
@@ -76,6 +76,34 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
             result.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_Empty()
+        {
+            var parser = List(Empty());
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            var list = result.Value;
+            list.Count.Should().Be(1);
+            list[0].Should().Be(null);
+        }
+
+        [Test]
+        public void Parse_Empty_Minimum()
+        {
+            var parser = List(Empty(), minimum: 3);
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            var list = result.Value;
+            list.Count.Should().Be(3);
+            list[0].Should().Be(null);
+            list[1].Should().Be(null);
+            list[2].Should().Be(null);
         }
 
         [Test]
