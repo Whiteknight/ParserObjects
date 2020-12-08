@@ -169,7 +169,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add("\0\0\0", "ok")
             );
 
-            var input = new StringCharacterSequence("");
+            var input = new StringCharacterSequence("\0");
 
             var result = target.Parse(input);
             result.Success.Should().BeFalse();

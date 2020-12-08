@@ -77,38 +77,15 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public static (bool Success, TResult Value, int consumed, Location location) Get(Node thisNode, ISequence<TKey> keys)
+            public static (bool success, TResult value, int consumed, Location location) Get(Node thisNode, ISequence<TKey> keys)
             {
-                if (keys.IsAtEnd)
-                    return (false, default, 0, keys.CurrentLocation);
-
                 var current = thisNode;
                 // The node and the key we apply to that node
                 var previous = new Stack<(Node node, TKey key)>();
                 int consumed = 0;
 
-                while (true)
+                (bool success, TResult value, int consumed, Location location) FindBestResult()
                 {
-                    // Quick degenerate case. We're at the final leaf of the trie, so return a
-                    // value if we have it.
-                    if (current.HasResult && current._children.Count == 0)
-                        return (true, current.Result, consumed, keys.CurrentLocation);
-
-                    // Get the next key and push onto the stack
-                    var key = keys.GetNext();
-                    previous.Push((current, key));
-                    consumed++;
-
-                    // If we have more input to read, and if this node has a matching child, set that as the current node and jump
-                    // back to the top of the loop
-                    if (current._children.ContainsKey(key) && !keys.IsAtEnd)
-                    {
-                        current = current._children[key];
-                        continue;
-                    }
-
-                    // No matching child. So start looping over the nodes in the stack, looking
-                    // for the first one with a value, and putting back all keys along the way.
                     while (previous.Count > 0)
                     {
                         var (node, oldKey) = previous.Pop();
@@ -120,7 +97,40 @@ namespace ParserObjects.Utility
 
                     // No node matched, so return failure
                     Debug.Assert(consumed == 0, "Just double-checking my math");
-                    return (false, default, 0, keys.CurrentLocation);
+                    return default;
+                }
+
+                while (true)
+                {
+                    if (keys.IsAtEnd)
+                    {
+                        if (current.HasResult)
+                            return (true, current.Result, consumed, keys.CurrentLocation);
+                        return FindBestResult();
+                    }
+
+                    // Quick degenerate case. We're at the final leaf of the trie, so return a
+                    // value if we have it.
+                    if (current.HasResult && current._children.Count == 0)
+                        return (true, current.Result, consumed, keys.CurrentLocation);
+
+                    // Get the next key and push onto the stack
+                    var key = keys.GetNext();
+                    previous.Push((current, key));
+
+                    // If we have more input to read, and if this node has a matching child, set that as the current node and jump
+                    // back to the top of the loop
+                    if (current._children.ContainsKey(key))
+                    {
+                        consumed++;
+                        current = current._children[key];
+                        continue;
+                    }
+
+                    // No matching child. So start looping over the nodes in the stack, looking
+                    // for the first one with a value, and putting back all keys along the way.
+                    consumed++;
+                    return FindBestResult();
                 }
             }
 
