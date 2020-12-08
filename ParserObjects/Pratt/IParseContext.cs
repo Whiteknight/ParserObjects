@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects.Pratt
 {
-    public interface IParseContext<TInput, TOutput>
+    public interface IParseContext<TInput, TOutput> : IParser<TInput, TOutput>
     {
         TOutput Parse();
 

@@ -1,4 +1,8 @@
-﻿namespace ParserObjects.Pratt
+﻿using System.Collections.Generic;
+using System.Linq;
+using ParserObjects.Utility;
+
+namespace ParserObjects.Pratt
 {
     // TODO: Should ParseContext implement IParser<TInput, TOutput> so that it can be passed to
     // another parser and called recursively? For example, if we wanted a list of values from
@@ -29,6 +33,8 @@
 
         public int Consumed => _consumed;
 
+        public string Name { get; set; }
+
         public TOutput Parse(int rbp)
         {
             var (success, value, error, consumed) = _engine.TryParse(_state, rbp);
@@ -46,6 +52,16 @@
             _consumed += result.Consumed;
             return result.Value;
         }
+
+        IResult<TOutput> IParser<TInput, TOutput>.Parse(ParseState<TInput> state)
+        {
+            var (success, value, error, consumed) = _engine.TryParse(_state, _rbp);
+            if (!success)
+                return state.Fail(this, error);
+            return state.Success(this, value, consumed);
+        }
+
+        IResult IParser<TInput>.Parse(ParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
 
         public void Expect(IParser<TInput> parser)
         {
@@ -79,5 +95,9 @@
             _consumed += result.Consumed;
             return (_, _) = result;
         }
+
+        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+        public override string ToString() => DefaultStringifier.ToString(this);
     }
 }

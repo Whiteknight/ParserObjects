@@ -78,7 +78,10 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp);
+                var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
+                {
+                    Name = parselet.Name
+                };
 
                 // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
                 // the current left value
@@ -110,7 +113,10 @@ namespace ParserObjects.Pratt
                 if (consumed == 0)
                     return (false, default, $"Parselet {parselet} consumed no input and would have caused infinite recursion", 0);
 
-                var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp);
+                var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
+                {
+                    Name = parselet.Name
+                };
 
                 // Transform the IToken into IToken<TInput> using the NullDenominator rule
                 var (hasLeft, leftToken) = token.NullDenominator(leftContext);

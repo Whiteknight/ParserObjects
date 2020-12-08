@@ -354,6 +354,25 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_ContextRecurseParse()
+        {
+            var target = Pratt<string>(c => c
+                .Add(Identifier())
+                .Add(Match('('), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        var args = ctx.Parse(SeparatedList(ctx, Match(',')));
+                        ctx.Expect(Match(')'));
+                        return $"args[0]={args[0]},args[1]={args[1]},method={l}";
+                    })
+                )
+            );
+            var result = target.Parse("a(b,c)");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("args[0]=b,args[1]=c,method=a");
+        }
+
+        [Test]
         public void Empty_ProduceLeft()
         {
             // Tests that if a LED/Suffix rule consumes zero tokens, we break the loop and only
