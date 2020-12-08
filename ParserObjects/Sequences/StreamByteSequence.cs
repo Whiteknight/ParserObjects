@@ -34,6 +34,7 @@ namespace ParserObjects.Sequences
             _buffer = new byte[bufferSize];
             _stream = File.OpenRead(_fileName);
             _consumed = 0;
+            FillBuffer();
         }
 
         public StreamByteSequence(Stream stream, string fileName = null, int bufferSize = 128)
@@ -48,6 +49,7 @@ namespace ParserObjects.Sequences
             _buffer = new byte[bufferSize];
             _stream = stream;
             _consumed = 0;
+            FillBuffer();
         }
 
         public byte GetNext()

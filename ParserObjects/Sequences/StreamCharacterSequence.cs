@@ -54,6 +54,7 @@ namespace ParserObjects.Sequences
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
+            FillBuffer();
         }
 
         public StreamCharacterSequence(StreamReader reader, string fileName = null, int bufferSize = 1024)
@@ -68,6 +69,7 @@ namespace ParserObjects.Sequences
             _reader = reader;
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
+            FillBuffer();
         }
 
         public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null, int bufferSize = 1024)
@@ -82,6 +84,7 @@ namespace ParserObjects.Sequences
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
+            FillBuffer();
         }
 
         public char GetNext()
