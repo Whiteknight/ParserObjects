@@ -13,7 +13,9 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = Match(char.IsNumber);
             var input = new StringCharacterSequence("123");
-            parser.Parse(input).Value.Should().Be('1');
+            var result = parser.Parse(input);
+            result.Value.Should().Be('1');
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -21,7 +23,9 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = Match(char.IsLetter);
             var input = new StringCharacterSequence("123");
-            parser.Parse(input).Success.Should().BeFalse();
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

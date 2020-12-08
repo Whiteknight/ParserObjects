@@ -33,12 +33,14 @@ namespace ParserObjects.Parsers
             var location = state.Input.CurrentLocation;
 
             var outputs = new object[_parsers.Count];
+            int consumed = 0;
             for (int i = 0; i < _parsers.Count; i++)
             {
                 var result = _parsers[i].Parse(state);
                 if (result.Success)
                 {
                     outputs[i] = result.Value;
+                    consumed += result.Consumed;
                     continue;
                 }
 
@@ -49,7 +51,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, $"Parser {i} {name} failed", result.Location);
             }
 
-            return state.Success(this, _produce(outputs), location);
+            return state.Success(this, _produce(outputs), consumed, location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

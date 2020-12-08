@@ -33,7 +33,7 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var value = _produce(state.Input, state.Data);
-                return state.Success(this, value, state.Input.CurrentLocation);
+                return state.Success(this, value, 0, state.Input.CurrentLocation);
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

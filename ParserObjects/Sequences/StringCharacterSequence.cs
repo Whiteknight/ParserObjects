@@ -20,6 +20,7 @@ namespace ParserObjects.Sequences
         private int _index;
         private int _line;
         private int _column;
+        private int _consumed;
 
         public StringCharacterSequence(string s, string fileName = null)
         {
@@ -30,11 +31,14 @@ namespace ParserObjects.Sequences
             _fileName = fileName;
             _putbacks = new Stack<char>();
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
+            _consumed = 0;
         }
 
         public char GetNext()
         {
             var next = GetNextInternal(true);
+            if (next == '\0')
+                return next;
 
             // If \r replace with \n
             // If \r\n advance through the \n and only return \n
@@ -55,8 +59,9 @@ namespace ParserObjects.Sequences
                 return next;
             }
 
-            // Bump column and return
+            // Bump counts and return
             _column++;
+            _consumed++;
             return next;
         }
 
@@ -93,6 +98,7 @@ namespace ParserObjects.Sequences
                 _index--;
                 if (!hasColumn)
                     _column--;
+                _consumed--;
             }
             else
                 _putbacks.Push(value);
@@ -109,6 +115,8 @@ namespace ParserObjects.Sequences
         public Location CurrentLocation => new Location(_fileName, _line, _column);
 
         public bool IsAtEnd => _putbacks.Count == 0 && _index >= _s.Length;
+
+        public int Consumed => _consumed;
 
         public string GetRemainder()
         {
@@ -134,6 +142,7 @@ namespace ParserObjects.Sequences
             _line = 0;
             _column = 0;
             _putbacks.Clear();
+            _consumed = 0;
         }
 
         private string GetStringBufferRemainder()
@@ -146,7 +155,7 @@ namespace ParserObjects.Sequences
         }
 
         public ISequenceCheckpoint Checkpoint()
-            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray());
+            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray(), _consumed);
 
         private class StringCheckpoint : ISequenceCheckpoint
         {
@@ -156,8 +165,9 @@ namespace ParserObjects.Sequences
             private readonly int _column;
             private readonly char[] _putbacks;
             private readonly int[] _lineEndCols;
+            private readonly int _consumed;
 
-            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks, int[] lineEndCols)
+            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
             {
                 _s = s;
                 _index = index;
@@ -165,12 +175,13 @@ namespace ParserObjects.Sequences
                 _column = column;
                 _putbacks = putbacks;
                 _lineEndCols = lineEndCols;
+                _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks, _lineEndCols);
+            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks, _lineEndCols, _consumed);
         }
 
-        private void Rollback(int index, int line, int column, char[] putbacks, int[] lineEndCols)
+        private void Rollback(int index, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
         {
             _index = index;
             _line = line;
@@ -179,6 +190,7 @@ namespace ParserObjects.Sequences
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
             _previousEndOfLineColumns.OverwriteFromArray(lineEndCols);
+            _consumed = consumed;
         }
     }
 }

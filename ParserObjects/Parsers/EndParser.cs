@@ -17,7 +17,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(state, nameof(state));
             return state.Input.IsAtEnd
-                ? state.Success(this, true)
+                ? state.Success(this, true, 0)
                 : state.Fail(this, "Expected end of Input but found " + state.Input.Peek().ToString());
         }
 

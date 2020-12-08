@@ -13,7 +13,9 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Produce(x => 5);
             var input = new StringCharacterSequence("abc");
-            target.Parse(input).Value.Should().Be(5);
+            var result = target.Parse(input);
+            result.Value.Should().Be(5);
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

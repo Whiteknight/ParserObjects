@@ -15,6 +15,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
+            result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
         }
 
@@ -25,6 +26,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
         }
 
@@ -35,6 +37,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
         }
 
@@ -45,6 +48,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
         }
     }

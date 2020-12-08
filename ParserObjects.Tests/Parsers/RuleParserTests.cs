@@ -25,6 +25,22 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Rule_2_Consumed()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                (a, b) => $"{a}{b}"
+            );
+
+            var input = new StringCharacterSequence("abc");
+
+            var result = target.Parse(input);
+            result.Value.Should().Be("ab");
+            result.Consumed.Should().Be(2);
+        }
+
+        [Test]
         public void ValueTuple_Produce_2_Test()
         {
             var target = (_any, _any).Produce((a, b) => $"{a}{b}");
@@ -288,6 +304,29 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefghi");
+        }
+
+        [Test]
+        public void Rule_9_Consumed()
+        {
+            var target = Rule(
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                _any,
+                (a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}"
+            );
+
+            var input = new StringCharacterSequence("abcdefghijklmn");
+
+            var result = target.Parse(input);
+            result.Value.Should().Be("abcdefghi");
+            result.Consumed.Should().Be(9);
         }
 
         [Test]

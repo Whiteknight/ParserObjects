@@ -16,6 +16,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
             var list = result.Value.ToList();
             list[0].Should().Be('a');
             list[1].Should().Be('b');
@@ -29,6 +30,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -38,6 +40,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abcd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(4);
         }
 
         [Test]
@@ -47,6 +50,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -56,6 +60,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(2);
             var list = result.Value.ToList();
             list.Count.Should().Be(2);
             list[0].Should().Be('a');
@@ -70,6 +75,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

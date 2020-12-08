@@ -31,7 +31,7 @@ namespace ParserObjects.Parsers
             if (Pattern.Count == 0)
             {
                 state.Log(this, "Pattern has 0 items in it, this is functionally equivalent to Empty() ");
-                return state.Success(this, Array.Empty<T>(), location);
+                return state.Success(this, Array.Empty<T>(), 0, location);
             }
 
             // If the pattern has exactly one item in it, check for equality without a loop
@@ -39,7 +39,7 @@ namespace ParserObjects.Parsers
             if (Pattern.Count == 1)
             {
                 if (state.Input.Peek().Equals(Pattern[0]))
-                    return state.Success(this, new[] { state.Input.GetNext() }, location);
+                    return state.Success(this, new[] { state.Input.GetNext() }, 1, location);
                 return state.Fail(this, "Item does not match");
             }
 
@@ -56,7 +56,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, $"Item does not match at position {i}");
             }
 
-            return state.Success(this, buffer, location);
+            return state.Success(this, buffer, Pattern.Count, location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);

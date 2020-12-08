@@ -25,6 +25,26 @@ namespace ParserObjects.Tests.Parsers
             value[1].Should().Be(2);
             value[2].Should().Be(3);
             value[3].Should().Be(4);
+            result.Consumed.Should().Be(7);
+        }
+
+        [Test]
+        public void Parse_TrailingSeparator()
+        {
+            var parser = SeparatedList(
+                Integer(),
+                Match(","),
+                atLeastOne: false
+            );
+            var input = new StringCharacterSequence("1,2,3,4,");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+            result.Consumed.Should().Be(7);
         }
 
         [Test]
@@ -56,6 +76,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

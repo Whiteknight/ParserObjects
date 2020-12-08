@@ -20,24 +20,33 @@ namespace ParserObjects.Parsers
         {
             private readonly ParseState<TInput> _input;
 
+            private int _consumed;
+
             public State(ParseState<TInput> input)
             {
                 _input = input;
+                _consumed = 0;
             }
 
             public IDataStore Data => _input.Data;
+
+            public int Consumed => _consumed;
 
             public TOutput Parse<TOutput>(IParser<TInput, TOutput> p)
             {
                 var result = p.Parse(_input);
                 if (!result.Success)
                     throw new ParseFailedException(result);
+                _consumed += result.Consumed;
                 return result.Value;
             }
 
             public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
             {
-                return p.Parse(_input);
+                var result = p.Parse(_input);
+                if (result.Success)
+                    _consumed += result.Consumed;
+                return result;
             }
 
             public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
@@ -99,7 +108,7 @@ namespace ParserObjects.Parsers
                 {
                     var seqState = new State<TInput>(state);
                     var result = _func(seqState);
-                    return state.Success(this, result, startLocation);
+                    return state.Success(this, result, seqState.Consumed, startLocation);
                 }
                 catch (ParseFailedException spe)
                 {

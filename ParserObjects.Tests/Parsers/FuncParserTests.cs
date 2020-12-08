@@ -10,10 +10,11 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
+            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", 0, t.Input.CurrentLocation));
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -22,6 +23,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Function<object>((t, success, fail) => fail(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -30,6 +32,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Function<object>((t, success, fail) => throw new System.Exception("fail"));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -39,6 +42,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -47,12 +51,13 @@ namespace ParserObjects.Tests.Parsers
             var parser = Function<object>((t, success, fail) => fail(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
         public void GetChildren()
         {
-            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", t.Input.CurrentLocation));
+            var parser = Function<object>((t, success, fail) => t.Success(null, $"ok:{t.Input.GetNext()}", 0, t.Input.CurrentLocation));
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }

@@ -25,6 +25,7 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
             var startLocation = state.Input.CurrentLocation;
             var checkpoint = state.Input.Checkpoint();
+            int consumed = 0;
             foreach (var parser in _parsers)
             {
                 var result = parser.Parse(state);
@@ -33,9 +34,11 @@ namespace ParserObjects.Parsers
                     checkpoint.Rewind();
                     return result;
                 }
+
+                consumed += result.Consumed;
             }
 
-            return state.Success(this, null, startLocation);
+            return state.Success(this, null, consumed, startLocation);
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

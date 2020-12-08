@@ -20,20 +20,25 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse("aX");
             result.Success.Should().BeTrue();
             result.Value.Should().Be('X');
+            result.Consumed.Should().Be(2);
 
             result = parser.Parse("bY");
             result.Success.Should().BeTrue();
             result.Value.Should().Be('Y');
+            result.Consumed.Should().Be(2);
 
             result = parser.Parse("aY");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
 
             result = parser.Parse("bX");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
 
             result = parser.Parse("cZ");
             result.Success.Should().BeTrue();
             result.Value.Should().Be('Z');
+            result.Consumed.Should().Be(2);
         }
 
         [Test]

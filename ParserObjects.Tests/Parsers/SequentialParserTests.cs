@@ -26,10 +26,12 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse("abc");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ABC");
+            result.Consumed.Should().Be(3);
 
             result = parser.Parse("xyc");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("XYC");
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -43,6 +45,7 @@ namespace ParserObjects.Tests.Parsers
 
             var result = parser.Parse("abc");
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

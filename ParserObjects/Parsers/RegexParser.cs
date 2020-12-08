@@ -35,7 +35,7 @@ namespace ParserObjects.Parsers
             var startLocation = state.Input.CurrentLocation;
             var (matches, str, pos) = _engine.GetMatch(state.Input, _regex);
             if (matches)
-                return state.Success(this, str, startLocation);
+                return state.Success(this, str, pos, startLocation);
             return state.Fail(this, $"Pattern failed at position {pos}");
         }
 

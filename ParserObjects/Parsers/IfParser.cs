@@ -32,23 +32,21 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
             var cp = state.Input.Checkpoint();
             var result = _predicate.Parse(state);
-            if (result.Success)
-            {
-                var thenResult = _onSuccess.Parse(state);
-                if (!thenResult.Success)
-                    cp.Rewind();
-                return thenResult;
-            }
+            return Parse(state, result.Success ? _onSuccess : _onFail, cp, result.Consumed);
+        }
 
-            var elseResult = _onFail.Parse(state);
-            if (!elseResult.Success)
-                cp.Rewind();
-            return elseResult;
+        private IResult<TOutput> Parse(ParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
+        {
+            var thenResult = parser.Parse(state);
+            if (thenResult.Success)
+                return state.Success(parser, thenResult.Value, predicateConsumed + thenResult.Consumed, thenResult.Location);
+            cp.Rewind();
+            return state.Fail(parser, thenResult.Message, thenResult.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess };
+        public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess, _onFail };
 
         public override string ToString() => DefaultStringifier.ToString(this);
     }

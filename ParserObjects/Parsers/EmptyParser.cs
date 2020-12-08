@@ -15,7 +15,7 @@ namespace ParserObjects.Parsers
         public IResult<object> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            return state.Success(this, null);
+            return state.Success(this, null, 0);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

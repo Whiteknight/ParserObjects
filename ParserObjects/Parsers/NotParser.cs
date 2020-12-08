@@ -31,7 +31,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Parser matched but was not supposed to");
             }
 
-            return state.Success(this, null, result1.Location);
+            return state.Success(this, null, 0, result1.Location);
         }
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };

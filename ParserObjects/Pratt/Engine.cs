@@ -17,9 +17,9 @@ namespace ParserObjects.Pratt
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
 
-        public (bool success, TOutput value, string error) Parse(ParseState<TInput> state) => TryParse(state, 0);
+        public (bool success, TOutput value, string error, int consumed) Parse(ParseState<TInput> state) => TryParse(state, 0);
 
-        public (bool success, TOutput value, string error) TryParse(ParseState<TInput> state, int rbp)
+        public (bool success, TOutput value, string error, int consumed) TryParse(ParseState<TInput> state, int rbp)
         {
             var levelCp = state.Input.Checkpoint();
             try
@@ -29,7 +29,7 @@ namespace ParserObjects.Pratt
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
             {
                 levelCp.Rewind();
-                return (false, default, pe.Message ?? "Fail");
+                return (false, default, pe.Message ?? "Fail", 0);
             }
         }
 
@@ -37,34 +37,36 @@ namespace ParserObjects.Pratt
         // which will continue to succeed and consume zero input. Will probably break the
         // loop because it has the same binding power.
 
-        private (bool success, TOutput value, string error) Parse(ParseState<TInput> state, int rbp)
+        private (bool success, TOutput value, string error, int consumed) Parse(ParseState<TInput> state, int rbp)
         {
-            var (hasLeft, leftToken, error) = GetLeft(state);
+            var (hasLeft, leftToken, error, consumed) = GetLeft(state);
             if (!hasLeft)
-                return (false, default, error);
+                return (false, default, error, 0);
 
             while (true)
             {
-                var rightToken = GetRight(state, rbp, leftToken);
-                if (rightToken == null)
+                var (hasRight, rightToken, rightConsumed) = GetRight(state, rbp, leftToken);
+                if (!hasRight || rightToken == null)
                     break;
 
                 // Set the next left value to be the current combined right value and continue
                 // the loop
+                consumed += rightConsumed;
                 leftToken = rightToken;
             }
 
-            return (true, leftToken.Value, null);
+            return (true, leftToken.Value, null, consumed);
         }
 
-        private IToken<TOutput> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
+        private (bool success, IToken<TOutput> token, int consumed) GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _ledableParselets)
             {
-                var (success, token) = parselet.TryGetNext(state);
+                var (success, token, consumed) = parselet.TryGetNext(state);
                 if (!success)
                     continue;
+
                 if (rbp >= token.LeftBindingPower)
                 {
                     cp.Rewind();
@@ -82,18 +84,18 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                return rightToken;
+                return (true, rightToken, consumed + rightContext.Consumed);
             }
 
-            return null;
+            return default;
         }
 
-        private (bool success, IToken<TOutput> leftToken, string error) GetLeft(ParseState<TInput> state)
+        private (bool success, IToken<TOutput> leftToken, string error, int consumed) GetLeft(ParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _nudableParselets)
             {
-                var (success, token) = parselet.TryGetNext(state);
+                var (success, token, consumed) = parselet.TryGetNext(state);
                 if (!success)
                     continue;
 
@@ -107,10 +109,11 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                return (true, leftToken, null);
+                consumed += leftContext.Consumed;
+                return (true, leftToken, null, consumed);
             }
 
-            return (false, default, "No parselets matched and transformed at the current position.");
+            return (false, default, "No parselets matched and transformed at the current position.", 0);
         }
     }
 }

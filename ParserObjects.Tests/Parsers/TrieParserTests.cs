@@ -136,6 +136,33 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Consumed()
+        {
+            var target = Trie<string>(trie => trie
+                .Add("=", "=")
+                .Add("==", "==")
+                .Add(">=", ">=")
+                .Add("<=", "<=")
+                .Add("<", "<")
+                .Add(">", ">")
+            );
+
+            var input = new StringCharacterSequence("===X");
+
+            var result = target.Parse(input);
+            result.Value.Should().Be("==");
+            result.Consumed.Should().Be(2);
+
+            result = target.Parse(input);
+            result.Value.Should().Be("=");
+            result.Consumed.Should().Be(1);
+
+            result = target.Parse(input);
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var trie = new InsertOnlyTrie<char, string>();

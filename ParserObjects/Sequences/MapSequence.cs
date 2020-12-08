@@ -83,6 +83,8 @@ namespace ParserObjects.Sequences
 
         public bool IsAtEnd => _putbacks.Count == 0 && _current.Next == null && _inputs.IsAtEnd;
 
+        public int Consumed => _inputs.Consumed - _putbacks.Count;
+
         public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _putbacks.ToArray());
 
         private class SequenceCheckpoint : ISequenceCheckpoint

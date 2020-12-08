@@ -20,6 +20,7 @@ namespace ParserObjects.Sequences
         private int _remainingBytes;
         private int _bufferIndex;
         private int _index;
+        private int _consumed;
 
         public StreamByteSequence(string fileName, int bufferSize = 128)
         {
@@ -32,6 +33,7 @@ namespace ParserObjects.Sequences
             _bufferIndex = bufferSize;
             _buffer = new byte[bufferSize];
             _stream = File.OpenRead(_fileName);
+            _consumed = 0;
         }
 
         public StreamByteSequence(Stream stream, string fileName = null, int bufferSize = 128)
@@ -45,18 +47,23 @@ namespace ParserObjects.Sequences
             _bufferIndex = bufferSize;
             _buffer = new byte[bufferSize];
             _stream = stream;
+            _consumed = 0;
         }
 
         public byte GetNext()
         {
             var b = GetNextByteRaw(true);
+            if (b == 0)
+                return b;
             _index++;
+            _consumed++;
             return b;
         }
 
         public void PutBack(byte value)
         {
             _putbacks.Push(value);
+            _consumed--;
         }
 
         public byte Peek() => GetNextByteRaw(false);
@@ -64,6 +71,8 @@ namespace ParserObjects.Sequences
         public Location CurrentLocation => new Location(_fileName, 1, _index);
 
         public bool IsAtEnd => _putbacks.Count == 0 && _isComplete;
+
+        public int Consumed => _consumed;
 
         public void Dispose()
         {
@@ -106,7 +115,7 @@ namespace ParserObjects.Sequences
             FillBuffer();
             var currentPosition = _stream.Position - _remainingBytes;
             var putbacks = _putbacks.ToArray();
-            return new SequenceCheckpoint(this, currentPosition, putbacks);
+            return new SequenceCheckpoint(this, currentPosition, putbacks, _consumed);
         }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
@@ -114,18 +123,20 @@ namespace ParserObjects.Sequences
             private readonly StreamByteSequence _s;
             private readonly long _currentPosition;
             private readonly byte[] _putbacks;
+            private readonly int _consumed;
 
-            public SequenceCheckpoint(StreamByteSequence s, long currentPosition, byte[] putbacks)
+            public SequenceCheckpoint(StreamByteSequence s, long currentPosition, byte[] putbacks, int consumed)
             {
                 _s = s;
                 _currentPosition = currentPosition;
                 _putbacks = putbacks;
+                _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rewind(_currentPosition, _putbacks);
+            public void Rewind() => _s.Rewind(_currentPosition, _putbacks, _consumed);
         }
 
-        private void Rewind(long position, byte[] putbacks)
+        private void Rewind(long position, byte[] putbacks, int consumed)
         {
             _stream.Seek(position, SeekOrigin.Begin);
             _remainingBytes = 0;
@@ -134,6 +145,7 @@ namespace ParserObjects.Sequences
             _putbacks.Clear();
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
+            _consumed = consumed;
         }
     }
 }

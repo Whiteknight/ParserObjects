@@ -12,24 +12,35 @@ namespace ParserObjects.Sequences
         private readonly ISequence<T> _inputs;
         private readonly Func<T, bool> _predicate;
 
+        private int _consumed;
+
         public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
         {
             Assert.ArgumentNotNull(inputs, nameof(inputs));
             Assert.ArgumentNotNull(predicate, nameof(predicate));
             _inputs = inputs;
             _predicate = predicate;
+            _consumed = 0;
         }
 
         public void PutBack(T value)
         {
             if (_predicate(value))
+            {
                 _inputs.PutBack(value);
+                _consumed--;
+            }
         }
 
         public T GetNext()
         {
-            DiscardNonMatches();
-            return _inputs.GetNext();
+            bool hasMore = DiscardNonMatches();
+            if (!hasMore)
+                return _inputs.GetNext();
+
+            var result = _inputs.GetNext();
+            _consumed++;
+            return result;
         }
 
         public T Peek()
@@ -49,17 +60,19 @@ namespace ParserObjects.Sequences
             }
         }
 
-        private void DiscardNonMatches()
+        public int Consumed => _consumed;
+
+        private bool DiscardNonMatches()
         {
             while (true)
             {
                 if (_inputs.IsAtEnd)
-                    return;
+                    return false;
                 var next = _inputs.GetNext();
                 if (!_predicate(next))
                     continue;
                 _inputs.PutBack(next);
-                return;
+                return true;
             }
         }
 

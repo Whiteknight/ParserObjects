@@ -49,13 +49,15 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(state, nameof(state));
 
+                var startCp = state.Input.Checkpoint();
+
                 var leftResult = _item.Parse(state);
                 if (!leftResult.Success)
                     return leftResult;
 
                 return _quantifier switch
                 {
-                    Quantifier.ExactlyOne => ParseExactlyOne(state, leftResult),
+                    Quantifier.ExactlyOne => ParseExactlyOne(state, leftResult, startCp),
                     Quantifier.ZeroOrOne => ParseZeroOrOne(state, leftResult),
                     Quantifier.ZeroOrMore => ParseZeroOrMore(state, leftResult),
                     _ => throw new InvalidOperationException("Unsupported quantifier"),
@@ -66,7 +68,7 @@ namespace ParserObjects.Parsers
             {
                 var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
-                IResult<TOutput> ProduceSuccess(TOutput right)
+                IResult<TOutput> ProduceSuccess(TOutput right, int consumed)
                 {
                     while (resultStack.Count > 0)
                     {
@@ -74,10 +76,11 @@ namespace ParserObjects.Parsers
                         right = _produce(left, middle, right);
                     }
 
-                    return state.Success(this, right, state.Input.CurrentLocation);
+                    return state.Success(this, right, consumed, leftResult.Location);
                 }
 
                 var left = leftResult.Value;
+                int consumed = leftResult.Consumed;
 
                 while (true)
                 {
@@ -86,7 +89,7 @@ namespace ParserObjects.Parsers
                     // We have the left, so parse the middle. If not found, just return left
                     var middleResult = _middle.Parse(state);
                     if (!middleResult.Success)
-                        return ProduceSuccess(left);
+                        return ProduceSuccess(left, consumed);
 
                     // We have <left> <middle>, now we have to look for <right>.
                     // if we have it, push state, set right as the new left, and repeat loop
@@ -94,6 +97,7 @@ namespace ParserObjects.Parsers
                     if (rightResult.Success)
                     {
                         // Add left and middle to the stack, and we'll loop again with the left
+                        consumed += middleResult.Consumed + rightResult.Consumed;
                         resultStack.Push((left, middleResult.Value));
                         left = rightResult.Value;
                         continue;
@@ -105,14 +109,15 @@ namespace ParserObjects.Parsers
                         // create a synthetic right item and short-circuit exit (we could go around
                         // again, fail the <middle> and exit at that point, but this is faster and
                         // doesn't require allocating a new IResult<T>
+                        consumed += middleResult.Consumed;
                         var syntheticRight = _getMissingRight(state.Input, state.Data);
                         resultStack.Push((left, middleResult.Value));
-                        return ProduceSuccess(syntheticRight);
+                        return ProduceSuccess(syntheticRight, consumed);
                     }
 
                     // We can't make a synthetic right, so rewind to give back the <middle>
                     checkpoint.Rewind();
-                    return ProduceSuccess(left);
+                    return ProduceSuccess(left, consumed);
                 }
             }
 
@@ -127,7 +132,7 @@ namespace ParserObjects.Parsers
                 if (rightResult.Success)
                 {
                     var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-                    return state.Success(this, result);
+                    return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
                 }
 
                 checkpoint.Rewind();
@@ -140,15 +145,15 @@ namespace ParserObjects.Parsers
                     // doesn't require allocating a new IResult<T>
                     var syntheticRight = _getMissingRight(state.Input, state.Data);
                     var result = _produce(leftResult.Value, middleResult.Value, syntheticRight);
-                    return state.Success(this, result);
+                    return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
                 }
 
                 return leftResult;
             }
 
-            private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state, IResult<TOutput> leftResult)
+            private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state, IResult<TOutput> leftResult, ISequenceCheckpoint startCp)
             {
-                var checkpoint = state.Input.Checkpoint();
+                var middleCp = state.Input.Checkpoint();
                 var middleResult = _middle.Parse(state);
                 if (!middleResult.Success)
                     return state.Fail(this, "Expected exactly one production but found zero");
@@ -157,10 +162,8 @@ namespace ParserObjects.Parsers
                 if (rightResult.Success)
                 {
                     var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
-                    return state.Success(this, result);
+                    return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
                 }
-
-                checkpoint.Rewind();
 
                 // We have <left> <middle> but no <right>. See if we can make a synthetic one
                 if (_getMissingRight != null)
@@ -168,11 +171,13 @@ namespace ParserObjects.Parsers
                     // create a synthetic right item and short-circuit exit (we could go around
                     // again, fail the <middle> and exit at that point, but this is faster and
                     // doesn't require allocating a new IResult<T>
+                    middleCp.Rewind();
                     var syntheticRight = _getMissingRight(state.Input, state.Data);
                     var result = _produce(leftResult.Value, middleResult.Value, syntheticRight);
-                    return state.Success(this, result);
+                    return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
                 }
 
+                startCp.Rewind();
                 return state.Fail(this, "Expected exactly one production but found zero");
             }
 

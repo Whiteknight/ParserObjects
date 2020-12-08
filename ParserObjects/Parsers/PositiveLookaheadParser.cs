@@ -26,8 +26,12 @@ namespace ParserObjects.Parsers
             var checkpoint = state.Input.Checkpoint();
             var result = _inner.Parse(state);
             if (result.Success)
+            {
                 checkpoint.Rewind();
-            return result;
+                return state.Success(_inner, result.Value, 0, result.Location);
+            }
+
+            return state.Fail(_inner, result.Message, result.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

@@ -19,6 +19,7 @@ namespace ParserObjects.Sequences
         private Node _current;
         private bool _enumeratorIsAtEnd;
         private int _index;
+        private int _consumed;
 
         public EnumerableSequence(IEnumerable<T> enumerable, Func<T> getEndValue)
             : this(enumerable?.GetEnumerator(), (getEndValue ?? (() => default))())
@@ -53,6 +54,7 @@ namespace ParserObjects.Sequences
             }
 
             _index = 0;
+            _consumed = 0;
         }
 
         private class Node
@@ -72,6 +74,7 @@ namespace ParserObjects.Sequences
             if (_putbacks.Count > 0)
             {
                 _index++;
+                _consumed++;
                 return _putbacks.Pop();
             }
 
@@ -83,6 +86,7 @@ namespace ParserObjects.Sequences
             _current = _current.Next;
             var value = _current.Value;
             _index++;
+            _consumed++;
 
             // If we already have more in the queue, we can just return this value and not update
             // anything else
@@ -115,6 +119,8 @@ namespace ParserObjects.Sequences
         public Location CurrentLocation => new Location(null, 1, _index);
 
         public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null && _putbacks.Count == 0;
+
+        public int Consumed => _consumed;
 
         public void Dispose()
         {

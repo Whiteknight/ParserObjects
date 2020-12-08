@@ -23,7 +23,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Expected any but found End");
             var location = state.Input.CurrentLocation;
             var next = state.Input.GetNext();
-            return state.Success(this, next, location);
+            return state.Success(this, next, 1, location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);

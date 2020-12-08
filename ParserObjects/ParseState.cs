@@ -48,13 +48,13 @@ namespace ParserObjects
         public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
+            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
         }
 
         public IResult<TOutput> Fail<TOutput>(IParser parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error);
+            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace ParserObjects
         public IResult Fail(IParser<TInput> parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<object>(parser, false, default, location ?? Input.CurrentLocation, error);
+            return new Result<object>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
         }
 
         /// <summary>
@@ -76,12 +76,13 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="output"></param>
+        /// <param name="consumed"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, Location location = null)
+        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location = null)
         {
             Log(parser, "Succeeded");
-            return new Result<TOutput>(parser, true, output, location ?? Input.CurrentLocation, null);
+            return new Result<TOutput>(parser, true, output, location ?? Input.CurrentLocation, null, consumed);
         }
 
         /// <summary>
@@ -89,12 +90,13 @@ namespace ParserObjects
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="output"></param>
+        /// <param name="consumed"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult<object> Success(IParser<TInput> parser, object output, Location location = null)
+        public IResult<object> Success(IParser<TInput> parser, object output, int consumed, Location location = null)
         {
             Log(parser, "Succeeded");
-            return new Result<object>(parser, true, output, location ?? Input.CurrentLocation, null);
+            return new Result<object>(parser, true, output, location ?? Input.CurrentLocation, null, consumed);
         }
     }
 }

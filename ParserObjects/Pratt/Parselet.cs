@@ -37,12 +37,12 @@ namespace ParserObjects.Pratt
 
         public bool CanLed => Led != null;
 
-        public (bool success, IToken<TInput, TOutput> token) TryGetNext(ParseState<TInput> state)
+        public (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(ParseState<TInput> state)
         {
             var result = _match.Parse(state);
             if (!result.Success)
-                return (false, null);
-            return (true, new Token<TInput, TValue, TOutput>(this, result.Value));
+                return default;
+            return (true, new Token<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
         }
 
         public override string ToString() => Name;

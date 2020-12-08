@@ -24,6 +24,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a(2b(3c4)))");
+            result.Consumed.Should().Be(7);
         }
 
         [Test]
@@ -42,6 +43,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -60,6 +62,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -78,6 +81,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -113,6 +117,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -130,6 +135,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("1");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -147,6 +153,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -163,6 +170,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -180,6 +188,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -201,6 +210,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
+            result.Consumed.Should().Be(2);
         }
 
         [Test]
@@ -223,6 +233,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
+            result.Consumed.Should().Be(2);
         }
 
         [Test]
@@ -245,6 +256,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
+            result.Consumed.Should().Be(2);
         }
 
         [Test]
@@ -265,6 +277,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Value.Should().Be("1");
             input.Peek().Should().Be('a');
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -286,6 +299,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Value.Should().Be("1");
             input.Peek().Should().Be('a');
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -306,6 +320,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Value.Should().Be("(1a2)");
             input.Peek().Should().Be('b');
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -326,6 +341,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("1a2b");
             var result = parser.Parse(input);
             result.Value.Should().Be("(1a(2bX))");
+            result.Consumed.Should().Be(4);
         }
 
         [Test]

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects.Utility
@@ -47,7 +48,7 @@ namespace ParserObjects.Utility
             return (current.HasResult, current.Result);
         }
 
-        public (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys)
+        public (bool Success, TResult Value, int consumed, Location location) Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return Node.Get(_root, keys);
@@ -76,22 +77,24 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public static (bool Success, TResult Value, Location location) Get(Node thisNode, ISequence<TKey> keys)
+            public static (bool Success, TResult Value, int consumed, Location location) Get(Node thisNode, ISequence<TKey> keys)
             {
                 var current = thisNode;
                 // The node and the key we apply to that node
                 var previous = new Stack<(Node node, TKey key)>();
+                int consumed = 0;
 
                 while (true)
                 {
                     // Quick degenerate case. We're at the final leaf of the trie, so return a
                     // value if we have it.
                     if (current.HasResult && current._children.Count == 0)
-                        return (true, current.Result, keys.CurrentLocation);
+                        return (true, current.Result, consumed, keys.CurrentLocation);
 
                     // Get the next key and push onto the stack
                     var key = keys.GetNext();
                     previous.Push((current, key));
+                    consumed++;
 
                     // If this node has a matching child, set that as the current node and jump
                     // back to the top of the loop
@@ -107,12 +110,14 @@ namespace ParserObjects.Utility
                     {
                         var (node, oldKey) = previous.Pop();
                         keys.PutBack(oldKey);
+                        consumed--;
                         if (node.HasResult)
-                            return (true, node.Result, keys.CurrentLocation);
+                            return (true, node.Result, consumed, keys.CurrentLocation);
                     }
 
                     // No node matched, so return failure
-                    return (false, default, keys.CurrentLocation);
+                    Debug.Assert(consumed == 0, "Just double-checking my math");
+                    return (false, default, 0, keys.CurrentLocation);
                 }
             }
 
@@ -145,9 +150,18 @@ namespace ParserObjects.Utility
     [System.Serializable]
     public class TrieInsertException : System.Exception
     {
-        public TrieInsertException() { }
-        public TrieInsertException(string message) : base(message) { }
-        public TrieInsertException(string message, System.Exception inner) : base(message, inner) { }
+        public TrieInsertException()
+        {
+        }
+
+        public TrieInsertException(string message) : base(message)
+        {
+        }
+
+        public TrieInsertException(string message, System.Exception inner) : base(message, inner)
+        {
+        }
+
         protected TrieInsertException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

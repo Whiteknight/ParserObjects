@@ -37,11 +37,13 @@ namespace ParserObjects.Parsers
             var location = state.Input.CurrentLocation;
             var items = new List<TOutput>();
 
+            int consumed = 0;
             while (Maximum == null || items.Count < Maximum)
             {
                 var result = _parser.Parse(state);
                 if (!result.Success)
                     break;
+                consumed += result.Consumed;
                 items.Add(result.Value);
             }
 
@@ -51,7 +53,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", location);
             }
 
-            return state.Success(this, items, location);
+            return state.Success(this, items, consumed, location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

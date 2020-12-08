@@ -19,6 +19,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("1");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]
@@ -30,6 +31,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("+!@#");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
             input.GetRemainder().Should().Be("+!@#");
         }
 
@@ -43,6 +45,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
             input.GetNext().Should().Be('a');
         }
 
@@ -57,6 +60,7 @@ namespace ParserObjects.Tests.Parsers
             );
             var result = target.Parse("1+2");
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
             result.Value.Should().Be(3);
         }
 
@@ -78,6 +82,7 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("1+2-3+4");
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(7);
             result.Value.Should().Be("(((1+2)-3)+4)");
         }
 
@@ -106,6 +111,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("1+2*3+4/5");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("((1+(2*3))+(4/5))");
+            result.Consumed.Should().Be(9);
         }
 
         [Test]
@@ -125,6 +131,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("1=2=3=4");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1=(2=(3=4)))");
+            result.Consumed.Should().Be(7);
         }
 
         [Test]
@@ -139,6 +146,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("-1");
             result.Success.Should().BeTrue();
             result.Value.Should().Be(-1);
+            result.Consumed.Should().Be(2);
         }
 
         [Test]
@@ -159,6 +167,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("5!");
             result.Success.Should().BeTrue();
             result.Value.Should().Be(120);
+            result.Consumed.Should().Be(2);
         }
 
         [Test]
@@ -178,6 +187,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("(((1)))");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(7);
         }
 
         [Test]
@@ -204,6 +214,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("[1+2]");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("([(1+2)])");
+            result.Consumed.Should().Be(5);
         }
 
         [Test]
@@ -230,6 +241,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("1[2+3]");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1[(2+3)])");
+            result.Consumed.Should().Be(6);
         }
 
         [Test]
@@ -258,6 +270,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("a=b=4+5+6");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(a=(b=((4+5)+6)))");
+            result.Consumed.Should().Be(9);
         }
 
         [Test]
@@ -285,10 +298,12 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("123a");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("odd(123)");
+            result.Consumed.Should().Be(4);
 
             result = target.Parse("1234a");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("even(1234)");
+            result.Consumed.Should().Be(5);
         }
 
         [Test]
@@ -316,10 +331,12 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("a123");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("odd(123)");
+            result.Consumed.Should().Be(4);
 
             result = target.Parse("a1234");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("even(1234)");
+            result.Consumed.Should().Be(5);
         }
 
         [Test]

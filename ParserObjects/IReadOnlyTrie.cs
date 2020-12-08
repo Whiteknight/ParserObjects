@@ -25,7 +25,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        (bool Success, TResult Value, Location location) Get(ISequence<TKey> keys);
+        (bool Success, TResult Value, int consumed, Location location) Get(ISequence<TKey> keys);
 
         /// <summary>
         /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so

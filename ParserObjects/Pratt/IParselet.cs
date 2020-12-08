@@ -7,7 +7,7 @@ namespace ParserObjects.Pratt
         int Rbp { get; }
         IParser Parser { get; }
 
-        (bool success, IToken<TInput, TOutput> token) TryGetNext(ParseState<TInput> state);
+        (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(ParseState<TInput> state);
 
         public bool CanNud { get; }
         public bool CanLed { get; }

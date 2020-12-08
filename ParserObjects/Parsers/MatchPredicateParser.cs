@@ -34,7 +34,7 @@ namespace ParserObjects.Parsers
             if (!_predicate(next))
                 return state.Fail(this, "Next item does not match the predicate");
 
-            return state.Success(this, state.Input.GetNext(), location);
+            return state.Success(this, state.Input.GetNext(), 1, location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);

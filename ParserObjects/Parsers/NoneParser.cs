@@ -26,8 +26,12 @@ namespace ParserObjects.Parsers
             var cp = state.Input.Checkpoint();
             var result = _inner.Parse(state);
             if (result.Success)
+            {
                 cp.Rewind();
-            return result;
+                return state.Success(_inner, result.Value, 0, result.Location);
+            }
+
+            return state.Fail(_inner, result.Message, result.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
@@ -59,8 +63,12 @@ namespace ParserObjects.Parsers
             var cp = state.Input.Checkpoint();
             var result = _inner.Parse(state);
             if (result.Success)
+            {
                 cp.Rewind();
-            return result;
+                return state.Success(_inner, result.Value, 0, result.Location);
+            }
+
+            return state.Fail(_inner, result.Message, result.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

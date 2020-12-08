@@ -39,6 +39,8 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         ISequenceCheckpoint Checkpoint();
+
+        int Consumed { get; }
     }
 
     /// <summary>

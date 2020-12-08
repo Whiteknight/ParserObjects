@@ -41,7 +41,10 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Get parser callback returned null");
             }
 
-            return nextParser.Parse(state);
+            var nextResult = nextParser.Parse(state);
+            if (nextResult.Success)
+                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed, nextResult.Location);
+            return state.Fail(nextParser, nextResult.Message, nextResult.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

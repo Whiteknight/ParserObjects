@@ -24,6 +24,8 @@ namespace ParserObjects
         string Message { get; }
 
         object Value { get; }
+
+        int Consumed { get; }
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, string error)
-            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, error);
+            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, error, result.Consumed);
 
         /// <summary>
         /// Create a copy of the result with a modified error message. If the original result is
@@ -68,7 +70,7 @@ namespace ParserObjects
         /// <param name="mutateError"></param>
         /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
-            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
+            => result.Success ? result : new Result<T>(result.Parser, result.Success, result.Value, result.Location, mutateError?.Invoke(result.Message) ?? result.Message, result.Consumed);
 
         /// <summary>
         /// Get the success flag and, if success is true, the result value.

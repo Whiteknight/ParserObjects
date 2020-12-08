@@ -25,6 +25,7 @@ namespace ParserObjects.Sequences
         private int _bufferIndex;
         private int _line;
         private int _column;
+        private int _consumed;
 
         private class BufferNode
         {
@@ -52,6 +53,7 @@ namespace ParserObjects.Sequences
             var stream = File.OpenRead(_fileName);
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
+            _consumed = 0;
         }
 
         public StreamCharacterSequence(StreamReader reader, string fileName = null, int bufferSize = 1024)
@@ -65,6 +67,7 @@ namespace ParserObjects.Sequences
             _bufferSize = bufferSize;
             _reader = reader;
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
+            _consumed = 0;
         }
 
         public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null, int bufferSize = 1024)
@@ -78,6 +81,7 @@ namespace ParserObjects.Sequences
             _bufferSize = bufferSize;
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
+            _consumed = 0;
         }
 
         public char GetNext()
@@ -101,6 +105,7 @@ namespace ParserObjects.Sequences
             }
 
             _column++;
+            _consumed++;
             return c;
         }
 
@@ -115,6 +120,8 @@ namespace ParserObjects.Sequences
                 _column = _previousEndOfLineColumns.GetCurrent();
                 _previousEndOfLineColumns.MoveBack();
             }
+
+            _consumed--;
         }
 
         public char Peek()
@@ -128,6 +135,8 @@ namespace ParserObjects.Sequences
         public Location CurrentLocation => new Location(_fileName, _line, _column);
 
         public bool IsAtEnd => _putbacks.Count == 0 && _isComplete;
+
+        public int Consumed => _consumed;
 
         public void Dispose()
         {
@@ -189,7 +198,7 @@ namespace ParserObjects.Sequences
         {
             if (_currentBuffer == null)
                 FillBuffer();
-            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray());
+            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray(), _consumed);
         }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
@@ -202,8 +211,9 @@ namespace ParserObjects.Sequences
             private readonly int _column;
             private readonly char[] _putbacks;
             private readonly int[] _lineEndCols;
+            private readonly int _consumed;
 
-            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols)
+            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
             {
                 _s = s;
                 _buffer = buffer;
@@ -213,12 +223,13 @@ namespace ParserObjects.Sequences
                 _column = column;
                 _putbacks = putbacks;
                 _lineEndCols = lineEndCols;
+                _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rewind(_buffer, _remainingChars, _bufferIndex, _line, _column, _putbacks, _lineEndCols);
+            public void Rewind() => _s.Rewind(_buffer, _remainingChars, _bufferIndex, _line, _column, _putbacks, _lineEndCols, _consumed);
         }
 
-        private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols)
+        private void Rewind(BufferNode buffer, int remainingChars, int bufferIndex, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
         {
             if (_currentBuffer != buffer)
                 _currentBuffer = buffer;
@@ -231,6 +242,7 @@ namespace ParserObjects.Sequences
             for (int i = putbacks.Length - 1; i >= 0; i--)
                 _putbacks.Push(putbacks[i]);
             _previousEndOfLineColumns.OverwriteFromArray(lineEndCols);
+            _consumed = consumed;
         }
     }
 }

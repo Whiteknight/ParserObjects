@@ -25,10 +25,13 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
             var checkpoint = state.Input.Checkpoint();
             var result = _inner.Parse(state);
-            checkpoint.Rewind();
             if (result.Success)
+            {
+                checkpoint.Rewind();
                 return state.Fail(this, "Lookahead pattern existed but was not supposed to");
-            return state.Success(this, null);
+            }
+
+            return state.Success(this, null, 0);
         }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };

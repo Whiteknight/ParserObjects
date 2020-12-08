@@ -42,6 +42,22 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Consumed()
+        {
+            var parser = Transform(
+                Any(),
+                c => int.Parse(c.ToString())
+            );
+            var result = parser.Parse("1");
+            result.Value.Should().Be(1);
+            result.Consumed.Should().Be(1);
+
+            result = parser.Parse("");
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var failParser = Fail<char>();

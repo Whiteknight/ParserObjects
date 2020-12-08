@@ -7,7 +7,7 @@ namespace ParserObjects
     /// Parser result object which holds the result value and helpful metadata
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
-    public record Result<TValue>(IParser Parser, bool Success, TValue Value, Location Location, string Message) : IResult<TValue>
+    public record Result<TValue>(IParser Parser, bool Success, TValue Value, Location Location, string Message, int Consumed) : IResult<TValue>
     {
         object IResult.Value => Value;
 
@@ -15,9 +15,9 @@ namespace ParserObjects
         {
             Assert.ArgumentNotNull(transform, nameof(transform));
             if (!Success)
-                return new Result<TOutput>(Parser, false, default, Location, Message);
+                return new Result<TOutput>(Parser, false, default, Location, Message, Consumed);
             var newValue = transform(Value);
-            return new Result<TOutput>(Parser, true, newValue, Location, Message);
+            return new Result<TOutput>(Parser, true, newValue, Location, Message, Consumed);
         }
 
         public override string ToString()

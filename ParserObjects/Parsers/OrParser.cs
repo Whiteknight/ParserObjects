@@ -30,7 +30,7 @@ namespace ParserObjects.Parsers
                     return result;
             }
 
-            return state.Fail(this, "None of the given parser match");
+            return state.Fail(this, "None of the given parsers match");
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -16,6 +15,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
             var list = result.Value.ToList();
             list[0].Should().Be('a');
             list[1].Should().Be('b');
@@ -30,6 +30,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
 
@@ -29,6 +27,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(((1a2)b3)c4)");
+            result.Consumed.Should().Be(7);
         }
 
         [Test]
@@ -51,6 +50,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -73,10 +73,11 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
-        public void ZeroOrMore_Parse_NonReference()
+        public void ZeroOrMore_Parse_NoLeftParser()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
@@ -92,6 +93,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("c");
+            result.Consumed.Should().Be(4);
         }
 
         [Test]
@@ -112,6 +114,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -133,6 +136,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -154,6 +158,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -175,6 +180,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("1");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]
@@ -197,6 +203,7 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
+            result.Consumed.Should().Be(1);
         }
 
         [Test]

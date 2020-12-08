@@ -17,6 +17,18 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Value.Should().Be('a');
+            result.Consumed.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_Fail()
+        {
+            var anyParser = Fail<char>();
+            var target = Replaceable(anyParser);
+            var input = new StringCharacterSequence("abc");
+            var result = target.Parse(input);
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
         }
 
         [Test]

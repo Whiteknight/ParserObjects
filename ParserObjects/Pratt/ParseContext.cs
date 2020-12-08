@@ -9,22 +9,28 @@
 
         private readonly int _rbp;
 
+        private int _consumed;
+
         public ParseContext(ParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp)
         {
             _state = state;
             _engine = engine;
             _rbp = rbp;
+            _consumed = 0;
         }
 
         public IDataStore Data => _state.Data;
 
         public TOutput Parse() => Parse(_rbp);
 
+        public int Consumed => _consumed;
+
         public TOutput Parse(int rbp)
         {
-            var (success, value, error) = _engine.TryParse(_state, rbp);
+            var (success, value, error, consumed) = _engine.TryParse(_state, rbp);
             if (!success)
                 throw new ParseException(ParseExceptionSeverity.Rule, error, null, null);
+            _consumed += consumed;
             return value;
         }
 
@@ -33,6 +39,7 @@
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
+            _consumed += result.Consumed;
             return result.Value;
         }
 
@@ -41,6 +48,7 @@
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
+            _consumed += result.Consumed;
         }
 
         public void FailRule(string message = null)
@@ -56,13 +64,15 @@
 
         public (bool success, TOutput value) TryParse(int rbp)
         {
-            var (success, value, _) = _engine.TryParse(_state, rbp);
+            var (success, value, _, consumed) = _engine.TryParse(_state, rbp);
+            _consumed += consumed;
             return (success, value);
         }
 
         public (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser)
         {
             var result = parser.Parse(_state);
+            _consumed += result.Consumed;
             return (_, _) = result;
         }
     }
