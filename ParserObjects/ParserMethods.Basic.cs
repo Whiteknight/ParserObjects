@@ -14,7 +14,7 @@ namespace ParserObjects
         /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
         /// </summary>
         /// <returns></returns>
-        public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
+        public static IParser<TInput, TInput> Any(bool consume = true) => new AnyParser<TInput>(consume);
 
         /// <summary>
         /// Parses a parser, returns true if the parser succeeds, false if it fails.
@@ -31,9 +31,10 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
-            => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
+        public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
         /// Executes a parser without consuming any input, and uses the value to determine the next
@@ -43,9 +44,10 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
-            => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
+        public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TMiddle, TOutput>.Parser(None(p), getNext, mentions);
 
         /// <summary>
         /// Given a list of parsers, parse each in sequence and return a list of object
@@ -162,6 +164,8 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
+        public static IParser<TInput, TInput> Peek() => new AnyParser<TInput>(false);
+
         /// <summary>
         /// Given the next input lookahead value, select the appropriate parser to use to continue
         /// the parse.
@@ -169,12 +173,8 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="setup"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Predict<TOutput>(Action<Predict<TInput, TOutput>.IConfiguration> setup)
-        {
-            var config = Predict<TInput, TOutput>.CreateConfiguration();
-            setup(config);
-            return new Predict<TInput, TOutput>.Parser(config);
-        }
+        public static IParser<TInput, TOutput> Predict<TOutput>(Action<Chain<TInput, TInput, TOutput>.IConfiguration> setup)
+             => new Chain<TInput, TInput, TOutput>.Parser(Any(false), setup);
 
         /// <summary>
         /// Produce a value without consuming anything out of the input sequence.

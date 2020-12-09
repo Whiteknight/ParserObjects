@@ -25,13 +25,17 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
             var cp = state.Input.Checkpoint();
             var result = _inner.Parse(state);
+
+            if (result.Consumed == 0)
+                return result;
+
             if (result.Success)
             {
                 cp.Rewind();
                 return state.Success(_inner, result.Value, 0, result.Location);
             }
 
-            return state.Fail(_inner, result.Message, result.Location);
+            return result;
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

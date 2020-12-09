@@ -36,8 +36,9 @@ namespace ParserObjects.Tests.Examples.PN
                 (a, b) => new[] { a, b }
             );
 
-            var operation = operators.Chain(op =>
+            var operation = operators.Chain(r =>
             {
+                var op = r.Value;
                 if (op == '+')
                     return operands.Transform(v => v[0] + v[1]);
                 if (op == '-')
@@ -46,7 +47,7 @@ namespace ParserObjects.Tests.Examples.PN
                     return operands.Transform(v => v[0] * v[1]);
                 if (op == '/')
                     return operands.Transform(v => v[0] / v[1]);
-                throw new System.Exception("Unrecognized operator");
+                return Fail<int>("Unrecognized operator");
             });
 
             valueInternal = First(

@@ -18,9 +18,10 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
-            => new ChainParser<TInput, TMiddle, TOutput>(p, getNext);
+        public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
         /// Execute a parser but consume no input. Use the result to select the next parser to
@@ -31,9 +32,10 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<TMiddle, IParser<TInput, TOutput>> getNext)
-            => new ChooseParser<TInput, TMiddle, TOutput>(p, getNext);
+        public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TMiddle, TOutput>.Parser(None(p), getNext, mentions);
 
         /// <summary>
         /// Invoke callbacks before and after a parse.
