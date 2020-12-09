@@ -73,15 +73,6 @@ namespace ParserObjects
 
     public static class SequenceExtensions
     {
-        /// <summary>
-        /// Convert the sequence to an IEnumerable.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> AsEnumerable<T>(this ISequence<T> input)
-            => new SequenceEnumerable<T>(input);
-
         public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input)
             => new SequenceBuffer<T>(input);
 
