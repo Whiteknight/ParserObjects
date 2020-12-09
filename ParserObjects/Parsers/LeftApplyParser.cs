@@ -35,7 +35,10 @@ namespace ParserObjects.Parsers
 
                 _initial = initial;
                 _quantifier = arity;
-                _left = new LeftValue();
+                _left = new LeftValue()
+                {
+                    Name = "LEFT"
+                };
                 _right = getRight(_left);
             }
 
@@ -45,7 +48,7 @@ namespace ParserObjects.Parsers
                 set
                 {
                     _name = value;
-                    _left.Name = string.IsNullOrEmpty(_name) ? null : _name;
+                    _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
                 }
             }
 

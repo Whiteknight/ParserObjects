@@ -130,22 +130,19 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput>(AnyParser<TInput> p, State state)
         {
-            state.Current.Append('.');
+            state.Current.Append(p.Consume ? "." : "(?=.)");
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChainParser<TInput, TMiddle, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
             VisitChild(child, state);
             state.Current.Append("->Chain");
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(ChooseParser<TInput, TMiddle, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)
         {
-            var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
-            VisitChild(child, state);
-            state.Current.Append(")->Choose");
+            state.Current.Append("CREATE");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
@@ -217,6 +214,17 @@ namespace ParserObjects.Visitors
             state.Current.Append("User Function");
         }
 
+        protected virtual void VisitTyped<TInput, TOutput>(IfParser<TInput, TOutput> p, State state)
+        {
+            var children = p.GetChildren().ToArray();
+            state.Current.Append("IF ");
+            VisitChild(children[0], state);
+            state.Current.Append(" THEN ");
+            VisitChild(children[1], state);
+            state.Current.Append(" ELSE ");
+            VisitChild(children[2], state);
+        }
+
         protected virtual void VisitTyped<TInput, TOutput>(LeftApply<TInput, TOutput>.Parser p, State state)
         {
             var children = p.GetChildren().ToArray();
@@ -266,6 +274,22 @@ namespace ParserObjects.Visitors
             state.Current.Append(" )");
         }
 
+        protected virtual void VisitTyped<TInput>(NoneParser<TInput> p, State state)
+        {
+            var child = p.GetChildren().Single();
+            state.Current.Append("(?=");
+            VisitChild(child, state);
+            state.Current.Append(")->Choose");
+        }
+
+        protected virtual void VisitTyped<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
+        {
+            var child = p.GetChildren().Single();
+            state.Current.Append("(?=");
+            VisitChild(child, state);
+            state.Current.Append(")->Choose");
+        }
+
         protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
         {
             var child = p.GetChildren().First();
@@ -285,7 +309,11 @@ namespace ParserObjects.Visitors
         {
             var children = p.GetChildren().ToArray();
             if (children.Length == 0)
+            {
+                state.Current.Append("PRATT()");
                 return;
+            }
+
             state.Current.Append("PRATT(");
             VisitChild(children[0], state);
             for (int i = 1; i < children.Length; i++)
@@ -295,6 +323,11 @@ namespace ParserObjects.Visitors
             }
 
             state.Current.Append(')');
+        }
+
+        protected virtual void VisitTyped<TInput, TOutput>(Pratt.ParseContext<TInput, TOutput> p, State state)
+        {
+            state.Current.Append("PRATT RECURSE");
         }
 
         protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)
