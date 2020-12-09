@@ -38,6 +38,8 @@ namespace ParserObjects.Tests.Examples.PN
 
             var operation = operators.Chain(r =>
             {
+                if (!r.Success)
+                    return Fail<int>("Unrecognized operator");
                 var op = r.Value;
                 if (op == '+')
                     return operands.Transform(v => v[0] + v[1]);
