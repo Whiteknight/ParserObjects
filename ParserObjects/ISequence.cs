@@ -82,6 +82,9 @@ namespace ParserObjects
         public static IEnumerable<T> AsEnumerable<T>(this ISequence<T> input)
             => new SequenceEnumerable<T>(input);
 
+        public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input)
+            => new SequenceBuffer<T>(input);
+
         /// <summary>
         /// Transform a sequence of one type into a sequence of another type by applying a transformation
         /// function to every element.

@@ -5,48 +5,50 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences
 {
     /// <summary>
-    /// Adaptor to represent a sequence as an indexable buffer like an array or list.
+    /// Adaptor to represent a sequence as an indexable buffer like an array or list. Care must
+    /// be taken to ensure unused items from the buffer are returned to the sequence after work
+    /// on the buffer has completed.
     /// </summary>
-    public class SequenceBuffer
+    /// <typeparam name="T"></typeparam>
+    public class SequenceBuffer<T>
     {
-        private readonly ISequence<char> _input;
-        private readonly List<char> _buffer;
+        private readonly ISequence<T> _input;
+        private readonly List<T> _buffer;
         private readonly int _offset;
 
-        public SequenceBuffer(ISequence<char> input)
+        public SequenceBuffer(ISequence<T> input)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             _input = input;
-            _buffer = new List<char>();
+            _buffer = new List<T>();
             _offset = 0;
         }
 
-        private SequenceBuffer(ISequence<char> input, List<char> buffer, int offset)
+        private SequenceBuffer(ISequence<T> input, List<T> buffer, int offset)
         {
             _input = input;
             _buffer = buffer;
             _offset = offset;
         }
 
-        public SequenceBuffer CopyFrom(int i) => new SequenceBuffer(_input, _buffer, i);
+        public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i);
 
-        public string Capture(int i)
+        public T[] Capture(int i)
         {
-            var chars = _buffer.Skip(_offset).Take(i).ToArray();
-            var str = new string(chars);
+            var tokens = _buffer.Skip(_offset).Take(i).ToArray();
             for (int j = _buffer.Count - 1; j >= i; j--)
                 _input.PutBack(_buffer[j]);
-            return str;
+            return tokens;
         }
 
-        public char this[int index]
+        public T this[int index]
         {
             get
             {
                 var realIndex = _offset + index;
                 FillUntil(realIndex);
                 if (realIndex >= _buffer.Count)
-                    return '\0';
+                    return default;
                 return _buffer[realIndex];
             }
         }
