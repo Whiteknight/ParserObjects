@@ -36,6 +36,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
+            => new Chain<TInput, TMiddle, TOutput>.Parser(p, setup);
+
         /// <summary>
         /// Executes a parser without consuming any input, and uses the value to determine the next
         /// parser to execute.

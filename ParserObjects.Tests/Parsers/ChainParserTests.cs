@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -9,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
     public class ChainParserTests
     {
         [Test]
-        public void Parse_Basic()
+        public void Callback_Basic()
         {
             var parser = Any().Chain(r =>
             {
@@ -45,7 +46,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_InitialFail()
+        public void Callback_InitialFail()
         {
             var parser = Fail<object>().Chain(c => Produce(() => c.Success));
             var result = parser.Parse("a");
@@ -54,7 +55,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Throw()
+        public void Callback_Throw()
         {
             var parser = Any().Chain<char, char, object>(c => throw new System.Exception());
             var input = new StringCharacterSequence("abc");
@@ -64,11 +65,94 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_NullParser()
+        public void Callback_Null()
         {
             var parser = Any().Chain(c => (IParser<char, string>)null);
             var result = parser.Parse("abc");
             result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Configuration_Test()
+        {
+            var target = ChainWith<char, char>(Any(), x => x
+                .Add(c => c == 'a', Match('X'))
+                .Add(c => c == 'b', Match('Y'))
+                .Add(c => c == 'c', Match('Z'))
+            );
+            target.Parse("aX").Success.Should().BeTrue();
+            target.Parse("bY").Success.Should().BeTrue();
+            target.Parse("cZ").Success.Should().BeTrue();
+            target.Parse("aZ").Success.Should().BeFalse();
+            target.Parse("dW").Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Chain_GetChildren_Test()
+        {
+            var first = Any();
+            var x = Match('X');
+            var y = Match('Y');
+            var z = Match('Z');
+            var target = Chain(first, r =>
+            {
+                var c = r.Value;
+                if (c == 'a')
+                    return x;
+                if (c == 'b')
+                    return y;
+                return z;
+            });
+
+            var result = target.GetChildren().ToList();
+            result.Count.Should().Be(1);
+            result.Should().Contain(first);
+        }
+
+        [Test]
+        public void Chain_GetChildren_Mentions()
+        {
+            var first = Any();
+            var x = Match('X');
+            var y = Match('Y');
+            var z = Match('Z');
+            var target = Chain(first, r =>
+            {
+                var c = r.Value;
+                if (c == 'a')
+                    return x;
+                if (c == 'b')
+                    return y;
+                return z;
+            }, x, y, z);
+
+            var result = target.GetChildren().ToList();
+            result.Count.Should().Be(4);
+            result.Should().Contain(first);
+            result.Should().Contain(x);
+            result.Should().Contain(y);
+            result.Should().Contain(z);
+        }
+
+        [Test]
+        public void ChainWith_GetChildren_Test()
+        {
+            var first = Any();
+            var x = Match('X');
+            var y = Match('Y');
+            var z = Match('Z');
+            var target = ChainWith<char, char>(first, config => config
+                .Add(c => c == 'a', x)
+                .Add(c => c == 'b', y)
+                .Add(c => c == 'c', z)
+            );
+
+            var result = target.GetChildren().ToList();
+            result.Count.Should().Be(4);
+            result.Should().Contain(first);
+            result.Should().Contain(x);
+            result.Should().Contain(y);
+            result.Should().Contain(z);
         }
     }
 }
