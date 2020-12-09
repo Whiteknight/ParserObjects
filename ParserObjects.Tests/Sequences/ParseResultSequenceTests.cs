@@ -23,7 +23,7 @@ namespace ParserObjects.Tests.Sequences
             var parser = new AnyParser<char>();
             var target = new ParseResultSequence<char, char>("ac".ToCharacterSequence(), parser, null);
             target.GetNext().Value.Should().Be('a');
-            target.PutBack(new Result<char>(null, true, 'b', null, null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'b', null, 1));
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');
         }
@@ -62,7 +62,7 @@ namespace ParserObjects.Tests.Sequences
             var target = new ParseResultSequence<char, char>("a".ToCharacterSequence(), parser, null);
             target.GetNext();
             target.IsAtEnd.Should().BeTrue();
-            target.PutBack(new Result<char>(null, true, 'Y', null, null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'Y', null, 1));
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeTrue();
@@ -115,12 +115,12 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Value.Should().Be('c');
             target.GetNext().Value.Should().Be('d');
             target.GetNext().Value.Should().Be('e');
-            target.GetNext().Value.Should().Be('\0');
+            target.IsAtEnd.Should().BeTrue();
             cp.Rewind();
             target.GetNext().Value.Should().Be('c');
             target.GetNext().Value.Should().Be('d');
             target.GetNext().Value.Should().Be('e');
-            target.GetNext().Value.Should().Be('\0');
+            target.IsAtEnd.Should().BeTrue();
         }
 
         [Test]
@@ -130,22 +130,22 @@ namespace ParserObjects.Tests.Sequences
             var target = new ParseResultSequence<char, char>("abcde".ToCharacterSequence(), parser, null);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
-            target.PutBack(new Result<char>(null, true, 'Y', null, null, 1));
-            target.PutBack(new Result<char>(null, true, 'X', null, null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'Y', null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'X', null, 1));
             var cp = target.Checkpoint();
             target.GetNext().Value.Should().Be('X');
             target.GetNext().Value.Should().Be('Y');
             target.GetNext().Value.Should().Be('c');
             target.GetNext().Value.Should().Be('d');
             target.GetNext().Value.Should().Be('e');
-            target.GetNext().Value.Should().Be('\0');
+            target.IsAtEnd.Should().BeTrue();
             cp.Rewind();
             target.GetNext().Value.Should().Be('X');
             target.GetNext().Value.Should().Be('Y');
             target.GetNext().Value.Should().Be('c');
             target.GetNext().Value.Should().Be('d');
             target.GetNext().Value.Should().Be('e');
-            target.GetNext().Value.Should().Be('\0');
+            target.IsAtEnd.Should().BeTrue();
         }
 
         [Test]
@@ -156,12 +156,12 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Value.Should().Be('a');
 
             var cp = target.Checkpoint();
-            target.PutBack(new Result<char>(null, true, 'Y', null, null, 1));
-            target.PutBack(new Result<char>(null, true, 'X', null, null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'Y', null, 1));
+            target.PutBack(new SuccessResult<char>(null, 'X', null, 1));
             cp.Rewind();
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');
-            target.GetNext().Value.Should().Be('\0');
+            target.IsAtEnd.Should().BeTrue();
         }
     }
 }

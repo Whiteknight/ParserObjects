@@ -48,13 +48,13 @@ namespace ParserObjects
         public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
+            return new FailResult<TOutput>(parser, location ?? Input.CurrentLocation, error);
         }
 
         public IResult<TOutput> Fail<TOutput>(IParser parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<TOutput>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
+            return new FailResult<TOutput>(parser, location ?? Input.CurrentLocation, error);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace ParserObjects
         public IResult Fail(IParser<TInput> parser, string error, Location location = null)
         {
             Log(parser, "Failed with error " + error);
-            return new Result<object>(parser, false, default, location ?? Input.CurrentLocation, error, 0);
+            return new FailResult<object>(parser, location ?? Input.CurrentLocation, error);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace ParserObjects
         public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location = null)
         {
             Log(parser, "Succeeded");
-            return new Result<TOutput>(parser, true, output, location ?? Input.CurrentLocation, null, consumed);
+            return new SuccessResult<TOutput>(parser, output, location ?? Input.CurrentLocation, consumed);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace ParserObjects
         public IResult<object> Success(IParser<TInput> parser, object output, int consumed, Location location = null)
         {
             Log(parser, "Succeeded");
-            return new Result<object>(parser, true, output, location ?? Input.CurrentLocation, null, consumed);
+            return new SuccessResult<object>(parser, output, location ?? Input.CurrentLocation, consumed);
         }
     }
 }
