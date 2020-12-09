@@ -23,6 +23,8 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
+            Assert.ArgumentNotNull(state, nameof(state));
+
             var startCp = state.Input.Checkpoint();
             try
             {

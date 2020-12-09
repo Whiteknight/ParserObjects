@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
@@ -13,6 +14,7 @@ namespace ParserObjects.Pratt
 
         public Engine(IReadOnlyList<IParselet<TInput, TOutput>> parselets)
         {
+            Assert.ArrayNotNullAndContainsNoNulls(parselets, nameof(parselets));
             _nudableParselets = parselets.Where(p => p.CanNud).ToList();
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
@@ -21,6 +23,7 @@ namespace ParserObjects.Pratt
 
         public (bool success, TOutput value, string error, int consumed) TryParse(ParseState<TInput> state, int rbp)
         {
+            Assert.ArgumentNotNull(state, nameof(state));
             var levelCp = state.Input.Checkpoint();
             try
             {

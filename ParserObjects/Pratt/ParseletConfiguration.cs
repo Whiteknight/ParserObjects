@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
@@ -13,6 +14,7 @@ namespace ParserObjects.Pratt
 
         public ParseletConfiguration(IParser<TInput, TValue> matcher)
         {
+            Assert.ArgumentNotNull(matcher, nameof(matcher));
             _matcher = matcher;
             _getParselets = new List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>>();
         }
@@ -37,6 +39,7 @@ namespace ParserObjects.Pratt
 
         public IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
         {
+            Assert.ArgumentNotNull(getNud, nameof(getNud));
             _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
                 tid,
                 m,
@@ -54,6 +57,7 @@ namespace ParserObjects.Pratt
 
         public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
         {
+            Assert.ArgumentNotNull(getLed, nameof(getLed));
             _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
                 tid,
                 m,

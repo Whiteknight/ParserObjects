@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects.Utility
 {
@@ -13,11 +14,11 @@ namespace ParserObjects.Utility
                 throw new ArgumentNullException(parameterName);
         }
 
-        public static void ArrayNotNullAndContainsNoNulls<T>(T[] values, string parameterName)
+        public static void ArrayNotNullAndContainsNoNulls<T>(IReadOnlyList<T> values, string parameterName)
             where T : class
         {
             ArgumentNotNull(values, parameterName);
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 0; i < values.Count; i++)
             {
                 if (values[i] == null)
                     throw new ArgumentNullException(parameterName + $"[{i}]");

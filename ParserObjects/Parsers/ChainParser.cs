@@ -31,6 +31,8 @@ namespace ParserObjects.Parsers
 
             public IConfiguration Add(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
             {
+                Assert.ArgumentNotNull(equals, nameof(equals));
+                Assert.ArgumentNotNull(parser, nameof(parser));
                 _parsers.Add((equals, parser));
                 return this;
             }
@@ -55,6 +57,7 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
+
                 _inner = inner;
                 _getParser = getParser;
                 _mentions = mentions.OrEmptyIfNull().ToList();
@@ -62,6 +65,9 @@ namespace ParserObjects.Parsers
 
             public Parser(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup)
             {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(setup, nameof(setup));
+
                 var config = new Configuration();
                 setup(config);
                 _inner = inner;

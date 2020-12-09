@@ -1,3 +1,5 @@
+using ParserObjects.Utility;
+
 namespace ParserObjects.Pratt
 {
     /// <summary>
@@ -14,6 +16,7 @@ namespace ParserObjects.Pratt
 
         public Parselet(int tokenTypeId, IParser<TInput, TValue> match, NudFunc<TInput, TValue, TOutput> nud, LedFunc<TInput, TValue, TOutput> led, int lbp, int rbp, string name)
         {
+            Assert.ArgumentNotNull(match, nameof(match));
             TokenTypeId = tokenTypeId;
             _match = match;
             Nud = nud;

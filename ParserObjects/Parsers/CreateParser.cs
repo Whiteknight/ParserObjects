@@ -7,7 +7,7 @@ namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Create a new parser instance on invocation, using information available from the current
-    /// parse state.
+    /// parse state, and invokes it.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

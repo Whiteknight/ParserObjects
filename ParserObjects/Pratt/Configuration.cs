@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
@@ -18,6 +19,9 @@ namespace ParserObjects.Pratt
 
         public IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IParseletConfiguration<TInput, TValue, TOutput>> setup)
         {
+            Assert.ArgumentNotNull(matcher, nameof(matcher));
+            Assert.ArgumentNotNull(setup, nameof(setup));
+
             var parseletConfig = new ParseletConfiguration<TInput, TValue, TOutput>(matcher);
             setup(parseletConfig);
             var parselets = parseletConfig.Build();

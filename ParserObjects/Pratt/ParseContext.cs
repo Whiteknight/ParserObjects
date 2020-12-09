@@ -21,6 +21,8 @@ namespace ParserObjects.Pratt
 
         public ParseContext(ParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp)
         {
+            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(engine, nameof(engine));
             _state = state;
             _engine = engine;
             _rbp = rbp;
@@ -46,6 +48,7 @@ namespace ParserObjects.Pratt
 
         public TValue Parse<TValue>(IParser<TInput, TValue> parser)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
@@ -65,6 +68,7 @@ namespace ParserObjects.Pratt
 
         public void Expect(IParser<TInput> parser)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
@@ -91,6 +95,7 @@ namespace ParserObjects.Pratt
 
         public (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser)
         {
+            Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             _consumed += result.Consumed;
             return (_, _) = result;
