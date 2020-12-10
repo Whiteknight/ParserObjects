@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Parsers;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -152,10 +153,21 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
-            => First(p, Produce(getDefault ?? (() => default)));
+        public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
+            => First(
+                p.Transform(x => new SuccessOption<TOutput>(x)),
+                Produce((s, d) => FailureOption<TOutput>.Instance)
+            );
+
+        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
+        {
+            Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+            return First(
+                p,
+                Produce((s, d) => getDefault())
+            );
+        }
 
         /// <summary>
         /// Attempt to parse an item and return a default value otherwise.
@@ -164,8 +176,14 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
-            => First(p, Produce(getDefault ?? (t => default)));
+        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
+        {
+            Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+            return First(
+                p,
+                Produce(getDefault)
+            );
+        }
 
         public static IParser<TInput, TInput> Peek() => new PeekParser<TInput>();
 
@@ -187,15 +205,6 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
             => new Produce<TInput, TOutput>.Parser((input, data) => produce());
-
-        /// <summary>
-        /// Produce a value given the input sequence.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="produce"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TOutput>(Func<ISequence<TInput>, TOutput> produce)
-            => new Produce<TInput, TOutput>.Parser((input, data) => produce(input));
 
         /// <summary>
         /// Produces a value given the input sequence and the current contextual data.

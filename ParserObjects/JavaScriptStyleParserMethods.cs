@@ -13,6 +13,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> NumberString() => _numberString.Value;
+
         private static readonly Lazy<IParser<char, string>> _numberString = new Lazy<IParser<char, string>>(
             () =>
             {
@@ -74,6 +75,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, double> Number() => _number.Value;
+
         private static readonly Lazy<IParser<char, double>> _number = new Lazy<IParser<char, double>>(
             () => NumberString()
                 .Transform(s => double.Parse(s, NumberStyles.Float))
@@ -98,6 +100,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;
+
         private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
             () =>
             {
@@ -185,6 +188,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> String() => _string.Value;
+
         private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
             () =>
             {

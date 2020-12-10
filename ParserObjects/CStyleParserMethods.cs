@@ -13,6 +13,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;
+
         private static readonly Lazy<IParser<char, string>> _comment = new Lazy<IParser<char, string>>(
             () =>
             {
@@ -35,6 +36,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
+
         private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
             () => (Match("0x"), ParserMethods.HexadecimalString())
                 .Produce((prefix, value) => prefix + value)
@@ -66,7 +68,8 @@ namespace ParserObjects
                 var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
                 var digits = Digit().ListCharToString();
                 var zero = Match('0').Transform(c => "0");
-                var nonZeroNumber = (maybeMinus, nonZeroDigit, digits).Produce((sign, start, body) => sign + start + body);
+                var nonZeroNumber = (maybeMinus, nonZeroDigit, digits)
+                    .Produce((sign, start, body) => sign + start + body);
                 return (nonZeroNumber, zero)
                     .First()
                     .Named("C-Style Integer String");
@@ -177,6 +180,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> StrippedString() => _strippedString.Value;
+
         private static readonly Lazy<IParser<char, string>> _strippedString = new Lazy<IParser<char, string>>(
             () =>
             {
@@ -235,6 +239,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> String() => _string.Value;
+
         private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
             () =>
             {
@@ -287,6 +292,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, char> StrippedCharacter() => _strippedCharacter.Value;
+
         private static readonly Lazy<IParser<char, char>> _strippedCharacter = new Lazy<IParser<char, char>>(
             () =>
             {
@@ -346,6 +352,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Character() => _character.Value;
+
         private static readonly Lazy<IParser<char, string>> _character = new Lazy<IParser<char, string>>(
             () =>
             {

@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var target = Produce(x => 5);
+            var target = Produce(() => 5);
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Value.Should().Be(5);
@@ -21,7 +21,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var target = Produce(x => 5);
+            var target = Produce(() => 5);
             target.GetChildren().Count().Should().Be(0);
         }
     }

@@ -12,7 +12,7 @@ namespace ParserObjects.Utility
             _store.AddLast(new Dictionary<string, object>());
         }
 
-        public Option<T> Get<T>(string name)
+        public IOption<T> Get<T>(string name)
         {
             var node = _store.Last;
             while (node != null)
@@ -21,8 +21,8 @@ namespace ParserObjects.Utility
                 {
                     var value = node.Value[name];
                     if (value is T typed)
-                        return new Option<T>(typed);
-                    return default;
+                        return new SuccessOption<T>(typed);
+                    return FailureOption<T>.Instance;
                 }
 
                 node = node.Previous;

@@ -213,10 +213,12 @@ namespace ParserObjects
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
-        /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault = null)
-            => ParserMethods<TInput>.First(p, ParserMethods<TInput>.Produce(getDefault ?? (() => default)));
+        public static IParser<TInput, IOption<TOutput>> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p)
+            => ParserMethods<TInput>.Optional(p);
+
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault)
+            => ParserMethods<TInput>.Optional(p, getDefault);
 
         /// <summary>
         /// The results of the given parser are optiona. If the given parser fails, a default value will be
@@ -227,8 +229,8 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
-            => ParserMethods<TInput>.First(p, ParserMethods<TInput>.Produce(getDefault ?? (t => default)));
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
+            => ParserMethods<TInput>.Optional(p, getDefault);
 
         /// <summary>
         /// Make this parser replaceable.

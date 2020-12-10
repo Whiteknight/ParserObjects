@@ -82,7 +82,7 @@ namespace ParserObjects
         public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value)
         {
             success = result.Success;
-            value = result.Value;
+            value = result.Success ? result.Value : default;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace ParserObjects
         public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value, out Location location)
         {
             success = result.Success;
-            value = result.Value;
+            value = result.Success ? result.Value : default;
             location = result.Location;
         }
     }

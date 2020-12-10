@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Examples.SExpr
 
             var requiredCloseParen = First(
                 Token(ValueType.CloseParen),
-                Produce(t => new Token
+                Produce((t, d) => new Token
                 {
                     Location = t.CurrentLocation,
                     Type = ValueType.CloseParen,

@@ -30,6 +30,7 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
+
         private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
         private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|' };
         private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']' };
@@ -57,7 +58,7 @@ namespace ParserObjects
                 Match('^').Optional(),
                 characterOrRange.List(true),
                 Match(']'),
-                (open, maybeNot, contents, close) => RegexNodes.CharacterClass(maybeNot == '^', contents)
+                (open, maybeNot, contents, close) => RegexNodes.CharacterClass(maybeNot.Is('^'), contents)
             );
 
             // These groupings will not be captured like in a normal regex
@@ -145,7 +146,7 @@ namespace ParserObjects
                 .Named("RegexPattern");
         }
 
-        private static object ThrowEndOfPatternException(ISequence<char> t)
+        private static object ThrowEndOfPatternException(ISequence<char> t, IDataStore data)
             => throw new RegexException("Expected end of pattern but found '" + t.GetNext());
     }
 }

@@ -13,9 +13,9 @@ namespace ParserObjects
         public static IParser<TInput, TValue> GetData<TValue>(string name)
             => Function<TValue>((t, success, fail) =>
             {
-                var (has, value) = t.Data.Get<TValue>(name);
-                if (has)
-                    return success(value);
+                var result = t.Data.Get<TValue>(name);
+                if (result.Success)
+                    return success(result.Value);
                 return fail($"State data '{name}' does not exist");
             });
 

@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
-    
+
     <AssemblyName>ParserObjects</AssemblyName>
     <RootNamespace>ParserObjects</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>3.0.0-alpha4</Version>
-    
+
     <Authors>Andrew F. Whitworth</Authors>
     <Company />
     <Description>Parser abstractions, objects and combinators</Description>
@@ -20,16 +20,20 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <DebugType>full</DebugType>
-    
+
     <DocumentationFile>C:\projects\ParserObjects\ParserObjects\ParserObjects.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <!-- Polyfill for IsExternalInit class required by C# 9.0 records -->
     <PackageReference Include="IsExternalInit" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -37,6 +41,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+<<<<<<< HEAD
 
   <PropertyGroup>
     <DocumentationMarkdown>..\docs\v3\docs.md</DocumentationMarkdown>
@@ -44,3 +49,9 @@
 
 
 </Project>
+||||||| parent of afe6e24 (Replace Option<T> struct with IOption<T> interface)
+
+</Project>
+=======
+</Project>
+>>>>>>> afe6e24 (Replace Option<T> struct with IOption<T> interface)

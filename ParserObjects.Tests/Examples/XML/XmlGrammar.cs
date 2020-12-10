@@ -30,9 +30,9 @@ namespace ParserObjects.Tests.Examples.XML
             // creates a Match() parser to match it.
             var closeTagName = Create(t =>
             {
-                var (has, node) = t.Data.Get<XmlNode>("tag");
-                if (has)
-                    return Match(node.Name);
+                var result = t.Data.Get<XmlNode>("tag");
+                if (result.Success)
+                    return Match(result.Value.Name);
                 return Fail<IReadOnlyList<char>>("No tag found in current data frame");
             }).Named("closeTagName");
 
