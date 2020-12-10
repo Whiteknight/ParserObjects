@@ -91,7 +91,7 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context> before = null, Action<Examine<TInput, TOutput>.Context> after = null)
+        public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context> before = null, Action<Examine<TInput>.Context> after = null)
+        public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
             => new Examine<TInput>.Parser(parser, before, after);
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Fail<TOutput>(string error = null)
+        public static IParser<TInput, TOutput> Fail<TOutput>(string error = "Fail")
             => new FailParser<TInput, TOutput>(error);
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser = null)
+        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>

@@ -11,6 +11,11 @@ namespace ParserObjects.Parsers
     /// <typeparam name="T"></typeparam>
     public class AnyParser<T> : IParser<T, T>
     {
+        public AnyParser()
+        {
+            Name = string.Empty;
+        }
+
         public string Name { get; set; }
 
         public IResult<T> Parse(ParseState<T> state)

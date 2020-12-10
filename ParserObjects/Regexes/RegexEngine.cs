@@ -66,8 +66,11 @@ namespace ParserObjects.Regexes
             public RegexContext(IEnumerable<RegexState> states)
             {
                 _queue = new List<RegexState>(states);
+                _queue.Add(RegexState.EndSentinel);
                 _backtrackStack = new Stack<BacktrackState>();
                 _i = 0;
+                CurrentState = _queue[0];
+                _queue.RemoveAt(0);
             }
 
             public RegexState CurrentState { get; private set; }
@@ -83,7 +86,7 @@ namespace ParserObjects.Regexes
             {
                 if (_queue.Count == 0)
                 {
-                    CurrentState = null;
+                    CurrentState = RegexState.EndSentinel;
                     return;
                 }
 
@@ -136,7 +139,7 @@ namespace ParserObjects.Regexes
         /// <param name="input"></param>
         /// <param name="regex"></param>
         /// <returns></returns>
-        public PartialResult<string> GetMatch(ISequence<char> input, Regex regex)
+        public IPartialResult<string> GetMatch(ISequence<char> input, Regex regex)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(regex, nameof(regex));
@@ -147,18 +150,17 @@ namespace ParserObjects.Regexes
             if (matches)
             {
                 var charArray = context.Capture(consumed);
-                return PartialResult<string>.Succeed(new string(charArray), consumed, startLocation);
+                return new SuccessPartialResult<string>(new string(charArray), consumed, startLocation);
             }
 
-            return PartialResult<string>.Fail($"Match failed at position {consumed}");
+            return new FailurePartialResult<string>($"Match failed at position {consumed}", startLocation);
         }
 
         private (bool matches, int length) Test(IReadOnlyList<RegexState> states, SequenceBuffer<char> buffer)
         {
             var context = new RegexContext(states);
-            context.MoveToNextState();
 
-            while (context.CurrentState != null)
+            while (context.CurrentState.Type != RegexStateType.EndSentinel)
             {
                 switch (context.CurrentState.Quantifier)
                 {
@@ -308,10 +310,10 @@ namespace ParserObjects.Regexes
             }
 
             if (state.Type == RegexStateType.Group)
-                return Test(state.Group, context.CopyFrom(i));
+                return Test(state.Group!, context.CopyFrom(i));
             if (state.Type == RegexStateType.Alternation)
             {
-                foreach (var substate in state.Alternations)
+                foreach (var substate in state.Alternations!)
                 {
                     var (matches, consumed) = Test(substate, context.CopyFrom(i));
                     if (matches)

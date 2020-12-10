@@ -32,6 +32,7 @@ namespace ParserObjects.Visitors
                 Builder = sb;
                 History = new Stack<StringBuilder>();
                 Seen = new HashSet<IParser>();
+                Current = new StringBuilder();
             }
         }
 
@@ -47,7 +48,6 @@ namespace ParserObjects.Visitors
         private void Visit(IParser parser, State state)
         {
             // Top-level sb
-            state.Current = new StringBuilder();
             VisitChild(parser, state);
         }
 
@@ -270,7 +270,7 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput>(MatchPatternParser<TInput> p, State state)
         {
-            var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i.ToString()}'"));
+            var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i}'"));
             state.Current.Append(pattern);
         }
 

@@ -39,12 +39,12 @@ namespace ParserObjects.Parsers
             private readonly IParser<TInput, TOutput> _item;
             private readonly IParser<TInput, TMiddle> _middle;
             private readonly Produce _produce;
-            private readonly Create _getMissingRight;
+            private readonly Create? _getMissingRight;
             private readonly Quantifier _quantifier;
 
             // <item> (<middle> <item>)* with right-associativity in the production method
 
-            public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Produce produce, Quantifier quantifier, Create getMissingRight = null)
+            public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Produce produce, Quantifier quantifier, Create? getMissingRight = null)
             {
                 Assert.ArgumentNotNull(item, nameof(item));
                 Assert.ArgumentNotNull(middle, nameof(middle));
@@ -55,6 +55,7 @@ namespace ParserObjects.Parsers
                 _produce = produce;
                 _getMissingRight = getMissingRight;
                 _quantifier = quantifier;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }

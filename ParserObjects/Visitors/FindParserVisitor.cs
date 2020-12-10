@@ -29,19 +29,22 @@ namespace ParserObjects.Visitors
         }
 
         /// <summary>
-        /// Search for a parser with the given Name. Returns only the first result in case of duplicates.
+        /// Search for a parser with the given Name. Returns only the first result in case of
+        /// duplicates.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="root"></param>
         /// <returns></returns>
-        public static IParser Named(string name, IParser root)
+        public static IOption<IParser> Named(string name, IParser root)
         {
             Assert.ArgumentNotNullOrEmpty(name, nameof(name));
             Assert.ArgumentNotNull(root, nameof(root));
             var visitor = new FindParserVisitor();
             var state = new State(p => p.Name == name, true);
             visitor.Visit(root, state);
-            return state.Found.FirstOrDefault();
+            if (state.Found.Count > 0)
+                return new SuccessOption<IParser>(state.Found.First());
+            return FailureOption<IParser>.Instance;
         }
 
         /// <summary>

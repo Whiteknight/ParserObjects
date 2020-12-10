@@ -22,7 +22,7 @@ namespace ParserObjects.Sequences
         private int _column;
         private int _consumed;
 
-        public StringCharacterSequence(string s, string fileName = null)
+        public StringCharacterSequence(string s, string fileName = "")
         {
             Assert.ArgumentNotNull(s, nameof(s));
             _s = s;

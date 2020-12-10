@@ -20,9 +20,9 @@ namespace ParserObjects.Pratt
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
 
-        public PartialResult<TOutput> Parse(ParseState<TInput> state) => TryParse(state, 0);
+        public IPartialResult<TOutput> Parse(ParseState<TInput> state) => TryParse(state, 0);
 
-        public PartialResult<TOutput> TryParse(ParseState<TInput> state, int rbp)
+        public IPartialResult<TOutput> TryParse(ParseState<TInput> state, int rbp)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var levelCp = state.Input.Checkpoint();
@@ -33,7 +33,7 @@ namespace ParserObjects.Pratt
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
             {
                 levelCp.Rewind();
-                return default;
+                return new FailurePartialResult<TOutput>(pe.Message, pe.Location ?? state.Input.CurrentLocation);
             }
         }
 
@@ -41,12 +41,12 @@ namespace ParserObjects.Pratt
         // which will continue to succeed and consume zero input. Will probably break the
         // loop because it has the same binding power.
 
-        private PartialResult<TOutput> Parse(ParseState<TInput> state, int rbp)
+        private IPartialResult<TOutput> Parse(ParseState<TInput> state, int rbp)
         {
             var startLocation = state.Input.CurrentLocation;
             var leftResult = GetLeft(state);
             if (!leftResult.Success)
-                return default;
+                return new FailurePartialResult<TOutput>(string.Empty, startLocation);
             var leftToken = leftResult.Value;
             int consumed = leftResult.Consumed;
 
@@ -67,10 +67,10 @@ namespace ParserObjects.Pratt
                     break;
             }
 
-            return PartialResult<TOutput>.Succeed(leftToken.Value, consumed, startLocation);
+            return new SuccessPartialResult<TOutput>(leftToken.Value, consumed, startLocation);
         }
 
-        private PartialResult<IToken<TOutput>> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
+        private IPartialResult<IToken<TOutput>> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _ledableParselets)
@@ -92,20 +92,20 @@ namespace ParserObjects.Pratt
 
                 // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
                 // the current left value
-                var (hasRight, rightToken) = token.LeftDenominator(rightContext, leftToken);
-                if (!hasRight)
+                var rightResult = token.LeftDenominator(rightContext, leftToken);
+                if (!rightResult.Success)
                 {
                     cp.Rewind();
                     continue;
                 }
 
-                return PartialResult<IToken<TOutput>>.Succeed(rightToken, consumed + rightContext.Consumed);
+                return new SuccessPartialResult<IToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
             }
 
-            return default;
+            return new FailurePartialResult<IToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
         }
 
-        private PartialResult<IToken<TOutput>> GetLeft(ParseState<TInput> state)
+        private IPartialResult<IToken<TOutput>> GetLeft(ParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _nudableParselets)
@@ -118,7 +118,7 @@ namespace ParserObjects.Pratt
                 // would lead to infinite left recursion with no obvious programmatic ways to
                 // prevent it.
                 if (consumed == 0)
-                    return PartialResult<IToken<TOutput>>.Fail($"Parselet {parselet} consumed no input and would have caused infinite recursion");
+                    return new FailurePartialResult<IToken<TOutput>>($"Parselet {parselet} consumed no input and would have caused infinite recursion", state.Input.CurrentLocation);
 
                 var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
                 {
@@ -126,18 +126,18 @@ namespace ParserObjects.Pratt
                 };
 
                 // Transform the IToken into IToken<TInput> using the NullDenominator rule
-                var (hasLeft, leftToken) = token.NullDenominator(leftContext);
-                if (!hasLeft)
+                var leftResult = token.NullDenominator(leftContext);
+                if (!leftResult.Success)
                 {
                     cp.Rewind();
                     continue;
                 }
 
                 consumed += leftContext.Consumed;
-                return PartialResult<IToken<TOutput>>.Succeed(leftToken, consumed, null);
+                return new SuccessPartialResult<IToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
             }
 
-            return PartialResult<IToken<TOutput>>.Fail("No parselets matched and transformed at the current position.");
+            return new FailurePartialResult<IToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace ParserObjects.Parsers
             _predicate = predicate;
             _onSuccess = onSuccess;
             _onFail = onFail;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

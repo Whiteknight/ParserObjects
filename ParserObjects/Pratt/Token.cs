@@ -3,22 +3,41 @@
     // Simple token type which wraps a value from the input stream and metadata necessary to
     // work with it inside the Engine. This class is for (mostly) internal use only and shouldn't
     // be used directly except through the provided abstractions.
-    public class Token<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
+    public class ParseletToken<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
     {
         private readonly Parselet<TInput, TValue, TOutput> _parselet;
 
-        public Token(Parselet<TInput, TValue, TOutput> parselet, TValue value)
+        public ParseletToken(Parselet<TInput, TValue, TOutput> parselet, TValue value)
         {
             _parselet = parselet;
             Value = value;
-            TokenTypeId = _parselet?.TokenTypeId ?? 0;
-            LeftBindingPower = _parselet?.Lbp ?? 0;
-            RightBindingPower = _parselet?.Rbp ?? 0;
-            Name = _parselet?.Name ?? string.Empty;
-            IsValid = _parselet != null;
+            TokenTypeId = _parselet.TokenTypeId;
+            LeftBindingPower = _parselet.Lbp;
+            RightBindingPower = _parselet.Rbp;
+            Name = _parselet.Name ?? string.Empty;
+            IsValid = true;
         }
 
-        public Token(int typeId, TValue value, int lbp, int rbp, string name)
+        public int TokenTypeId { get; }
+        public TValue Value { get; }
+
+        public int LeftBindingPower { get; }
+        public int RightBindingPower { get; }
+        public bool IsValid { get; }
+        public string Name { get; }
+
+        public IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context)
+            => _parselet.Nud(context, this);
+
+        public IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left)
+            => _parselet.Led(context, left, this);
+
+        public override string ToString() => Value?.ToString() ?? string.Empty;
+    }
+
+    public class ValueToken<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
+    {
+        public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
         {
             TokenTypeId = typeId;
             Value = value;
@@ -36,41 +55,10 @@
         public bool IsValid { get; }
         public string Name { get; }
 
-        public (bool success, IToken<TOutput> value) NullDenominator(IParseContext<TInput, TOutput> context)
-        {
-            var nud = _parselet?.Nud;
-            if (nud == null)
-                return (false, default);
-            try
-            {
-                var resultValue = nud(context, this);
-                return (true, new Token<TInput, TOutput, TOutput>(TokenTypeId, resultValue, _parselet.Lbp, _parselet.Rbp, Name));
-            }
-            catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
-            {
-                return (false, default);
-            }
-        }
+        public IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context) => FailureOption<IToken<TOutput>>.Instance;
 
-        public (bool success, IToken<TOutput> value) LeftDenominator(IParseContext<TInput, TOutput> context, IToken left)
-        {
-            if (_parselet?.Led == null || left is not IToken<TOutput> leftTyped)
-                return (false, default);
+        public IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left) => FailureOption<IToken<TOutput>>.Instance;
 
-            var led = _parselet.Led;
-            if (led == null)
-                return (false, default);
-            try
-            {
-                var resultValue = led(context, leftTyped, this);
-                return (true, new Token<TInput, TOutput, TOutput>(TokenTypeId, resultValue, _parselet.Lbp, _parselet.Rbp, Name));
-            }
-            catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
-            {
-                return (false, default);
-            }
-        }
-
-        public override string ToString() => Value.ToString();
+        public override string ToString() => Value?.ToString() ?? string.Empty;
     }
 }

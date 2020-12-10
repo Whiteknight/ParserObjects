@@ -8,7 +8,7 @@ namespace ParserObjects.Utility
     /// </summary>
     public static class Assert
     {
-        public static void ArgumentNotNull(object value, string parameterName)
+        public static void ArgumentNotNull(object? value, string parameterName)
         {
             if (value == null)
                 throw new ArgumentNullException(parameterName);

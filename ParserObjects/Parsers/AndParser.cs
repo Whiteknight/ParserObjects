@@ -16,6 +16,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
             _parsers = parsers;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -38,7 +39,7 @@ namespace ParserObjects.Parsers
                 consumed += result.Consumed;
             }
 
-            return state.Success(this, null, consumed, startLocation);
+            return state.Success(this, Defaults.ObjectInstance, consumed, startLocation);
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

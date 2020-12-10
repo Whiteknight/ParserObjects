@@ -18,6 +18,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
             _value = defaultValue;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

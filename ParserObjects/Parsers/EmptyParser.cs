@@ -10,12 +10,17 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     public class EmptyParser<TInput> : IParser<TInput, object>
     {
+        public EmptyParser()
+        {
+            Name = string.Empty;
+        }
+
         public string Name { get; set; }
 
         public IResult<object> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            return state.Success(this, null, 0);
+            return state.Success(this, Defaults.ObjectInstance, 0);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

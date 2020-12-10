@@ -13,7 +13,7 @@ namespace ParserObjects
         /// <param name="stream"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static ISequence<byte> ToByteSequence(this Stream stream, string fileName = null)
+        public static ISequence<byte> ToByteSequence(this Stream stream, string fileName = "")
             => new StreamByteSequence(stream, fileName);
 
         /// <summary>
@@ -21,10 +21,12 @@ namespace ParserObjects
         /// default). Calling .Dispose() on the sequence will dispose the stream as well.
         /// </summary>
         /// <param name="stream"></param>
-        /// <param name="encoding"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static ISequence<char> ToCharSequence(this Stream stream, Encoding encoding = null, string fileName = null)
+        public static ISequence<char> ToCharSequence(this Stream stream, string fileName = "")
+            => new StreamCharacterSequence(stream, Encoding.UTF8, fileName);
+
+        public static ISequence<char> ToCharSequence(this Stream stream, Encoding encoding, string fileName = "")
             => new StreamCharacterSequence(stream, encoding, fileName);
 
         /// <summary>
@@ -34,7 +36,7 @@ namespace ParserObjects
         /// <param name="streamReader"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static ISequence<char> ToCharSequence(this StreamReader streamReader, string fileName = null)
+        public static ISequence<char> ToCharSequence(this StreamReader streamReader, string fileName = "")
             => new StreamCharacterSequence(streamReader, fileName);
     }
 }

@@ -11,9 +11,10 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
-        public FailParser(string errorMessage = null)
+        public FailParser(string? errorMessage = null)
         {
             ErrorMessage = errorMessage ?? "Guaranteed fail";
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

@@ -18,11 +18,8 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(regex, nameof(regex));
             _regex = regex;
             _engine = new RegexEngine();
-            if (!string.IsNullOrEmpty(describe))
-            {
-                Name = $"/{describe}/";
-                Pattern = describe;
-            }
+            Name = $"/{describe}/";
+            Pattern = describe;
         }
 
         public string Pattern { get; }

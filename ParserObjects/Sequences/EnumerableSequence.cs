@@ -10,39 +10,39 @@ namespace ParserObjects.Sequences
     /// operations.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class EnumerableSequence<T> : ISequence<T>, IDisposable
+    public sealed class EnumerableSequence<T> : ISequence<T?>, IDisposable
     {
         private readonly IEnumerator<T> _enumerator;
-        private readonly T _endSentinelValue;
-        private readonly Stack<T> _putbacks;
+        private readonly T? _endSentinelValue;
+        private readonly Stack<T?> _putbacks;
 
         private Node _current;
         private bool _enumeratorIsAtEnd;
         private int _index;
         private int _consumed;
 
-        public EnumerableSequence(IEnumerable<T> enumerable, Func<T> getEndValue)
-            : this(enumerable?.GetEnumerator(), (getEndValue ?? (() => default))())
+        public EnumerableSequence(IEnumerable<T> enumerable, Func<T?> getEndValue)
+            : this(enumerable.GetEnumerator(), (getEndValue ?? (() => default))())
         {
         }
 
-        public EnumerableSequence(IEnumerator<T> enumerator, Func<T> getEndValue)
+        public EnumerableSequence(IEnumerator<T> enumerator, Func<T?> getEndValue)
             : this(enumerator, (getEndValue ?? (() => default))())
         {
         }
 
-        public EnumerableSequence(IEnumerable<T> enumerable, T endValue)
-            : this(enumerable?.GetEnumerator(), endValue)
+        public EnumerableSequence(IEnumerable<T> enumerable, T? endValue)
+            : this(enumerable.GetEnumerator(), endValue)
         {
         }
 
-        public EnumerableSequence(IEnumerator<T> enumerator, T endValue)
+        public EnumerableSequence(IEnumerator<T> enumerator, T? endValue)
         {
             Assert.ArgumentNotNull(enumerator, nameof(enumerator));
             _enumerator = enumerator;
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
             _endSentinelValue = endValue;
-            _putbacks = new Stack<T>();
+            _putbacks = new Stack<T?>();
 
             // The first item in the linked list will be an end sentinel, which we will probably
             // never look at, but we need it for logic later.
@@ -59,17 +59,17 @@ namespace ParserObjects.Sequences
 
         private class Node
         {
-            public T Value { get; set; }
-            public Node Next { get; set; }
+            public T? Value { get; set; }
+            public Node? Next { get; set; }
         }
 
-        public void PutBack(T value)
+        public void PutBack(T? value)
         {
             _putbacks.Push(value);
             _index--;
         }
 
-        public T GetNext()
+        public T? GetNext()
         {
             if (_putbacks.Count > 0)
             {
@@ -107,7 +107,7 @@ namespace ParserObjects.Sequences
             return value;
         }
 
-        public T Peek()
+        public T? Peek()
         {
             if (_putbacks.Count > 0)
                 return _putbacks.Peek();
@@ -116,7 +116,7 @@ namespace ParserObjects.Sequences
             return _current.Next.Value;
         }
 
-        public Location CurrentLocation => new Location(null, 1, _index);
+        public Location CurrentLocation => new Location(string.Empty, 1, _index);
 
         public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null && _putbacks.Count == 0;
 
@@ -135,9 +135,9 @@ namespace ParserObjects.Sequences
             private readonly Node _node;
             private readonly int _index;
             private readonly bool _enumeratorIsAtEnd;
-            private readonly T[] _putbacks;
+            private readonly T?[] _putbacks;
 
-            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd, T[] putbacks)
+            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd, T?[] putbacks)
             {
                 _s = s;
                 _node = node;
@@ -149,7 +149,7 @@ namespace ParserObjects.Sequences
             public void Rewind() => _s.Rewind(_node, _index, _enumeratorIsAtEnd, _putbacks);
         }
 
-        private void Rewind(Node node, int index, bool isAtEnd, T[] putbacks)
+        private void Rewind(Node node, int index, bool isAtEnd, T?[] putbacks)
         {
             _current = node;
             _enumeratorIsAtEnd = isAtEnd;

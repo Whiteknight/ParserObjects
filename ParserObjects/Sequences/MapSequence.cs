@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
@@ -28,14 +29,14 @@ namespace ParserObjects.Sequences
             _inputs = inputs;
             _map = map;
             _putbacks = new Stack<TOutput>();
-            _oldLocations = new AlwaysFullRingBuffer<Location>(5, new Location(null, 0, 0));
+            _oldLocations = new AlwaysFullRingBuffer<Location>(5, new Location(string.Empty, 0, 0));
             _current = new Node { Value = default, Next = null };
         }
 
         private class Node
         {
-            public TOutput Value { get; set; }
-            public Node Next { get; set; }
+            public TOutput? Value { get; set; }
+            public Node? Next { get; set; }
         }
 
         public void PutBack(TOutput value)
@@ -55,7 +56,8 @@ namespace ParserObjects.Sequences
             if (_current.Next != null)
             {
                 _current = _current.Next;
-                return _current.Value;
+                Debug.Assert(_current.Value != null, "Only the root node should have a null value");
+                return _current.Value!;
             }
 
             var value = _inputs.GetNext();

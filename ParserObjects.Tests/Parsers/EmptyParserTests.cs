@@ -15,7 +15,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be(null);
+            result.Value.Should().NotBeNull();
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace ParserObjects.Tests.Parsers
             var input = new StringCharacterSequence("");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be(null);
+            result.Value.Should().NotBeNull();
         }
 
         [Test]

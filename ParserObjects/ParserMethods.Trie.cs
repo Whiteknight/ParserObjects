@@ -13,6 +13,7 @@ namespace ParserObjects
         /// <param name="readOnlyTrie"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Trie<TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
+            where TOutput : notnull
             => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
         /// <summary>

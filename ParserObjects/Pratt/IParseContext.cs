@@ -45,7 +45,7 @@
         /// the current right binding power. Does not abort on failure.
         /// </summary>
         /// <returns></returns>
-        (bool success, TOutput value) TryParse();
+        IOption<TOutput> TryParse();
 
         /// <summary>
         /// Attempt to invoke the Pratt engine recursively to obtain the next output value, with
@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="rbp"></param>
         /// <returns></returns>
-        (bool success, TOutput value) TryParse(int rbp);
+        IOption<TOutput> TryParse(int rbp);
 
         /// <summary>
         /// Attempts to invoke the given parser to obtain a value. Does not abort on failure.
@@ -61,7 +61,7 @@
         /// <typeparam name="TValue"></typeparam>
         /// <param name="parser"></param>
         /// <returns></returns>
-        (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser);
+        IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser);
 
         /// <summary>
         /// Unconditionally fail the current user callback and return to the current recursion

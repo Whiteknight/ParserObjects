@@ -49,7 +49,7 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context> before = null, Action<Examine<TInput, TOutput>.Context> after = null)
+        public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace ParserObjects
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <returns></returns>
-        public static IParser<TInput> Examine<TInput>(this IParser<TInput> parser, Action<Examine<TInput>.Context> before = null, Action<Examine<TInput>.Context> after = null)
+        public static IParser<TInput> Examine<TInput>(this IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
             => new Examine<TInput>.Parser(parser, before, after);
 
         /// <summary>

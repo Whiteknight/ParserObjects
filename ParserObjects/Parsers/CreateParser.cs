@@ -27,6 +27,7 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
                 _getParser = getParser;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }

@@ -31,6 +31,7 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(produce, nameof(produce));
                 _produce = produce;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }

@@ -24,6 +24,7 @@ namespace ParserObjects.Pratt
             _engine = engine;
             _rbp = rbp;
             _consumed = 0;
+            Name = string.Empty;
         }
 
         public IDataStore Data => _state.Data;
@@ -38,7 +39,7 @@ namespace ParserObjects.Pratt
         {
             var result = _engine.TryParse(_state, rbp);
             if (!result.Success)
-                throw new ParseException(ParseExceptionSeverity.Rule, result.Error, null, result.Location);
+                throw new ParseException(ParseExceptionSeverity.Rule, result.Message, this, result.Location);
             _consumed += result.Consumed;
             return result.Value;
         }
@@ -70,30 +71,30 @@ namespace ParserObjects.Pratt
             _consumed += result.Consumed;
         }
 
-        public void FailRule(string message = null)
-            => throw new ParseException(ParseExceptionSeverity.Rule, message ?? "Fail", null, _state.Input.CurrentLocation);
+        public void FailRule(string message = "")
+            => throw new ParseException(ParseExceptionSeverity.Rule, message ?? "Fail", this, _state.Input.CurrentLocation);
 
-        public void FailLevel(string message = null)
-            => throw new ParseException(ParseExceptionSeverity.Level, message ?? "", null, _state.Input.CurrentLocation);
+        public void FailLevel(string message = "")
+            => throw new ParseException(ParseExceptionSeverity.Level, message ?? "", this, _state.Input.CurrentLocation);
 
-        public void FailAll(string message = null)
-            => throw new ParseException(ParseExceptionSeverity.Parser, message ?? "", null, _state.Input.CurrentLocation);
+        public void FailAll(string message = "")
+            => throw new ParseException(ParseExceptionSeverity.Parser, message ?? "", this, _state.Input.CurrentLocation);
 
-        public (bool success, TOutput value) TryParse() => TryParse(_rbp);
+        public IOption<TOutput> TryParse() => TryParse(_rbp);
 
-        public (bool success, TOutput value) TryParse(int rbp)
+        public IOption<TOutput> TryParse(int rbp)
         {
             var result = _engine.TryParse(_state, rbp);
             _consumed += result.Consumed;
-            return (result.Success, result.Value);
+            return result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
         }
 
-        public (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser)
+        public IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             _consumed += result.Consumed;
-            return (_, _) = result;
+            return result!.Success ? new SuccessOption<TValue>(result!.Value) : FailureOption<TValue>.Instance;
         }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

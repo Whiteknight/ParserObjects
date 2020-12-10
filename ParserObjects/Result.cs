@@ -61,25 +61,38 @@ namespace ParserObjects
         public override string ToString() => $"{Parser} FAIL at {Location}";
     }
 
-    public struct PartialResult<TValue>
+    public class FailurePartialResult<TValue> : IPartialResult<TValue>
     {
-        public static PartialResult<TValue> Fail(string error, Location location = null) => new PartialResult<TValue>(false, default, 0, location, error);
-
-        public static PartialResult<TValue> Succeed(TValue value, int consumed, Location location = null) => new PartialResult<TValue>(true, value, consumed, location, null);
-
-        private PartialResult(bool success, TValue value, int consumed, Location location, string error)
+        public FailurePartialResult(string error, Location location)
         {
-            Success = success;
+            Location = location;
+            Message = error;
+        }
+
+        public bool Success => false;
+        public TValue Value => throw new InvalidOperationException("This result does not have a successful value");
+
+        public int Consumed => 0;
+        public Location Location { get; }
+
+        public string Message { get; }
+    }
+
+    public class SuccessPartialResult<TValue> : IPartialResult<TValue>
+    {
+        public SuccessPartialResult(TValue value, int consumed, Location location)
+        {
             Value = value;
             Consumed = consumed;
             Location = location;
-            Error = error;
         }
 
-        public bool Success { get; }
+        public bool Success => true;
         public TValue Value { get; }
+
         public int Consumed { get; }
         public Location Location { get; }
-        public string Error { get; }
+
+        public string Message => string.Empty;
     }
 }

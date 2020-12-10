@@ -13,7 +13,7 @@ namespace ParserObjects
         private readonly Action<string> _logCallback;
         private readonly CascadingKeyValueStore _store;
 
-        public ParseState(ISequence<TInput> input, Action<string> logCallback = null)
+        public ParseState(ISequence<TInput> input, Action<string> logCallback)
         {
             Input = input;
             _store = new CascadingKeyValueStore();
@@ -45,16 +45,19 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location = null)
+        public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error, Location location)
         {
             Log(parser, "Failed with error " + error);
-            return new FailResult<TOutput>(parser, location ?? Input.CurrentLocation, error);
+            return new FailResult<TOutput>(parser, location, error);
         }
 
-        public IResult<TOutput> Fail<TOutput>(IParser parser, string error, Location location = null)
+        public IResult<TOutput> Fail<TOutput>(IParser<TInput, TOutput> parser, string error)
+            => Fail(parser, error, Input.CurrentLocation);
+
+        public IResult<TOutput> Fail<TOutput>(IParser parser, string error, Location location)
         {
             Log(parser, "Failed with error " + error);
-            return new FailResult<TOutput>(parser, location ?? Input.CurrentLocation, error);
+            return new FailResult<TOutput>(parser, location, error);
         }
 
         /// <summary>
@@ -64,11 +67,14 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult Fail(IParser<TInput> parser, string error, Location location = null)
+        public IResult Fail(IParser<TInput> parser, string error, Location location)
         {
             Log(parser, "Failed with error " + error);
-            return new FailResult<object>(parser, location ?? Input.CurrentLocation, error);
+            return new FailResult<object>(parser, location, error);
         }
+
+        public IResult Fail(IParser<TInput> parser, string error)
+            => Fail(parser, error, Input.CurrentLocation);
 
         /// <summary>
         /// Create a success result for the given parser with the given result value.
@@ -79,11 +85,14 @@ namespace ParserObjects
         /// <param name="consumed"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location = null)
+        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location)
         {
             Log(parser, "Succeeded");
-            return new SuccessResult<TOutput>(parser, output, location ?? Input.CurrentLocation, consumed);
+            return new SuccessResult<TOutput>(parser, output, location, consumed);
         }
+
+        public IResult<TOutput> Success<TOutput>(IParser<TInput, TOutput> parser, TOutput output, int consumed)
+            => Success(parser, output, consumed, Input.CurrentLocation);
 
         /// <summary>
         /// Create a success result for the given parser with the given result value, if any.
@@ -93,17 +102,20 @@ namespace ParserObjects
         /// <param name="consumed"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public IResult<object> Success(IParser<TInput> parser, object output, int consumed, Location location = null)
+        public IResult<object> Success(IParser<TInput> parser, object output, int consumed, Location location)
         {
             Log(parser, "Succeeded");
-            return new SuccessResult<object>(parser, output, location ?? Input.CurrentLocation, consumed);
+            return new SuccessResult<object>(parser, output, location, consumed);
         }
 
-        public IResult<TOutput> Result<TOutput>(IParser<TInput, TOutput> parser, PartialResult<TOutput> part)
+        public IResult<object> Success(IParser<TInput> parser, object output, int consumed)
+            => Success(parser, output, consumed, Input.CurrentLocation);
+
+        public IResult<TOutput> Result<TOutput>(IParser<TInput, TOutput> parser, IPartialResult<TOutput> part)
         {
             if (part.Success)
                 return Success(parser, part.Value, part.Consumed, part.Location);
-            return Fail(parser, part.Error, part.Location);
+            return Fail(parser, part.Message, part.Location);
         }
     }
 }

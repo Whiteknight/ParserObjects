@@ -37,8 +37,8 @@ namespace ParserObjects
 
         private static IParser<char, Regex> GetRegexPatternParser()
         {
-            IParser<char, IRegexNode> alternationInner = null;
-            var alternation = Deferred(() => alternationInner);
+            IParser<char, IRegexNode>? alternationInner = null;
+            var alternation = Deferred(() => alternationInner!);
 
             var characterRange = Rule(
                 Any(),

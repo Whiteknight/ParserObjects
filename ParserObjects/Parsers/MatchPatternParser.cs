@@ -18,6 +18,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(find, nameof(find));
             Pattern = find.ToArray();
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -38,9 +39,10 @@ namespace ParserObjects.Parsers
             // or allocating a buffer
             if (Pattern.Count == 1)
             {
-                if (state.Input.Peek().Equals(Pattern[0]))
-                    return state.Success(this, new[] { state.Input.GetNext() }, 1, location);
-                return state.Fail(this, "Item does not match");
+                var next = state.Input.Peek();
+                if (next == null || !next.Equals(Pattern[0]))
+                    return state.Fail(this, "Item does not match");
+                return state.Success(this, new[] { state.Input.GetNext() }, 1, location);
             }
 
             var checkpoint = state.Input.Checkpoint();
@@ -48,6 +50,12 @@ namespace ParserObjects.Parsers
             for (var i = 0; i < Pattern.Count; i++)
             {
                 var c = state.Input.GetNext();
+                if (c == null)
+                {
+                    checkpoint.Rewind();
+                    return state.Fail(this, $"Item does not match at position {i}");
+                }
+
                 buffer[i] = c;
                 if (c.Equals(Pattern[i]))
                     continue;

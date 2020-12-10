@@ -55,7 +55,7 @@
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        (bool success, IToken<TOutput> value) NullDenominator(IParseContext<TInput, TOutput> context);
+        IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context);
 
         /// <summary>
         /// Calculates the left denominator (suffix production) of this token, converting it into
@@ -64,6 +64,6 @@
         /// <param name="context"></param>
         /// <param name="left"></param>
         /// <returns></returns>
-        (bool success, IToken<TOutput> value) LeftDenominator(IParseContext<TInput, TOutput> context, IToken left);
+        IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left);
     }
 }

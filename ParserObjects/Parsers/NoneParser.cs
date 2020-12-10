@@ -16,6 +16,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -57,6 +58,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

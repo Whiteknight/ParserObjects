@@ -9,6 +9,11 @@ namespace ParserObjects.Regexes
     /// </summary>
     public class RegexState
     {
+        public static RegexState EndSentinel { get; } = new RegexState
+        {
+            Type = RegexStateType.EndSentinel
+        };
+
         /// <summary>
         /// Gets or Sets the type of state.
         /// </summary>
@@ -27,22 +32,22 @@ namespace ParserObjects.Regexes
         /// <summary>
         /// Gets or sets a predicate that determines whether a value matches.
         /// </summary>
-        public Func<char, bool> ValuePredicate { get; set; }
+        public Func<char, bool>? ValuePredicate { get; set; }
 
         /// <summary>
         /// Gets or sets all substates if this state is a group.
         /// </summary>
-        public List<RegexState> Group { get; set; }
+        public List<RegexState>? Group { get; set; }
 
         /// <summary>
         /// Gets or sets all possibilities in an alternation.
         /// </summary>
-        public List<List<RegexState>> Alternations { get; set; }
+        public List<List<RegexState>>? Alternations { get; set; }
 
         /// <summary>
         /// Gets or sets a brief description of the state, to help with tracing/debugging.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of times this state can match, if it supports more than

@@ -37,7 +37,7 @@ namespace ParserObjects.Pratt
         }
 
         public ParseExceptionSeverity Severity { get; }
-        public IParser Parser { get; }
-        public Location Location { get; }
+        public IParser? Parser { get; }
+        public Location? Location { get; }
     }
 }

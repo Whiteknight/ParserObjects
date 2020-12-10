@@ -30,7 +30,7 @@ namespace ParserObjects.Sequences
         private class BufferNode
         {
             public char[] Buffer { get; }
-            public BufferNode Next { get; set; }
+            public BufferNode? Next { get; set; }
             public int TotalChars { get; }
 
             public BufferNode(int bufferSize, StreamReader reader)
@@ -41,23 +41,27 @@ namespace ParserObjects.Sequences
             }
         }
 
-        public StreamCharacterSequence(string fileName, Encoding encoding = null, int bufferSize = 1024)
+        public StreamCharacterSequence(string fileName, Encoding? encoding = null, int bufferSize = 1024)
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
             _fileName = fileName;
             _line = 1;
             _putbacks = new Stack<char>();
-            _bufferIndex = bufferSize;
             _bufferSize = bufferSize;
             var stream = File.OpenRead(_fileName);
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
-            FillBuffer();
+
+            _currentBuffer = new BufferNode(_bufferSize, _reader);
+            _remainingChars = _currentBuffer.TotalChars;
+            if (_remainingChars == 0)
+                _isComplete = true;
+            _bufferIndex = 0;
         }
 
-        public StreamCharacterSequence(StreamReader reader, string fileName = null, int bufferSize = 1024)
+        public StreamCharacterSequence(StreamReader reader, string fileName = "", int bufferSize = 1024)
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -69,10 +73,14 @@ namespace ParserObjects.Sequences
             _reader = reader;
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
-            FillBuffer();
+            _currentBuffer = new BufferNode(_bufferSize, _reader);
+            _remainingChars = _currentBuffer.TotalChars;
+            if (_remainingChars == 0)
+                _isComplete = true;
+            _bufferIndex = 0;
         }
 
-        public StreamCharacterSequence(Stream stream, Encoding encoding = null, string fileName = null, int bufferSize = 1024)
+        public StreamCharacterSequence(Stream stream, Encoding? encoding = null, string fileName = "", int bufferSize = 1024)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -84,7 +92,11 @@ namespace ParserObjects.Sequences
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
-            FillBuffer();
+            _currentBuffer = new BufferNode(_bufferSize, _reader);
+            _remainingChars = _currentBuffer.TotalChars;
+            if (_remainingChars == 0)
+                _isComplete = true;
+            _bufferIndex = 0;
         }
 
         public char GetNext()
@@ -198,11 +210,7 @@ namespace ParserObjects.Sequences
         }
 
         public ISequenceCheckpoint Checkpoint()
-        {
-            if (_currentBuffer == null)
-                FillBuffer();
-            return new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray(), _consumed);
-        }
+            => new SequenceCheckpoint(this, _currentBuffer, _remainingChars, _bufferIndex, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray(), _consumed);
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {

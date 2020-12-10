@@ -19,15 +19,16 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TOutput> _parser;
-            private readonly Action<Context> _before;
-            private readonly Action<Context> _after;
+            private readonly Action<Context>? _before;
+            private readonly Action<Context>? _after;
 
-            public Parser(IParser<TInput, TOutput> parser, Action<Context> before, Action<Context> after)
+            public Parser(IParser<TInput, TOutput> parser, Action<Context>? before, Action<Context>? after)
             {
                 Assert.ArgumentNotNull(parser, nameof(parser));
                 _parser = parser;
                 _before = before;
                 _after = after;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }
@@ -54,7 +55,7 @@ namespace ParserObjects.Parsers
         public record Context(
             IParser<TInput, TOutput> Parser,
             ParseState<TInput> State,
-            IResult<TOutput> Result
+            IResult<TOutput>? Result
         )
         {
             public IDataStore Data => State.Data;
@@ -75,14 +76,15 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput>
         {
             private readonly IParser<TInput> _parser;
-            private readonly Action<Context> _before;
-            private readonly Action<Context> _after;
+            private readonly Action<Context>? _before;
+            private readonly Action<Context>? _after;
 
-            public Parser(IParser<TInput> parser, Action<Context> before, Action<Context> after)
+            public Parser(IParser<TInput> parser, Action<Context>? before, Action<Context>? after)
             {
                 _parser = parser;
                 _before = before;
                 _after = after;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }
@@ -107,7 +109,7 @@ namespace ParserObjects.Parsers
         public record Context(
             IParser<TInput> Parser,
             ParseState<TInput> State,
-            IResult Result
+            IResult? Result
         )
         {
             public IDataStore Data => State.Data;

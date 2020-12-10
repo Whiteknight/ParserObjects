@@ -41,7 +41,7 @@ namespace ParserObjects.Sequences
             return tokens;
         }
 
-        public T this[int index]
+        public T? this[int index]
         {
             get
             {

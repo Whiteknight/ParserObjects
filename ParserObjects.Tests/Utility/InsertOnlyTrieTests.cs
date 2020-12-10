@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
 

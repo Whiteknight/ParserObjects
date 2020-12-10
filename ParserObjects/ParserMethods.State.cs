@@ -47,7 +47,7 @@ namespace ParserObjects
                 return r;
             });
 
-        public static IParser<TInput, TOutput> RecurseData<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values = null)
+        public static IParser<TInput, TOutput> RecurseData<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object>? values = null)
             => Function<TOutput>((t, success, fail) =>
             {
                 try

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -24,6 +25,7 @@ namespace ParserObjects.Utility
         public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
+            Assert.ArgumentNotNull(result, nameof(result));
             var current = _root;
             var keyList = keys.ToList();
             foreach (var key in keyList)
@@ -34,21 +36,7 @@ namespace ParserObjects.Utility
             return this;
         }
 
-        public (bool Success, TResult Value) Get(IEnumerable<TKey> keys)
-        {
-            Assert.ArgumentNotNull(keys, nameof(keys));
-            var current = _root;
-            foreach (var key in keys)
-            {
-                current = current.Get(key);
-                if (current == null)
-                    return (false, default);
-            }
-
-            return (current.HasResult, current.Result);
-        }
-
-        public PartialResult<TResult> Get(ISequence<TKey> keys)
+        public IPartialResult<TResult> Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return Node.Get(_root, keys);
@@ -58,26 +46,19 @@ namespace ParserObjects.Utility
 
         private class Node
         {
-            private readonly Dictionary<TKey, Node> _children;
+            private readonly Dictionary<ValueTuple<TKey>, Node> _children;
 
             public Node()
             {
-                _children = new Dictionary<TKey, Node>();
+                _children = new Dictionary<ValueTuple<TKey>, Node>();
                 HasResult = false;
             }
 
             public bool HasResult { get; private set; }
 
-            public TResult Result { get; private set; }
+            public TResult? Result { get; private set; }
 
-            public Node Get(TKey key)
-            {
-                if (_children.ContainsKey(key))
-                    return _children[key];
-                return null;
-            }
-
-            public static PartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
+            public static IPartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
             {
                 var startLocation = keys.CurrentLocation;
                 var current = thisNode;
@@ -85,35 +66,35 @@ namespace ParserObjects.Utility
                 var previous = new Stack<(Node node, TKey key)>();
                 int consumed = 0;
 
-                PartialResult<TResult> FindBestResult()
+                IPartialResult<TResult> FindBestResult()
                 {
                     while (previous.Count > 0)
                     {
                         var (node, oldKey) = previous.Pop();
                         keys.PutBack(oldKey);
                         consumed--;
-                        if (node.HasResult)
-                            return PartialResult<TResult>.Succeed(node.Result, consumed, startLocation);
+                        if (node.HasResult && node.Result != null)
+                            return new SuccessPartialResult<TResult>(node.Result, consumed, startLocation);
                     }
 
                     // No node matched, so return failure
                     Debug.Assert(consumed == 0, "Just double-checking my math");
-                    return PartialResult<TResult>.Fail("Trie does not contain matching item");
+                    return new FailurePartialResult<TResult>("Trie does not contain matching item", startLocation);
                 }
 
                 while (true)
                 {
                     if (keys.IsAtEnd)
                     {
-                        if (current.HasResult)
-                            return PartialResult<TResult>.Succeed(current.Result, consumed, startLocation);
+                        if (current.HasResult && current.Result != null)
+                            return new SuccessPartialResult<TResult>(current.Result, consumed, startLocation);
                         return FindBestResult();
                     }
 
                     // Quick degenerate case. We're at the final leaf of the trie, so return a
                     // value if we have it.
-                    if (current.HasResult && current._children.Count == 0)
-                        return PartialResult<TResult>.Succeed(current.Result, consumed, startLocation);
+                    if (current.HasResult && current._children.Count == 0 && current.Result != null)
+                        return new SuccessPartialResult<TResult>(current.Result, consumed, startLocation);
 
                     // Get the next key and push onto the stack
                     var key = keys.GetNext();
@@ -121,10 +102,11 @@ namespace ParserObjects.Utility
 
                     // If we have more input to read, and if this node has a matching child, set that as the current node and jump
                     // back to the top of the loop
-                    if (current._children.ContainsKey(key))
+                    var wrappedKey = new ValueTuple<TKey>(key);
+                    if (current._children.ContainsKey(wrappedKey))
                     {
                         consumed++;
-                        current = current._children[key];
+                        current = current._children[wrappedKey];
                         continue;
                     }
 
@@ -137,16 +119,18 @@ namespace ParserObjects.Utility
 
             public Node GetOrAdd(TKey key)
             {
-                if (_children.ContainsKey(key))
-                    return _children[key];
+                Assert.ArgumentNotNull(key, nameof(key));
+                var wrappedKey = new ValueTuple<TKey>(key);
+                if (_children.ContainsKey(wrappedKey))
+                    return _children[wrappedKey];
                 var newNode = new Node();
-                _children.Add(key, newNode);
+                _children.Add(wrappedKey, newNode);
                 return newNode;
             }
 
             public bool TryAddResult(TResult result)
             {
-                if (!HasResult)
+                if (!HasResult || Result == null)
                 {
                     HasResult = true;
                     Result = result;

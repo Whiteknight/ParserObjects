@@ -17,6 +17,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(predicate, nameof(predicate));
             _predicate = predicate;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -31,7 +32,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Expected a matching item, but found End");
 
             var next = state.Input.Peek();
-            if (!_predicate(next))
+            if (next == null || !_predicate(next))
                 return state.Fail(this, "Next item does not match the predicate");
 
             return state.Success(this, state.Input.GetNext(), 1, location);

@@ -1,5 +1,6 @@
 ﻿using System;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 
 namespace ParserObjects
 {
@@ -19,7 +20,7 @@ namespace ParserObjects
         public static bool CanMatch<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
         {
             var checkpoint = input.Checkpoint();
-            var state = new ParseState<TInput>(input, null);
+            var state = new ParseState<TInput>(input, Defaults.LogMethod);
             var result = parser.Parse(state);
             checkpoint.Rewind();
             return result.Success;
@@ -37,7 +38,7 @@ namespace ParserObjects
             // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
             // reuse it
             var sequence = new StringCharacterSequence(input);
-            var state = new ParseState<char>(sequence, null);
+            var state = new ParseState<char>(sequence, Defaults.LogMethod);
             var result = parser.Parse(state);
             return result.Success;
         }
@@ -52,8 +53,8 @@ namespace ParserObjects
         /// <param name="s"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, Action<string> log = null)
-            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log));
+        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, Action<string>? log = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log ?? Defaults.LogMethod));
 
         /// <summary>
         /// Convenience method to invoke a parser which acts on an input sequence. Creates the
@@ -65,8 +66,8 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string> log = null)
-            => parser.Parse(new ParseState<TInput>(input, log));
+        public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
+            => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
 
         /// <summary>
         /// Covenience method to invoke a parser which does not return a value. Creates the
@@ -77,7 +78,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input, Action<string> log = null)
-            => parser.Parse(new ParseState<TInput>(input, log));
+        public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input, Action<string>? log = null)
+            => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
     }
 }

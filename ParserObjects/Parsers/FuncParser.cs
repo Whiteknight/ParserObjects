@@ -19,6 +19,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -31,10 +32,10 @@ namespace ParserObjects.Parsers
             {
                 // TODO: Need to find a way to record the number of consumed inputs at the point
                 // when the OnSuccess callback is invoked.
-                IResult<TOutput> OnSuccess(TOutput value, Location loc = null)
+                IResult<TOutput> OnSuccess(TOutput value, Location loc)
                     => state.Success(this, value, 0, loc ?? state.Input.CurrentLocation);
 
-                IResult<TOutput> OnFailure(string err, Location loc = null)
+                IResult<TOutput> OnFailure(string err, Location loc)
                     => state.Fail(this, err, loc ?? state.Input.CurrentLocation);
 
                 var startConsumed = state.Input.Consumed;

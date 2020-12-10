@@ -37,7 +37,7 @@ namespace ParserObjects.Sequences
             FillBuffer();
         }
 
-        public StreamByteSequence(Stream stream, string fileName = null, int bufferSize = 128)
+        public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 128)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));

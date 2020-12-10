@@ -35,11 +35,9 @@ namespace ParserObjects.Parsers
 
                 _initial = initial;
                 _quantifier = arity;
-                _left = new LeftValue()
-                {
-                    Name = "LEFT"
-                };
+                _left = new LeftValue();
                 _right = getRight(_left);
+                _name = string.Empty;
             }
 
             public string Name
@@ -135,15 +133,20 @@ namespace ParserObjects.Parsers
 
         private class LeftValue : IParser<TInput, TOutput>
         {
-            public TOutput Value { get; set; }
+            public LeftValue()
+            {
+                Name = "LEFT";
+            }
 
-            public Location Location { get; set; }
+            public TOutput? Value { get; set; }
+
+            public Location? Location { get; set; }
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state) => state.Success(this, Value, 0, Location);
+            public IResult<TOutput> Parse(ParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => state.Success(this, Value, 0, Location);
+            IResult IParser<TInput>.Parse(ParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

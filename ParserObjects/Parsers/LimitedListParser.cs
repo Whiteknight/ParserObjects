@@ -23,6 +23,7 @@ namespace ParserObjects.Parsers
                 Maximum = Minimum;
 
             _parser = parser;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

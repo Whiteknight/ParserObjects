@@ -48,6 +48,27 @@ namespace ParserObjects
         IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
     }
 
+    public interface IPartialResult<T>
+    {
+        /// <summary>
+        /// Gets a value indicating whether the parse succeeded.
+        /// </summary>
+        bool Success { get; }
+
+        /// <summary>
+        /// Gets the approximate location of the successful parse in the input sequence. On failure, this
+        /// value is undefined and may show the location of the start of the attempt, the location at
+        /// which failure occured, null, or some other value.
+        /// </summary>
+        Location Location { get; }
+
+        string Message { get; }
+
+        T Value { get; }
+
+        int Consumed { get; }
+    }
+
     public static class ParseResultExtensions
     {
         /// <summary>
@@ -71,33 +92,5 @@ namespace ParserObjects
         /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
             => result.Success ? result : new FailResult<T>(result.Parser, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
-
-        /// <summary>
-        /// Get the success flag and, if success is true, the result value.
-        /// </summary>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="success"></param>
-        /// <param name="value"></param>
-        public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value)
-        {
-            success = result.Success;
-            value = result.Success ? result.Value : default;
-        }
-
-        /// <summary>
-        /// Get the success flag and location and, if success is true, the result value.
-        /// </summary>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="success"></param>
-        /// <param name="value"></param>
-        /// <param name="location"></param>
-        public static void Deconstruct<TValue>(this IResult<TValue> result, out bool success, out TValue value, out Location location)
-        {
-            success = result.Success;
-            value = result.Success ? result.Value : default;
-            location = result.Location;
-        }
     }
 }

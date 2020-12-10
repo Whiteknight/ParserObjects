@@ -17,6 +17,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(trie, nameof(trie));
             Trie = trie;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

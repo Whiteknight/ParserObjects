@@ -23,6 +23,7 @@ namespace ParserObjects.Pratt
             Assert.ArgumentNotNull(matcher, nameof(matcher));
             _matcher = matcher;
             _getParselets = new List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>>();
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Sequences;
@@ -88,7 +87,7 @@ namespace ParserObjects.Tests.Parsers
             result.Consumed.Should().Be(0);
             var list = result.Value;
             list.Count.Should().Be(1);
-            list[0].Should().Be(null);
+            list[0].Should().NotBeNull();
         }
 
         [Test]
@@ -101,9 +100,9 @@ namespace ParserObjects.Tests.Parsers
             result.Consumed.Should().Be(0);
             var list = result.Value;
             list.Count.Should().Be(3);
-            list[0].Should().Be(null);
-            list[1].Should().Be(null);
-            list[2].Should().Be(null);
+            list[0].Should().NotBeNull();
+            list[1].Should().NotBeNull();
+            list[2].Should().NotBeNull();
         }
 
         [Test]

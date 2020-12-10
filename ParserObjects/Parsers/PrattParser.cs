@@ -24,6 +24,7 @@ namespace ParserObjects.Parsers
             setup(config);
             _config = config;
             _engine = new Engine<TInput, TOutput>(_config.Parselets);
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -42,7 +43,7 @@ namespace ParserObjects.Parsers
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
             {
                 startCp.Rewind();
-                return state.Fail<TOutput>(pe.Parser ?? this, pe.Message, pe.Location);
+                return state.Fail<TOutput>(pe.Parser ?? this, pe.Message, pe.Location ?? state.Input.CurrentLocation);
             }
         }
 

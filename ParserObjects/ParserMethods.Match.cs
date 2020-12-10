@@ -21,7 +21,7 @@ namespace ParserObjects
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static IParser<TInput, TInput> Match(TInput pattern)
-            => Match(s => s.Equals(pattern));
+            => Match(s => s!.Equals(pattern));
 
         /// <summary>
         /// Get the next few input values and compare them one-by-one against an ordered sequence of test

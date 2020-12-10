@@ -17,6 +17,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
             _parsers = parsers;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }

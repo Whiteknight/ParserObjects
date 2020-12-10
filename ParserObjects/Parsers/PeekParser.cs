@@ -6,6 +6,11 @@ namespace ParserObjects.Parsers
 {
     public class PeekParser<T> : IParser<T, T>
     {
+        public PeekParser()
+        {
+            Name = string.Empty;
+        }
+
         public string Name { get; set; }
 
         public IResult<T> Parse(ParseState<T> state)

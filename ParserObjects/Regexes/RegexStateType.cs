@@ -23,6 +23,11 @@
         /// <summary>
         /// The state is an alternation of substates
         /// </summary>
-        Alternation
+        Alternation,
+
+        /// <summary>
+        /// End state
+        /// </summary>
+        EndSentinel
     }
 }

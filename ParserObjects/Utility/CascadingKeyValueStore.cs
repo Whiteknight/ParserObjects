@@ -28,12 +28,14 @@ namespace ParserObjects.Utility
                 node = node.Previous;
             }
 
-            return default;
+            return FailureOption<T>.Instance;
         }
 
         public void Set<T>(string name, T value)
         {
-            var dict = _store.Last.Value;
+            var dict = _store!.Last!.Value!;
+            if (value == null)
+                return;
             if (dict.ContainsKey(name))
                 dict[name] = value;
             else

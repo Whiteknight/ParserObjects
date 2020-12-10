@@ -1,5 +1,6 @@
 ﻿using System;
 using ParserObjects.Sequences;
+using ParserObjects.Utility;
 using ParserObjects.Visitors;
 
 namespace ParserObjects
@@ -25,7 +26,7 @@ namespace ParserObjects
         /// <param name="input"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string> log = null)
-            => new ParseResultSequence<TInput, TOutput>(input, parser, log);
+        public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
+            => new ParseResultSequence<TInput, TOutput>(input, parser, log ?? Defaults.LogMethod);
     }
 }

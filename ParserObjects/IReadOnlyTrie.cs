@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Parsers;
+using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
 namespace ParserObjects
@@ -13,19 +13,12 @@ namespace ParserObjects
     public interface IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>
-        /// Given a composite key, search for a value at that location in the trie.
-        /// </summary>
-        /// <param name="keys"></param>
-        /// <returns></returns>
-        (bool Success, TResult Value) Get(IEnumerable<TKey> keys);
-
-        /// <summary>
         /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
         /// value from the trie which successfully consumes the most amount of input items.
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        PartialResult<TResult> Get(ISequence<TKey> keys);
+        IPartialResult<TResult> Get(ISequence<TKey> keys);
 
         /// <summary>
         /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so
@@ -54,16 +47,6 @@ namespace ParserObjects
     public static class TrieExtensions
     {
         /// <summary>
-        /// Wrap the Trie in a TrieParser.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="readOnlyTrie"></param>
-        /// <returns></returns>
-        public static IParser<TKey, TResult> ToParser<TKey, TResult>(this IReadOnlyTrie<TKey, TResult> readOnlyTrie)
-            => new TrieParser<TKey, TResult>(readOnlyTrie);
-
-        /// <summary>
         /// Convenience method to add a string value with char keys.
         /// </summary>
         /// <param name="readOnlyTrie"></param>
@@ -88,6 +71,13 @@ namespace ParserObjects
             foreach (var value in values)
                 readOnlyTrie.Add(value, value);
             return readOnlyTrie;
+        }
+
+        public static IOption<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
+        {
+            var input = new StringCharacterSequence(keys);
+            var result = trie.Get(input);
+            return result.Success ? new SuccessOption<TResult>(result.Value) : FailureOption<TResult>.Instance;
         }
     }
 }

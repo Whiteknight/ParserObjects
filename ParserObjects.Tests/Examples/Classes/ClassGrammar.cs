@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using static ParserObjects.ParserMethods<char>;
-using static ParserObjects.ParserMethods;
 using static ParserObjects.CStyleParserMethods;
+using static ParserObjects.ParserMethods;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Examples.Classes
 {
@@ -82,12 +82,12 @@ namespace ParserObjects.Tests.Examples.Classes
                         var children = new List<Definition>();
                         while (true)
                         {
-                            var (hasChild, childDef) = ctx.TryParse(0);
-                            if (!hasChild)
+                            var childResult = ctx.TryParse(0);
+                            if (!childResult.Success)
                                 break;
                             if (def.StructureType == "interface")
                                 ctx.FailAll("Interfaces may not contain child classes/interfaces");
-                            children.Add(childDef);
+                            children.Add(childResult.Value);
                         }
 
                         def.Children = children;

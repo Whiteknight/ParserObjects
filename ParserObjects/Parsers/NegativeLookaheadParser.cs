@@ -16,6 +16,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             _inner = inner;
+            Name = string.Empty;
         }
 
         public string Name { get; set; }
@@ -31,7 +32,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Lookahead pattern existed but was not supposed to");
             }
 
-            return state.Success(this, null, 0);
+            return state.Success(this, Defaults.ObjectInstance, 0);
         }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };

@@ -12,7 +12,7 @@ namespace ParserObjects
         /// <param name="root"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static IParser FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
+        public static IOption<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
 
         /// <summary>
         /// Given a parser tree, replace all children of ReplaceableParsers matching the given predicate with

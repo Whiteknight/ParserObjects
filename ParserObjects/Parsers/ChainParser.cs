@@ -61,6 +61,7 @@ namespace ParserObjects.Parsers
                 _inner = inner;
                 _getParser = getParser;
                 _mentions = mentions.OrEmptyIfNull().ToList();
+                Name = string.Empty;
             }
 
             public Parser(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup)
@@ -73,6 +74,7 @@ namespace ParserObjects.Parsers
                 _inner = inner;
                 _getParser = r => config.Pick(r.Value);
                 _mentions = config.GetChildren().ToList();
+                Name = string.Empty;
             }
 
             public string Name { get; set; }
@@ -166,6 +168,7 @@ namespace ParserObjects.Parsers
                 _inner = inner;
                 _getParser = getParser;
                 _mentions = mentions.OrEmptyIfNull().ToList();
+                Name = string.Empty;
             }
 
             public Parser(IParser<TInput> inner, Action<IConfiguration> setup)
@@ -178,6 +181,7 @@ namespace ParserObjects.Parsers
                 _inner = inner;
                 _getParser = r => config.Pick(r.Value);
                 _mentions = config.GetChildren().ToList();
+                Name = string.Empty;
             }
 
             public string Name { get; set; }

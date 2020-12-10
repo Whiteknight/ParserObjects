@@ -76,9 +76,9 @@ namespace ParserObjects.Parsers
             {
             }
 
-            public Location Location { get; }
+            public Location? Location { get; }
 
-            public IResult Result { get; }
+            public IResult? Result { get; }
         }
 
         /// <summary>
@@ -95,6 +95,7 @@ namespace ParserObjects.Parsers
             public Parser(Func<State<TInput>, TOutput> func)
             {
                 _func = func;
+                Name = string.Empty;
             }
 
             public string Name { get; set; }
@@ -115,7 +116,7 @@ namespace ParserObjects.Parsers
                     // This exception is part of normal flow-control for this parser
                     // Other exceptions bubble up like normal.
                     checkpoint.Rewind();
-                    var result = spe.Result;
+                    var result = spe.Result!;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
                     return state.Fail(this, $"Error during parsing: {result.Parser} {result.Message} at {result.Location}");
                 }
