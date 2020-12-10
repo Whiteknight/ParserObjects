@@ -14,7 +14,7 @@ namespace ParserObjects
         /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
         /// </summary>
         /// <returns></returns>
-        public static IParser<TInput, TInput> Any(bool consume = true) => new AnyParser<TInput>(consume);
+        public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
 
         /// <summary>
         /// Parses a parser, returns true if the parser succeeds, false if it fails.
@@ -167,7 +167,7 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<ISequence<TInput>, TOutput> getDefault)
             => First(p, Produce(getDefault ?? (t => default)));
 
-        public static IParser<TInput, TInput> Peek() => new AnyParser<TInput>(false);
+        public static IParser<TInput, TInput> Peek() => new PeekParser<TInput>();
 
         /// <summary>
         /// Given the next input lookahead value, select the appropriate parser to use to continue
@@ -177,7 +177,7 @@ namespace ParserObjects
         /// <param name="setup"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Predict<TOutput>(Action<Chain<TInput, TInput, TOutput>.IConfiguration> setup)
-             => new Chain<TInput, TInput, TOutput>.Parser(Any(false), setup);
+             => new Chain<TInput, TInput, TOutput>.Parser(Peek(), setup);
 
         /// <summary>
         /// Produce a value without consuming anything out of the input sequence.

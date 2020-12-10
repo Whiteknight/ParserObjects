@@ -12,8 +12,22 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class RightApply<TInput, TMiddle, TOutput>
     {
+        /// <summary>
+        /// Callback delegate for producing a result from a complete set of left, middle and right
+        /// values.
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="middle"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public delegate TOutput Produce(TOutput left, TMiddle middle, TOutput right);
 
+        /// <summary>
+        /// Callback delegate to create a missing object.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public delegate TOutput Create(ISequence<TInput> input, IDataStore data);
 
         /// <summary>

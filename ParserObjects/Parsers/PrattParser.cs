@@ -5,6 +5,13 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Implementation of the Pratt parsing algorithm. Uses special Right production rules ("NUD")
+    /// and Left production rules (LED) to recursively parse an input. Especially useful for
+    /// mathematical expressions.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly Configuration<TInput, TOutput> _config;

@@ -130,10 +130,17 @@ namespace ParserObjects.Visitors
 
         protected virtual void VisitTyped<TInput>(AnyParser<TInput> p, State state)
         {
-            state.Current.Append(p.Consume ? "." : "(?=.)");
+            state.Current.Append('.');
         }
 
         protected virtual void VisitTyped<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
+        {
+            var child = p.GetChildren().Single();
+            VisitChild(child, state);
+            state.Current.Append("->Chain");
+        }
+
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(Chain<TInput, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
             VisitChild(child, state);
@@ -303,6 +310,11 @@ namespace ParserObjects.Visitors
             VisitChild(children[0], state);
             state.Current.Append(" || ");
             VisitChild(children[1], state);
+        }
+
+        protected virtual void VisitTyped<TInput>(PeekParser<TInput> p, State state)
+        {
+            state.Current.Append("(?=.)");
         }
 
         protected virtual void VisitTyped<TInput, TOutput>(PrattParser<TInput, TOutput> p, State state)

@@ -11,6 +11,12 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Produce<TInput, TOutput>
     {
+        /// <summary>
+        /// Delegate to create the value given the current state of the parse as input.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public delegate TOutput Function(ISequence<TInput> input, IDataStore data);
 
         /// <summary>

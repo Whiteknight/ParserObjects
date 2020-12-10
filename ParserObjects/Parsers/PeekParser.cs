@@ -4,12 +4,7 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
-    /// <summary>
-    /// Matches any input item that isn't the end of input. Consumes exactly one input item and
-    /// returns it.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class AnyParser<T> : IParser<T, T>
+    public class PeekParser<T> : IParser<T, T>
     {
         public string Name { get; set; }
 
@@ -20,8 +15,8 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Expected any but found End");
 
             var location = state.Input.CurrentLocation;
-            var next = state.Input.GetNext();
-            return state.Success(this, next, 1, location);
+            var peek = state.Input.Peek();
+            return state.Success(this, peek, 0, location);
         }
 
         IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);

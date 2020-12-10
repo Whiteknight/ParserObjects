@@ -33,9 +33,7 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
-                var parser = _getParser(state);
-                if (parser == null)
-                    throw new InvalidOperationException("Create parser value must not be null");
+                var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
                 return parser.Parse(state);
             }
 

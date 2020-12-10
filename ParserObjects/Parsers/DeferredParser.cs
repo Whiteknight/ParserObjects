@@ -24,9 +24,7 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
-            var parser = _getParser();
-            if (parser == null)
-                throw new InvalidOperationException("Deferred parser value must not be null");
+            var parser = _getParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
             return parser.Parse(state);
         }
 

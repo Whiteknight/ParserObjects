@@ -5,8 +5,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Transforms the output of one parser into a different value. Only used to transform success
-    /// values.
+    /// Transforms the output value of one parser into a different value. Only used to transform
+    /// success values. Error values are not modified.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TMiddle"></typeparam>

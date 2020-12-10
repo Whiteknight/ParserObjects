@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Uses an ITrie to match the longest pattern.
+    /// Uses a Trie to match the longest pattern from among available options.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

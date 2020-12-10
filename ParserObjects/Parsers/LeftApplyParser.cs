@@ -55,19 +55,13 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                switch (_quantifier)
+                return _quantifier switch
                 {
-                    case Quantifier.ExactlyOne:
-                        return ParseExactlyOne(state);
-
-                    case Quantifier.ZeroOrOne:
-                        return ParseZeroOrOne(state);
-
-                    case Quantifier.ZeroOrMore:
-                        return ParseZeroOrMore(state);
-                }
-
-                return state.Fail(this, $"Quantifier value {_quantifier} not supported");
+                    Quantifier.ExactlyOne => ParseExactlyOne(state),
+                    Quantifier.ZeroOrOne => ParseZeroOrOne(state),
+                    Quantifier.ZeroOrMore => ParseZeroOrMore(state),
+                    _ => state.Fail(this, $"Quantifier value {_quantifier} not supported"),
+                };
             }
 
             private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
