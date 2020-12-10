@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using System.Text;
+using ParserObjects.Sequences;
 
-namespace ParserObjects.Sequences
+namespace ParserObjects
 {
     public static class StreamExtensions
     {

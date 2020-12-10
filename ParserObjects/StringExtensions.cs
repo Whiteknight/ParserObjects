@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Sequences
+﻿using ParserObjects.Sequences;
+
+namespace ParserObjects
 {
     public static class StringExtensions
     {
