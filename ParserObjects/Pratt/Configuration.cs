@@ -5,6 +5,8 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
+    // Configuration object for the Pratt parser. Not intended for direct use, use the abstraction
+    // instead.
     public class Configuration<TInput, TOutput> : IConfiguration<TInput, TOutput>
     {
         private readonly List<IParser> _references;

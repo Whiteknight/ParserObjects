@@ -5,6 +5,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
+    /// <summary>
+    /// Configuration class for setting up a parselet.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class ParseletConfiguration<TInput, TValue, TOutput> : IParseletConfiguration<TInput, TValue, TOutput>
     {
         private readonly List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>> _getParselets;

@@ -1,7 +1,8 @@
 ﻿namespace ParserObjects.Pratt
 {
     // Simple token type which wraps a value from the input stream and metadata necessary to
-    // work with it inside the Engine.
+    // work with it inside the Engine. This class is for (mostly) internal use only and shouldn't
+    // be used directly except through the provided abstractions.
     public class Token<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
     {
         private readonly Parselet<TInput, TValue, TOutput> _parselet;

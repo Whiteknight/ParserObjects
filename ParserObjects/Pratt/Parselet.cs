@@ -3,7 +3,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Pratt
 {
     /// <summary>
-    /// User-configured parselet rule, which acts as an adaptor for IParser to IParselet.
+    /// User-configured rule, which acts as an adaptor from IParser to IParselet.
     /// Is mostly used as a collection of configured internal values and should not be accessed
     /// directly from user code.
     /// </summary>

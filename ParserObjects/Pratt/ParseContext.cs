@@ -4,12 +4,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
-    // TODO: Should ParseContext implement IParser<TInput, TOutput> so that it can be passed to
-    // another parser and called recursively? For example, if we wanted a list of values from
-    // the Pratt, we could call List(ctx) and get it
-
     // Simple contextual wrapper, so that private Engine methods can be
-    // exposed to user callbacks
+    // exposed to user callbacks. This class is for internal use only. Users should interact with
+    // the provided abstractions.
     public class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutput>
     {
         private readonly ParseState<TInput> _state;

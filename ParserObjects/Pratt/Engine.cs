@@ -4,6 +4,7 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt
 {
+    // Implementation of the Pratt algorithm. For internal use only, use PrattParser instead.
     public class Engine<TInput, TOutput>
     {
         // See https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html

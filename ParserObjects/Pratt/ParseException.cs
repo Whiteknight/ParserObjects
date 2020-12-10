@@ -2,6 +2,10 @@
 
 namespace ParserObjects.Pratt
 {
+    /// <summary>
+    /// Internal control-flow exception type used to direct errors in the Pratt parser. Not for
+    /// external use.
+    /// </summary>
     [Serializable]
     public class ParseException : ControlFlowException
     {
