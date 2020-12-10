@@ -39,11 +39,11 @@ namespace ParserObjects.Pratt
 
         public TOutput Parse(int rbp)
         {
-            var (success, value, error, consumed) = _engine.TryParse(_state, rbp);
-            if (!success)
-                throw new ParseException(ParseExceptionSeverity.Rule, error, null, null);
-            _consumed += consumed;
-            return value;
+            var result = _engine.TryParse(_state, rbp);
+            if (!result.Success)
+                throw new ParseException(ParseExceptionSeverity.Rule, result.Error, null, result.Location);
+            _consumed += result.Consumed;
+            return result.Value;
         }
 
         public TValue Parse<TValue>(IParser<TInput, TValue> parser)
@@ -58,10 +58,8 @@ namespace ParserObjects.Pratt
 
         IResult<TOutput> IParser<TInput, TOutput>.Parse(ParseState<TInput> state)
         {
-            var (success, value, error, consumed) = _engine.TryParse(_state, _rbp);
-            if (!success)
-                return state.Fail(this, error);
-            return state.Success(this, value, consumed);
+            var result = _engine.TryParse(_state, _rbp);
+            return state.Result(this, result);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
@@ -88,9 +86,9 @@ namespace ParserObjects.Pratt
 
         public (bool success, TOutput value) TryParse(int rbp)
         {
-            var (success, value, _, consumed) = _engine.TryParse(_state, rbp);
-            _consumed += consumed;
-            return (success, value);
+            var result = _engine.TryParse(_state, rbp);
+            _consumed += result.Consumed;
+            return (result.Success, result.Value);
         }
 
         public (bool success, TValue value) TryParse<TValue>(IParser<TInput, TValue> parser)

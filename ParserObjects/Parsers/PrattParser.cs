@@ -29,10 +29,8 @@ namespace ParserObjects.Parsers
             try
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var (success, value, error, consumed) = _engine.Parse(state);
-                if (success)
-                    return state.Success(this, value, consumed);
-                return state.Fail(this, error);
+                var result = _engine.Parse(state);
+                return state.Result(this, result);
             }
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
             {

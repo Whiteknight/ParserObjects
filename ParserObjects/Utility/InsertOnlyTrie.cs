@@ -48,7 +48,7 @@ namespace ParserObjects.Utility
             return (current.HasResult, current.Result);
         }
 
-        public (bool Success, TResult Value, int consumed, Location location) Get(ISequence<TKey> keys)
+        public PartialResult<TResult> Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return Node.Get(_root, keys);
@@ -77,14 +77,15 @@ namespace ParserObjects.Utility
                 return null;
             }
 
-            public static (bool success, TResult value, int consumed, Location location) Get(Node thisNode, ISequence<TKey> keys)
+            public static PartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
             {
+                var startLocation = keys.CurrentLocation;
                 var current = thisNode;
                 // The node and the key we apply to that node
                 var previous = new Stack<(Node node, TKey key)>();
                 int consumed = 0;
 
-                (bool success, TResult value, int consumed, Location location) FindBestResult()
+                PartialResult<TResult> FindBestResult()
                 {
                     while (previous.Count > 0)
                     {
@@ -92,12 +93,12 @@ namespace ParserObjects.Utility
                         keys.PutBack(oldKey);
                         consumed--;
                         if (node.HasResult)
-                            return (true, node.Result, consumed, keys.CurrentLocation);
+                            return PartialResult<TResult>.Succeed(node.Result, consumed, startLocation);
                     }
 
                     // No node matched, so return failure
                     Debug.Assert(consumed == 0, "Just double-checking my math");
-                    return default;
+                    return PartialResult<TResult>.Fail("Trie does not contain matching item");
                 }
 
                 while (true)
@@ -105,14 +106,14 @@ namespace ParserObjects.Utility
                     if (keys.IsAtEnd)
                     {
                         if (current.HasResult)
-                            return (true, current.Result, consumed, keys.CurrentLocation);
+                            return PartialResult<TResult>.Succeed(current.Result, consumed, startLocation);
                         return FindBestResult();
                     }
 
                     // Quick degenerate case. We're at the final leaf of the trie, so return a
                     // value if we have it.
                     if (current.HasResult && current._children.Count == 0)
-                        return (true, current.Result, consumed, keys.CurrentLocation);
+                        return PartialResult<TResult>.Succeed(current.Result, consumed, startLocation);
 
                     // Get the next key and push onto the stack
                     var key = keys.GetNext();

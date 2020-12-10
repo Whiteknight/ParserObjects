@@ -19,9 +19,9 @@ namespace ParserObjects.Pratt
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
 
-        public (bool success, TOutput value, string error, int consumed) Parse(ParseState<TInput> state) => TryParse(state, 0);
+        public PartialResult<TOutput> Parse(ParseState<TInput> state) => TryParse(state, 0);
 
-        public (bool success, TOutput value, string error, int consumed) TryParse(ParseState<TInput> state, int rbp)
+        public PartialResult<TOutput> TryParse(ParseState<TInput> state, int rbp)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var levelCp = state.Input.Checkpoint();
@@ -32,7 +32,7 @@ namespace ParserObjects.Pratt
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
             {
                 levelCp.Rewind();
-                return (false, default, pe.Message ?? "Fail", 0);
+                return default;
             }
         }
 
@@ -40,33 +40,36 @@ namespace ParserObjects.Pratt
         // which will continue to succeed and consume zero input. Will probably break the
         // loop because it has the same binding power.
 
-        private (bool success, TOutput value, string error, int consumed) Parse(ParseState<TInput> state, int rbp)
+        private PartialResult<TOutput> Parse(ParseState<TInput> state, int rbp)
         {
-            var (hasLeft, leftToken, error, consumed) = GetLeft(state);
-            if (!hasLeft)
-                return (false, default, error, 0);
+            var startLocation = state.Input.CurrentLocation;
+            var leftResult = GetLeft(state);
+            if (!leftResult.Success)
+                return default;
+            var leftToken = leftResult.Value;
+            int consumed = leftResult.Consumed;
 
             while (true)
             {
-                var (hasRight, rightToken, rightConsumed) = GetRight(state, rbp, leftToken);
-                if (!hasRight || rightToken == null)
+                var rightResult = GetRight(state, rbp, leftToken);
+                if (!rightResult.Success || rightResult.Value == null)
                     break;
 
                 // Set the next left value to be the current combined right value and continue
                 // the loop
-                consumed += rightConsumed;
-                leftToken = rightToken;
+                consumed += rightResult.Consumed;
+                leftToken = rightResult.Value;
 
                 // If we have success, but did not consume any input, we will get into an infinite
                 // loop if we don't break. One zero-length suffix rule is the maximum
-                if (rightConsumed == 0)
+                if (rightResult.Consumed == 0)
                     break;
             }
 
-            return (true, leftToken.Value, null, consumed);
+            return PartialResult<TOutput>.Succeed(leftToken.Value, consumed, startLocation);
         }
 
-        private (bool success, IToken<TOutput> token, int consumed) GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
+        private PartialResult<IToken<TOutput>> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _ledableParselets)
@@ -95,13 +98,13 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                return (true, rightToken, consumed + rightContext.Consumed);
+                return PartialResult<IToken<TOutput>>.Succeed(rightToken, consumed + rightContext.Consumed);
             }
 
             return default;
         }
 
-        private (bool success, IToken<TOutput> leftToken, string error, int consumed) GetLeft(ParseState<TInput> state)
+        private PartialResult<IToken<TOutput>> GetLeft(ParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _nudableParselets)
@@ -114,7 +117,7 @@ namespace ParserObjects.Pratt
                 // would lead to infinite left recursion with no obvious programmatic ways to
                 // prevent it.
                 if (consumed == 0)
-                    return (false, default, $"Parselet {parselet} consumed no input and would have caused infinite recursion", 0);
+                    return PartialResult<IToken<TOutput>>.Fail($"Parselet {parselet} consumed no input and would have caused infinite recursion");
 
                 var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
                 {
@@ -130,10 +133,10 @@ namespace ParserObjects.Pratt
                 }
 
                 consumed += leftContext.Consumed;
-                return (true, leftToken, null, consumed);
+                return PartialResult<IToken<TOutput>>.Succeed(leftToken, consumed, null);
             }
 
-            return (false, default, "No parselets matched and transformed at the current position.", 0);
+            return PartialResult<IToken<TOutput>>.Fail("No parselets matched and transformed at the current position.");
         }
     }
 }

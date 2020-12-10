@@ -24,10 +24,8 @@ namespace ParserObjects.Parsers
         public IResult<TOutput> Parse(ParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var (success, value, consumed, location) = Trie.Get(state.Input);
-            if (!success)
-                return state.Fail(this, "Trie did not contain matching value");
-            return state.Success(this, value, consumed, location);
+            var result = Trie.Get(state.Input);
+            return state.Result(this, result);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

@@ -98,5 +98,12 @@ namespace ParserObjects
             Log(parser, "Succeeded");
             return new SuccessResult<object>(parser, output, location ?? Input.CurrentLocation, consumed);
         }
+
+        public IResult<TOutput> Result<TOutput>(IParser<TInput, TOutput> parser, PartialResult<TOutput> part)
+        {
+            if (part.Success)
+                return Success(parser, part.Value, part.Consumed, part.Location);
+            return Fail(parser, part.Error, part.Location);
+        }
     }
 }

@@ -60,4 +60,26 @@ namespace ParserObjects
 
         public override string ToString() => $"{Parser} FAIL at {Location}";
     }
+
+    public struct PartialResult<TValue>
+    {
+        public static PartialResult<TValue> Fail(string error, Location location = null) => new PartialResult<TValue>(false, default, 0, location, error);
+
+        public static PartialResult<TValue> Succeed(TValue value, int consumed, Location location = null) => new PartialResult<TValue>(true, value, consumed, location, null);
+
+        private PartialResult(bool success, TValue value, int consumed, Location location, string error)
+        {
+            Success = success;
+            Value = value;
+            Consumed = consumed;
+            Location = location;
+            Error = error;
+        }
+
+        public bool Success { get; }
+        public TValue Value { get; }
+        public int Consumed { get; }
+        public Location Location { get; }
+        public string Error { get; }
+    }
 }

@@ -12,7 +12,7 @@ namespace ParserObjects.Utility
             _store.AddLast(new Dictionary<string, object>());
         }
 
-        public (bool success, T value) Get<T>(string name)
+        public Option<T> Get<T>(string name)
         {
             var node = _store.Last;
             while (node != null)
@@ -21,14 +21,14 @@ namespace ParserObjects.Utility
                 {
                     var value = node.Value[name];
                     if (value is T typed)
-                        return (true, typed);
-                    return (false, default);
+                        return new Option<T>(typed);
+                    return default;
                 }
 
                 node = node.Previous;
             }
 
-            return (false, default);
+            return default;
         }
 
         public void Set<T>(string name, T value)

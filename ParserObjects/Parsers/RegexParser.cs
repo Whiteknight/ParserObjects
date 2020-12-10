@@ -32,11 +32,8 @@ namespace ParserObjects.Parsers
         public IResult<string> Parse(ParseState<char> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var startLocation = state.Input.CurrentLocation;
-            var (matches, str, pos) = _engine.GetMatch(state.Input, _regex);
-            if (matches)
-                return state.Success(this, str, pos, startLocation);
-            return state.Fail(this, $"Pattern failed at position {pos}");
+            var result = _engine.GetMatch(state.Input, _regex);
+            return state.Result(this, result);
         }
 
         IResult IParser<char>.Parse(ParseState<char> state) => Parse(state);

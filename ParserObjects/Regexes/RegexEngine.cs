@@ -136,20 +136,21 @@ namespace ParserObjects.Regexes
         /// <param name="input"></param>
         /// <param name="regex"></param>
         /// <returns></returns>
-        public (bool matches, string value, int consumed) GetMatch(ISequence<char> input, Regex regex)
+        public PartialResult<string> GetMatch(ISequence<char> input, Regex regex)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(regex, nameof(regex));
 
+            var startLocation = input.CurrentLocation;
             var context = new SequenceBuffer<char>(input);
             var (matches, consumed) = Test(regex.States, context);
             if (matches)
             {
                 var charArray = context.Capture(consumed);
-                return (true, new string(charArray), consumed);
+                return PartialResult<string>.Succeed(new string(charArray), consumed, startLocation);
             }
 
-            return (false, null, consumed);
+            return PartialResult<string>.Fail($"Match failed at position {consumed}");
         }
 
         private (bool matches, int length) Test(IReadOnlyList<RegexState> states, SequenceBuffer<char> buffer)
