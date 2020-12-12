@@ -39,8 +39,10 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
+                var startConsumed = state.Input.Consumed;
                 var value = _produce(state.Input, state.Data);
-                return state.Success(this, value, 0, state.Input.CurrentLocation);
+                var endConsumed = state.Input.Consumed;
+                return state.Success(this, value, endConsumed - startConsumed, state.Input.CurrentLocation);
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
