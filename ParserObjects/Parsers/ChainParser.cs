@@ -17,7 +17,7 @@ namespace ParserObjects.Parsers
 
         public interface IConfiguration
         {
-            IConfiguration Add(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser);
+            IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser);
         }
 
         private class Configuration : IConfiguration
@@ -29,7 +29,7 @@ namespace ParserObjects.Parsers
                 _parsers = new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>();
             }
 
-            public IConfiguration Add(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
+            public IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
             {
                 Assert.ArgumentNotNull(equals, nameof(equals));
                 Assert.ArgumentNotNull(parser, nameof(parser));

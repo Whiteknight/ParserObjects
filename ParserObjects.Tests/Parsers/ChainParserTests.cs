@@ -76,9 +76,9 @@ namespace ParserObjects.Tests.Parsers
         public void Configuration_Test()
         {
             var target = ChainWith<char, char>(Any(), x => x
-                .Add(c => c == 'a', Match('X'))
-                .Add(c => c == 'b', Match('Y'))
-                .Add(c => c == 'c', Match('Z'))
+                .When(c => c == 'a', Match('X'))
+                .When(c => c == 'b', Match('Y'))
+                .When(c => c == 'c', Match('Z'))
             );
             target.Parse("aX").Success.Should().BeTrue();
             target.Parse("bY").Success.Should().BeTrue();
@@ -142,9 +142,9 @@ namespace ParserObjects.Tests.Parsers
             var y = Match('Y');
             var z = Match('Z');
             var target = ChainWith<char, char>(first, config => config
-                .Add(c => c == 'a', x)
-                .Add(c => c == 'b', y)
-                .Add(c => c == 'c', z)
+                .When(c => c == 'a', x)
+                .When(c => c == 'b', y)
+                .When(c => c == 'c', z)
             );
 
             var result = target.GetChildren().ToList();
