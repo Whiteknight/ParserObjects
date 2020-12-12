@@ -31,6 +31,8 @@ namespace ParserObjects.Sequences
 
         public void PutBack(IResult<TOutput> value)
         {
+            if (value == null)
+                return;
             _putbacks.Push(value);
             _consumed--;
         }

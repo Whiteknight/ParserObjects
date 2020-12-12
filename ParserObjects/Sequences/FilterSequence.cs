@@ -35,6 +35,9 @@ namespace ParserObjects.Sequences
         public T GetNext()
         {
             bool hasMore = DiscardNonMatches();
+
+            // If we don't have any values, we are at the end. In this case calling
+            // _inputs.GetNext() will return the end sentinel, which is not subject to filtering.
             if (!hasMore)
                 return _inputs.GetNext();
 

@@ -65,6 +65,8 @@ namespace ParserObjects.Sequences
 
         public void PutBack(T? value)
         {
+            if (value == null || value.Equals(_endSentinelValue))
+                return;
             _putbacks.Push(value);
             _index--;
         }

@@ -4,6 +4,10 @@ We would like to create a calculator routine which parses a string like "1 + 2 *
 
 Up-to-date working code for this example is part of the [ParserObjects unit test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples/ExprCalculator). Where this documentation may be out of date or contain typos, the code in the unit test suite is guaranteed to build, run and produce the described results.
 
+## Note
+
+This example is mostly to showcase some techniques involved in parser writing, and uses the `LeftApply` parser to handle infix operators `+`, `-`, `*`, and `/`. There are other, arguably better, approaches to parsing mathematical expressions, which we will try to document elsewhere.
+
 ## The Lexical Grammar
 
 We could use a scannerless design, but we want to be able to ignore whitespace between tokens and separate some of the low-level character-handling routines into a separate class. First, let's create a `Token` class (We should put in a `.ToString()` method to help with debugging later, but I'll leave that and the definition of the `TokenType` enum as an exercise for the reader):
