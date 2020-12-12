@@ -34,8 +34,17 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
+                // Get the parser. The callback has access to the input, so it may consume items.
+                // If so, we have to properly report that.
+                var startConsumed = state.Input.Consumed;
                 var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
-                return parser.Parse(state);
+                var consumedDuringCreation = state.Input.Consumed - startConsumed;
+
+                var result = parser.Parse(state);
+                if (!result.Success || consumedDuringCreation == 0)
+                    return result;
+
+                return state.Success(this, result.Value, result.Consumed + consumedDuringCreation, result.Location);
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

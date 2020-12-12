@@ -36,10 +36,17 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(ParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
+                var startConsumed = state.Input.Consumed;
                 _before?.Invoke(new Context(_parser, state, null));
                 var result = _parser.Parse(state);
                 _after?.Invoke(new Context(_parser, state, result));
-                return result;
+                var totalConsumed = state.Input.Consumed - startConsumed;
+
+                // The callbacks have access to Input, so the user might consume data. Make sure
+                // to report that if it happens.
+                if (!result.Success || result.Consumed == totalConsumed)
+                    return result;
+                return state.Success(this, result.Value, totalConsumed, result.Location);
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
