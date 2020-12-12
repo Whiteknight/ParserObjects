@@ -1,15 +1,23 @@
 # Logical Parsers
 
-Several parsers don't return a value, or the value they return doesn't matter. In these cases what's important is to see whether parsers succeed or fail, in different situations. These logical parsers are used to control the parse without returning values. 
+Several parsers are used to combine other parsers in logical ways, and are not used by themselves. These parsers may or may not consume values depending on the parser.
 
 ## If Parser
 
-The `If` parser checks some kind of predicate and executes one of two parsers depending on the result. The If parser is likely to be the entry point to most of the other parsers described in this file.
+The `If` parser checks some kind of predicate and executes one of two parsers depending on the result. The predicate will be allowed to consume data, and that data will not be available to either of the resulting parsers. If the `onFailure` option is omitted, the parser will returns a failure result when the predicate fails.
 
 ```csharp
 var parser = new IfParser<TInput, TOutput>(predicate, onSuccess, onFailure);
+var parser = If(predicate, onSuccess);
 var parser = If(predicate, onSuccess, onFailure);
 var parser = onSuccess.If(predicate);
+var parser = predicate.Then(onSuccess);
+```
+
+The If parser can be useful to turn a parser which does not return output into one that does return a value:
+
+```csharp
+var parser = If(End(), Produce(() => true));
 ```
 
 ## Lookahead Parsers
@@ -68,7 +76,7 @@ var parser = PositiveLookahead(Not(predicate));
 
 ### And Parser
 
-The `And` parser is similar to the `Rule` parser except it does not return a value, it only checks if the parsers match, in order.
+The `And` parser is similar to the `Rule` parser except it does not return a value, it only checks if the parsers match, in order. The And parser will consume input when all the parsers succeed.
 
 ```csharp
 var parser = new AndParser<TInput>(p1, p2, p3,...);
@@ -78,7 +86,7 @@ var parser = p1.And(p2, p3,...);
 
 ### Not Parser
 
-The `Not` parser inverts the success value of the inner parser. When the inner parser succeeds, the Not parser fails. When the inner parser fails, the Not parser succeeds.
+The `Not` parser inverts the success value of the inner parser. When the inner parser succeeds, the Not parser fails. When the inner parser fails, the Not parser succeeds. In either case, the Not parser will not consume any input.
 
 ```csharp
 var parser = new NotParser<TInput>(predicate);
@@ -88,7 +96,7 @@ var parser = predicate.Not();
 
 ### Or Parser
 
-The `Or` parser is similar to the `First` parser except it does not return a value, it only checks if any parsers match.
+The `Or` parser is similar to the `First` parser except it does not return a value, it only checks if any parsers match. This parser does consume input data on success.
 
 ```csharp
 var parser = new OrParser<TInput>(p1, p2, p3,...)

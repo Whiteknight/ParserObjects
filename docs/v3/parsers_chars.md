@@ -21,7 +21,7 @@ var parser = CharacterString("abc");
 This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers:
 
 ```csharp
-var parser = Match("abc").Transform(x => "abc");
+var parser = Match("abc").Transform(x => new string(x.ToArray()));
 ```
 
 ## Character Class Parsers
@@ -32,7 +32,6 @@ The `Letter` parser matches any uppercase or lowercase letter character. `Word` 
 var allUpperCase = UpperCase().ListCharToString();
 var allLowerCase = LowerCase().ListCharToString();
 ```
-
 
 ## Digit Parsers
 

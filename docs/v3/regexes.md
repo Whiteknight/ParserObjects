@@ -23,3 +23,5 @@ The Regular Expression engine provided by ParserObjects has fewer features than 
    2. `\w` and `\W` word and non-word
    3. `\d` and `\D` digit and non-digit
 8. `$` End anchor
+
+The Regex parser always attempts to match the pattern starting at the current position of the input sequence, and will not look forward to try and match later in the sequence. Because of this, the Regex parser does not support the beginning of input anchor (`^`) in patterns. However, it does support the end of input anchor (`$`).
