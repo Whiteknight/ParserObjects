@@ -65,7 +65,6 @@ namespace ParserObjects.Sequences
         public void PutBack(byte value)
         {
             _putbacks.Push(value);
-            _consumed--;
         }
 
         public byte Peek() => GetNextByteRaw(false);

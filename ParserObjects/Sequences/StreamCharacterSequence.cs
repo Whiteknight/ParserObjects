@@ -135,8 +135,6 @@ namespace ParserObjects.Sequences
                 _column = _previousEndOfLineColumns.GetCurrent();
                 _previousEndOfLineColumns.MoveBack();
             }
-
-            _consumed--;
         }
 
         public char Peek()
