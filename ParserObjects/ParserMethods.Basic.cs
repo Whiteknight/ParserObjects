@@ -224,6 +224,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
+        public static IParser<TInput, TOutput> Replaceable<TOutput>()
+            => new ReplaceableParser<TInput, TOutput>(new FailParser<TInput, TOutput>());
+
         /// <summary>
         /// Execute a specially-structured callback to turn a parse into sequential, procedural
         /// code.
