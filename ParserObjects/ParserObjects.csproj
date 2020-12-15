@@ -46,17 +46,4 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-<<<<<<< HEAD
-
-  <PropertyGroup>
-    <DocumentationMarkdown>..\docs\v3\docs.md</DocumentationMarkdown>
-  </PropertyGroup>
-
-
 </Project>
-||||||| parent of afe6e24 (Replace Option<T> struct with IOption<T> interface)
-
-</Project>
-=======
-</Project>
->>>>>>> afe6e24 (Replace Option<T> struct with IOption<T> interface)
