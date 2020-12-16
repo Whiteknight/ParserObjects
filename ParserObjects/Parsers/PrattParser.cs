@@ -34,6 +34,8 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
 
             var startCp = state.Input.Checkpoint();
+            var dataStore = state.Data as CascadingKeyValueStore;
+            dataStore?.PushFrame();
             try
             {
                 Assert.ArgumentNotNull(state, nameof(state));
@@ -44,6 +46,10 @@ namespace ParserObjects.Parsers
             {
                 startCp.Rewind();
                 return state.Fail<TOutput>(pe.Parser ?? this, pe.Message, pe.Location ?? state.Input.CurrentLocation);
+            }
+            finally
+            {
+                dataStore.PopFrame();
             }
         }
 
