@@ -30,8 +30,6 @@ namespace ParserObjects.Parsers
             var checkpoint = state.Input.Checkpoint();
             try
             {
-                // TODO: Need to find a way to record the number of consumed inputs at the point
-                // when the OnSuccess callback is invoked.
                 IResult<TOutput> OnSuccess(TOutput value, Location loc)
                     => state.Success(this, value, 0, loc ?? state.Input.CurrentLocation);
 
@@ -39,10 +37,9 @@ namespace ParserObjects.Parsers
                     => state.Fail(this, err, loc ?? state.Input.CurrentLocation);
 
                 var startConsumed = state.Input.Consumed;
-
                 var result = _func(state, OnSuccess, OnFailure);
-
                 var totalConsumed = state.Input.Consumed - startConsumed;
+
                 if (!result.Success)
                 {
                     checkpoint.Rewind();
