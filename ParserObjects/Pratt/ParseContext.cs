@@ -13,10 +13,11 @@ namespace ParserObjects.Pratt
         private readonly Engine<TInput, TOutput> _engine;
 
         private readonly int _rbp;
+        private readonly bool _canRecurse;
 
         private int _consumed;
 
-        public ParseContext(ParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp)
+        public ParseContext(ParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             Assert.ArgumentNotNull(engine, nameof(engine));
@@ -25,6 +26,7 @@ namespace ParserObjects.Pratt
             _rbp = rbp;
             _consumed = 0;
             Name = string.Empty;
+            _canRecurse = canRecurse;
         }
 
         public IDataStore Data => _state.Data;
@@ -37,6 +39,7 @@ namespace ParserObjects.Pratt
 
         public TOutput Parse(int rbp)
         {
+            EnsureRecursionIsPermitted();
             var result = _engine.TryParse(_state, rbp);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, this, result.Location);
@@ -56,6 +59,7 @@ namespace ParserObjects.Pratt
 
         IResult<TOutput> IParser<TInput, TOutput>.Parse(ParseState<TInput> state)
         {
+            EnsureRecursionIsPermitted();
             var result = _engine.TryParse(_state, _rbp);
             return state.Result(this, result);
         }
@@ -84,6 +88,8 @@ namespace ParserObjects.Pratt
 
         public IOption<TOutput> TryParse(int rbp)
         {
+            if (!_canRecurse)
+                return FailureOption<TOutput>.Instance;
             var result = _engine.TryParse(_state, rbp);
             _consumed += result.Consumed;
             return result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
@@ -100,5 +106,11 @@ namespace ParserObjects.Pratt
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        private void EnsureRecursionIsPermitted()
+        {
+            if (!_canRecurse)
+                throw new ParseException(ParseExceptionSeverity.Rule, "The parser consumed zero input, so an attempt to recurse was denied to avoid an infinite loop.", this, _state.Input.CurrentLocation);
+        }
     }
 }

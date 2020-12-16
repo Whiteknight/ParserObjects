@@ -342,10 +342,27 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Empty_ProduceRight()
         {
-            // Tests that if a NUD/Prefix rule consumes zero tokens, the parse fails
+            // Tests that if a NUD/Prefix rule consumes zero tokens, the parse succeeds.
             var target = Pratt<string>(c => c
                 .Add(Produce(() => "a"), p => p
-                    .ProduceRight(1, (ctx, op) => "")
+                    .ProduceRight(1, (ctx, op) => "ok")
+                )
+            );
+            var result = target.Parse("123");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            result.Value.Should().Be("ok");
+        }
+
+        [Test]
+        public void Empty_ProduceRight_FailsOnRecursion()
+        {
+            // Tests that if a NUD/Prefix rule consumes zero tokens, the user rule is not allowed
+            // to recurse. Attempt to recurse into ctx.Parse() or variants will cause the rule to
+            // fail.
+            var target = Pratt<string>(c => c
+                .Add(Produce(() => "a"), p => p
+                    .ProduceRight(1, (ctx, op) => "a" + ctx.Parse())
                 )
             );
             var result = target.Parse("123");

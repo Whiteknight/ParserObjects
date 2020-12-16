@@ -20,8 +20,6 @@ namespace ParserObjects.Pratt
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
 
-        public IPartialResult<TOutput> Parse(ParseState<TInput> state) => TryParse(state, 0);
-
         public IPartialResult<TOutput> TryParse(ParseState<TInput> state, int rbp)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -85,7 +83,7 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
+                var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true)
                 {
                     Name = parselet.Name
                 };
@@ -114,13 +112,7 @@ namespace ParserObjects.Pratt
                 if (!success)
                     continue;
 
-                // get-left rules which succeed but consume zero input are treated as errors. This
-                // would lead to infinite left recursion with no obvious programmatic ways to
-                // prevent it.
-                if (consumed == 0)
-                    return new FailurePartialResult<IToken<TOutput>>($"Parselet {parselet} consumed no input and would have caused infinite recursion", state.Input.CurrentLocation);
-
-                var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp)
+                var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0)
                 {
                     Name = parselet.Name
                 };
