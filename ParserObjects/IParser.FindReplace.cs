@@ -7,7 +7,8 @@ namespace ParserObjects
     public static class ParserFindReplaceExtensions
     {
         /// <summary>
-        /// Recurse the tree searching for a parser with the given name. Returns the first matching result.
+        /// Recurse the tree searching for a parser with the given name. Returns a result with the
+        /// parser if found, a failure flag otherwise.
         /// </summary>
         /// <param name="root"></param>
         /// <param name="name"></param>
@@ -15,8 +16,9 @@ namespace ParserObjects
         public static IOption<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
 
         /// <summary>
-        /// Given a parser tree, replace all children of ReplaceableParsers matching the given predicate with
-        /// the provided replacement parser.
+        /// Given a parser tree, replace all children of ReplaceableParsers matching the given
+        /// predicate with the provided replacement parser. Returns information about which
+        /// instances were replaced.
         /// </summary>
         /// <param name="root"></param>
         /// <param name="predicate"></param>
@@ -51,8 +53,8 @@ namespace ParserObjects
             => FindParserVisitor.Replace(root, predicate, transform);
 
         /// <summary>
-        /// Given a parser tree, find a ReplaceableParser with the given name and replace it's child parser
-        /// with the given replacement parser.
+        /// Given a parser tree, find a ReplaceableParser with the given name and replace the child
+        /// parser with the given replacement parser.
         /// </summary>
         /// <param name="root"></param>
         /// <param name="name"></param>
@@ -62,9 +64,9 @@ namespace ParserObjects
             => FindParserVisitor.Replace(root, name, replacement);
 
         /// <summary>
-        /// Given a parser tree, find a ReplaceableParser matching a predicate and attempt to transform
-        /// the contents using the given transformation. The contents of the ReplaceableParser will be
-        /// replaced with the transformed result if it is new and valid.
+        /// Given a parser graph, find a ReplaceableParser matching a predicate and attempt to
+        /// transform the contents using the given transformation. The contents of the
+        /// ReplaceableParser will be replaced with the transformed result if it is new and valid.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

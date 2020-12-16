@@ -42,7 +42,7 @@ namespace ParserObjects.Parsers
             if (thenResult.Success)
                 return state.Success(parser, thenResult.Value, predicateConsumed + thenResult.Consumed, thenResult.Location);
             cp.Rewind();
-            return state.Fail(parser, thenResult.Message, thenResult.Location);
+            return state.Fail(parser, thenResult.ErrorMessage, thenResult.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

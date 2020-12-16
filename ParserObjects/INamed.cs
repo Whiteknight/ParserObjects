@@ -1,5 +1,9 @@
 ﻿namespace ParserObjects
 {
+    /// <summary>
+    /// A entity which may have a name. Names are used primarily for debugging, tracing and
+    /// auditing purposes, and also for certain find/replace operations.
+    /// </summary>
     public interface INamed
     {
         /// <summary>

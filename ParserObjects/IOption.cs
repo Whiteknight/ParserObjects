@@ -2,13 +2,39 @@
 
 namespace ParserObjects
 {
+    /// <summary>
+    /// A result which has a value on success, no value otherwise. Used to avoid passing null
+    /// result values around.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IOption<T>
     {
+        /// <summary>
+        /// Gets a value indicating whether the operation succeeded.
+        /// </summary>
         bool Success { get; }
+
+        /// <summary>
+        /// Gets the value if the operation succeeded. May throw an exception or return a
+        /// meaningless default value otherwise. Check the Success flag before accessing this
+        /// value.
+        /// </summary>
         T Value { get; }
 
+        /// <summary>
+        /// Safely gets a value from this instance. If Success, the Value is returned. Otherwise
+        /// the given default value is returned.
+        /// </summary>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         T GetValueOrDefault(T defaultValue);
 
+        /// <summary>
+        /// Returns true if Success is true and if the Value matches the provided value. False
+        /// otherwise.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         bool Is(T value);
     }
 

@@ -39,7 +39,7 @@ namespace ParserObjects.Pratt
         {
             var result = _engine.TryParse(_state, rbp);
             if (!result.Success)
-                throw new ParseException(ParseExceptionSeverity.Rule, result.Message, this, result.Location);
+                throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, this, result.Location);
             _consumed += result.Consumed;
             return result.Value;
         }
@@ -49,7 +49,7 @@ namespace ParserObjects.Pratt
             Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             if (!result.Success)
-                throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
+                throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
             _consumed += result.Consumed;
             return result.Value;
         }
@@ -67,7 +67,7 @@ namespace ParserObjects.Pratt
             Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             if (!result.Success)
-                throw new ParseException(ParseExceptionSeverity.Rule, result.Message, parser, result.Location);
+                throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
             _consumed += result.Consumed;
         }
 

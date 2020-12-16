@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ParserObjects.Sequences;
 
 namespace ParserObjects
@@ -40,6 +39,10 @@ namespace ParserObjects
         /// <returns></returns>
         ISequenceCheckpoint Checkpoint();
 
+        /// <summary>
+        /// Gets a count of the total number of input items that have been consumed from this
+        /// sequence so far.
+        /// </summary>
         int Consumed { get; }
     }
 
@@ -73,6 +76,14 @@ namespace ParserObjects
 
     public static class SequenceExtensions
     {
+        /// <summary>
+        /// Create a buffer from the given sequence. A buffer allows random-order accessing of
+        /// input items using an array-like interface. Buffers require special cleanup to make
+        /// sure unused items are returned to the sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input)
             => new SequenceBuffer<T>(input);
 

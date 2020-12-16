@@ -7,6 +7,11 @@ namespace ParserObjects
     /// </summary>
     public interface IResult
     {
+        /// <summary>
+        /// Gets the parser which created this result. Notice that this might not be the parser on
+        /// which the Parse method was called, but may instead be some internal parser to which the
+        /// task was delegated.
+        /// </summary>
         IParser Parser { get; }
 
         /// <summary>
@@ -21,10 +26,21 @@ namespace ParserObjects
         /// </summary>
         Location Location { get; }
 
-        string Message { get; }
+        /// <summary>
+        /// Gets a description of the failure from this result, if this result is a failure. If
+        /// the result is a success, this will not contain useful information.
+        /// </summary>
+        string ErrorMessage { get; }
 
+        /// <summary>
+        /// Gets the value returned from the parser, if any.
+        /// </summary>
         object Value { get; }
 
+        /// <summary>
+        /// Gets the number of input items consumed from the input sequence during the Parse
+        /// operation.
+        /// </summary>
         int Consumed { get; }
     }
 
@@ -48,6 +64,12 @@ namespace ParserObjects
         IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
     }
 
+    /// <summary>
+    /// Like an IResult but doesn't contain a reference to a Parser and some of the values may not
+    /// be filled in completely. This is used internally by some parsers to communicate partial
+    /// or incomplete results between components.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IPartialResult<T>
     {
         /// <summary>
@@ -62,10 +84,19 @@ namespace ParserObjects
         /// </summary>
         Location Location { get; }
 
-        string Message { get; }
+        /// <summary>
+        /// Gets a text description of the failure, if the result is not success.
+        /// </summary>
+        string ErrorMessage { get; }
 
+        /// <summary>
+        /// Gets the result value of the operation, if any.
+        /// </summary>
         T Value { get; }
 
+        /// <summary>
+        /// Gets the number of input items consumed during the operation.
+        /// </summary>
         int Consumed { get; }
     }
 
@@ -91,6 +122,6 @@ namespace ParserObjects
         /// <param name="mutateError"></param>
         /// <returns></returns>
         public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
-            => result.Success ? result : new FailResult<T>(result.Parser, result.Location, mutateError?.Invoke(result.Message) ?? result.Message);
+            => result.Success ? result : new FailResult<T>(result.Parser, result.Location, mutateError?.Invoke(result.ErrorMessage) ?? result.ErrorMessage);
     }
 }

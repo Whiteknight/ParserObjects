@@ -11,7 +11,8 @@ namespace ParserObjects
     public static class ParserCombinatorExtensions
     {
         /// <summary>
-        /// Execute a parser and use the result to select the next parser to invoke.
+        /// Execute a parser and use the result to select the next parser to invoke. Executes a
+        /// callback to find the next parser to invoke.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TMiddle"></typeparam>
@@ -23,6 +24,17 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        /// <summary>
+        /// Execute a parser and use the result to select the nex parser to invoke. Uses a
+        /// configuration object to store possible parsers and the input values which are used to
+        /// select them.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="setup"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> ChainWith<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, setup);
 
@@ -207,8 +219,8 @@ namespace ParserObjects
             => ParserMethods<TInput>.Combine(p, ParserMethods<TInput>.NegativeLookahead(lookahead)).Transform(r => (TOutput)r[0]);
 
         /// <summary>
-        /// The results of the given parser are optional. If the given parser fails, a default value will
-        /// be provided.
+        /// The results of the given parser are optional. Returns success with an Option value
+        /// which can be used to determine if the parser succeeded.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -217,12 +229,21 @@ namespace ParserObjects
         public static IParser<TInput, IOption<TOutput>> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => ParserMethods<TInput>.Optional(p);
 
+        /// <summary>
+        /// The results of the given parser are optional. If the inner parser fails, a default
+        /// value is returned.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getDefault"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault)
             => ParserMethods<TInput>.Optional(p, getDefault);
 
         /// <summary>
-        /// The results of the given parser are optiona. If the given parser fails, a default value will be
-        /// provided.
+        /// The results of the given parser are optiona. If the given parser fails, a default value
+        /// will be returned.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <typeparam name="TOutput"></typeparam>

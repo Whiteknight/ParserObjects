@@ -118,7 +118,7 @@ namespace ParserObjects.Parsers
                     checkpoint.Rewind();
                     var result = spe.Result!;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
-                    return state.Fail(this, $"Error during parsing: {result.Parser} {result.Message} at {result.Location}");
+                    return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {result.Location}");
                 }
             }
 

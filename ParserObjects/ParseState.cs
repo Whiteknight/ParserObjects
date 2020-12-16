@@ -115,7 +115,7 @@ namespace ParserObjects
         {
             if (part.Success)
                 return Success(parser, part.Value, part.Consumed, part.Location);
-            return Fail(parser, part.Message, part.Location);
+            return Fail(parser, part.ErrorMessage, part.Location);
         }
     }
 }

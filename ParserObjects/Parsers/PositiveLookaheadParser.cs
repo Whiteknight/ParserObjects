@@ -32,7 +32,7 @@ namespace ParserObjects.Parsers
                 return state.Success(_inner, result.Value, 0, result.Location);
             }
 
-            return state.Fail(_inner, result.Message, result.Location);
+            return state.Fail(_inner, result.ErrorMessage, result.Location);
         }
 
         IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

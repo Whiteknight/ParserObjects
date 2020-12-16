@@ -93,7 +93,7 @@ namespace ParserObjects.Parsers
 
                 if (initial.Consumed > 0)
                     checkpoint.Rewind();
-                return state.Fail(nextParser, nextResult.Message, nextResult.Location);
+                return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
             }
 
             private IParser<TInput, TOutput> GetNextParser(ISequenceCheckpoint checkpoint, IResult<TMiddle> initial)
@@ -200,7 +200,7 @@ namespace ParserObjects.Parsers
 
                 if (initial.Consumed > 0)
                     checkpoint.Rewind();
-                return state.Fail(nextParser, nextResult.Message, nextResult.Location);
+                return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
             }
 
             private IParser<TInput, TOutput> GetNextParser(ISequenceCheckpoint checkpoint, IResult initial)

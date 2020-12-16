@@ -21,7 +21,7 @@ namespace ParserObjects
         public bool Success => true;
         public TValue Value { get; }
         public Location Location { get; }
-        public string Message => string.Empty;
+        public string ErrorMessage => string.Empty;
         public int Consumed { get; }
         object IResult.Value => Value!;
 
@@ -41,21 +41,21 @@ namespace ParserObjects
         {
             Parser = parser;
             Location = location;
-            Message = message;
+            ErrorMessage = message;
         }
 
         public IParser Parser { get; }
         public bool Success => false;
         public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access");
         public Location Location { get; }
-        public string Message { get; }
+        public string ErrorMessage { get; }
         public int Consumed => 0;
         object IResult.Value => Value!;
 
         public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
         {
             Assert.ArgumentNotNull(transform, nameof(transform));
-            return new FailResult<TOutput>(Parser, Location, Message);
+            return new FailResult<TOutput>(Parser, Location, ErrorMessage);
         }
 
         public override string ToString() => $"{Parser} FAIL at {Location}";
@@ -66,7 +66,7 @@ namespace ParserObjects
         public FailurePartialResult(string error, Location location)
         {
             Location = location;
-            Message = error;
+            ErrorMessage = error;
         }
 
         public bool Success => false;
@@ -75,7 +75,7 @@ namespace ParserObjects
         public int Consumed => 0;
         public Location Location { get; }
 
-        public string Message { get; }
+        public string ErrorMessage { get; }
     }
 
     public class SuccessPartialResult<TValue> : IPartialResult<TValue>
@@ -93,6 +93,6 @@ namespace ParserObjects
         public int Consumed { get; }
         public Location Location { get; }
 
-        public string Message => string.Empty;
+        public string ErrorMessage => string.Empty;
     }
 }

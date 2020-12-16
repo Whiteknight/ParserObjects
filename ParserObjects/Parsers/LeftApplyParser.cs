@@ -78,7 +78,7 @@ namespace ParserObjects.Parsers
                 if (!rightResult.Success)
                 {
                     checkpoint.Rewind();
-                    return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.Message, rightResult.Location);
+                    return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage, rightResult.Location);
                 }
 
                 return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);

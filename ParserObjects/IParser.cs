@@ -22,9 +22,9 @@ namespace ParserObjects
     public interface IParser<TInput> : IParser
     {
         /// <summary>
-        /// Attempt to parse the input sequence and produce an output result of type object. If the parse
-        /// fails, it is expected that this method will return the input sequence to the state it was at
-        /// before the parse was attempted.
+        /// Attempt to parse the input sequence and produce an output result of type object. If the
+        /// parse fails, it is expected that this method will return the input sequence to the
+        /// state it was at before the parse was attempted.
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
@@ -39,9 +39,9 @@ namespace ParserObjects
     public interface IParser<TInput, out TOutput> : IParser<TInput>
     {
         /// <summary>
-        /// Attempt to parse the input sequence and produce an output result. If the parse fails, it is
-        /// expected that this method will return the input sequence to the state it was at before the
-        /// parse was attempted.
+        /// Attempt to parse the input sequence and produce an output result. If the parse fails,
+        /// it is expected that this method will return the input sequence to the state it was at
+        /// before the parse was attempted.
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
@@ -49,8 +49,8 @@ namespace ParserObjects
     }
 
     /// <summary>
-    /// A parser which has an in-place replaceable child. Used to identify parsers which can participate in
-    /// certain find/replace operations.
+    /// A parser which has an in-place replaceable child. Used to identify parsers which can
+    /// participate in certain find/replace operations.
     /// </summary>
     public interface IReplaceableParserUntyped : IParser
     {
