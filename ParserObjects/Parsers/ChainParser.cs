@@ -11,7 +11,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TMiddle"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class Chain<TInput, TMiddle, TOutput>
+    public static class Chain<TInput, TMiddle, TOutput>
     {
         public delegate IParser<TInput, TOutput> GetParser(IResult<TMiddle> result);
 

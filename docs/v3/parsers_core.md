@@ -4,17 +4,30 @@ The core parsers are all generic on the type of input they accept. For a list of
 
 Throughout the descriptions of these parsers, examples will be shown where one parser is functionally or logically equivalent to a combination of other parsers. This is done to give multiple possible ways to understand some of the trickier concepts.
 
+The best way to access these core parsers is through the static factory methods. Add this to the top of your C# file:
+
+```csharp
+using ParserObjects;
+using static ParserObjects.ParserMethods<char>;
+```
+
+(Replace `<char>` with whatever your input type is.)
+
 ## Declaration Styles
 
 There are three basic styles of declaring parsers. The first is to use normal object constructors and methods (change `<char>` to be whatever input type your parser methods are consuming):
 
 ```csharp
+using ParserObjects.Parsers;
+
 var parser = new ListParser<char, char>(
     new AnyParser()
 );
 ```
 
-The second is to use some static methods to simplify:
+This method is more verbose than the other options, and is generally not recommended. The Parser classes themselves are designed to be general-purpose and reusable, so they may be tricky to configure correctly. The methods described next are much more usable and combine the raw underlying parser types in ways that are easy to use and understand.
+
+The second is to use the static factory methods to create parsers:
 
 ```csharp
 using static ParserObjects.ParserMethods<char>;
@@ -24,6 +37,8 @@ var parser = List(
 );
 ```
 
+This method is generally preferred, and is the best starting point for working with parsers.
+
 The third is to start with one of the above two styles and use monadic extension methods to combine them:
 
 ```csharp
@@ -32,7 +47,7 @@ using static ParserObjects.ParserMethods<char>;
 var parser = Any().List();
 ```
 
-In a few cases there are tuple syntaxes available to further simplify. These will be noted in the appropriate sections. It is generally preferred to use the static methods or the extension methods to build and combine parsers, as the actual classes used to implement each behavior may change from release to release as new techniques and optimizations are implemented.
+In a few cases there are tuple syntaxes available as well. These will be noted in the appropriate sections. It is generally preferred to use the static methods or the extension methods to build and combine parsers, as the actual classes used to implement each behavior may change from release to release as new techniques and optimizations are implemented.
 
 ## Fundamental Parser Types
 
@@ -58,12 +73,28 @@ It is functionally equivalent to the match predicate parser, though simpler and 
 var anyParser = Match(_ => true);
 ```
 
+### Bool Parser
+
+The `Bool` parser invokes a parser and returns `true` if the parser succeeds, `false` otherwise. It is useful if you want to know whether something matches, but don't care what the result value is, or if you want to convert `IParser<TInput>` to `IParser<TInput, bool>`.
+
+```csharp
+var parser = Bool(innerParser);
+```
+
 ### Chain Parser
 
-The `Chain` parser invokes an initial parser to parse a prefix value, then uses that prefix value to select the next parser to invoke.
+The `Chain` parser invokes an initial parser to obtain a prefix value, then uses that prefix value to select the next parser to invoke.
 
 ```csharp
 var parser = new ChainParser<char, char>(initial, result => {
+    if (!result.Success)
+        return new HandleFailureParser();
+    if (result.Value == 'a')
+        return new AParser();
+    if (result.Value == 'b')
+        return new BParser();
+});
+var parser = Chain(initial, result => {
     if (!result.Success)
         return new HandleFailureParser();
     if (result.Value == 'a')
@@ -81,11 +112,32 @@ var parser = initial.Chain(result => {
 });
 ```
 
+The Chain parser will throw an `InvalidOperationException` if the callback method returns a `null` value.
+
+### Chain With Parser
+
+The `ChainWith` parser is related to the `Chain` parser but uses a different syntax for selecting a value.
+
+```csharp
+var parser = ChainWith(config => config
+    .When(x => x == 'a', new AParser())
+    .When(x => x == 'b', new BParser())
+);
+```
+
 ### Choose Parser
 
 The `Choose` parser invokes an initial parser to parse a prefix value without consuming any input, then uses that prefix value to select the next parser to invoke.
 
 ```csharp
+var parser = Choose(initial, result => {
+    if (!result.Success)
+        return new HandleFailureParser();
+    if (result.Value == 'a')
+        return new AParser();
+    if (result.Value == 'b')
+        return new BParser();
+});
 var parser = initial.Choose(result => {
     if (!result.Success)
         return new HandleFailureParser();
@@ -112,7 +164,7 @@ The `Combine` parser takes a list of parsers, parses each in sequence, and retur
 var parser = Combine(p1, p2, p3, ...);
 ```
 
-The Combine parser is implemented using the `RuleParser`.
+The Combine parser is implemented using the `RuleParser` internally.
 
 ### Empty Parser
 
@@ -164,7 +216,7 @@ var parser = First(
     parser1, 
     parser2,
     parser3
-)
+);
 var parser = (parser1, parser2, parser3).First();
 ```
 
@@ -233,6 +285,27 @@ var parser = None(Any());
 var parser = Any().None();
 ```
 
+### Optional Parser
+
+The `Optional` parser attempts to invoke the inner parser, but returns success no matter the result. The Optional parser takes a callback argument to return a default value if the parse fails. If the default value callback is not provided, the Optional parser will return an `IOption` object which will report on success or failure of the inner parser.
+
+```csharp
+var parser = Optional(innerParser);
+var parser = Optional(innerParser, () => defaultValue);
+
+var parser = innerParser.Optional();
+var parser = innerParser.Optional(() => defaultValue);
+```
+
+The Optional parser is functionally equivalent to a combination of `First` and `Produce` parsers:
+
+```csharp
+var parser = First(
+    innerParser,
+    Produce(() => defaultValue)
+);
+```
+
 ### Peek Parser
 
 The `Peek` parser peeks at the next value of input, but does not consume it. It returns failure when the input sequence is at end, success otherwise.
@@ -267,7 +340,7 @@ var parser = Peek().Chain(r => ...);
 
 ### Produce Parser
 
-The `Produce` parser produces a value but consumes no input. 
+The `Produce` parser produces a value but consumes no input. It always returns success.
 
 ```csharp
 var parser = new ProduceParser<char, string>(() => "abcd");
@@ -386,7 +459,10 @@ var parser = new TrieParser<char, string>(trie);
 var parser = Trie(trie);
 var parser = trie.ToParser();
 var parser = Trie(trie => trie.Add(...));
+var parser = MatchAny("value", "value2", "value3");
 ```
+
+The `MatchAny` parser is implemented using the `Trie` mechanism internally, and works only on `char` input, `string` output scenarios.
 
 ## Transforming parsers
 
@@ -456,7 +532,7 @@ self := <item> (<middle> <self>)?
 ```
 
 ```csharp
-var parser = new RightApplyOarser<char, char, string>(item, middle, (l, m, r) => ...);
+var parser = new RightApplyParser<char, char, string>(item, middle, (l, m, r) => ...);
 var parser = RightApply(item, middle, (l, m, r) => ...);
 ```
 

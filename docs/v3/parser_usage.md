@@ -1,5 +1,15 @@
 # Parser Usage
 
+A **Parser** is an object which takes an input sequence, and attempts to match some kind of rule or pattern in the input sequence starting from the current location. Parsers in the ParserObjects library are all denoted with the `IParser`, `IParser<TInput>` and `IParser<TInput, TOutput>` interfaces, depending on use.
+
+## Interfaces
+
+The `IParser` interface is the parent interface that all parsers must inherit.
+
+`IParser<TInput>` is a parser which can call `.Parse()` on an input to return an `IResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
+
+`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IResult<TOutput>`. This is the most common of the three interfaces.
+
 ## Parser Invariants
 
 `IParser` implementations in the ParserObjects library all follow these rules and invariants. 
@@ -8,13 +18,13 @@
 2. On success, the parser consumes only the data it needed to match a pattern and construct the result value. All other data including buffers and lookaheads, are returned to the input sequence. 
 3. All parsers are built to be composed. They only read input data starting from the current position of the input sequence, and the parser does not necessarily expect to read until the end of input. 
 4. Parsers will generally try to communicate failure through a failure `IResult` value and will try not to throw exceptions unless some major invariant has been violated. However, many parsers take user callback delegates. Exceptions thrown from user code will be allowed to bubble up to a user handler, and may leave the input sequence in an invalid or incomplete state.
-5. Parsers should not return `null`.
+5. Parsers should not return `null` but should always return a valid `IResult` or `IResult<TOutput>` with a valid non-null result value.
 
 In addition, all the core parser types try to be completely generic in terms of input type. Parsers can generally operate on sequences of `char` just as easily as on sequences of `byte`, or custom token objects.
 
 ## Parser Results
 
-Parser `.Parse()` calls generally do not throw or propagate exceptions, except in some rare cases. For the most part results will be communicated using an `IResult<T>` object. You can create a result object using the `ParseState<TInput>.Fail()` or `ParseState<TInput>.Success` methods. These methods are the preferred mechanism for creating results because they can help fill in necessary metadata to help with diagnosing and debugging errors. Parse results should usually include the `Location` where the success or failure happened, so that information can be communicated to the user.
+Parser `.Parse()` calls generally do not throw or propagate exceptions, except in some rare cases. For the most part results will be communicated using an `IResult<TOutput>` object. You can create a result object using the `ParseState<TInput>.Fail()` or `ParseState<TInput>.Success` methods. These methods are the preferred mechanism for creating results because they can help fill in necessary metadata to help with diagnosing and debugging errors. Parse results should usually include the `Location` where the success or failure happened, so that information can be communicated to the user.
 
 Result values may be transformed from one type to another without losing metadata using the `.Transform(value => ... )` method.
 
@@ -144,7 +154,7 @@ Names are useful for debugging purposes, so you can see which parser is executin
 var needleParser = haystackParser.FindNamed("myParser").Value;
 ```
 
-The real power of this mechanism is the ability to replace a parser at runtime.
+The real power of this mechanism is the ability to replace a parser at runtime. This is done by using the special `ReplaceableParser` and the `.Replace()` method:
 
 ```csharp
 var result = parser.Replace("myParser", newParser);
@@ -168,7 +178,7 @@ For BNF stringification to work, parsers must have a name. Only parsers which ha
 
 ## General Visiting
 
-Because a single parser may be reused multiple times during composition, parsers form a *directed graph* instead of a tree. The use of the `Deferred` parser means that graphs may be `cyclic`. If you are trying to create a visitor to traverse a parser graph, you must account for duplicate visits and cycles. The `FindParserVisitor` (used for the `.FindNamed()` and `.Replace()` methods above) and the `BnfStringifyVisitor` (used for the `.ToBnf()` method above) are good examples of visiting the graph and doing analysis or modification.
+Because a single parser may be reused multiple times during composition, parsers form a *directed graph* instead of a tree. The use of the special `Deferred` parser means that graphs may be `cyclic`. If you are trying to create a visitor to traverse a parser graph, you must account for duplicate visits and cycles. The `FindParserVisitor` (used for the `.FindNamed()` and `.Replace()` methods above) and the `BnfStringifyVisitor` (used for the `.ToBnf()` method above) are good examples of visiting the graph and doing analysis or modification.
 
 ## Handling End-Of-Input
 
@@ -194,7 +204,7 @@ var parser = Function(sequence => {
 })
 ```
 
-Another concern is a parser which expects to parse the entirety of the input string. Leaving some input unparsed will result in an error. There are two ways to handle this case. First you can include the `End` parser in your parser graph to make sure that your parse hits the end of input in order to make a successful result, or you can check the input sequence after the parse has concluded to make sure it is empty:
+Another concern is a parser which expects to parse the entirety of the input string. In these cases, leaving some input unparsed should result in an error. There are two ways to fulfill this requirement. First you can include the `End` parser in your parser graph to make sure that your parse hits the end of input in order to make a successful result. Second, you can check the input sequence after the parse has concluded to make sure it is empty:
 
 ```csharp
 // Option 1: End must match or the whole rule fails

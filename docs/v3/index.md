@@ -26,8 +26,10 @@ The `IResult<T>` abstraction represents the result of a parser execution. It com
 See the page on [Parser Usage](parser_usage.md) for information about using parsers. 
 
 * [Generic Parsers Reference](parsers_core.md)
+* [Logical Parsers Reference](parsers_logical.md)
 * [String/Character Parser Reference](parsers_chars.md)
 * [Programming Parser Reference](parsers_programming.md)
+* [Pratt Parser Reference](parsers_pratt.md)
 
 ## Examples
 
