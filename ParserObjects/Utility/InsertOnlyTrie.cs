@@ -73,8 +73,8 @@ namespace ParserObjects.Utility
                         var (node, oldKey) = previous.Pop();
                         keys.PutBack(oldKey);
                         consumed--;
-                        if (node.HasResult && node.Result != null)
-                            return new SuccessPartialResult<TResult>(node.Result, consumed, startLocation);
+                        if (node.HasResult)
+                            return new SuccessPartialResult<TResult>(node.Result!, consumed, startLocation);
                     }
 
                     // No node matched, so return failure
@@ -86,15 +86,15 @@ namespace ParserObjects.Utility
                 {
                     if (keys.IsAtEnd)
                     {
-                        if (current.HasResult && current.Result != null)
-                            return new SuccessPartialResult<TResult>(current.Result, consumed, startLocation);
+                        if (current.HasResult)
+                            return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
                         return FindBestResult();
                     }
 
                     // Quick degenerate case. We're at the final leaf of the trie, so return a
                     // value if we have it.
-                    if (current.HasResult && current._children.Count == 0 && current.Result != null)
-                        return new SuccessPartialResult<TResult>(current.Result, consumed, startLocation);
+                    if (current.HasResult && current._children.Count == 0)
+                        return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
 
                     // Get the next key and push onto the stack
                     var key = keys.GetNext();
