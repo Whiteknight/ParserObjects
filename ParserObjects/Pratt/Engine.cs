@@ -35,10 +35,6 @@ namespace ParserObjects.Pratt
             }
         }
 
-        // TODO: Need to test what happens if we have an end-of-input parselet added,
-        // which will continue to succeed and consume zero input. Will probably break the
-        // loop because it has the same binding power.
-
         private IPartialResult<TOutput> Parse(ParseState<TInput> state, int rbp)
         {
             var startLocation = state.Input.CurrentLocation;
@@ -71,17 +67,11 @@ namespace ParserObjects.Pratt
         private IPartialResult<IToken<TOutput>> GetRight(ParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
             var cp = state.Input.Checkpoint();
-            foreach (var parselet in _ledableParselets)
+            foreach (var parselet in _ledableParselets.Where(p => rbp < p.Lbp))
             {
                 var (success, token, consumed) = parselet.TryGetNext(state);
                 if (!success)
                     continue;
-
-                if (rbp >= token.LeftBindingPower)
-                {
-                    cp.Rewind();
-                    continue;
-                }
 
                 var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true)
                 {
