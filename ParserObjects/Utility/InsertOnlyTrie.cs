@@ -68,6 +68,9 @@ namespace ParserObjects.Utility
 
                 IPartialResult<TResult> FindBestResult()
                 {
+                    if (current.HasResult)
+                        return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
+
                     while (previous.Count > 0)
                     {
                         var (node, oldKey) = previous.Pop();
@@ -84,36 +87,29 @@ namespace ParserObjects.Utility
 
                 while (true)
                 {
-                    if (keys.IsAtEnd)
+                    // Check degenerate cases first. If we're at the end of input or we're at a
+                    // leaf node in the trie, we're done digging and can start looking for a value
+                    // to return.
+                    if (keys.IsAtEnd || current._children.Count == 0)
+                        return FindBestResult();
+
+                    // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
+                    // null.
+                    var key = keys.GetNext();
+                    var wrappedKey = new ValueTuple<TKey>(key);
+
+                    // If there's no matching child, put back and return best value.
+                    if (!current._children.ContainsKey(wrappedKey))
                     {
-                        if (current.HasResult)
-                            return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
+                        keys.PutBack(key);
                         return FindBestResult();
                     }
 
-                    // Quick degenerate case. We're at the final leaf of the trie, so return a
-                    // value if we have it.
-                    if (current.HasResult && current._children.Count == 0)
-                        return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
-
-                    // Get the next key and push onto the stack
-                    var key = keys.GetNext();
+                    // Otherwise push the current node and the key we apply to that node onto the
+                    // stack, and prepare for the next loop iteration.
                     previous.Push((current, key));
-
-                    // If we have more input to read, and if this node has a matching child, set that as the current node and jump
-                    // back to the top of the loop
-                    var wrappedKey = new ValueTuple<TKey>(key);
-                    if (current._children.ContainsKey(wrappedKey))
-                    {
-                        consumed++;
-                        current = current._children[wrappedKey];
-                        continue;
-                    }
-
-                    // No matching child. So start looping over the nodes in the stack, looking
-                    // for the first one with a value, and putting back all keys along the way.
                     consumed++;
-                    return FindBestResult();
+                    current = current._children[wrappedKey];
                 }
             }
 
