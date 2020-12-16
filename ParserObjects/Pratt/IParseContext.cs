@@ -9,6 +9,11 @@
     public interface IParseContext<TInput, TOutput> : IParser<TInput, TOutput>
     {
         /// <summary>
+        /// Gets the contextual data store for the current parse operation.
+        /// </summary>
+        IDataStore Data { get; }
+
+        /// <summary>
         /// Invoke the Pratt engine recursively to obtain the next output value, with the current
         /// right binding power. Aborts the current user callback if the parse fails.
         /// </summary>
@@ -68,19 +73,19 @@
         /// level of the engine to try again.
         /// </summary>
         /// <param name="message"></param>
-        void FailRule(string message = null);
+        void FailRule(string message = "");
 
         /// <summary>
         /// Unconditionally fail the current recursion level of the engine, and return to the
         /// previous recursion level to try again.
         /// </summary>
         /// <param name="message"></param>
-        void FailLevel(string message = null);
+        void FailLevel(string message = "");
 
         /// <summary>
         /// Unconditionally fail the entire Pratt parser.
         /// </summary>
         /// <param name="message"></param>
-        void FailAll(string message = null);
+        void FailAll(string message = "");
     }
 }

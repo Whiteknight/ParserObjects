@@ -10,7 +10,7 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public interface IReadOnlyTrie<TKey, TResult>
+    public interface IReadOnlyTrie<TKey, out TResult>
     {
         /// <summary>
         /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a

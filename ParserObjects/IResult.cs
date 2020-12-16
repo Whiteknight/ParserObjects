@@ -70,7 +70,7 @@ namespace ParserObjects
     /// or incomplete results between components.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IPartialResult<T>
+    public interface IPartialResult<out T>
     {
         /// <summary>
         /// Gets a value indicating whether the parse succeeded.

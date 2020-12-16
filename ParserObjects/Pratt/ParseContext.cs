@@ -29,11 +29,11 @@ namespace ParserObjects.Pratt
 
         public IDataStore Data => _state.Data;
 
-        public TOutput Parse() => Parse(_rbp);
-
         public int Consumed => _consumed;
 
         public string Name { get; set; }
+
+        public TOutput Parse() => Parse(_rbp);
 
         public TOutput Parse(int rbp)
         {

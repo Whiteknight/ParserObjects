@@ -36,7 +36,7 @@ namespace ParserObjects.Parsers
             return Parse(state, result.Success ? _onSuccess : _onFail, cp, result.Consumed);
         }
 
-        private IResult<TOutput> Parse(ParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
+        private static IResult<TOutput> Parse(ParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
         {
             var thenResult = parser.Parse(state);
             if (thenResult.Success)
