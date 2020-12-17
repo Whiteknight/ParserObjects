@@ -71,7 +71,7 @@ namespace ParserObjects.Visitors
                 {
                     // if it's a simple parser with no recursion, we can just visit it again.
                     // No harm because it won't cause a loop
-                    ((dynamic)this).VisitTyped((dynamic)parser, state);
+                    ((dynamic)this).Accept((dynamic)parser, state);
                     return;
                 }
 
@@ -84,7 +84,7 @@ namespace ParserObjects.Visitors
             // If the parser doesn't have a name, recursively visit it in-place
             if (string.IsNullOrEmpty(parser.Name))
             {
-                ((dynamic)this).VisitTyped((dynamic)parser, state);
+                ((dynamic)this).Accept((dynamic)parser, state);
                 return;
             }
 
@@ -113,14 +113,15 @@ namespace ParserObjects.Visitors
             state.Current = state.History.Pop();
         }
 
-        // fallback method if a better match can't be found
-        protected virtual void VisitTyped(IParser p, State state)
+        // fallback method if a better match can't be found. This method should never be called if
+        // we properly define a .Accept method variant for every type of parser
+        protected virtual void Accept(IParser p, State state)
         {
             Debug.WriteLine($"No override match found for {p.GetType().Name}");
             state.Current.Append("UNSUPPORTED_TYPE");
         }
 
-        protected virtual void VisitTyped<TInput>(AndParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(AndParser<TInput> p, State state)
         {
             var children = p.GetChildren().ToArray();
             VisitChild(children[0], state);
@@ -128,66 +129,66 @@ namespace ParserObjects.Visitors
             VisitChild(children[1], state);
         }
 
-        protected virtual void VisitTyped<TInput>(AnyParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(AnyParser<TInput> p, State state)
         {
             state.Current.Append('.');
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
             VisitChild(child, state);
             state.Current.Append("->Chain");
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(Chain<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TMiddle, TOutput>(Chain<TInput, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
             VisitChild(child, state);
             state.Current.Append("->Chain");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Context<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().Single(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("CREATE");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput>(EmptyParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(EmptyParser<TInput> p, State state)
         {
             state.Current.Append("()");
         }
 
-        protected virtual void VisitTyped<TInput>(EndParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(EndParser<TInput> p, State state)
         {
             state.Current.Append("END");
         }
 
-        protected virtual void VisitTyped<TInput>(Examine<TInput>.Parser p, State state)
+        protected virtual void Accept<TInput>(Examine<TInput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(FailParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(FailParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("FAIL");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(FirstParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(FirstParser<TInput, TOutput> p, State state)
         {
             var children = p.GetChildren().ToList();
             if (children.Count == 1)
@@ -221,12 +222,12 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
         {
             state.Current.Append("User Function");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(IfParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, State state)
         {
             var children = p.GetChildren().ToArray();
             state.Current.Append("IF ");
@@ -237,7 +238,7 @@ namespace ParserObjects.Visitors
             VisitChild(children[2], state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LeftApply<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(LeftApply<TInput, TOutput>.Parser p, State state)
         {
             var children = p.GetChildren().ToArray();
             var initial = children[0];
@@ -247,7 +248,7 @@ namespace ParserObjects.Visitors
             VisitChild(initial, state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
             if (p.Maximum.HasValue)
@@ -268,25 +269,25 @@ namespace ParserObjects.Visitors
             }
         }
 
-        protected virtual void VisitTyped<TInput>(MatchPredicateParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(MatchPredicateParser<TInput> p, State state)
         {
             state.Current.Append("MATCH");
         }
 
-        protected virtual void VisitTyped<TInput>(MatchPatternParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(MatchPatternParser<TInput> p, State state)
         {
             var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i}'"));
             state.Current.Append(pattern);
         }
 
-        protected virtual void VisitTyped<TInput>(NegativeLookaheadParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(NegativeLookaheadParser<TInput> p, State state)
         {
             state.Current.Append("(?! ");
             VisitChild(p.GetChildren().First(), state);
             state.Current.Append(" )");
         }
 
-        protected virtual void VisitTyped<TInput>(NoneParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(NoneParser<TInput> p, State state)
         {
             var child = p.GetChildren().Single();
             state.Current.Append("(?=");
@@ -294,7 +295,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(")->Choose");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
         {
             var child = p.GetChildren().Single();
             state.Current.Append("(?=");
@@ -302,14 +303,14 @@ namespace ParserObjects.Visitors
             state.Current.Append(")->Choose");
         }
 
-        protected virtual void VisitTyped<TInput>(NotParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(NotParser<TInput> p, State state)
         {
             var child = p.GetChildren().First();
             state.Current.Append('!');
             VisitChild(child, state);
         }
 
-        protected virtual void VisitTyped<TInput>(OrParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(OrParser<TInput> p, State state)
         {
             var children = p.GetChildren().ToArray();
             VisitChild(children[0], state);
@@ -317,12 +318,12 @@ namespace ParserObjects.Visitors
             VisitChild(children[1], state);
         }
 
-        protected virtual void VisitTyped<TInput>(PeekParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(PeekParser<TInput> p, State state)
         {
             state.Current.Append("(?=.)");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(PrattParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(PrattParser<TInput, TOutput> p, State state)
         {
             var children = p.GetChildren().ToArray();
             if (children.Length == 0)
@@ -342,34 +343,34 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Pratt.ParseContext<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Pratt.ParseContext<TInput, TOutput> p, State state)
         {
             state.Current.Append("PRATT RECURSE");
         }
 
-        protected virtual void VisitTyped<TInput>(PositiveLookaheadParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(PositiveLookaheadParser<TInput> p, State state)
         {
             state.Current.Append("(?= ");
             VisitChild(p.GetChildren().First(), state);
             state.Current.Append(" )");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(Produce<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(Produce<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("PRODUCE");
         }
 
-        protected virtual void VisitTyped(RegexParser p, State state)
+        protected virtual void Accept(RegexParser p, State state)
         {
             state.Current.Append($"/{p.Pattern}/");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(RightApply<TInput, TMiddle, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TMiddle, TOutput>(RightApply<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var children = p.GetChildren().ToArray();
             VisitChild(children[0], state);
@@ -378,7 +379,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(string.IsNullOrEmpty(p.Name) ? " SELF" : $" <{p.Name}>)*");
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(RuleParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(RuleParser<TInput, TOutput> p, State state)
         {
             state.Current.Append('(');
             var children = p.GetChildren().ToArray();
@@ -392,12 +393,12 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(TransformResult<TInput, TMiddle, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TMiddle, TOutput>(TransformResult<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void VisitTyped<TInput, TOutput>(TrieParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, State state)
         {
             var allPatterns = p.Trie.GetAllPatterns().ToList();
             if (allPatterns.Count == 0)
