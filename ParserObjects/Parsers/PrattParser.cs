@@ -49,7 +49,7 @@ namespace ParserObjects.Parsers
             }
             finally
             {
-                dataStore.PopFrame();
+                dataStore?.PopFrame();
             }
         }
 
