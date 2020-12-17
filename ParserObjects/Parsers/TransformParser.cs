@@ -10,7 +10,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput1"></typeparam>
     /// <typeparam name="TOutput2"></typeparam>
-    public static class TransformResult<TInput, TOutput1, TOutput2>
+    public static class Transform<TInput, TOutput1, TOutput2>
     {
         public delegate IResult<TOutput2> Function(ISequence<TInput> input, IDataStore data, IResult<TOutput1> result);
 

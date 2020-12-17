@@ -248,7 +248,7 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => TransformResult(parser, (_, _, result) => result.Transform(transform));
 
-        public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, TransformResult<TInput, TMiddle, TOutput>.Function transform)
-            => new TransformResult<TInput, TMiddle, TOutput>.Parser(parser, transform);
+        public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
+            => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
     }
 }

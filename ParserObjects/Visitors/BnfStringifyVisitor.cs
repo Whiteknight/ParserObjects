@@ -393,7 +393,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void Accept<TInput, TMiddle, TOutput>(TransformResult<TInput, TMiddle, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
