@@ -13,7 +13,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Create<TInput, TOutput>
     {
-        public delegate IParser<TInput, TOutput> Function(ParseState<TInput> state);
+        public delegate IParser<TInput, TOutput> Function(ISequence<TInput> input, IDataStore data);
 
         /// <summary>
         /// Create a parser dynamically using information from the parse state. The parser created is
@@ -37,13 +37,17 @@ namespace ParserObjects.Parsers
                 // Get the parser. The callback has access to the input, so it may consume items.
                 // If so, we have to properly report that.
                 var startConsumed = state.Input.Consumed;
-                var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
+                var parser = _getParser(state.Input, state.Data) ?? throw new InvalidOperationException("Create parser value must not be null");
                 var consumedDuringCreation = state.Input.Consumed - startConsumed;
 
                 var result = parser.Parse(state);
-                if (!result.Success || consumedDuringCreation == 0)
+
+                // We can safely return the result if it's a fail or if it is correctly reporting
+                // the number of consumed inputs
+                if (!result.Success || result.Consumed == consumedDuringCreation)
                     return result;
 
+                // Otherwise construct a new result with correct consumed value.
                 return state.Success(this, result.Value, result.Consumed + consumedDuringCreation, result.Location);
             }
 

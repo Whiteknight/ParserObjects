@@ -185,7 +185,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
+            => ParserMethods<TInput>.Transform(parser, transform);
 
         /// <summary>
         /// Wraps the given parser to guarantee that it consumes no input.
@@ -285,6 +285,9 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => new TransformParser<TInput, TMiddle, TOutput>(parser, transform);
+            => ParserMethods<TInput>.Transform(parser, transform);
+
+        public static IParser<TInput, TOutput> TransformResult<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, TransformResult<TInput, TMiddle, TOutput>.Function transform)
+            => ParserMethods<TInput>.TransformResult(parser, transform);
     }
 }

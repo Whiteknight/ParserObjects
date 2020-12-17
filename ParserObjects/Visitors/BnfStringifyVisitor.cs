@@ -147,6 +147,11 @@ namespace ParserObjects.Visitors
             state.Current.Append("->Chain");
         }
 
+        protected virtual void VisitTyped<TInput, TOutput>(Context<TInput, TOutput>.Parser p, State state)
+        {
+            VisitChild(p.GetChildren().Single(), state);
+        }
+
         protected virtual void VisitTyped<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("CREATE");
@@ -387,7 +392,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(TransformParser<TInput, TMiddle, TOutput> p, State state)
+        protected virtual void VisitTyped<TInput, TMiddle, TOutput>(TransformResult<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }

@@ -14,11 +14,11 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, TransformResult<TInput, TOutput, TOutput>.Function transform)
-            => new TransformResult<TInput, TOutput, TOutput>.Parser(parser, (t, r) =>
+            => new TransformResult<TInput, TOutput, TOutput>.Parser(parser, (t, d, r) =>
             {
                 if (r.Success)
                     return r;
-                return transform(t, r);
+                return transform(t, d, r);
             });
     }
 }

@@ -12,7 +12,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput2"></typeparam>
     public static class TransformResult<TInput, TOutput1, TOutput2>
     {
-        public delegate IResult<TOutput2> Function(ParseState<TInput> state, IResult<TOutput1> result);
+        public delegate IResult<TOutput2> Function(ISequence<TInput> input, IDataStore data, IResult<TOutput1> result);
 
         public class Parser : IParser<TInput, TOutput2>
         {
@@ -34,13 +34,29 @@ namespace ParserObjects.Parsers
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startConsumed = state.Input.Consumed;
-                var result = _inner.Parse(state);
-                var transformedResult = _transform(state, result);
-                var totalConsumed = state.Input.Consumed - startConsumed;
+                var cp = state.Input.Checkpoint();
 
-                if (!result.Success || result.Consumed == totalConsumed)
+                // Execute the parse and transform the result
+                var result = _inner.Parse(state);
+                var transformedResult = _transform(state.Input, state.Data, result);
+
+                // If the transform callback returns failure, see if we have to rewind input and
+                // then return directly (we don't need to calculate consumed or anything)
+                if (!transformedResult.Success)
+                {
+                    if (result.Success)
+                        cp.Rewind();
                     return transformedResult;
-                return state.Success(this, transformedResult.Value, totalConsumed, transformedResult.Location);
+                }
+
+                // Make sure that the transformed result is reporting the correct number of
+                // consumed inputs (the transformer didn't secretly consume some without properly
+                // accounting for them)
+                var totalConsumed = state.Input.Consumed - startConsumed;
+                if (transformedResult.Consumed != totalConsumed)
+                    return state.Success(this, transformedResult.Value, totalConsumed, transformedResult.Location);
+
+                return transformedResult;
             }
 
             IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);

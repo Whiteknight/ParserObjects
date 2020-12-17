@@ -9,5 +9,8 @@ namespace ParserObjects
 
         public static IParser<TInput, TOutput> SetResultData<TInput, TOutput, TValue>(this IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
             => ParserMethods<TInput>.SetResultData(p, name, getValue);
+
+        public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IParser<TInput, TOutput> p)
+            => ParserMethods<TInput>.DataContext(p);
     }
 }

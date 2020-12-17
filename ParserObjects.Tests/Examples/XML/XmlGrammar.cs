@@ -15,7 +15,7 @@ namespace ParserObjects.Tests.Examples.XML
 
             // Deferred node parser so we can recurse. Call RecurseData here so each new node gets
             // a new data frame to play with.
-            var node = Deferred(() => RecurseData(nodeInternal));
+            var node = Deferred(() => nodeInternal);
 
             var nodeName = Word();
 
@@ -28,9 +28,9 @@ namespace ParserObjects.Tests.Examples.XML
 
             // closeTagName gets the current XmlNode instance from the current data frame, and
             // creates a Match() parser to match it.
-            var closeTagName = Create(t =>
+            var closeTagName = Create((t, d) =>
             {
-                var result = t.Data.Get<XmlNode>("tag");
+                var result = d.Get<XmlNode>("tag");
                 if (result.Success)
                     return Match(result.Value.Name);
                 return Fail<IReadOnlyList<char>>("No tag found in current data frame");
@@ -44,15 +44,17 @@ namespace ParserObjects.Tests.Examples.XML
             // nodeInternal is the implementation of node above, it is an open tag and matching
             // close tag, with zero or more children
             nodeInternal = Rule(
-                openTag,
-                node.List(),
-                closeTag,
-                (open, children, close) =>
-                {
-                    open.Children = children;
-                    return open;
-                }
-            ).Named("node");
+                    openTag,
+                    node.List(),
+                    closeTag,
+                    (open, children, close) =>
+                    {
+                        open.Children = children;
+                        return open;
+                    }
+                )
+                .WithDataContext()
+                .Named("node");
 
             return node;
         }
