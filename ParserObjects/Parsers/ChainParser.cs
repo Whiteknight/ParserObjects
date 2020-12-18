@@ -118,7 +118,7 @@ namespace ParserObjects.Parsers
         }
     }
 
-    public class Chain<TInput, TOutput>
+    public static class Chain<TInput, TOutput>
     {
         public delegate IParser<TInput, TOutput> GetParser(IResult result);
 
