@@ -38,7 +38,7 @@ namespace ParserObjects.Tests.Parsers
                 .ToList();
 
             var visitMethods = visitMethods1
-                .Where(m => m.Name == "VisitTyped")
+                .Where(m => m.Name == "Accept")
                 .Select(m => new
                 {
                     Method = m,

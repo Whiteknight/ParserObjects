@@ -98,7 +98,7 @@ namespace ParserObjects.Visitors
             state.Current = new StringBuilder();
 
             // Visit the parser recursively to fill in the builder
-            ((dynamic)this).VisitTyped((dynamic)parser, state);
+            ((dynamic)this).Accept((dynamic)parser, state);
 
             // Append the current builder to the overall builder
             var rule = state.Current.ToString();
