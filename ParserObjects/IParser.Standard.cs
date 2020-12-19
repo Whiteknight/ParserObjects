@@ -24,6 +24,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
+
         /// <summary>
         /// Execute a parser and use the result to select the nex parser to invoke. Uses a
         /// configuration object to store possible parsers and the input values which are used to

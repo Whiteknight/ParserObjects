@@ -9,7 +9,7 @@ namespace ParserObjects.Tests.Parsers
     public class ExamineParserTests
     {
         [Test]
-        public void Method_Test()
+        public void Output_Method_Test()
         {
             char before = '\0';
             string after = "";
@@ -22,7 +22,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Extension_Test()
+        public void Output_Extension_Test()
         {
             char before = '\0';
             char after = '\0';
@@ -35,11 +35,49 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void GetChildren_Test()
+        public void Output_GetChildren_Test()
         {
             char before = '\0';
             string after = "";
             var anyParser = Any();
+            var parser = Examine(anyParser, s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
+            var children = parser.GetChildren();
+            children.Count().Should().Be(1);
+            children.Single().Should().BeSameAs(anyParser);
+        }
+
+        [Test]
+        public void NoOutput_Method_Test()
+        {
+            char before = '\0';
+            string after = "";
+            var parser = Examine((IParser<char>)Any(), s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            before.Should().Be('a');
+            after.Should().Be("ab");
+        }
+
+        [Test]
+        public void NoOutput_Extension_Test()
+        {
+            char before = '\0';
+            char after = '\0';
+            var parser = ((IParser<char>)Any()).Examine(s => before = s.Input.Peek(), s => after = s.Input.Peek());
+            var input = new StringCharacterSequence("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            before.Should().Be('a');
+            after.Should().Be('b');
+        }
+
+        [Test]
+        public void NoOutput_GetChildren_Test()
+        {
+            char before = '\0';
+            string after = "";
+            var anyParser = (IParser<char>)Any();
             var parser = Examine(anyParser, s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
             var children = parser.GetChildren();
             children.Count().Should().Be(1);

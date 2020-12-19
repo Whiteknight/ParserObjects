@@ -1,4 +1,5 @@
 ﻿using System;
+using ParserObjects.Utility;
 using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.ExprCalculator.Token>;
 using static ParserObjects.Tests.Examples.ExprCalculator.TokenParserExtension;
 
@@ -58,7 +59,7 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
 
             var requiredEnd = If(
                 End(),
-                Empty(),
+                Produce(() => Defaults.ObjectInstance),
                 Produce<object>((t, d) => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
             );
 

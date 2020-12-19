@@ -143,6 +143,9 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, string name, TData value)
-            => DataContext(inner, new Dictionary<string, object> { { name, value } });
+        {
+            Assert.ArgumentNotNull(value, nameof(value));
+            return DataContext(inner, new Dictionary<string, object> { { name, value! } });
+        }
     }
 }

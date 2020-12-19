@@ -37,8 +37,14 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        public static IParser<TInput, TOutput> Chain<TOutput>(IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
+            => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
+
         public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, setup);
+
+        public static IParser<TInput, TOutput> ChainWith<TOutput>(IParser<TInput> p, Action<Chain<TInput, TOutput>.IConfiguration> setup)
+            => new Chain<TInput, TOutput>.Parser(p, setup);
 
         /// <summary>
         /// Executes a parser without consuming any input, and uses the value to determine the next
@@ -75,7 +81,7 @@ namespace ParserObjects
         /// The empty parser, consumers no input and always returns success at any point.
         /// </summary>
         /// <returns></returns>
-        public static IParser<TInput, object> Empty() => new EmptyParser<TInput>();
+        public static IParser<TInput> Empty() => new EmptyParser<TInput>();
 
         /// <summary>
         /// Matches affirmatively at the end of the input, fails everywhere else.

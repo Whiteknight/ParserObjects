@@ -136,9 +136,9 @@ namespace ParserObjects
 
             var maybeEndAnchor = First(
                 Match('$').Transform(dollar => RegexNodes.EndAnchor()),
-                Empty().Transform(_ => RegexNodes.Nothing())
+                Produce(() => RegexNodes.Nothing())
             );
-            var requiredEnd = If(End(), Empty(), Produce(ThrowEndOfPatternException));
+            var requiredEnd = If(End(), Produce(() => Utility.Defaults.ObjectInstance), Produce(ThrowEndOfPatternException));
             var regex = (alternation, maybeEndAnchor, requiredEnd).Produce((f, s, e) => RegexNodes.Sequence(new[] { f, s }));
 
             return regex

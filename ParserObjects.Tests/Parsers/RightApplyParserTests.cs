@@ -365,8 +365,8 @@ namespace ParserObjects.Tests.Parsers
         public void ZeroOrMore_Empty()
         {
             var parser = RightApply(
-                Empty(),
-                Empty(),
+                Produce(() => new object()),
+                Produce(() => new object()),
                 (l, m, r) => null
             );
 

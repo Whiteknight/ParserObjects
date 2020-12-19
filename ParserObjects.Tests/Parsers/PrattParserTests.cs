@@ -65,6 +65,32 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Infix_Addition_TokenDetails()
+        {
+            var target = Pratt<int>(c => c
+                .Add(Integer(), p => p
+                    .TypeId(7)
+                    .ProduceRight(0, (ctx, v) => v.Value)
+                )
+                .Add(Match('+'), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        l.LeftBindingPower.Should().Be(0);
+                        l.RightBindingPower.Should().Be(0);
+                        l.Value.Should().Be(1);
+                        l.TokenTypeId.Should().Be(7);
+                        l.IsValid.Should().BeTrue();
+                        return l.Value + ctx.Parse();
+                    })
+                )
+            );
+            var result = target.Parse("1+2");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
+            result.Value.Should().Be(3);
+        }
+
+        [Test]
         public void Infix_AdditionSubtractionChain()
         {
             // In most C-like languages and others, +/- have the same precidence and are
@@ -404,6 +430,86 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(3);
             result.Value.Should().Be("a123");
+        }
+
+        [Test]
+        public void Parse_ParseParser_Ok()
+        {
+            var target = Pratt<int>(c => c
+                .Add(Integer())
+                .Add(Match('+'), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        var prefix = ctx.Parse(Match('D'));
+                        return l.Value + 10 * ctx.Parse();
+                    })
+                )
+            );
+            var result = target.Parse("1+D2");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(4);
+            result.Value.Should().Be(21);
+        }
+
+        [Test]
+        public void Parse_ParseParser_Fail()
+        {
+            var target = Pratt<int>(c => c
+                .Add(Integer())
+                .Add(Match('+'), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        var prefix = ctx.Parse(Match('D'));
+                        return l.Value + 10 * ctx.Parse();
+                    })
+                )
+            );
+            var result = target.Parse("1+2");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(1);
+            result.Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_TryParseParser_Ok()
+        {
+            var target = Pratt<int>(c => c
+                .Add(Integer())
+                .Add(Match('+'), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        var prefix = ctx.TryParse(Match('D'));
+                        if (prefix.Success)
+                            return l.Value + 10 * ctx.Parse();
+                        return l.Value + ctx.Parse();
+                    })
+                )
+            );
+            var result = target.Parse("1+D2");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(4);
+            result.Value.Should().Be(21);
+        }
+
+        [Test]
+        public void Parse_TryParseParser_Fail()
+        {
+            var target = Pratt<int>(c => c
+                .Add(Integer())
+                .Add(Match('+'), p => p
+                    .ProduceLeft(1, (ctx, l, op) =>
+                    {
+                        var prefix = ctx.TryParse(Match('D'));
+                        if (prefix.Success)
+                            return l.Value + 10 * ctx.Parse();
+                        return l.Value + ctx.Parse();
+                    })
+                )
+            );
+            var result = target.Parse("1+2");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
+            result.Value.Should().Be(3);
         }
 
         [Test]

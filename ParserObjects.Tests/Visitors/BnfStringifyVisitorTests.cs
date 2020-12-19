@@ -50,11 +50,35 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
+        public void ToBnf_Chain_Untyped()
+        {
+            var parser = Empty().Chain(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .->Chain");
+        }
+
+        [Test]
         public void ToBnf_Choose()
         {
             var parser = Any().Choose(c => Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (?=.)->Choose");
+        }
+
+        [Test]
+        public void ToBnf_Context()
+        {
+            var parser = DataContext(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Create()
+        {
+            var parser = Create((t, d) => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
         }
 
         [Test]
@@ -159,6 +183,14 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
+        public void ToBnf_If()
+        {
+            var parser = If(End(), Any(), Peek()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := IF END THEN . ELSE (?=.)");
+        }
+
+        [Test]
         public void ToBnf_LimitedList()
         {
             var parser = Any().List().Named("parser");
@@ -249,6 +281,14 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
+        public void ToBnf_None()
+        {
+            var parser = Any().None().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?:.)");
+        }
+
+        [Test]
         public void ToBnf_Not()
         {
             var parser = Not(Any()).Named("parser");
@@ -262,6 +302,14 @@ namespace ParserObjects.Tests.Visitors
             var parser = Or(Any(), Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := . || .");
+        }
+
+        [Test]
+        public void ToBnf_Peek()
+        {
+            var parser = Peek().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=.)");
         }
 
         [Test]

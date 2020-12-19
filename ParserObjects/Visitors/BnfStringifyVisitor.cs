@@ -290,9 +290,9 @@ namespace ParserObjects.Visitors
         protected virtual void Accept<TInput>(NoneParser<TInput> p, State state)
         {
             var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
+            state.Current.Append("(?:");
             VisitChild(child, state);
-            state.Current.Append(")->Choose");
+            state.Current.Append(")");
         }
 
         protected virtual void Accept<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)

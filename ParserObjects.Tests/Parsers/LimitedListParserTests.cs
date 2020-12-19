@@ -80,7 +80,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Empty()
         {
-            var parser = List(Empty());
+            var parser = List(Produce(() => new object()));
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -93,7 +93,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Empty_Minimum()
         {
-            var parser = List(Empty(), minimum: 3);
+            var parser = List(Produce(() => new object()), minimum: 3);
             var input = new StringCharacterSequence("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
