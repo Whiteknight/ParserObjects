@@ -99,7 +99,7 @@ namespace ParserObjects
                     digits,
                     Match(','),
                     Match("}"),
-                    (open, number, comma, close) => (number, -1)
+                    (open, number, comma, close) => (number, int.MaxValue)
                 ),
                 Rule(
                     Match("{"),

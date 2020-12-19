@@ -1,12 +1,13 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects.Regexes;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Tests
+namespace ParserObjects.Tests.Parsers
 {
-    public class RegexParserMethodsTests
+    public class RegexParserTests
     {
         [Test]
         public void Regex_MatchLiteral()
@@ -454,6 +455,55 @@ namespace ParserObjects.Tests
             var result = parser.Parse("[abcccccc]");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abcccccc");
+        }
+
+        [Test]
+        public void Regex_Error_QuestionAfterStar()
+        {
+            Action act = () => Regex("a*?");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_StarAfterPlus()
+        {
+            Action act = () => Regex("a+*");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_PlusAfterStar()
+        {
+            Action act = () => Regex("a*+");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_RangeInverted()
+        {
+            Action act = () => Regex("a{5,3}");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_RangeZeroMax()
+        {
+            Action act = () => Regex("a{0,0}");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_RangeMinimumAfterStar()
+        {
+            Action act = () => Regex("a*{1}");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_RangeMaximumAfterStar()
+        {
+            Action act = () => Regex("a*{,1}");
+            act.Should().Throw<RegexException>();
         }
     }
 }

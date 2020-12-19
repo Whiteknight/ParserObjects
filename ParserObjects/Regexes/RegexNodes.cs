@@ -11,6 +11,7 @@ namespace ParserObjects.Regexes
     public interface IRegexNode
     {
         void BuildUpStates(List<List<RegexState>> states);
+
         string Description { get; }
     }
 
@@ -21,10 +22,13 @@ namespace ParserObjects.Regexes
     public static class RegexNodes
     {
         public static IRegexNode Wildcard() => new MatchRegexNode(x => x != '\0', "Match any");
+
         public static IRegexNode Match(char c) => new MatchRegexNode(x => x == c, $"Match {c}");
+
         public static IRegexNode Match(Func<char, bool> predicate, string description) => new MatchRegexNode(predicate, description);
 
         public static IRegexNode ZeroOrOne(IRegexNode atom) => new ZeroOrOneQuantifiedRegexNode(atom);
+
         public static IRegexNode OneOrMore(IRegexNode atom) => new OneOrMoreQuantifiedRegexNode(atom);
 
         public static IRegexNode ZeroOrMore(IRegexNode atom) => new ZeroOrMoreQuantifiedRegexNode(atom);
@@ -329,7 +333,7 @@ namespace ParserObjects.Regexes
             public RangeQuantifiedRegexNode(IRegexNode atom, int min, int max)
             {
                 _atom = atom;
-                if (_min > _max)
+                if (min > max)
                     throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
                 if (min < 0 || max == 0 || max < -1)
                     throw new RegexException("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
@@ -349,15 +353,17 @@ namespace ParserObjects.Regexes
                 }
 
                 if (_min == _max)
+                {
+                    // GetLastState does some validation that we need.
+                    GetLastState(states);
                     return;
+                }
 
                 if (_max == -1)
                 {
                     // No maximum, so we can treat the remainder like ZeroOrMore
                     _atom.BuildUpStates(states);
-                    var lastElement = states.Last().Last();
-                    if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
-                        throw new RegexException("Range maximum may only follow an unquantified atom");
+                    var lastElement = GetLastState(states);
                     lastElement.Quantifier = Quantifier.ZeroOrMore;
                     return;
                 }
@@ -367,12 +373,18 @@ namespace ParserObjects.Regexes
                 {
                     // We have a maximum value, so add a new state and set it's quantifier to range
                     _atom.BuildUpStates(states);
-                    var lastElement = states.Last().Last();
-                    if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
-                        throw new RegexException("Range maximum may only follow an unquantified atom");
+                    var lastElement = GetLastState(states);
                     lastElement.Quantifier = Quantifier.Range;
                     lastElement.Maximum = _max - _min;
                 }
+            }
+
+            private RegexState GetLastState(List<List<RegexState>> states)
+            {
+                var lastElement = states.Last().Last();
+                if (lastElement == null || lastElement.Quantifier != Quantifier.ExactlyOne)
+                    throw new RegexException("Range maximum may only follow an unquantified atom");
+                return lastElement;
             }
         }
     }
