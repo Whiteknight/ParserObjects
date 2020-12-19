@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Parsers;
 using ParserObjects.Regexes;
 using static ParserObjects.ParserMethods<char>;
@@ -32,19 +33,16 @@ namespace ParserObjects
         public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
 
         private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
-        private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|' };
+        private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|', '[', '.', '?', '+', '*', '{', '}' };
         private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']' };
 
         private static IParser<char, Regex> GetRegexPatternParser()
         {
-            IParser<char, IRegexNode>? alternationInner = null;
-            var alternation = Deferred(() => alternationInner!);
-
             var characterRange = Rule(
                 Any(),
                 Match('-'),
                 Any(),
-                (low, dash, high) => (low, high)
+                (low, _, high) => (low, high)
             );
             var characterOrRange = First(
                 characterRange,
@@ -58,90 +56,117 @@ namespace ParserObjects
                 Match('^').Optional(),
                 characterOrRange.List(true),
                 Match(']'),
-                (open, maybeNot, contents, close) => RegexNodes.CharacterClass(maybeNot.Is('^'), contents)
+                (_, maybeNot, contents, _) => new CharacterMatcher(maybeNot.Is('^'), contents)
             );
 
-            // These groupings will not be captured like in a normal regex
-            var groupedAlternation = Rule(
-                Match('('),
-                alternation,
-                Match(')'),
-                (open, atoms, close) => RegexNodes.Group(atoms)
-            );
-
-            // Literal match of any non-slash and non-control character
-            var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c)).Transform(c => RegexNodes.Match(c));
-
-            var atom = First(
-                Match('.').Transform(c => RegexNodes.Wildcard()),
-                Match("\\d").Transform(_ => RegexNodes.Match(c => char.IsDigit(c), "digit")),
-                Match("\\D").Transform(_ => RegexNodes.Match(c => !char.IsDigit(c), "non-digit")),
-                Match("\\w").Transform(_ => RegexNodes.Match(c => char.IsLetterOrDigit(c) || c == '_', "word")),
-                Match("\\W").Transform(_ => RegexNodes.Match(c => char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsSymbol(c), "non-word")),
-                Match("\\s").Transform(_ => RegexNodes.Match(c => char.IsWhiteSpace(c), "whitespace")),
-                Match("\\S").Transform(_ => RegexNodes.Match(c => !char.IsWhiteSpace(c), "non-whitespace")),
-                (Match('\\'), Any()).Produce((slash, c) => RegexNodes.Match(c)),
-                groupedAlternation,
-                characterClass,
-                normalChar
-            );
             var digits = CStyleParserMethods.UnsignedInteger();
 
-            var range = First(
-                Rule(
-                    Match("{"),
-                    digits,
-                    Match("}"),
-                    (open, number, close) => (number, number)
-                ),
-                Rule(
-                    Match("{"),
-                    digits,
-                    Match(','),
-                    Match("}"),
-                    (open, number, comma, close) => (number, int.MaxValue)
-                ),
-                Rule(
-                    Match("{"),
-                    Match(','),
-                    digits,
-                    Match("}"),
-                    (open, comma, number, close) => (0, number)
-                ),
-                Rule(
-                    Match("{"),
-                    digits,
-                    Match(','),
-                    digits,
-                    Match("}"),
-                    (open, min, comma, max, close) => (min, max)
+            // Literal match of any non-slash and non-control character
+            var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
+
+            var regex = Pratt<List<RegexState>>(config => config
+                .Add(normalChar, p => p
+                    .ProduceRight(2, (_, c) => RegexState.AddMatch(null, x => x == c.Value, $"Match {c}"))
+                    .ProduceLeft(2, (_, states, c) => RegexState.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
+                )
+                .Add(characterClass, p => p
+                    .ProduceRight(2, (_, matcher) => RegexState.AddMatch(null, c => matcher.Value.IsMatch(c), "class"))
+                    .ProduceLeft(2, (_, states, matcher) => RegexState.AddMatch(states.Value, c => matcher.Value.IsMatch(c), "class"))
+                )
+                .Add(Match('.'), p => p
+                    .ProduceRight(2, (_, _) => RegexState.AddMatch(null, c => c != '\0', "Any"))
+                    .ProduceLeft(2, (_, states, _) => RegexState.AddMatch(states.Value, c => c != '\0', "Any"))
+                )
+                .Add(Match("\\"), p => p
+                    .ProduceRight(2, (ctx, _) => RegexState.AddSpecialMatch(null, ctx.Parse(Any())))
+                    .ProduceLeft(2, (ctx, states, _) => RegexState.AddSpecialMatch(states.Value, ctx.Parse(Any())))
+                )
+                .Add(Match('('), p => p
+                    .ProduceRight(2, (ctx, _) =>
+                    {
+                        var group = ctx.Parse(0);
+                        ctx.Expect(Match(')'));
+                        return RegexState.AddGroupState(null, group);
+                    })
+                    .ProduceLeft(2, (ctx, states, _) =>
+                    {
+                        var group = ctx.Parse(0);
+                        ctx.Expect(Match(')'));
+                        return RegexState.AddGroupState(states.Value, group);
+                    })
+                )
+                .Add(Match('{'), p => p
+                    .ProduceLeft(2, (ctx, states, _) =>
+                    {
+                        if (states.Value.Last().Type == RegexStateType.EndOfInput)
+                            throw new RegexException("Cannot quantify the end anchor $");
+                        int min = 0;
+                        var first = ctx.TryParse(digits);
+                        if (first.Success)
+                            min = first.Value;
+                        var comma = ctx.TryParse(Match(','));
+                        if (!comma.Success)
+                        {
+                            ctx.Expect(Match('}'));
+                            // No comma, so we must have {X} form
+                            if (!first.Success)
+                                throw new RegexException("Invalid range specifier. Must be one of {X} {X,} {,Y} or {X,Y}");
+                            return RegexState.SetPreviousStateRange(states.Value, min, min);
+                        }
+
+                        // At this point we might have {X,} {X,Y} or {,Y}
+                        // In any case, min is filled in now with either a value or 0
+                        var second = ctx.TryParse(digits);
+                        ctx.Expect(Match('}'));
+                        return RegexState.SetPreviousStateRange(states.Value, min, second.Success ? second.Value : int.MaxValue);
+                    })
+                )
+                .Add(Match('?'), p => p
+                    .ProduceLeft(2, (_, states, _) => RegexState.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
+                )
+                .Add(Match('+'), p => p
+                    .ProduceLeft(2, (_, states, _) => RegexState.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+                )
+                .Add(Match('*'), p => p
+                    .ProduceLeft(2, (_, states, _) => RegexState.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
+                )
+                .Add(Match('|'), p => p
+                    .ProduceLeft(2, (ctx, states, _) =>
+                    {
+                        var options = new List<List<RegexState>>() { states.Value };
+                        while (true)
+                        {
+                            var option = ctx.TryParse(0);
+                            if (!option.Success || option.Value.Count == 0)
+                                break;
+                            options.Add(option.Value);
+                        }
+
+                        if (options.Count == 1)
+                            return states.Value;
+
+                        return new List<RegexState>
+                        {
+                            new RegexState("alternation")
+                            {
+                                Type = RegexStateType.Alternation,
+                                Alternations = options
+                            }
+                        };
+                    })
+                )
+                .Add(Match('$'), p => p
+                    .ProduceLeft(4, (_, states, _) =>
+                    {
+                        states.Value.Add(RegexState.EndOfInput);
+                        return states.Value;
+                    })
                 )
             );
 
-            var quantifiedAtom = LeftApply(
-                atom,
-                left => First(
-                    (left, Match('?')).Produce((a, p) => RegexNodes.ZeroOrOne(a)),
-                    (left, Match('+')).Produce((a, p) => RegexNodes.OneOrMore(a)),
-                    (left, Match('*')).Produce((a, p) => RegexNodes.ZeroOrMore(a)),
-                    (left, range).Produce((a, r) => RegexNodes.Range(a, r.Item1, r.Item2))
-                )
-            );
-            var atomString = quantifiedAtom
-                .List(true)
-                .Transform(qa => RegexNodes.Sequence(qa));
-
-            alternationInner = SeparatedList(atomString, Match('|'), true)
-                .Transform(nodes => RegexNodes.Or(nodes));
-
-            var maybeEndAnchor = First(
-                Match('$').Transform(dollar => RegexNodes.EndAnchor()),
-                Produce(() => RegexNodes.Nothing())
-            );
             var requiredEnd = If(End(), Produce(() => Utility.Defaults.ObjectInstance), Produce(ThrowEndOfPatternException));
-            var regex = (alternation, maybeEndAnchor, requiredEnd).Produce((f, s, e) => RegexNodes.Sequence(new[] { f, s }));
 
-            return regex
+            return (regex, requiredEnd).Produce((r, _) => r)
                 .Transform(r => new Regex(r))
                 .Named("RegexPattern");
         }

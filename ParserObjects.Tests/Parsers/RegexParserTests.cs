@@ -301,6 +301,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Regex_End_Quantified()
+        {
+            Action act = () => Regex("abc$*");
+            act.Should().Throw<Exception>();
+        }
+
+        [Test]
         public void Regex_EscapedEnd_NotAtEndOfPattern()
         {
             var parser = Regex("abc\\$");
@@ -496,6 +503,13 @@ namespace ParserObjects.Tests.Parsers
         public void Regex_Error_RangeMinimumAfterStar()
         {
             Action act = () => Regex("a*{1}");
+            act.Should().Throw<RegexException>();
+        }
+
+        [Test]
+        public void Regex_Error_StarAfterRangeMinimum()
+        {
+            Action act = () => Regex("a{1}*");
             act.Should().Throw<RegexException>();
         }
 

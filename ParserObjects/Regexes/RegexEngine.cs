@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
@@ -65,7 +66,7 @@ namespace ParserObjects.Regexes
 
             public RegexContext(IEnumerable<RegexState> states)
             {
-                _queue = new List<RegexState>(states);
+                _queue = new List<RegexState>(states.Where(s => s.Type != RegexStateType.Fence));
                 _queue.Add(RegexState.EndSentinel);
                 _backtrackStack = new Stack<BacktrackState>();
                 _i = 0;

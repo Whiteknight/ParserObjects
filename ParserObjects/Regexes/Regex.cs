@@ -12,14 +12,10 @@ namespace ParserObjects.Regexes
     {
         public IReadOnlyList<RegexState> States { get; }
 
-        public Regex(IRegexNode regex)
+        public Regex(List<RegexState> states)
         {
-            Assert.ArgumentNotNull(regex, nameof(regex));
-            var states = new List<List<RegexState>> { new List<RegexState>() };
-            regex.BuildUpStates(states);
-            if (states.Count != 1)
-                throw new RegexException("Invalid regular expression. Too many incomplete groups");
-            States = states[0];
+            Assert.ArgumentNotNull(states, nameof(states));
+            States = states;
             Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
         }
     }

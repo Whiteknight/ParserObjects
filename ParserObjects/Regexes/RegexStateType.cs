@@ -26,8 +26,13 @@
         Alternation,
 
         /// <summary>
-        /// End state
+        /// End sentinel, which causes the regex to break
         /// </summary>
-        EndSentinel
+        EndSentinel,
+
+        /// <summary>
+        /// Prevents a modifier from attaching to the previous state
+        /// </summary>
+        Fence
     }
 }
