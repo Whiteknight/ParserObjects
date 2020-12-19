@@ -54,7 +54,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var parser = Empty().Chain(c => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := .->Chain");
+            result.Should().Contain("parser := ()->Chain");
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var parser = Any().Choose(c => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := (?=.)->Choose");
+            result.Should().Contain("parser := (?=.)->Chain");
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var parser = Create((t, d) => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := .");
+            result.Should().Contain("parser := CREATE");
         }
 
         [Test]
@@ -281,11 +281,19 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
-        public void ToBnf_None()
+        public void ToBnf_None_Output()
         {
             var parser = Any().None().Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := (?:.)");
+            result.Should().Contain("parser := (?=.)");
+        }
+
+        [Test]
+        public void ToBnf_None_NoOutput()
+        {
+            var parser = Empty().None().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=())");
         }
 
         [Test]

@@ -121,6 +121,10 @@ namespace ParserObjects.Visitors
             state.Current.Append("UNSUPPORTED_TYPE");
         }
 
+        // Some regex syntax:
+        // (?= ) is "positive lookahead" syntax. We use it to shoe something doesn't consume input
+        // (?! ) is "negative lookahead" syntax. We use it for non-follows situations
+
         protected virtual void Accept<TInput>(AndParser<TInput> p, State state)
         {
             var children = p.GetChildren().ToArray();
@@ -141,7 +145,7 @@ namespace ParserObjects.Visitors
             state.Current.Append("->Chain");
         }
 
-        protected virtual void Accept<TInput, TMiddle, TOutput>(Chain<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput, TOutput>(Chain<TInput, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
             VisitChild(child, state);
@@ -290,7 +294,7 @@ namespace ParserObjects.Visitors
         protected virtual void Accept<TInput>(NoneParser<TInput> p, State state)
         {
             var child = p.GetChildren().Single();
-            state.Current.Append("(?:");
+            state.Current.Append("(?=");
             VisitChild(child, state);
             state.Current.Append(")");
         }
@@ -300,7 +304,7 @@ namespace ParserObjects.Visitors
             var child = p.GetChildren().Single();
             state.Current.Append("(?=");
             VisitChild(child, state);
-            state.Current.Append(")->Choose");
+            state.Current.Append(")");
         }
 
         protected virtual void Accept<TInput>(NotParser<TInput> p, State state)
