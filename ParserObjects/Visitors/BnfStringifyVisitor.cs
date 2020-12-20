@@ -296,7 +296,7 @@ namespace ParserObjects.Visitors
             var child = p.GetChildren().Single();
             state.Current.Append("(?=");
             VisitChild(child, state);
-            state.Current.Append(")");
+            state.Current.Append(')');
         }
 
         protected virtual void Accept<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
@@ -304,7 +304,7 @@ namespace ParserObjects.Visitors
             var child = p.GetChildren().Single();
             state.Current.Append("(?=");
             VisitChild(child, state);
-            state.Current.Append(")");
+            state.Current.Append(')');
         }
 
         protected virtual void Accept<TInput>(NotParser<TInput> p, State state)

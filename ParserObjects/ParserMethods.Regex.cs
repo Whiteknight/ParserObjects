@@ -35,48 +35,9 @@ namespace ParserObjects
 
         private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
         private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|', '[', '.', '?', '+', '*', '{', '}' };
-        private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']', '-' };
 
         private static IParser<char, Regex> GetRegexPatternParser()
         {
-            var openBracket = Match('[');
-            var any = Any();
-            var peek = Peek();
-
-            var characterClass = Sequential(state =>
-            {
-                var start = state.Parse(openBracket);
-                var invertResult = state.TryParse(Match('^'));
-                var ranges = new List<(char low, char high)>();
-                while (true)
-                {
-                    var c = state.Parse(any);
-                    if (c == ']')
-                        break;
-                    if (c == '\\')
-                        c = state.Parse(any);
-                    var low = c;
-                    var high = c;
-                    var next = state.Parse(peek);
-                    if (next == '-')
-                    {
-                        state.Parse(any);
-                        c = state.Parse(any);
-                        if (c == ']')
-                            throw new RegexException("Unexpected ] after -. Expected end of range. Did you mean '\\]'?");
-                        if (c == '\\')
-                            c = state.Parse(any);
-                        high = c;
-                    }
-
-                    if (high < low)
-                        throw new RegexException($"Invalid range {high}-{low} should be {low}-{high}");
-                    ranges.Add((low, high));
-                }
-
-                return new CharacterMatcher(invertResult.Success, ranges);
-            });
-
             var digits = CStyleParserMethods.UnsignedInteger();
 
             // Literal match of any non-slash and non-control character
@@ -87,7 +48,7 @@ namespace ParserObjects
                     .ProduceRight(2, (_, c) => RegexState.AddMatch(null, x => x == c.Value, $"Match {c}"))
                     .ProduceLeft(2, (_, states, c) => RegexState.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
                 )
-                .Add(characterClass, p => p
+                .Add(GetCharacterClassParser(), p => p
                     .ProduceRight(2, (_, matcher) => RegexState.AddMatch(null, c => matcher.Value.IsMatch(c), "class"))
                     .ProduceLeft(2, (_, states, matcher) => RegexState.AddMatch(states.Value, c => matcher.Value.IsMatch(c), "class"))
                 )
@@ -144,6 +105,52 @@ namespace ParserObjects
                 .Named("RegexPattern");
         }
 
+        private static IParser<char, CharacterMatcher> GetCharacterClassParser()
+        {
+            var openBracket = Match('[');
+            var any = Any();
+            var peek = Peek();
+
+            // TODO: This example shows some places where Sequential.State could be improved.
+            // Should have ability to get next input, peek next input, etc
+            return Sequential(state =>
+            {
+                state.Parse(openBracket);
+                var invertResult = state.TryParse(Match('^'));
+                var ranges = new List<(char low, char high)>();
+                while (true)
+                {
+                    var c = state.Parse(any);
+                    if (c == ']')
+                        break;
+                    if (c == '\\')
+                        c = state.Parse(any);
+                    var low = c;
+                    var next = state.Parse(peek);
+                    if (next != '-')
+                    {
+                        ranges.Add((low, low));
+                        continue;
+                    }
+
+                    state.Parse(any);
+                    c = state.Parse(any);
+                    if (c == ']')
+                        throw new RegexException("Unexpected ] after -. Expected end of range. Did you mean '\\]'?");
+                    if (c == '\\')
+                        c = state.Parse(any);
+                    var high = c;
+
+                    if (high < low)
+                        throw new RegexException($"Invalid range {high}-{low} should be {low}-{high}");
+
+                    ranges.Add((low, high));
+                }
+
+                return new CharacterMatcher(invertResult.Success, ranges);
+            });
+        }
+
         private static object ThrowEndOfPatternException(ISequence<char> t, IDataStore data)
             => throw new RegexException("Expected end of pattern but found '" + t.GetNext());
 
@@ -165,7 +172,7 @@ namespace ParserObjects
                 return RegexState.SetPreviousStateRange(states, min, min);
             }
 
-            // At this point we might have {X,} {X,Y} or {,Y}
+            // At this point we might have X, X,Y or ,Y
             // In any case, min is filled in now with either a value or 0
             var second = ctx.TryParse(digits);
             ctx.Expect(Match('}'));
