@@ -76,6 +76,14 @@ namespace ParserObjects.Parsers
             {
             }
 
+            public ParseFailedException(string message) : base(message)
+            {
+            }
+
+            public ParseFailedException(string message, Exception inner) : base(message, inner)
+            {
+            }
+
             public Location? Location { get; }
 
             public IResult? Result { get; }
@@ -119,6 +127,12 @@ namespace ParserObjects.Parsers
                     var result = spe.Result!;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
                     return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {result.Location}");
+                }
+                catch (Exception e)
+                {
+                    checkpoint.Rewind();
+                    state.Log(this, $"Parse failed during sequential callback: {e.Message}");
+                    throw;
                 }
             }
 

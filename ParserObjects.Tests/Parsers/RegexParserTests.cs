@@ -206,6 +206,11 @@ namespace ParserObjects.Tests.Parsers
         public void Regex_CharacterClass(string pattern, string input, string expectedMatch)
            => RegexTest(pattern, input, expectedMatch);
 
+        [TestCase("[c-a]")]
+        [TestCase("[a-]")]
+        public void Regex_CharacterClass_Throw(string pattern)
+           => RegexTestThrow(pattern);
+
         [TestCase("a*?")]
         [TestCase("a+*")]
         [TestCase("a*+")]

@@ -133,7 +133,12 @@ namespace ParserObjects.Sequences
             // See if we can just decrement the buffer pointer. _putbacks stack is less efficient
             // if we can avoid it.
             if (_bufferIndex > 0 && value == _currentBuffer.Buffer[_bufferIndex - 1])
+            {
                 _bufferIndex--;
+                if (_isComplete)
+                    _isComplete = false;
+                _remainingChars++;
+            }
             else
                 _putbacks.Push(value);
 
