@@ -34,29 +34,38 @@ namespace ParserObjects
 
         private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(GetRegexPatternParser);
         private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|', '[', '.', '?', '+', '*', '{', '}' };
-        private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']' };
+        private static readonly HashSet<char> _classCharsRequiringEscape = new HashSet<char> { '\\', '^', ']', '-' };
 
         private static IParser<char, Regex> GetRegexPatternParser()
         {
-            var characterRange = Rule(
-                Any(),
-                Match('-'),
-                Any(),
-                (low, _, high) => (low, high)
+            var unescapedChar = Match(c => !_classCharsRequiringEscape.Contains(c));
+            var classChar = First(
+                unescapedChar,
+                Match("\\^").Transform(_ => '^'),
+                Match("\\]").Transform(_ => ']'),
+                Match("\\\\").Transform(_ => '\\'),
+                Match("\\-").Transform(_ => '-')
             );
-            var characterOrRange = First(
-                characterRange,
-                Match("\\^").Transform(_ => (low: '^', high: '^')),
-                Match("\\]").Transform(_ => (low: ']', high: ']')),
-                Match("\\\\").Transform(_ => (low: '\\', high: '\\')),
-                Match(c => !_classCharsRequiringEscape.Contains(c)).Transform(c => (low: c, high: c))
+            var characterOrRange = LeftApply(
+                classChar.Transform(v => (low: v, high: v)),
+                left => First(
+                    Rule(
+                        left,
+                        Match('-'),
+                        classChar,
+                        (low, _, high) => (low: low.low, high: high)
+                    ),
+                    left
+                ),
+                Quantifier.ZeroOrOne
             );
+
             var characterClass = Rule(
                 Match('['),
                 Match('^').Optional(),
                 characterOrRange.List(true),
                 Match(']'),
-                (_, maybeNot, contents, _) => new CharacterMatcher(maybeNot.Is('^'), contents)
+                (_, maybeNot, contents, _) => new CharacterMatcher(maybeNot.Success, contents)
             );
 
             var digits = CStyleParserMethods.UnsignedInteger();

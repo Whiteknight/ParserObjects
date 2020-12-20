@@ -66,6 +66,8 @@ namespace ParserObjects.Regexes
                 throw new RegexException("Range quantifier must appear after a valid atom");
             if (previousState.Quantifier != Quantifier.ExactlyOne)
                 throw new RegexException("Range quantifier may only follow an unquantified atom");
+            if (previousState.Type == RegexStateType.EndOfInput || previousState.Type == RegexStateType.Fence)
+                throw new RegexException("Range quantifier may not attach to End or Fence atoms");
 
             // we have an exact number to match, so add multiple references of previousState to
             // the list to satisfy the requirement. Add min-1 because we already have one on the
