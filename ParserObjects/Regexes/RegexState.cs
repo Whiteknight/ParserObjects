@@ -31,9 +31,6 @@ namespace ParserObjects.Regexes
             Quantifier = Quantifier.ZeroOrOne
         };
 
-        public static RegexState CreateWildcardMatchState()
-            => CreateMatchState(x => x != '\0', "Match any");
-
         public static RegexState CreateMatchState(char c)
             => CreateMatchState(x => x == c, $"Matches {c}");
 

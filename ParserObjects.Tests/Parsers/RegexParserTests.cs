@@ -97,6 +97,10 @@ namespace ParserObjects.Tests.Parsers
         public void Regex_Groups(string pattern, string input, string expectedMatch)
              => RegexTest(pattern, input, expectedMatch);
 
+        [TestCase("a$(b)")]
+        public void Regex_Groups_Throw(string pattern)
+             => RegexTestThrow(pattern);
+
         [TestCase("\\d", "1a", "1")]
         [TestCase("\\D", "a1", "a")]
         [TestCase("\\w", "a ", "a")]
