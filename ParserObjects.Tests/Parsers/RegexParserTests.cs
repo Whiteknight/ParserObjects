@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Regexes;
@@ -41,7 +43,20 @@ namespace ParserObjects.Tests.Parsers
         private void RegexTest(string pattern, string input, string expectedMatch)
         {
             var parser = Regex(pattern);
-            var sequence = new StringCharacterSequence(input);
+
+            // First test with a string sequence
+            var stringSequence = new StringCharacterSequence(input);
+            RegexTest(expectedMatch, parser, stringSequence);
+
+            // Second test with a stream sequence, just to show that they are equivalent
+            var bytes = Encoding.UTF8.GetBytes(input);
+            using var memoryStream = new MemoryStream(bytes);
+            var streamSequence = new StreamCharacterSequence(memoryStream);
+            RegexTest(expectedMatch, parser, streamSequence);
+        }
+
+        private static void RegexTest(string expectedMatch, IParser<char, string> parser, ISequence<char> sequence)
+        {
             var result = parser.Parse(sequence);
             result.Success.Should().BeTrue();
             result.Value.Should().Be(expectedMatch);

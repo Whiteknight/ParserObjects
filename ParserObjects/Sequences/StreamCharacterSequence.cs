@@ -126,9 +126,18 @@ namespace ParserObjects.Sequences
 
         public void PutBack(char value)
         {
+            // \0 is the end sentinel. We can't put it back so just ignore it.
             if (value == '\0')
                 return;
-            _putbacks.Push(value);
+
+            // See if we can just decrement the buffer pointer. _putbacks stack is less efficient
+            // if we can avoid it.
+            if (_bufferIndex > 0 && value == _currentBuffer.Buffer[_bufferIndex - 1])
+                _bufferIndex--;
+            else
+                _putbacks.Push(value);
+
+            _consumed--;
             if (value == '\n')
             {
                 _line--;
