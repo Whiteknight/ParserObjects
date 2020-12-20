@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ParserObjects.Regexes;
+using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
@@ -40,9 +41,12 @@ namespace ParserObjects.Tests.Parsers
         private void RegexTest(string pattern, string input, string expectedMatch)
         {
             var parser = Regex(pattern);
-            var result = parser.Parse(input);
+            var sequence = new StringCharacterSequence(input);
+            var result = parser.Parse(sequence);
             result.Success.Should().BeTrue();
             result.Value.Should().Be(expectedMatch);
+            result.Consumed.Should().Be(expectedMatch.Length);
+            sequence.Consumed.Should().Be(expectedMatch.Length);
         }
 
         private void RegexTestThrow(string pattern)
@@ -53,9 +57,12 @@ namespace ParserObjects.Tests.Parsers
 
         private void RegexTestFail(string pattern, string input)
         {
+            var sequence = new StringCharacterSequence(input);
             var parser = Regex(pattern);
-            var result = parser.Parse(input);
+            var result = parser.Parse(sequence);
             result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+            sequence.Consumed.Should().Be(0);
         }
 
         [TestCase("abc", "abcd", "abc")]

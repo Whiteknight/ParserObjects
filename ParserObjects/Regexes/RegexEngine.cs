@@ -146,11 +146,11 @@ namespace ParserObjects.Regexes
             Assert.ArgumentNotNull(regex, nameof(regex));
 
             var startLocation = input.CurrentLocation;
-            var context = new SequenceBuffer<char>(input);
-            var (matches, consumed) = Test(regex.States, context);
+            var buffer = new SequenceBuffer<char>(input);
+            var (matches, consumed) = Test(regex.States, buffer);
             if (matches)
             {
-                var charArray = context.Capture(consumed);
+                var charArray = buffer.Capture(consumed);
                 return new SuccessPartialResult<string>(new string(charArray), consumed, startLocation);
             }
 

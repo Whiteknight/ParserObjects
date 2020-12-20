@@ -29,7 +29,10 @@ namespace ParserObjects.Parsers
         public IResult<string> Parse(ParseState<char> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
+            var startCp = state.Input.Checkpoint();
             var result = _engine.GetMatch(state.Input, _regex);
+            if (!result.Success)
+                startCp.Rewind();
             return state.Result(this, result);
         }
 
