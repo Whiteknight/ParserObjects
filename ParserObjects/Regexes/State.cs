@@ -116,6 +116,9 @@ namespace ParserObjects.Regexes
             states ??= new List<State>();
             if (states.LastOrDefault()?.Type == StateType.EndOfInput)
                 throw new RegexException("Cannot have atoms after the end anchor $");
+
+            // If it's one of the special char classes (\d \D \w \W \s \S) do that match. Otherwise
+            // it's an escaped char and return a normal match.
             var matchState = type switch
             {
                 'd' => CreateMatchState(c => char.IsDigit(c), "digit"),

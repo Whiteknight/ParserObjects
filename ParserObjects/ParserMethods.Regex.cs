@@ -44,6 +44,8 @@ namespace ParserObjects
             var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
 
             var regex = Pratt<List<State>>(config => config
+
+                // Atoms
                 .Add(normalChar, p => p
                     .ProduceRight(2, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
                     .ProduceLeft(2, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
@@ -56,7 +58,7 @@ namespace ParserObjects
                     .ProduceRight(2, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
                     .ProduceLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
                 )
-                .Add(Match("\\"), p => p
+                .Add(Match('\\'), p => p
                     .ProduceRight(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                     .ProduceLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
                 )
@@ -74,6 +76,8 @@ namespace ParserObjects
                         return State.AddGroupState(states.Value, group);
                     })
                 )
+
+                // Quantifiers
                 .Add(Match('{'), p => p
                     .ProduceLeft(2, (ctx, states, _) => ParseRange(ctx, states.Value, digits))
                 )
@@ -86,9 +90,13 @@ namespace ParserObjects
                 .Add(Match('*'), p => p
                     .ProduceLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
                 )
+
+                // Alternation
                 .Add(Match('|'), p => p
                     .ProduceLeft(2, (ctx, states, _) => ParseAlternation(ctx, states.Value))
                 )
+
+                // End Anchor
                 .Add(Match('$'), p => p
                     .ProduceLeft(4, (_, states, _) =>
                     {
@@ -107,36 +115,33 @@ namespace ParserObjects
 
         private static IParser<char, CharacterMatcher> GetCharacterClassParser()
         {
-            var openBracket = Match('[');
-            var any = Any();
-            var peek = Peek();
-
             return Sequential(state =>
             {
-                state.Parse(openBracket);
+                state.Parse(Match('['));
                 var invertResult = state.TryParse(Match('^'));
                 var ranges = new List<(char low, char high)>();
                 while (true)
                 {
-                    var c = state.Parse(any);
+                    var c = state.Input.GetNext();
                     if (c == ']')
                         break;
                     if (c == '\\')
-                        c = state.Parse(any);
+                        c = state.Input.GetNext();
                     var low = c;
-                    var next = state.Parse(peek);
+                    var next = state.Input.Peek();
                     if (next != '-')
                     {
                         ranges.Add((low, low));
                         continue;
                     }
 
-                    state.Parse(any);
-                    c = state.Parse(any);
+                    // We're keeping the peek'd char (dash) so advance input and keep going
+                    state.Input.GetNext();
+                    c = state.Input.GetNext();
                     if (c == ']')
                         throw new RegexException("Unexpected ] after -. Expected end of range. Did you mean '\\]'?");
                     if (c == '\\')
-                        c = state.Parse(any);
+                        c = state.Input.GetNext();
                     var high = c;
 
                     if (high < low)

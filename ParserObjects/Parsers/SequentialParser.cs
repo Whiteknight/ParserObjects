@@ -18,23 +18,25 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         public class State<TInput>
         {
-            private readonly ParseState<TInput> _input;
+            private readonly ParseState<TInput> _state;
 
             private int _consumed;
 
-            public State(ParseState<TInput> input)
+            public State(ParseState<TInput> state)
             {
-                _input = input;
+                _state = state;
                 _consumed = 0;
             }
 
-            public IDataStore Data => _input.Data;
+            public IDataStore Data => _state.Data;
+
+            public ISequence<TInput> Input => _state.Input;
 
             public int Consumed => _consumed;
 
             public TOutput Parse<TOutput>(IParser<TInput, TOutput> p)
             {
-                var result = p.Parse(_input);
+                var result = p.Parse(_state);
                 if (!result.Success)
                     throw new ParseFailedException(result);
                 _consumed += result.Consumed;
@@ -43,7 +45,7 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
             {
-                var result = p.Parse(_input);
+                var result = p.Parse(_state);
                 if (result.Success)
                     _consumed += result.Consumed;
                 return result;
@@ -51,8 +53,8 @@ namespace ParserObjects.Parsers
 
             public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
             {
-                var checkpoint = _input.Input.Checkpoint();
-                var result = p.Parse(_input);
+                var checkpoint = _state.Input.Checkpoint();
+                var result = p.Parse(_state);
                 checkpoint.Rewind();
                 return result;
             }
