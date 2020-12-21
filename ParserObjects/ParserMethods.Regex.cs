@@ -111,8 +111,6 @@ namespace ParserObjects
             var any = Any();
             var peek = Peek();
 
-            // TODO: This example shows some places where Sequential.State could be improved.
-            // Should have ability to get next input, peek next input, etc
             return Sequential(state =>
             {
                 state.Parse(openBracket);

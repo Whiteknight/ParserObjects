@@ -96,7 +96,6 @@ namespace ParserObjects.Pratt
         private IPartialResult<IToken<TOutput>> GetLeft(ParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
-            // TODO: Do we need a limitation on lbp or rbp?
             foreach (var parselet in _nudableParselets)
             {
                 var (success, token, consumed) = parselet.TryGetNext(state);

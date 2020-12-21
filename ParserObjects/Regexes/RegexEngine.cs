@@ -40,13 +40,6 @@ namespace ParserObjects.Regexes
 
             public Stack<int> Consumptions { get; }
 
-            public void Deconstruct(out bool isBacktrackable, out RegexState state, out Stack<int> consumptions)
-            {
-                isBacktrackable = IsBacktrackable;
-                state = State;
-                consumptions = Consumptions;
-            }
-
             public void AddZeroConsumed()
             {
                 if (Consumptions.Count == 0)
@@ -101,25 +94,27 @@ namespace ParserObjects.Regexes
                 var couldBacktrack = false;
                 while (_backtrackStack.Count > 0)
                 {
-                    var (isBacktrackable, state, consumptions) = _backtrackStack.Pop();
-                    if (isBacktrackable)
+                    var backtrackState = _backtrackStack.Pop();
+                    if (!backtrackState.IsBacktrackable)
                     {
-                        if (consumptions.Count == 0)
-                        {
-                            _queue.Insert(0, state);
-                            continue;
-                        }
-
-                        var n = consumptions.Pop();
-                        _i -= n;
-                        _backtrackStack.Push(new BacktrackState(isBacktrackable, state, consumptions));
-                        couldBacktrack = true;
-                        break;
+                        _queue.Insert(0, backtrackState.State);
+                        foreach (var consumed in backtrackState.Consumptions)
+                            _i -= consumed;
+                        continue;
                     }
 
-                    _queue.Insert(0, state);
-                    foreach (var n in consumptions)
-                        _i -= n;
+                    if (backtrackState.Consumptions.Count == 0)
+                    {
+                        _queue.Insert(0, backtrackState.State);
+                        continue;
+                    }
+
+                    var n = backtrackState.Consumptions.Pop();
+                    _i -= n;
+                    _backtrackStack.Push(new BacktrackState(backtrackState.IsBacktrackable, backtrackState.State, backtrackState.Consumptions));
+                    couldBacktrack = true;
+
+                    break;
                 }
 
                 if (couldBacktrack)
