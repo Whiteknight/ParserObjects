@@ -11,13 +11,13 @@ namespace ParserObjects.Parsers
     public class RegexParser : IParser<char, string>
     {
         private readonly Regex _regex;
-        private readonly RegexEngine _engine;
+        private readonly Engine _engine;
 
         public RegexParser(Regex regex, string describe)
         {
             Assert.ArgumentNotNull(regex, nameof(regex));
             _regex = regex;
-            _engine = new RegexEngine();
+            _engine = new Engine();
             Name = $"/{describe}/";
             Pattern = describe;
         }

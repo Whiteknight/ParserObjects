@@ -8,18 +8,18 @@ namespace ParserObjects.Regexes
     /// <summary>
     /// Engine to execute regex pattern matching given a Regex and an input sequence.
     /// </summary>
-    public class RegexEngine
+    public class Engine
     {
         private class BacktrackState
         {
-            public BacktrackState(bool isBacktrackable, RegexState state)
+            public BacktrackState(bool isBacktrackable, State state)
             {
                 IsBacktrackable = isBacktrackable;
                 State = state;
                 Consumptions = new Stack<int>();
             }
 
-            public BacktrackState(bool isBacktrackable, RegexState state, int consumed)
+            public BacktrackState(bool isBacktrackable, State state, int consumed)
             {
                 IsBacktrackable = isBacktrackable;
                 State = state;
@@ -27,7 +27,7 @@ namespace ParserObjects.Regexes
                 Consumptions.Push(consumed);
             }
 
-            public BacktrackState(bool isBacktrackable, RegexState state, Stack<int> consumptions)
+            public BacktrackState(bool isBacktrackable, State state, Stack<int> consumptions)
             {
                 IsBacktrackable = isBacktrackable;
                 State = state;
@@ -36,7 +36,7 @@ namespace ParserObjects.Regexes
 
             public bool IsBacktrackable { get; set; }
 
-            public RegexState State { get; set; }
+            public State State { get; set; }
 
             public Stack<int> Consumptions { get; }
 
@@ -52,22 +52,22 @@ namespace ParserObjects.Regexes
 
         private class RegexContext
         {
-            private readonly List<RegexState> _queue;
+            private readonly List<State> _queue;
             private readonly Stack<BacktrackState> _backtrackStack;
 
             private int _i;
 
-            public RegexContext(IEnumerable<RegexState> states)
+            public RegexContext(IEnumerable<State> states)
             {
-                _queue = new List<RegexState>(states.Where(s => s.Type != RegexStateType.Fence));
-                _queue.Add(RegexState.EndSentinel);
+                _queue = new List<State>(states.Where(s => s.Type != StateType.Fence));
+                _queue.Add(State.EndSentinel);
                 _backtrackStack = new Stack<BacktrackState>();
                 _i = 0;
                 CurrentState = _queue[0];
                 _queue.RemoveAt(0);
             }
 
-            public RegexState CurrentState { get; private set; }
+            public State CurrentState { get; private set; }
 
             public int Index => _i;
 
@@ -80,7 +80,7 @@ namespace ParserObjects.Regexes
             {
                 if (_queue.Count == 0)
                 {
-                    CurrentState = RegexState.EndSentinel;
+                    CurrentState = State.EndSentinel;
                     return;
                 }
 
@@ -152,11 +152,11 @@ namespace ParserObjects.Regexes
             return new FailurePartialResult<string>($"Match failed at position {consumed}", startLocation);
         }
 
-        private (bool matches, int length) Test(IReadOnlyList<RegexState> states, SequenceBuffer<char> buffer)
+        private (bool matches, int length) Test(IReadOnlyList<State> states, SequenceBuffer<char> buffer)
         {
             var context = new RegexContext(states);
 
-            while (context.CurrentState.Type != RegexStateType.EndSentinel)
+            while (context.CurrentState.Type != StateType.EndSentinel)
             {
                 switch (context.CurrentState.Quantifier)
                 {
@@ -288,26 +288,26 @@ namespace ParserObjects.Regexes
             }
         }
 
-        private (bool matches, int length) MatchStateHere(RegexState state, SequenceBuffer<char> context, int i)
+        private (bool matches, int length) MatchStateHere(State state, SequenceBuffer<char> context, int i)
         {
             if (context.IsPastEnd(i))
             {
-                if (state.Type == RegexStateType.EndOfInput)
+                if (state.Type == StateType.EndOfInput)
                     return (true, 0);
                 return (false, 0);
             }
 
-            if (state.Type == RegexStateType.EndOfInput)
+            if (state.Type == StateType.EndOfInput)
                 return (false, 0);
-            if (state.Type == RegexStateType.MatchValue)
+            if (state.Type == StateType.MatchValue)
             {
                 var match = state.ValuePredicate?.Invoke(context[i]) ?? false;
                 return (match, match ? 1 : 0);
             }
 
-            if (state.Type == RegexStateType.Group)
+            if (state.Type == StateType.Group)
                 return Test(state.Group!, context.CopyFrom(i));
-            if (state.Type == RegexStateType.Alternation)
+            if (state.Type == StateType.Alternation)
             {
                 foreach (var substate in state.Alternations!)
                 {

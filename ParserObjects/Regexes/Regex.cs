@@ -10,9 +10,9 @@ namespace ParserObjects.Regexes
     /// </summary>
     public class Regex
     {
-        public IReadOnlyList<RegexState> States { get; }
+        public IReadOnlyList<State> States { get; }
 
-        public Regex(List<RegexState> states)
+        public Regex(List<State> states)
         {
             Assert.ArgumentNotNull(states, nameof(states));
             States = states;

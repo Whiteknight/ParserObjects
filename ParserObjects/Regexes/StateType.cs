@@ -3,7 +3,7 @@
     /// <summary>
     /// Type of the regex state. Used internally by the engine to dispatch matching logic.
     /// </summary>
-    public enum RegexStateType
+    public enum StateType
     {
         /// <summary>
         /// The end state

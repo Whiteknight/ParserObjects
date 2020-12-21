@@ -43,48 +43,48 @@ namespace ParserObjects
             // Literal match of any non-slash and non-control character
             var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
 
-            var regex = Pratt<List<RegexState>>(config => config
+            var regex = Pratt<List<State>>(config => config
                 .Add(normalChar, p => p
-                    .ProduceRight(2, (_, c) => RegexState.AddMatch(null, x => x == c.Value, $"Match {c}"))
-                    .ProduceLeft(2, (_, states, c) => RegexState.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
+                    .ProduceRight(2, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
+                    .ProduceLeft(2, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
                 )
                 .Add(GetCharacterClassParser(), p => p
-                    .ProduceRight(2, (_, matcher) => RegexState.AddMatch(null, c => matcher.Value.IsMatch(c), "class"))
-                    .ProduceLeft(2, (_, states, matcher) => RegexState.AddMatch(states.Value, c => matcher.Value.IsMatch(c), "class"))
+                    .ProduceRight(2, (_, matcher) => State.AddMatch(null, c => matcher.Value.IsMatch(c), "class"))
+                    .ProduceLeft(2, (_, states, matcher) => State.AddMatch(states.Value, c => matcher.Value.IsMatch(c), "class"))
                 )
                 .Add(Match('.'), p => p
-                    .ProduceRight(2, (_, _) => RegexState.AddMatch(null, c => c != '\0', "Any"))
-                    .ProduceLeft(2, (_, states, _) => RegexState.AddMatch(states.Value, c => c != '\0', "Any"))
+                    .ProduceRight(2, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
+                    .ProduceLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
                 )
                 .Add(Match("\\"), p => p
-                    .ProduceRight(2, (ctx, _) => RegexState.AddSpecialMatch(null, ctx.Parse(Any())))
-                    .ProduceLeft(2, (ctx, states, _) => RegexState.AddSpecialMatch(states.Value, ctx.Parse(Any())))
+                    .ProduceRight(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
+                    .ProduceLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
                 )
                 .Add(Match('('), p => p
                     .ProduceRight(2, (ctx, _) =>
                     {
                         var group = ctx.Parse(0);
                         ctx.Expect(Match(')'));
-                        return RegexState.AddGroupState(null, group);
+                        return State.AddGroupState(null, group);
                     })
                     .ProduceLeft(2, (ctx, states, _) =>
                     {
                         var group = ctx.Parse(0);
                         ctx.Expect(Match(')'));
-                        return RegexState.AddGroupState(states.Value, group);
+                        return State.AddGroupState(states.Value, group);
                     })
                 )
                 .Add(Match('{'), p => p
                     .ProduceLeft(2, (ctx, states, _) => ParseRange(ctx, states.Value, digits))
                 )
                 .Add(Match('?'), p => p
-                    .ProduceLeft(2, (_, states, _) => RegexState.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
+                    .ProduceLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
                 )
                 .Add(Match('+'), p => p
-                    .ProduceLeft(2, (_, states, _) => RegexState.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+                    .ProduceLeft(2, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
                 )
                 .Add(Match('*'), p => p
-                    .ProduceLeft(2, (_, states, _) => RegexState.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
+                    .ProduceLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
                 )
                 .Add(Match('|'), p => p
                     .ProduceLeft(2, (ctx, states, _) => ParseAlternation(ctx, states.Value))
@@ -92,7 +92,7 @@ namespace ParserObjects
                 .Add(Match('$'), p => p
                     .ProduceLeft(4, (_, states, _) =>
                     {
-                        states.Value.Add(RegexState.EndOfInput);
+                        states.Value.Add(State.EndOfInput);
                         return states.Value;
                     })
                 )
@@ -152,9 +152,9 @@ namespace ParserObjects
         private static object ThrowEndOfPatternException(ISequence<char> t, IDataStore data)
             => throw new RegexException("Expected end of pattern but found '" + t.GetNext());
 
-        private static List<RegexState> ParseRange(IParseContext<char> ctx, List<RegexState> states, IParser<char, int> digits)
+        private static List<State> ParseRange(IParseContext<char> ctx, List<State> states, IParser<char, int> digits)
         {
-            if (states.Last().Type == RegexStateType.EndOfInput)
+            if (states.Last().Type == StateType.EndOfInput)
                 throw new RegexException("Cannot quantify the end anchor $");
             int min = 0;
             var first = ctx.TryParse(digits);
@@ -167,19 +167,19 @@ namespace ParserObjects
                 // No comma, so we must have {X} form
                 if (!first.Success)
                     throw new RegexException("Invalid range specifier. Must be one of {X} {X,} {,Y} or {X,Y}");
-                return RegexState.SetPreviousStateRange(states, min, min);
+                return State.SetPreviousStateRange(states, min, min);
             }
 
             // At this point we might have X, X,Y or ,Y
             // In any case, min is filled in now with either a value or 0
             var second = ctx.TryParse(digits);
             ctx.Expect(Match('}'));
-            return RegexState.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
+            return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
         }
 
-        private static List<RegexState> ParseAlternation(IParseContext<char, List<RegexState>> ctx, List<RegexState> states)
+        private static List<State> ParseAlternation(IParseContext<char, List<State>> ctx, List<State> states)
         {
-            var options = new List<List<RegexState>>() { states };
+            var options = new List<List<State>>() { states };
             while (true)
             {
                 var option = ctx.TryParse(0);
@@ -191,11 +191,11 @@ namespace ParserObjects
             if (options.Count == 1)
                 return states;
 
-            return new List<RegexState>
+            return new List<State>
             {
-                new RegexState("alternation")
+                new State("alternation")
                 {
-                    Type = RegexStateType.Alternation,
+                    Type = StateType.Alternation,
                     Alternations = options
                 }
             };

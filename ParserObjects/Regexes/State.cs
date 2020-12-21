@@ -8,51 +8,51 @@ namespace ParserObjects.Regexes
     /// Represents a state at a point in evaluating a regular expression. At each point, the
     /// regex will attempt to match the current state against the current input.
     /// </summary>
-    public class RegexState : INamed
+    public class State : INamed
     {
-        public RegexState(string name)
+        public State(string name)
         {
             Name = name;
         }
 
-        public static RegexState EndOfInput { get; } = new RegexState("end of input")
+        public static State EndOfInput { get; } = new State("end of input")
         {
-            Type = RegexStateType.EndOfInput
+            Type = StateType.EndOfInput
         };
 
-        public static RegexState EndSentinel { get; } = new RegexState("end sentinel")
+        public static State EndSentinel { get; } = new State("end sentinel")
         {
-            Type = RegexStateType.EndSentinel
+            Type = StateType.EndSentinel
         };
 
-        public static RegexState Fence { get; } = new RegexState("fence")
+        public static State Fence { get; } = new State("fence")
         {
-            Type = RegexStateType.Fence,
+            Type = StateType.Fence,
             Quantifier = Quantifier.ZeroOrOne
         };
 
-        public static RegexState CreateMatchState(char c)
+        public static State CreateMatchState(char c)
             => CreateMatchState(x => x == c, $"Matches {c}");
 
-        public static List<RegexState> AddMatch(List<RegexState>? states, Func<char, bool> predicate, string description)
+        public static List<State> AddMatch(List<State>? states, Func<char, bool> predicate, string description)
         {
-            states ??= new List<RegexState>();
-            if (states.LastOrDefault()?.Type == RegexStateType.EndOfInput)
+            states ??= new List<State>();
+            if (states.LastOrDefault()?.Type == StateType.EndOfInput)
                 throw new RegexException("Cannot have atoms after the end anchor $");
 
             states.Add(CreateMatchState(predicate, description));
             return states;
         }
 
-        private static RegexState CreateMatchState(Func<char, bool> predicate, string description)
-             => new RegexState(description)
+        private static State CreateMatchState(Func<char, bool> predicate, string description)
+             => new State(description)
              {
-                 Type = RegexStateType.MatchValue,
+                 Type = StateType.MatchValue,
                  ValuePredicate = predicate,
                  Quantifier = Quantifier.ExactlyOne,
              };
 
-        public static List<RegexState> SetPreviousStateRange(List<RegexState> states, int min, int max)
+        public static List<State> SetPreviousStateRange(List<State> states, int min, int max)
         {
             if (min > max)
                 throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
@@ -63,7 +63,7 @@ namespace ParserObjects.Regexes
                 throw new RegexException("Range quantifier must appear after a valid atom");
             if (previousState.Quantifier != Quantifier.ExactlyOne)
                 throw new RegexException("Range quantifier may only follow an unquantified atom");
-            if (previousState.Type == RegexStateType.EndOfInput || previousState.Type == RegexStateType.Fence)
+            if (previousState.Type == StateType.EndOfInput || previousState.Type == StateType.Fence)
                 throw new RegexException("Range quantifier may not attach to End or Fence atoms");
 
             // we have an exact number to match, so add multiple references of previousState to
@@ -98,7 +98,7 @@ namespace ParserObjects.Regexes
             return states;
         }
 
-        public static List<RegexState> SetPreviousQuantifier(List<RegexState> states, Quantifier quantifier)
+        public static List<State> SetPreviousQuantifier(List<State> states, Quantifier quantifier)
         {
             if (quantifier == Quantifier.Range)
                 throw new RegexException("Range quantifier must have minimum and maximum values");
@@ -111,10 +111,10 @@ namespace ParserObjects.Regexes
             return states;
         }
 
-        public static List<RegexState> AddSpecialMatch(List<RegexState>? states, char type)
+        public static List<State> AddSpecialMatch(List<State>? states, char type)
         {
-            states ??= new List<RegexState>();
-            if (states.LastOrDefault()?.Type == RegexStateType.EndOfInput)
+            states ??= new List<State>();
+            if (states.LastOrDefault()?.Type == StateType.EndOfInput)
                 throw new RegexException("Cannot have atoms after the end anchor $");
             var matchState = type switch
             {
@@ -130,10 +130,10 @@ namespace ParserObjects.Regexes
             return states;
         }
 
-        public static List<RegexState> AddGroupState(List<RegexState>? states, List<RegexState> group)
+        public static List<State> AddGroupState(List<State>? states, List<State> group)
         {
-            states ??= new List<RegexState>();
-            if (states.LastOrDefault()?.Type == RegexStateType.EndOfInput)
+            states ??= new List<State>();
+            if (states.LastOrDefault()?.Type == StateType.EndOfInput)
                 throw new RegexException("Cannot have atoms after the end anchor $");
             if (group.Count == 1)
             {
@@ -141,9 +141,9 @@ namespace ParserObjects.Regexes
                 return states;
             }
 
-            var groupState = new RegexState("group")
+            var groupState = new State("group")
             {
-                Type = RegexStateType.Group,
+                Type = StateType.Group,
                 Group = group,
                 Quantifier = Quantifier.ExactlyOne
             };
@@ -151,9 +151,9 @@ namespace ParserObjects.Regexes
             return states;
         }
 
-        public static List<RegexState> QuantifyPrevious(List<RegexState> states, Quantifier quantifier)
+        public static List<State> QuantifyPrevious(List<State> states, Quantifier quantifier)
         {
-            if (states.LastOrDefault()?.Type == RegexStateType.EndOfInput)
+            if (states.LastOrDefault()?.Type == StateType.EndOfInput)
                 throw new RegexException("Cannot quantify the end anchor $");
             return SetPreviousQuantifier(states, quantifier);
         }
@@ -161,7 +161,7 @@ namespace ParserObjects.Regexes
         /// <summary>
         /// Gets or Sets the type of state.
         /// </summary>
-        public RegexStateType Type { get; set; }
+        public StateType Type { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether or not this state supports backtracking.
@@ -181,12 +181,12 @@ namespace ParserObjects.Regexes
         /// <summary>
         /// Gets or sets all substates if this state is a group.
         /// </summary>
-        public List<RegexState>? Group { get; set; }
+        public List<State>? Group { get; set; }
 
         /// <summary>
         /// Gets or sets all possibilities in an alternation.
         /// </summary>
-        public List<List<RegexState>>? Alternations { get; set; }
+        public List<List<State>>? Alternations { get; set; }
 
         /// <summary>
         /// Gets or sets a brief description of the state, to help with tracing/debugging.
@@ -201,9 +201,9 @@ namespace ParserObjects.Regexes
 
         public override string ToString() => $"{Quantifier} {Name}";
 
-        public RegexState Clone()
+        public State Clone()
         {
-            return new RegexState(Name)
+            return new State(Name)
             {
                 Type = Type,
                 CanBacktrack = CanBacktrack,
