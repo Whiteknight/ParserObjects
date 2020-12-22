@@ -58,6 +58,8 @@ namespace ParserObjects.Parsers
                 checkpoint.Rewind();
                 return result;
             }
+
+            public void Fail(string error = "Fail") => throw new ParseFailedException(error);
         }
 
         [Serializable]
@@ -126,9 +128,15 @@ namespace ParserObjects.Parsers
                     // This exception is part of normal flow-control for this parser
                     // Other exceptions bubble up like normal.
                     checkpoint.Rewind();
-                    var result = spe.Result!;
-                    state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
-                    return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {result.Location}");
+                    if (spe.Result != null)
+                    {
+                        var result = spe.Result;
+                        state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
+                        return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {result.Location}");
+                    }
+
+                    state.Log(this, $"Failure triggered during sequential callback: {spe.Message}");
+                    return state.Fail(this, $"Failure during parsing: {spe.Message}");
                 }
                 catch (Exception e)
                 {
