@@ -423,5 +423,10 @@ namespace ParserObjects.Visitors
                 PrintPattern(pattern, state);
             }
         }
+
+        protected virtual void Accept<TInput, TOutput>(TryParser<TInput, TOutput> p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
     }
 }

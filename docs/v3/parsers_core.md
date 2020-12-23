@@ -200,7 +200,10 @@ The `Fail` parser returns failure unconditionally. It can be used to explicitly 
 ```csharp
 var parser = new FailParser<char, char>("helpful error message");
 var parser = Fail<char>("helpful error message");
+var parser = Fail("helpful error message");
 ```
+
+If the output type is not specified, it returns the same as the input type.
 
 ### First Parser
 
@@ -422,6 +425,17 @@ var parser = new SequentialParser(t =>
 ```
 
 The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
+
+### Try Parser
+
+The `Try` parser catches user-thrown exceptions from within the parse and handles them. When an exception is caught, the input sequence is rewound to the location where the `Try` parser began.
+
+```csharp
+var parser = new TryParser<char, string>(innerParser, ex => {...}, bubble: true);
+var parser = Try(innerParser, ex => {...}, bubble: true);
+```
+
+The second parameter is a callback to allow examining the exception when it is received. This can be a useful place to set a breakpoint during debugging. The third parameter `bubble` tells whether to rethrown the exception (`true`) or to handle the exception and return a failure result (`false`).
 
 ## Matching Parsers
 

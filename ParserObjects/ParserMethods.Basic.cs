@@ -118,6 +118,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Fail<TOutput>(string error = "Fail")
             => new FailParser<TInput, TOutput>(error);
 
+        public static IParser<TInput, TInput> Fail(string error = "Fail")
+            => new FailParser<TInput, TInput>(error);
+
         /// <summary>
         /// Return the result of the first parser which succeeds.
         /// </summary>
@@ -254,7 +257,41 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => TransformResult(parser, (_, _, result) => result.Transform(transform));
 
+        /// <summary>
+        /// Transform one result into another result. Allows modifying the result value and all
+        /// result metadata.
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
             => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
+
+        /// <summary>
+        /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
+        /// receiving an exception, the input sequence is rewound to the location where Try started
+        /// and options are provided to determine what actions to take.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="examine"></param>
+        /// <param name="bubble"></param>
+        /// <returns></returns>
+        public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
+            => new TryParser<TInput, TOutput>(parser, examine, bubble);
+
+        /// <summary>
+        /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
+        /// receiving an exception, the input sequence is rewound to the location where Try started
+        /// and options are provided to determine what actions to take.
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <param name="examine"></param>
+        /// <param name="bubble"></param>
+        /// <returns></returns>
+        public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
+            => new TryParser<TInput>(parser, examine, bubble);
     }
 }

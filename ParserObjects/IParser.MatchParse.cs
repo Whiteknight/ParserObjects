@@ -44,7 +44,7 @@ namespace ParserObjects
         }
 
         /// <summary>
-        /// Convenience method for parser which act on character sequences. Parse the given input string
+        /// Convenience method for parsers which act on character sequences. Parse the given input string
         /// and return the first value or failure. Creates a character sequence from the string
         /// and the ParseState object.
         /// </summary>
@@ -54,6 +54,18 @@ namespace ParserObjects
         /// <param name="log"></param>
         /// <returns></returns>
         public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, Action<string>? log = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log ?? Defaults.LogMethod));
+
+        /// <summary>
+        /// Convenience method for parsers which act on character sequences. Parse the given input
+        /// string and return the first value or failure. Creates a character sequence from the
+        /// string and the ParseState object.
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <param name="s"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        public static IResult Parse(this IParser<char> parser, string s, Action<string>? log = null)
             => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log ?? Defaults.LogMethod));
 
         /// <summary>
