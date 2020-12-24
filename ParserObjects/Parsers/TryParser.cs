@@ -43,6 +43,7 @@ namespace ParserObjects.Parsers
             catch (Exception e)
             {
                 cp.Rewind();
+                _examine?.Invoke(e);
                 if (_bubble)
                     throw;
                 return state.Fail(this, e.Message ?? "Caught unhandled exception");
@@ -95,6 +96,7 @@ namespace ParserObjects.Parsers
             catch (Exception e)
             {
                 cp.Rewind();
+                _examine?.Invoke(e);
                 if (_bubble)
                     throw;
                 return state.Fail(this, e.Message ?? "Caught unhandled exception");
