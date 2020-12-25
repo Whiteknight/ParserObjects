@@ -33,6 +33,10 @@ namespace ParserObjects.Sequences
 
         public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i);
 
+        // TODO: consider getting an ISequenceCheckpoint for every input item read. Then when
+        // we .Capture(n) we can simply invoke the checkpoint at that index and avoid the
+        // O(m-n) putbacks
+
         public T[] Capture(int i)
         {
             var tokens = _buffer.Skip(_offset).Take(i).ToArray();
