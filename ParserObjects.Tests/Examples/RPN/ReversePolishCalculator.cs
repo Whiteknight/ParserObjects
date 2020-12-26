@@ -55,7 +55,7 @@ namespace ParserObjects.Tests.Examples.RPN
             );
             var tokenSequence = tokens
                 .ToSequence(new StringCharacterSequence(s))
-                .Select(r => r.GetValueOrDefault(() => new RpnToken("", RpnTokenType.Failure)));
+                .Select(r => r.GetValueOrDefault(() => new RpnToken(r.ErrorMessage, RpnTokenType.Failure)));
 
             var parser = ParserMethods<RpnToken>.Function<int>((t, success, fail) =>
             {
@@ -67,7 +67,7 @@ namespace ParserObjects.Tests.Examples.RPN
                     if (token == null)
                         return fail("Received null token");
                     if (token.Type == RpnTokenType.Failure)
-                        return fail("Tokenization error");
+                        return fail("Tokenization error: " + token.Value);
                     if (token.Type == RpnTokenType.End)
                         break;
                     if (token.Type == RpnTokenType.Number)

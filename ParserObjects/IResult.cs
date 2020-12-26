@@ -52,7 +52,7 @@ namespace ParserObjects
     {
         /// <summary>
         /// Gets the produced value from the successful parse. If Success is false, this accessor
-        /// will throw an exception
+        /// will throw an exception.
         /// </summary>
         new TValue Value { get; }
 

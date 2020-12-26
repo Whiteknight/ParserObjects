@@ -27,14 +27,15 @@ namespace ParserObjects.Sequences
             _startCheckpoint = _input.Checkpoint();
         }
 
-        private SequenceBuffer(ISequence<T> input, List<(T value, ISequenceCheckpoint cont)> buffer, int offset)
+        private SequenceBuffer(ISequence<T> input, List<(T value, ISequenceCheckpoint cont)> buffer, int offset, ISequenceCheckpoint startCheckpoint)
         {
             _input = input;
             _buffer = buffer;
             _offset = offset;
+            _startCheckpoint = startCheckpoint;
         }
 
-        public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i);
+        public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i, _startCheckpoint);
 
         public T[] Capture(int i)
         {
