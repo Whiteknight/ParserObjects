@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
@@ -14,9 +13,7 @@ namespace ParserObjects.Sequences
         private readonly ISequence<TInput> _input;
         private readonly ParseState<TInput> _state;
         private readonly IParser<TInput, TOutput> _parser;
-        private readonly Stack<IResult<TOutput>> _putbacks;
-
-        private int _consumed;
+        private Node _current;
 
         public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Action<string> log)
         {
@@ -25,84 +22,97 @@ namespace ParserObjects.Sequences
             _state = new ParseState<TInput>(input, log);
             _input = input;
             _parser = parser;
-            _putbacks = new Stack<IResult<TOutput>>();
-            _consumed = 0;
-        }
 
-        public void PutBack(IResult<TOutput> value)
-        {
-            if (value == null)
-                return;
-            _putbacks.Push(value);
-            _consumed--;
-        }
+            var startLocation = _input.CurrentLocation;
+            var isAtEndToStart = _input.IsAtEnd;
+            var firstResult = _parser.Parse(_state);
+            _current = new Node(firstResult, startLocation, 0, isAtEndToStart);
 
-        public IResult<TOutput> GetNext()
-        {
-            if (_putbacks.Count > 0)
+            if (!isAtEndToStart && _input.IsAtEnd)
             {
-                _consumed++;
-                return _putbacks.Pop();
+                var endSentinelResult = _parser.Parse(_state);
+                _current.Next = new Node(endSentinelResult, endSentinelResult.Location, 1, true);
+            }
+        }
+
+        private class Node
+        {
+            public Node(IResult<TOutput> value, Location location, int consumed, bool isAtEnd)
+            {
+                Value = value;
+                Location = location;
+                Consumed = consumed;
+                IsAtEnd = isAtEnd;
             }
 
+            public IResult<TOutput> Value { get; }
+            public Location Location { get; }
+            public int Consumed { get; }
+            public bool IsAtEnd { get; }
+
+            public Node? Next { get; set; }
+        }
+
+        public IResult<TOutput> GetNext() => GetNext(true);
+
+        public IResult<TOutput> Peek() => GetNext(false);
+
+        public Location CurrentLocation => _current.Location;
+
+        public bool IsAtEnd => _current.IsAtEnd;
+
+        public int Consumed => _current.Consumed;
+
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current);
+
+        private IResult<TOutput> GetNext(bool advance)
+        {
+            if (_current.IsAtEnd)
+                return _current.Value;
+
+            var requestedResult = _current.Value;
+            if (!advance)
+                return requestedResult;
+
+            if (_current.Next != null)
+            {
+                _current = _current.Next;
+                return requestedResult;
+            }
+
+            var nextResult = _parser.Parse(_state);
+            _current.Next = new Node(nextResult, nextResult.Location, _current.Consumed + 1, false);
             if (_input.IsAtEnd)
-                return _state.Fail(_parser, "The input sequence is at end, the result sequence cannot continue.", _input.CurrentLocation);
+            {
+                var endSentinelResult = _parser.Parse(_state);
+                _current.Next.Next = new Node(endSentinelResult, endSentinelResult.Location, _current.Consumed + 1, true);
+            }
 
-            var result = _parser.Parse(_state);
-            _consumed++;
-            return result;
-        }
+            _current = _current.Next;
 
-        public IResult<TOutput> Peek()
-        {
-            if (_putbacks.Count > 0)
-                return _putbacks.Peek();
-            var next = GetNext();
-            PutBack(next);
-            return next;
-        }
-
-        public Location CurrentLocation
-            => _putbacks.Count > 0 ? _putbacks.Peek().Location : _input.CurrentLocation;
-
-        public bool IsAtEnd => _putbacks.Count == 0 && _input.IsAtEnd;
-
-        public int Consumed => _consumed;
-
-        public ISequenceCheckpoint Checkpoint()
-        {
-            var innerCheckpoint = _input.Checkpoint();
-            return new SequenceCheckpoint(this, innerCheckpoint, _putbacks.ToArray(), _consumed);
+            return requestedResult;
         }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly ParseResultSequence<TInput, TOutput> _s;
-            private readonly ISequenceCheckpoint _inner;
-            private readonly IResult<TOutput>[] _putbacks;
-            private readonly int _consumed;
+            private readonly Node _node;
 
-            public SequenceCheckpoint(ParseResultSequence<TInput, TOutput> s, ISequenceCheckpoint inner, IResult<TOutput>[] putbacks, int consumed)
+            public SequenceCheckpoint(ParseResultSequence<TInput, TOutput> s, Node node)
             {
                 _s = s;
-                _inner = inner;
-                _putbacks = putbacks;
-                _consumed = consumed;
+                _node = node;
             }
 
             public void Rewind()
             {
-                _inner.Rewind();
-                _s.Rewind(_putbacks, _consumed);
+                _s.Rewind(_node);
             }
         }
 
-        private void Rewind(IResult<TOutput>[] putbacks, int consumed)
+        private void Rewind(Node node)
         {
-            _putbacks.Clear();
-            for (int i = putbacks.Length - 1; i >= 0; i--)
-                _putbacks.Push(putbacks[i]);
-            _consumed = consumed;
+            _current = node;
         }
     }
 }

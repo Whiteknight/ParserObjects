@@ -26,7 +26,8 @@ namespace ParserObjects.Tests.Examples.SExpr
                 str,
                 symbol,
                 openParen,
-                closeParen
+                closeParen,
+                If(End(), Produce(() => new Token { Type = ValueType.End }))
             );
 
             var token = Rule(

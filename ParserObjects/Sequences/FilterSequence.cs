@@ -23,15 +23,6 @@ namespace ParserObjects.Sequences
             _consumed = 0;
         }
 
-        public void PutBack(T value)
-        {
-            if (_predicate(value))
-            {
-                _inputs.PutBack(value);
-                _consumed--;
-            }
-        }
-
         public T GetNext()
         {
             bool hasMore = DiscardNonMatches();
@@ -71,11 +62,10 @@ namespace ParserObjects.Sequences
             {
                 if (_inputs.IsAtEnd)
                     return false;
-                var next = _inputs.GetNext();
-                if (!_predicate(next))
-                    continue;
-                _inputs.PutBack(next);
-                return true;
+                var next = _inputs.Peek();
+                if (_predicate(next))
+                    return true;
+                _inputs.GetNext();
             }
         }
 

@@ -54,13 +54,6 @@ namespace ParserObjects
     public interface ISequence<T> : ISequence
     {
         /// <summary>
-        /// Put back the given value to the head of the sequence. This value does not need to be a value
-        /// which previously has been taken off the sequence.
-        /// </summary>
-        /// <param name="value"></param>
-        void PutBack(T value);
-
-        /// <summary>
         /// Get the next value from the sequence or a default value if the sequence is at the end, and
         /// increments the location.
         /// </summary>

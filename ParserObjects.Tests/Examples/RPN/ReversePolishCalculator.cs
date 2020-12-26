@@ -11,7 +11,9 @@ namespace ParserObjects.Tests.Examples.RPN
         private enum RpnTokenType
         {
             Number,
-            Operator
+            Operator,
+            End,
+            Failure
         }
 
         private class RpnToken
@@ -48,9 +50,13 @@ namespace ParserObjects.Tests.Examples.RPN
             );
             var tokens = First(
                 integer,
-                operators
+                operators,
+                If(End(), Produce(() => new RpnToken("", RpnTokenType.End)))
             );
-            var tokenSequence = tokens.ToSequence(new StringCharacterSequence(s)).Select(r => r.Value);
+            var tokenSequence = tokens
+                .ToSequence(new StringCharacterSequence(s))
+                .Select(r => r.GetValueOrDefault(() => new RpnToken("", RpnTokenType.Failure)));
+
             var parser = ParserMethods<RpnToken>.Function<int>((t, success, fail) =>
             {
                 var startingLocation = t.Input.CurrentLocation;
@@ -60,6 +66,10 @@ namespace ParserObjects.Tests.Examples.RPN
                     var token = t.Input.GetNext();
                     if (token == null)
                         return fail("Received null token");
+                    if (token.Type == RpnTokenType.Failure)
+                        return fail("Tokenization error");
+                    if (token.Type == RpnTokenType.End)
+                        break;
                     if (token.Type == RpnTokenType.Number)
                     {
                         stack.Push(int.Parse(token.Value));
@@ -75,18 +85,19 @@ namespace ParserObjects.Tests.Examples.RPN
                             case "+":
                                 stack.Push(a + b);
                                 break;
+
                             case "-":
                                 stack.Push(a - b);
                                 break;
+
                             case "*":
                                 stack.Push(a * b);
                                 break;
+
                             case "/":
                                 stack.Push(a / b);
                                 break;
                         }
-
-                        continue;
                     }
                 }
 

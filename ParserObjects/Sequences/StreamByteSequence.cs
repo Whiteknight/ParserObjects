@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using ParserObjects.Utility;
 
@@ -13,7 +12,6 @@ namespace ParserObjects.Sequences
         private readonly string _fileName;
         private readonly int _bufferSize;
         private readonly Stream _stream;
-        private readonly Stack<byte> _putbacks;
         private readonly byte[] _buffer;
 
         private bool _isComplete;
@@ -29,7 +27,6 @@ namespace ParserObjects.Sequences
 
             _fileName = fileName;
             _bufferSize = bufferSize;
-            _putbacks = new Stack<byte>();
             _bufferIndex = bufferSize;
             _buffer = new byte[bufferSize];
             _stream = File.OpenRead(_fileName);
@@ -44,7 +41,6 @@ namespace ParserObjects.Sequences
 
             _fileName = fileName;
             _bufferSize = bufferSize;
-            _putbacks = new Stack<byte>();
             _bufferIndex = bufferSize;
             _buffer = new byte[bufferSize];
             _stream = stream;
@@ -62,28 +58,22 @@ namespace ParserObjects.Sequences
             return b;
         }
 
-        public void PutBack(byte value)
-        {
-            _putbacks.Push(value);
-        }
-
         public byte Peek() => GetNextByteRaw(false);
 
         public Location CurrentLocation => new Location(_fileName, 1, _index);
 
-        public bool IsAtEnd => _putbacks.Count == 0 && _isComplete;
+        public bool IsAtEnd => _isComplete;
 
         public int Consumed => _consumed;
 
         public void Dispose()
         {
-            _stream?.Dispose();
+            if (!_isComplete)
+                _stream.Dispose();
         }
 
         private byte GetNextByteRaw(bool advance)
         {
-            if (_putbacks.Count > 0)
-                return advance ? _putbacks.Pop() : _putbacks.Peek();
             if (_isComplete)
                 return 0;
             FillBuffer();
@@ -107,45 +97,44 @@ namespace ParserObjects.Sequences
                 return;
             _remainingBytes = _stream.Read(_buffer, 0, _bufferSize);
             if (_remainingBytes == 0)
+            {
                 _isComplete = true;
+                _stream.Dispose();
+            }
+
             _bufferIndex = 0;
         }
 
         public ISequenceCheckpoint Checkpoint()
         {
+            // FillBuffer to make sure we have data and all our pointers are valid
             FillBuffer();
             var currentPosition = _stream.Position - _remainingBytes;
-            var putbacks = _putbacks.ToArray();
-            return new SequenceCheckpoint(this, currentPosition, putbacks, _consumed);
+            return new SequenceCheckpoint(this, currentPosition, _consumed);
         }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly StreamByteSequence _s;
             private readonly long _currentPosition;
-            private readonly byte[] _putbacks;
             private readonly int _consumed;
 
-            public SequenceCheckpoint(StreamByteSequence s, long currentPosition, byte[] putbacks, int consumed)
+            public SequenceCheckpoint(StreamByteSequence s, long currentPosition, int consumed)
             {
                 _s = s;
                 _currentPosition = currentPosition;
-                _putbacks = putbacks;
                 _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rewind(_currentPosition, _putbacks, _consumed);
+            public void Rewind() => _s.Rewind(_currentPosition, _consumed);
         }
 
-        private void Rewind(long position, byte[] putbacks, int consumed)
+        private void Rewind(long position, int consumed)
         {
             _stream.Seek(position, SeekOrigin.Begin);
             _remainingBytes = 0;
             _bufferIndex = _bufferSize;
             _isComplete = false;
-            _putbacks.Clear();
-            for (int i = putbacks.Length - 1; i >= 0; i--)
-                _putbacks.Push(putbacks[i]);
             _consumed = consumed;
         }
     }

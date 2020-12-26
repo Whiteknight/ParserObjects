@@ -46,7 +46,7 @@ namespace ParserObjects
 
         public IParser Parser { get; }
         public bool Success => false;
-        public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access");
+        public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
         public Location Location { get; }
         public string ErrorMessage { get; }
         public int Consumed => 0;

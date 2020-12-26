@@ -38,24 +38,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void IsAtEnd_PutBack()
-        {
-            var target = new FilterSequence<int>(
-               new EnumerableSequence<int>(
-                   new[] { 1, 2, 3 },
-                   () => 0
-               ),
-               x => x % 2 == 0
-           );
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-            target.PutBack(4);
-            target.IsAtEnd.Should().BeFalse();
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-        }
-
-        [Test]
         public void Peek_Test()
         {
             var target = new FilterSequence<int>(
@@ -72,24 +54,6 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be(6);
             target.GetNext().Should().Be(6);
             target.Peek().Should().Be(0);
-            target.GetNext().Should().Be(0);
-        }
-
-        [Test]
-        public void GetNextPutBack_Test()
-        {
-            var target = new FilterSequence<int>(
-                new EnumerableSequence<int>(
-                    new[] { 1, 2, 5, 6 },
-                    () => 0
-                ),
-                x => x % 2 == 0
-            );
-            target.GetNext().Should().Be(2);
-            target.PutBack(4);
-            target.PutBack(3);
-            target.GetNext().Should().Be(4);
-            target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
         }
 
@@ -124,47 +88,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('D');
             target.GetNext().Should().Be('F');
             target.GetNext().Should().Be('H');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void Checkpoint_Putbacks()
-        {
-            var target = new FilterSequence<char>(
-                "aBcDeF".ToCharacterSequence(),
-                x => char.IsUpper(x)
-            );
-            target.GetNext().Should().Be('B');
-            target.PutBack('z');
-            target.PutBack('Y');
-            target.PutBack('x');
-            var cp = target.Checkpoint();
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('D');
-            target.GetNext().Should().Be('F');
-            target.GetNext().Should().Be('\0');
-            cp.Rewind();
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('D');
-            target.GetNext().Should().Be('F');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void Checkpoint_PutbacksIgnored()
-        {
-            var target = new FilterSequence<char>(
-                "aBcDeF".ToCharacterSequence(),
-                x => char.IsUpper(x)
-            );
-            target.GetNext().Should().Be('B');
-
-            var cp = target.Checkpoint();
-            target.PutBack('Y');
-            target.PutBack('X');
-            cp.Rewind();
-            target.GetNext().Should().Be('D');
-            target.GetNext().Should().Be('F');
             target.GetNext().Should().Be('\0');
         }
     }

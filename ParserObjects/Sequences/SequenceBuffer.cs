@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -13,18 +14,20 @@ namespace ParserObjects.Sequences
     public class SequenceBuffer<T>
     {
         private readonly ISequence<T> _input;
-        private readonly List<T> _buffer;
+        private readonly List<(T value, ISequenceCheckpoint cont)> _buffer;
         private readonly int _offset;
+        private readonly ISequenceCheckpoint _startCheckpoint;
 
         public SequenceBuffer(ISequence<T> input)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             _input = input;
-            _buffer = new List<T>();
+            _buffer = new List<(T value, ISequenceCheckpoint cont)>();
             _offset = 0;
+            _startCheckpoint = _input.Checkpoint();
         }
 
-        private SequenceBuffer(ISequence<T> input, List<T> buffer, int offset)
+        private SequenceBuffer(ISequence<T> input, List<(T value, ISequenceCheckpoint cont)> buffer, int offset)
         {
             _input = input;
             _buffer = buffer;
@@ -33,16 +36,16 @@ namespace ParserObjects.Sequences
 
         public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i);
 
-        // TODO: consider getting an ISequenceCheckpoint for every input item read. Then when
-        // we .Capture(n) we can simply invoke the checkpoint at that index and avoid the
-        // O(m-n) putbacks
-
         public T[] Capture(int i)
         {
-            var tokens = _buffer.Skip(_offset).Take(i).ToArray();
-            for (int j = _buffer.Count - 1; j >= i; j--)
-                _input.PutBack(_buffer[j]);
-            return tokens;
+            if (i <= 0)
+            {
+                _startCheckpoint.Rewind();
+                return Array.Empty<T>();
+            }
+
+            _buffer[i - 1].cont.Rewind();
+            return _buffer.Skip(_offset).Take(i).Select(v => v.value).ToArray();
         }
 
         public T? this[int index]
@@ -53,7 +56,7 @@ namespace ParserObjects.Sequences
                 FillUntil(realIndex);
                 if (realIndex >= _buffer.Count)
                     return default;
-                return _buffer[realIndex];
+                return _buffer[realIndex].value;
             }
         }
 
@@ -70,12 +73,15 @@ namespace ParserObjects.Sequences
         {
             if (_buffer.Count > i)
                 return;
+
             int numToGet = _buffer.Count - i + 1;
             for (var j = 0; j < numToGet; j++)
             {
                 if (_input.IsAtEnd)
                     break;
-                _buffer.Add(_input.GetNext());
+                var value = _input.GetNext();
+                var cont = _input.Checkpoint();
+                _buffer.Add((value, cont));
             }
         }
     }

@@ -51,7 +51,8 @@ namespace ParserObjects
     public interface IResult<out TValue> : IResult
     {
         /// <summary>
-        /// Gets the produced value from the successful parse. If Success is false, this value is undefined.
+        /// Gets the produced value from the successful parse. If Success is false, this accessor
+        /// will throw an exception
         /// </summary>
         new TValue Value { get; }
 
@@ -102,6 +103,15 @@ namespace ParserObjects
 
     public static class ParseResultExtensions
     {
+        public static T GetValueOrDefault<T>(this IResult<T> result, T defaultValue)
+            => result.Success ? result.Value : defaultValue;
+
+        public static T GetValueOrDefault<T>(this IResult<T> result, Func<T> getDefaultValue)
+            => result.Success ? result.Value : getDefaultValue();
+
+        public static object GetValueOrDefault(this IResult result, object defaultValue)
+            => result.Success ? result.Value : defaultValue;
+
         /// <summary>
         /// Create a copy of the result, with a new error message. If the original result is
         /// Success, the result is returned unmodified.

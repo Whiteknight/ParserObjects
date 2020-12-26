@@ -8,6 +8,7 @@
         QuotedString,
         Whitespace,
         OpenParen,
-        CloseParen
+        CloseParen,
+        End
     }
 }

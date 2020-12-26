@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ParserObjects.Utility;
+﻿using ParserObjects.Utility;
 
 namespace ParserObjects.Sequences
 {
@@ -10,12 +7,8 @@ namespace ParserObjects.Sequences
     /// </summary>
     public class StringCharacterSequence : ISequence<char>
     {
-        private const int MaxLineLengthsBufferSize = 5;
-
         private readonly string _fileName;
         private readonly string _s;
-        private readonly Stack<char> _putbacks;
-        private readonly AlwaysFullRingBuffer<int> _previousEndOfLineColumns;
 
         private int _index;
         private int _line;
@@ -29,8 +22,6 @@ namespace ParserObjects.Sequences
             _line = 1;
             _column = 0;
             _fileName = fileName;
-            _putbacks = new Stack<char>();
-            _previousEndOfLineColumns = new AlwaysFullRingBuffer<int>(MaxLineLengthsBufferSize);
             _consumed = 0;
         }
 
@@ -54,7 +45,6 @@ namespace ParserObjects.Sequences
             if (next == '\n')
             {
                 _line++;
-                _previousEndOfLineColumns.Add(_column);
                 _column = 0;
                 return next;
             }
@@ -67,41 +57,12 @@ namespace ParserObjects.Sequences
 
         private char GetNextInternal(bool advance)
         {
-            if (_putbacks.Any())
-                return advance ? _putbacks.Pop() : _putbacks.Peek();
             if (_index >= _s.Length)
                 return '\0';
             var value = _s[_index];
             if (advance)
                 _index++;
             return value;
-        }
-
-        public void PutBack(char value)
-        {
-            // '\0' is the end sentinel, we can't put it back or treat it like a valid value
-            if (value == '\0')
-                return;
-            // If the user insists on PutBack('\r') our _line numbers can get screwed up
-            bool hasColumn = false;
-            if (value == '\n')
-            {
-                _line--;
-                _column = _previousEndOfLineColumns.GetCurrent();
-                _previousEndOfLineColumns.MoveBack();
-                hasColumn = true;
-            }
-
-            // Try to just decrement the pointer if we can, otherwise push it onto the putbacks.
-            if (_putbacks.Count == 0 && _index > 0 && _s[_index - 1] == value)
-            {
-                _index--;
-                if (!hasColumn)
-                    _column--;
-                _consumed--;
-            }
-            else
-                _putbacks.Push(value);
         }
 
         public char Peek()
@@ -114,38 +75,11 @@ namespace ParserObjects.Sequences
 
         public Location CurrentLocation => new Location(_fileName, _line, _column);
 
-        public bool IsAtEnd => _putbacks.Count == 0 && _index >= _s.Length;
+        public bool IsAtEnd => _index >= _s.Length;
 
         public int Consumed => _consumed;
 
         public string GetRemainder()
-        {
-            if (_putbacks.Count == 0)
-                return GetStringBufferRemainder();
-
-            // Little optimization, we don't need a StringBuilder if we only have one putback
-            if (_putbacks.Count == 1)
-                return _putbacks.Peek().ToString() + GetStringBufferRemainder();
-
-            var builder = new StringBuilder();
-            var elements = new char[_putbacks.Count];
-            _putbacks.CopyTo(elements, 0);
-            for (int i = 0; i < elements.Length; i++)
-                builder.Append(elements[i]);
-            builder.Append(GetStringBufferRemainder());
-            return builder.ToString();
-        }
-
-        public void Reset()
-        {
-            _index = 0;
-            _line = 0;
-            _column = 0;
-            _putbacks.Clear();
-            _consumed = 0;
-        }
-
-        private string GetStringBufferRemainder()
         {
             if (_index == 0)
                 return _s;
@@ -154,8 +88,16 @@ namespace ParserObjects.Sequences
             return _s.Substring(_index);
         }
 
+        public void Reset()
+        {
+            _index = 0;
+            _line = 0;
+            _column = 0;
+            _consumed = 0;
+        }
+
         public ISequenceCheckpoint Checkpoint()
-            => new StringCheckpoint(this, _index, _line, _column, _putbacks.ToArray(), _previousEndOfLineColumns.ToArray(), _consumed);
+            => new StringCheckpoint(this, _index, _line, _column, _consumed);
 
         private class StringCheckpoint : ISequenceCheckpoint
         {
@@ -163,33 +105,25 @@ namespace ParserObjects.Sequences
             private readonly int _index;
             private readonly int _line;
             private readonly int _column;
-            private readonly char[] _putbacks;
-            private readonly int[] _lineEndCols;
             private readonly int _consumed;
 
-            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
+            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, int consumed)
             {
                 _s = s;
                 _index = index;
                 _line = line;
                 _column = column;
-                _putbacks = putbacks;
-                _lineEndCols = lineEndCols;
                 _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rollback(_index, _line, _column, _putbacks, _lineEndCols, _consumed);
+            public void Rewind() => _s.Rollback(_index, _line, _column, _consumed);
         }
 
-        private void Rollback(int index, int line, int column, char[] putbacks, int[] lineEndCols, int consumed)
+        private void Rollback(int index, int line, int column, int consumed)
         {
             _index = index;
             _line = line;
             _column = column;
-            _putbacks.Clear();
-            for (int i = putbacks.Length - 1; i >= 0; i--)
-                _putbacks.Push(putbacks[i]);
-            _previousEndOfLineColumns.OverwriteFromArray(lineEndCols);
             _consumed = consumed;
         }
     }

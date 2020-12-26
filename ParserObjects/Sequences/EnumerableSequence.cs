@@ -14,7 +14,6 @@ namespace ParserObjects.Sequences
     {
         private readonly IEnumerator<T> _enumerator;
         private readonly T? _endSentinelValue;
-        private readonly Stack<T?> _putbacks;
 
         private Node _current;
         private bool _enumeratorIsAtEnd;
@@ -42,7 +41,6 @@ namespace ParserObjects.Sequences
             _enumerator = enumerator;
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
             _endSentinelValue = endValue;
-            _putbacks = new Stack<T?>();
 
             // The first item in the linked list will be an end sentinel, which we will probably
             // never look at, but we need it for logic later.
@@ -63,23 +61,8 @@ namespace ParserObjects.Sequences
             public Node? Next { get; set; }
         }
 
-        public void PutBack(T? value)
-        {
-            if (value == null || value.Equals(_endSentinelValue))
-                return;
-            _putbacks.Push(value);
-            _index--;
-        }
-
         public T? GetNext()
         {
-            if (_putbacks.Count > 0)
-            {
-                _index++;
-                _consumed++;
-                return _putbacks.Pop();
-            }
-
             // We should always have a value queued up next, unless we're at the end. So if we see
             // Next==null, we can bail
             if (_current.Next == null)
@@ -95,24 +78,26 @@ namespace ParserObjects.Sequences
             if (_current.Next != null)
                 return value;
 
-            // At this point, there's nothing else in the queue. We need to try to advance the
-            // enumerator and add a new value to the queue. If the enumerator is at end, there will
-            // be nothing queued.
+            // At this point, there's nothing else in the queue. See about getting the next value
+            // from the enumerator, if there is anything left.
+
+            if (_enumeratorIsAtEnd)
+                return _endSentinelValue;
 
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
             if (_enumeratorIsAtEnd)
+            {
+                _enumerator.Dispose();
                 return value;
+            }
 
             Debug.Assert(_current.Next == null, "The linked list is broken");
-            var node = new Node { Value = _enumerator.Current, Next = null };
-            _current.Next = node;
+            _current.Next = new Node { Value = _enumerator.Current, Next = null };
             return value;
         }
 
         public T? Peek()
         {
-            if (_putbacks.Count > 0)
-                return _putbacks.Peek();
             if (_current.Next == null)
                 return _endSentinelValue;
             return _current.Next.Value;
@@ -120,7 +105,7 @@ namespace ParserObjects.Sequences
 
         public Location CurrentLocation => new Location(string.Empty, 1, _index);
 
-        public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null && _putbacks.Count == 0;
+        public bool IsAtEnd => _enumeratorIsAtEnd && _current.Next == null;
 
         public int Consumed => _consumed;
 
@@ -129,7 +114,7 @@ namespace ParserObjects.Sequences
             _enumerator?.Dispose();
         }
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _enumeratorIsAtEnd, _putbacks.ToArray());
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _enumeratorIsAtEnd);
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
@@ -137,28 +122,23 @@ namespace ParserObjects.Sequences
             private readonly Node _node;
             private readonly int _index;
             private readonly bool _enumeratorIsAtEnd;
-            private readonly T?[] _putbacks;
 
-            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd, T?[] putbacks)
+            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd)
             {
                 _s = s;
                 _node = node;
                 _index = index;
                 _enumeratorIsAtEnd = enumeratorIsAtEnd;
-                _putbacks = putbacks;
             }
 
-            public void Rewind() => _s.Rewind(_node, _index, _enumeratorIsAtEnd, _putbacks);
+            public void Rewind() => _s.Rewind(_node, _index, _enumeratorIsAtEnd);
         }
 
-        private void Rewind(Node node, int index, bool isAtEnd, T?[] putbacks)
+        private void Rewind(Node node, int index, bool isAtEnd)
         {
             _current = node;
             _enumeratorIsAtEnd = isAtEnd;
-            _putbacks.Clear();
             _index = index;
-            for (int i = putbacks.Length - 1; i >= 0; i--)
-                _putbacks.Push(putbacks[i]);
         }
     }
 }

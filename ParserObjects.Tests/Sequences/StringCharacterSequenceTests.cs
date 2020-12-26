@@ -75,27 +75,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void GetRemainder_OnePutback()
-        {
-            // We have a small optimization in for this case, so I'm adding a test for it
-            var target = new StringCharacterSequence("abc");
-            target.PutBack('Z');
-            target.GetRemainder().Should().Be("Zabc");
-        }
-
-        [Test]
-        public void GetRemainder_Putbacks()
-        {
-            var target = new StringCharacterSequence("abc");
-            // Putbacks are first-in, last-out. So we should see WXYZ in the output
-            target.PutBack('Z');
-            target.PutBack('Y');
-            target.PutBack('X');
-            target.PutBack('W');
-            target.GetRemainder().Should().Be("WXYZabc");
-        }
-
-        [Test]
         public void GetNext_Empty()
         {
             var target = new StringCharacterSequence("");
@@ -176,47 +155,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void PutBack_WindowsNewlines()
-        {
-            var target = new StringCharacterSequence("");
-            target.PutBack('\n');
-            target.PutBack('\r');
-            target.PutBack('a');
-            target.PutBack('\n');
-            target.PutBack('\r');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_UnixNewlines()
-        {
-            var target = new StringCharacterSequence("");
-            target.PutBack('\n');
-            target.PutBack('a');
-            target.PutBack('\n');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_OldMacNewlines()
-        {
-            var target = new StringCharacterSequence("");
-            target.PutBack('\r');
-            target.PutBack('a');
-            target.PutBack('\r');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
         public void Location_Test()
         {
             var target = new StringCharacterSequence("a\nbc");
@@ -238,25 +176,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void Location_Putback()
-        {
-            var target = new StringCharacterSequence("abc\nde");
-            target.GetNext();
-            target.GetNext();
-            target.GetNext();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            target.PutBack('\n');
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-        }
-
-        [Test]
         public void Location_Rewind()
         {
             var target = new StringCharacterSequence("abc\nde");
@@ -272,41 +191,6 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Column.Should().Be(0);
 
             checkpoint.Rewind();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-        }
-
-        [Test]
-        public void Location_Rewind_Putback()
-        {
-            var target = new StringCharacterSequence("abc\nd\ne");
-            target.GetNext();
-            target.GetNext();
-            target.GetNext();
-
-            // Position after 'c' is (1,3)
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-
-            // Position after the first '\n' is (2,0). Set a checkpoint here
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-            var checkpoint = target.Checkpoint();
-
-            // Get 'd', '\n'. Position should be (3,0)
-            target.GetNext().Should().Be('d');
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(3);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            // Rewind back to (2,0)
-            checkpoint.Rewind();
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            // Put back a newline, taking us to the position (1,3) right after the 'c'
-            target.PutBack('\n');
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(3);
         }
@@ -339,18 +223,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void IsAtEnd_PutBack()
-        {
-            var target = new StringCharacterSequence("a");
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-            target.PutBack('b');
-            target.IsAtEnd.Should().BeFalse();
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-        }
-
-        [Test]
         public void Checkpoint_Test()
         {
             var target = new StringCharacterSequence("abc");
@@ -361,42 +233,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
             cp.Rewind();
             target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void Checkpoint_Putbacks()
-        {
-            var target = new StringCharacterSequence("abc");
-            target.GetNext().Should().Be('a');
-            target.PutBack('Y');
-            target.PutBack('X');
-            var cp = target.Checkpoint();
-            target.GetNext().Should().Be('X');
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-            cp.Rewind();
-            target.GetNext().Should().Be('X');
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void Checkpoint_PutbacksIgnored()
-        {
-            var target = new StringCharacterSequence("abc");
-            target.GetNext().Should().Be('a');
-
-            var cp = target.Checkpoint();
-            target.PutBack('Y');
-            target.PutBack('X');
-            cp.Rewind();
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');

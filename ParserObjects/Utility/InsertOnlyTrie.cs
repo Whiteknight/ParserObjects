@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects.Utility
@@ -62,26 +61,28 @@ namespace ParserObjects.Utility
             {
                 var startLocation = keys.CurrentLocation;
                 var current = thisNode;
-                // The node and the key we apply to that node
-                var previous = new Stack<(Node node, TKey key)>();
-                int consumed = 0;
+
+                // The node, and the continuation checkpoint that allows parsing to continue
+                // immediately afterwards.
+                var previous = new Stack<(Node node, ISequenceCheckpoint cont)>();
+                var startCont = keys.Checkpoint();
+                var startConsumed = keys.Consumed;
+                previous.Push((current, startCont));
 
                 IPartialResult<TResult> FindBestResult()
                 {
-                    if (current.HasResult)
-                        return new SuccessPartialResult<TResult>(current.Result!, consumed, startLocation);
-
                     while (previous.Count > 0)
                     {
-                        var (node, oldKey) = previous.Pop();
-                        keys.PutBack(oldKey);
-                        consumed--;
+                        var (node, cont) = previous.Pop();
                         if (node.HasResult)
-                            return new SuccessPartialResult<TResult>(node.Result!, consumed, startLocation);
+                        {
+                            cont.Rewind();
+                            return new SuccessPartialResult<TResult>(node.Result!, keys.Consumed - startConsumed, startLocation);
+                        }
                     }
 
                     // No node matched, so return failure
-                    Debug.Assert(consumed == 0, "Just double-checking my math");
+                    startCont.Rewind();
                     return new FailurePartialResult<TResult>("Trie does not contain matching item", startLocation);
                 }
 
@@ -96,20 +97,17 @@ namespace ParserObjects.Utility
                     // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
                     // null.
                     var key = keys.GetNext();
+                    var cont = keys.Checkpoint();
                     var wrappedKey = new ValueTuple<TKey>(key);
 
-                    // If there's no matching child, put back and return best value.
+                    // If there's no matching child, find the best value
                     if (!current._children.ContainsKey(wrappedKey))
-                    {
-                        keys.PutBack(key);
                         return FindBestResult();
-                    }
 
-                    // Otherwise push the current node and the key we apply to that node onto the
-                    // stack, and prepare for the next loop iteration.
-                    previous.Push((current, key));
-                    consumed++;
+                    // Otherwise push the current node and the checkpoint from which we can continue
+                    // parsing from onto the stack, and prepare for the next loop iteration.
                     current = current._children[wrappedKey];
+                    previous.Push((current, cont));
                 }
             }
 

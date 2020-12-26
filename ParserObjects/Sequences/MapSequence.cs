@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using ParserObjects.Utility;
 
@@ -17,8 +16,6 @@ namespace ParserObjects.Sequences
     {
         private readonly ISequence<TInput> _inputs;
         private readonly Func<TInput, TOutput> _map;
-        private readonly Stack<TOutput> _putbacks;
-        private readonly AlwaysFullRingBuffer<Location> _oldLocations;
 
         private Node _current;
 
@@ -28,89 +25,124 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNull(map, nameof(map));
             _inputs = inputs;
             _map = map;
-            _putbacks = new Stack<TOutput>();
-            _oldLocations = new AlwaysFullRingBuffer<Location>(5, new Location(string.Empty, 0, 0));
-            _current = new Node { Value = default, Next = null };
+
+            // _current is the value that will be read in the next call to .GetNext().
+            // _current.Next is the value that will be read when we advance or call .Peek().
+
+            // Read ahead the first value. If the sequence starts empty, this will be the end
+            // sentinel
+            var startLocation = _inputs.CurrentLocation;
+            var isAtEndToStart = _inputs.IsAtEnd;
+            var firstValue = _inputs.GetNext();
+            var firstOutput = _map(firstValue);
+            _current = new Node(firstOutput, startLocation, 0, isAtEndToStart);
+
+            // If the sequence had one element in it, read ahead and get the end sentinel now,
+            // because later calls won't read the .IsAtEnd flag until after the _inputs.GetNext()
+            if (!isAtEndToStart && _inputs.IsAtEnd)
+            {
+                var endSentinelLocation = _inputs.CurrentLocation;
+                var endSentinelValue = _inputs.GetNext();
+                var endSentinelOutput = _map(endSentinelValue);
+                _current.Next = new Node(endSentinelOutput, endSentinelLocation, 1, true);
+            }
         }
+
+        // At each Node, .Value is the value that will be returned from .GetNext(), while
+        // .Location and .Consumed are the values that should be returned from .CurrentLocation
+        // and .Consumed right now.
 
         private class Node
         {
-            public TOutput? Value { get; set; }
-            public Node? Next { get; set; }
-        }
-
-        public void PutBack(TOutput value)
-        {
-            _putbacks.Push(value);
-            _oldLocations.MoveBack();
-        }
-
-        public TOutput GetNext()
-        {
-            if (_putbacks.Count > 0)
+            public Node(TOutput value, Location location, int consumed, bool end)
             {
-                _oldLocations.MoveForward();
-                return _putbacks.Pop();
+                Value = value;
+                Location = location;
+                Consumed = consumed;
+                End = end;
             }
+
+            public TOutput Value { get; }
+            public Node? Next { get; set; }
+            public Location Location { get; }
+            public int Consumed { get; }
+            public bool End { get; }
+        }
+
+        public TOutput GetNext() => GetNext(true);
+
+        public TOutput Peek() => GetNext(false);
+
+        public Location CurrentLocation => _current.Location;
+
+        public bool IsAtEnd => _current.Next == null && _inputs.IsAtEnd;
+
+        public int Consumed => _current.Consumed;
+
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current);
+
+        private TOutput GetNext(bool advance)
+        {
+            // If this node is the end node, just return it. We don't advance or do anything
+            // beyond this.
+            if (_current.End)
+                return _current.Value;
+
+            var requestedOutput = _current.Value;
+
+            if (!advance)
+                return requestedOutput;
 
             if (_current.Next != null)
             {
                 _current = _current.Next;
-                Debug.Assert(_current.Value != null, "Only the root node should have a null value");
-                return _current.Value!;
+                return requestedOutput;
             }
 
+            // Read ahead to queue up the next value. Also we check if we set the IsAtEnd flag, and
+            // queue up the end sentinel also if so.
+
+            Debug.Assert(!_inputs.IsAtEnd, "End sentinels should be queued ahead of time");
+            var startLocation = _inputs.CurrentLocation;
             var value = _inputs.GetNext();
             var output = _map(value);
 
-            var node = new Node { Value = output, Next = null };
-            _current.Next = node;
-            _current = node;
+            var nextNode = new Node(output, startLocation, _current.Consumed + 1, false);
 
-            _oldLocations.Add(_inputs.CurrentLocation);
+            // If this read has set the .IsAtEnd flag, queue up the end sentinel
+            if (_inputs.IsAtEnd)
+            {
+                // We're at end. Get one more value so we can see what the end sentinel is. Map
+                // the end sentinel, add a new End node to the chain so we know not to advance
+                // beyond it.
+                var endSentinelLocation = _inputs.CurrentLocation;
+                var endSentinelValue = _inputs.GetNext();
+                var endSentinelOutput = _map(endSentinelValue);
+                nextNode.Next = new Node(endSentinelOutput, endSentinelLocation, _current.Consumed + 1, true);
+            }
 
-            return output;
+            _current.Next = nextNode;
+            _current = nextNode;
+            return requestedOutput;
         }
-
-        public TOutput Peek()
-        {
-            if (_putbacks.Count > 0)
-                return _putbacks.Peek();
-            var next = GetNext();
-            PutBack(next);
-            return next;
-        }
-
-        public Location CurrentLocation => _oldLocations.GetCurrent() ?? _inputs.CurrentLocation;
-
-        public bool IsAtEnd => _putbacks.Count == 0 && _current.Next == null && _inputs.IsAtEnd;
-
-        public int Consumed => _inputs.Consumed - _putbacks.Count;
-
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _putbacks.ToArray());
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly MapSequence<TInput, TOutput> _s;
             private readonly Node _node;
-            private readonly TOutput[] _putbacks;
 
-            public SequenceCheckpoint(MapSequence<TInput, TOutput> s, Node node, TOutput[] putbacks)
+            public SequenceCheckpoint(MapSequence<TInput, TOutput> s, Node node)
             {
                 _s = s;
                 _node = node;
-                _putbacks = putbacks;
             }
 
-            public void Rewind() => _s.Rewind(_node, _putbacks);
+            public void Rewind() => _s.Rewind(_node);
         }
 
-        private void Rewind(Node node, TOutput[] putbacks)
+        private void Rewind(Node node)
         {
             _current = node;
-            _putbacks.Clear();
-            for (int i = putbacks.Length - 1; i >= 0; i--)
-                _putbacks.Push(putbacks[i]);
         }
     }
 }

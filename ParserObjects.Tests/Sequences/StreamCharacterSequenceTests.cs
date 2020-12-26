@@ -38,35 +38,10 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void GetNextPutBack_Test()
-        {
-            var target = GetTarget("ac");
-            target.GetNext().Should().Be('a');
-            target.PutBack('b');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
         public void GetNext_UTF8()
         {
             var target = GetTarget("abc");
             target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_Test()
-        {
-            var target = GetTarget("abc");
-            target.GetNext().Should().Be('a');
-            target.PutBack('a');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.PutBack('b');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
@@ -80,18 +55,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext();
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
-            target.IsAtEnd.Should().BeFalse();
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-        }
-
-        [Test]
-        public void IsAtEnd_PutBack()
-        {
-            var target = GetTarget("a");
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-            target.PutBack('b');
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeTrue();
@@ -145,51 +108,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('d');
             target.GetNext().Should().Be('e');
             target.GetNext().Should().Be('f');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void Checkpoint_PreviousBufferWithPutbacks()
-        {
-            var target = GetTarget("abcdef", 5);
-
-            // Read a few chars, putback a few chars, then checkpoint
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.PutBack('Y');
-            target.PutBack('X');
-            var cp = target.Checkpoint();
-
-            // Read chars through the end of the current buffer and rewind
-            target.GetNext().Should().Be('X');
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('d');
-            target.GetNext().Should().Be('e');
-            target.GetNext().Should().Be('f');
-            cp.Rewind();
-
-            // Now read again from the checkpoint, to see that we get the putbacks again
-            target.GetNext().Should().Be('X');
-            target.GetNext().Should().Be('Y');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('d');
-            target.GetNext().Should().Be('e');
-            target.GetNext().Should().Be('f');
-        }
-
-        [Test]
-        public void Checkpoint_PutbacksIgnored()
-        {
-            var target = GetTarget("abc", 5);
-            target.GetNext().Should().Be('a');
-
-            var cp = target.Checkpoint();
-            target.PutBack('Y');
-            target.PutBack('X');
-            cp.Rewind();
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
 
@@ -260,47 +178,6 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_WindowsNewlines()
-        {
-            var target = GetTarget("");
-            target.PutBack('\n');
-            target.PutBack('\r');
-            target.PutBack('a');
-            target.PutBack('\n');
-            target.PutBack('\r');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_UnixNewlines()
-        {
-            var target = GetTarget("");
-            target.PutBack('\n');
-            target.PutBack('a');
-            target.PutBack('\n');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void PutBack_OldMacNewlines()
-        {
-            var target = GetTarget("");
-            target.PutBack('\r');
-            target.PutBack('a');
-            target.PutBack('\r');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('\n');
-            target.GetNext().Should().Be('\0');
         }
 
         [Test]
@@ -376,25 +253,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void Location_Putback()
-        {
-            var target = GetTarget("abc\nde");
-            target.GetNext();
-            target.GetNext();
-            target.GetNext();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            target.PutBack('\n');
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-        }
-
-        [Test]
         public void Location_Rewind()
         {
             var target = GetTarget("abc\nde");
@@ -410,41 +268,6 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Column.Should().Be(0);
 
             checkpoint.Rewind();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-        }
-
-        [Test]
-        public void Location_Rewind_Putback()
-        {
-            var target = GetTarget("abc\nd\ne");
-            target.GetNext();
-            target.GetNext();
-            target.GetNext();
-
-            // Position after 'c' is (1,3)
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(3);
-
-            // Position after the first '\n' is (2,0). Set a checkpoint here
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-            var checkpoint = target.Checkpoint();
-
-            // Get 'd', '\n'. Position should be (3,0)
-            target.GetNext().Should().Be('d');
-            target.GetNext().Should().Be('\n');
-            target.CurrentLocation.Line.Should().Be(3);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            // Rewind back to (2,0)
-            checkpoint.Rewind();
-            target.CurrentLocation.Line.Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(0);
-
-            // Put back a newline, taking us to the position (1,3) right after the 'c'
-            target.PutBack('\n');
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(3);
         }

@@ -26,18 +26,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void PutBack_Test()
-        {
-            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
-            target.GetNext().Should().Be(1);
-            target.GetNext().Should().Be(2);
-            target.PutBack(4);
-            target.GetNext().Should().Be(4);
-            target.GetNext().Should().Be(3);
-            target.GetNext().Should().Be(0);
-        }
-
-        [Test]
         public void AsSequence_GetNext_Test()
         {
             var target = new[] { 1, 2, 3 }.ToSequence();
@@ -76,12 +64,6 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Column.Should().Be(1);
             target.GetNext().Should().Be(2);
             target.CurrentLocation.Column.Should().Be(2);
-
-            target.PutBack(2);
-            target.CurrentLocation.Column.Should().Be(1);
-            target.GetNext().Should().Be(2);
-            target.CurrentLocation.Column.Should().Be(2);
-
             target.GetNext().Should().Be(3);
             target.CurrentLocation.Column.Should().Be(3);
             target.GetNext().Should().Be(0);
@@ -102,18 +84,6 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void IsAtEnd_PutBack()
-        {
-            var target = new EnumerableSequence<int>(new[] { 1 }, 0);
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-            target.PutBack(2);
-            target.IsAtEnd.Should().BeFalse();
-            target.GetNext();
-            target.IsAtEnd.Should().BeTrue();
-        }
-
-        [Test]
         public void Location_Test()
         {
             var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
@@ -128,23 +98,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext();
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(3);
-        }
-
-        [Test]
-        public void Location_Putback()
-        {
-            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(0);
-            target.GetNext();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(1);
-            target.GetNext();
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(2);
-            target.PutBack(3);
-            target.CurrentLocation.Line.Should().Be(1);
-            target.CurrentLocation.Column.Should().Be(1);
         }
 
         [Test]
@@ -178,38 +131,6 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(3);
             target.GetNext().Should().Be(0);
             cp.Rewind();
-            target.GetNext().Should().Be(3);
-            target.GetNext().Should().Be(0);
-        }
-
-        [Test]
-        public void Checkpoint_Putbacks()
-        {
-            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
-            target.GetNext().Should().Be(1);
-            target.GetNext().Should().Be(2);
-            target.PutBack(4);
-            var cp = target.Checkpoint();
-            target.GetNext().Should().Be(4);
-            target.GetNext().Should().Be(3);
-            target.GetNext().Should().Be(0);
-            cp.Rewind();
-            target.GetNext().Should().Be(4);
-            target.GetNext().Should().Be(3);
-            target.GetNext().Should().Be(0);
-        }
-
-        [Test]
-        public void Checkpoint_PutbacksIgnored()
-        {
-            var target = new EnumerableSequence<int>(new[] { 1, 2, 3 }, 0);
-            target.GetNext().Should().Be(1);
-
-            var cp = target.Checkpoint();
-            target.PutBack(10);
-            target.PutBack(11);
-            cp.Rewind();
-            target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);
             target.GetNext().Should().Be(0);
         }
