@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Gll;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers;
@@ -13,8 +14,10 @@ namespace ParserObjects.Parsers;
 public sealed record MatchPredicateParser<T>(
     Func<T, bool> Predicate,
     string Name = ""
-) : IParser<T, T>
+) : IParser<T, T>, IGllParser<T, T>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -28,6 +31,29 @@ public sealed record MatchPredicateParser<T>(
 
         state.Input.GetNext();
         return state.Success(this, next, state.Input.Consumed - startConsumed, location);
+    }
+
+    public void Parse(IState<T> state, IResultPromise results)
+    {
+        if (state.Input.IsAtEnd)
+        {
+            results.Add(state.Failure($"Expected matching value but found End"));
+            results.IsComplete = true;
+            return;
+        }
+
+        var value = state.Input.Peek();
+        if (!Predicate(value))
+        {
+            results.Add(state.Failure($"Expected matching value but found {value}"));
+            results.IsComplete = true;
+            return;
+        }
+
+        state.Input.GetNext();
+
+        results.Add(state.Advance().Success(value));
+        results.IsComplete = true;
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

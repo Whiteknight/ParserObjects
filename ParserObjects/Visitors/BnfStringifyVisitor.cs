@@ -321,6 +321,12 @@ public class BnfStringifyVisitor
         AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
     }
 
+    protected virtual void Accept<TInput, TOutput>(GllParserAdaptor<TInput, TOutput> p, State state)
+    {
+        // TODO: This
+        state.Current.Append("GLL");
+    }
+
     protected virtual void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, State state)
     {
         var children = p.GetChildren().ToArray();

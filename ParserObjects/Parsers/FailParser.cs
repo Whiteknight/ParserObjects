@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Gll;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers;
@@ -12,8 +13,10 @@ namespace ParserObjects.Parsers;
 public sealed record FailParser<TInput, TOutput>(
     string ErrorMessage = "Fail",
     string Name = ""
-) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
+) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>, IGllParser<TInput, TOutput>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -36,9 +39,19 @@ public sealed record FailParser<TInput, TOutput>(
     IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
         => ((IMultiParser<TInput, TOutput>)this).Parse(state);
 
+    void IGllParser<TInput>.Parse(IState<TInput> state, IResultPromise results)
+    {
+        results.Add(state.Failure("Failure"));
+    }
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
     public INamed SetName(string name) => this with { Name = name };
+
+    public void Parse(IState<TInput> state, IResultPromise results)
+    {
+        throw new System.NotImplementedException();
+    }
 }
