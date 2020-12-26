@@ -175,8 +175,7 @@ namespace ParserObjects.Sequences
             // Add a new BufferNode to the end of the linked list and update the pointer.
             // Previous nodes will die from GC unless there is a checkpoint holding on to them
             var newBuffer = new BufferNode(_bufferSize, _reader, _currentBuffer.StartConsumed + _currentBuffer.TotalChars);
-            if (_currentBuffer != null)
-                _currentBuffer.Next = newBuffer;
+            _currentBuffer.Next = newBuffer;
             _currentBuffer = newBuffer;
             var remainingChars = _currentBuffer.TotalChars - _bufferIndex;
 

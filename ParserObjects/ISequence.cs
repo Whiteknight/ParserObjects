@@ -51,7 +51,7 @@ namespace ParserObjects
     /// put back items which are not needed.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ISequence<T> : ISequence
+    public interface ISequence<out T> : ISequence
     {
         /// <summary>
         /// Get the next value from the sequence or a default value if the sequence is at the end, and
