@@ -29,7 +29,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
+        public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
             {
                 startCp.Rewind();
-                return state.Fail<TOutput>(pe.Parser ?? this, pe.Message, pe.Location ?? state.Input.CurrentLocation);
+                return state.Fail<TInput, TOutput>(pe.Parser ?? this, pe.Message, pe.Location ?? state.Input.CurrentLocation);
             }
             finally
             {
@@ -53,7 +53,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => _config.GetParsers();
 

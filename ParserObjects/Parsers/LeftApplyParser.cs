@@ -50,7 +50,7 @@ namespace ParserObjects.Parsers
                 }
             }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 return _quantifier switch
@@ -62,7 +62,7 @@ namespace ParserObjects.Parsers
                 };
             }
 
-            private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state)
+            private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state)
             {
                 // Parse the left. Parse the right exactly once. Return the result
                 var checkpoint = state.Input.Checkpoint();
@@ -84,7 +84,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
             }
 
-            private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> state)
+            private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state)
             {
                 // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
                 // point, return whatever is the last value we had
@@ -108,7 +108,7 @@ namespace ParserObjects.Parsers
                 }
             }
 
-            private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> state)
+            private IResult<TOutput> ParseZeroOrOne(IParseState<TInput> state)
             {
                 // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
                 var leftResult = _initial.Parse(state);
@@ -124,7 +124,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
@@ -144,9 +144,9 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+            public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

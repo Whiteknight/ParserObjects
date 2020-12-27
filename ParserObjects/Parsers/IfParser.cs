@@ -28,7 +28,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
+        public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var cp = state.Input.Checkpoint();
@@ -36,7 +36,7 @@ namespace ParserObjects.Parsers
             return Parse(state, result.Success ? _onSuccess : _onFail, cp, result.Consumed);
         }
 
-        private static IResult<TOutput> Parse(ParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
+        private static IResult<TOutput> Parse(IParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
         {
             var thenResult = parser.Parse(state);
             if (thenResult.Success)
@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
             return state.Fail(parser, thenResult.ErrorMessage, thenResult.Location);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess, _onFail };
 

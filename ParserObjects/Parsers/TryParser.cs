@@ -26,7 +26,7 @@ namespace ParserObjects.Parsers
             // This is a default method, intentionally left blank
         }
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
+        public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var cp = state.Input.Checkpoint();
@@ -50,7 +50,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
@@ -79,7 +79,7 @@ namespace ParserObjects.Parsers
             // This is a default method, intentionally left blank
         }
 
-        public IResult Parse(ParseState<TInput> state)
+        public IResult Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var cp = state.Input.Checkpoint();

@@ -17,11 +17,11 @@ namespace ParserObjects.Parsers
         /// <typeparam name="TInput"></typeparam>
         public class State<TInput>
         {
-            private readonly ParseState<TInput> _state;
+            private readonly IParseState<TInput> _state;
 
             private int _consumed;
 
-            public State(ParseState<TInput> state)
+            public State(IParseState<TInput> state)
             {
                 _state = state;
                 _consumed = 0;
@@ -80,7 +80,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startLocation = state.Input.CurrentLocation;
@@ -114,7 +114,7 @@ namespace ParserObjects.Parsers
                 }
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

@@ -28,7 +28,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
-        IResult Parse(ParseState<TInput> state);
+        IResult Parse(IParseState<TInput> state);
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
-        new IResult<TOutput> Parse(ParseState<TInput> state);
+        new IResult<TOutput> Parse(IParseState<TInput> state);
     }
 
     /// <summary>

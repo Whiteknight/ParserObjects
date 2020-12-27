@@ -30,7 +30,7 @@ namespace ParserObjects.Parsers
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        public IResult<IReadOnlyList<TOutput>> Parse(ParseState<TInput> state)
+        public IResult<IReadOnlyList<TOutput>> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
@@ -59,7 +59,7 @@ namespace ParserObjects.Parsers
             return state.Success(this, items, consumed, location);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 

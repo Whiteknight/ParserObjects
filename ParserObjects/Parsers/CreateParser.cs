@@ -32,7 +32,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 // Get the parser. The callback has access to the input, so it may consume items.
                 // If so, we have to properly report that.
@@ -51,7 +51,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, result.Value, result.Consumed + consumedDuringCreation, result.Location);
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

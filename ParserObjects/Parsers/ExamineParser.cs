@@ -33,7 +33,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startConsumed = state.Input.Consumed;
@@ -49,7 +49,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, result.Value, totalConsumed, result.Location);
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
@@ -61,7 +61,7 @@ namespace ParserObjects.Parsers
         /// </summary>
         public record Context(
             IParser<TInput, TOutput> Parser,
-            ParseState<TInput> State,
+            IParseState<TInput> State,
             IResult<TOutput>? Result
         )
         {
@@ -96,7 +96,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult Parse(ParseState<TInput> state)
+            public IResult Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 _before?.Invoke(new Context(_parser, state, null));
@@ -115,7 +115,7 @@ namespace ParserObjects.Parsers
         /// </summary>
         public record Context(
             IParser<TInput> Parser,
-            ParseState<TInput> State,
+            IParseState<TInput> State,
             IResult? Result
         )
         {

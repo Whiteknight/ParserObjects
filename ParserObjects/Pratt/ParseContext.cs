@@ -9,7 +9,7 @@ namespace ParserObjects.Pratt
     // the provided abstractions.
     public class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutput>
     {
-        private readonly ParseState<TInput> _state;
+        private readonly IParseState<TInput> _state;
         private readonly Engine<TInput, TOutput> _engine;
 
         private readonly int _rbp;
@@ -17,7 +17,7 @@ namespace ParserObjects.Pratt
 
         private int _consumed;
 
-        public ParseContext(ParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse)
+        public ParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             Assert.ArgumentNotNull(engine, nameof(engine));
@@ -57,14 +57,14 @@ namespace ParserObjects.Pratt
             return result.Value;
         }
 
-        IResult<TOutput> IParser<TInput, TOutput>.Parse(ParseState<TInput> state)
+        IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
         {
             EnsureRecursionIsPermitted();
             var result = _engine.TryParse(_state, _rbp);
             return state.Result(this, result);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
 
         public void Expect(IParser<TInput> parser)
         {

@@ -26,7 +26,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<TOutput> Parse(ParseState<TInput> state)
+        public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
@@ -55,7 +55,7 @@ namespace ParserObjects.Parsers
             return state.Success(this, _produce(outputs), consumed, location);
         }
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => _parsers;
 

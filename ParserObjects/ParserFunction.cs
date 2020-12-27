@@ -28,5 +28,5 @@
     /// <param name="success"></param>
     /// <param name="fail"></param>
     /// <returns></returns>
-    public delegate IResult<TOutput> ParserFunction<TInput, TOutput>(ParseState<TInput> t, SuccessFunction<TOutput> success, FailFunction<TOutput> fail);
+    public delegate IResult<TOutput> ParserFunction<TInput, TOutput>(IParseState<TInput> t, SuccessFunction<TOutput> success, FailFunction<TOutput> fail);
 }

@@ -18,7 +18,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<T> Parse(ParseState<T> state)
+        public IResult<T> Parse(IParseState<T> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             if (state.Input.IsAtEnd)
@@ -29,7 +29,7 @@ namespace ParserObjects.Parsers
             return state.Success(this, next, 1, location);
         }
 
-        IResult IParser<T>.Parse(ParseState<T> state) => Parse(state);
+        IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

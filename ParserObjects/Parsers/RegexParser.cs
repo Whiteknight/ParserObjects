@@ -26,7 +26,7 @@ namespace ParserObjects.Parsers
 
         public string Name { get; set; }
 
-        public IResult<string> Parse(ParseState<char> state)
+        public IResult<string> Parse(IParseState<char> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var startCp = state.Input.Checkpoint();
@@ -36,7 +36,7 @@ namespace ParserObjects.Parsers
             return state.Result(this, result);
         }
 
-        IResult IParser<char>.Parse(ParseState<char> state) => Parse(state);
+        IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

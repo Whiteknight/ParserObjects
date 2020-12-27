@@ -38,7 +38,7 @@ namespace ParserObjects.Pratt
 
         public bool CanLed => _led != null;
 
-        public (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(ParseState<TInput> state)
+        public (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
         {
             var result = _match.Parse(state);
             if (!result.Success)

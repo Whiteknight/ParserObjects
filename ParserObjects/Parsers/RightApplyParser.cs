@@ -60,7 +60,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
 
@@ -79,7 +79,7 @@ namespace ParserObjects.Parsers
                 };
             }
 
-            private IResult<TOutput> ParseZeroOrMore(ParseState<TInput> state, IResult<TOutput> leftResult)
+            private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state, IResult<TOutput> leftResult)
             {
                 var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
@@ -141,7 +141,7 @@ namespace ParserObjects.Parsers
                 }
             }
 
-            private IResult<TOutput> ParseZeroOrOne(ParseState<TInput> state, IResult<TOutput> leftResult)
+            private IResult<TOutput> ParseZeroOrOne(IParseState<TInput> state, IResult<TOutput> leftResult)
             {
                 var checkpoint = state.Input.Checkpoint();
                 var middleResult = _middle.Parse(state);
@@ -171,7 +171,7 @@ namespace ParserObjects.Parsers
                 return leftResult;
             }
 
-            private IResult<TOutput> ParseExactlyOne(ParseState<TInput> state, IResult<TOutput> leftResult, ISequenceCheckpoint startCp)
+            private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state, IResult<TOutput> leftResult, ISequenceCheckpoint startCp)
             {
                 var middleCp = state.Input.Checkpoint();
                 var middleResult = _middle.Parse(state);
@@ -201,7 +201,7 @@ namespace ParserObjects.Parsers
                 return state.Fail(this, "Expected exactly one production but found zero");
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
 

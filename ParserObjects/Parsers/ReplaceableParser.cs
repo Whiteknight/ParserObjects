@@ -25,9 +25,9 @@ namespace ParserObjects.Parsers
 
         public IParser ReplaceableChild => _value;
 
-        public IResult<TOutput> Parse(ParseState<TInput> state) => _value.Parse(state);
+        public IResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
 
-        IResult IParser<TInput>.Parse(ParseState<TInput> state) => _value.Parse(state);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 

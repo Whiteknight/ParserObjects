@@ -36,7 +36,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput> Parse(ParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startConsumed = state.Input.Consumed;
@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
                 return state.Success(this, value, endConsumed - startConsumed, state.Input.CurrentLocation);
             }
 
-            IResult IParser<TInput>.Parse(ParseState<TInput> state) => Parse(state);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
