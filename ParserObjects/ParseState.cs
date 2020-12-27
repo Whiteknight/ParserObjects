@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.Extensions.Caching.Memory;
+using ParserObjects.Caching;
 using ParserObjects.Utility;
 
 namespace ParserObjects
@@ -13,11 +15,25 @@ namespace ParserObjects
         private readonly Action<string> _logCallback;
         private readonly CascadingKeyValueStore _store;
 
-        public ParseState(ISequence<TInput> input, Action<string> logCallback)
+        public ParseState(ISequence<TInput> input, Action<string> logCallback, IResultsCache? cache)
         {
             Input = input;
             _store = new CascadingKeyValueStore();
             _logCallback = logCallback;
+            Cache = cache ?? new NullResultsCache();
+        }
+
+        public ParseState(ISequence<TInput> input, Action<string> logCallback, IMemoryCache cache)
+        {
+            Input = input;
+            _store = new CascadingKeyValueStore();
+            _logCallback = logCallback;
+            Cache = new MemoryCacheResultsCache(cache);
+        }
+
+        public ParseState(ISequence<TInput> input, Action<string> logCallback)
+            : this(input, logCallback, new NullResultsCache())
+        {
         }
 
         /// <summary>
@@ -29,6 +45,8 @@ namespace ParserObjects
         /// Gets the current contextual state data used by the parser.
         /// </summary>
         public IDataStore Data => _store;
+
+        public IResultsCache Cache { get; }
 
         /// <summary>
         /// If a log callback is provided, pass a log message to the callback.

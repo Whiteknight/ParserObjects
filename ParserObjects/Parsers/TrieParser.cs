@@ -24,7 +24,6 @@ namespace ParserObjects.Parsers
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
             var result = Trie.Get(state.Input);
             return state.Result(this, result);
         }

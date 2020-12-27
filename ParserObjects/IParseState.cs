@@ -10,6 +10,8 @@
 
         ISequence<TInput> Input { get; }
 
+        IResultsCache Cache { get; }
+
         void Log(IParser parser, string message);
     }
 
