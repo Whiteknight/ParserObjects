@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -62,37 +61,6 @@ namespace ParserObjects.Parsers
             public void Fail(string error = "Fail") => throw new ParseFailedException(error);
         }
 
-        [Serializable]
-        private class ParseFailedException : ControlFlowException
-        {
-            public ParseFailedException()
-            {
-            }
-
-            public ParseFailedException(IResult result)
-            {
-                Location = result.Location;
-                Result = result;
-            }
-
-            protected ParseFailedException(SerializationInfo info, StreamingContext context)
-                : base(info, context)
-            {
-            }
-
-            public ParseFailedException(string message) : base(message)
-            {
-            }
-
-            public ParseFailedException(string message, Exception inner) : base(message, inner)
-            {
-            }
-
-            public Location? Location { get; }
-
-            public IResult? Result { get; }
-        }
-
         /// <summary>
         /// Parser for sequential callbacks. Executes a specially-structured callback with a state
         /// object so the user can control the flow of data between parsers and set breakpoints
@@ -151,6 +119,26 @@ namespace ParserObjects.Parsers
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
             public override string ToString() => DefaultStringifier.ToString(this);
+        }
+
+        [Serializable]
+#pragma warning disable RCS1194 // Implement exception constructors.
+        private class ParseFailedException : ControlFlowException
+#pragma warning restore RCS1194 // Implement exception constructors.
+        {
+            public ParseFailedException(IResult result)
+            {
+                Location = result.Location;
+                Result = result;
+            }
+
+            public ParseFailedException(string message) : base(message)
+            {
+            }
+
+            public Location? Location { get; }
+
+            public IResult? Result { get; }
         }
     }
 }

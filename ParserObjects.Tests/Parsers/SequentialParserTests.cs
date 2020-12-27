@@ -35,7 +35,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Fail()
+        public void Parse_Parse_Fail()
         {
             var parser = Sequential<object>(s =>
             {
@@ -61,6 +61,34 @@ namespace ParserObjects.Tests.Parsers
             var result = parser.Parse("abc");
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
+        }
+
+        [Test]
+        public void Parse_TryMatch()
+        {
+            var parser = Sequential(s =>
+            {
+                var first = s.TryMatch(Any());
+                var second = s.TryMatch(Fail<bool>());
+                return $"{first.Success}{second.Success}";
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("TrueFalse");
+        }
+
+        [Test]
+        public void Parse_Fail()
+        {
+            var parser = Sequential(s =>
+            {
+                s.Fail("test");
+                return "";
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeFalse();
         }
 
         [Test]
