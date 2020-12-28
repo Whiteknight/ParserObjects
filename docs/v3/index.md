@@ -7,6 +7,12 @@
 
 The Wikipedia page on [Parsing](https://en.wikipedia.org/wiki/Parsing#Computer_languages) gives a good overview of parsing in general and the page on [Parser Combinators](https://en.wikipedia.org/wiki/Parser_combinator) cover a lot of the important topics and also point to other resources for continued reading. See the [Test Suite Examples](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples) for examples of use and implementation patterns.
 
+## Project Goals
+
+The ParserObjects project intends to be an easy, usable and flexible parsing solution for the .NET ecosystem. The goal of this project is to be an easy on-ramp for developers who need to parse data but aren't necessarily experts in parsing theory. You don't need to know BNF or CFG or the details of any parsing algorithm in order to get started with ParserObjects.
+
+This library also intends to showcase the Combinators approach to parsing, and the underlying ethos of being able to compose parsers together from reusable components. 
+
 ## Key Concepts and Abstractions
 
 ParserObjects defines a few important abstractions.
@@ -17,7 +23,7 @@ ParserObjects defines a few important abstractions.
 
 ### `IResult<T>`
 
-The `IResult<T>` abstraction represents the result of a parser execution. It communicates success or failure, and on success it may include the parsed value. The result may also include metadata about the result (location, a custom error message, etc).
+The `IResult<T>` abstraction represents the result of a parser execution. It communicates success or failure, and on success it may include the derived value. The result may also include metadata about the result (location, a custom error message, etc).
 
 ### `IParser<TInput, TOutput>`
 
