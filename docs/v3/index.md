@@ -9,7 +9,7 @@ The Wikipedia page on [Parsing](https://en.wikipedia.org/wiki/Parsing#Computer_l
 
 ## Project Goals
 
-The ParserObjects project intends to be an easy, usable and flexible parsing solution for the .NET ecosystem. The goal of this project is to be an easy on-ramp for developers who need to parse data but aren't necessarily experts in parsing theory. You don't need to know BNF or CFG or the details of any parsing algorithm in order to get started with ParserObjects.
+The ParserObjects project intends to be an easy, usable and flexible parsing solution for the .NET ecosystem. The goal of this project is to be an easy on-ramp for developers who need to parse data but aren't necessarily experts in parsing theory. You don't need to know BNF or CFG or the details of any parsing algorithm in order to get started with ParserObjects. Parsers should be easy to build, the code should be easy to read, and the examples should be easy to understand.
 
 This library also intends to showcase the Combinators approach to parsing, and the underlying ethos of being able to compose parsers together from reusable components. 
 
@@ -23,11 +23,11 @@ ParserObjects defines a few important abstractions.
 
 ### `IResult<T>`
 
-The `IResult<T>` abstraction represents the result of a parser execution. It communicates success or failure, and on success it may include the derived value. The result may also include metadata about the result (location, a custom error message, etc).
+The `IResult<T>` abstraction represents the result of a parser execution. It communicates success or failure, on success it includes the derived value and on failure it includes an error message. The result also includes metadata about how many inputs were consumed and the location in the input stream where the match occurred.
 
 ### `IParser<TInput, TOutput>`
 
-`IParser<TInput, TOutput>` represents a parser object, and is the core component of the ParserObjects library. Parsers take an `ISequence` of input values and return an `IResult` indicating success or failure.
+`IParser<TInput, TOutput>` and related interfaces represent a parser object. These are the core component of the ParserObjects library. Parsers take an `ISequence<TInput>` of input values and return an `IResult<TOutput>` indicating success or failure.
 
 See the page on [Parser Usage](parser_usage.md) for information about using parsers. 
 
@@ -42,3 +42,5 @@ See the page on [Parser Usage](parser_usage.md) for information about using pars
 See the following pages for examples
 
 * [Expression Parsing Example](expression_example.md)
+
+There are also several small examples of usable in [the test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples).
