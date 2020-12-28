@@ -37,12 +37,35 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        /// <summary>
+        /// Executes a parser, and uses the value to determine the next parser to execute.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Chain<TOutput>(IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
 
+        /// <summary>
+        /// Executes a parser, and uses the value to determine the next parser to execute.
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="setup"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, setup);
 
+        /// <summary>
+        /// Executes a parser, and uses the value to determine the next parser to execute.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="setup"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> ChainWith<TOutput>(IParser<TInput> p, Action<Chain<TInput, TOutput>.IConfiguration> setup)
             => new Chain<TInput, TOutput>.Parser(p, setup);
 
@@ -111,13 +134,18 @@ namespace ParserObjects
             => new Examine<TInput>.Parser(parser, before, after);
 
         /// <summary>
-        /// A parser which unconditionally returns failure.
+        /// Unconditionally returns failure.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Fail<TOutput>(string error = "Fail")
             => new FailParser<TInput, TOutput>(error);
 
+        /// <summary>
+        /// Unconditionally returns failure.
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static IParser<TInput, TInput> Fail(string error = "Fail")
             => new FailParser<TInput, TInput>(error);
 
@@ -158,7 +186,7 @@ namespace ParserObjects
             => new NoneParser<TInput>(inner);
 
         /// <summary>
-        /// Attempt to parse an item and return a default value otherwise.
+        /// Attempt to parse an item and return an object which holds a value on success.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
@@ -169,6 +197,13 @@ namespace ParserObjects
                 Produce((s, d) => FailureOption<TOutput>.Instance)
             );
 
+        /// <summary>
+        /// Attempt to parse a parser and return a default value if the parser fails.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getDefault"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
@@ -194,6 +229,11 @@ namespace ParserObjects
             );
         }
 
+        /// <summary>
+        /// Return the next item of input without consuming any input. Returns failure at end of
+        /// input, success otherwise.
+        /// </summary>
+        /// <returns></returns>
         public static IParser<TInput, TInput> Peek() => new PeekParser<TInput>();
 
         /// <summary>
@@ -233,6 +273,11 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
             => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
 
+        /// <summary>
+        /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>()
             => new ReplaceableParser<TInput, TOutput>(new FailParser<TInput, TOutput>());
 

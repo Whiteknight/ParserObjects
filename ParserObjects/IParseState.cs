@@ -1,5 +1,9 @@
 ﻿namespace ParserObjects
 {
+    /// <summary>
+    /// State information about parse, including the input sequence, logging and contextual data.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
     public interface IParseState<TInput>
     {
         IDataStore Data { get; }

@@ -15,8 +15,17 @@ namespace ParserObjects.Parsers
     {
         public delegate IParser<TInput, TOutput> GetParser(IResult<TMiddle> result);
 
+        /// <summary>
+        /// Configures the parsers which may be selected and invoked by the Chain parser.
+        /// </summary>
         public interface IConfiguration
         {
+            /// <summary>
+            /// Specify a predicate and the parser to invoke if the predicate is true.
+            /// </summary>
+            /// <param name="equals"></param>
+            /// <param name="parser"></param>
+            /// <returns></returns>
             IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser);
         }
 
@@ -122,8 +131,17 @@ namespace ParserObjects.Parsers
     {
         public delegate IParser<TInput, TOutput> GetParser(IResult result);
 
+        /// <summary>
+        /// Configures the parsers to be invoked by the Chain parser.
+        /// </summary>
         public interface IConfiguration
         {
+            /// <summary>
+            /// Specify a predicate and the parser to invoke if the predicate returns true.
+            /// </summary>
+            /// <param name="equals"></param>
+            /// <param name="parser"></param>
+            /// <returns></returns>
             IConfiguration When(Func<object, bool> equals, IParser<TInput, TOutput> parser);
         }
 

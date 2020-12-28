@@ -24,6 +24,16 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
+        /// <summary>
+        /// Execute a parser and use the result value to select the next parser to invoke. Uses
+        /// a configuration object to setup parsers and the predicates which trigger them.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="getNext"></param>
+        /// <param name="mentions"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
             => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
 
@@ -290,6 +300,15 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => ParserMethods<TInput>.Transform(parser, transform);
 
+        /// <summary>
+        /// Transform the complete result object of the given parser.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> TransformResult<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
             => ParserMethods<TInput>.TransformResult(parser, transform);
     }

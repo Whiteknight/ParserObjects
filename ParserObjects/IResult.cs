@@ -103,12 +103,32 @@ namespace ParserObjects
 
     public static class ParseResultExtensions
     {
+        /// <summary>
+        /// Safely get the value of the result, or the default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static T GetValueOrDefault<T>(this IResult<T> result, T defaultValue)
             => result.Success ? result.Value : defaultValue;
 
+        /// <summary>
+        /// Safely get the value of the result, or the default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="getDefaultValue"></param>
+        /// <returns></returns>
         public static T GetValueOrDefault<T>(this IResult<T> result, Func<T> getDefaultValue)
             => result.Success ? result.Value : getDefaultValue();
 
+        /// <summary>
+        /// Safely get the value of the result, or the default value.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static object GetValueOrDefault(this IResult result, object defaultValue)
             => result.Success ? result.Value : defaultValue;
 

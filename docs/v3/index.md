@@ -19,7 +19,7 @@ ParserObjects defines a few important abstractions.
 
 ### `ISequence<T>`
 
-`ISequence<T>` is very similar to `IEnumerable<T>`/`IEnumerator<T>`. It allows you to stream items from a source one by one, but it also provides a few additional features which `IEnumerable<T>`/`IEnumerator<T>` don't include. See the page on [Sequence reference and usage](sequences.md) for detailed information. Sequences are the basic input type for parsers.
+`ISequence<T>` is very similar to `IEnumerable<T>`/`IEnumerator<T>`. It allows you to stream items from a source one by one, but it also provides a few additional features which `IEnumerable<T>` and `IEnumerator<T>` don't include. See the page on [Sequence reference and usage](sequences.md) for detailed information. Sequences are the basic input type for parsers.
 
 ### `IResult<T>`
 

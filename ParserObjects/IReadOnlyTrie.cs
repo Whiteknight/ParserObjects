@@ -73,6 +73,13 @@ namespace ParserObjects
             return readOnlyTrie;
         }
 
+        /// <summary>
+        /// Get a value from a char trie. Used mostly for testing purposes.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="trie"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
         public static IOption<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
         {
             var input = new StringCharacterSequence(keys);
