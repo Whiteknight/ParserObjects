@@ -28,9 +28,6 @@ namespace ParserObjects.Parsers
 
             var location = state.Input.CurrentLocation;
 
-            if (state.Input.IsAtEnd)
-                return state.Fail(this, "Expected a matching item, but found End");
-
             var next = state.Input.Peek();
             if (next == null || !_predicate(next))
                 return state.Fail(this, "Next item does not match the predicate");
