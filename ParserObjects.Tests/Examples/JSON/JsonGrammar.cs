@@ -8,32 +8,37 @@ namespace ParserObjects.Tests.Examples.JSON
         public static IParser<JsonToken, IJsonValue> CreateParser()
         {
             var number = MatchType(JsonTokenType.Number).Transform(n => new JsonNumber(n.Value));
+
             var str = MatchType(JsonTokenType.String).Transform(s => new JsonString(s.Value));
 
             var comma = MatchType(JsonTokenType.Comma);
+
             var openCurlyBracket = MatchType(JsonTokenType.OpenCurlyBracket);
             var closeCurlyBracket = MatchType(JsonTokenType.CloseCurlyBracket);
+
             var colon = MatchType(JsonTokenType.Colon);
+
+            var openSquareBracket = MatchType(JsonTokenType.OpenSquareBracket);
+            var closeSquareBracket = MatchType(JsonTokenType.CloseSquareBracket);
+
             var end = MatchType(JsonTokenType.End);
 
+            // Setup the deferral to fix the circular reference
             IParser<JsonToken, IJsonValue> valueInner = null;
             var value = Deferred(() => valueInner);
+            var valueList = value.ListSeparatedBy(comma);
 
-            var objectProperty = (str, colon, value).Produce((name, _, val) => (name.Value, val));
+            var objectProperty = (str, colon, value)
+                .Produce((name, _, val) => (name.Value, val));
+            var objectPropertyList = objectProperty.ListSeparatedBy(comma);
 
-            var jsonObject = Rule(
-                openCurlyBracket,
-                objectProperty.ListSeparatedBy(comma),
-                closeCurlyBracket,
-                (_, v, _) => new JsonObject(v)
-            );
+            var jsonObject = (openCurlyBracket, objectPropertyList, closeCurlyBracket)
+                .Produce((_, v, _) => new JsonObject(v))
+                .Named("JSON Object");
 
-            var jsonArray = Rule(
-                MatchType(JsonTokenType.OpenSquareBracket),
-                value.ListSeparatedBy(comma),
-                MatchType(JsonTokenType.CloseSquareBracket),
-                (_, items, _) => new JsonArray(items)
-            );
+            var jsonArray = (openSquareBracket, valueList, closeSquareBracket)
+                .Produce((_, items, _) => new JsonArray(items))
+                .Named("JSON Array");
 
             valueInner = Predict<IJsonValue>(c => c
                 .When(t => t.Type == JsonTokenType.OpenCurlyBracket, jsonObject)
@@ -43,7 +48,7 @@ namespace ParserObjects.Tests.Examples.JSON
                 .When(_ => true, Fail<IJsonValue>("Unexpected token type"))
             );
 
-            return value.Named("JSON");
+            return value.Named("JSON Value");
         }
     }
 }
