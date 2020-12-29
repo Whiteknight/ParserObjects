@@ -26,11 +26,11 @@ public class Token
 }
 ```
 
-Now we can put together a lexical grammar as a `IParser<char, Token>` that takes characters as input and returns `Token`.  
+Now we can stub out a lexical grammar as a `IParser<char, Token>` that takes characters as input and returns `Token`.  
 
 ```csharp
 using ParserObjects.Parsers;
-using static ParserObjects.Parsers.ParserMethods<char>;
+using static ParserObjects.ParserMethods<char>;
 
 public class LexicalGrammar
 {
@@ -50,7 +50,7 @@ var multiplication = Match('*')
     .Transform(c => new Token(TokenType.Multiplication, "*"));
 ```
 
-Now we want to define a parser for reading numbers. Numbers consist of one or more decimal digits. We create a parser to match a digit character, then get a list of subsequent digits, and then transform the list of digit characters into a Token with a string of digits as it's value:
+Next we want to define a parser for reading numbers. Numbers consist of one or more decimal digits. We create a parser to match a digit character, then get a list of subsequent digits, and finally transform the list of digit characters into a Token with a string of digits as it's value:
 
 ```csharp
 var number = Match(c => char.IsDigit(c))
@@ -58,13 +58,13 @@ var number = Match(c => char.IsDigit(c))
     .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
 ```
 
-We also want to gather up whitespace, but we don't need to transform it because we don't care about the output value:
+We also need a parser to gather up whitespace, but we don't need to transform it because we don't care about the output value. We only want to consume all whitespace between other tokens:
 
 ```csharp
 var whitespace = Match(c => char.IsWhitespace(c)).List();
 ```
 
-Now we want to start creating our output rules. Our first rule will attempt to match all the known token types, the second rule will match optional whitespace followed by a token, but only return the token:
+Our first rule will attempt to match all the known token types, the second rule will match optional whitespace followed by a token, but only return the token:
 
 ```csharp
 var anyToken = First(
@@ -80,14 +80,14 @@ var whitespaceAndToken = Rule(
 )
 ```
 
-Unit tests at this point can show that given an input string of numbers and operators, this tokenizer returns all the correct tokens in sequence.
+Unit tests at this point can show that given an input string of numbers and operators, this tokenizer returns all the correct tokens in order. This is left as an exercise for the reader.
 
 ## The Expression Grammar
 
-Now we want to write a Parser which takes Tokens as input and returns a numerical value. First, let's create our Expression grammar class:
+We do not need a parser which produces a stream of Tokens, we need a Parser which takes Tokens as input and returns a numerical value. First, let's create our Expression grammar class:
 
 ```csharp
-using static ParserObjects.Parsers.ParserMethods<Token>;
+using static ParserObjects.ParserMethods<ExpressionGrammar.Token>;
 
 public class ExpressionGrammar
 {
@@ -133,11 +133,11 @@ var multiplication = Rule(
 );
 ```
 
-This is all well and good, we can parse a string like "1 + 2" or "1 * 2" but we can't parse something like "1 + 2 + 3" or "1 + 2 * 3" and we don't handle precidence at all.
+With this we can parse a string like "1 + 2" or "1 * 2" but we can't parse something like "1 + 2 + 3" or "1 + 2 * 3" and we don't handle precedence at all.
 
-## Precidence
+## Precedence
 
-Let's look at some pseudo-BNF for an expression grammar where multiplication has higher precidence than addition:
+Let's look at some pseudo-BNF for an expression grammar where multiplication has higher precedence than addition:
 
 ```
 multiplicative := <number> ('*' <number>)*
@@ -176,7 +176,7 @@ var additive = LeftApply(
 );
 ```
 
-Each `LeftApply` parser represents a precidence level. Later, if we want to extend our calculator to handle subtraction and division, we can add the necessary declarations to our lexical grammar and extend our expression grammar like this:
+Each `LeftApply` parser represents a precedence level with left-associative operators. Later, if we want to extend our calculator to handle subtraction and division, we can add the necessary declarations to our lexical grammar and extend our expression grammar like this:
 
 ```csharp
 var multiplicative = LeftApply(
@@ -255,10 +255,11 @@ var expression = Rule(
 ```
 
 Now if we don't see end-of-input the parse will fail. We could also be more proactive and throw an exception if we don't see the end of input:
+
 ```csharp
-var requiredEnd = First(
+var requiredEnd = If(
     End(),
-    Produce<object>(t => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
+    Produce(() => true)
 );
 var expression = Rule(
     additive,
@@ -267,7 +268,7 @@ var expression = Rule(
 );
 ```
 
-The `First` parser will attempt to find the end, and returns immediately if it does. If it doesn't see the end, however, it will invoke the `Produce` parser which will throw that exception.
+The `If` parser will attempt to find the end, and returns a dummy boolean value if it is found. Otherwise, it fails. 
 
 We can use a similar technique in our expression parser. We can see a pattern "`<number>`" or a pattern "`<number> <operator> <number>`" but not just "`<number> <operator>`". First, let's start by defining a new method for a parser which throws an error:
 
@@ -322,10 +323,12 @@ var additive = LeftApply(
 );
 ```
 
-What we're doing here is saying that if we see an operator, we must see something on the right side of that operator. We can either have the left value by itself, or the set of (left, operator, right). There's no other permissable combination.
+What we're doing here is saying that if we see an operator, we must see something on the right side of that operator. We can either have the left value by itself, or the set of (left, operator, right). There's no other permissable combination. Not having the correct right-side-value will result in an exception.
 
 ## Continuing On
 
-This is just a simple example and there are many gaps left as an exercise for the reader. A real expression parser for a calculator or even a programming language like C# would be significantly more complicated with many more levels of precidence each with several additional operators. There's also the problem that our error-handling mechanism bails out with an exception at the very first error, and we might like it to try to continue the parse until the end and then report all possible errors at once. 
+This is just a simple example and there are many gaps left to fill as an exercise for the reader. A real expression parser for a calculator or even a programming language like C# would be significantly more complicated with many more levels of precedence each with several additional operators. There's also the problem that our error-handling mechanism bails out with an exception at the very first error, and we might like it to try to continue the parse until the end and then report all possible errors at once. 
 
-And then there are some of the other details, we might like to be able to handle negative numbers, or numbers with decimal points. And we definitely want to support parenthesis to enforce grouping if we want to order operations differently. We may address some of these issues in documentation elsewhere.
+And then there are some of the other details, we might like to be able to handle negative numbers, or numbers with decimal points. And we definitely want to support parenthesis to enforce grouping if we want to order operations differently. 
+
+This example, using many of the "classical" combinators like `Rule` and `First`, and the `LeftApply` parser, is mostly for showing the general method of parser construction. A better example of parsing mathematical expressions [uses the Pratt parser instead](prattexpr_example.md). 

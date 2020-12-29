@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
                     .ProduceLeft(1, (ctx, left, _) =>
                     {
                         var right = ctx.Parse();
-                        return left.Value + right;
+                        return left.Value - right;
                     }))
                 .Add(Token(TokenType.Multiplication), p => p
                     .ProduceLeft(3, (ctx, left, _) =>

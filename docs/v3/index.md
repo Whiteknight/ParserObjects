@@ -42,5 +42,6 @@ See the page on [Parser Usage](parser_usage.md) for information about using pars
 See the following pages for examples
 
 * [Expression Parsing Example](expression_example.md)
+* [Pratt Expression Parsing Example](prattexpr_example.md)
 
 There are also several small examples of usable in [the test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples).

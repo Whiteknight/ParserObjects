@@ -11,6 +11,7 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
         [TestCase("1 + 2 * 3", 7)]
         [TestCase("(1 + 2) * 3", 9)]
         [TestCase("1 + -2", -1)]
+        [TestCase("4 + -5 - 6", -7)]
         public void Calculate(string expr, int result)
         {
             var target = new Calculator();
