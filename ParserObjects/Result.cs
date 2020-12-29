@@ -4,7 +4,8 @@ using ParserObjects.Utility;
 namespace ParserObjects
 {
     /// <summary>
-    /// Parser result object which holds the result value and helpful metadata.
+    /// Result object representing success. This result contains a valid value and metadata about
+    /// that value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
     public class SuccessResult<TValue> : IResult<TValue>
@@ -35,6 +36,12 @@ namespace ParserObjects
         public override string ToString() => $"{Parser} Ok at {Location}";
     }
 
+    /// <summary>
+    /// Result object representing failure. This result contains an error message and information
+    /// about the location of the error. Attempting to access the Value will result in an
+    /// exception.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public class FailResult<TValue> : IResult<TValue>
     {
         public FailResult(IParser parser, Location location, string message)
@@ -61,6 +68,11 @@ namespace ParserObjects
         public override string ToString() => $"{Parser} FAIL at {Location}";
     }
 
+    /// <summary>
+    /// A partial result representing failure. This result contains an error message and information
+    /// about the error. Attempting to access the Value property will trigger an exception.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public class FailurePartialResult<TValue> : IPartialResult<TValue>
     {
         public FailurePartialResult(string error, Location location)
@@ -78,6 +90,11 @@ namespace ParserObjects
         public string ErrorMessage { get; }
     }
 
+    /// <summary>
+    /// A partial result representing success. This result contains a valid result value and
+    /// metadata about that value.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public class SuccessPartialResult<TValue> : IPartialResult<TValue>
     {
         public SuccessPartialResult(TValue value, int consumed, Location location)

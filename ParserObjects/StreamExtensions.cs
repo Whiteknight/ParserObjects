@@ -17,8 +17,8 @@ namespace ParserObjects
             => new StreamByteSequence(stream, fileName);
 
         /// <summary>
-        /// Converts an existing Stream to a sequence of char using the provided encoding (UTF-8 by
-        /// default). Calling .Dispose() on the sequence will dispose the stream as well.
+        /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
+        /// Calling .Dispose() on the sequence will dispose the stream as well.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="fileName"></param>
@@ -26,6 +26,14 @@ namespace ParserObjects
         public static ISequence<char> ToCharSequence(this Stream stream, string fileName = "")
             => new StreamCharacterSequence(stream, Encoding.UTF8, fileName);
 
+        /// <summary>
+        /// Converts an existing Stream to a sequence of char using the provided encoding. Calling
+        /// .Dispose() on the sequence will dispose the stream as well.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public static ISequence<char> ToCharSequence(this Stream stream, Encoding encoding, string fileName = "")
             => new StreamCharacterSequence(stream, encoding, fileName);
 
