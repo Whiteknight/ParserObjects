@@ -397,6 +397,11 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
+        protected virtual void Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> p, State state)
+        {
+            state.Current.Append("User Function");
+        }
+
         protected virtual void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);

@@ -30,7 +30,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parserTypes = typeof(IParser).Assembly
                 .GetTypes()
-                .Where(t => t.IsPublic && !t.IsInterface && !t.IsAbstract && typeof(IParser).IsAssignableFrom(t))
+                .Where(t => (t.IsPublic || t.IsNestedPublic) && !t.IsInterface && !t.IsAbstract && typeof(IParser).IsAssignableFrom(t))
                 .ToList();
 
             var visitMethods1 = typeof(BnfStringifyVisitor)
