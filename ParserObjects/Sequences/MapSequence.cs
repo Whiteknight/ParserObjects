@@ -137,6 +137,10 @@ namespace ParserObjects.Sequences
                 _node = node;
             }
 
+            public int Consumed => _node.Consumed;
+
+            public Location Location => _node.Location;
+
             public void Rewind() => _s.Rewind(_node);
         }
 

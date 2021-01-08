@@ -117,6 +117,10 @@ namespace ParserObjects.Sequences
                 _consumed = consumed;
             }
 
+            public int Consumed => _consumed;
+
+            public Location Location => new Location(_s._fileName, _line, _column);
+
             public void Rewind() => _s.Rollback(_index, _line, _column, _consumed);
         }
 

@@ -114,7 +114,7 @@ namespace ParserObjects.Sequences
             _enumerator?.Dispose();
         }
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _enumeratorIsAtEnd);
+        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _consumed, _enumeratorIsAtEnd);
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
@@ -122,23 +122,30 @@ namespace ParserObjects.Sequences
             private readonly Node _node;
             private readonly int _index;
             private readonly bool _enumeratorIsAtEnd;
+            private readonly int _consumed;
 
-            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, bool enumeratorIsAtEnd)
+            public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, int consumed, bool enumeratorIsAtEnd)
             {
                 _s = s;
                 _node = node;
                 _index = index;
                 _enumeratorIsAtEnd = enumeratorIsAtEnd;
+                _consumed = consumed;
             }
 
-            public void Rewind() => _s.Rewind(_node, _index, _enumeratorIsAtEnd);
+            public int Consumed => _consumed;
+
+            public Location Location => new Location(string.Empty, 1, _index);
+
+            public void Rewind() => _s.Rewind(_node, _index, _consumed, _enumeratorIsAtEnd);
         }
 
-        private void Rewind(Node node, int index, bool isAtEnd)
+        private void Rewind(Node node, int index, int _consumed, bool isAtEnd)
         {
             _current = node;
             _enumeratorIsAtEnd = isAtEnd;
             _index = index;
+            _consumed = Consumed;
         }
     }
 }

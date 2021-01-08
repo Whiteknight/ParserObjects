@@ -208,6 +208,10 @@ namespace ParserObjects.Sequences
                 _column = column;
             }
 
+            public int Consumed => _buffer.StartConsumed + _bufferIndex;
+
+            public Location Location => new Location(_s._fileName, _line, _column);
+
             public void Rewind() => _s.Rewind(_buffer, _bufferIndex, _line, _column);
         }
 
