@@ -36,15 +36,21 @@ namespace ParserObjects.Parsers
             {
                 // Get the parser. The callback has access to the input, so it may consume items.
                 // If so, we have to properly report that.
-                var startConsumed = state.Input.Consumed;
+                var startCheckpoint = state.Input.Checkpoint();
                 var parser = _getParser(state.Input, state.Data) ?? throw new InvalidOperationException("Create parser value must not be null");
-                var consumedDuringCreation = state.Input.Consumed - startConsumed;
+                var consumedDuringCreation = state.Input.Consumed - startCheckpoint.Consumed;
 
                 var result = parser.Parse(state);
 
-                // We can safely return the result if it's a fail or if it is correctly reporting
-                // the number of consumed inputs
-                if (!result.Success || result.Consumed == consumedDuringCreation)
+                // If it's a failure result, make sure we are rewound to the beginning and return
+                if (!result.Success)
+                {
+                    startCheckpoint.Rewind();
+                    return result;
+                }
+
+                // If no inputs were consumed during parser creation, we can just return the result
+                if (consumedDuringCreation == 0)
                     return result;
 
                 // Otherwise construct a new result with correct consumed value.

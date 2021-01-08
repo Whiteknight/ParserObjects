@@ -17,7 +17,6 @@ namespace ParserObjects.Sequences
         private bool _isComplete;
         private int _remainingBytes;
         private int _bufferIndex;
-        private int _index;
         private int _consumed;
 
         public StreamByteSequence(string fileName, int bufferSize = 128)
@@ -53,14 +52,13 @@ namespace ParserObjects.Sequences
             var b = GetNextByteRaw(true);
             if (b == 0)
                 return b;
-            _index++;
             _consumed++;
             return b;
         }
 
         public byte Peek() => GetNextByteRaw(false);
 
-        public Location CurrentLocation => new Location(_fileName, 1, _index);
+        public Location CurrentLocation => new Location(_fileName, 1, _consumed);
 
         public bool IsAtEnd => _isComplete;
 
@@ -125,6 +123,10 @@ namespace ParserObjects.Sequences
                 _currentPosition = currentPosition;
                 _consumed = consumed;
             }
+
+            public int Consumed => _consumed;
+
+            public Location Location => new Location(_s._fileName, 1, _consumed);
 
             public void Rewind() => _s.Rewind(_currentPosition, _consumed);
         }

@@ -24,22 +24,19 @@ namespace ParserObjects.Parsers
         public IResult Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var startLocation = state.Input.CurrentLocation;
-            var checkpoint = state.Input.Checkpoint();
-            int consumed = 0;
+            var startCheckpoint = state.Input.Checkpoint();
             foreach (var parser in _parsers)
             {
                 var result = parser.Parse(state);
                 if (!result.Success)
                 {
-                    checkpoint.Rewind();
+                    startCheckpoint.Rewind();
                     return result;
                 }
-
-                consumed += result.Consumed;
             }
 
-            return state.Success(this, Defaults.ObjectInstance, consumed, startLocation);
+            var consumed = state.Input.Consumed - startCheckpoint.Consumed;
+            return state.Success(this, Defaults.ObjectInstance, consumed, startCheckpoint.Location);
         }
 
         public IEnumerable<IParser> GetChildren() => _parsers;

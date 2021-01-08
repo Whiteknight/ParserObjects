@@ -100,8 +100,7 @@ namespace ParserObjects.Parsers
                 if (nextResult.Success)
                     return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed, nextResult.Location);
 
-                if (initial.Consumed > 0)
-                    checkpoint.Rewind();
+                checkpoint.Rewind();
                 return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
             }
 
@@ -216,8 +215,7 @@ namespace ParserObjects.Parsers
                 if (nextResult.Success)
                     return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed, nextResult.Location);
 
-                if (initial.Consumed > 0)
-                    checkpoint.Rewind();
+                checkpoint.Rewind();
                 return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
             }
 

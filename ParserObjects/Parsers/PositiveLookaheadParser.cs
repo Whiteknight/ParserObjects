@@ -24,15 +24,13 @@ namespace ParserObjects.Parsers
         public IResult Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var checkpoint = state.Input.Checkpoint();
+            var startCheckpoint = state.Input.Checkpoint();
             var result = _inner.Parse(state);
-            if (result.Success)
-            {
-                checkpoint.Rewind();
-                return state.Success(_inner, result.Value, 0, result.Location);
-            }
+            if (!result.Success)
+                return state.Fail(_inner, result.ErrorMessage, result.Location);
 
-            return state.Fail(_inner, result.ErrorMessage, result.Location);
+            startCheckpoint.Rewind();
+            return state.Success(_inner, result.Value, 0, startCheckpoint.Location);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

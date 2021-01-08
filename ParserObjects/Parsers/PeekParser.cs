@@ -19,9 +19,8 @@ namespace ParserObjects.Parsers
             if (state.Input.IsAtEnd)
                 return state.Fail(this, "Expected any but found End");
 
-            var location = state.Input.CurrentLocation;
             var peek = state.Input.Peek();
-            return state.Success(this, peek, 0, location);
+            return state.Success(this, peek, 0, state.Input.CurrentLocation);
         }
 
         IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
