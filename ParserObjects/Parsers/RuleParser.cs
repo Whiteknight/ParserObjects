@@ -30,29 +30,27 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
-            var checkpoint = state.Input.Checkpoint();
-            var location = state.Input.CurrentLocation;
+            var startCheckpoint = state.Input.Checkpoint();
 
             var outputs = new object[_parsers.Count];
-            int consumed = 0;
             for (int i = 0; i < _parsers.Count; i++)
             {
                 var result = _parsers[i].Parse(state);
                 if (result.Success)
                 {
                     outputs[i] = result.Value;
-                    consumed += result.Consumed;
                     continue;
                 }
 
-                checkpoint.Rewind();
+                startCheckpoint.Rewind();
                 var name = _parsers[i].Name;
                 if (string.IsNullOrEmpty(name))
                     name = "(Unnamed)";
                 return state.Fail(this, $"Parser {i} {name} failed", result.Location);
             }
 
-            return state.Success(this, _produce(outputs), consumed, location);
+            var consumed = state.Input.Consumed - startCheckpoint.Consumed;
+            return state.Success(this, _produce(outputs), consumed, startCheckpoint.Location);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

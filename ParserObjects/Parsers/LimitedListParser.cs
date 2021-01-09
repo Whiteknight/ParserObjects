@@ -34,8 +34,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
-            var checkpoint = state.Input.Checkpoint();
-            var location = state.Input.CurrentLocation;
+            var startCheckpoint = state.Input.Checkpoint();
             var items = new List<TOutput>();
 
             int consumed = 0;
@@ -52,11 +51,11 @@ namespace ParserObjects.Parsers
 
             if (Minimum > 0 && items.Count < Minimum)
             {
-                checkpoint.Rewind();
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", location);
+                startCheckpoint.Rewind();
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
             }
 
-            return state.Success(this, items, consumed, location);
+            return state.Success(this, items, consumed, startCheckpoint.Location);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

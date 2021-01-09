@@ -75,13 +75,11 @@ namespace ParserObjects.Parsers
                 _left.Location = leftResult.Location;
 
                 var rightResult = _right.Parse(state);
-                if (!rightResult.Success)
-                {
-                    checkpoint.Rewind();
-                    return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage, rightResult.Location);
-                }
+                if (rightResult.Success)
+                    return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
 
-                return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
+                checkpoint.Rewind();
+                return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage, rightResult.Location);
             }
 
             private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state)

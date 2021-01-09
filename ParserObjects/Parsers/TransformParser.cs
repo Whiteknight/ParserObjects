@@ -33,8 +33,7 @@ namespace ParserObjects.Parsers
             public IResult<TOutput2> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var startConsumed = state.Input.Consumed;
-                var cp = state.Input.Checkpoint();
+                var startCheckpoint = state.Input.Checkpoint();
 
                 // Execute the parse and transform the result
                 var result = _inner.Parse(state);
@@ -45,14 +44,14 @@ namespace ParserObjects.Parsers
                 if (!transformedResult.Success)
                 {
                     if (result.Success)
-                        cp.Rewind();
+                        startCheckpoint.Rewind();
                     return transformedResult;
                 }
 
                 // Make sure that the transformed result is reporting the correct number of
                 // consumed inputs (the transformer didn't secretly consume some without properly
                 // accounting for them)
-                var totalConsumed = state.Input.Consumed - startConsumed;
+                var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
                 if (transformedResult.Consumed != totalConsumed)
                     return state.Success(this, transformedResult.Value, totalConsumed, transformedResult.Location);
 

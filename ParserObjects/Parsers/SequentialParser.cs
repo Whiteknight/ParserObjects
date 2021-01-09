@@ -83,19 +83,18 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var startLocation = state.Input.CurrentLocation;
-                var checkpoint = state.Input.Checkpoint();
+                var startCheckpoint = state.Input.Checkpoint();
                 try
                 {
                     var seqState = new State<TInput>(state);
                     var result = _func(seqState);
-                    return state.Success(this, result, seqState.Consumed, startLocation);
+                    return state.Success(this, result, seqState.Consumed, startCheckpoint.Location);
                 }
                 catch (ParseFailedException spe)
                 {
                     // This exception is part of normal flow-control for this parser
                     // Other exceptions bubble up like normal.
-                    checkpoint.Rewind();
+                    startCheckpoint.Rewind();
                     if (spe.Result != null)
                     {
                         var result = spe.Result;
@@ -108,7 +107,7 @@ namespace ParserObjects.Parsers
                 }
                 catch (Exception e)
                 {
-                    checkpoint.Rewind();
+                    startCheckpoint.Rewind();
                     state.Log(this, $"Parse failed during sequential callback: {e.Message}");
                     throw;
                 }

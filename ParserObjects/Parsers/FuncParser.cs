@@ -31,22 +31,19 @@ namespace ParserObjects.Parsers
             try
             {
                 IResult<TOutput> OnSuccess(TOutput value, Location loc)
-                    => state.Success(this, value, 0, loc ?? state.Input.CurrentLocation);
+                    => state.Success(this, value, 0, loc ?? checkpoint.Location);
 
                 IResult<TOutput> OnFailure(string err, Location loc)
-                    => state.Fail(this, err, loc ?? state.Input.CurrentLocation);
+                    => state.Fail(this, err, loc ?? checkpoint.Location);
 
-                var startConsumed = state.Input.Consumed;
                 var result = _func(state, OnSuccess, OnFailure);
-                var totalConsumed = state.Input.Consumed - startConsumed;
+                var totalConsumed = state.Input.Consumed - checkpoint.Consumed;
 
-                if (!result.Success)
-                {
-                    checkpoint.Rewind();
-                    return result;
-                }
+                if (result.Success)
+                    return state.Success(this, result.Value, totalConsumed, result.Location);
 
-                return state.Success(this, result.Value, totalConsumed, result.Location);
+                checkpoint.Rewind();
+                return result;
             }
             catch (Exception e)
             {
