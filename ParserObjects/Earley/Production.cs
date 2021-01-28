@@ -25,8 +25,7 @@ namespace ParserObjects.Earley
             try
             {
                 var value = _reduce(argsList);
-                Debug.Assert(value != null, "should not be null here");
-                return new SuccessOption<object>(value);
+                return value == null ? FailureOption<object>.Instance : new SuccessOption<object>(value);
                 // TODO: ControlFlowException so we can jump out of a user-rule and immediately fail
                 // the parse at several levels?
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using ParserObjects.Utility;
 
@@ -128,8 +129,12 @@ namespace ParserObjects.Earley
         public bool CanImport(Item other)
         {
             return Equals(other)
-                && ((other._derivations == null && _derivations == null) || (other._derivations != null && other._derivations.Count == 0));
+                && ((other._derivations == null && _derivations == null) ||
+                    (other._derivations != null && other._derivations.Count == 0));
         }
+
+        public bool IsWaitingFor(IProduction production)
+            => !AtEnd && NextSymbolToMatch is INonterminal nonterminal && nonterminal.Productions.Contains(production);
 
         public override string ToString()
         {

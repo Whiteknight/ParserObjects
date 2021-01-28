@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Earley
@@ -23,8 +23,7 @@ namespace ParserObjects.Earley
 
         public void AddProductionObj(IProduction p)
         {
-            if (p is not Production<TOutput> typed)
-                throw new InvalidOperationException("Production must have a matching output type");
+            var typed = p as Production<TOutput> ?? throw new InvalidOperationException("Production must have a matching output type");
             if (!_productions.Contains(typed))
                 _productions.Add(typed);
         }
@@ -34,13 +33,6 @@ namespace ParserObjects.Earley
 
         public string Name { get; set; }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            foreach (var p in _productions)
-                sb.Append(p);
-
-            return sb.ToString();
-        }
+        public override string ToString() => string.Join("\n", _productions.Select(p => p.ToString()));
     }
 }

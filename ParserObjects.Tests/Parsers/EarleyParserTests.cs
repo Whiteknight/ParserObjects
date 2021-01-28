@@ -14,7 +14,7 @@ namespace ParserObjects.Tests.Parsers
         public void SingleTerminal_Test()
         {
             var target = Earley<int>(symbols => symbols
-                .NewStartSymbol("S")
+                .New("S")
                 .AddProduction(UnsignedInteger(), n => n)
             );
 
@@ -32,7 +32,7 @@ namespace ParserObjects.Tests.Parsers
                 var plus = Match('+').Named("plus");
                 var star = Match('*').Named("star");
 
-                var expr = symbols.NewStartSymbol("Expr")
+                var expr = symbols.New("Expr")
                     .AddProduction(UnsignedInteger().Named("literal"), n => n);
 
                 expr.AddProduction(expr, plus, expr, (l, op, r) => l + r);
@@ -70,7 +70,7 @@ namespace ParserObjects.Tests.Parsers
 
                 var eof = If(End(), Produce(() => true));
 
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);
             });
 
@@ -93,7 +93,7 @@ namespace ParserObjects.Tests.Parsers
                 var plus = CharacterString("+++").Named("plus");
                 var star = CharacterString("**").Named("star");
 
-                var expr = symbols.NewStartSymbol("Expr")
+                var expr = symbols.New("Expr")
                     .AddProduction(UnsignedInteger().Named("literal"), n => n);
 
                 expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
@@ -130,7 +130,7 @@ namespace ParserObjects.Tests.Parsers
 
                 var eof = If(End(), Produce(() => true));
 
-                return symbols.NewStartSymbol("Start")
+                return symbols.New("Start")
                     .AddProduction(expr, eof, (v, _) => v);
             });
 
@@ -170,7 +170,7 @@ namespace ParserObjects.Tests.Parsers
 
                 var eof = If(End(), Produce(() => true)).Named("End");
 
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(e, eof, (count, _) => count).Named("S");
             });
 
@@ -204,7 +204,7 @@ namespace ParserObjects.Tests.Parsers
                 // Nullable is a production rule which consumes no input
                 var nullable = Produce(() => "Test");
                 var eof = If(End(), Produce(() => true));
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(nullable, eof, (a, _) => a);
             });
 
@@ -233,7 +233,7 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(rulea, ruleb, (a, b) => $"({a},{b})");
 
                 var eof = If(End(), Produce(() => true)).Named("END");
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(nullable, nullable, eof, (first, second, end) => $"[{first}:{second}]");
             });
 
@@ -267,7 +267,7 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(ruleb, b => b);
 
                 var eof = If(End(), Produce(() => true)).Named("END");
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(nullable, nullable, eof, (first, second, end) => $"[{first}:{second}]");
             });
 
@@ -295,7 +295,7 @@ namespace ParserObjects.Tests.Parsers
             {
                 var a = Match('a').Named("a");
 
-                var e = symbols.NewStartSymbol("E")
+                var e = symbols.New("E")
                     .AddProduction(a, _ => "a");
                 e.AddProduction(a, e, (_, rr) => "a" + rr);
                 return e;
@@ -348,7 +348,7 @@ namespace ParserObjects.Tests.Parsers
                     ;
 
                 var eof = If(End(), Produce(() => true)).Named("END");
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(e, eof, (v, _) => v);
             });
 
@@ -367,14 +367,14 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("'*'");
 
                 var expr = symbols.New<int>("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .AddProduction(UnsignedInteger().Named("literal"));
 
                 expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
                 expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
 
                 var eof = If(End(), Produce(() => true)).Named("End");
 
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);
             });
 
@@ -401,7 +401,7 @@ namespace ParserObjects.Tests.Parsers
 
                 var eof = If(End(), Produce(() => true)).Named("End");
 
-                return symbols.NewStartSymbol("S")
+                return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);
             });
 

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -17,8 +17,11 @@ namespace ParserObjects.Earley
 
         public IList<Item> Items { get; }
 
+        // The number of the state, which corresponds to the number of input items consumed at
+        // this point.
         public int Number { get; }
 
+        // The checkpoint to return the input to the position of this state
         public ISequenceCheckpoint Checkpoint { get; }
 
         public void Add(Item item)
@@ -29,13 +32,10 @@ namespace ParserObjects.Earley
 
         public bool Contains(Item item) => Items.Contains(item);
 
-        // TODO: Rename this to something more descriptive
-        public IList<Item> GetItems(IProduction production)
-        {
-            return Items
-                .Where(i => !i.AtEnd && i.NextSymbolToMatch is INonterminal nonterminal && nonterminal.Productions.Contains(production))
+        public IList<Item> GetLiveItemsWaitingForProduction(IProduction production)
+            => Items
+                .Where(i => i.IsWaitingFor(production))
                 .ToList();
-        }
 
         public Item Import(Item item)
         {
@@ -46,8 +46,7 @@ namespace ParserObjects.Earley
                 return item;
             }
 
-            if (!existing.CanImport(item))
-                throw new ArgumentException();
+            Debug.Assert(existing.CanImport(item), "Imported item must be Equal and not have any derivations");
             return existing;
         }
 

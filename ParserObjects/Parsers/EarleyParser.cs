@@ -8,10 +8,10 @@ namespace ParserObjects.Parsers
     {
         public class SymbolFactory
         {
-            public INonterminal<TInput, TOutput> NewStartSymbol()
+            public INonterminal<TInput, TOutput> New()
                 => new Nonterminal<TInput, TOutput>($"S{UniqueIntegerGenerator.GetNext()}");
 
-            public INonterminal<TInput, TOutput> NewStartSymbol(string name)
+            public INonterminal<TInput, TOutput> New(string name)
                 => new Nonterminal<TInput, TOutput>(name);
 
             public INonterminal<TInput, TValue> New<TValue>(string name)

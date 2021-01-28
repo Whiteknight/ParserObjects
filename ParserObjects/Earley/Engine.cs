@@ -163,7 +163,7 @@ namespace ParserObjects.Earley
             // non-terminal for which this production is an alternative, create a new Item in the
             // current state which is the same as the parent item, but advanced past the
             // non-terminal.
-            var parentStateItemsToAdvance = item.ParentState.GetItems(item.Production);
+            var parentStateItemsToAdvance = item.ParentState.GetLiveItemsWaitingForProduction(item.Production);
             foreach (var parentItem in parentStateItemsToAdvance)
             {
                 var newItem = state.Import(parentItem.CreateNextItem(state));

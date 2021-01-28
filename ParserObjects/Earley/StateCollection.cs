@@ -35,8 +35,8 @@ namespace ParserObjects.Earley
         // exist, create it. Otherwise return it as-is.
         public State GetAhead(int consumed, ISequence input)
         {
-            if (consumed < 0)
-                consumed = 0;
+            if (consumed <= 0)
+                return _current.State;
 
             var i = _current.State.Number + consumed;
             if (_lookup.ContainsKey(i))
@@ -67,14 +67,13 @@ namespace ParserObjects.Earley
             if (next == null)
                 return null;
 
+            // Break the chain, old states will be referenced by Items if they are needed.
+            _current.Next = null;
+
             // We're done with this state, so we can remove it from the list
             _lookup.Remove(_current.State.Number);
 
             _current = next;
-
-            // TODO: I think we can also break the chain between previous.Next=_current so that
-            // intermediate States not pointed to by _current or "alive" nodes ahead of it, or
-            // Items which are still alive and relevant, can disappear and be GC'd
             return _current.State;
         }
     }
