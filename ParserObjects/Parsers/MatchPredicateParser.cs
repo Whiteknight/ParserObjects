@@ -6,7 +6,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Returns the next input item if it satisfies a predicate, failure otherwise.
+    /// Returns the next input item if it satisfies a predicate, failure otherwise. Notice that
+    /// the end sentinel will be made available to the predicate and may match.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MatchPredicateParser<T> : IParser<T, T>
@@ -27,12 +28,14 @@ namespace ParserObjects.Parsers
             Assert.ArgumentNotNull(state, nameof(state));
 
             var location = state.Input.CurrentLocation;
+            var startConsumed = state.Input.Consumed;
 
             var next = state.Input.Peek();
             if (next == null || !_predicate(next))
                 return state.Fail(this, "Next item does not match the predicate");
 
-            return state.Success(this, state.Input.GetNext(), 1, location);
+            state.Input.GetNext();
+            return state.Success(this, next, state.Input.Consumed - startConsumed, location);
         }
 
         IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

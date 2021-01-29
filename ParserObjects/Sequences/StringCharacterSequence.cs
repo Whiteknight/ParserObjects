@@ -46,6 +46,7 @@ namespace ParserObjects.Sequences
             {
                 _line++;
                 _column = 0;
+                _consumed++;
                 return next;
             }
 

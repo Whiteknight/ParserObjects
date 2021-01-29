@@ -237,5 +237,14 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
+
+        [Test]
+        public void ReadNewlineIncrementsConsumed()
+        {
+            var target = new StringCharacterSequence("\r\n");
+            var next = target.GetNext();
+            next.Should().Be('\n');
+            target.Consumed.Should().Be(1);
+        }
     }
 }

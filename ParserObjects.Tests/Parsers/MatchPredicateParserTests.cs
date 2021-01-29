@@ -34,5 +34,14 @@ namespace ParserObjects.Tests.Parsers
             var parser = Match(char.IsNumber);
             parser.GetChildren().Count().Should().Be(0);
         }
+
+        [Test]
+        public void MatchEndConsumesZero()
+        {
+            var parser = Match(c => c == '\0');
+            var result = parser.Parse("");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+        }
     }
 }
