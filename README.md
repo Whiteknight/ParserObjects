@@ -19,7 +19,7 @@ This project has several goals:
 
 ## Sequences and Parsers
 
-An `ISequence` is similar to an `IEnumerable` or `IEnumerator` in concept, though with a focus on supporting parsing operations. Sequences allow you to `GetNext()` items one at a time, to `Peek()` at items without consuming them, and `PutBack()` an item to rewind the sequence. There are many ways to create a sequence:
+An `ISequence` is similar to an `IEnumerable` or `IEnumerator` in concept, though with a focus on supporting parsing operations. Sequences allow you to `GetNext()` items one at a time, to `Peek()` at items without consuming them, and rewind the sequence to a previous location. There are many ways to create a sequence:
 
 ```csharp
 using ParserObjects.Sequences;
@@ -41,8 +41,8 @@ An `IParser` is an object that attempts to match a pattern in an input sequence.
 var result = parser.Parse(sequence);
 ```
 
-The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs. Please see the documentation for more information, and the test suite for usage examples.
+The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs. Please see the [Documentation](https://whiteknight.github.io/ParserObjects/v3)  for more information, and the [Test Suite Examples](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples) for real-world usage patterns.
 
 ## Current Status
 
-ParserObjects library is currently in active development. Pre-release versions of v3.0.0 are available. v3.0.0 is not backwards-compatible with v2.X or v1.X versions.
+ParserObjects library is currently in active development. **v3.0.0** is available on Nuget and is preferred over all previous versions. v3.0.0 is not backwards-compatible with v2.X or v1.X versions.
