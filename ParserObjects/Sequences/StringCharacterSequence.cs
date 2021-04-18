@@ -8,33 +8,35 @@ namespace ParserObjects.Sequences
     public class StringCharacterSequence : ISequence<char>
     {
         private readonly string _fileName;
+        private readonly bool _normalizeLineEndings;
         private readonly string _s;
+        private readonly char _endSentinel;
 
         private int _index;
         private int _line;
         private int _column;
         private int _consumed;
 
-        public StringCharacterSequence(string s, string fileName = "")
+        public StringCharacterSequence(string s, string fileName = "", bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(s, nameof(s));
             _s = s;
             _line = 1;
             _column = 0;
             _fileName = fileName;
+            _normalizeLineEndings = normalizeLineEndings;
             _consumed = 0;
+            _endSentinel = endSentinel;
         }
 
         public char GetNext()
         {
             var next = GetNextInternal(true);
-            if (next == '\0')
+            if (next == _endSentinel)
                 return next;
 
-            // If \r replace with \n
-            // If \r\n advance through the \n and only return \n
-            // We only return \n for newlines
-            if (next == '\r')
+            // If line endings are normalized, we replace \r -> \n and \r\n -> \n
+            if (_normalizeLineEndings && next == '\r')
             {
                 if (GetNextInternal(false) == '\n')
                     GetNextInternal(true);
@@ -42,6 +44,8 @@ namespace ParserObjects.Sequences
             }
 
             // If we have a newline, update the line-tracking.
+            // TODO: What do we do about systems that only use \r for newlines? Right now we ignore
+            // it if normalization is off.
             if (next == '\n')
             {
                 _line++;
@@ -59,7 +63,7 @@ namespace ParserObjects.Sequences
         private char GetNextInternal(bool advance)
         {
             if (_index >= _s.Length)
-                return '\0';
+                return _endSentinel;
             var value = _s[_index];
             if (advance)
                 _index++;
@@ -69,7 +73,7 @@ namespace ParserObjects.Sequences
         public char Peek()
         {
             var next = GetNextInternal(false);
-            if (next == '\r')
+            if (_normalizeLineEndings && next == '\r')
                 next = '\n';
             return next;
         }
@@ -106,7 +110,6 @@ namespace ParserObjects.Sequences
             private readonly int _index;
             private readonly int _line;
             private readonly int _column;
-            private readonly int _consumed;
 
             public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, int consumed)
             {
@@ -114,14 +117,14 @@ namespace ParserObjects.Sequences
                 _index = index;
                 _line = line;
                 _column = column;
-                _consumed = consumed;
+                Consumed = consumed;
             }
 
-            public int Consumed => _consumed;
+            public int Consumed { get; }
 
             public Location Location => new Location(_s._fileName, _line, _column);
 
-            public void Rewind() => _s.Rollback(_index, _line, _column, _consumed);
+            public void Rewind() => _s.Rollback(_index, _line, _column, Consumed);
         }
 
         private void Rollback(int index, int line, int column, int consumed)

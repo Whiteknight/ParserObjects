@@ -13,6 +13,8 @@ namespace ParserObjects.Sequences
         private readonly int _bufferSize;
         private readonly string _fileName;
         private readonly StreamReader _reader;
+        private readonly bool _normalizeLineEndings;
+        private readonly char _endSentinel;
 
         // Linked list of buffer nodes
         private BufferNode _currentBuffer;
@@ -44,7 +46,7 @@ namespace ParserObjects.Sequences
             public int StartConsumed { get; }
         }
 
-        public StreamCharacterSequence(string fileName, Encoding? encoding = null, int bufferSize = 1024)
+        public StreamCharacterSequence(string fileName, Encoding? encoding = null, int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -55,12 +57,14 @@ namespace ParserObjects.Sequences
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
             _isComplete = _currentBuffer.TotalChars == 0;
+            _normalizeLineEndings = normalizeLineEndings;
+            _endSentinel = endSentinel;
             if (_isComplete)
                 _reader.Dispose();
             _bufferIndex = 0;
         }
 
-        public StreamCharacterSequence(StreamReader reader, string fileName = "", int bufferSize = 1024)
+        public StreamCharacterSequence(StreamReader reader, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -71,12 +75,14 @@ namespace ParserObjects.Sequences
             _reader = reader;
             _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
             _isComplete = _currentBuffer.TotalChars == 0;
+            _normalizeLineEndings = normalizeLineEndings;
+            _endSentinel = endSentinel;
             if (_isComplete)
                 _reader.Dispose();
             _bufferIndex = 0;
         }
 
-        public StreamCharacterSequence(Stream stream, Encoding? encoding = null, string fileName = "", int bufferSize = 1024)
+        public StreamCharacterSequence(Stream stream, Encoding? encoding = null, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -87,6 +93,8 @@ namespace ParserObjects.Sequences
             _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
             _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
             _isComplete = _currentBuffer.TotalChars == 0;
+            _normalizeLineEndings = normalizeLineEndings;
+            _endSentinel = endSentinel;
             if (_isComplete)
                 _reader.Dispose();
 
@@ -96,9 +104,9 @@ namespace ParserObjects.Sequences
         public char GetNext()
         {
             var c = GetNextCharRaw(true);
-            if (c == '\0')
+            if (c == _endSentinel)
                 return c;
-            if (c == '\r')
+            if (_normalizeLineEndings && c == '\r')
             {
                 if (GetNextCharRaw(false) == '\n')
                     GetNextCharRaw(true);
@@ -119,7 +127,7 @@ namespace ParserObjects.Sequences
         public char Peek()
         {
             var next = GetNextCharRaw(false);
-            if (next == '\r')
+            if (_normalizeLineEndings && next == '\r')
                 next = '\n';
             return next;
         }
@@ -141,7 +149,7 @@ namespace ParserObjects.Sequences
             // First make sure the buffer is full then return the value if we aren't complete.
             FillBuffer();
             if (_currentBuffer.TotalChars == 0)
-                return '\0';
+                return _endSentinel;
             var c = _currentBuffer.Buffer[_bufferIndex];
             if (advance)
             {

@@ -86,11 +86,34 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetNext_Empty_CustomEndSentinel()
+        {
+            var target = new StringCharacterSequence("", endSentinel: 'X');
+            // Every get attempt past the end of the string will return '\0'
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('X');
+            target.GetNext().Should().Be('X');
+        }
+
+        [Test]
         public void GetNext_WindowsNewlines()
         {
             var target = new StringCharacterSequence("\r\na\r\n");
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_WindowsNewlines_NonNormalized()
+        {
+            var target = new StringCharacterSequence("\r\na\r\n", normalizeLineEndings: false);
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
@@ -112,6 +135,16 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_OldMacNewlines_NonNormalized()
+        {
+            var target = new StringCharacterSequence("\ra\r", normalizeLineEndings: false);
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('\0');
         }
 
