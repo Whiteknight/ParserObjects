@@ -7,7 +7,7 @@
     /// <param name="error"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    public delegate IResult<TOutput> FailFunction<out TOutput>(string error, Location location = null);
+    public delegate IResult<TOutput> FailFunction<out TOutput>(string error, Location? location = null);
 
     /// <summary>
     /// Create a success result with the given value.
@@ -16,7 +16,7 @@
     /// <param name="value"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    public delegate IResult<TOutput> SuccessFunction<TOutput>(TOutput value, Location location = null);
+    public delegate IResult<TOutput> SuccessFunction<TOutput>(TOutput value, Location? location = null);
 
     /// <summary>
     /// Execute a parse callback, with success and failure factory methods to create the necessary
