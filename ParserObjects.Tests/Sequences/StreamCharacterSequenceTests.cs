@@ -9,13 +9,13 @@ namespace ParserObjects.Tests.Sequences
 {
     public class StreamCharacterSequenceTests
     {
-        private static StreamCharacterSequence GetTarget(string sc, int bufferSize = 32)
+        private static StreamCharacterSequence GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             var memoryStream = new MemoryStream();
             var b = Encoding.UTF8.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamCharacterSequence(memoryStream, Encoding.UTF8, bufferSize: bufferSize);
+            return new StreamCharacterSequence(memoryStream, Encoding.UTF8, bufferSize: bufferSize, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
         }
 
         [Test]
@@ -26,6 +26,16 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_CustomEndSentinel()
+        {
+            var target = GetTarget("abc", endSentinel: 'X');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('X');
         }
 
         [Test]
@@ -122,6 +132,18 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetNext_WindowsNewlines_NonNormalized()
+        {
+            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false);
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
         public void GetNext_UnixNewlines()
         {
             var target = GetTarget("\na\n");
@@ -142,12 +164,39 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetNext_OldMacNewlines_NonNormalized()
+        {
+            var target = GetTarget("\ra\r", normalizeLineEndings: false);
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
         public void Peek_WindowsNewlines()
         {
             var target = GetTarget("\r\na\r\n");
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('\0');
+        }
+
+        [Test]
+        public void Peek_WindowsNewlines_NonNormalized()
+        {
+            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false);
+            target.Peek().Should().Be('\r');
+            target.GetNext();
+            target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\r');
             target.GetNext();
             target.Peek().Should().Be('\n');
             target.GetNext();
@@ -176,6 +225,19 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('a');
             target.GetNext();
             target.Peek().Should().Be('\n');
+            target.GetNext();
+            target.Peek().Should().Be('\0');
+        }
+
+        [Test]
+        public void Peek_OldMacNewlines_NonNormalized()
+        {
+            var target = GetTarget("\ra\r", normalizeLineEndings: false);
+            target.Peek().Should().Be('\r');
+            target.GetNext();
+            target.Peek().Should().Be('a');
+            target.GetNext();
+            target.Peek().Should().Be('\r');
             target.GetNext();
             target.Peek().Should().Be('\0');
         }
