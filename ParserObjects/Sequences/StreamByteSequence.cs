@@ -13,13 +13,14 @@ namespace ParserObjects.Sequences
         private readonly int _bufferSize;
         private readonly Stream _stream;
         private readonly byte[] _buffer;
+        private readonly byte _endSentinel;
 
         private bool _isComplete;
         private int _remainingBytes;
         private int _bufferIndex;
         private int _consumed;
 
-        public StreamByteSequence(string fileName, int bufferSize = 128)
+        public StreamByteSequence(string fileName, int bufferSize = 128, byte endSentinel = 0)
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -30,10 +31,11 @@ namespace ParserObjects.Sequences
             _buffer = new byte[bufferSize];
             _stream = File.OpenRead(_fileName);
             _consumed = 0;
+            _endSentinel = endSentinel;
             FillBuffer();
         }
 
-        public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 128)
+        public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 128, byte endSentinel = 0)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -44,13 +46,14 @@ namespace ParserObjects.Sequences
             _buffer = new byte[bufferSize];
             _stream = stream;
             _consumed = 0;
+            _endSentinel = endSentinel;
             FillBuffer();
         }
 
         public byte GetNext()
         {
             var b = GetNextByteRaw(true);
-            if (b == 0)
+            if (b == _endSentinel)
                 return b;
             _consumed++;
             return b;
@@ -73,10 +76,10 @@ namespace ParserObjects.Sequences
         private byte GetNextByteRaw(bool advance)
         {
             if (_isComplete)
-                return 0;
+                return _endSentinel;
             FillBuffer();
             if (_isComplete || _remainingBytes == 0 || _bufferIndex >= _bufferSize)
-                return 0;
+                return _endSentinel;
             var b = _buffer[_bufferIndex];
             if (advance)
             {
