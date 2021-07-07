@@ -107,10 +107,16 @@ namespace ParserObjects
         public static IParser<TInput> Empty() => new EmptyParser<TInput>();
 
         /// <summary>
-        /// Matches affirmatively at the end of the input, fails everywhere else.
+        /// Matches affirmatively at the end of the input, fails everywhere else. Returns no value.
         /// </summary>
         /// <returns></returns>
         public static IParser<TInput> End() => new EndParser<TInput>();
+
+        /// <summary>
+        /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<TInput, bool> IsEnd() => If(End(), Produce(() => true));
 
         /// <summary>
         /// Invoke callbacks before and after a parse.

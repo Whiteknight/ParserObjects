@@ -8,6 +8,7 @@ namespace ParserObjects.Parsers
     {
         public class SymbolFactory
         {
+            // TODO: Keep track of names so we don't re-allocate the same symbol twice
             public INonterminal<TInput, TOutput> New()
                 => new Nonterminal<TInput, TOutput>($"S{UniqueIntegerGenerator.GetNext()}");
 

@@ -53,6 +53,9 @@ namespace ParserObjects.Earley
                     {
                         // This is a complete item. Advance items which are depending on it.
                         Complete(currentState, item, completedNullables);
+
+                        // If the completed item is a start item, add it to the list of possible
+                        // results.
                         if (item.ParentState == initialState && _startSymbol.Productions.Contains(item.Production))
                             resultItems.Add((item, currentState));
                         continue;
