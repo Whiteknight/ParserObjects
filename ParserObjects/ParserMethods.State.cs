@@ -40,7 +40,7 @@ namespace ParserObjects
             => Function<TValue>((t, success, fail) =>
             {
                 var result = t.Data.Get<TValue>(name);
-                return result.Success ? success(result.Value) : fail($"State data '{name}' does not exist");
+                return result.Success ? success(result.Value, t.Input.CurrentLocation) : fail($"State data '{name}' does not exist", t.Input.CurrentLocation);
             });
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace ParserObjects
             => Function<TValue>((t, success, _) =>
             {
                 t.Data.Set(name, value);
-                return success(value);
+                return success(value, t.Input.CurrentLocation);
             });
 
         /// <summary>

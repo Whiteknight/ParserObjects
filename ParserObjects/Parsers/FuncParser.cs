@@ -30,10 +30,10 @@ namespace ParserObjects.Parsers
             var checkpoint = state.Input.Checkpoint();
             try
             {
-                IResult<TOutput> OnSuccess(TOutput value, Location loc)
+                IResult<TOutput> OnSuccess(TOutput value, Location? loc)
                     => state.Success(this, value, 0, loc ?? checkpoint.Location);
 
-                IResult<TOutput> OnFailure(string err, Location loc)
+                IResult<TOutput> OnFailure(string err, Location? loc)
                     => state.Fail(this, err, loc ?? checkpoint.Location);
 
                 var result = _func(state, OnSuccess, OnFailure);
