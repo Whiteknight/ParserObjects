@@ -8,6 +8,7 @@ namespace ParserObjects.Earley
     // TODO: This needs to be optimized. See if the Scott SPPF algorithm can be made to work here.
     public class ItemDerivationVisitor
     {
+        // TODO: Pass this cache in to the .Visit() method so the visitor instance can be reused
         private readonly Dictionary<(IProduction, int, int), IReadOnlyList<object>> _cache;
 
         public ItemDerivationVisitor()
@@ -34,6 +35,8 @@ namespace ParserObjects.Earley
 
             Debug.Assert(endItem.Index == production.Symbols.Count, "This is the end item of this production");
 
+            // TODO: We should keep track of cache-hit and other stats so we know if things are
+            // performing appropriately
             var key = (production, endItem.ParentState.Number, endItem.CurrentState.Number);
             if (_cache.ContainsKey(key))
                 return _cache[key];
