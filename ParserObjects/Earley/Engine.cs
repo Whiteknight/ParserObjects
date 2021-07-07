@@ -13,8 +13,10 @@ namespace ParserObjects.Earley
 
         public Engine(INonterminal<TInput, TOutput> startSymbol)
         {
-            if (startSymbol.Productions.Count == 0 || startSymbol.Productions.All(p => p.Symbols.Count == 0))
-                throw new ArgumentException();
+            if (startSymbol.Productions.Count == 0)
+                throw new GrammarException("The start symbol contains no valid productions");
+            if (startSymbol.Productions.All(p => p.Symbols.Count == 0))
+                throw new ArgumentException("The start symbol productions contain no symbols");
 
             _startSymbol = startSymbol;
         }
