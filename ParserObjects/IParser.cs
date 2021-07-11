@@ -104,6 +104,12 @@ namespace ParserObjects
      * var multiResult = Earley(...).ForEach(left => Rule(left, ...));
      */
 
+    public delegate IOption<IMultiResultAlternative<TOutput>> SuccessMultiAlternativeFunction<TOutput>(IMultiResultAlternative<TOutput> alt);
+
+    public delegate IOption<IMultiResultAlternative<TOutput>> FailureMultiAlternativeFunction<TOutput>();
+
+    public delegate IOption<IMultiResultAlternative<TOutput>> SelectMultiAlternativeFunction<TOutput>(IMultiResult<TOutput> result, SuccessMultiAlternativeFunction<TOutput> success, FailureMultiAlternativeFunction<TOutput> fail);
+
     public static class MultiParserExtensions
     {
         public static IMultiResult<TOutput> Parse<TOutput>(this IMultiParser<char, TOutput> p, string s)
@@ -111,38 +117,44 @@ namespace ParserObjects
 
         // Expect a single result and return it. Failure if 0 or more than 1
         public static IParser<TInput, TOutput> Single<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-            => new SelectSingleResultParser<TInput, TOutput>(multiParser, multiResult =>
+            => new SelectSingleResultParser<TInput, TOutput>(multiParser, (multiResult, success, fail) =>
             {
                 if (multiResult.Results.Count == 1)
-                    return new SuccessOption<IMultiResultAlternative<TOutput>>(multiResult.Results.First());
+                    return success(multiResult.Results.First());
 
                 // TODO: Would like to differentiate between Count==0 which is no results and
                 // Count>1 which is ambiguous
-                return FailureOption<IMultiResultAlternative<TOutput>>.Instance;
+                return fail();
             });
 
         // Return the successful result which has consumed the most input, failure if there are no
         // successful results
         public static IParser<TInput, TOutput> Longest<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-            => new SelectSingleResultParser<TInput, TOutput>(multiParser, multiResult =>
+            => new SelectSingleResultParser<TInput, TOutput>(multiParser, (multiResult, success, fail) =>
             {
                 var longest = multiResult.Results.Where(r => r.Success).OrderByDescending(r => r.Consumed).FirstOrDefault();
                 if (longest == null)
-                    return FailureOption<IMultiResultAlternative<TOutput>>.Instance;
+                    return fail();
 
-                return new SuccessOption<IMultiResultAlternative<TOutput>>(longest);
+                return success(longest);
             });
 
         // Select the first result which matches the predicate, failure if nothing matches
         public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IMultiResultAlternative<TOutput>, bool> predicate)
-            => new SelectSingleResultParser<TInput, TOutput>(multiParser, multiResult =>
+        {
+            Assert.ArgumentNotNull(predicate, nameof(predicate));
+            return new SelectSingleResultParser<TInput, TOutput>(multiParser, (multiResult, success, fail) =>
             {
                 var selected = multiResult.Results.Where(predicate).FirstOrDefault();
                 if (selected == null)
-                    return FailureOption<IMultiResultAlternative<TOutput>>.Instance;
+                    return fail();
 
-                return new SuccessOption<IMultiResultAlternative<TOutput>>(selected);
+                return success(selected);
             });
+        }
+
+        public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiparser, SelectMultiAlternativeFunction<TOutput> select)
+            => new SelectSingleResultParser<TInput, TOutput>(multiparser, select);
 
         // Continue the parse with each alternative separately, and return a new multi-result with
         // the new results.

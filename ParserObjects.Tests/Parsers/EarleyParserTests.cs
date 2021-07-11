@@ -35,8 +35,8 @@ namespace ParserObjects.Tests.Parsers
                 var expr = symbols.New("Expr")
                     .AddProduction(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, op, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, op, r) => l * r);
+                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
 
                 return expr;
             });
@@ -111,6 +111,35 @@ namespace ParserObjects.Tests.Parsers
             values.Should().Contain(36);   // 11 + 25 = 36
             values.Should().Contain(1080); // (11+25)*30 = 1080
             values.Should().Contain(761);  // 11+(25*30) = 761
+        }
+
+        [Test]
+        public void BasicExpression_Select()
+        {
+            var parser = Earley<int>(symbols =>
+            {
+                var plus = Match('+').Named("plus");
+                var star = Match('*').Named("star");
+
+                var expr = symbols.New("Expr")
+                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+
+                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                return expr;
+            });
+
+            var target = parser.Select((r, success, fail) =>
+            {
+                var best = r.Results.Where(alt => alt.Value % 2 == 1).OrderByDescending(alt => alt.Value).FirstOrDefault();
+                if (best == null)
+                    return fail();
+                return success(best);
+            });
+
+            var result = target.Parse("11+25*30");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(761); // 11+(25*30) = 761
         }
 
         // TODO: Need tests showing matches with common prefixes work correctly
@@ -229,7 +258,7 @@ namespace ParserObjects.Tests.Parsers
             {
                 var rulea = Produce(() => "A").Named("A");
                 var ruleb = Produce(() => "B").Named("B");
-                var nullable = symbols.New<string>("N")
+                var nullable = symbols.New("N")
                     .AddProduction(rulea, ruleb, (a, b) => $"({a},{b})");
 
                 var eof = If(End(), Produce(() => true)).Named("END");
