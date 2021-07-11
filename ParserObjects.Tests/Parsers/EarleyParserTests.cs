@@ -316,7 +316,7 @@ namespace ParserObjects.Tests.Parsers
         // other non-nullable rules (before and after). Need to really stress-test the Aycock fix.
 
         [Test]
-        public void RightRecurse_ContinueWith()
+        public void RightRecurse_ContinueWith_Single()
         {
             // E ::= a
             //     | a E
@@ -349,6 +349,52 @@ namespace ParserObjects.Tests.Parsers
             values.Should().Contain("(aaaaa)()");
         }
 
+        [Test]
+        public void RightRecurse_ContinueWith_Multi()
+        {
+            // E ::= a
+            //     | a E
+            var parser = Earley<string>(symbols =>
+            {
+                var a = Match('a').Named("a");
+
+                var e = symbols.New("E")
+                    .AddProduction(a, _ => "a");
+                e.AddProduction(a, e, (_, rr) => "a" + rr);
+                return e;
+            });
+
+            // Start :: = left E
+            // E ::= a
+            //     | a E
+            var target = parser.ContinueWith(left => Earley<string>(symbols =>
+            {
+                var start = symbols.New("Start");
+                var a = Match('a').Named("a");
+                var e = symbols.New("E")
+                    .AddProduction(a, _ => "a");
+                e.AddProduction(a, e, (_, rr) => "a" + rr);
+
+                start.AddProduction(left, e, (l, rr) => $"({l})({rr})");
+                return start;
+            }));
+
+            var result = target.Parse("aaaaa");
+            result.Success.Should().BeTrue();
+            var values = result.Results.Where(r => r.Success).Select(r => r.Value).ToList();
+            values.Count.Should().Be(10);
+            values.Should().Contain("(a)(a)");
+            values.Should().Contain("(a)(aa)");
+            values.Should().Contain("(a)(aaa)");
+            values.Should().Contain("(a)(aaaa)");
+            values.Should().Contain("(aa)(a)");
+            values.Should().Contain("(aa)(aa)");
+            values.Should().Contain("(aa)(aa)");
+            values.Should().Contain("(aaa)(a)");
+            values.Should().Contain("(aaa)(aa)");
+            values.Should().Contain("(aaaa)(a)");
+        }
+
         [TestCase("a", 1)]
         [TestCase("aa", 2)]
         [TestCase("aaa", 3)]
@@ -376,7 +422,7 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(a, a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _, _) => 9)
                     ;
 
-                var eof = If(End(), Produce(() => true)).Named("END");
+                var eof = IsEnd().Named("END");
                 return symbols.New("S")
                     .AddProduction(e, eof, (v, _) => v);
             });

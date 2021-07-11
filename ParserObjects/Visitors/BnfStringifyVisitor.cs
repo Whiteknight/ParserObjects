@@ -156,7 +156,13 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().Single(), state);
         }
 
-        protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWithParser<TInput, TMulti, TOutput> p, State state)
+        protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith.MultiParser<TInput, TMulti, TOutput> p, State state)
+        {
+            VisitChild(p.GetChildren().Single(), state);
+            state.Current.Append(" CONTINUE");
+        }
+
+        protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith.SingleParser<TInput, TMulti, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().Single(), state);
             state.Current.Append(" CONTINUE");
