@@ -26,13 +26,26 @@ namespace ParserObjects.Parsers
             }
 
             public INonterminal<TInput, TOutput> New()
-                => AllocateNewSymbol<TOutput>($"S{UniqueIntegerGenerator.GetNext()}");
+                => AllocateNewSymbol<TOutput>(GetNewName());
 
             public INonterminal<TInput, TOutput> New(string name)
                 => AllocateNewSymbol<TOutput>(name);
 
+            public INonterminal<TInput, TValue> New<TValue>()
+                => AllocateNewSymbol<TValue>(GetNewName());
+
             public INonterminal<TInput, TValue> New<TValue>(string name)
                 => AllocateNewSymbol<TValue>(name);
+
+            private string GenerateNewName() => $"_S{UniqueIntegerGenerator.GetNext()}";
+
+            private string GetNewName()
+            {
+                var name = GenerateNewName();
+                while (_symbols.ContainsKey(name))
+                    name = GenerateNewName();
+                return name;
+            }
 
             private INonterminal<TInput, TValue> AllocateNewSymbol<TValue>(string name)
             {
