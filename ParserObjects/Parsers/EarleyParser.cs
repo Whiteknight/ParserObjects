@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Earley;
 using ParserObjects.Utility;
 
@@ -6,6 +7,15 @@ namespace ParserObjects.Parsers
 {
     public static class Earley<TInput, TOutput>
     {
+        public static IMultiParser<TInput, TOutput> Setup(Func<Earley<TInput, TOutput>.SymbolFactory, INonterminal<TInput, TOutput>> setup)
+        {
+            var factory = new SymbolFactory();
+            var startNonterminal = setup(factory) ?? throw new GrammarException("Setup callback did not return a valid start symbol");
+            // TODO: Do we need to validate the grammar at all? Check for symbols which are not linked
+            // to the start symbol at all?
+            return new Parser(startNonterminal);
+        }
+
         public class SymbolFactory
         {
             private readonly Dictionary<string, ISymbol> _symbols;
@@ -42,7 +52,7 @@ namespace ParserObjects.Parsers
             public Parser(INonterminal<TInput, TOutput> startSymbol)
             {
                 _engine = new Engine<TInput, TOutput>(startSymbol);
-                Name = $"S{UniqueIntegerGenerator.GetNext()}";
+                Name = startSymbol.Name;
                 _startSymbol = startSymbol;
             }
 
