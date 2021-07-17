@@ -20,7 +20,7 @@ namespace ParserObjects.Sequences
         private int _bufferIndex;
         private int _consumed;
 
-        public StreamByteSequence(string fileName, int bufferSize = 128, byte endSentinel = 0)
+        public StreamByteSequence(string fileName, int bufferSize = 1024, byte endSentinel = 0)
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
@@ -35,7 +35,7 @@ namespace ParserObjects.Sequences
             FillBuffer();
         }
 
-        public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 128, byte endSentinel = 0)
+        public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 1024, byte endSentinel = 0)
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Earley
 {
@@ -13,79 +14,29 @@ namespace ParserObjects.Earley
 
         public Engine(INonterminal<TInput, TOutput> startSymbol)
         {
+            Assert.ArgumentNotNull(startSymbol, nameof(startSymbol));
             if (startSymbol.Productions.Count == 0)
                 throw new GrammarException("The start symbol contains no valid productions");
             if (startSymbol.Productions.All(p => p.Symbols.Count == 0))
-                throw new ArgumentException("The start symbol productions contain no symbols");
+                throw new GrammarException("The start symbol productions contain no symbols");
 
             _startSymbol = startSymbol;
         }
 
-        public IReadOnlyList<IMultiResultAlternative<TOutput>> Parse(IParseState<TInput> state)
+        public IReadOnlyList<IMultiResultAlternative<TOutput>> Parse(IParseState<TInput> parseState)
         {
-            var startCheckpoint = state.Input.Checkpoint();
+            Assert.ArgumentNotNull(parseState, nameof(parseState));
+            var startCheckpoint = parseState.Input.Checkpoint();
             var states = new StateCollection(startCheckpoint);
-
-            var initialState = states.InitialState;
-            foreach (var production in _startSymbol.Productions)
-                initialState.Add(new Item(production, initialState, initialState));
+            var initialState = GetInitialState(states);
             var currentState = initialState;
-
             var resultItems = new List<(Item Item, State State)>();
 
-            // TODO: Leo Optimization for right-recursive rules (and a way to test it, the only
-            // way we'll know it's working is if we generate fewer internal states, which aren't
-            // exposed outside the engine).
-
-            while (true)
+            while (currentState != null && currentState.Items.Count > 0)
             {
-                // A list of productions which were started in this state and completed in this
-                // state ("zero-length", "empty" or "nullable")
-                var completedNullables = new Dictionary<IProduction, IList<Item>>();
-
-                // Items may be added to the list as we traverse the list, so we cannot use an
-                // enumerator here.
-                for (int i = 0; i < currentState.Items.Count; i++)
-                {
-                    var item = currentState.Items[i];
-
-                    if (item.AtEnd)
-                    {
-                        // This is a complete item. Advance items which are depending on it.
-                        Complete(currentState, item, completedNullables);
-
-                        // If the completed item is a start item, add it to the list of possible
-                        // results.
-                        if (item.ParentState == initialState && _startSymbol.Productions.Contains(item.Production))
-                            resultItems.Add((item, currentState));
-                        continue;
-                    }
-
-                    // If the item is a non-terminal, predict what the state should look like and
-                    // add those predicted items to the current state.
-                    if (item.NextSymbolToMatch is INonterminal nonterminal)
-                    {
-                        Predict(currentState, item, nonterminal, completedNullables);
-                        continue;
-                    }
-
-                    // If the item is terminal, see if we match, and add successful matches to the
-                    // next state.
-                    if (item.NextSymbolToMatch is IParser<TInput> terminal)
-                    {
-                        Scan(currentState, item, terminal, states, state);
-                        continue;
-                    }
-                }
-
-                Debug.WriteLine(currentState.GetCompleteListing());
-
-                var nextState = states.MoveToNext();
-                if (nextState == null || nextState.Items.Count == 0)
-                    break;
-
-                currentState = nextState;
                 currentState.Checkpoint.Rewind();
+                ParseCurrentState(parseState, initialState, states, currentState, resultItems);
+                currentState = states.MoveToNext();
             }
 
             var derivationVisitor = new ItemDerivationVisitor();
@@ -106,6 +57,57 @@ namespace ParserObjects.Earley
                 .ToList();
 
             return results;
+        }
+
+        private State GetInitialState(StateCollection states)
+        {
+            // Get the initial state from the states collection and initialize it with items from
+            // the start symbol
+            var initialState = states.InitialState;
+            foreach (var production in _startSymbol.Productions)
+                initialState.Add(new Item(production, initialState, initialState));
+            return initialState;
+        }
+
+        private void ParseCurrentState(IParseState<TInput> parseState, State initialState, StateCollection states, State currentState, List<(Item Item, State State)> resultItems)
+        {
+            // A list of productions which were started in this state and completed in this
+            // state ("zero-length", "empty" or "nullable")
+            var completedNullables = new Dictionary<IProduction, IList<Item>>();
+
+            // Items may be added to the list as we traverse the list, so we cannot use an
+            // enumerator here.
+            for (int i = 0; i < currentState.Items.Count; i++)
+            {
+                var item = currentState.Items[i];
+
+                if (item.AtEnd)
+                {
+                    // This is a complete item. Advance items which are depending on it.
+                    Complete(currentState, item, completedNullables);
+
+                    // If the completed item is a start item, add it to the list of possible
+                    // results.
+                    if (item.ParentState == initialState && _startSymbol.Productions.Contains(item.Production))
+                        resultItems.Add((item, currentState));
+                    continue;
+                }
+
+                // If the item is a non-terminal, predict what the state should look like and
+                // add those predicted items to the current state.
+                if (item.NextSymbolToMatch is INonterminal nonterminal)
+                {
+                    Predict(currentState, item, nonterminal, completedNullables);
+                    continue;
+                }
+
+                // If the item is terminal, see if we match, and add successful matches to the
+                // next state.
+                if (item.NextSymbolToMatch is IParser<TInput> terminal)
+                    Scan(currentState, item, terminal, states, parseState);
+            }
+
+            Debug.WriteLine(currentState.GetCompleteListing());
         }
 
         private void Predict(State state, Item item, INonterminal nonterminal, IDictionary<IProduction, IList<Item>> completedNullables)
@@ -187,7 +189,8 @@ namespace ParserObjects.Earley
                 }
             }
 
-            // If Item.ParentState == state, that means this item is nullable.
+            // If the parent state is the current state, that means the item is zero-length and
+            // is considered "nullable"
             if (item.ParentState == state)
                 AddCompletedNullable(completedNullables, item, item.Production);
         }

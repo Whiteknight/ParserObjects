@@ -32,12 +32,14 @@ namespace ParserObjects
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="input"></param>
+        /// <param name="normalizeLineEndings"></param>
+        /// <param name="endSentinel"></param>
         /// <returns></returns>
-        public static bool CanMatch(this IParser<char> parser, string input)
+        public static bool CanMatch(this IParser<char> parser, string input, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
             // reuse it
-            var sequence = new StringCharacterSequence(input);
+            var sequence = new StringCharacterSequence(input, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
             var state = new ParseState<char>(sequence, Defaults.LogMethod);
             var result = parser.Parse(state);
             return result.Success;
@@ -51,10 +53,12 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="s"></param>
+        /// <param name="normalizeLineEndings"></param>
+        /// <param name="endSentinel"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, Action<string>? log = null)
-            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log ?? Defaults.LogMethod));
+        public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, bool normalizeLineEndings = true, char endSentinel = '\0', Action<string>? log = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel), log ?? Defaults.LogMethod));
 
         /// <summary>
         /// Convenience method for parsers which act on character sequences. Parse the given input
@@ -63,10 +67,12 @@ namespace ParserObjects
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="s"></param>
+        /// <param name="normalizeLineEndings"></param>
+        /// <param name="endSentinel"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IResult Parse(this IParser<char> parser, string s, Action<string>? log = null)
-            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s), log ?? Defaults.LogMethod));
+        public static IResult Parse(this IParser<char> parser, string s, bool normalizeLineEndings = true, char endSentinel = '\0', Action<string>? log = null)
+            => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel), log ?? Defaults.LogMethod));
 
         /// <summary>
         /// Convenience method to invoke a parser which acts on an input sequence. Creates the

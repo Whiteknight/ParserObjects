@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects.Earley
 {
-    // TODO: This needs to be optimized. See if the Scott SPPF algorithm can be made to work here.
     public class ItemDerivationVisitor
     {
-        // TODO: Pass this cache in to the .Visit() method so the visitor instance can be reused
         private readonly Dictionary<(IProduction, int, int), IReadOnlyList<object>> _cache;
 
         public ItemDerivationVisitor()
@@ -35,8 +34,6 @@ namespace ParserObjects.Earley
 
             Debug.Assert(endItem.Index == production.Symbols.Count, "This is the end item of this production");
 
-            // TODO: We should keep track of cache-hit and other stats so we know if things are
-            // performing appropriately
             var key = (production, endItem.ParentState.Number, endItem.CurrentState.Number);
             if (_cache.ContainsKey(key))
                 return _cache[key];
@@ -63,7 +60,8 @@ namespace ParserObjects.Earley
 
             Item current = endItem;
             var count = production.Symbols.Count;
-            var values = new IReadOnlyList<object>[count];
+            var values = ArrayPool<IReadOnlyList<object>>.Shared.Rent(count);
+            // var values = new IReadOnlyList<object>[count];
 
             // Traverse the linked list of items, getting all possibilities for each item.
             // If any item has zero options, there's no way to produce a derivation result so we
@@ -72,7 +70,7 @@ namespace ParserObjects.Earley
             {
                 var possibleValuesForThisItem = GetAllPossibleValuesFor(current);
                 if (possibleValuesForThisItem.Count == 0)
-                    return new List<object>();
+                    return Array.Empty<object>();
                 values[current.Index - 1] = possibleValuesForThisItem;
                 current = current.Previous!;
             }
@@ -82,21 +80,31 @@ namespace ParserObjects.Earley
             if (count == 1 && values[0].Count == 1)
             {
                 var result = production.Apply(new[] { values[0][0] });
-                return result.Success ? new List<object> { result.Value } : Array.Empty<object>();
+                return result.Success ? new object[] { result.Value } : Array.Empty<object>();
             }
 
-            var buffer = new object[count];
-
-            // Fill the buffer with initial values
+            // Allocate a buffer and fill with initial values
+            var buffer = ArrayPool<object>.Shared.Rent(count);
+            // var buffer = new object[count];
             for (int i = 0; i < count; i++)
                 buffer[i] = values[i][0];
+
+            // Get an array to hold indices and initialize all values (they might not be 0
+            // coming out of the array pool)
+            var indices = ArrayPool<int>.Shared.Rent(count);
+            for (int i = 0; i < count; i++)
+                indices[i] = 0;
+
+            // We traverse from Item to Item.ParentItem, which forms a unique chain from the end
+            // back to the beginning. Even if Item.ParentItem has multiple children of different
+            // lengths we can traverse those branches separately and there is no ambiguity in
+            // derivation of results.
 
             // Start getting values. On each loop we call the production callback with what we
             // have in the buffer already, then we update values to the next index. When position
             // 1 gets to the last value, we reset it to 0 and increment position 2, etc. When
             // we've incremented the last position past the number of items in the last column, we
             // break from the loop and are done.
-            var indices = new int[count];
             var results = new List<object>();
             while (true)
             {
@@ -108,6 +116,9 @@ namespace ParserObjects.Earley
                     break;
             }
 
+            ArrayPool<IReadOnlyList<object>>.Shared.Return(values);
+            ArrayPool<object>.Shared.Return(buffer);
+            ArrayPool<int>.Shared.Return(indices);
             return results;
         }
 
@@ -137,11 +148,19 @@ namespace ParserObjects.Earley
             if (item.ValueSymbol is INonterminal)
                 return VisitNonterminal(item);
 
-            return new List<object>();
+            return Array.Empty<object>();
         }
 
         private bool IncrementBufferItems(int count, int[] indices, IReadOnlyList<object>[] values, object[] buffer)
         {
+            Debug.Assert(indices.Length >= count, "The indices array should have at least as many items as the count");
+            Debug.Assert(values.Length >= count, "The values array should have at least as many items as the count");
+            Debug.Assert(buffer.Length >= count, "The buffer should have at least as many slots as the count");
+
+            // Incrementing happens after we produce a value. So the first iteration we have already
+            // produced (0, 0, ..., 0) so we start here immediately by incrementing to (1, 0, ...)
+            // Then we handle rollover logic and update the buffer if we aren't at the end.
+
             for (var idx = 0; ; idx++)
             {
                 indices[idx]++;

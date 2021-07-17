@@ -24,6 +24,7 @@ namespace ParserObjects.Earley
         {
             try
             {
+                Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
                 var value = _reduce(argsList);
                 return value == null ? FailureOption<object>.Instance : new SuccessOption<object>(value);
                 // TODO: ControlFlowException so we can jump out of a user-rule and immediately fail
