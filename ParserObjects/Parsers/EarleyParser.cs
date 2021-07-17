@@ -8,15 +8,30 @@ namespace ParserObjects.Parsers
     {
         public class SymbolFactory
         {
-            // TODO: Keep track of names so we don't re-allocate the same symbol twice
+            private readonly Dictionary<string, ISymbol> _symbols;
+
+            public SymbolFactory()
+            {
+                _symbols = new Dictionary<string, ISymbol>();
+            }
+
             public INonterminal<TInput, TOutput> New()
-                => new Nonterminal<TInput, TOutput>($"S{UniqueIntegerGenerator.GetNext()}");
+                => AllocateNewSymbol<TOutput>($"S{UniqueIntegerGenerator.GetNext()}");
 
             public INonterminal<TInput, TOutput> New(string name)
-                => new Nonterminal<TInput, TOutput>(name);
+                => AllocateNewSymbol<TOutput>(name);
 
             public INonterminal<TInput, TValue> New<TValue>(string name)
-                => new Nonterminal<TInput, TValue>(name);
+                => AllocateNewSymbol<TValue>(name);
+
+            private INonterminal<TInput, TValue> AllocateNewSymbol<TValue>(string name)
+            {
+                if (_symbols.ContainsKey(name))
+                    throw new GrammarException($"This grammar already contains a symbol named '{name}'");
+                var newSymbol = new Nonterminal<TInput, TValue>(name);
+                _symbols.Add(name, newSymbol);
+                return newSymbol;
+            }
         }
 
         public class Parser : IMultiParser<TInput, TOutput>
