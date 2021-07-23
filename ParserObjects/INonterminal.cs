@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Earley;
 
-namespace ParserObjects.Earley
+namespace ParserObjects
 {
     public interface INonterminal : ISymbol
     {
@@ -23,7 +24,7 @@ namespace ParserObjects.Earley
     public static class NonterminalExtensions
     {
         public static INonterminal<TInput, TOutput> AddProduction<TInput, TOutput>(this INonterminal<TInput, TOutput> lhs, ISymbol<TOutput> s1)
-            => AddProduction(lhs, s1, v => v);
+            => lhs.AddProduction(s1, v => v);
 
         public static INonterminal<TInput, TOutput> AddProduction<TInput, TOutput, T1>(this INonterminal<TInput, TOutput> lhs, ISymbol<T1> s1, Func<T1, TOutput> func)
         {

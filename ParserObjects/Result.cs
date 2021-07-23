@@ -33,6 +33,8 @@ namespace ParserObjects
             return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed);
         }
 
+        public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+
         public override string ToString() => $"{Parser} Ok at {Location}";
     }
 
@@ -64,6 +66,8 @@ namespace ParserObjects
             Assert.ArgumentNotNull(transform, nameof(transform));
             return new FailResult<TOutput>(Parser, Location, ErrorMessage);
         }
+
+        public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
 
         public override string ToString() => $"{Parser} FAIL at {Location}";
     }

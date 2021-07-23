@@ -27,16 +27,16 @@ namespace ParserObjects.Parsers.Multi
             if (!multi.Success)
                 return state.Fail(this, "Parser returned no valid results");
 
-            IOption<IMultiResultAlternative<TOutput>> Success(IMultiResultAlternative<TOutput> alt)
+            IOption<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
             {
                 if (alt == null)
-                    return FailureOption<IMultiResultAlternative<TOutput>>.Instance;
-                return new SuccessOption<IMultiResultAlternative<TOutput>>(alt);
+                    return FailureOption<IResultAlternative<TOutput>>.Instance;
+                return new SuccessOption<IResultAlternative<TOutput>>(alt);
             }
 
-            IOption<IMultiResultAlternative<TOutput>> Fail()
+            IOption<IResultAlternative<TOutput>> Fail()
             {
-                return FailureOption<IMultiResultAlternative<TOutput>>.Instance;
+                return FailureOption<IResultAlternative<TOutput>>.Instance;
             }
 
             var selected = _selector(multi, Success, Fail);

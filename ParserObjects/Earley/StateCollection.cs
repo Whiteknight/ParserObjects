@@ -3,6 +3,13 @@ using System.Diagnostics;
 
 namespace ParserObjects.Earley
 {
+    // The StateCollection maintains two pieces of information: a collection of states and a pointer
+    // to the "current" state. States in the future (ahead of the current state) are kept together
+    // with a linked list. When the current state advances the linked list is broken and explicit
+    // references to those states are removed. States which are still referenced by live Items in
+    // the parse are kept alive, while any that are unreferenced can be safely collected by the GC
+    // We keep the linked list so .MoveToNext() is O(1), though it can create some O(n) situations
+    // in .GetAhead()
     public class StateCollection
     {
         private StateNode _current;
@@ -68,9 +75,12 @@ namespace ParserObjects.Earley
                 return null;
 
             // Break the chain, old states will be referenced by Items if they are needed.
+            // This way intermediate states which are no longer referenced by live items can be
+            // garbage collected
             _current.Next = null;
 
-            // We're done with this state, so we can remove it from the list
+            // We're done with this state, so we can remove it from the list. If the state is
+            // still referenced by a live Item it will be kept alive. Otherwise the GC will get it.
             _lookup.Remove(_current.State.Number);
 
             _current = next;

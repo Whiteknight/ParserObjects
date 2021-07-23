@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ParserObjects;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Earley
@@ -23,23 +24,27 @@ namespace ParserObjects.Earley
             _startSymbol = startSymbol;
         }
 
-        public IReadOnlyList<IMultiResultAlternative<TOutput>> Parse(IParseState<TInput> parseState)
+        public ParseResult<TOutput> Parse(IParseState<TInput> parseState)
         {
             Assert.ArgumentNotNull(parseState, nameof(parseState));
+
+            var stats = new ParseStatistics();
+
             var startCheckpoint = parseState.Input.Checkpoint();
             var states = new StateCollection(startCheckpoint);
-            var initialState = GetInitialState(states);
+            var initialState = GetInitialState(states, stats);
             var currentState = initialState;
             var resultItems = new List<(Item Item, State State)>();
 
-            while (currentState != null && currentState.Items.Count > 0)
+            while (currentState?.Items.Count > 0)
             {
+                stats.NumberOfStates++;
                 currentState.Checkpoint.Rewind();
-                ParseCurrentState(parseState, initialState, states, currentState, resultItems);
+                ParseCurrentState(parseState, initialState, states, currentState, resultItems, stats);
                 currentState = states.MoveToNext();
             }
 
-            var derivationVisitor = new ItemDerivationVisitor();
+            var derivationVisitor = new ItemDerivationVisitor(stats);
             var results = resultItems
                 .SelectMany(v => derivationVisitor.GetDerivation(v.Item)
                     .OfType<TOutput>()
@@ -53,23 +58,28 @@ namespace ParserObjects.Earley
                         Value = value
                     })
                 )
-                .Select(x => new SuccessMultiResultAlternative<TOutput>(x.Value, x.Consumed, x.Checkpoint))
+                .Select(x => new SuccessResultAlternative<TOutput>(x.Value, x.Consumed, x.Checkpoint))
                 .ToList();
 
-            return results;
+            return new ParseResult<TOutput>(results, stats);
         }
 
-        private State GetInitialState(StateCollection states)
+        private State GetInitialState(StateCollection states, ParseStatistics stats)
         {
             // Get the initial state from the states collection and initialize it with items from
             // the start symbol
             var initialState = states.InitialState;
             foreach (var production in _startSymbol.Productions)
-                initialState.Add(new Item(production, initialState, initialState));
+            {
+                var initialItem = new Item(production, initialState, initialState);
+                stats.CreatedItems++;
+                initialState.Add(initialItem);
+            }
+
             return initialState;
         }
 
-        private void ParseCurrentState(IParseState<TInput> parseState, State initialState, StateCollection states, State currentState, List<(Item Item, State State)> resultItems)
+        private void ParseCurrentState(IParseState<TInput> parseState, State initialState, StateCollection states, State currentState, List<(Item Item, State State)> resultItems, ParseStatistics stats)
         {
             // A list of productions which were started in this state and completed in this
             // state ("zero-length", "empty" or "nullable")
@@ -84,7 +94,7 @@ namespace ParserObjects.Earley
                 if (item.AtEnd)
                 {
                     // This is a complete item. Advance items which are depending on it.
-                    Complete(currentState, item, completedNullables);
+                    Complete(currentState, item, completedNullables, stats);
 
                     // If the completed item is a start item, add it to the list of possible
                     // results.
@@ -97,45 +107,53 @@ namespace ParserObjects.Earley
                 // add those predicted items to the current state.
                 if (item.NextSymbolToMatch is INonterminal nonterminal)
                 {
-                    Predict(currentState, item, nonterminal, completedNullables);
+                    Predict(currentState, item, nonterminal, completedNullables, stats);
                     continue;
                 }
 
                 // If the item is terminal, see if we match, and add successful matches to the
                 // next state.
                 if (item.NextSymbolToMatch is IParser<TInput> terminal)
-                    Scan(currentState, item, terminal, states, parseState);
+                    Scan(currentState, item, terminal, states, parseState, stats);
+
+                // TODO: It's possible for .NextSymbolToMatch to be IMultiParser<TInput>, should
+                // account for that here.
             }
 
             Debug.WriteLine(currentState.GetCompleteListing());
         }
 
-        private void Predict(State state, Item item, INonterminal nonterminal, IDictionary<IProduction, IList<Item>> completedNullables)
+        private static void Predict(State state, Item item, INonterminal nonterminal, IDictionary<IProduction, IList<Item>> completedNullables, ParseStatistics stats)
         {
             // Add prediction states
             var relevantCompletedNullableProductions = new List<IProduction>();
             foreach (var p in nonterminal.Productions)
             {
                 var newItem = new Item(p, state, state);
+                stats.CreatedItems++;
                 if (completedNullables.ContainsKey(p))
                     relevantCompletedNullableProductions.Add(p);
                 if (state.Contains(newItem))
                     continue;
                 state.Add(newItem);
+                stats.PredictedItems++;
             }
 
             // Aycock fix: If this item is waiting on a symbol which is already in the list of
             // nullables, we can simply advance it here
-            if (relevantCompletedNullableProductions.Any())
+            if (relevantCompletedNullableProductions.Count > 0)
             {
                 var aycockItem = state.Import(item.CreateNextItem(state));
+                stats.CreatedItems++;
                 foreach (var nullableItem in relevantCompletedNullableProductions.SelectMany(p => completedNullables[p]).Distinct().ToList())
                     aycockItem.Add(nullableItem);
                 state.Add(aycockItem);
+                stats.PredictedItems++;
+                stats.PredictedByCompletedNullable++;
             }
         }
 
-        private void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> input)
+        private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> input, ParseStatistics stats)
         {
             var result = terminal.Parse(input);
             if (!result.Success)
@@ -144,24 +162,27 @@ namespace ParserObjects.Earley
             var nextState = states.GetAhead(result.Consumed, input.Input);
 
             var newItem = item.CreateNextItem(nextState);
+            stats.CreatedItems++;
 
             // Add the value to the new item's _derivations list. The value of a Terminal is the
             // returned value from the parser.
             newItem.SetTerminalValue(result.Value);
             nextState.Add(newItem);
+            stats.ScannedSuccess++;
 
             if (result.Consumed > 0)
                 currentState.Checkpoint.Rewind();
         }
 
-        private void AddCompletedNullable(IDictionary<IProduction, IList<Item>> completedNullables, Item item, IProduction production)
+        private static void AddCompletedNullable(IDictionary<IProduction, IList<Item>> completedNullables, Item item, IProduction production, ParseStatistics stats)
         {
             if (!completedNullables.ContainsKey(production))
                 completedNullables[production] = new List<Item>();
             completedNullables[production].Add(item);
+            stats.CompletedNullables++;
         }
 
-        private void Complete(State state, Item item, IDictionary<IProduction, IList<Item>> completedNullables)
+        private static void Complete(State state, Item item, IDictionary<IProduction, IList<Item>> completedNullables, ParseStatistics stats)
         {
             // item is complete. Go through Items in the parent state which were waiting for item
             // and advance them.
@@ -174,10 +195,16 @@ namespace ParserObjects.Earley
             foreach (var parentItem in parentStateItemsToAdvance)
             {
                 var newItem = state.Import(parentItem.CreateNextItem(state));
+                stats.CreatedItems++;
 
                 // Add the item to the newItem's _derivations list. When we derive the value, we
                 // need to recurse from newItem->item to get that part of it.
                 newItem.Add(item);
+                stats.CompletedParentItem++;
+
+                // We have advanced newItem. Now check to see if any of the productions in newItem
+                // have a completed nullable next. If so, add the necessary completed nullable items
+                // to the current state so the next loop through will complete those too.
                 if (newItem.ValueSymbol is INonterminal nonterminal)
                 {
                     var relevantCompletedNullables = nonterminal.Productions
@@ -192,7 +219,7 @@ namespace ParserObjects.Earley
             // If the parent state is the current state, that means the item is zero-length and
             // is considered "nullable"
             if (item.ParentState == state)
-                AddCompletedNullable(completedNullables, item, item.Production);
+                AddCompletedNullable(completedNullables, item, item.Production, stats);
         }
     }
 }

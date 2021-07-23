@@ -61,6 +61,7 @@ namespace ParserObjects.Earley
             }
         }
 
+        // The symbol directly to the LEFT of the fat dot. The most recently matched symbol
         public ISymbol ValueSymbol
         {
             get
@@ -72,8 +73,6 @@ namespace ParserObjects.Earley
 
         public State CurrentState { get; }
 
-        // TODO: Go over equals and gethashcode, make sure we are including exactly the set of
-        // fields which may make this item unique.
         public bool Equals(Item? other)
         {
             if (other == null)
@@ -84,7 +83,6 @@ namespace ParserObjects.Earley
                 && Index == other.Index
                 && ReferenceEquals(ParentState, other.ParentState)
                 && ReferenceEquals(CurrentState, other.CurrentState)
-                // && ReferenceEquals(Previous, other.Previous)
                 ;
         }
 
@@ -92,10 +90,7 @@ namespace ParserObjects.Earley
         {
             unchecked
             {
-                // TODO: Come up with a better hash calculation
-                var hash = ParentState.Number ^ Production.GetHashCode() ^ Index ^ CurrentState.Number;
-
-                return hash;
+                return ParentState.Number ^ Production.GetHashCode() ^ Index ^ CurrentState.Number;
             }
         }
 

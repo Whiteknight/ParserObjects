@@ -28,7 +28,7 @@ namespace ParserObjects.Parsers.Multi
             {
                 var multiResult = _inner.Parse(state);
 
-                var results = new List<IMultiResultAlternative<TOutput>>();
+                var results = new List<IResultAlternative<TOutput>>();
 
                 foreach (var alt in multiResult.Results.Where(r => r.Success))
                 {
@@ -38,11 +38,11 @@ namespace ParserObjects.Parsers.Multi
                     var result = rightParser.Parse(state);
                     if (!result.Success)
                     {
-                        results.Add(new FailureMultiResultAlternative<TOutput>(result.ErrorMessage, multiResult.StartCheckpoint));
+                        results.Add(new FailureResultAlternative<TOutput>(result.ErrorMessage, multiResult.StartCheckpoint));
                         continue;
                     }
 
-                    results.Add(new SuccessMultiResultAlternative<TOutput>(result.Value, result.Consumed, state.Input.Checkpoint()));
+                    results.Add(new SuccessResultAlternative<TOutput>(result.Value, result.Consumed, state.Input.Checkpoint()));
                 }
 
                 multiResult.StartCheckpoint.Rewind();
@@ -97,7 +97,7 @@ namespace ParserObjects.Parsers.Multi
             {
                 var multiResult = _inner.Parse(state);
 
-                var results = new List<IMultiResultAlternative<TOutput>>();
+                var results = new List<IResultAlternative<TOutput>>();
 
                 foreach (var alt in multiResult.Results.Where(r => r.Success))
                 {
@@ -107,13 +107,13 @@ namespace ParserObjects.Parsers.Multi
                     var result = rightParser.Parse(state);
                     if (!result.Success)
                     {
-                        results.Add(new FailureMultiResultAlternative<TOutput>("Right parser returned no valid results", multiResult.StartCheckpoint));
+                        results.Add(new FailureResultAlternative<TOutput>("Right parser returned no valid results", multiResult.StartCheckpoint));
                         continue;
                     }
 
                     foreach (var resultAlt in result.Results)
                     {
-                        results.Add(new SuccessMultiResultAlternative<TOutput>(resultAlt.Value, resultAlt.Consumed, resultAlt.Continuation));
+                        results.Add(new SuccessResultAlternative<TOutput>(resultAlt.Value, resultAlt.Consumed, resultAlt.Continuation));
                     }
                 }
 

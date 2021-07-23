@@ -32,7 +32,7 @@ namespace ParserObjects
             });
 
         // Select the first result which matches the predicate, failure if nothing matches
-        public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IMultiResultAlternative<TOutput>, bool> predicate)
+        public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IResultAlternative<TOutput>, bool> predicate)
         {
             Assert.ArgumentNotNull(predicate, nameof(predicate));
             return multiParser.Select((multiResult, success, fail) =>

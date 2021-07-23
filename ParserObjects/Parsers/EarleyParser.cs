@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Earley;
 using ParserObjects.Utility;
 
@@ -57,6 +58,38 @@ namespace ParserObjects.Parsers
             }
         }
 
+        private class MultiResult : IMultiResult<TOutput>
+        {
+            private readonly IParseStatistics _statistics;
+
+            public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IParseStatistics statistics)
+            {
+                Parser = parser;
+                Results = results.ToList();
+                Success = Results.Count(r => r.Success) > 0;
+                Location = location;
+                StartCheckpoint = startCheckpoint;
+                _statistics = statistics;
+            }
+
+            public IParser Parser { get; }
+
+            public bool Success { get; }
+
+            public Location Location { get; }
+
+            public IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
+
+            public ISequenceCheckpoint StartCheckpoint { get; }
+
+            public IOption<T> TryGetData<T>()
+            {
+                if (_statistics is T tStats)
+                    return new SuccessOption<T>(tStats);
+                return FailureOption<T>.Instance;
+            }
+        }
+
         public class Parser : IMultiParser<TInput, TOutput>
         {
             private readonly Engine<TInput, TOutput> _engine;
@@ -81,9 +114,13 @@ namespace ParserObjects.Parsers
             {
                 var startCheckpoint = state.Input.Checkpoint();
                 var startLocation = state.Input.CurrentLocation;
+
                 var results = _engine.Parse(state);
+
+                // TODO: Do we need to rewind to the startCheckpoint here, if any continuation will
+                // rewind to the continuation checkpoint of the alternative?
                 startCheckpoint.Rewind();
-                return new MultiResult<TOutput>(this, startLocation, startCheckpoint, results);
+                return new MultiResult(this, startLocation, startCheckpoint, results.Alternatives, results.Statistics);
             }
 
             public override string ToString() => DefaultStringifier.ToString(this);

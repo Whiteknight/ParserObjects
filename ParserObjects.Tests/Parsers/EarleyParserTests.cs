@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using ParserObjects;
 using ParserObjects.Earley;
 using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.ParserMethods;
@@ -55,6 +56,48 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void BasicExpression_Statistics()
+        {
+            var target = Earley<int>(
+                symbols =>
+                {
+                    var plus = Match('+').Named("plus");
+                    var star = Match('*').Named("star");
+
+                    var expr = symbols.New("Expr")
+                        .AddProduction(UnsignedInteger().Named("literal"), n => n);
+
+                    expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+                    expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+
+                    return expr;
+                }
+            );
+
+            var result = target.Parse("4*5+6");
+            result.Success.Should().BeTrue();
+            var statistics = result.TryGetData<IParseStatistics>().Value;
+
+            statistics.CreatedItems.Should().Be(54);
+            statistics.NumberOfStates.Should().Be(6);
+
+            statistics.ScannedSuccess.Should().Be(6);
+
+            statistics.PredictedItems.Should().Be(6);
+            statistics.PredictedByCompletedNullable.Should().Be(0);
+
+            statistics.CompletedNullables.Should().Be(0);
+            statistics.CompletedParentItem.Should().Be(18);
+
+            statistics.ProductionRuleAttempts.Should().Be(4);
+            statistics.ProductionRuleSuccesses.Should().Be(4);
+            statistics.DerivationCacheHit.Should().Be(5);
+            statistics.DerivationSingleSymbolShortcircuits.Should().Be(3);
+            statistics.ItemsWithSingleDerivation.Should().Be(0);
+            statistics.ItemsWithZeroDerivations.Should().Be(0);
+        }
+
+        [Test]
         public void BasicExpression_EOF()
         {
             var target = Earley<int>(symbols =>
@@ -68,7 +111,7 @@ namespace ParserObjects.Tests.Parsers
                 expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
                 expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
 
-                var eof = If(End(), Produce(() => true));
+                var eof = IsEnd();
 
                 return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);
@@ -157,7 +200,7 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(empty, v => v);
                 expr.AddProduction(expr, Match('a'), (count, _) => count + 1);
 
-                var eof = If(End(), Produce(() => true));
+                var eof = IsEnd();
 
                 return symbols.New("Start")
                     .AddProduction(expr, eof, (v, _) => v);
@@ -185,6 +228,45 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void LeftRecurse_Statistics()
+        {
+            var target = Earley<int>(
+                symbols =>
+                {
+                    var empty = Produce(() => 0);
+
+                    var expr = symbols.New<int>("Expr")
+                        .AddProduction(empty, v => v);
+                    expr.AddProduction(expr, Match('a'), (count, _) => count + 1);
+
+                    var eof = IsEnd();
+
+                    return symbols.New("Start")
+                        .AddProduction(expr, eof, (v, _) => v);
+                }
+            );
+
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            var statistics = result.TryGetData<IParseStatistics>().Value;
+
+            statistics.ScannedSuccess.Should().Be(2);
+
+            statistics.PredictedItems.Should().Be(2);
+            statistics.PredictedByCompletedNullable.Should().Be(0);
+
+            statistics.CompletedNullables.Should().Be(2);
+            statistics.CompletedParentItem.Should().Be(2);
+
+            statistics.ProductionRuleAttempts.Should().Be(1);
+            statistics.ProductionRuleSuccesses.Should().Be(1);
+            statistics.DerivationCacheHit.Should().Be(0);
+            statistics.DerivationSingleSymbolShortcircuits.Should().Be(1);
+            statistics.ItemsWithSingleDerivation.Should().Be(0);
+            statistics.ItemsWithZeroDerivations.Should().Be(0);
+        }
+
+        [Test]
         public void RightRecurse_CountSymbols()
         {
             // E ::= a
@@ -197,7 +279,7 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(a, _ => 1);
                 e.AddProduction(a, e, (_, count) => count + 1);
 
-                var eof = If(End(), Produce(() => true)).Named("End");
+                var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
                     .AddProduction(e, eof, (count, _) => count).Named("S");
@@ -226,13 +308,55 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void RightRecurse_Statistics()
+        {
+            var target = Earley<int>(
+                symbols =>
+                {
+                    var a = Match('a').Named("a");
+
+                    var e = symbols.New<int>("E")
+                        .AddProduction(a, _ => 1);
+                    e.AddProduction(a, e, (_, count) => count + 1);
+
+                    var eof = IsEnd().Named("End");
+
+                    return symbols.New("S")
+                        .AddProduction(e, eof, (count, _) => count).Named("S");
+                }
+            );
+
+            // TODO: Need to look at the State listings to verify if we have Leo's optimization
+            // or not.
+
+            var result = target.Parse("a");
+            result.Success.Should().BeTrue();
+            var statistics = result.TryGetData<IParseStatistics>().Value;
+
+            statistics.ScannedSuccess.Should().Be(3);
+
+            statistics.PredictedItems.Should().Be(4);
+            statistics.PredictedByCompletedNullable.Should().Be(0);
+
+            statistics.CompletedNullables.Should().Be(0);
+            statistics.CompletedParentItem.Should().Be(1);
+
+            statistics.ProductionRuleAttempts.Should().Be(1);
+            statistics.ProductionRuleSuccesses.Should().Be(1);
+            statistics.DerivationCacheHit.Should().Be(0);
+            statistics.DerivationSingleSymbolShortcircuits.Should().Be(1);
+            statistics.ItemsWithSingleDerivation.Should().Be(0);
+            statistics.ItemsWithZeroDerivations.Should().Be(0);
+        }
+
+        [Test]
         public void Nullable_Test()
         {
             var target = Earley<string>(symbols =>
             {
                 // Nullable is a production rule which consumes no input
                 var nullable = Produce(() => "Test");
-                var eof = If(End(), Produce(() => true));
+                var eof = IsEnd();
                 return symbols.New("S")
                     .AddProduction(nullable, eof, (a, _) => a);
             });
@@ -261,9 +385,9 @@ namespace ParserObjects.Tests.Parsers
                 var nullable = symbols.New("N")
                     .AddProduction(rulea, ruleb, (a, b) => $"({a},{b})");
 
-                var eof = If(End(), Produce(() => true)).Named("END");
+                var eof = IsEnd().Named("END");
                 return symbols.New("S")
-                    .AddProduction(nullable, nullable, eof, (first, second, end) => $"[{first}:{second}]");
+                    .AddProduction(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
             });
 
             var results = target.Parse("");
@@ -295,9 +419,9 @@ namespace ParserObjects.Tests.Parsers
                     .AddProduction(rulea, a => a)
                     .AddProduction(ruleb, b => b);
 
-                var eof = If(End(), Produce(() => true)).Named("END");
+                var eof = IsEnd().Named("END");
                 return symbols.New("S")
-                    .AddProduction(nullable, nullable, eof, (first, second, end) => $"[{first}:{second}]");
+                    .AddProduction(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
             });
 
             // A:A A:B B:A B:B
@@ -447,7 +571,7 @@ namespace ParserObjects.Tests.Parsers
                 expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
                 expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
 
-                var eof = If(End(), Produce(() => true)).Named("End");
+                var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);
@@ -474,7 +598,7 @@ namespace ParserObjects.Tests.Parsers
                 expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
                 expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
 
-                var eof = If(End(), Produce(() => true)).Named("End");
+                var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
                     .AddProduction(expr, eof, (e, _) => e);

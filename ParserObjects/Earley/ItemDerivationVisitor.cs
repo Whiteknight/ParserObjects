@@ -3,16 +3,22 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ParserObjects;
 
 namespace ParserObjects.Earley
 {
     public class ItemDerivationVisitor
     {
         private readonly Dictionary<(IProduction, int, int), IReadOnlyList<object>> _cache;
+        private readonly ParseStatistics _statistics;
 
-        public ItemDerivationVisitor()
+        public ItemDerivationVisitor(ParseStatistics statistics)
         {
+            if (statistics == null)
+                throw new ArgumentNullException(nameof(statistics));
+
             _cache = new Dictionary<(IProduction, int, int), IReadOnlyList<object>>();
+            _statistics = statistics;
         }
 
         // Items work in a weird way. The _derivations list contains all possible values for the
@@ -36,7 +42,10 @@ namespace ParserObjects.Earley
 
             var key = (production, endItem.ParentState.Number, endItem.CurrentState.Number);
             if (_cache.ContainsKey(key))
+            {
+                _statistics.DerivationCacheHit++;
                 return _cache[key];
+            }
 
             var results = GenerateValues(endItem, production);
 
@@ -51,6 +60,7 @@ namespace ParserObjects.Earley
             // terminal, just return those derivation results directly without any buffering.
             if (production.Symbols.Count == 1 && production.Symbols[0] is IParser)
             {
+                _statistics.DerivationSingleSymbolShortcircuits++;
                 return endItem.Derivations!
                     .Select(d => production.Apply(new[] { d }))
                     .Where(o => o.Success)
@@ -70,7 +80,11 @@ namespace ParserObjects.Earley
             {
                 var possibleValuesForThisItem = GetAllPossibleValuesFor(current);
                 if (possibleValuesForThisItem.Count == 0)
+                {
+                    _statistics.ItemsWithZeroDerivations++;
                     return Array.Empty<object>();
+                }
+
                 values[current.Index - 1] = possibleValuesForThisItem;
                 current = current.Previous!;
             }
@@ -80,6 +94,7 @@ namespace ParserObjects.Earley
             if (count == 1 && values[0].Count == 1)
             {
                 var result = production.Apply(new[] { values[0][0] });
+                _statistics.ItemsWithSingleDerivation++;
                 return result.Success ? new object[] { result.Value } : Array.Empty<object>();
             }
 
@@ -108,9 +123,14 @@ namespace ParserObjects.Earley
             var results = new List<object>();
             while (true)
             {
+                _statistics.ProductionRuleAttempts++;
                 var result = production.Apply(buffer);
                 if (result.Success)
+                {
                     results.Add(result.Value);
+                    _statistics.ProductionRuleSuccesses++;
+                }
+
                 var hasMore = IncrementBufferItems(count, indices, values, buffer);
                 if (!hasMore)
                     break;
@@ -122,15 +142,6 @@ namespace ParserObjects.Earley
             return results;
         }
 
-        // terminal.Derivations is a list of result values, so return those directly.
-        private IReadOnlyList<object> VisitTerminalItem(Item item)
-            => item.Derivations!;
-
-        // nonterminal.Derivations is a list of Items, which we can recurse into to get their
-        // values.
-        private IReadOnlyList<object> VisitNonterminal(Item item)
-            => item.Derivations!.OfType<Item>().SelectMany(d => Visit(d)).ToList();
-
         // Returns a list of all possible values for this Item.
         private IReadOnlyList<object> GetAllPossibleValuesFor(Item item)
         {
@@ -140,13 +151,13 @@ namespace ParserObjects.Earley
             // A Terminal has a single value, so _derivations.Count should be 1 and it should be
             // a value, not another item. So we can just return that list.
             if (item.ValueSymbol is IParser)
-                return VisitTerminalItem(item);
+                return item.Derivations!;
 
             // A nonterminal potentially contains a number of productions, which are all
             // alternations. For each alternation option, we want to reduce to the appropriate
             // value and add that to the list of values.
             if (item.ValueSymbol is INonterminal)
-                return VisitNonterminal(item);
+                return item.Derivations!.OfType<Item>().SelectMany(d => Visit(d)).ToList();
 
             return Array.Empty<object>();
         }
