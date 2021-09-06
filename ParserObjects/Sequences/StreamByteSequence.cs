@@ -45,6 +45,8 @@ namespace ParserObjects.Sequences
             _bufferIndex = bufferSize;
             _buffer = new byte[bufferSize];
             _stream = stream;
+            if (!_stream.CanSeek || !_stream.CanRead)
+                throw new InvalidOperationException("Stream must support Read and Seek to be used in a Sequence");
             _consumed = 0;
             _endSentinel = endSentinel;
             FillBuffer();
@@ -136,6 +138,23 @@ namespace ParserObjects.Sequences
 
         private void Rewind(long position, int consumed)
         {
+            var sizeOfCurrentBuffer = _bufferIndex + _remainingBytes;
+            var bufferStartPosition = _stream.Position - sizeOfCurrentBuffer;
+
+            if (position >= bufferStartPosition && position <= _stream.Position)
+            {
+                // The position is inside the current buffer, just update the pointers
+                _bufferIndex = (int)(position - bufferStartPosition);
+                _remainingBytes = sizeOfCurrentBuffer - _bufferIndex;
+                _isComplete = false;
+                _consumed = consumed;
+                return;
+            }
+
+            // The position is outside the current buffer, so we need to refill the buffer.
+            // TODO: It would be nice if we seeked to a position slightly before the required
+            // position, incase we need to rewind back a few more and would have to refill the
+            // buffer again just to get a few more chars
             _stream.Seek(position, SeekOrigin.Begin);
             _remainingBytes = 0;
             _bufferIndex = _bufferSize;

@@ -49,7 +49,7 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void Checkpoint_Test()
+        public void Checkpoint_SameBuffer()
         {
             var target = GetTarget(1, 2, 3, 4, 5, 6);
             target.GetNext().Should().Be(1);
@@ -65,6 +65,24 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(5);
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
+        }
+
+        [Test]
+        public void Checkpoint_PreviousBuffer()
+        {
+            var target = GetTarget(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            target.GetNext().Should().Be(1);
+            var cp = target.Checkpoint();
+
+            target.GetNext().Should().Be(2);
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(4);
+            target.GetNext().Should().Be(5);
+            target.GetNext().Should().Be(6);
+            target.GetNext().Should().Be(7);
+            cp.Rewind();
+
+            target.GetNext().Should().Be(2);
         }
 
         [Test]
