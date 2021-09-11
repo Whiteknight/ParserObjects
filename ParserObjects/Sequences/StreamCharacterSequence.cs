@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using ParserObjects.Utility;
@@ -13,37 +14,22 @@ namespace ParserObjects.Sequences
         private readonly int _bufferSize;
         private readonly string _fileName;
         private readonly StreamReader _reader;
+        private readonly Encoding _encoding;
         private readonly bool _normalizeLineEndings;
         private readonly char _endSentinel;
 
-        // Linked list of buffer nodes
-        private BufferNode _currentBuffer;
+        private char[] _buffer;
+        private BufferMetadata _metadata;
 
-        // True if we're at the end of the stream and the stream is disposed. False otherwise.
-        private bool _isComplete;
-
-        // Location in the current buffer of the next char to read.
-        private int _bufferIndex;
-
-        // Current location information
-        private int _line;
-
-        private int _column;
-
-        private class BufferNode
+        private struct BufferMetadata
         {
-            public BufferNode(int bufferSize, StreamReader reader, int startConsumed)
-            {
-                Buffer = new char[bufferSize];
-                TotalChars = reader.Read(Buffer, 0, bufferSize);
-                StartConsumed = startConsumed;
-                Next = null;
-            }
-
-            public char[] Buffer { get; }
-            public BufferNode? Next { get; set; }
-            public int TotalChars { get; }
-            public int StartConsumed { get; }
+            public int TotalCharsInBuffer { get; set; }
+            public int Line { get; set; }
+            public int Column { get; set; }
+            public int Index { get; set; }
+            public int Consumed { get; set; }
+            public long StreamPosition { get; set; }
+            public long BufferStartStreamPosition { get; set; }
         }
 
         public StreamCharacterSequence(string fileName, Encoding? encoding = null, int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
@@ -51,54 +37,65 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
             _fileName = fileName;
-            _line = 1;
+            _metadata = default;
             _bufferSize = bufferSize;
+            _buffer = new char[_bufferSize];
             var stream = File.OpenRead(_fileName);
-            _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
-            _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
-            _isComplete = _currentBuffer.TotalChars == 0;
+            _encoding = encoding ?? Encoding.UTF8;
+            _reader = new StreamReader(stream, _encoding);
+            _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
             _normalizeLineEndings = normalizeLineEndings;
             _endSentinel = endSentinel;
-            if (_isComplete)
-                _reader.Dispose();
-            _bufferIndex = 0;
         }
 
         public StreamCharacterSequence(StreamReader reader, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-            _line = 1;
             _fileName = fileName;
-            _bufferIndex = bufferSize;
+            _metadata = default;
             _bufferSize = bufferSize;
+            _buffer = new char[_bufferSize];
             _reader = reader;
-            _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
-            _isComplete = _currentBuffer.TotalChars == 0;
+            _encoding = _reader.CurrentEncoding;
+            _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
             _normalizeLineEndings = normalizeLineEndings;
             _endSentinel = endSentinel;
-            if (_isComplete)
-                _reader.Dispose();
-            _bufferIndex = 0;
         }
 
         public StreamCharacterSequence(Stream stream, Encoding? encoding = null, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-            _line = 1;
+            _metadata = default;
             _fileName = fileName ?? "stream";
-            _bufferIndex = bufferSize;
             _bufferSize = bufferSize;
-            _reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
-            _currentBuffer = new BufferNode(_bufferSize, _reader, 0);
-            _isComplete = _currentBuffer.TotalChars == 0;
+            _buffer = new char[_bufferSize];
+            _encoding = encoding ?? Encoding.UTF8;
+            _reader = new StreamReader(stream, _encoding);
+            _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
             _normalizeLineEndings = normalizeLineEndings;
             _endSentinel = endSentinel;
-            if (_isComplete)
-                _reader.Dispose();
+        }
 
-            _bufferIndex = 0;
+        /*
+         * For any buffer we need the char[] array of characters in the buffer and the long
+         * position in the stream where that buffer starts.
+         *
+         * For a next buffer, the position where the buffer starts is the same as the position
+         * where the previous buffer ended (position of the start of the last char + the width of
+         * that char).
+         *
+         * For any rewind buffer, we can get the position from the checkpoint and use that to fill
+         * the buffer by resetting the stream to that position and clearing the reader buffer.
+         */
+
+        private int GetEncodingByteCountForCharacter(char c)
+        {
+            unsafe
+            {
+                return _encoding.GetByteCount(&c, 1);
+            }
         }
 
         public char GetNext()
@@ -106,6 +103,7 @@ namespace ParserObjects.Sequences
             var c = GetNextCharRaw(true);
             if (c == _endSentinel)
                 return c;
+
             if (_normalizeLineEndings && c == '\r')
             {
                 if (GetNextCharRaw(false) == '\n')
@@ -115,12 +113,12 @@ namespace ParserObjects.Sequences
 
             if (c == '\n')
             {
-                _line++;
-                _column = 0;
+                _metadata.Line++;
+                _metadata.Column = 0;
                 return c;
             }
 
-            _column++;
+            _metadata.Column++;
             return c;
         }
 
@@ -132,34 +130,81 @@ namespace ParserObjects.Sequences
             return next;
         }
 
-        public Location CurrentLocation => new Location(_fileName, _line, _column);
+        public Location CurrentLocation => new Location(_fileName, _metadata.Line + 1, _metadata.Column);
 
-        public bool IsAtEnd => _currentBuffer.TotalChars == 0;
+        public bool IsAtEnd => _metadata.TotalCharsInBuffer == 0;
 
-        public int Consumed => _currentBuffer.StartConsumed + _bufferIndex;
+        public int Consumed => _metadata.Consumed;
 
         public void Dispose()
         {
-            if (!_isComplete)
-                _reader.Dispose();
+            // TODO: Set some kind of flag?
+            _reader.Dispose();
+        }
+
+        private bool _expectLowSurrogate;
+
+        private char GetLowSurrogateOrThrow()
+        {
+            if (_metadata.Index < _metadata.TotalCharsInBuffer)
+            {
+                var candidate = _buffer[_metadata.Index];
+                if (!char.IsLowSurrogate(candidate))
+                    throw new InvalidOperationException("Found high surrogate but could not find corresponding low surrogate. Input is malformed.");
+                return candidate;
+            }
+
+            FillBuffer();
+            if (_metadata.TotalCharsInBuffer == 0)
+                throw new InvalidOperationException("Found high surrogate but there were no more characters. Input is malformed.");
+            var next = _buffer[_metadata.Index];
+            if (!char.IsLowSurrogate(next))
+                throw new InvalidOperationException("Found high surrogate but could not find corresponding low surrogate. Input is malformed.");
+            return next;
         }
 
         private char GetNextCharRaw(bool advance)
         {
-            // First make sure the buffer is full then return the value if we aren't complete.
-            FillBuffer();
-            if (_currentBuffer.TotalChars == 0)
+            // We fill the buffer initially in the constructor, and then again after we get a
+            // character. If the buffer doesn't have any data in it at this point, it's because
+            // we're at the end of input.
+            if (_metadata.TotalCharsInBuffer == 0)
                 return _endSentinel;
-            var c = _currentBuffer.Buffer[_bufferIndex];
-            if (advance)
+
+            var c = _buffer[_metadata.Index];
+            if (!advance)
+                return c;
+
+            // Bump the index so we advance forward
+            _metadata.Index++;
+            _metadata.Consumed++;
+
+            if (_expectLowSurrogate)
             {
-                // _bufferIndex points to the next char to return. Increment it then make sure the
-                // buffer is full in case we advance past the end of the current buffer
-                // At the end of the stream, FillBuffer will create a new buffer with TotalChars==0
-                // which means we're at the end.
-                _bufferIndex++;
-                FillBuffer();
+                // We've seen the low surrogate for the size calculation. Assert, clear the flag.
+                // Don't advance the stream position because we already did that when we saw the
+                // high surrogate
+                Debug.Assert(char.IsLowSurrogate(c), "Make sure the low surrogate is still there");
+                _expectLowSurrogate = false;
             }
+            else if (char.IsHighSurrogate(c))
+            {
+                // If c is a high surrogate we MUST get next char to find the matching low surrogate.
+                // That is the only way to get a valid size calculation for stream position. Set
+                // a flag to say that we are in between surrogates so we don't do something stupid
+                // like try to set a checkpoint.
+                var low = GetLowSurrogateOrThrow();
+                var size = _encoding.GetByteCount(new[] { c, low });
+                _metadata.StreamPosition += size;
+                _expectLowSurrogate = true;
+            }
+            else
+            {
+                var size = GetEncodingByteCountForCharacter(c);
+                _metadata.StreamPosition += size;
+            }
+
+            FillBuffer();
 
             return c;
         }
@@ -167,69 +212,65 @@ namespace ParserObjects.Sequences
         private void FillBuffer()
         {
             // If there are chars remaining in the current buffer, bail. There's nothing to do
-            if (_bufferIndex < _currentBuffer.TotalChars || _currentBuffer.TotalChars == 0)
+            if (_metadata.Index < _metadata.TotalCharsInBuffer || _metadata.TotalCharsInBuffer == 0)
                 return;
 
-            // If this isn't the last buffer in the chain, such as during a rollback, we can advance
-            // to the next buffer without reading anything from the stream. Next buffer may be the
-            // end buffer, then we're at the end.
-            if (_currentBuffer.Next != null)
-            {
-                _currentBuffer = _currentBuffer.Next;
-                _bufferIndex = 0;
-                return;
-            }
-
-            // Add a new BufferNode to the end of the linked list and update the pointer.
-            // Previous nodes will die from GC unless there is a checkpoint holding on to them
-            var newBuffer = new BufferNode(_bufferSize, _reader, _currentBuffer.StartConsumed + _currentBuffer.TotalChars);
-            _currentBuffer.Next = newBuffer;
-            _currentBuffer = newBuffer;
-            var remainingChars = _currentBuffer.TotalChars - _bufferIndex;
-
-            if (remainingChars == 0)
-            {
-                _reader.Dispose();
-                _isComplete = true;
-            }
-
-            _bufferIndex = 0;
+            _metadata.BufferStartStreamPosition = _metadata.StreamPosition;
+            _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
+            _metadata.Index = 0;
         }
 
         public ISequenceCheckpoint Checkpoint()
-            => new SequenceCheckpoint(this, _currentBuffer, _bufferIndex, _line, _column);
+        {
+            if (_expectLowSurrogate)
+                throw new InvalidOperationException("Cannot set a checkpoint between the high and low surrogates of a single codepoint");
+            return new SequenceCheckpoint(this, _metadata);
+        }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
             private readonly StreamCharacterSequence _s;
-            private readonly BufferNode _buffer;
-            private readonly int _bufferIndex;
-            private readonly int _line;
-            private readonly int _column;
+            private readonly BufferMetadata _metadata;
 
-            public SequenceCheckpoint(StreamCharacterSequence s, BufferNode buffer, int bufferIndex, int line, int column)
+            public SequenceCheckpoint(StreamCharacterSequence s, BufferMetadata metadata)
             {
                 _s = s;
-                _buffer = buffer;
-                _bufferIndex = bufferIndex;
-                _line = line;
-                _column = column;
+                _metadata = metadata;
             }
 
-            public int Consumed => _buffer.StartConsumed + _bufferIndex;
+            public int Consumed => _metadata.Consumed;
 
-            public Location Location => new Location(_s._fileName, _line, _column);
+            public Location Location => new Location(_s._fileName, _metadata.Line + 1, _metadata.Column);
 
-            public void Rewind() => _s.Rewind(_buffer, _bufferIndex, _line, _column);
+            public void Rewind() => _s.Rewind(_metadata);
         }
 
-        private void Rewind(BufferNode buffer, int bufferIndex, int line, int column)
+        private void Rewind(BufferMetadata metadata)
         {
-            if (_currentBuffer != buffer)
-                _currentBuffer = buffer;
-            _bufferIndex = bufferIndex;
-            _line = line;
-            _column = column;
+            // Clear this flag, just in case
+            _expectLowSurrogate = false;
+
+            // If we're rewinding to the current position, short-circuit
+            if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition && _metadata.StreamPosition == metadata.StreamPosition)
+                return;
+
+            // If position is within the current buffer, just reset _bufferIndex and the metadata
+            // and continue
+            if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition)
+            {
+                _metadata = metadata;
+                return;
+            }
+
+            // TODO: It might be good to maintain a small list of recently-used buffers, in a ring
+            // or LRU, so we don't need to refill if we're doing a lot of read/rewind cycles around
+            // a buffer boundary.
+
+            // Otherwise we reset the buffer starting at bufferStartStreamPosition
+            _metadata = metadata;
+            _reader.BaseStream.Seek(_metadata.BufferStartStreamPosition, SeekOrigin.Begin);
+            _reader.DiscardBufferedData();
+            _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
         }
     }
 }

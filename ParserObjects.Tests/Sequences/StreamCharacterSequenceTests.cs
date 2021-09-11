@@ -89,6 +89,61 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void Checkpoint_MultiByteChars()
+        {
+            // a is a single byte. Followed by copyright (c) (2 bytes in UTF8), EMDASH (3 bytes)
+            // Poop emoji from the astral plane (4 bytes), registered (r) (3 bytes) and then b
+            // which is a single byte again.
+            // String is approximately similar to "ac-Prb" if you squint real hard, with the buffer
+            // break happening between the (r) and b.
+            var target = GetTarget("a\u00A9\u2014\U0001F4A9\u00AEb", 5);
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be('a');
+            cp.Rewind();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\u00A9');
+            target.GetNext().Should().Be('\u2014');
+
+            // These two are the UTF16 chars for the surrogate pair representing the poop emoji
+            target.GetNext().Should().Be('\uD83D');
+            target.GetNext().Should().Be('\uDCA9');
+
+            cp = target.Checkpoint();
+
+            target.GetNext().Should().Be('\u00AE');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+
+            cp.Rewind();
+
+            target.GetNext().Should().Be('\u00AE');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Checkpoint_MultiByteChars_CannotDivideSurrogates()
+        {
+            // We cannot set a checkpoint between the high and low surrogates of a single codepoint
+            var target = GetTarget("\U0001F4A9", 5);
+            target.GetNext().Should().Be('\uD83D');
+            Action act = () => target.Checkpoint();
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        // There seems to be no way to really test this, because the StreamReader doesn't put a bare
+        // high surrogate into the read buffer even if we force it that way inside the stream.
+        // [Test]
+        // public void GetNext_MalformedInputNoLowSurrogate()
+        // {
+        //    var memoryStream = new MemoryStream(new byte[] { 0xD8, 0x3D });
+        //    memoryStream.Seek(0, SeekOrigin.Begin);
+        //    var target = new StreamCharacterSequence(memoryStream, Encoding.UTF8);
+        //    Action act = () => target.GetNext();
+        //    act.Should().Throw<InvalidOperationException>();
+        // }
+
+        [Test]
         public void Checkpoint_PreviousBuffer()
         {
             var target = GetTarget("abcdef", 5);

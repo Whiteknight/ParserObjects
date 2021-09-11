@@ -24,6 +24,8 @@
 
     <DocumentationFile>C:\projects\ParserObjects\ParserObjects\ParserObjects.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
