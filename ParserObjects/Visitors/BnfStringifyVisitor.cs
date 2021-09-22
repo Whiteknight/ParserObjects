@@ -137,6 +137,21 @@ namespace ParserObjects.Visitors
             state.Current.Append('.');
         }
 
+        protected virtual void Accept<TInput, TOutput>(Cache.MultiParser<TInput, TOutput> p, State state)
+        {
+            VisitChild(p.Inner, state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Cache.NoOutputParser<TInput> p, State state)
+        {
+            VisitChild(p.Inner, state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Cache.OutputParser<TInput, TOutput> p, State state)
+        {
+            VisitChild(p.Inner, state);
+        }
+
         protected virtual void Accept<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();

@@ -50,6 +50,8 @@ namespace ParserObjects.Parsers
 
             public IParser<TInput> Inner { get; }
 
+            public override string ToString() => Inner.ToString();
+
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
             public IResult Parse(IParseState<TInput> state)
@@ -92,6 +94,8 @@ namespace ParserObjects.Parsers
             public string Name { get; set; }
 
             public IParser<TInput, TOutput> Inner { get; }
+
+            public override string ToString() => Inner.ToString();
 
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
@@ -137,6 +141,8 @@ namespace ParserObjects.Parsers
             public string Name { get; set; }
 
             public IMultiParser<TInput, TOutput> Inner { get; }
+
+            public override string ToString() => Inner.ToString();
 
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
