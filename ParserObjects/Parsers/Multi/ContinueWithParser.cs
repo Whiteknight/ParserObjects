@@ -12,6 +12,7 @@ namespace ParserObjects.Parsers.Multi
             private readonly IMultiParser<TInput, TMiddle> _inner;
             private readonly Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> _getParser;
 
+            // TODO: Create a delegate type to simplify this ctor signature
             public SingleParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser)
             {
                 _inner = inner;

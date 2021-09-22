@@ -10,7 +10,4 @@
         // for continuation.
         IMultiResult<TOutput> Parse(IParseState<TInput> state);
     }
-
-    // TODO: Set up IMultiParser and IMultiParser<TInput> to make sure IMultiParser parallels IParser and
-    // IMultiResult parallels IResult
 }

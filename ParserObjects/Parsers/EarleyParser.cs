@@ -117,8 +117,6 @@ namespace ParserObjects.Parsers
 
                 var results = _engine.Parse(state);
 
-                // TODO: Do we need to rewind to the startCheckpoint here, if any continuation will
-                // rewind to the continuation checkpoint of the alternative?
                 startCheckpoint.Rewind();
                 return new MultiResult(this, startLocation, startCheckpoint, results.Alternatives, results.Statistics);
             }

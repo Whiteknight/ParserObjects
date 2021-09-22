@@ -42,7 +42,6 @@ namespace ParserObjects.Earley
 
         private void Accept(IParser terminal, State state)
         {
-            // TODO: recurse into the terminal to get the parser's BNF
             state.Lines.Add($"{terminal.Name} := parser");
         }
 
