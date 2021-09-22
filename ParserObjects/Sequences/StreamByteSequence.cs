@@ -71,15 +71,13 @@ namespace ParserObjects.Sequences
 
         public void Dispose()
         {
-            if (!_isComplete)
-                _stream.Dispose();
+            _stream.Dispose();
         }
 
         private byte GetNextByteRaw(bool advance)
         {
             if (_isComplete)
                 return _endSentinel;
-            FillBuffer();
             if (_isComplete || _remainingBytes == 0 || _bufferIndex >= _bufferSize)
                 return _endSentinel;
             var b = _buffer[_bufferIndex];
@@ -100,11 +98,7 @@ namespace ParserObjects.Sequences
                 return;
             _remainingBytes = _stream.Read(_buffer, 0, _bufferSize);
             if (_remainingBytes == 0)
-            {
                 _isComplete = true;
-                _stream.Dispose();
-            }
-
             _bufferIndex = 0;
         }
 
@@ -120,20 +114,19 @@ namespace ParserObjects.Sequences
         {
             private readonly StreamByteSequence _s;
             private readonly long _currentPosition;
-            private readonly int _consumed;
 
             public SequenceCheckpoint(StreamByteSequence s, long currentPosition, int consumed)
             {
                 _s = s;
                 _currentPosition = currentPosition;
-                _consumed = consumed;
+                Consumed = consumed;
             }
 
-            public int Consumed => _consumed;
+            public int Consumed { get; }
 
-            public Location Location => new Location(_s._fileName, 1, _consumed);
+            public Location Location => new Location(_s._fileName, 1, Consumed);
 
-            public void Rewind() => _s.Rewind(_currentPosition, _consumed);
+            public void Rewind() => _s.Rewind(_currentPosition, Consumed);
         }
 
         private void Rewind(long position, int consumed)
@@ -141,7 +134,7 @@ namespace ParserObjects.Sequences
             var sizeOfCurrentBuffer = _bufferIndex + _remainingBytes;
             var bufferStartPosition = _stream.Position - sizeOfCurrentBuffer;
 
-            if (position >= bufferStartPosition && position <= _stream.Position)
+            if (position >= bufferStartPosition && position < _stream.Position)
             {
                 // The position is inside the current buffer, just update the pointers
                 _bufferIndex = (int)(position - bufferStartPosition);
@@ -152,14 +145,17 @@ namespace ParserObjects.Sequences
             }
 
             // The position is outside the current buffer, so we need to refill the buffer.
-            // TODO: It would be nice if we seeked to a position slightly before the required
-            // position, incase we need to rewind back a few more and would have to refill the
-            // buffer again just to get a few more chars
-            _stream.Seek(position, SeekOrigin.Begin);
-            _remainingBytes = 0;
-            _bufferIndex = _bufferSize;
-            _isComplete = false;
+
+            var bestStartPos = position - (_bufferSize >> 2);
+            if (bestStartPos < 0)
+                bestStartPos = 0;
+            var forward = (int)(position - bestStartPos);
+            _stream.Seek(bestStartPos, SeekOrigin.Begin);
+            var availableBytes = _stream.Read(_buffer, 0, _bufferSize);
+            _remainingBytes = availableBytes - forward;
+            _bufferIndex = forward;
             _consumed = consumed;
+            _isComplete = _remainingBytes <= 0;
         }
     }
 }

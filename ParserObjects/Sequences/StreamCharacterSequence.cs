@@ -17,8 +17,8 @@ namespace ParserObjects.Sequences
         private readonly Encoding _encoding;
         private readonly bool _normalizeLineEndings;
         private readonly char _endSentinel;
+        private readonly char[] _buffer;
 
-        private char[] _buffer;
         private BufferMetadata _metadata;
 
         private struct BufferMetadata
