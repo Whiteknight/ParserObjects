@@ -15,7 +15,6 @@ namespace ParserObjects.Caching
         {
             _cache = new MemoryCache(new MemoryCacheOptions
             {
-                // TODO: Figure out what default options we want to use
             });
             _attempts = 0;
             _hits = 0;

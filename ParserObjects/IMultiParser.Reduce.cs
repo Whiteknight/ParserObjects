@@ -12,10 +12,7 @@ namespace ParserObjects
             => multiParser.Select((multiResult, success, fail) =>
             {
                 if (multiResult.Results.Count == 1)
-                    return success(multiResult.Results.First());
-
-                // TODO: Would like to differentiate between Count==0 which is no results and
-                // Count>1 which is ambiguous
+                    return success(multiResult.Results[0]);
                 return fail();
             });
 
@@ -24,7 +21,10 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Longest<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
             => multiParser.Select((multiResult, success, fail) =>
             {
-                var longest = multiResult.Results.Where(r => r.Success).OrderByDescending(r => r.Consumed).FirstOrDefault();
+                var longest = multiResult.Results
+                    .Where(r => r.Success)
+                    .OrderByDescending(r => r.Consumed)
+                    .FirstOrDefault();
                 if (longest == null)
                     return fail();
 
