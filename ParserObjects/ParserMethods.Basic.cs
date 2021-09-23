@@ -200,7 +200,7 @@ namespace ParserObjects
         public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
             => First(
                 p.Transform(x => new SuccessOption<TOutput>(x)),
-                Produce((s, d) => FailureOption<TOutput>.Instance)
+                Produce((_, _) => FailureOption<TOutput>.Instance)
             );
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace ParserObjects
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
             return First(
                 p,
-                Produce((s, d) => getDefault())
+                Produce((_, _) => getDefault())
             );
         }
 
@@ -259,7 +259,7 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-            => new Produce<TInput, TOutput>.Parser((input, data) => produce());
+            => new Produce<TInput, TOutput>.Parser((_, _) => produce());
 
         /// <summary>
         /// Produces a value given the input sequence and the current contextual data.
