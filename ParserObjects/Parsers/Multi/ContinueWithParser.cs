@@ -53,6 +53,9 @@ namespace ParserObjects.Parsers.Multi
 
             public override string ToString() => DefaultStringifier.ToString(this);
 
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+                => Parse(state);
+
             private class LeftValue : IParser<TInput, TMiddle>
             {
                 public LeftValue(TMiddle value, Location location)
@@ -123,6 +126,9 @@ namespace ParserObjects.Parsers.Multi
             }
 
             public override string ToString() => DefaultStringifier.ToString(this);
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+                => Parse(state);
 
             private class LeftValue : IParser<TInput, TMiddle>
             {

@@ -158,6 +158,9 @@ namespace ParserObjects.Parsers
                 state.Cache.Add(key, result);
                 return result;
             }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+                => Parse(state);
         }
     }
 }

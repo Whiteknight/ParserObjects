@@ -82,6 +82,8 @@ namespace ParserObjects.Parsers
 
             public ISequenceCheckpoint StartCheckpoint { get; }
 
+            IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
+
             public IOption<T> TryGetData<T>()
             {
                 if (_statistics is T tStats)
@@ -128,6 +130,9 @@ namespace ParserObjects.Parsers
                 var visitor = new BnfGrammarVisitor();
                 return "(\n" + visitor.Visit(_startSymbol) + "\n);";
             }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+                => Parse(state);
         }
     }
 }

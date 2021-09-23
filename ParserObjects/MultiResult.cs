@@ -25,6 +25,8 @@ namespace ParserObjects
 
         public ISequenceCheckpoint StartCheckpoint { get; }
 
+        IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
+
         public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
     }
 
@@ -46,6 +48,8 @@ namespace ParserObjects
         public int Consumed { get; }
 
         public ISequenceCheckpoint Continuation { get; }
+
+        object IResultAlternative.Value => Value;
     }
 
     public class FailureResultAlternative<TOutput> : IResultAlternative<TOutput>
@@ -61,6 +65,8 @@ namespace ParserObjects
         public string ErrorMessage { get; }
 
         public TOutput Value => throw new InvalidOperationException("This result is not a success and does not have a valid value.");
+
+        object IResultAlternative.Value => Value;
 
         public int Consumed => 0;
 

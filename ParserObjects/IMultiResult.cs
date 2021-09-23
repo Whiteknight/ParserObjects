@@ -2,23 +2,30 @@
 
 namespace ParserObjects
 {
-    public interface IResultAlternative<TOutput>
+    public interface IResultAlternative
     {
         bool Success { get; }
         string ErrorMessage { get; }
-        TOutput Value { get; }
+        object Value { get; }
         int Consumed { get; }
         ISequenceCheckpoint Continuation { get; }
+    }
+
+    public interface IResultAlternative<TOutput> : IResultAlternative
+    {
+        new TOutput Value { get; }
     }
 
     public interface IMultiResult : IResultBase
     {
         ISequenceCheckpoint StartCheckpoint { get; }
+
+        IReadOnlyList<IResultAlternative> Results { get; }
     }
 
     public interface IMultiResult<TOutput> : IMultiResult
     {
-        IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
+        new IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
     }
 
     public static class MultiResultExtensions
