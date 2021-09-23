@@ -10,7 +10,7 @@ namespace ParserObjects
         {
             Parser = parser;
             Results = results.ToList();
-            Success = Results.Count(r => r.Success) > 0;
+            Success = Results.Any(r => r.Success);
             Location = location;
             StartCheckpoint = startCheckpoint;
         }
@@ -49,7 +49,7 @@ namespace ParserObjects
 
         public ISequenceCheckpoint Continuation { get; }
 
-        object IResultAlternative.Value => Value;
+        object IResultAlternative.Value => Value!;
     }
 
     public class FailureResultAlternative<TOutput> : IResultAlternative<TOutput>
@@ -66,7 +66,7 @@ namespace ParserObjects
 
         public TOutput Value => throw new InvalidOperationException("This result is not a success and does not have a valid value.");
 
-        object IResultAlternative.Value => Value;
+        object IResultAlternative.Value => throw new InvalidOperationException("This result is not a success and does not have a valid value.");
 
         public int Consumed => 0;
 
