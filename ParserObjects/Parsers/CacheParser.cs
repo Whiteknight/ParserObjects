@@ -35,7 +35,7 @@ namespace ParserObjects.Parsers
         private record ParserLocationCacheKey(IParser Parser, Location Location) : ICacheable;
 
         /// <summary>
-        /// A parser which caches an IResult without an explicit output type
+        /// A parser which caches an IResult without an explicit output type.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         public class NoOutputParser<TInput> : IParser<TInput>
@@ -50,7 +50,7 @@ namespace ParserObjects.Parsers
 
             public IParser<TInput> Inner { get; }
 
-            public override string ToString() => Inner.ToString();
+            public override string ToString() => Inner.ToString() ?? string.Empty;
 
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
@@ -95,7 +95,7 @@ namespace ParserObjects.Parsers
 
             public IParser<TInput, TOutput> Inner { get; }
 
-            public override string ToString() => Inner.ToString();
+            public override string ToString() => Inner.ToString() ?? string.Empty;
 
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
@@ -142,7 +142,7 @@ namespace ParserObjects.Parsers
 
             public IMultiParser<TInput, TOutput> Inner { get; }
 
-            public override string ToString() => Inner.ToString();
+            public override string ToString() => Inner.ToString() ?? string.Empty;
 
             public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

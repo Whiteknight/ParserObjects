@@ -7,8 +7,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Earley
 {
-    // Engine for the Earley parser algorithm. Manages states and process, and returns the final
-    // result
+    /// <summary>
+    /// Engine for the Earley parser algorithm. Manages states and process, and returns the final
+    /// result.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class Engine<TInput, TOutput>
     {
         private readonly INonterminal<TInput, TOutput> _startSymbol;
@@ -50,11 +54,11 @@ namespace ParserObjects.Earley
                     .OfType<TOutput>()
                     .Select(value => new
                     {
-                        Item = v.Item,
+                        v.Item,
                         // The state.Number should be the number of input items consumed to get
                         // to that point, so we can use that here.
                         Consumed = v.State.Number,
-                        Checkpoint = v.State.Checkpoint,
+                        v.State.Checkpoint,
                         Value = value
                     })
                 )
