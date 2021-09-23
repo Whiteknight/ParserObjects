@@ -228,12 +228,12 @@ namespace ParserObjects.Visitors
             var children = p.GetChildren().ToList();
             if (children.Count == 1)
             {
-                VisitChild(children.First(), state);
+                VisitChild(children[0], state);
                 return;
             }
 
             state.Current.Append('(');
-            VisitChild(children.First(), state);
+            VisitChild(children[0], state);
 
             for (int i = 1; i <= children.Count - 2; i++)
             {
@@ -289,9 +289,9 @@ namespace ParserObjects.Visitors
             if (p.Maximum.HasValue)
             {
                 if (p.Maximum == p.Minimum)
-                    state.Current.Append($"{{{p.Minimum}}}");
+                    state.Current.Append('{').Append(p.Minimum).Append('}');
                 else
-                    state.Current.Append($"{{{p.Minimum}, {p.Maximum}}}");
+                    state.Current.Append('{').Append(p.Minimum).Append(", ").Append(p.Maximum).Append('}');
             }
             else
             {
@@ -300,7 +300,7 @@ namespace ParserObjects.Visitors
                 else if (p.Minimum == 1)
                     state.Current.Append('+');
                 else
-                    state.Current.Append($"{{{p.Minimum},}}");
+                    state.Current.Append('{').Append(p.Minimum).Append(",}");
             }
         }
 
@@ -403,7 +403,7 @@ namespace ParserObjects.Visitors
 
         protected virtual void Accept(RegexParser p, State state)
         {
-            state.Current.Append($"/{p.Pattern}/");
+            state.Current.Append('/').Append(p.Pattern).Append('/');
         }
 
         protected virtual void Accept<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
@@ -456,10 +456,11 @@ namespace ParserObjects.Visitors
             if (allPatterns.Count == 0)
                 return;
 
-            void PrintPattern(IEnumerable<TInput> pattern, State s)
+            static void PrintPattern(IEnumerable<TInput> pattern, State s)
             {
                 s.Current.Append('(');
-                s.Current.Append(string.Join(" ", pattern.Select(item => $"'{item}'")));
+                var spaceSeparatedQuotedItems = string.Join(" ", pattern.Select(item => $"'{item}'"));
+                s.Current.Append(spaceSeparatedQuotedItems);
                 s.Current.Append(')');
             }
 

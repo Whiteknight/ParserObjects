@@ -38,7 +38,7 @@ namespace ParserObjects.Parsers
             public INonterminal<TInput, TValue> New<TValue>(string name)
                 => AllocateNewSymbol<TValue>(name);
 
-            private string GenerateNewName() => $"_S{UniqueIntegerGenerator.GetNext()}";
+            private static string GenerateNewName() => $"_S{UniqueIntegerGenerator.GetNext()}";
 
             private string GetNewName()
             {
@@ -66,7 +66,7 @@ namespace ParserObjects.Parsers
             {
                 Parser = parser;
                 Results = results.ToList();
-                Success = Results.Count(r => r.Success) > 0;
+                Success = Results.Any(r => r.Success);
                 Location = location;
                 StartCheckpoint = startCheckpoint;
                 _statistics = statistics;
