@@ -473,12 +473,12 @@ namespace ParserObjects.Visitors
             }
         }
 
-        protected virtual void Accept<TInput, TOutput>(TryParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Try.Parser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void Accept<TInput>(TryParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(Try.Parser<TInput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }

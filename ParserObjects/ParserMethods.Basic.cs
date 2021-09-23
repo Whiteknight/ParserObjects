@@ -331,7 +331,7 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new TryParser<TInput, TOutput>(parser, examine, bubble);
+            => new Try.Parser<TInput, TOutput>(parser, examine, bubble);
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -343,6 +343,6 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new TryParser<TInput>(parser, examine, bubble);
+            => new Try.Parser<TInput>(parser, examine, bubble);
     }
 }
