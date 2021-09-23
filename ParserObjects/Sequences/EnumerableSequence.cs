@@ -14,6 +14,7 @@ namespace ParserObjects.Sequences
     {
         private readonly IEnumerator<T> _enumerator;
         private readonly T? _endSentinelValue;
+        private readonly SequenceStatistics _stats;
 
         private Node _current;
         private bool _enumeratorIsAtEnd;
@@ -46,13 +47,12 @@ namespace ParserObjects.Sequences
             // never look at, but we need it for logic later.
             _current = new Node { Value = _endSentinelValue, Next = null };
             if (!_enumeratorIsAtEnd)
-            {
-                var node = new Node { Value = _enumerator.Current, Next = null };
-                _current.Next = node;
-            }
+                _current.Next = new Node { Value = _enumerator.Current, Next = null };
 
             _index = 0;
             _consumed = 0;
+
+            _stats = new SequenceStatistics();
         }
 
         private class Node
@@ -76,7 +76,10 @@ namespace ParserObjects.Sequences
             // If we already have more in the queue, we can just return this value and not update
             // anything else
             if (_current.Next != null)
+            {
+                _stats.ItemsRead++;
                 return value;
+            }
 
             // At this point, there's nothing else in the queue. See about getting the next value
             // from the enumerator, if there is anything left.
@@ -84,6 +87,7 @@ namespace ParserObjects.Sequences
             if (_enumeratorIsAtEnd)
                 return _endSentinelValue;
 
+            _stats.ItemsRead++;
             _enumeratorIsAtEnd = !_enumerator.MoveNext();
             if (_enumeratorIsAtEnd)
             {
@@ -100,6 +104,7 @@ namespace ParserObjects.Sequences
         {
             if (_current.Next == null)
                 return _endSentinelValue;
+            _stats.ItemsPeeked++;
             return _current.Next.Value;
         }
 
@@ -114,7 +119,11 @@ namespace ParserObjects.Sequences
             _enumerator?.Dispose();
         }
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current, _index, _consumed, _enumeratorIsAtEnd);
+        public ISequenceCheckpoint Checkpoint()
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(this, _current, _index, _consumed, _enumeratorIsAtEnd);
+        }
 
         private class SequenceCheckpoint : ISequenceCheckpoint
         {
@@ -122,7 +131,6 @@ namespace ParserObjects.Sequences
             private readonly Node _node;
             private readonly int _index;
             private readonly bool _enumeratorIsAtEnd;
-            private readonly int _consumed;
 
             public SequenceCheckpoint(EnumerableSequence<T> s, Node node, int index, int consumed, bool enumeratorIsAtEnd)
             {
@@ -130,22 +138,25 @@ namespace ParserObjects.Sequences
                 _node = node;
                 _index = index;
                 _enumeratorIsAtEnd = enumeratorIsAtEnd;
-                _consumed = consumed;
+                Consumed = consumed;
             }
 
-            public int Consumed => _consumed;
+            public int Consumed { get; }
 
             public Location Location => new Location(string.Empty, 1, _index);
 
-            public void Rewind() => _s.Rewind(_node, _index, _consumed, _enumeratorIsAtEnd);
+            public void Rewind() => _s.Rewind(_node, _index, Consumed, _enumeratorIsAtEnd);
         }
 
-        private void Rewind(Node node, int index, int _consumed, bool isAtEnd)
+        private void Rewind(Node node, int index, int consumed, bool isAtEnd)
         {
+            _stats.Rewinds++;
             _current = node;
             _enumeratorIsAtEnd = isAtEnd;
             _index = index;
-            _consumed = Consumed;
+            _consumed = consumed;
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }

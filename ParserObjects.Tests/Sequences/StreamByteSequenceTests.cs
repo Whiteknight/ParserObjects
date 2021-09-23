@@ -65,6 +65,11 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(5);
             target.GetNext().Should().Be(6);
             target.GetNext().Should().Be(0);
+
+            var stats = target.GetStatistics();
+            stats.CheckpointsCreated.Should().Be(1);
+            stats.Rewinds.Should().Be(1);
+            stats.RewindsToCurrentBuffer.Should().Be(1);
         }
 
         [Test]
@@ -101,6 +106,11 @@ namespace ParserObjects.Tests.Sequences
             cp.Rewind();
 
             target.GetNext().Should().Be(4);
+
+            var stats = target.GetStatistics();
+            stats.CheckpointsCreated.Should().Be(1);
+            stats.Rewinds.Should().Be(1);
+            stats.RewindsToCurrentBuffer.Should().Be(0);
         }
 
         [Test]

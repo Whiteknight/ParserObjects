@@ -16,6 +16,7 @@ namespace ParserObjects.Sequences
     {
         private readonly ISequence<TInput> _inputs;
         private readonly Func<TInput, TOutput> _map;
+        private readonly SequenceStatistics _stats;
 
         private Node _current;
 
@@ -25,6 +26,7 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNull(map, nameof(map));
             _inputs = inputs;
             _map = map;
+            _stats = new SequenceStatistics();
 
             // _current is the value that will be read in the next call to .GetNext().
             // _current.Next is the value that will be read when we advance or call .Peek().
@@ -79,7 +81,11 @@ namespace ParserObjects.Sequences
 
         public int Consumed => _current.Consumed;
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current);
+        public ISequenceCheckpoint Checkpoint()
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(this, _current);
+        }
 
         private TOutput GetNext(bool advance)
         {
@@ -91,11 +97,15 @@ namespace ParserObjects.Sequences
             var requestedOutput = _current.Value;
 
             if (!advance)
+            {
+                _stats.ItemsPeeked++;
                 return requestedOutput;
+            }
 
             if (_current.Next != null)
             {
                 _current = _current.Next;
+                _stats.ItemsRead++;
                 return requestedOutput;
             }
 
@@ -121,6 +131,7 @@ namespace ParserObjects.Sequences
                 nextNode.Next = new Node(endSentinelOutput, endSentinelLocation, _current.Consumed + 1, true);
             }
 
+            _stats.ItemsRead++;
             _current.Next = nextNode;
             _current = nextNode;
             return requestedOutput;
@@ -146,7 +157,10 @@ namespace ParserObjects.Sequences
 
         private void Rewind(Node node)
         {
+            _stats.Rewinds++;
             _current = node;
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }

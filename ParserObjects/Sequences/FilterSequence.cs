@@ -69,6 +69,9 @@ namespace ParserObjects.Sequences
             }
         }
 
-        public ISequenceCheckpoint Checkpoint() => _inputs.Checkpoint();
+        public ISequenceCheckpoint Checkpoint()
+            => _inputs.Checkpoint();
+
+        public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
     }
 }

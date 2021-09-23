@@ -13,6 +13,8 @@ namespace ParserObjects.Sequences
         private readonly ISequence<TInput> _input;
         private readonly ParseState<TInput> _state;
         private readonly IParser<TInput, TOutput> _parser;
+        private readonly SequenceStatistics _stats;
+
         private Node _current;
 
         public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Action<string> log)
@@ -22,6 +24,7 @@ namespace ParserObjects.Sequences
             _state = new ParseState<TInput>(input, log);
             _input = input;
             _parser = parser;
+            _stats = new SequenceStatistics();
 
             var startLocation = _input.CurrentLocation;
             var isAtEndToStart = _input.IsAtEnd;
@@ -63,7 +66,11 @@ namespace ParserObjects.Sequences
 
         public int Consumed => _current.Consumed;
 
-        public ISequenceCheckpoint Checkpoint() => new SequenceCheckpoint(this, _current);
+        public ISequenceCheckpoint Checkpoint()
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(this, _current);
+        }
 
         private IResult<TOutput> GetNext(bool advance)
         {
@@ -72,10 +79,14 @@ namespace ParserObjects.Sequences
 
             var requestedResult = _current.Value;
             if (!advance)
+            {
+                _stats.ItemsPeeked++;
                 return requestedResult;
+            }
 
             if (_current.Next != null)
             {
+                _stats.ItemsRead++;
                 _current = _current.Next;
                 return requestedResult;
             }
@@ -88,6 +99,7 @@ namespace ParserObjects.Sequences
                 _current.Next.Next = new Node(endSentinelResult, endSentinelResult.Location, _current.Consumed + 1, true);
             }
 
+            _stats.ItemsRead++;
             _current = _current.Next;
 
             return requestedResult;
@@ -116,7 +128,10 @@ namespace ParserObjects.Sequences
 
         private void Rewind(Node node)
         {
+            _stats.Rewinds++;
             _current = node;
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }

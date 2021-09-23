@@ -18,6 +18,7 @@ namespace ParserObjects.Sequences
         private readonly bool _normalizeLineEndings;
         private readonly char _endSentinel;
         private readonly char[] _buffer;
+        private readonly SequenceStatistics _stats;
 
         private BufferMetadata _metadata;
 
@@ -36,6 +37,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+            _stats = new SequenceStatistics();
             _fileName = fileName;
             _metadata = default;
             _bufferSize = bufferSize;
@@ -52,6 +54,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+            _stats = new SequenceStatistics();
             _fileName = fileName;
             _metadata = default;
             _bufferSize = bufferSize;
@@ -67,6 +70,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+            _stats = new SequenceStatistics();
             _metadata = default;
             _fileName = fileName ?? "stream";
             _bufferSize = bufferSize;
@@ -111,6 +115,8 @@ namespace ParserObjects.Sequences
                 c = '\n';
             }
 
+            _stats.ItemsRead++;
+
             if (c == '\n')
             {
                 _metadata.Line++;
@@ -127,6 +133,7 @@ namespace ParserObjects.Sequences
             var next = GetNextCharRaw(false);
             if (_normalizeLineEndings && next == '\r')
                 next = '\n';
+            _stats.ItemsPeeked++;
             return next;
         }
 
@@ -215,6 +222,7 @@ namespace ParserObjects.Sequences
             if (_metadata.Index < _metadata.TotalCharsInBuffer || _metadata.TotalCharsInBuffer == 0)
                 return;
 
+            _stats.BufferFills++;
             _metadata.BufferStartStreamPosition = _metadata.StreamPosition;
             _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
             _metadata.Index = 0;
@@ -224,6 +232,7 @@ namespace ParserObjects.Sequences
         {
             if (_expectLowSurrogate)
                 throw new InvalidOperationException("Cannot set a checkpoint between the high and low surrogates of a single codepoint");
+            _stats.CheckpointsCreated++;
             return new SequenceCheckpoint(this, _metadata);
         }
 
@@ -250,14 +259,20 @@ namespace ParserObjects.Sequences
             // Clear this flag, just in case
             _expectLowSurrogate = false;
 
+            _stats.Rewinds++;
+
             // If we're rewinding to the current position, short-circuit
             if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition && _metadata.StreamPosition == metadata.StreamPosition)
+            {
+                _stats.RewindsToCurrentBuffer++;
                 return;
+            }
 
             // If position is within the current buffer, just reset _bufferIndex and the metadata
             // and continue
             if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition)
             {
+                _stats.RewindsToCurrentBuffer++;
                 _metadata = metadata;
                 return;
             }
@@ -272,5 +287,7 @@ namespace ParserObjects.Sequences
             _reader.DiscardBufferedData();
             _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }

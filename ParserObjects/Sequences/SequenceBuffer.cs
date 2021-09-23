@@ -65,9 +65,7 @@ namespace ParserObjects.Sequences
         {
             var realIndex = _offset + index;
             FillUntil(realIndex);
-            if (realIndex >= _buffer.Count)
-                return true;
-            return false;
+            return realIndex >= _buffer.Count;
         }
 
         private void FillUntil(int i)

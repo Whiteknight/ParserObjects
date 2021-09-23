@@ -14,6 +14,7 @@ namespace ParserObjects.Sequences
         private readonly Stream _stream;
         private readonly byte[] _buffer;
         private readonly byte _endSentinel;
+        private readonly SequenceStatistics _stats;
 
         private bool _isComplete;
         private int _remainingBytes;
@@ -25,6 +26,7 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
 
+            _stats = new SequenceStatistics();
             _fileName = fileName;
             _bufferSize = bufferSize;
             _bufferIndex = bufferSize;
@@ -40,6 +42,7 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
 
+            _stats = new SequenceStatistics();
             _fileName = fileName;
             _bufferSize = bufferSize;
             _bufferIndex = bufferSize;
@@ -57,11 +60,17 @@ namespace ParserObjects.Sequences
             var b = GetNextByteRaw(true);
             if (b == _endSentinel)
                 return b;
+            _stats.ItemsRead++;
             _consumed++;
             return b;
         }
 
-        public byte Peek() => GetNextByteRaw(false);
+        public byte Peek()
+        {
+            var b = GetNextByteRaw(false);
+            _stats.ItemsPeeked++;
+            return b;
+        }
 
         public Location CurrentLocation => new Location(_fileName, 1, _consumed);
 
@@ -96,6 +105,7 @@ namespace ParserObjects.Sequences
         {
             if (_remainingBytes != 0 && _bufferIndex < _bufferSize)
                 return;
+            _stats.BufferFills++;
             _remainingBytes = _stream.Read(_buffer, 0, _bufferSize);
             if (_remainingBytes == 0)
                 _isComplete = true;
@@ -106,6 +116,7 @@ namespace ParserObjects.Sequences
         {
             // FillBuffer to make sure we have data and all our pointers are valid
             FillBuffer();
+            _stats.CheckpointsCreated++;
             var currentPosition = _stream.Position - _remainingBytes;
             return new SequenceCheckpoint(this, currentPosition, _consumed);
         }
@@ -131,12 +142,14 @@ namespace ParserObjects.Sequences
 
         private void Rewind(long position, int consumed)
         {
+            _stats.Rewinds++;
             var sizeOfCurrentBuffer = _bufferIndex + _remainingBytes;
             var bufferStartPosition = _stream.Position - sizeOfCurrentBuffer;
 
             if (position >= bufferStartPosition && position < _stream.Position)
             {
                 // The position is inside the current buffer, just update the pointers
+                _stats.RewindsToCurrentBuffer++;
                 _bufferIndex = (int)(position - bufferStartPosition);
                 _remainingBytes = sizeOfCurrentBuffer - _bufferIndex;
                 _isComplete = false;
@@ -157,5 +170,7 @@ namespace ParserObjects.Sequences
             _consumed = consumed;
             _isComplete = _remainingBytes <= 0;
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }

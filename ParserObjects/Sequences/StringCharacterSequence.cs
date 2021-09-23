@@ -11,6 +11,7 @@ namespace ParserObjects.Sequences
         private readonly bool _normalizeLineEndings;
         private readonly string _s;
         private readonly char _endSentinel;
+        private readonly SequenceStatistics _stats;
 
         private int _index;
         private int _line;
@@ -20,6 +21,7 @@ namespace ParserObjects.Sequences
         public StringCharacterSequence(string s, string fileName = "", bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(s, nameof(s));
+            _stats = new SequenceStatistics();
             _s = s;
             _line = 1;
             _column = 0;
@@ -42,6 +44,8 @@ namespace ParserObjects.Sequences
                     GetNextInternal(true);
                 next = '\n';
             }
+
+            _stats.ItemsRead++;
 
             // If we have a newline, update the line-tracking.
             // TODO: What do we do about systems that only use \r for newlines? Right now we ignore
@@ -75,6 +79,7 @@ namespace ParserObjects.Sequences
             var next = GetNextInternal(false);
             if (_normalizeLineEndings && next == '\r')
                 next = '\n';
+            _stats.ItemsPeeked++;
             return next;
         }
 
@@ -102,7 +107,10 @@ namespace ParserObjects.Sequences
         }
 
         public ISequenceCheckpoint Checkpoint()
-            => new StringCheckpoint(this, _index, _line, _column, _consumed);
+        {
+            _stats.CheckpointsCreated++;
+            return new StringCheckpoint(this, _index, _line, _column, _consumed);
+        }
 
         private class StringCheckpoint : ISequenceCheckpoint
         {
@@ -124,15 +132,19 @@ namespace ParserObjects.Sequences
 
             public Location Location => new Location(_s._fileName, _line, _column);
 
-            public void Rewind() => _s.Rollback(_index, _line, _column, Consumed);
+            public void Rewind() => _s.Rewind(_index, _line, _column, Consumed);
         }
 
-        private void Rollback(int index, int line, int column, int consumed)
+        private void Rewind(int index, int line, int column, int consumed)
         {
+            _stats.Rewinds++;
+            _stats.RewindsToCurrentBuffer++;
             _index = index;
             _line = line;
             _column = column;
             _consumed = consumed;
         }
+
+        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 }
