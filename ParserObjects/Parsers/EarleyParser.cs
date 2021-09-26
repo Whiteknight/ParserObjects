@@ -58,7 +58,7 @@ namespace ParserObjects.Parsers
             }
         }
 
-        private class MultiResult : IMultiResult<TOutput>
+        private class MultiResult : IMultiResult<TOutput>, IResultHasData
         {
             private readonly IParseStatistics _statistics;
 

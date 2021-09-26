@@ -76,7 +76,7 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("4*5+6");
             result.Success.Should().BeTrue();
-            var statistics = result.TryGetData<IParseStatistics>().Value;
+            var statistics = (result as IResultHasData).TryGetData<IParseStatistics>().Value;
 
             statistics.CreatedItems.Should().Be(54);
             statistics.NumberOfStates.Should().Be(6);
@@ -248,7 +248,7 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("");
             result.Success.Should().BeTrue();
-            var statistics = result.TryGetData<IParseStatistics>().Value;
+            var statistics = (result as IResultHasData).TryGetData<IParseStatistics>().Value;
 
             statistics.ScannedSuccess.Should().Be(2);
 
@@ -331,7 +331,7 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("a");
             result.Success.Should().BeTrue();
-            var statistics = result.TryGetData<IParseStatistics>().Value;
+            var statistics = (result as IResultHasData).TryGetData<IParseStatistics>().Value;
 
             statistics.ScannedSuccess.Should().Be(3);
 

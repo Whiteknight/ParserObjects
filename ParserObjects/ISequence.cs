@@ -33,7 +33,8 @@ namespace ParserObjects
         /// </summary>
         int Consumed { get; }
 
-        ISequenceStatistics GetStatistics();
+        // V4: Uncomment this breaking change for V4
+        // ISequenceStatistics GetStatistics();
     }
 
     /// <summary>

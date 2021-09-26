@@ -72,6 +72,7 @@ namespace ParserObjects.Sequences
         public ISequenceCheckpoint Checkpoint()
             => _inputs.Checkpoint();
 
-        public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
+        // V4: Uncomment in V4
+        // public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
     }
 }

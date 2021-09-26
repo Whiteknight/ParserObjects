@@ -27,12 +27,13 @@
         /// </summary>
         Location Location { get; }
 
-        /// <summary>
-        /// Some parsers may include additional information in the result. When available, that
-        /// data can be accessed by type. If the data is not available, this method returns failure.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        // V4: Uncomment this for V4 because it's a breaking change.
+        // IOption<T> TryGetData<T>();
+    }
+
+    // V4: Merge this into IResultBase
+    public interface IResultHasData
+    {
         IOption<T> TryGetData<T>();
     }
 }
