@@ -104,5 +104,99 @@ namespace ParserObjects.Parsers
 
             public override string ToString() => DefaultStringifier.ToString(this);
         }
+
+        public class MultiParser<TInput> : IMultiParser<TInput>
+        {
+            private readonly IMultiParser<TInput> _inner;
+            private readonly Action<Exception>? _examine;
+            private readonly bool _bubble;
+
+            public MultiParser(IMultiParser<TInput> inner, Action<Exception>? examine, bool bubble = false)
+            {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                _inner = inner;
+                Name = string.Empty;
+                _examine = examine ?? DefaultExamine;
+                _bubble = bubble;
+            }
+
+            public string Name { get; set; }
+
+            public IMultiResult Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    return _inner.Parse(state);
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    _examine?.Invoke(e);
+                    if (_bubble)
+                        throw;
+                    return new MultiResult(this, cp.Location, cp, Array.Empty<IResultAlternative>());
+                }
+            }
+
+            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
+
+        public class MultiParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
+        {
+            private readonly IMultiParser<TInput, TOutput> _inner;
+            private readonly Action<Exception>? _examine;
+            private readonly bool _bubble;
+
+            public MultiParser(IMultiParser<TInput, TOutput> inner, Action<Exception>? examine, bool bubble = false)
+            {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                _inner = inner;
+                Name = string.Empty;
+                _examine = examine ?? DefaultExamine;
+                _bubble = bubble;
+            }
+
+            public string Name { get; set; }
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    return _inner.Parse(state);
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    _examine?.Invoke(e);
+                    if (_bubble)
+                        throw;
+                    return new MultiResult<TOutput>(this, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>());
+                }
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
     }
 }

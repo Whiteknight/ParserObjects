@@ -106,7 +106,7 @@ namespace ParserObjects.Tests.Parsers
                     })
                 )
                 .Add(Match('b'), p => p
-                    .ProduceRight((ctx, _) =>
+                    .ProduceRight((_, _) =>
                     {
                         throw new System.Exception();
                     })

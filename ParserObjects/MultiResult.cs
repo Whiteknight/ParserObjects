@@ -4,6 +4,33 @@ using System.Linq;
 
 namespace ParserObjects
 {
+    public class MultiResult : IMultiResult
+    {
+        public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative> results)
+        {
+            Parser = parser;
+            Results = results.ToList();
+            Success = Results.Any(r => r.Success);
+            Location = location;
+            StartCheckpoint = startCheckpoint;
+        }
+
+        public IParser Parser { get; }
+
+        public bool Success { get; }
+
+        public Location Location { get; }
+
+        public IReadOnlyList<IResultAlternative> Results { get; }
+
+        public ISequenceCheckpoint StartCheckpoint { get; }
+
+        IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
+
+        // V4
+        // public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+    }
+
     public class MultiResult<TOutput> : IMultiResult<TOutput>
     {
         public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results)
@@ -27,7 +54,8 @@ namespace ParserObjects
 
         IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
 
-        public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+        // V4
+        // public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
     }
 
     public class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>

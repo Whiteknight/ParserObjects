@@ -31,9 +31,8 @@ namespace ParserObjects.Earley
                 // TODO: ControlFlowException so we can jump out of a user-rule and immediately fail
                 // the parse at several levels?
             }
-            catch (Exception e)
+            catch (ProductionFailedException)
             {
-                Debug.WriteLine("Exception in user callback: " + e.Message);
                 return FailureOption<object>.Instance;
             }
         }

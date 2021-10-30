@@ -611,5 +611,17 @@ namespace ParserObjects.Tests.Parsers
             names.Should().Contain("'*'");
             names.Should().Contain("End");
         }
+
+        [Test]
+        public void Production_Throws()
+        {
+            var target = Earley<int>(symbols =>
+            {
+                return symbols.New<int>("E")
+                    .AddProduction(Match('A'), (_) => throw new System.Exception("FAIL"));
+            });
+
+            var result = target.Parse("");
+        }
     }
 }
