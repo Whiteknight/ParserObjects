@@ -29,6 +29,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Create<TOutput>(Create<TInput, TOutput>.Function create)
             => new Create<TInput, TOutput>.Parser(create);
 
+        public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Create<TInput, TOutput>.MultiFunction create)
+            => new Create<TInput, TOutput>.MultiParser(create);
+
         /// <summary>
         /// A parser which tries to get a value from current contextual data and return it as the
         /// result. Fails if the value does not exist.

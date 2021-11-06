@@ -188,6 +188,11 @@ namespace ParserObjects.Visitors
             state.Current.Append("CREATE");
         }
 
+        protected virtual void Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser p, State state)
+        {
+            state.Current.Append("CREATE");
+        }
+
         protected virtual void Accept<TInput, TOutput>(DeferredParser<TInput, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
