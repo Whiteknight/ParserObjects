@@ -395,6 +395,11 @@ namespace ParserObjects.Visitors
             state.Current.Append("PRODUCE");
         }
 
+        protected virtual void Accept<TInput, TOutput>(Produce<TInput, TOutput>.MultiParser p, State state)
+        {
+            state.Current.Append("PRODUCE");
+        }
+
         protected virtual void Accept<TInput, TMulti, TOutput>(ReduceParser<TInput, TMulti, TOutput> p, State state)
         {
             state.Current.Append("REDUCE ");

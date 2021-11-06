@@ -270,6 +270,12 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Produce<TOutput>(Produce<TInput, TOutput>.Function produce)
             => new Produce<TInput, TOutput>.Parser(produce);
 
+        public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IEnumerable<TOutput>> produce)
+            => new Produce<TInput, TOutput>.MultiParser((_, _) => produce());
+
+        public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Produce<TInput, TOutput>.MultiFunction produce)
+            => new Produce<TInput, TOutput>.MultiParser(produce);
+
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
         /// </summary>

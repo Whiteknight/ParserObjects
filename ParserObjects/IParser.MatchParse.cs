@@ -87,6 +87,9 @@ namespace ParserObjects
         public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
             => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
 
+        public static IMultiResult<TOutput> Parse<TInput, TOutput>(this IMultiParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
+            => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+
         /// <summary>
         /// Covenience method to invoke a parser which does not return a value. Creates the
         /// necessary ParseState.
@@ -97,6 +100,9 @@ namespace ParserObjects
         /// <param name="log"></param>
         /// <returns></returns>
         public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input, Action<string>? log = null)
+            => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+
+        public static IMultiResult Parse<TInput>(this IMultiParser<TInput> parser, ISequence<TInput> input, Action<string>? log = null)
             => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
     }
 }

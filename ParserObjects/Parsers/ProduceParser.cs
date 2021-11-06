@@ -19,6 +19,8 @@ namespace ParserObjects.Parsers
         /// <returns></returns>
         public delegate TOutput Function(ISequence<TInput> input, IDataStore data);
 
+        public delegate IEnumerable<TOutput> MultiFunction(ISequence<TInput> input, IDataStore data);
+
         /// <summary>
         /// Produces an output value unconditionally. Consumes no input. The callback has access to
         /// both the input sequence and the current contextual data, to help crafting the value.
@@ -51,6 +53,36 @@ namespace ParserObjects.Parsers
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
             public override string ToString() => DefaultStringifier.ToString(this);
+        }
+
+        public class MultiParser : IMultiParser<TInput, TOutput>
+        {
+            private readonly MultiFunction _produce;
+
+            public MultiParser(MultiFunction produce)
+            {
+                Assert.ArgumentNotNull(produce, nameof(produce));
+                _produce = produce;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                var startLocation = state.Input.CurrentLocation;
+                var startCheckpoint = state.Input.Checkpoint();
+                var values = _produce(state.Input, state.Data);
+                var alternatives = values.Select(v => new SuccessResultAlternative<TOutput>(v, 0, startCheckpoint));
+                return new MultiResult<TOutput>(this, startLocation, startCheckpoint, alternatives);
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
         }
     }
 }
