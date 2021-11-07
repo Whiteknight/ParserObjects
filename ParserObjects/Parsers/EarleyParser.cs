@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Earley;
 using ParserObjects.Utility;
+using ParserObjects.Visitors;
 
 namespace ParserObjects.Parsers
 {
@@ -145,10 +146,11 @@ namespace ParserObjects.Parsers
 
             public override string ToString() => DefaultStringifier.ToString(this);
 
-            public string GetBnf()
+            public string GetBnf(BnfStringifyVisitor visitor, BnfStringifyVisitor.State state)
             {
-                var visitor = new BnfGrammarVisitor();
-                return "(\n" + visitor.Visit(_startSymbol) + "\n);";
+                var grammarVisitor = new BnfGrammarVisitor();
+                var bnf = grammarVisitor.Visit(_startSymbol, visitor, state);
+                return $"EARLEY(\n{bnf}\n)";
             }
 
             IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)

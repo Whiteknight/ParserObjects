@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects;
+using ParserObjects.Visitors;
 
 namespace ParserObjects.Earley
 {
@@ -8,19 +9,23 @@ namespace ParserObjects.Earley
     {
         private class State
         {
-            public State()
+            public State(BnfStringifyVisitor visitor, BnfStringifyVisitor.State state)
             {
                 SeenItems = new HashSet<object>();
                 Lines = new List<string>();
+                Visitor = visitor;
+                OuterState = state;
             }
 
+            public BnfStringifyVisitor Visitor { get; }
+            public BnfStringifyVisitor.State OuterState { get; }
             public HashSet<object> SeenItems { get; }
             public List<string> Lines { get; }
         }
 
-        public string Visit(INonterminal rootRule)
+        public string Visit(INonterminal rootRule, BnfStringifyVisitor visitor, BnfStringifyVisitor.State outerState)
         {
-            var state = new State();
+            var state = new State(visitor, outerState);
             Visit(rootRule, state);
             return string.Join("\n", state.Lines);
         }
@@ -42,7 +47,7 @@ namespace ParserObjects.Earley
 
         private void Accept(IParser terminal, State state)
         {
-            state.Lines.Add($"{terminal.Name} := parser");
+            state.Visitor.VisitChild(terminal, state.OuterState, false);
         }
 
         private void Accept(INonterminal nonterminal, State state)
@@ -50,7 +55,10 @@ namespace ParserObjects.Earley
             foreach (var production in nonterminal.Productions)
                 Visit(production, state);
             foreach (var production in nonterminal.Productions)
-                state.Lines.Add(nonterminal.Name + " := " + string.Join(" ", production.Symbols.OfType<INamed>().Select(i => $"<{i.Name}>")));
+            {
+                var productionBnf = string.Join(" ", production.Symbols.OfType<INamed>().Select(i => $"<{i.Name}>"));
+                state.Lines.Add($"   {nonterminal.Name} := {productionBnf}");
+            }
         }
 
         private void Accept(IProduction production, State state)

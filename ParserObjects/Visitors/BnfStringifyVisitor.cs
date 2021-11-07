@@ -46,13 +46,13 @@ namespace ParserObjects.Visitors
             return sb.ToString();
         }
 
-        private void Visit(IParser parser, State state)
+        protected void Visit(IParser parser, State state)
         {
             // Top-level sb
             VisitChild(parser, state);
         }
 
-        protected virtual void VisitChild(IParser parser, State state)
+        public virtual void VisitChild(IParser parser, State state, bool writeInPlace = true)
         {
             if (parser == null)
                 return;
@@ -81,16 +81,19 @@ namespace ParserObjects.Visitors
             state.Seen.Add(parser);
 
             // If the parser doesn't have a name, recursively visit it in-place
-            if (string.IsNullOrEmpty(parser.Name))
+            if (writeInPlace && string.IsNullOrEmpty(parser.Name))
             {
                 ((dynamic)this).Accept((dynamic)parser, state);
                 return;
             }
 
             // If the parser does have a name, write a tag for it
-            state.Current.Append('<');
-            state.Current.Append(parser.Name);
-            state.Current.Append('>');
+            if (writeInPlace)
+            {
+                state.Current.Append('<');
+                state.Current.Append(parser.Name);
+                state.Current.Append('>');
+            }
 
             // Start a new builder, so we can start stringifying this new parser on it's own line.
             state.History.Push(state.Current);
@@ -205,7 +208,7 @@ namespace ParserObjects.Visitors
 
         protected virtual void Accept<TInput, TOutput>(Earley<TInput, TOutput>.Parser p, State state)
         {
-            state.Current.Append(p.GetBnf());
+            state.Current.Append(p.GetBnf(this, state));
         }
 
         protected virtual void Accept<TInput>(EmptyParser<TInput> p, State state)
