@@ -37,5 +37,17 @@ namespace ParserObjects.Tests.Parsers
             Action act = () => target.Parse("abc");
             act.Should().Throw<InvalidOperationException>();
         }
+
+        [Test]
+        public void Parse_Multi()
+        {
+            var target = Deferred(() => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var result = target.Parse(new StringCharacterSequence(""));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results.Should().Contain(r => r.Value == "a");
+            result.Results.Should().Contain(r => r.Value == "b");
+            result.Results.Should().Contain(r => r.Value == "c");
+        }
     }
 }

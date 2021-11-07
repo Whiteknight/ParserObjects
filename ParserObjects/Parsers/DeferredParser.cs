@@ -10,29 +10,58 @@ namespace ParserObjects.Parsers
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class DeferredParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public abstract class Deferred<TInput, TOutput>
     {
-        private readonly Func<IParser<TInput, TOutput>> _getParser;
-
-        public DeferredParser(Func<IParser<TInput, TOutput>> getParser)
+        public class Parser : IParser<TInput, TOutput>
         {
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
-            _getParser = getParser;
-            Name = string.Empty;
+            private readonly Func<IParser<TInput, TOutput>> _getParser;
+
+            public Parser(Func<IParser<TInput, TOutput>> getParser)
+            {
+                Assert.ArgumentNotNull(getParser, nameof(getParser));
+                _getParser = getParser;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                var parser = _getParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
+                return parser.Parse(state);
+            }
+
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        public string Name { get; set; }
-
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public class MultiParser : IMultiParser<TInput, TOutput>
         {
-            var parser = _getParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
-            return parser.Parse(state);
+            private readonly Func<IMultiParser<TInput, TOutput>> _getParser;
+
+            public MultiParser(Func<IMultiParser<TInput, TOutput>> getParser)
+            {
+                Assert.ArgumentNotNull(getParser, nameof(getParser));
+                _getParser = getParser;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                var parser = _getParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
+                return parser.Parse(state);
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
-
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _getParser() };
-
-        public override string ToString() => DefaultStringifier.ToString(this);
     }
 }

@@ -98,7 +98,10 @@ namespace ParserObjects
         /// <param name="getParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
-            => new DeferredParser<TInput, TOutput>(getParser);
+            => new Deferred<TInput, TOutput>.Parser(getParser);
+
+        public static IMultiParser<TInput, TOutput> Deferred<TOutput>(Func<IMultiParser<TInput, TOutput>> getParser)
+            => new Deferred<TInput, TOutput>.MultiParser(getParser);
 
         /// <summary>
         /// The empty parser, consumers no input and always returns success at any point.
