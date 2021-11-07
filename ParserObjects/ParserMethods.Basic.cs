@@ -132,6 +132,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
+        public static IMultiParser<TInput, TOutput> Examine<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.MultiContext>? before = null, Action<Examine<TInput, TOutput>.MultiContext>? after = null)
+            => new Examine<TInput, TOutput>.MultiParser(parser, before, after);
+
         /// <summary>
         /// Invoke callbacks before and after a parse.
         /// </summary>
@@ -141,6 +144,9 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
             => new Examine<TInput>.Parser(parser, before, after);
+
+        public static IMultiParser<TInput> Examine(IMultiParser<TInput> parser, Action<Examine<TInput>.MultiContext>? before = null, Action<Examine<TInput>.MultiContext>? after = null)
+            => new Examine<TInput>.MultiParser(parser, before, after);
 
         /// <summary>
         /// Unconditionally returns failure.
@@ -157,6 +163,9 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TInput> Fail(string error = "Fail")
             => new Fail<TInput, TInput>.Parser(error);
+
+        public static IMultiParser<TInput, TOutput> FailMulti<TOutput>(string error = "Fail")
+            => new Fail<TInput, TOutput>.MultiParser(error);
 
         /// <summary>
         /// Return the result of the first parser which succeeds.

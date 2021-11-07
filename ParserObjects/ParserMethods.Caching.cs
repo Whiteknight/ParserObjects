@@ -9,5 +9,8 @@ namespace ParserObjects
 
         public static IParser<TInput, TOutput> Cache<TOutput>(IParser<TInput, TOutput> p)
             => new Cache.OutputParser<TInput, TOutput>(p);
+
+        public static IMultiParser<TInput, TOutput> Cache<TOutput>(IMultiParser<TInput, TOutput> p)
+            => new Cache.MultiParser<TInput, TOutput>(p);
     }
 }

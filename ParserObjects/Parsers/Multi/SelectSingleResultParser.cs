@@ -40,7 +40,7 @@ namespace ParserObjects.Parsers.Multi
             }
 
             var selected = _selector(multi, Success, Fail);
-            if (!selected.Success)
+            if (selected == null || !selected.Success)
                 return state.Fail(this, "No alternative selected, or no matching value could be found");
 
             var alt = selected.Value;

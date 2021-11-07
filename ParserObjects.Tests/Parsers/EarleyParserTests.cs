@@ -129,6 +129,42 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void BasicExpression_Precedence()
+        {
+            var target = Earley<(string, int)>(symbols =>
+            {
+                var plus = Match('+').Named("'+'");
+                var minus = Match('-').Named("'-'");
+                var star = Match('*').Named("'*'");
+                var divide = Match('/').Named("'/'");
+                var number = UnsignedInteger().Named("literal");
+
+                var primary = symbols.New("Primary")
+                    .AddProduction(number, n => (n.ToString(), n));
+
+                var term = symbols.New<(string, int)>("Term");
+                term.AddProduction(primary, p => p);
+                term.AddProduction(term, star, primary, (l, _, r) => ($"({l.Item1}*{r.Item1})", l.Item2 * r.Item2));
+                term.AddProduction(term, divide, primary, (l, _, r) => ($"({l.Item1}/{r.Item1})", l.Item2 / r.Item2));
+
+                var expr = symbols.New<(string, int)>("Expr");
+                expr.AddProduction(term, t => t);
+                expr.AddProduction(expr, plus, term, (l, _, r) => ($"({l.Item1}+{r.Item1})", l.Item2 + r.Item2));
+                expr.AddProduction(expr, minus, term, (l, _, r) => ($"({l.Item1}-{r.Item1})", l.Item2 - r.Item2));
+
+                var eof = IsEnd();
+
+                return symbols.New("S")
+                    .AddProduction(expr, eof, (e, _) => e);
+            });
+
+            var result = target.Parse("4*5+6/3-2");
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(1);
+            result.Results[0].Value.Item2.Should().Be(26); // (4*5)+6
+        }
+
+        [Test]
         public void BasicExpression_MultiCharItems()
         {
             var target = Earley<int>(symbols =>
