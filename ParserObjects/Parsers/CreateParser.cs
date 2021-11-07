@@ -101,14 +101,7 @@ namespace ParserObjects.Parsers
                 if (consumedDuringCreation == 0)
                     return result;
 
-                var newAlternatives = result.Results
-                    .Select(alt =>
-                    {
-                        if (!alt.Success)
-                            return (IResultAlternative<TOutput>)new FailureResultAlternative<TOutput>(alt.ErrorMessage, startCheckpoint);
-                        return new SuccessResultAlternative<TOutput>(alt.Value, alt.Consumed + consumedDuringCreation, alt.Continuation);
-                    });
-                return new MultiResult<TOutput>(this, startCheckpoint.Location, startCheckpoint, newAlternatives);
+                return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + consumedDuringCreation, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
             }
 
             IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

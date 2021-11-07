@@ -84,6 +84,26 @@ namespace ParserObjects.Parsers
 
             IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
 
+            public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, ISequenceCheckpoint? startCheckpoint = null, Location? location = null)
+            {
+                Assert.ArgumentNotNull(recreate, nameof(recreate));
+                var newAlternatives = Results.Select(alt =>
+                {
+                    if (!alt.Success)
+                        return alt;
+                    return recreate(alt, alt.Factory);
+                });
+                var newCheckpoint = startCheckpoint ?? StartCheckpoint;
+                var newLocation = location ?? Location;
+                return new MultiResult(Parser, newLocation, newCheckpoint, newAlternatives, _statistics);
+            }
+
+            public IMultiResult<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
+            {
+                var newAlternatives = Results.Select(alt => alt.Transform(transform));
+                return new Earley<TInput, TValue>.MultiResult(Parser, Location, StartCheckpoint, newAlternatives, _statistics);
+            }
+
             public IOption<T> TryGetData<T>()
             {
                 if (_statistics is T tStats)

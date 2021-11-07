@@ -36,6 +36,7 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
+                var startCheckpoint = state.Input.Checkpoint();
                 var startConsumed = state.Input.Consumed;
                 _before?.Invoke(new Context(_parser, state, null));
                 var result = _parser.Parse(state);
@@ -44,7 +45,13 @@ namespace ParserObjects.Parsers
 
                 // The callbacks have access to Input, so the user might consume data. Make sure
                 // to report that if it happens.
-                if (!result.Success || result.Consumed == totalConsumed)
+                if (!result.Success)
+                {
+                    startCheckpoint.Rewind();
+                    return result;
+                }
+
+                if (result.Consumed == totalConsumed)
                     return result;
                 return state.Success(this, result.Value, totalConsumed, result.Location);
             }
@@ -76,19 +83,34 @@ namespace ParserObjects.Parsers
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var startConsumed = state.Input.Consumed;
-                _before?.Invoke(new MultiContext(_parser, state, null));
-                var result = _parser.Parse(state);
-                _after?.Invoke(new MultiContext(_parser, state, result));
-                var totalConsumed = state.Input.Consumed - startConsumed;
 
-                // TODO: Figure out how to properly report Consumed if the user consumes values in
-                // the callbacks
+                var startCheckpoint = state.Input.Checkpoint();
+
+                var beforeFirstConsumed = state.Input.Consumed;
+                _before?.Invoke(new MultiContext(_parser, state, null));
+                var afterFirstConsumed = state.Input.Consumed;
+
+                var result = _parser.Parse(state);
+
+                var beforeSecondConsumed = state.Input.Consumed;
+                _after?.Invoke(new MultiContext(_parser, state, result));
+                var afterSecondConsumed = state.Input.Consumed;
+
+                var totalConsumedInCallbacks = (afterFirstConsumed - beforeFirstConsumed) + (afterSecondConsumed - beforeSecondConsumed);
+                totalConsumedInCallbacks = totalConsumedInCallbacks < 0 ? 0 : totalConsumedInCallbacks;
+
                 // The callbacks have access to Input, so the user might consume data. Make sure
-                // to report that if it happens.
-                if (!result.Success || result.Consumed == totalConsumed)
+                // to handle that correct in failure and success cases.
+                if (!result.Success)
+                {
+                    startCheckpoint.Rewind();
                     return result;
-                return state.Success(this, result.Value, totalConsumed, result.Location);
+                }
+
+                if (totalConsumedInCallbacks == 0)
+                    return result;
+
+                return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + totalConsumedInCallbacks, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
             }
 
             IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

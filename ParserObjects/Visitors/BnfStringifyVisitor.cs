@@ -218,7 +218,17 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().First(), state);
         }
 
+        protected virtual void Accept<TInput>(Examine<TInput>.MultiParser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
         protected virtual void Accept<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Examine<TInput, TOutput>.MultiParser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
