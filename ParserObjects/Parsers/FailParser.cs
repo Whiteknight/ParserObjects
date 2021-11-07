@@ -9,27 +9,54 @@ namespace ParserObjects.Parsers
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class FailParser<TInput, TOutput> : IParser<TInput, TOutput>
+    public static class Fail<TInput, TOutput>
     {
-        public FailParser(string? errorMessage = null)
+        public class Parser : IParser<TInput, TOutput>
         {
-            ErrorMessage = errorMessage ?? "Guaranteed fail";
-            Name = string.Empty;
+            public Parser(string? errorMessage = null)
+            {
+                ErrorMessage = errorMessage ?? "Guaranteed fail";
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+            public string ErrorMessage { get; }
+
+            public IResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                return state.Fail(this, ErrorMessage);
+            }
+
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        public string Name { get; set; }
-        public string ErrorMessage { get; }
-
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public class MultiParser : IMultiParser<TInput, TOutput>
         {
-            Assert.ArgumentNotNull(state, nameof(state));
-            return state.Fail(this, ErrorMessage);
+            public MultiParser(string? errorMessage = null)
+            {
+                ErrorMessage = errorMessage ?? "Guaranteed fail";
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+            public string ErrorMessage { get; }
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                return new MultiResult<TOutput>(this, state.Input.CurrentLocation, state.Input.Checkpoint(), Enumerable.Empty<IResultAlternative<TOutput>>());
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
-
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-        public override string ToString() => DefaultStringifier.ToString(this);
     }
 }

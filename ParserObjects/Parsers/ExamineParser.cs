@@ -10,7 +10,7 @@ namespace ParserObjects.Parsers
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public abstract class Examine<TInput, TOutput>
+    public static class Examine<TInput, TOutput>
     {
         /// <summary>
         /// Examine parser for parsers which return typed output. Executes callbacks before and
@@ -148,7 +148,7 @@ namespace ParserObjects.Parsers
     /// Inserts a callback before and after parser execution. Used for parsers with untyped output.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public abstract class Examine<TInput>
+    public static class Examine<TInput>
     {
         /// <summary>
         /// The examine parser. Executes callbacks before and after the parser. Does not return

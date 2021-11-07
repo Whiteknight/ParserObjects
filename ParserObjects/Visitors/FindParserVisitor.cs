@@ -135,6 +135,29 @@ namespace ParserObjects.Visitors
             return new MultiReplaceResult(results);
         }
 
+        public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, Func<IReplaceableParserUntyped, bool> predicate, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
+        {
+            if (root == null || predicate == null || transform == null)
+                return MultiReplaceResult.Failure();
+            var visitor = new FindParserVisitor();
+            var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
+            visitor.Visit(root, state);
+            var results = new List<SingleReplaceResult>();
+            foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
+            {
+                var parser = found.ReplaceableChild as IMultiParser<TInput, TOutput>;
+                if (parser == null)
+                    continue;
+                var replacement = transform(parser);
+                if (replacement == null || ReferenceEquals(replacement, parser))
+                    continue;
+                var result = found.SetParser(replacement);
+                results.Add(result);
+            }
+
+            return new MultiReplaceResult(results);
+        }
+
         /// <summary>
         /// Search for ReplaceableParsers with the given name and attempt to transform the contents using
         /// the given transformation. The contents of the ReplaceableParser will be replaced with the
@@ -148,6 +171,9 @@ namespace ParserObjects.Visitors
         /// <returns></returns>
         public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
             => Replace(root, p => p.Name == name, transform);
+
+        public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
+            => ReplaceMulti(root, p => p.Name == name, transform);
 
         private void Visit(IParser parser, State state)
         {

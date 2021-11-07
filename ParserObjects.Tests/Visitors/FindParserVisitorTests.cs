@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.OfType<FailParser<char, char>>(haystack);
+            var result = FindParserVisitor.OfType<Fail<char, char>.Parser>(haystack);
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(needle);
         }
@@ -44,7 +44,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.Replace(null, r => false, needle);
+            var result = FindParserVisitor.Replace(null, _ => false, needle);
             result.Success.Should().BeFalse();
         }
 
@@ -71,7 +71,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.Replace<char, char>(null, r => false, old => needle);
+            var result = FindParserVisitor.Replace<char, char>(null, _ => false, _ => needle);
             result.Success.Should().BeFalse();
         }
 
@@ -80,7 +80,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.Replace<char, char>(haystack, (Func<IReplaceableParserUntyped, bool>)null, old => needle);
+            var result = FindParserVisitor.Replace<char, char>(haystack, (Func<IReplaceableParserUntyped, bool>)null, _ => needle);
             result.Success.Should().BeFalse();
         }
 
@@ -89,7 +89,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.Replace<char, char>(haystack, r => false, null);
+            var result = FindParserVisitor.Replace<char, char>(haystack, _ => false, null);
             result.Success.Should().BeFalse();
         }
     }

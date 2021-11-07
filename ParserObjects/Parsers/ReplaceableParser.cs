@@ -10,35 +10,70 @@ namespace ParserObjects.Parsers
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class ReplaceableParser<TInput, TOutput> : IParser<TInput, TOutput>, IReplaceableParserUntyped
+    public static class Replaceable<TInput, TOutput>
     {
-        private IParser<TInput, TOutput> _value;
-
-        public ReplaceableParser(IParser<TInput, TOutput> defaultValue)
+        public class Parser : IParser<TInput, TOutput>, IReplaceableParserUntyped
         {
-            Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
-            _value = defaultValue;
-            Name = string.Empty;
+            private IParser<TInput, TOutput> _value;
+
+            public Parser(IParser<TInput, TOutput> defaultValue)
+            {
+                Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+                _value = defaultValue;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IParser ReplaceableChild => _value;
+
+            public IResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _value };
+
+            public SingleReplaceResult SetParser(IParser parser)
+            {
+                var previous = _value;
+                if (parser is IParser<TInput, TOutput> typed)
+                    _value = typed;
+                return new SingleReplaceResult(this, previous, _value);
+            }
+
+            public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        public string Name { get; set; }
-
-        public IParser ReplaceableChild => _value;
-
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
-
-        public IEnumerable<IParser> GetChildren() => new[] { _value };
-
-        public SingleReplaceResult SetParser(IParser parser)
+        public class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
         {
-            var previous = _value;
-            if (parser is IParser<TInput, TOutput> typed)
-                _value = typed;
-            return new SingleReplaceResult(this, previous, _value);
-        }
+            private IMultiParser<TInput, TOutput> _value;
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+            public MultiParser(IMultiParser<TInput, TOutput> defaultValue)
+            {
+                Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+                _value = defaultValue;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IParser ReplaceableChild => _value;
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _value };
+
+            public SingleReplaceResult SetParser(IParser parser)
+            {
+                var previous = _value;
+                if (parser is IMultiParser<TInput, TOutput> typed)
+                    _value = typed;
+                return new SingleReplaceResult(this, previous, _value);
+            }
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace ParserObjects.Parsers
                 => _parsers
                     .Where(rule => rule.equals(next))
                     .Select(rule => rule.parser)
-                    .FirstOrDefault() ?? new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+                    .FirstOrDefault() ?? new Fail<TInput, TOutput>.Parser($"No configured parsers handle {next}");
 
             public IEnumerable<IParser> GetChildren()
                 => _parsers.Select(v => v.parser);
@@ -109,7 +109,7 @@ namespace ParserObjects.Parsers
                 try
                 {
                     var nextParser = _getParser(initial);
-                    return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
+                    return nextParser ?? new Fail<TInput, TOutput>.Parser("Get parser callback returned null");
                 }
                 catch
                 {
@@ -165,7 +165,7 @@ namespace ParserObjects.Parsers
                 => _parsers
                     .Where(rule => rule.equals(next))
                     .Select(rule => rule.parser)
-                    .FirstOrDefault() ?? new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+                    .FirstOrDefault() ?? new Fail<TInput, TOutput>.Parser($"No configured parsers handle {next}");
 
             public IEnumerable<IParser> GetChildren()
                 => _parsers.Select(v => v.parser);
@@ -224,7 +224,7 @@ namespace ParserObjects.Parsers
                 try
                 {
                     var nextParser = _getParser(initial);
-                    return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
+                    return nextParser ?? new Fail<TInput, TOutput>.Parser("Get parser callback returned null");
                 }
                 catch
                 {

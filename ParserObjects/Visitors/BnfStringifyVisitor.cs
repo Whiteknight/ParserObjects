@@ -238,7 +238,12 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().First(), state);
         }
 
-        protected virtual void Accept<TInput, TOutput>(FailParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Fail<TInput, TOutput>.Parser p, State state)
+        {
+            state.Current.Append("FAIL");
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Fail<TInput, TOutput>.MultiParser p, State state)
         {
             state.Current.Append("FAIL");
         }
@@ -431,7 +436,12 @@ namespace ParserObjects.Visitors
             state.Current.Append('/').Append(p.Pattern).Append('/');
         }
 
-        protected virtual void Accept<TInput, TOutput>(ReplaceableParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.Parser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.MultiParser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }

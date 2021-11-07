@@ -148,7 +148,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Fail<TOutput>(string error = "Fail")
-            => new FailParser<TInput, TOutput>(error);
+            => new Fail<TInput, TOutput>.Parser(error);
 
         /// <summary>
         /// Unconditionally returns failure.
@@ -156,7 +156,7 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <returns></returns>
         public static IParser<TInput, TInput> Fail(string error = "Fail")
-            => new FailParser<TInput, TInput>(error);
+            => new Fail<TInput, TInput>.Parser(error);
 
         /// <summary>
         /// Return the result of the first parser which succeeds.
@@ -286,7 +286,10 @@ namespace ParserObjects
         /// <param name="defaultParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
-            => new ReplaceableParser<TInput, TOutput>(defaultParser ?? new FailParser<TInput, TOutput>());
+            => new Replaceable<TInput, TOutput>.Parser(defaultParser ?? new Fail<TInput, TOutput>.Parser());
+
+        public static IMultiParser<TInput, TOutput> Replaceable<TOutput>(IMultiParser<TInput, TOutput> defaultParser)
+            => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new Fail<TInput, TOutput>.MultiParser());
 
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -294,7 +297,10 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>()
-            => new ReplaceableParser<TInput, TOutput>(new FailParser<TInput, TOutput>());
+            => new Replaceable<TInput, TOutput>.Parser(new Fail<TInput, TOutput>.Parser());
+
+        public static IMultiParser<TInput, TOutput> ReplaceableMulti<TOutput>()
+            => new Replaceable<TInput, TOutput>.MultiParser(new Fail<TInput, TOutput>.MultiParser());
 
         /// <summary>
         /// Execute a specially-structured callback to turn a parse into sequential, procedural

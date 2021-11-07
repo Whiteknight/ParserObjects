@@ -11,7 +11,17 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = new FailParser<char, object>();
+            var parser = new Fail<char, object>.Parser();
+            parser.CanMatch("").Should().BeFalse();
+            parser.CanMatch(" ").Should().BeFalse();
+            parser.CanMatch("1").Should().BeFalse();
+            parser.CanMatch("x").Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Multi()
+        {
+            var parser = new Fail<char, object>.MultiParser();
             parser.CanMatch("").Should().BeFalse();
             parser.CanMatch(" ").Should().BeFalse();
             parser.CanMatch("1").Should().BeFalse();

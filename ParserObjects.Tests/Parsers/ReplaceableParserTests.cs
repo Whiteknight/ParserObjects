@@ -36,7 +36,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var anyParser = Any();
             var failParser = Fail<char>();
-            var target = new ReplaceableParser<char, char>(failParser);
+            var target = new Replaceable<char, char>.Parser(failParser);
             target.SetParser(anyParser);
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);

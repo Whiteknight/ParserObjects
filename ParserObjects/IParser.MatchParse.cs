@@ -26,6 +26,14 @@ namespace ParserObjects
             return result.Success;
         }
 
+        public static bool CanMatch<TInput>(this IMultiParser<TInput> parser, ISequence<TInput> input)
+        {
+            var state = new ParseState<TInput>(input, Defaults.LogMethod);
+            var result = parser.Parse(state);
+            result.StartCheckpoint.Rewind();
+            return result.Success;
+        }
+
         /// <summary>
         /// Convenience method for parsers which act on character sequences. Attempts a parse but does not
         /// consume any input. Returns true if the parse would succeed, false otherwise.
@@ -36,6 +44,16 @@ namespace ParserObjects
         /// <param name="endSentinel"></param>
         /// <returns></returns>
         public static bool CanMatch(this IParser<char> parser, string input, bool normalizeLineEndings = true, char endSentinel = '\0')
+        {
+            // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
+            // reuse it
+            var sequence = new StringCharacterSequence(input, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
+            var state = new ParseState<char>(sequence, Defaults.LogMethod);
+            var result = parser.Parse(state);
+            return result.Success;
+        }
+
+        public static bool CanMatch(this IMultiParser<char> parser, string input, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
             // reuse it
