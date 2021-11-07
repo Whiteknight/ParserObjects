@@ -475,6 +475,11 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().First(), state);
         }
 
+        protected virtual void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.MultiParser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
         protected virtual void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, State state)
         {
             var allPatterns = p.Trie.GetAllPatterns().ToList();

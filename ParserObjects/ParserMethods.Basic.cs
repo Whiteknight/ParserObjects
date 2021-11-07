@@ -317,6 +317,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => TransformResult(parser, (_, _, result) => result.Transform(transform));
 
+        public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
+            => TransformResult(parser, (_, _, result) => result.Transform(transform));
+
         /// <summary>
         /// Transform one result into another result. Allows modifying the result value and all
         /// result metadata.
@@ -328,6 +331,9 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
             => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
+
+        public static IMultiParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.MultiFunction transform)
+            => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On

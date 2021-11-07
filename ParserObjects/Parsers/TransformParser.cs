@@ -14,6 +14,8 @@ namespace ParserObjects.Parsers
     {
         public delegate IResult<TOutput2> Function(ISequence<TInput> input, IDataStore data, IResult<TOutput1> result);
 
+        public delegate IMultiResult<TOutput2> MultiFunction(ISequence<TInput> input, IDataStore data, IMultiResult<TOutput1> result);
+
         public class Parser : IParser<TInput, TOutput2>
         {
             private readonly IParser<TInput, TOutput1> _inner;
@@ -59,6 +61,60 @@ namespace ParserObjects.Parsers
             }
 
             IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
+
+        public class MultiParser : IMultiParser<TInput, TOutput2>
+        {
+            private readonly IMultiParser<TInput, TOutput1> _inner;
+            private readonly MultiFunction _transform;
+
+            public MultiParser(IMultiParser<TInput, TOutput1> inner, MultiFunction transform)
+            {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(transform, nameof(transform));
+                _inner = inner;
+                _transform = transform;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IMultiResult<TOutput2> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                var startCheckpoint = state.Input.Checkpoint();
+
+                // Execute the parse and transform the result
+                var result = _inner.Parse(state);
+                result.StartCheckpoint.Rewind();
+                var beforeTransformConsumed = state.Input.Consumed;
+                var transformedResult = _transform(state.Input, state.Data, result);
+                var afterTransformConsumed = state.Input.Consumed;
+                var totalTransformConsumed = afterTransformConsumed - beforeTransformConsumed;
+                totalTransformConsumed = totalTransformConsumed < 0 ? 0 : totalTransformConsumed;
+
+                // If the transform callback returns failure, we've already rewound the input so
+                // just return. Otherwise if the transform consumed nothing, return the result
+                if (!transformedResult.Success || totalTransformConsumed == 0)
+                    return transformedResult;
+
+                // Things get messy because we have to double-check all the .Consumed values to make
+                // sure they are correct. It's better if the transform doesn't consume input, but
+                // we can't enforce that here (yet)
+                return transformedResult.Recreate((alt, factory) =>
+                {
+                    var totalConsumed = alt.Continuation.Consumed - startCheckpoint.Consumed;
+                    if (totalConsumed <= 0)
+                        return alt;
+                    return factory(alt.Value, totalConsumed, alt.Continuation);
+                });
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
             public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
