@@ -161,7 +161,7 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("4*5+6/3-2");
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(1);
-            result.Results[0].Value.Item2.Should().Be(26); // (4*5)+6
+            result.Results[0].Value.Item2.Should().Be(20); // (4*5)+6
         }
 
         [Test]
