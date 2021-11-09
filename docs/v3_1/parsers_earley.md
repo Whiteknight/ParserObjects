@@ -16,7 +16,11 @@ var sym = symbols.New<string>("S");
 Once you have a symbol you can add productions to it. A production is like a `Rule()` parser, where a series of other symbols or parsers are evaluated in sequence and, if they all match, a production rule is executed to produce a value of the symbol's type (`<string>`, in the example above):
 
 ```csharp
-sym.AddProduction(parser1, parser2, symbol3, (value1, value2, value3) => ...);
+sym.AddProduction(
+    parser1, 
+    parser2, 
+    symbol3, 
+    (value1, value2, value3) => ...);
 ```
 
 At the end of the setup callback, you should return the *Start Symbol* that the parser will attempt to match. 
@@ -27,6 +31,6 @@ The Earley parser operates at each location by taking three steps:
 2. **Scanning**: The parser attempts to `.Parse()` with all the current terminal parsers to see which ones match at the current position
 3. **Completion**: The parser takes any non-terminals which have matched completely, and uses those to advance any other non-terminals which depend on them.
 
-This is an abbreviated description of the algorithm, of course, but it gives a sense for how the algorithm works. Every time the Start Symbol completes, the Earley parser adds that value to the list of results. The parser stops when the input reaches the end or when no more rules match at the current position, or when input stops advancing.
+This is an abbreviated description of the algorithm, of course, but it gives a sense for how the algorithm works. Every time the Start Symbol completes, the Earley parser adds that value to the list of results. The parser stops when the input reaches the end, when no more rules match at the current position, or when input stops advancing.
 
-
+The power and flexibility of being able to specify a grammar without regard for ambiguity or recursion are high, though these are matched by the complexity of handling an `IMultiResult<TOutput>` which may contain multiple successful results of varying lengths. It's worth noting that even final results which are identical might still be returned as duplicates because the result was obtained in multiple separate ways. For example the expression `"4+5+6"` without precedence rules might parse as `"(4+5)+6" = 15` or `"4+(5+6)" = 15`. The values are identical in these cases even though the evaluation order of the operators is distinct.
