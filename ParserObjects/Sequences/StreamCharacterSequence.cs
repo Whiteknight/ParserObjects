@@ -236,22 +236,14 @@ namespace ParserObjects.Sequences
             return new SequenceCheckpoint(this, _metadata);
         }
 
-        private class SequenceCheckpoint : ISequenceCheckpoint
+        private record SequenceCheckpoint(StreamCharacterSequence S, BufferMetadata Metadata)
+            : ISequenceCheckpoint
         {
-            private readonly StreamCharacterSequence _s;
-            private readonly BufferMetadata _metadata;
+            public int Consumed => Metadata.Consumed;
 
-            public SequenceCheckpoint(StreamCharacterSequence s, BufferMetadata metadata)
-            {
-                _s = s;
-                _metadata = metadata;
-            }
+            public Location Location => new Location(S._fileName, Metadata.Line + 1, Metadata.Column);
 
-            public int Consumed => _metadata.Consumed;
-
-            public Location Location => new Location(_s._fileName, _metadata.Line + 1, _metadata.Column);
-
-            public void Rewind() => _s.Rewind(_metadata);
+            public void Rewind() => S.Rewind(Metadata);
         }
 
         private void Rewind(BufferMetadata metadata)

@@ -121,23 +121,12 @@ namespace ParserObjects.Sequences
             return new SequenceCheckpoint(this, currentPosition, _consumed);
         }
 
-        private class SequenceCheckpoint : ISequenceCheckpoint
+        private record SequenceCheckpoint(StreamByteSequence S, long CurrentPosition, int Consumed)
+            : ISequenceCheckpoint
         {
-            private readonly StreamByteSequence _s;
-            private readonly long _currentPosition;
+            public Location Location => new Location(S._fileName, 1, Consumed);
 
-            public SequenceCheckpoint(StreamByteSequence s, long currentPosition, int consumed)
-            {
-                _s = s;
-                _currentPosition = currentPosition;
-                Consumed = consumed;
-            }
-
-            public int Consumed { get; }
-
-            public Location Location => new Location(_s._fileName, 1, Consumed);
-
-            public void Rewind() => _s.Rewind(_currentPosition, Consumed);
+            public void Rewind() => S.Rewind(CurrentPosition, Consumed);
         }
 
         private void Rewind(long position, int consumed)

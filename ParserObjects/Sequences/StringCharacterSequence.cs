@@ -112,27 +112,12 @@ namespace ParserObjects.Sequences
             return new StringCheckpoint(this, _index, _line, _column, _consumed);
         }
 
-        private class StringCheckpoint : ISequenceCheckpoint
+        private record StringCheckpoint(StringCharacterSequence S, int Index, int Line, int Column, int Consumed)
+            : ISequenceCheckpoint
         {
-            private readonly StringCharacterSequence _s;
-            private readonly int _index;
-            private readonly int _line;
-            private readonly int _column;
+            public Location Location => new Location(S._fileName, Line, Column);
 
-            public StringCheckpoint(StringCharacterSequence s, int index, int line, int column, int consumed)
-            {
-                _s = s;
-                _index = index;
-                _line = line;
-                _column = column;
-                Consumed = consumed;
-            }
-
-            public int Consumed { get; }
-
-            public Location Location => new Location(_s._fileName, _line, _column);
-
-            public void Rewind() => _s.Rewind(_index, _line, _column, Consumed);
+            public void Rewind() => S.Rewind(Index, Line, Column, Consumed);
         }
 
         private void Rewind(int index, int line, int column, int consumed)
