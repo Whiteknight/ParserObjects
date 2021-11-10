@@ -433,12 +433,6 @@ namespace ParserObjects.Visitors
             state.Current.Append("PRODUCE");
         }
 
-        protected virtual void Accept<TInput, TMulti, TOutput>(ReduceParser<TInput, TMulti, TOutput> p, State state)
-        {
-            state.Current.Append("REDUCE ");
-            VisitChild(p.GetChildren().Single(), state);
-        }
-
         protected virtual void Accept(RegexParser p, State state)
         {
             state.Current.Append('/').Append(p.Pattern).Append('/');
