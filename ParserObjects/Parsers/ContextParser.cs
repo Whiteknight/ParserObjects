@@ -47,5 +47,46 @@ namespace ParserObjects.Parsers
 
             public override string ToString() => DefaultStringifier.ToString(this);
         }
+
+        public class MultiParser : IMultiParser<TInput, TOutput>
+        {
+            private readonly IMultiParser<TInput, TOutput> _inner;
+            private readonly Context<TInput, TOutput>.Function _setup;
+            private readonly Context<TInput, TOutput>.Function _cleanup;
+
+            public MultiParser(IMultiParser<TInput, TOutput> inner, Function setup, Function cleanup)
+            {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(setup, nameof(setup));
+                Assert.ArgumentNotNull(cleanup, nameof(cleanup));
+
+                _inner = inner;
+                _setup = setup;
+                _cleanup = cleanup;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+            {
+                Assert.ArgumentNotNull(state, nameof(state));
+                try
+                {
+                    _setup(state.Input, state.Data);
+                    return _inner.Parse(state);
+                }
+                finally
+                {
+                    _cleanup(state.Input, state.Data);
+                }
+            }
+
+            IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
     }
 }

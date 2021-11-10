@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects
 {
@@ -38,5 +39,22 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => ParserMethods<TInput>.DataContext(p);
+
+        public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, string name, TData value)
+            where TData : notnull
+            => ParserMethods<TInput>.DataContext(p, name, value);
+
+        public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, Dictionary<string, TData> values)
+            => ParserMethods<TInput>.DataContext(p, values);
+
+        public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
+            => ParserMethods<TInput>.DataContext(p);
+
+        public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, string name, TData value)
+            where TData : notnull
+            => ParserMethods<TInput>.DataContext(p, name, value);
+
+        public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, Dictionary<string, TData> values)
+            => ParserMethods<TInput>.DataContext(p, values);
     }
 }

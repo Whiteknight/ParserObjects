@@ -19,6 +19,9 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
             => new Context<TInput, TOutput>.Parser(parser, setup, cleanup);
 
+        public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
+            => new Context<TInput, TOutput>.MultiParser(parser, setup, cleanup);
+
         /// <summary>
         /// Create a new parser using information from the current parse context. This parser is
         /// not cached, but will also not be reported to visitors.
@@ -70,13 +73,7 @@ namespace ParserObjects
         /// <param name="name"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
-            => TransformResult(p, (_, data, result) =>
-            {
-                if (result.Success)
-                    data.Set(name, result.Value);
-
-                return result;
-            });
+            => SetResultData(p, name, value => value);
 
         /// <summary>
         /// Execute the inner parser and, on success, save the result value (possibly transformed
@@ -110,29 +107,46 @@ namespace ParserObjects
         /// <param name="inner"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, Dictionary<string, TData>? values)
+        public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, Dictionary<string, TData> values)
             => Context(inner,
                 (_, d) =>
                 {
                     (d as CascadingKeyValueStore)?.PushFrame();
-                    if (values != null)
-                    {
-                        foreach (var value in values)
-                            d.Set(value.Key, value.Value);
-                    }
+                    foreach (var value in values)
+                        d.Set(value.Key, value.Value);
+                },
+                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+            );
+
+        public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, Dictionary<string, TData> values)
+            => Context(inner,
+                (_, d) =>
+                {
+                    (d as CascadingKeyValueStore)?.PushFrame();
+                    foreach (var value in values)
+                        d.Set(value.Key, value.Value);
                 },
                 (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
             );
 
         /// <summary>
         /// Creates a new contextual data frame to store data. Execute the inner parser. When the
-        /// inner parser concludes, pop the data fram off the data store.
+        /// inner parser concludes, pop the data frame off the data store.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="inner"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-            => DataContext<TOutput, object>(inner, null);
+            => Context(inner,
+                (_, d) => (d as CascadingKeyValueStore)?.PushFrame(),
+                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+            );
+
+        public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
+            => Context(inner,
+                (_, d) => (d as CascadingKeyValueStore)?.PushFrame(),
+                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+            );
 
         /// <summary>
         /// Creates a new contextual data frame to store data, populated initially with the given
@@ -146,9 +160,11 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, string name, TData value)
-        {
-            Assert.ArgumentNotNull(value, nameof(value));
-            return DataContext(inner, new Dictionary<string, object> { { name, value! } });
-        }
+            where TData : notnull
+            => DataContext(inner, new Dictionary<string, object> { { name, value } });
+
+        public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, string name, TData value)
+            where TData : notnull
+            => DataContext(inner, new Dictionary<string, object> { { name, value! } });
     }
 }

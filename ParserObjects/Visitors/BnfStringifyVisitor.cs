@@ -174,6 +174,11 @@ namespace ParserObjects.Visitors
             VisitChild(p.GetChildren().Single(), state);
         }
 
+        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.MultiParser p, State state)
+        {
+            VisitChild(p.GetChildren().Single(), state);
+        }
+
         protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith.MultiParser<TInput, TMulti, TOutput> p, State state)
         {
             VisitChild(p.GetChildren().Single(), state);
@@ -285,7 +290,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void Accept<TInput, TOutput>(FuncParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Function<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("User Function");
         }

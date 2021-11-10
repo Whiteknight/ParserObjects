@@ -184,7 +184,7 @@ namespace ParserObjects
         /// <param name="func"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Function<TOutput>(ParserFunction<TInput, TOutput> func)
-            => new FuncParser<TInput, TOutput>(func);
+            => new Function<TInput, TOutput>.Parser(func);
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
