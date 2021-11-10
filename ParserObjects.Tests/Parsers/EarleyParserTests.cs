@@ -26,6 +26,20 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void SingleTerminal_Unnamed()
+        {
+            var target = Earley<int>(symbols => symbols
+                .New()
+                .AddProduction(UnsignedInteger(), n => n)
+            );
+
+            var result = target.Parse("4");
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(1);
+            result.Results[0].Value.Should().Be(4);
+        }
+
+        [Test]
         public void BasicExpression_Test()
         {
             var target = Earley<int>(symbols =>
