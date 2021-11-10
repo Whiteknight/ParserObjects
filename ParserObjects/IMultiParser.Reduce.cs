@@ -45,6 +45,9 @@ namespace ParserObjects
             });
         }
 
+        public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
+            => First(multiParser, r => r.Success);
+
         public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiparser, SelectMultiAlternativeFunction<TOutput> select)
             => new SelectSingleResultParser<TInput, TOutput>(multiparser, select);
     }
