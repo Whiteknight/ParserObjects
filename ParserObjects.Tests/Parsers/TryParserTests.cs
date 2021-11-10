@@ -117,5 +117,22 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Value.Should().Be("afail");
         }
+
+        [Test]
+        public void Parse_Multi_Output_Test()
+        {
+            var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be('a');
+        }
+
+        [Test]
+        public void Parse_Multi_Output_Throw()
+        {
+            var target = Try(ProduceMulti<char>(() => throw new System.Exception()));
+            var result = target.Parse("");
+            result.Success.Should().BeFalse();
+        }
     }
 }
