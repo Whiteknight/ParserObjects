@@ -4,7 +4,7 @@
     /// State information about parse, including the input sequence, logging and contextual data.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public interface IParseState<TInput>
+    public interface IParseState<out TInput>
     {
         IDataStore Data { get; }
 

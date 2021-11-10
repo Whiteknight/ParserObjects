@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ParserObjects;
 
 namespace ParserObjects.Earley
 {
@@ -71,7 +70,6 @@ namespace ParserObjects.Earley
             Item current = endItem;
             var count = production.Symbols.Count;
             var values = ArrayPool<IReadOnlyList<object>>.Shared.Rent(count);
-            // var values = new IReadOnlyList<object>[count];
 
             // Traverse the linked list of items, getting all possibilities for each item.
             // If any item has zero options, there's no way to produce a derivation result so we
@@ -100,7 +98,6 @@ namespace ParserObjects.Earley
 
             // Allocate a buffer and fill with initial values
             var buffer = ArrayPool<object>.Shared.Rent(count);
-            // var buffer = new object[count];
             for (int i = 0; i < count; i++)
                 buffer[i] = values[i][0];
 
@@ -162,7 +159,7 @@ namespace ParserObjects.Earley
             return Array.Empty<object>();
         }
 
-        private bool IncrementBufferItems(int count, int[] indices, IReadOnlyList<object>[] values, object[] buffer)
+        private static bool IncrementBufferItems(int count, int[] indices, IReadOnlyList<object>[] values, object[] buffer)
         {
             Debug.Assert(indices.Length >= count, "The indices array should have at least as many items as the count");
             Debug.Assert(values.Length >= count, "The values array should have at least as many items as the count");
@@ -177,7 +174,7 @@ namespace ParserObjects.Earley
                 indices[idx]++;
 
                 // If the current column doesn't rollover, update just one buffer entry
-                // and break;
+                // and break
                 if (indices[idx] < values[idx].Count)
                 {
                     buffer[idx] = values[idx][indices[idx]];

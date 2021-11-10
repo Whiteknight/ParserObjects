@@ -9,8 +9,9 @@
             _attempts = 0;
         }
 
-        public void Add<TValue>(ICacheable producer, TValue value)
+        public void Add<TValue>(ICacheable key, TValue value)
         {
+            // No cache, so we do nothing here
         }
 
         public IOption<TValue> Get<TValue>(ICacheable key)

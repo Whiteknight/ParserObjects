@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ParserObjects;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Earley

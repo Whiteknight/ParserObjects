@@ -13,8 +13,6 @@ namespace ParserObjects.Parsers
         {
             var factory = new SymbolFactory();
             var startNonterminal = setup(factory) ?? throw new GrammarException("Setup callback did not return a valid start symbol");
-            // TODO: Do we need to validate the grammar at all? Check for symbols which are not linked
-            // to the start symbol at all?
             return new Parser(startNonterminal);
         }
 

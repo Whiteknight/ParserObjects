@@ -37,7 +37,7 @@ namespace ParserObjects.Earley
                 Accept(p, state);
         }
 
-        private void Accept(IParser terminal, State state)
+        private static void Accept(IParser terminal, State state)
         {
             state.ChildParsers.Add(terminal);
         }

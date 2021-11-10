@@ -122,6 +122,8 @@ namespace ParserObjects
                 var ranges = new List<(char low, char high)>();
                 while (true)
                 {
+                    if (state.Input.IsAtEnd)
+                        throw new RegexException("Incomplete character class");
                     var c = state.Input.GetNext();
                     if (c == ']')
                         break;

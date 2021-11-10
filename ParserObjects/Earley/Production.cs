@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ParserObjects;
 
 namespace ParserObjects.Earley
 {
@@ -28,8 +27,6 @@ namespace ParserObjects.Earley
                 Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
                 var value = _reduce(argsList);
                 return value == null ? FailureOption<object>.Instance : new SuccessOption<object>(value);
-                // TODO: ControlFlowException so we can jump out of a user-rule and immediately fail
-                // the parse at several levels?
             }
             catch (ProductionFailedException)
             {

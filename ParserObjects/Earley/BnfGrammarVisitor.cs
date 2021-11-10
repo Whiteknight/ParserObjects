@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects;
 using ParserObjects.Visitors;
 
 namespace ParserObjects.Earley
@@ -45,7 +44,7 @@ namespace ParserObjects.Earley
                 Accept(p, sb);
         }
 
-        private void Accept(IParser terminal, State state)
+        private static void Accept(IParser terminal, State state)
         {
             state.Visitor.VisitChild(terminal, state.OuterState, false);
         }

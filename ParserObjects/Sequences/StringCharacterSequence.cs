@@ -48,8 +48,6 @@ namespace ParserObjects.Sequences
             _stats.ItemsRead++;
 
             // If we have a newline, update the line-tracking.
-            // TODO: What do we do about systems that only use \r for newlines? Right now we ignore
-            // it if normalization is off.
             if (next == '\n')
             {
                 _line++;

@@ -135,6 +135,20 @@ namespace ParserObjects.Visitors
             return new MultiReplaceResult(results);
         }
 
+        /// <summary>
+        /// Search for ReplaceableParsers with the given name and attempt to transform the contents using
+        /// the given transformation. The contents of the ReplaceableParser will be replaced with the
+        /// transformed result if it is new and valid.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
+            => Replace(root, p => p.Name == name, transform);
+
         public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, Func<IReplaceableParserUntyped, bool> predicate, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
         {
             if (root == null || predicate == null || transform == null)
@@ -157,20 +171,6 @@ namespace ParserObjects.Visitors
 
             return new MultiReplaceResult(results);
         }
-
-        /// <summary>
-        /// Search for ReplaceableParsers with the given name and attempt to transform the contents using
-        /// the given transformation. The contents of the ReplaceableParser will be replaced with the
-        /// transformed result if it is new and valid.
-        /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="root"></param>
-        /// <param name="name"></param>
-        /// <param name="transform"></param>
-        /// <returns></returns>
-        public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
-            => Replace(root, p => p.Name == name, transform);
 
         public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
             => ReplaceMulti(root, p => p.Name == name, transform);

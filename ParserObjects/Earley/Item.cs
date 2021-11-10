@@ -10,7 +10,7 @@ namespace ParserObjects.Earley
     // An "Earley Item", which is a production rule with an index representing the position of the
     // "fat dot". The fat dot separates the part of the production which has been matched (left)
     // from the part of the production which has not yet been matched (right).
-    public class Item : IEquatable<Item>
+    public sealed class Item : IEquatable<Item>
     {
         private readonly List<object>? _derivations;
 
@@ -72,6 +72,11 @@ namespace ParserObjects.Earley
         }
 
         public State CurrentState { get; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Item other && Equals(other);
+        }
 
         public bool Equals(Item? other)
         {

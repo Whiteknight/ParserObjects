@@ -87,9 +87,12 @@ namespace ParserObjects.Sequences
         {
             if (_isComplete)
                 return _endSentinel;
-            if (_isComplete || _remainingBytes == 0 || _bufferIndex >= _bufferSize)
+
+            if (_remainingBytes == 0 || _bufferIndex >= _bufferSize)
                 return _endSentinel;
+
             var b = _buffer[_bufferIndex];
+
             if (advance)
             {
                 _bufferIndex++;

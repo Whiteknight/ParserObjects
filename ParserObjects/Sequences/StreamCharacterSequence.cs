@@ -145,7 +145,6 @@ namespace ParserObjects.Sequences
 
         public void Dispose()
         {
-            // TODO: Set some kind of flag?
             _reader.Dispose();
         }
 
@@ -268,10 +267,6 @@ namespace ParserObjects.Sequences
                 _metadata = metadata;
                 return;
             }
-
-            // TODO: It might be good to maintain a small list of recently-used buffers, in a ring
-            // or LRU, so we don't need to refill if we're doing a lot of read/rewind cycles around
-            // a buffer boundary.
 
             // Otherwise we reset the buffer starting at bufferStartStreamPosition
             _metadata = metadata;
