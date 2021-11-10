@@ -1,6 +1,6 @@
-﻿using ParserObjects.Parsers;
+﻿using System;
+using ParserObjects.Parsers;
 using ParserObjects.Parsers.Multi;
-using System;
 
 namespace ParserObjects
 {
@@ -15,9 +15,9 @@ namespace ParserObjects
             => new ContinueWith.MultiParser<TInput, TMiddle, TOutput>(multiParser, getParser);
 
         public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<TMiddle, TOutput> transform)
-            => ContinueWith(multiParser, p => new Transform<TInput, TMiddle, TOutput>.Parser(p, (_, _, result) => result.Transform(transform)));
+            => ParserMethods<TInput>.Transform(multiParser, transform);
 
-        public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Transform<TInput, TMiddle, TOutput>.Function transform)
-            => ContinueWith(multiParser, p => new Transform<TInput, TMiddle, TOutput>.Parser(p, transform));
+        public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Transform<TInput, TMiddle, TOutput>.MultiFunction transform)
+            => ParserMethods<TInput>.TransformResult(multiParser, transform);
     }
 }
