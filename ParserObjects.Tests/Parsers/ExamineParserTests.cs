@@ -37,6 +37,39 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Multi_Output_Method_Consume()
+        {
+            char before = '\0';
+            char after = '\0';
+            var parser = Examine(ProduceMulti(() => new[] { 'b' }),
+                s => before = s.Input.GetNext(),
+                s => after = s.Input.GetNext()
+            );
+            var input = new StringCharacterSequence("ac");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            before.Should().Be('a');
+            result.Results[0].Value.Should().Be('b');
+            after.Should().Be('c');
+        }
+
+        [Test]
+        public void Multi_Output_Method_Consume_Fail()
+        {
+            char before = '\0';
+            char after = '\0';
+            var parser = Examine(FailMulti<char>(),
+                s => before = s.Input.GetNext(),
+                s => after = s.Input.GetNext()
+            );
+            var input = new StringCharacterSequence("ac");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            before.Should().Be('a');
+            after.Should().Be('c');
+        }
+
+        [Test]
         public void Output_Method_Consume_Fail()
         {
             char before = '\0';

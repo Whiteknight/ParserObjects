@@ -49,7 +49,11 @@ namespace ParserObjects.Parsers
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                return new MultiResult<TOutput>(this, state.Input.CurrentLocation, state.Input.Checkpoint(), Enumerable.Empty<IResultAlternative<TOutput>>());
+                var startCheckpoint = state.Input.Checkpoint();
+                return new MultiResult<TOutput>(this, state.Input.CurrentLocation, startCheckpoint, new[]
+                {
+                    new FailureResultAlternative<TOutput>(ErrorMessage, startCheckpoint)
+                });
             }
 
             IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
