@@ -73,10 +73,7 @@ namespace ParserObjects.Earley
 
         public State CurrentState { get; }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Item other && Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is Item other && Equals(other);
 
         public bool Equals(Item? other)
         {
