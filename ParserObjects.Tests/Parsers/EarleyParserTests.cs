@@ -673,5 +673,24 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("");
         }
+
+        [Test]
+        public void Examine_ResultRecreate()
+        {
+            var target = Examine(
+                Earley<char>(symbols => symbols
+                    .New("S")
+                    .AddProduction(Digit(), n => n)
+                ),
+                c => c.Input.GetNext(),
+                c => c.Input.GetNext()
+            );
+
+            var result = target.Parse("456");
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(1);
+            result.Results[0].Value.Should().Be('5');
+            result.Results[0].Consumed.Should().Be(3);
+        }
     }
 }
