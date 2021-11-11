@@ -156,7 +156,7 @@ namespace ParserObjects.Earley
             }
         }
 
-        private static (IResult result, ISequenceCheckpoint? continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState)
+        private static (IResult result, ISequenceCheckpoint continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState, ISequenceCheckpoint stateCheckpoint)
         {
             var location = parseState.Input.CurrentLocation;
             var cached = parseState.Cache.Get<CachedParseResult>(terminal, location);
@@ -164,7 +164,7 @@ namespace ParserObjects.Earley
                 return (cached.Value.Result, cached.Value.Continuation);
 
             var result = terminal.Parse(parseState);
-            var continuation = result.Success ? parseState.Input.Checkpoint() : null;
+            var continuation = result.Success ? parseState.Input.Checkpoint() : stateCheckpoint;
             parseState.Cache.Add(terminal, location, new CachedParseResult(result, continuation));
             return (result, continuation);
         }
@@ -183,7 +183,7 @@ namespace ParserObjects.Earley
 
         private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
         {
-            var (result, continuation) = TryParse(terminal, parseState);
+            var (result, continuation) = TryParse(terminal, parseState, currentState.Checkpoint);
             if (!result.Success)
                 return;
 
