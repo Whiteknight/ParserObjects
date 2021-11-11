@@ -208,6 +208,9 @@ namespace ParserObjects.Tests.Parsers
 
         [TestCase("[c-a]")]
         [TestCase("[a-]")]
+        [TestCase("[a")]
+        [TestCase("[a-")]
+        [TestCase("[]")]
         public void Regex_CharacterClass_Throw(string pattern)
            => RegexTestThrow(pattern);
 
