@@ -40,7 +40,7 @@ namespace ParserObjects.Earley
 
         // Get the future State i which is ahead of current State n. If the State i does not
         // exist, create it. Otherwise return it as-is.
-        public State GetAhead(int consumed, ISequence input)
+        public State GetAhead(int consumed, ISequenceCheckpoint checkpoint)
         {
             if (consumed <= 0)
                 return _current.State;
@@ -49,7 +49,7 @@ namespace ParserObjects.Earley
             if (_lookup.ContainsKey(i))
                 return _lookup[i].State;
 
-            var state = new State(i, input.Checkpoint());
+            var state = new State(i, checkpoint);
             var current = _current;
 
             Debug.Assert(i > current.State.Number, "We shouldn't be going backwards");

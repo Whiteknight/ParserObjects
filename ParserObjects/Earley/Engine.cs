@@ -156,13 +156,26 @@ namespace ParserObjects.Earley
             }
         }
 
-        private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> input, ParseStatistics stats)
+        private static (IResult result, ISequenceCheckpoint? continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState)
         {
-            var result = terminal.Parse(input);
+            var location = parseState.Input.CurrentLocation;
+            var cached = parseState.Cache.Get<CachedParseResult>(terminal, location);
+            if (cached.Success)
+                return (cached.Value.Result, cached.Value.Continuation);
+
+            var result = terminal.Parse(parseState);
+            var continuation = result.Success ? parseState.Input.Checkpoint() : null;
+            parseState.Cache.Add(terminal, location, new CachedParseResult(result, continuation));
+            return (result, continuation);
+        }
+
+        private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
+        {
+            var (result, continuation) = TryParse(terminal, parseState);
             if (!result.Success)
                 return;
 
-            var nextState = states.GetAhead(result.Consumed, input.Input);
+            var nextState = states.GetAhead(result.Consumed, continuation);
 
             var newItem = item.CreateNextItem(nextState);
             stats.CreatedItems++;
@@ -223,6 +236,18 @@ namespace ParserObjects.Earley
             // is considered "nullable"
             if (item.ParentState == state)
                 AddCompletedNullable(completedNullables, item, item.Production, stats);
+        }
+
+        private struct CachedParseResult
+        {
+            public CachedParseResult(IResult result, ISequenceCheckpoint continuation)
+            {
+                Result = result;
+                Continuation = continuation;
+            }
+
+            public IResult Result { get; }
+            public ISequenceCheckpoint Continuation { get; }
         }
     }
 }
