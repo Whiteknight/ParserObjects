@@ -15,7 +15,7 @@ namespace ParserObjects.Pratt
         private readonly int _rbp;
         private readonly bool _canRecurse;
 
-        private int _consumed;
+        private readonly int _startConsumed;
 
         public ParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse)
         {
@@ -24,16 +24,18 @@ namespace ParserObjects.Pratt
             _state = state;
             _engine = engine;
             _rbp = rbp;
-            _consumed = 0;
+            _startConsumed = state.Input.Consumed;
             Name = string.Empty;
             _canRecurse = canRecurse;
         }
 
         public IDataStore Data => _state.Data;
 
-        public int Consumed => _consumed;
+        public int Consumed => _state.Input.Consumed - _startConsumed;
 
         public string Name { get; set; }
+
+        public ISequence<TInput> Input => _state.Input;
 
         public TOutput Parse() => Parse(_rbp);
 
@@ -43,7 +45,6 @@ namespace ParserObjects.Pratt
             var result = _engine.TryParse(_state, rbp);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, this, result.Location);
-            _consumed += result.Consumed;
             return result.Value;
         }
 
@@ -53,7 +54,6 @@ namespace ParserObjects.Pratt
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
-            _consumed += result.Consumed;
             return result.Value;
         }
 
@@ -66,13 +66,19 @@ namespace ParserObjects.Pratt
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
 
+        public bool Match(IParser<TInput> parser)
+        {
+            Assert.ArgumentNotNull(parser, nameof(parser));
+            var result = parser.Parse(_state);
+            return result.Success;
+        }
+
         public void Expect(IParser<TInput> parser)
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
             if (!result.Success)
                 throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
-            _consumed += result.Consumed;
         }
 
         public void FailRule(string message = "")
@@ -91,7 +97,6 @@ namespace ParserObjects.Pratt
             if (!_canRecurse)
                 return FailureOption<TOutput>.Instance;
             var result = _engine.TryParse(_state, rbp);
-            _consumed += result.Consumed;
             return result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
         }
 
@@ -99,7 +104,6 @@ namespace ParserObjects.Pratt
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             var result = parser.Parse(_state);
-            _consumed += result.Consumed;
             return result!.Success ? new SuccessOption<TValue>(result!.Value) : FailureOption<TValue>.Instance;
         }
 

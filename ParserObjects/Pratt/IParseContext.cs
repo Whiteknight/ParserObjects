@@ -7,6 +7,8 @@
         /// </summary>
         IDataStore Data { get; }
 
+        ISequence<TInput> Input { get; }
+
         /// <summary>
         /// Invoke the give parser to obtain a value, or aborts the current user callback if the
         /// parse fails.
@@ -31,6 +33,8 @@
         /// <param name="parser"></param>
         /// <returns></returns>
         IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser);
+
+        bool Match(IParser<TInput> parser);
 
         /// <summary>
         /// Unconditionally fail the current user callback and return to the current recursion
