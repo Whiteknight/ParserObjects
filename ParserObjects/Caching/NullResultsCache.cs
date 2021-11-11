@@ -9,12 +9,12 @@
             _attempts = 0;
         }
 
-        public void Add<TValue>(ICacheable key, TValue value)
+        public void Add<TValue>(ISymbol parser, Location location, TValue value)
         {
             // No cache, so we do nothing here
         }
 
-        public IOption<TValue> Get<TValue>(ICacheable key)
+        public IOption<TValue> Get<TValue>(ISymbol parser, Location location)
         {
             _attempts++;
             return FailureOption<TValue>.Instance;

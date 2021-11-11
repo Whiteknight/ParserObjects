@@ -30,8 +30,21 @@ namespace ParserObjects.Caching
             _misses = 0;
         }
 
-        public void Add<TValue>(ICacheable key, TValue value)
+        private struct Key
         {
+            public Key(ISymbol symbol, Location location)
+            {
+                Symbol = symbol;
+                Location = location;
+            }
+
+            public ISymbol Symbol { get; }
+            public Location Location { get; }
+        }
+
+        public void Add<TValue>(ISymbol parser, Location location, TValue value)
+        {
+            var key = new Key(parser, location);
             _cache.Set(key, value);
         }
 
@@ -41,9 +54,10 @@ namespace ParserObjects.Caching
                 _cache.Dispose();
         }
 
-        public IOption<TValue> Get<TValue>(ICacheable key)
+        public IOption<TValue> Get<TValue>(ISymbol parser, Location location)
         {
             _attempts++;
+            var key = new Key(parser, location);
             if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)
             {
                 _hits++;

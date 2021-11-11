@@ -32,8 +32,6 @@ namespace ParserObjects.Parsers
             public ISequenceCheckpoint Continuation { get; }
         }
 
-        private record ParserLocationCacheKey(IParser Parser, Location Location) : ICacheable;
-
         /// <summary>
         /// A parser which caches an IResult without an explicit output type.
         /// </summary>
@@ -57,12 +55,13 @@ namespace ParserObjects.Parsers
             public IResult Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var key = new ParserLocationCacheKey(Inner, state.Input.CurrentLocation);
-                var cached = state.Cache.Get<CachedParseResult>(key);
+                var parser = Inner;
+                var location = state.Input.CurrentLocation;
+                var cached = state.Cache.Get<CachedParseResult>(parser, location);
                 if (!cached.Success)
                 {
                     var result = Inner.Parse(state);
-                    state.Cache.Add(key, new CachedParseResult(result, state.Input.Checkpoint()));
+                    state.Cache.Add(parser, location, new CachedParseResult(result, state.Input.Checkpoint()));
                     return result;
                 }
 
@@ -102,12 +101,13 @@ namespace ParserObjects.Parsers
             public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var key = new ParserLocationCacheKey(Inner, state.Input.CurrentLocation);
-                var cached = state.Cache.Get<CachedParseResult<TOutput>>(key);
+                var parser = Inner;
+                var location = state.Input.CurrentLocation;
+                var cached = state.Cache.Get<CachedParseResult<TOutput>>(parser, location);
                 if (!cached.Success)
                 {
                     var result = Inner.Parse(state);
-                    state.Cache.Add(key, new CachedParseResult<TOutput>(result, state.Input.Checkpoint()));
+                    state.Cache.Add(parser, location, new CachedParseResult<TOutput>(result, state.Input.Checkpoint()));
                     return result;
                 }
 
@@ -149,13 +149,14 @@ namespace ParserObjects.Parsers
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                var key = new ParserLocationCacheKey(Inner, state.Input.CurrentLocation);
-                var cached = state.Cache.Get<IMultiResult<TOutput>>(key);
+                var parser = Inner;
+                var location = state.Input.CurrentLocation;
+                var cached = state.Cache.Get<IMultiResult<TOutput>>(parser, location);
                 if (cached.Success)
                     return cached.Value;
 
                 var result = Inner.Parse(state);
-                state.Cache.Add(key, result);
+                state.Cache.Add(parser, location, result);
                 return result;
             }
 
