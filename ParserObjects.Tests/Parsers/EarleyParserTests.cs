@@ -692,5 +692,39 @@ namespace ParserObjects.Tests.Parsers
             result.Results[0].Value.Should().Be('5');
             result.Results[0].Consumed.Should().Be(3);
         }
+
+        [Test]
+        public void BasicExpression_NestedMultiParser()
+        {
+            var inner = Earley<int>(symbols =>
+            {
+                var plus = Match('+').Named("plus");
+                var expr = symbols.New("Expr")
+                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+                return expr;
+            }).Named("inner");
+            var target = Earley<int>(symbols =>
+            {
+                var star = Match('*').Named("star");
+
+                var expr = symbols.New("Expr");
+                expr.AddProduction(inner, i => i);
+                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+
+                return expr;
+            });
+
+            var result = target.Parse("4*5+6");
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+
+            var values = result.Results.Where(r => r.Success).Select(r => r.Value).ToList();
+
+            values.Should().Contain(4);  // 4 = 4
+            values.Should().Contain(20); // 4*5 = 20
+            // We cannot get the value (4*5)+6 = 26 because we recurse to inner for the "5 +"
+            values.Should().Contain(44); // 4*(5+6) = 44
+        }
     }
 }

@@ -119,8 +119,8 @@ namespace ParserObjects.Earley
                 if (item.NextSymbolToMatch is IParser<TInput> terminal)
                     Scan(currentState, item, terminal, states, parseState, stats);
 
-                // TODO: It's possible for .NextSymbolToMatch to be IMultiParser<TInput>, should
-                // account for that here.
+                if (item.NextSymbolToMatch is IMultiParser<TInput> multiTerminal)
+                    Scan(currentState, item, multiTerminal, states, parseState, stats);
             }
 
             Debug.WriteLine(currentState.GetCompleteListing());
@@ -169,6 +169,18 @@ namespace ParserObjects.Earley
             return (result, continuation);
         }
 
+        private static IMultiResult TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
+        {
+            var location = parseState.Input.CurrentLocation;
+            var cached = parseState.Cache.Get<IMultiResult>(terminal, location);
+            if (cached.Success)
+                return cached.Value;
+
+            var result = terminal.Parse(parseState);
+            parseState.Cache.Add(terminal, location, result);
+            return result;
+        }
+
         private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
         {
             var (result, continuation) = TryParse(terminal, parseState);
@@ -188,6 +200,26 @@ namespace ParserObjects.Earley
 
             if (result.Consumed > 0)
                 currentState.Checkpoint.Rewind();
+        }
+
+        private static void Scan(State currentState, Item item, IMultiParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
+        {
+            var result = TryParse(terminal, parseState);
+            foreach (var successResult in result.Results.Where(r => r.Success))
+            {
+                var nextState = states.GetAhead(successResult.Consumed, successResult.Continuation);
+
+                var newItem = item.CreateNextItem(nextState);
+                stats.CreatedItems++;
+
+                // Add the value to the new item's _derivations list. The value of a Terminal is the
+                // returned value from the parser.
+                newItem.SetTerminalValue(successResult.Value);
+                nextState.Add(newItem);
+                stats.ScannedSuccess++;
+            }
+
+            currentState.Checkpoint.Rewind();
         }
 
         private static void AddCompletedNullable(IDictionary<IProduction, IList<Item>> completedNullables, Item item, IProduction production, ParseStatistics stats)
