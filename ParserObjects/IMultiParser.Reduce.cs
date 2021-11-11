@@ -25,10 +25,7 @@ namespace ParserObjects
                     .Where(r => r.Success)
                     .OrderByDescending(r => r.Consumed)
                     .FirstOrDefault();
-                if (longest == null)
-                    return fail();
-
-                return success(longest);
+                return longest != null ? success(longest) : fail();
             });
 
         // Select the first result which matches the predicate, failure if nothing matches
@@ -38,10 +35,7 @@ namespace ParserObjects
             return multiParser.Select((multiResult, success, fail) =>
             {
                 var selected = multiResult.Results.FirstOrDefault(predicate);
-                if (selected == null)
-                    return fail();
-
-                return success(selected);
+                return selected != null ? success(selected) : fail();
             });
         }
 

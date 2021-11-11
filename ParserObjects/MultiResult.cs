@@ -58,12 +58,7 @@ namespace ParserObjects
         public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, ISequenceCheckpoint? startCheckpoint = null, Location? location = null)
         {
             Assert.ArgumentNotNull(recreate, nameof(recreate));
-            var newAlternatives = Results.Select(alt =>
-            {
-                if (!alt.Success)
-                    return alt;
-                return recreate(alt, alt.Factory);
-            });
+            var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
             var newCheckpoint = startCheckpoint ?? StartCheckpoint;
             var newLocation = location ?? Location;
             return new MultiResult<TOutput>(Parser, newLocation, newCheckpoint, newAlternatives);
