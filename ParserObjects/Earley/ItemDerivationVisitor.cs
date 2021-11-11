@@ -70,22 +70,8 @@ namespace ParserObjects.Earley
             Item current = endItem;
             var count = production.Symbols.Count;
             var values = ArrayPool<IReadOnlyList<object>>.Shared.Rent(count);
-
-            // Traverse the linked list of items, getting all possibilities for each item.
-            // If any item has zero options, there's no way to produce a derivation result so we
-            // bail.
-            while (!current.AtStart)
-            {
-                var possibleValuesForThisItem = GetAllPossibleValuesFor(current);
-                if (possibleValuesForThisItem.Count == 0)
-                {
-                    _statistics.ItemsWithZeroDerivations++;
-                    return Array.Empty<object>();
-                }
-
-                values[current.Index - 1] = possibleValuesForThisItem;
-                current = current.Previous!;
-            }
+            if (!GetValuesArray(values, current))
+                return Array.Empty<object>();
 
             // Small shortcircuit: If there is only one item in the production, and that one item
             // has only one possible value after recursing, just return that without buffering.
@@ -98,14 +84,12 @@ namespace ParserObjects.Earley
 
             // Allocate a buffer and fill with initial values
             var buffer = ArrayPool<object>.Shared.Rent(count);
-            for (int i = 0; i < count; i++)
-                buffer[i] = values[i][0];
+            InitializeBuffer(count, values, buffer);
 
             // Get an array to hold indices and initialize all values (they might not be 0
             // coming out of the array pool)
             var indices = ArrayPool<int>.Shared.Rent(count);
-            for (int i = 0; i < count; i++)
-                indices[i] = 0;
+            Array.Clear(indices, 0, count);
 
             // We traverse from Item to Item.ParentItem, which forms a unique chain from the end
             // back to the beginning. Even if Item.ParentItem has multiple children of different
@@ -118,7 +102,7 @@ namespace ParserObjects.Earley
             // we've incremented the last position past the number of items in the last column, we
             // break from the loop and are done.
             var results = new List<object>();
-            while (true)
+            do
             {
                 _statistics.ProductionRuleAttempts++;
                 var result = production.Apply(buffer);
@@ -127,16 +111,40 @@ namespace ParserObjects.Earley
                     results.Add(result.Value);
                     _statistics.ProductionRuleSuccesses++;
                 }
-
-                var hasMore = IncrementBufferItems(count, indices, values, buffer);
-                if (!hasMore)
-                    break;
             }
+            while (IncrementBufferItems(count, indices, values, buffer));
 
             ArrayPool<IReadOnlyList<object>>.Shared.Return(values);
             ArrayPool<object>.Shared.Return(buffer);
             ArrayPool<int>.Shared.Return(indices);
             return results;
+        }
+
+        private static void InitializeBuffer(int count, IReadOnlyList<object>[] values, object[] buffer)
+        {
+            for (int i = 0; i < count; i++)
+                buffer[i] = values[i][0];
+        }
+
+        private bool GetValuesArray(IReadOnlyList<object>[] values, Item current)
+        {
+            // Traverse the linked list of items, getting all possibilities for each item.
+            // If any item has zero options, there's no way to produce a derivation result so we
+            // bail.
+            while (!current.AtStart)
+            {
+                var possibleValuesForThisItem = GetAllPossibleValuesFor(current);
+                if (possibleValuesForThisItem.Count == 0)
+                {
+                    _statistics.ItemsWithZeroDerivations++;
+                    return false;
+                }
+
+                values[current.Index - 1] = possibleValuesForThisItem;
+                current = current.Previous!;
+            }
+
+            return true;
         }
 
         // Returns a list of all possible values for this Item.
