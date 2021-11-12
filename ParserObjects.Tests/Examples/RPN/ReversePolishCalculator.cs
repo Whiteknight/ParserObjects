@@ -57,7 +57,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 .ToSequence(new StringCharacterSequence(s))
                 .Select(r => r.GetValueOrDefault(() => new RpnToken(r.ErrorMessage, RpnTokenType.Failure)));
 
-            var parser = ParserMethods<RpnToken>.Function<int>((t, success, fail) =>
+            var parser = ParserMethods<RpnToken>.Function<int>((t, results) =>
             {
                 var startingLocation = t.Input.CurrentLocation;
                 var stack = new Stack<int>();
@@ -65,9 +65,9 @@ namespace ParserObjects.Tests.Examples.RPN
                 {
                     var token = t.Input.GetNext();
                     if (token == null)
-                        return fail("Received null token");
+                        return results.Failure("Received null token");
                     if (token.Type == RpnTokenType.Failure)
-                        return fail("Tokenization error: " + token.Value);
+                        return results.Failure("Tokenization error: " + token.Value);
                     if (token.Type == RpnTokenType.End)
                         break;
                     if (token.Type == RpnTokenType.Number)
@@ -102,8 +102,8 @@ namespace ParserObjects.Tests.Examples.RPN
                 }
 
                 if (stack.Count != 1)
-                    return fail("Invalid sequence, expected to have 1 token remaining");
-                return success(stack.Pop());
+                    return results.Failure("Invalid sequence, expected to have 1 token remaining");
+                return results.Success(stack.Pop());
             });
             var result = parser.Parse(tokenSequence);
             if (!result.Success)

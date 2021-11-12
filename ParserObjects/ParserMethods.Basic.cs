@@ -23,10 +23,10 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, bool> Bool(IParser<TInput> p)
-            => new Function<TInput, bool>.Parser((state, success, _) =>
+            => new Function<TInput, bool>.Parser((state, results) =>
             {
                 var result = p.Parse(state);
-                return success(result.Success);
+                return results.Success(result.Success);
             }, "IF {child}", new[] { p });
 
         /// <summary>
