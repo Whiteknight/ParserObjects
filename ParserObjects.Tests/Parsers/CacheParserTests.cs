@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
     public class CacheParserTests
     {
         [Test]
-        public void Output_Method_NoValue()
+        public void Method_Parse_NoOutput()
         {
             var parser = Cache(End());
             var input = new StringCharacterSequence("TEST");
@@ -39,7 +39,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Output_Method_Test()
+        public void Method_Parse_Output()
         {
             var parser = Cache(CharacterString("TEST"));
             var input = new StringCharacterSequence("TEST");
@@ -70,7 +70,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Output_Method_Multi()
+        public void Method_Parse_MultiOutput()
         {
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
             var input = new StringCharacterSequence("TEST");

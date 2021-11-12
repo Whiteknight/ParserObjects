@@ -151,17 +151,17 @@ namespace ParserObjects.Parsers
 
     public static class Function<TInput>
     {
-        public delegate bool MatcherFunction(IParseState<TInput> t);
+        public delegate IResult ParserFunction(IParseState<TInput> t);
 
         public class Parser : IParser<TInput>, Function.IFunctionParser
         {
-            private readonly MatcherFunction _matcher;
+            private readonly ParserFunction _matcher;
             private readonly IReadOnlyList<IParser> _children;
 
-            public Parser(MatcherFunction matcher, string? description, IEnumerable<IParser>? children)
+            public Parser(ParserFunction func, string? description, IEnumerable<IParser>? children)
             {
-                Assert.ArgumentNotNull(matcher, nameof(matcher));
-                _matcher = matcher;
+                Assert.ArgumentNotNull(func, nameof(func));
+                _matcher = func;
                 Name = string.Empty;
                 Description = description ?? "User Function";
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
@@ -178,7 +178,7 @@ namespace ParserObjects.Parsers
             {
                 var startCheckpoint = state.Input.Checkpoint();
                 var matched = _matcher(state);
-                if (!matched)
+                if (!matched.Success)
                 {
                     startCheckpoint.Rewind();
                     return state.Fail(this, "Matcher returned false");

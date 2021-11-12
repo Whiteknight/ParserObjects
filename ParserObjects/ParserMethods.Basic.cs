@@ -213,7 +213,7 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func)
             => new Function<TInput, TOutput>.Parser(func, null, null);
 
-        public static IParser<TInput> Function(Function<TInput>.MatcherFunction matcher)
+        public static IParser<TInput> Function(Function<TInput>.ParserFunction matcher)
             => new Function<TInput>.Parser(matcher, null, null);
 
         /// <summary>
@@ -479,7 +479,7 @@ namespace ParserObjects
                 try
                 {
                     var result = parser.Parse(state);
-                    return result.Success;
+                    return result;
                 }
                 catch (ControlFlowException)
                 {
@@ -493,7 +493,7 @@ namespace ParserObjects
                     examine?.Invoke(e);
                     if (bubble)
                         throw;
-                    return false;
+                    return state.Fail(parser, e.Message);
                 }
             }, "TRY {child}", new[] { parser });
 

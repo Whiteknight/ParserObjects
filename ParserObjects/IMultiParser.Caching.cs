@@ -1,6 +1,4 @@
-﻿using ParserObjects.Parsers;
-
-namespace ParserObjects
+﻿namespace ParserObjects
 {
     public static class MultiParserCachingExtensions
     {
@@ -13,6 +11,6 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Cache<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
-            => new Cache.MultiParser<TInput, TOutput>(p);
+            => ParserMethods<TInput>.Cache(p);
     }
 }
