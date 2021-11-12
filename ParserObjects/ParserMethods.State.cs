@@ -74,7 +74,7 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-            => Function<TValue>((t, success, _) =>
+            => Function<TValue>((t, success, fail) =>
             {
                 t.Data.Set(name, value);
                 return success(value, t.Input.CurrentLocation);

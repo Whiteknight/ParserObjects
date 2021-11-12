@@ -40,7 +40,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Cache<TOutput>(IParser<TInput, TOutput> p)
-            => new Function<TInput, TOutput>.Parser((state, success, failure) =>
+            => new Function<TInput, TOutput>.Parser(state =>
             {
                 var location = state.Input.CurrentLocation;
                 var cached = state.Cache.Get<Tuple<IResult<TOutput>, ISequenceCheckpoint>>(p, location);
@@ -69,7 +69,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Cache<TOutput>(IMultiParser<TInput, TOutput> p)
-            => new Function<TInput, TOutput>.MultiParser((state) =>
+            => new Function<TInput, TOutput>.MultiParser(state =>
             {
                 var location = state.Input.CurrentLocation;
                 var cached = state.Cache.Get<IMultiResult<TOutput>>(p, location);

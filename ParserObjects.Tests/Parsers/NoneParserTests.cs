@@ -51,5 +51,13 @@ namespace ParserObjects.Tests.Parsers
             result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Any().None().Named("target");
+            var result = target.ToBnf();
+            result.Should().Contain("target := (?=.)");
+        }
     }
 }

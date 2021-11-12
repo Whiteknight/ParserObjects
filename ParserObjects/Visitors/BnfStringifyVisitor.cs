@@ -402,22 +402,6 @@ namespace ParserObjects.Visitors
             state.Current.Append(" )");
         }
 
-        protected virtual void Accept<TInput>(NoneParser<TInput> p, State state)
-        {
-            var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
-            VisitChild(child, state);
-            state.Current.Append(')');
-        }
-
-        protected virtual void Accept<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
-        {
-            var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
-            VisitChild(child, state);
-            state.Current.Append(')');
-        }
-
         protected virtual void Accept<TInput>(NotParser<TInput> p, State state)
         {
             var child = p.GetChildren().First();

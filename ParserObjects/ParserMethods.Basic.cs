@@ -209,29 +209,57 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
+        /// <param name="description"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func)
-            => new Function<TInput, TOutput>.Parser(func, null, null);
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<IParseState<TInput>, IResult<TOutput>> func, string? description = null)
+            => new Function<TInput, TOutput>.Parser(func, description, null);
 
-        public static IParser<TInput> Function(Function<TInput>.ParserFunction matcher)
-            => new Function<TInput>.Parser(matcher, null, null);
+        public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func, string? description = null)
+            => new Function<TInput, TOutput>.Parser(func, description, null);
+
+        public static IParser<TInput> Function(Func<IParseState<TInput>, IResult> func)
+            => new Function<TInput>.Parser(func, null, null);
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <param name="inner"></param>
+        /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> inner)
-            => new NoneParser<TInput, TOutput>(inner);
+        public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> p)
+            => new Function<TInput, TOutput>.Parser(state =>
+            {
+                var cp = state.Input.Checkpoint();
+                var result = p.Parse(state);
+                if (result.Success)
+                {
+                    cp.Rewind();
+                    return state.Success(p, result.Value, 0, result.Location);
+                }
+
+                return state.Fail(p, result.ErrorMessage, result.Location);
+            }, "(?={child})", new[] { p });
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
         /// </summary>
-        /// <param name="inner"></param>
+        /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput> None(IParser<TInput> inner)
-            => new NoneParser<TInput>(inner);
+        public static IParser<TInput> None(IParser<TInput> p)
+            => new Function<TInput>.Parser(state =>
+            {
+                var startCheckpoint = state.Input.Checkpoint();
+                var result = p.Parse(state);
+
+                if (result.Consumed == 0)
+                    return result;
+
+                if (!result.Success)
+                    return result;
+
+                startCheckpoint.Rewind();
+                return state.Success(p, result.Value, 0, result.Location);
+            }, "(?={child})", new[] { p });
 
         /// <summary>
         /// Attempt to parse an item and return an object which holds a value on success.
@@ -440,7 +468,7 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Function<TInput, TOutput>.Parser((state, success, fail) =>
+            => new Function<TInput, TOutput>.Parser(state =>
             {
                 var cp = state.Input.Checkpoint();
                 try
