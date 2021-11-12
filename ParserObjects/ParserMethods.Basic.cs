@@ -210,8 +210,11 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(ParserFunction<TInput, TOutput> func)
-            => new Function<TInput, TOutput>.Parser(func);
+        public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func)
+            => new Function<TInput, TOutput>.Parser(func, null, null);
+
+        public static IParser<TInput> Function(Function<TInput>.MatcherFunction matcher)
+            => new Function<TInput>.Parser(matcher, null, null);
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
@@ -437,7 +440,28 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Try.Parser<TInput, TOutput>(parser, examine, bubble);
+            => new Function<TInput, TOutput>.Parser((state, success, fail) =>
+            {
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    return parser.Parse(state);
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    examine?.Invoke(e);
+                    if (bubble)
+                        throw;
+                    return state.Fail(parser, e.Message ?? "Caught unhandled exception");
+                }
+            }, "TRY {child}", new[] { parser });
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -449,7 +473,29 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Try.Parser<TInput>(parser, examine, bubble);
+            => new Function<TInput>.Parser(state =>
+            {
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    var result = parser.Parse(state);
+                    return result.Success;
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    examine?.Invoke(e);
+                    if (bubble)
+                        throw;
+                    return false;
+                }
+            }, "TRY {child}", new[] { parser });
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -462,6 +508,27 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Try<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-           => new Try.MultiParser<TInput, TOutput>(parser, examine, bubble);
+           => new Function<TInput, TOutput>.MultiParser(state =>
+           {
+               var cp = state.Input.Checkpoint();
+               try
+               {
+                   return parser.Parse(state);
+               }
+               catch (ControlFlowException)
+               {
+                   // These exceptions are used within the library for non-local control flow, and
+                   // should not be caught or modified here.
+                   throw;
+               }
+               catch (Exception e)
+               {
+                   cp.Rewind();
+                   examine?.Invoke(e);
+                   if (bubble)
+                       throw;
+                   return new MultiResult<TOutput>(parser, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>());
+               }
+           }, "TRY {child}", new[] { parser });
     }
 }

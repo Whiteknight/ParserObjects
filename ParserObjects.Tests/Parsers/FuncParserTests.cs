@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using static ParserObjects.ParserMethods<char>;
@@ -30,9 +31,8 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Exception()
         {
             var parser = Function<object>((t, success, fail) => throw new System.Exception("fail"));
-            var result = parser.Parse("X");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
+            Action act = () => parser.Parse("X");
+            act.Should().Throw<Exception>();
         }
 
         [Test]
