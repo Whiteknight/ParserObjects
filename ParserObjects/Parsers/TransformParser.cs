@@ -12,9 +12,11 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput2"></typeparam>
     public static class Transform<TInput, TOutput1, TOutput2>
     {
-        public delegate IResult<TOutput2> Function(ISequence<TInput> input, IDataStore data, IResult<TOutput1> result);
+        public delegate IResult<TOutput2> Function(IParseState<TInput> state, IResultFactory<TOutput2> factory, IResult<TOutput1> result);
 
-        public delegate IMultiResult<TOutput2> MultiFunction(ISequence<TInput> input, IDataStore data, IMultiResult<TOutput1> result);
+        // TODO: Add an IResultFactory or IResultBuilder parameter here
+
+        public delegate IMultiResult<TOutput2> MultiFunction(IParseState<TInput> state, IMultiResult<TOutput1> result);
 
         public class Parser : IParser<TInput, TOutput2>
         {
@@ -39,7 +41,8 @@ namespace ParserObjects.Parsers
 
                 // Execute the parse and transform the result
                 var result = _inner.Parse(state);
-                var transformedResult = _transform(state.Input, state.Data, result);
+                var resultFactory = new ResultFactory(this, state, startCheckpoint.Consumed);
+                var transformedResult = _transform(state, resultFactory, result);
 
                 // If the transform callback returns failure, see if we have to rewind input and
                 // then return directly (we don't need to calculate consumed or anything)
@@ -67,6 +70,26 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
+        private class ResultFactory : IResultFactory<TOutput2>
+        {
+            private readonly IParser<TInput, TOutput2> _parser;
+            private readonly IParseState<TInput> _state;
+            private readonly int _startConsumed;
+
+            public ResultFactory(IParser<TInput, TOutput2> parser, IParseState<TInput> state, int startConsumed)
+            {
+                _parser = parser;
+                _state = state;
+                _startConsumed = startConsumed;
+            }
+
+            public IResult<TOutput2> Failure(string errorMessage, Location? location = null)
+                => _state.Fail(_parser, errorMessage, location ?? _state.Input.CurrentLocation);
+
+            public IResult<TOutput2> Success(TOutput2 value, Location? location = null)
+                => _state.Success(_parser, value, _state.Input.Consumed - _startConsumed, location ?? _state.Input.CurrentLocation);
+        }
+
         public class MultiParser : IMultiParser<TInput, TOutput2>
         {
             private readonly IMultiParser<TInput, TOutput1> _inner;
@@ -92,7 +115,7 @@ namespace ParserObjects.Parsers
                 var result = _inner.Parse(state);
                 result.StartCheckpoint.Rewind();
                 var beforeTransformConsumed = state.Input.Consumed;
-                var transformedResult = _transform(state.Input, state.Data, result);
+                var transformedResult = _transform(state, result);
                 var afterTransformConsumed = state.Input.Consumed;
                 var totalTransformConsumed = afterTransformConsumed - beforeTransformConsumed;
                 totalTransformConsumed = totalTransformConsumed < 0 ? 0 : totalTransformConsumed;

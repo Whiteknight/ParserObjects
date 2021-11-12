@@ -116,12 +116,12 @@ namespace ParserObjects
         /// <param name="getValue"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-            => TransformResult(p, (_, data, result) =>
+            => TransformResult<TOutput, TOutput>(p, (state, _, result) =>
             {
                 if (result.Success)
                 {
                     var value = getValue(result.Value);
-                    data.Set(name, value);
+                    state.Data.Set(name, value);
                 }
 
                 return result;

@@ -23,7 +23,11 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, bool> Bool(IParser<TInput> p)
-            => If(p, Produce(() => true), Produce(() => false));
+            => new Function<TInput, bool>.Parser((state, success, _) =>
+            {
+                var result = p.Parse(state);
+                return success(result.Success);
+            }, "IF {child}", new[] { p });
 
         /// <summary>
         /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -268,10 +272,11 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
-            => First(
-                p.Transform(x => new SuccessOption<TOutput>(x)),
-                Produce((_, _) => FailureOption<TOutput>.Instance)
-            );
+            => TransformResult<TOutput, IOption<TOutput>>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
+                return factory.Success(option);
+            });
 
         /// <summary>
         /// Attempt to parse a parser and return a default value if the parser fails.
@@ -283,10 +288,11 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return First(
-                p,
-                Produce((_, _) => getDefault())
-            );
+            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? result.Value : getDefault();
+                return factory.Success(option);
+            });
         }
 
         /// <summary>
@@ -299,10 +305,11 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return First(
-                p,
-                Produce(getDefault)
-            );
+            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? result.Value : getDefault(state.Input, state.Data);
+                return factory.Success(option);
+            });
         }
 
         /// <summary>
@@ -420,7 +427,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult(parser, (_, _, result) => result.Transform(transform));
+            => TransformResult<TMiddle, TOutput>(parser, (_, _, result) => result.Transform(transform));
 
         /// <summary>
         /// Transforms the output value of the parser.
@@ -431,7 +438,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult(parser, (_, _, result) => result.Transform(transform));
+            => TransformResult(parser, (_, result) => result.Transform(transform));
 
         /// <summary>
         /// Transform one result into another result. Allows modifying the result value and all
