@@ -4,6 +4,9 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parsers to catch and handle exceptions from user code.
+    /// </summary>
     public static class Try
     {
         public static void DefaultExamine(Exception _)
@@ -11,10 +14,15 @@ namespace ParserObjects.Parsers
             // This is a default method, intentionally left blank
         }
 
+        /// <summary>
+        /// Parser to catch and handle exceptions from user code.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         public class Parser<TInput, TOutput> : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TOutput> _inner;
-            private readonly Action<Exception>? _examine;
+            private readonly Action<Exception> _examine;
             private readonly bool _bubble;
 
             public Parser(IParser<TInput, TOutput> inner, Action<Exception>? examine, bool bubble = false)
@@ -45,7 +53,7 @@ namespace ParserObjects.Parsers
                 catch (Exception e)
                 {
                     cp.Rewind();
-                    _examine?.Invoke(e);
+                    _examine.Invoke(e);
                     if (_bubble)
                         throw;
                     return state.Fail(this, e.Message ?? "Caught unhandled exception");
@@ -59,10 +67,14 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
+        /// <summary>
+        /// Parser to catch and handle exceptions from user code.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
         public class Parser<TInput> : IParser<TInput>
         {
             private readonly IParser<TInput> _inner;
-            private readonly Action<Exception>? _examine;
+            private readonly Action<Exception> _examine;
             private readonly bool _bubble;
 
             public Parser(IParser<TInput> inner, Action<Exception>? examine, bool bubble = false)
@@ -93,7 +105,7 @@ namespace ParserObjects.Parsers
                 catch (Exception e)
                 {
                     cp.Rewind();
-                    _examine?.Invoke(e);
+                    _examine.Invoke(e);
                     if (_bubble)
                         throw;
                     return state.Fail(this, e.Message ?? "Caught unhandled exception");
@@ -105,10 +117,15 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
+        /// <summary>
+        /// Parser to catch and handle exceptions from user code.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
         public class MultiParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
         {
             private readonly IMultiParser<TInput, TOutput> _inner;
-            private readonly Action<Exception>? _examine;
+            private readonly Action<Exception> _examine;
             private readonly bool _bubble;
 
             public MultiParser(IMultiParser<TInput, TOutput> inner, Action<Exception>? examine, bool bubble = false)
@@ -139,7 +156,7 @@ namespace ParserObjects.Parsers
                 catch (Exception e)
                 {
                     cp.Rewind();
-                    _examine?.Invoke(e);
+                    _examine.Invoke(e);
                     if (_bubble)
                         throw;
                     return new MultiResult<TOutput>(this, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>());

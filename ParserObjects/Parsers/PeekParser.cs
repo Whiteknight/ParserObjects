@@ -4,6 +4,10 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Obtain the next item of input without advancing the input sequence
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PeekParser<T> : IParser<T, T>
     {
         public PeekParser()

@@ -3,6 +3,11 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Parsers to setup and cleanup a contextual data frame.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class Context<TInput, TOutput>
     {
         public delegate void Function(ISequence<TInput> input, IDataStore data);

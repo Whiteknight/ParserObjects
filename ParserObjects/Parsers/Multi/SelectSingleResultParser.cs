@@ -3,6 +3,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Multi
 {
+    /// <summary>
+    /// Parser to convert an IMultiResult into an IResult by selecting the best result alternative
+    /// using user-supplied criteria.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class SelectSingleResultParser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly SelectMultiAlternativeFunction<TOutput> _selector;

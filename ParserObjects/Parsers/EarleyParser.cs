@@ -7,6 +7,11 @@ using ParserObjects.Visitors;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Implementation of the Earley parsing algorithm.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class Earley<TInput, TOutput>
     {
         public static IMultiParser<TInput, TOutput> Setup(Func<Earley<TInput, TOutput>.SymbolFactory, INonterminal<TInput, TOutput>> setup)

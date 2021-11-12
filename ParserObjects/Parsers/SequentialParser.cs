@@ -6,7 +6,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Sequential parser and related classes.
+    /// Parser infrastructure to execute a sequence of parsers without constructing an object graph.
     /// </summary>
     public static class Sequential
     {
@@ -121,9 +121,7 @@ namespace ParserObjects.Parsers
         }
 
         [Serializable]
-#pragma warning disable RCS1194 // Implement exception constructors.
         private class ParseFailedException : ControlFlowException
-#pragma warning restore RCS1194 // Implement exception constructors.
         {
             public ParseFailedException(IResult result)
             {

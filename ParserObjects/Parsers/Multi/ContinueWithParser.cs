@@ -4,6 +4,13 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers.Multi
 {
+    /// <summary>
+    /// Parser to continue a multi-parse by feeding each successful result into a new parser in
+    /// series.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public static class ContinueWith<TInput, TMiddle, TOutput>
     {
         public delegate IParser<TInput, TOutput> SingleParserSelector(IParser<TInput, TMiddle> p);

@@ -4,8 +4,8 @@ using ParserObjects.Utility;
 namespace ParserObjects.Parsers
 {
     /// <summary>
-    /// Transforms the raw result object, including the result type, result value, success flag or
-    /// error message.
+    /// Parsers to transform the raw result object, including the result type, result value,
+    /// success flag or error message.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput1"></typeparam>
