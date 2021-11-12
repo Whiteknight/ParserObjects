@@ -13,11 +13,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Function<TInput, TOutput>
     {
-        public delegate IResult<TOutput> FailureFactory(string error, Location? location = null);
-
-        public delegate IResult<TOutput> SuccessFactory(TOutput value, Location? location = null);
-
-        public delegate IResult<TOutput> ParserFunction(IParseState<TInput> t, SuccessFactory success, FailureFactory fail);
+        public delegate IResult<TOutput> ParserFunction(IParseState<TInput> t, IResultFactory<TOutput> results);
 
         public delegate void FailureAdder(string error);
 
@@ -53,13 +49,9 @@ namespace ParserObjects.Parsers
             private static IResult<TOutput> AdaptParserFunctionToFunc(IParser<TInput, TOutput> parser, IParseState<TInput> state, ParserFunction func)
             {
                 var startConsumed = state.Input.Consumed;
-                IResult<TOutput> OnSuccess(TOutput value, Location? loc)
-                    => state.Success(parser, value, state.Input.Consumed - startConsumed, loc ?? state.Input.CurrentLocation);
+                var resultFactory = new ResultFactory(parser, state, startConsumed);
 
-                IResult<TOutput> OnFailure(string err, Location? loc)
-                    => state.Fail(parser, err, loc ?? state.Input.CurrentLocation);
-
-                return func(state, OnSuccess, OnFailure);
+                return func(state, resultFactory);
             }
 
             public string Name { get; set; }
@@ -94,6 +86,26 @@ namespace ParserObjects.Parsers
             public IEnumerable<IParser> GetChildren() => _children;
 
             public override string ToString() => DefaultStringifier.ToString(this);
+        }
+
+        private class ResultFactory : IResultFactory<TOutput>
+        {
+            private readonly IParser<TInput, TOutput> _parser;
+            private readonly IParseState<TInput> _state;
+            private readonly int _startConsumed;
+
+            public ResultFactory(IParser<TInput, TOutput> parser, IParseState<TInput> state, int startConsumed)
+            {
+                _parser = parser;
+                _state = state;
+                _startConsumed = startConsumed;
+            }
+
+            public IResult<TOutput> Failure(string errorMessage, Location? location = null)
+                => _state.Fail(_parser, errorMessage, location ?? _state.Input.CurrentLocation);
+
+            public IResult<TOutput> Success(TOutput value, Location? location = null)
+                => _state.Success(_parser, value, _state.Input.Consumed - _startConsumed, location ?? _state.Input.CurrentLocation);
         }
 
         public class MultiParser : IMultiParser<TInput, TOutput>

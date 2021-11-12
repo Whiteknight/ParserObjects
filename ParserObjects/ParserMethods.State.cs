@@ -72,10 +72,12 @@ namespace ParserObjects
         /// <param name="name"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> GetData<TValue>(string name)
-            => Function<TValue>((t, success, fail) =>
+            => Function<TValue>((t, results) =>
             {
                 var result = t.Data.Get<TValue>(name);
-                return result.Success ? success(result.Value, t.Input.CurrentLocation) : fail($"State data '{name}' does not exist", t.Input.CurrentLocation);
+                return result.Success ?
+                    results.Success(result.Value, t.Input.CurrentLocation) :
+                    results.Failure($"State data '{name}' does not exist", t.Input.CurrentLocation);
             });
 
         /// <summary>
@@ -87,10 +89,10 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-            => Function<TValue>((t, success, fail) =>
+            => Function<TValue>((t, results) =>
             {
                 t.Data.Set(name, value);
-                return success(value, t.Input.CurrentLocation);
+                return results.Success(value, t.Input.CurrentLocation);
             });
 
         /// <summary>
