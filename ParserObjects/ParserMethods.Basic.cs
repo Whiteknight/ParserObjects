@@ -380,18 +380,6 @@ namespace ParserObjects
         /// receiving an exception, the input sequence is rewound to the location where Try started
         /// and options are provided to determine what actions to take.
         /// </summary>
-        /// <param name="parser"></param>
-        /// <param name="examine"></param>
-        /// <param name="bubble"></param>
-        /// <returns></returns>
-        public static IMultiParser<TInput> Try(IMultiParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-           => new Try.MultiParser<TInput>(parser, examine, bubble);
-
-        /// <summary>
-        /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
-        /// receiving an exception, the input sequence is rewound to the location where Try started
-        /// and options are provided to determine what actions to take.
-        /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="parser"></param>
         /// <param name="examine"></param>

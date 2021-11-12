@@ -529,10 +529,5 @@ namespace ParserObjects.Visitors
         {
             VisitChild(p.GetChildren().First(), state);
         }
-
-        protected virtual void Accept<TInput>(Try.MultiParser<TInput> p, State state)
-        {
-            VisitChild(p.GetChildren().First(), state);
-        }
     }
 }
