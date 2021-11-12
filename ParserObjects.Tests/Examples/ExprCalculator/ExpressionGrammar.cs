@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Examples.ExprCalculator
             var requiredEnd = If(
                 End(),
                 Produce(() => Defaults.ObjectInstance),
-                Produce<object>((t, d) => throw new Exception($"Expected end of input but found {t.Peek()} at {t.CurrentLocation}"))
+                Produce<object>(state => throw new Exception($"Expected end of input but found {state.Input.Peek()} at {state.Input.CurrentLocation}"))
             );
 
             var expression = Rule(

@@ -295,19 +295,12 @@ namespace ParserObjects
             });
         }
 
-        /// <summary>
-        /// Attempt to parse an item and return a default value otherwise.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="p"></param>
-        /// <param name="getDefault"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
+        public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
             return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
             {
-                var option = result.Success ? result.Value : getDefault(state.Input, state.Data);
+                var option = result.Success ? result.Value : getDefault(state);
                 return factory.Success(option);
             });
         }
@@ -336,16 +329,18 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-            => new Produce<TInput, TOutput>.Parser((_, _) => produce());
+            => new Function<TInput, TOutput>.Parser((state, results) =>
+            {
+                var value = produce();
+                return results.Success(value);
+            }, "PRODUCE", null);
 
-        /// <summary>
-        /// Produces a value given the input sequence and the current contextual data.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="produce"></param>
-        /// <returns></returns>
-        public static IParser<TInput, TOutput> Produce<TOutput>(Produce<TInput, TOutput>.Function produce)
-            => new Produce<TInput, TOutput>.Parser(produce);
+        public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
+            => new Function<TInput, TOutput>.Parser((state, results) =>
+            {
+                var value = produce(state);
+                return results.Success(value);
+            }, "PRODUCE", null);
 
         /// <summary>
         /// Produces a multi result with all returned values as alternatives.
@@ -354,17 +349,12 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IEnumerable<TOutput>> produce)
-            => new Produce<TInput, TOutput>.MultiParser((_, _) => produce());
-
-        /// <summary>
-        /// Produces a multi result with all returned values as alternatives, using the current
-        /// contextual data.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="produce"></param>
-        /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Produce<TInput, TOutput>.MultiFunction produce)
-            => new Produce<TInput, TOutput>.MultiParser(produce);
+            => new Function<TInput, TOutput>.MultiParser((state, addSuccess, _) =>
+            {
+                var values = produce();
+                foreach (var value in values)
+                    addSuccess(value);
+            }, "PRODUCE", null);
 
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.

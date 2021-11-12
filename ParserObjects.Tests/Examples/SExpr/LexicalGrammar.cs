@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Examples.SExpr
             );
 
             var token = Rule(
-                Produce((t, d) => t.CurrentLocation),
+                Produce(state => state.Input.CurrentLocation),
                 anyToken,
                 (location, t) =>
                 {

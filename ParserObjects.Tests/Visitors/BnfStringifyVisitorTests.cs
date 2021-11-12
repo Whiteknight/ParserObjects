@@ -139,7 +139,7 @@ namespace ParserObjects.Tests.Visitors
                 Produce(() => '\0')
             ).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := (.)?");
+            result.Should().Contain("parser := (. | PRODUCE)");
         }
 
         [Test]
