@@ -147,8 +147,8 @@ namespace ParserObjects.Regexes
             return (low, high);
         }
 
-        private static object ThrowEndOfPatternException(ISequence<char> t, IDataStore data)
-            => throw new RegexException("Expected end of pattern but found '" + t.GetNext());
+        private static object ThrowEndOfPatternException(IParseState<char> t)
+            => throw new RegexException("Expected end of pattern but found '" + t.Input.GetNext());
 
         private static List<State> ParseRepetitionRange(IParseContext<char> ctx, List<State> states, IParser<char, int> digits)
         {

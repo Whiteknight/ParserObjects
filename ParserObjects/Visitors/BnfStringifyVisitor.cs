@@ -260,23 +260,10 @@ namespace ParserObjects.Visitors
             state.Current.Append('(');
             VisitChild(children[0], state);
 
-            for (int i = 1; i <= children.Count - 2; i++)
+            for (int i = 1; i <= children.Count - 1; i++)
             {
                 state.Current.Append(" | ");
                 VisitChild(children[i], state);
-            }
-
-            if (children.Count >= 2)
-            {
-                var last = children[children.Count - 1];
-                if (last is Produce<TInput, TOutput>.Parser)
-                {
-                    state.Current.Append(")?");
-                    return;
-                }
-
-                state.Current.Append(" | ");
-                VisitChild(last, state);
             }
 
             state.Current.Append(')');
@@ -444,16 +431,6 @@ namespace ParserObjects.Visitors
             state.Current.Append("(?= ");
             VisitChild(p.GetChildren().First(), state);
             state.Current.Append(" )");
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Produce<TInput, TOutput>.Parser p, State state)
-        {
-            state.Current.Append("PRODUCE");
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Produce<TInput, TOutput>.MultiParser p, State state)
-        {
-            state.Current.Append("PRODUCE");
         }
 
         protected virtual void Accept(RegexParser p, State state)

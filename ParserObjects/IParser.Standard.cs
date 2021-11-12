@@ -255,7 +255,7 @@ namespace ParserObjects
             => ParserMethods<TInput>.Optional(p, getDefault);
 
         /// <summary>
-        /// The results of the given parser are optiona. If the given parser fails, a default value
+        /// The results of the given parser are optional. If the given parser fails, a default value
         /// will be returned.
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
@@ -263,7 +263,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <param name="getDefault"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
+        public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
             => ParserMethods<TInput>.Optional(p, getDefault);
 
         /// <summary>
