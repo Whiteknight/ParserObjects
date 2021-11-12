@@ -23,7 +23,11 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, bool> Bool(IParser<TInput> p)
-            => If(p, Produce(() => true), Produce(() => false));
+            => new Function<TInput, bool>.Parser((state, success, _) =>
+            {
+                var result = p.Parse(state);
+                return success(result.Success);
+            }, "IF {child}", new[] { p });
 
         /// <summary>
         /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -209,26 +213,57 @@ namespace ParserObjects
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="func"></param>
+        /// <param name="description"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(ParserFunction<TInput, TOutput> func)
-            => new Function<TInput, TOutput>.Parser(func);
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<IParseState<TInput>, IResult<TOutput>> func, string? description = null)
+            => new Function<TInput, TOutput>.Parser(func, description, null);
+
+        public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func, string? description = null)
+            => new Function<TInput, TOutput>.Parser(func, description, null);
+
+        public static IParser<TInput> Function(Func<IParseState<TInput>, IResult> func)
+            => new Function<TInput>.Parser(func, null, null);
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
-        /// <param name="inner"></param>
+        /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> inner)
-            => new NoneParser<TInput, TOutput>(inner);
+        public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> p)
+            => new Function<TInput, TOutput>.Parser(state =>
+            {
+                var cp = state.Input.Checkpoint();
+                var result = p.Parse(state);
+                if (result.Success)
+                {
+                    cp.Rewind();
+                    return state.Success(p, result.Value, 0, result.Location);
+                }
+
+                return state.Fail(p, result.ErrorMessage, result.Location);
+            }, "(?={child})", new[] { p });
 
         /// <summary>
         /// Wraps the parser to guarantee that it consumes no input.
         /// </summary>
-        /// <param name="inner"></param>
+        /// <param name="p"></param>
         /// <returns></returns>
-        public static IParser<TInput> None(IParser<TInput> inner)
-            => new NoneParser<TInput>(inner);
+        public static IParser<TInput> None(IParser<TInput> p)
+            => new Function<TInput>.Parser(state =>
+            {
+                var startCheckpoint = state.Input.Checkpoint();
+                var result = p.Parse(state);
+
+                if (result.Consumed == 0)
+                    return result;
+
+                if (!result.Success)
+                    return result;
+
+                startCheckpoint.Rewind();
+                return state.Success(p, result.Value, 0, result.Location);
+            }, "(?={child})", new[] { p });
 
         /// <summary>
         /// Attempt to parse an item and return an object which holds a value on success.
@@ -237,10 +272,11 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
-            => First(
-                p.Transform(x => new SuccessOption<TOutput>(x)),
-                Produce((_, _) => FailureOption<TOutput>.Instance)
-            );
+            => TransformResult<TOutput, IOption<TOutput>>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
+                return factory.Success(option);
+            });
 
         /// <summary>
         /// Attempt to parse a parser and return a default value if the parser fails.
@@ -252,10 +288,11 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return First(
-                p,
-                Produce((_, _) => getDefault())
-            );
+            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? result.Value : getDefault();
+                return factory.Success(option);
+            });
         }
 
         /// <summary>
@@ -268,10 +305,11 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Produce<TInput, TOutput>.Function getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return First(
-                p,
-                Produce(getDefault)
-            );
+            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            {
+                var option = result.Success ? result.Value : getDefault(state.Input, state.Data);
+                return factory.Success(option);
+            });
         }
 
         /// <summary>
@@ -389,7 +427,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult(parser, (_, _, result) => result.Transform(transform));
+            => TransformResult<TMiddle, TOutput>(parser, (_, _, result) => result.Transform(transform));
 
         /// <summary>
         /// Transforms the output value of the parser.
@@ -400,7 +438,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult(parser, (_, _, result) => result.Transform(transform));
+            => TransformResult(parser, (_, result) => result.Transform(transform));
 
         /// <summary>
         /// Transform one result into another result. Allows modifying the result value and all
@@ -437,7 +475,28 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Try.Parser<TInput, TOutput>(parser, examine, bubble);
+            => new Function<TInput, TOutput>.Parser(state =>
+            {
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    return parser.Parse(state);
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    examine?.Invoke(e);
+                    if (bubble)
+                        throw;
+                    return state.Fail(parser, e.Message ?? "Caught unhandled exception");
+                }
+            }, "TRY {child}", new[] { parser });
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -449,7 +508,29 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Try.Parser<TInput>(parser, examine, bubble);
+            => new Function<TInput>.Parser(state =>
+            {
+                var cp = state.Input.Checkpoint();
+                try
+                {
+                    var result = parser.Parse(state);
+                    return result;
+                }
+                catch (ControlFlowException)
+                {
+                    // These exceptions are used within the library for non-local control flow, and
+                    // should not be caught or modified here.
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    cp.Rewind();
+                    examine?.Invoke(e);
+                    if (bubble)
+                        throw;
+                    return state.Fail(parser, e.Message);
+                }
+            }, "TRY {child}", new[] { parser });
 
         /// <summary>
         /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -462,6 +543,27 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Try<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-           => new Try.MultiParser<TInput, TOutput>(parser, examine, bubble);
+           => new Function<TInput, TOutput>.MultiParser(state =>
+           {
+               var cp = state.Input.Checkpoint();
+               try
+               {
+                   return parser.Parse(state);
+               }
+               catch (ControlFlowException)
+               {
+                   // These exceptions are used within the library for non-local control flow, and
+                   // should not be caught or modified here.
+                   throw;
+               }
+               catch (Exception e)
+               {
+                   cp.Rewind();
+                   examine?.Invoke(e);
+                   if (bubble)
+                       throw;
+                   return new MultiResult<TOutput>(parser, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>());
+               }
+           }, "TRY {child}", new[] { parser });
     }
 }

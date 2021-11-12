@@ -1,6 +1,4 @@
-﻿using ParserObjects.Parsers;
-
-namespace ParserObjects
+﻿namespace ParserObjects
 {
     public static class ParserCachingExtensions
     {
@@ -14,7 +12,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Cache<TInput, TOutput>(this IParser<TInput, TOutput> p)
-            => new Cache.OutputParser<TInput, TOutput>(p);
+            => ParserMethods<TInput>.Cache(p);
 
         /// <summary>
         /// Cache the output of the given parser so that the next call to .Parse at the same
@@ -25,6 +23,6 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput> Cache<TInput>(this IParser<TInput> p)
-            => new Cache.NoOutputParser<TInput>(p);
+            => ParserMethods<TInput>.Cache(p);
     }
 }

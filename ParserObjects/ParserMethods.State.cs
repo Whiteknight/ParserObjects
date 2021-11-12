@@ -16,20 +16,33 @@ namespace ParserObjects
         /// <param name="setup"></param>
         /// <param name="cleanup"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
-            => new Context<TInput, TOutput>.Parser(parser, setup, cleanup);
+        public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
+            => new Function<TInput, TOutput>.Parser(state =>
+            {
+                try
+                {
+                    setup(state);
+                    return parser.Parse(state);
+                }
+                finally
+                {
+                    cleanup(state);
+                }
+            }, null, new[] { parser });
 
-        /// <summary>
-        /// Adjust the current parse context before a parse, and cleanup and changes after the
-        /// parse.
-        /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="parser"></param>
-        /// <param name="setup"></param>
-        /// <param name="cleanup"></param>
-        /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
-            => new Context<TInput, TOutput>.MultiParser(parser, setup, cleanup);
+        public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
+            => new Function<TInput, TOutput>.MultiParser(state =>
+            {
+                try
+                {
+                    setup(state);
+                    return parser.Parse(state);
+                }
+                finally
+                {
+                    cleanup(state);
+                }
+            }, null, new[] { parser });
 
         /// <summary>
         /// Create a new parser using information from the current parse context. This parser is
@@ -74,7 +87,7 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-            => Function<TValue>((t, success, _) =>
+            => Function<TValue>((t, success, fail) =>
             {
                 t.Data.Set(name, value);
                 return success(value, t.Input.CurrentLocation);
@@ -103,12 +116,12 @@ namespace ParserObjects
         /// <param name="getValue"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-            => TransformResult(p, (_, data, result) =>
+            => TransformResult<TOutput, TOutput>(p, (state, _, result) =>
             {
                 if (result.Success)
                 {
                     var value = getValue(result.Value);
-                    data.Set(name, value);
+                    state.Data.Set(name, value);
                 }
 
                 return result;
@@ -126,13 +139,13 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, Dictionary<string, TData> values)
             => Context(inner,
-                (_, d) =>
+                state =>
                 {
-                    (d as CascadingKeyValueStore)?.PushFrame();
+                    (state.Data as CascadingKeyValueStore)?.PushFrame();
                     foreach (var value in values)
-                        d.Set(value.Key, value.Value);
+                        state.Data.Set(value.Key, value.Value);
                 },
-                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+                state => (state.Data as CascadingKeyValueStore)?.PopFrame()
             );
 
         /// <summary>
@@ -147,13 +160,13 @@ namespace ParserObjects
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, Dictionary<string, TData> values)
             => Context(inner,
-                (_, d) =>
+                state =>
                 {
-                    (d as CascadingKeyValueStore)?.PushFrame();
+                    (state.Data as CascadingKeyValueStore)?.PushFrame();
                     foreach (var value in values)
-                        d.Set(value.Key, value.Value);
+                        state.Data.Set(value.Key, value.Value);
                 },
-                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+                state => (state.Data as CascadingKeyValueStore)?.PopFrame()
             );
 
         /// <summary>
@@ -165,8 +178,8 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
             => Context(inner,
-                (_, d) => (d as CascadingKeyValueStore)?.PushFrame(),
-                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+                state => (state.Data as CascadingKeyValueStore)?.PushFrame(),
+                state => (state.Data as CascadingKeyValueStore)?.PopFrame()
             );
 
         /// <summary>
@@ -179,8 +192,8 @@ namespace ParserObjects
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
             => Context(inner,
-                (_, d) => (d as CascadingKeyValueStore)?.PushFrame(),
-                (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
+                state => (state.Data as CascadingKeyValueStore)?.PushFrame(),
+                state => (state.Data as CascadingKeyValueStore)?.PopFrame()
             );
 
         /// <summary>

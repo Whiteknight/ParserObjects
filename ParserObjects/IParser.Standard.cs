@@ -208,7 +208,7 @@ namespace ParserObjects
         /// <param name="inner"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> None<TInput, TOutput>(this IParser<TInput, TOutput> inner)
-            => new NoneParser<TInput, TOutput>(inner);
+            => ParserMethods<TInput>.None(inner);
 
         /// <summary>
         /// Wraps the given parser to guarantee that it consumes no input.
@@ -217,7 +217,7 @@ namespace ParserObjects
         /// <param name="inner"></param>
         /// <returns></returns>
         public static IParser<TInput> None<TInput>(this IParser<TInput> inner)
-            => new NoneParser<TInput>(inner);
+            => ParserMethods<TInput>.None(inner);
 
         /// <summary>
         /// Zero-length assertion that the given parser's match result is not followed by a lookahead pattern.

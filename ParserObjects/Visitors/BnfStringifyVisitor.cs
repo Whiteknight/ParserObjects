@@ -142,21 +142,6 @@ namespace ParserObjects.Visitors
             state.Current.Append('.');
         }
 
-        protected virtual void Accept<TInput, TOutput>(Cache.MultiParser<TInput, TOutput> p, State state)
-        {
-            VisitChild(p.Inner, state);
-        }
-
-        protected virtual void Accept<TInput>(Cache.NoOutputParser<TInput> p, State state)
-        {
-            VisitChild(p.Inner, state);
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Cache.OutputParser<TInput, TOutput> p, State state)
-        {
-            VisitChild(p.Inner, state);
-        }
-
         protected virtual void Accept<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, State state)
         {
             var child = p.GetChildren().Single();
@@ -169,16 +154,6 @@ namespace ParserObjects.Visitors
             var child = p.GetChildren().Single();
             VisitChild(child, state);
             state.Current.Append("->Chain");
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.Parser p, State state)
-        {
-            VisitChild(p.GetChildren().Single(), state);
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.MultiParser p, State state)
-        {
-            VisitChild(p.GetChildren().Single(), state);
         }
 
         protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.MultiParser p, State state)
@@ -307,9 +282,56 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
+        // Includes all variants of Function<T>.Parser, Function<TIn, TOut>.Parser, .MultiParser, etc
+        private void AcceptFunctionVariant(string? description, IReadOnlyList<IParser> children, State state)
+        {
+            if (string.IsNullOrEmpty(description))
+            {
+                if (children.Count == 0)
+                {
+                    state.Current.Append("User Function");
+                    return;
+                }
+
+                if (children.Count == 1)
+                {
+                    VisitChild(children[0], state);
+                    return;
+                }
+
+                state.Current.Append("User Function of");
+                foreach (var child in children)
+                {
+                    state.Current.Append(" ");
+                    VisitChild(child, state);
+                }
+
+                return;
+            }
+
+            var parts = description!.Split(new[] { "{child}" }, children.Count + 1, System.StringSplitOptions.None);
+            state.Current.Append(parts[0]);
+
+            for (int i = 1; i < parts.Length; i++)
+            {
+                VisitChild(children[i - 1], state);
+                state.Current.Append(parts[i]);
+            }
+        }
+
+        protected virtual void Accept<TInput>(Function<TInput>.Parser p, State state)
+        {
+            AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
+        }
+
         protected virtual void Accept<TInput, TOutput>(Function<TInput, TOutput>.Parser p, State state)
         {
-            state.Current.Append("User Function");
+            AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Function<TInput, TOutput>.MultiParser p, State state)
+        {
+            AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
         }
 
         protected virtual void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, State state)
@@ -370,22 +392,6 @@ namespace ParserObjects.Visitors
             state.Current.Append("(?! ");
             VisitChild(p.GetChildren().First(), state);
             state.Current.Append(" )");
-        }
-
-        protected virtual void Accept<TInput>(NoneParser<TInput> p, State state)
-        {
-            var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
-            VisitChild(child, state);
-            state.Current.Append(')');
-        }
-
-        protected virtual void Accept<TInput, TOutput>(NoneParser<TInput, TOutput> p, State state)
-        {
-            var child = p.GetChildren().Single();
-            state.Current.Append("(?=");
-            VisitChild(child, state);
-            state.Current.Append(')');
         }
 
         protected virtual void Accept<TInput>(NotParser<TInput> p, State state)
@@ -535,21 +541,6 @@ namespace ParserObjects.Visitors
                 state.Current.Append(" | ");
                 PrintPattern(pattern, state);
             }
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Try.Parser<TInput, TOutput> p, State state)
-        {
-            VisitChild(p.GetChildren().First(), state);
-        }
-
-        protected virtual void Accept<TInput>(Try.Parser<TInput> p, State state)
-        {
-            VisitChild(p.GetChildren().First(), state);
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Try.MultiParser<TInput, TOutput> p, State state)
-        {
-            VisitChild(p.GetChildren().First(), state);
         }
     }
 }
