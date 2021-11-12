@@ -156,16 +156,6 @@ namespace ParserObjects.Visitors
             state.Current.Append("->Chain");
         }
 
-        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.Parser p, State state)
-        {
-            VisitChild(p.GetChildren().Single(), state);
-        }
-
-        protected virtual void Accept<TInput, TOutput>(Context<TInput, TOutput>.MultiParser p, State state)
-        {
-            VisitChild(p.GetChildren().Single(), state);
-        }
-
         protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.MultiParser p, State state)
         {
             var children = p.GetChildren().ToList();
@@ -293,7 +283,7 @@ namespace ParserObjects.Visitors
         }
 
         // Includes all variants of Function<T>.Parser, Function<TIn, TOut>.Parser, .MultiParser, etc
-        private void AcceptFunctionVariant(string description, IReadOnlyList<IParser> children, State state)
+        private void AcceptFunctionVariant(string? description, IReadOnlyList<IParser> children, State state)
         {
             if (string.IsNullOrEmpty(description))
             {
@@ -315,9 +305,11 @@ namespace ParserObjects.Visitors
                     state.Current.Append(" ");
                     VisitChild(child, state);
                 }
+
+                return;
             }
 
-            var parts = description.Split(new[] { "{child}" }, children.Count + 1, System.StringSplitOptions.None);
+            var parts = description!.Split(new[] { "{child}" }, children.Count + 1, System.StringSplitOptions.None);
             state.Current.Append(parts[0]);
 
             for (int i = 1; i < parts.Length; i++)

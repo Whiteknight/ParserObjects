@@ -35,7 +35,7 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = func;
                 Name = string.Empty;
-                Description = description ?? "User Function";
+                Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
@@ -45,7 +45,7 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = state => AdaptParserFunctionToFunc(this, state, func);
                 Name = string.Empty;
-                Description = description ?? "User Function";
+                Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
@@ -64,7 +64,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public string Description { get; }
+            public string? Description { get; }
 
             public IResult<TOutput> Parse(IParseState<TInput> state)
             {
@@ -106,7 +106,7 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(builder, nameof(builder));
                 _func = (state) => AdaptMultiParserBuilderToFunction(this, builder, state);
                 Name = string.Empty;
-                Description = description ?? "User Function";
+                Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
@@ -116,7 +116,7 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = func;
                 Name = string.Empty;
-                Description = description ?? "User Function";
+                Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
@@ -148,7 +148,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public string Description { get; }
+            public string? Description { get; }
 
             public IEnumerable<IParser> GetChildren() => _children;
 
@@ -176,14 +176,14 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = func;
                 Name = string.Empty;
-                Description = description ?? "User Function";
+                Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
 
             public string Name { get; set; }
 
-            public string Description { get; }
+            public string? Description { get; }
 
             public IEnumerable<IParser> GetChildren() => _children;
 
