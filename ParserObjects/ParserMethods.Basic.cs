@@ -145,9 +145,6 @@ namespace ParserObjects
         public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
             => new Examine<TInput>.Parser(parser, before, after);
 
-        public static IMultiParser<TInput> Examine(IMultiParser<TInput> parser, Action<Examine<TInput>.MultiContext>? before = null, Action<Examine<TInput>.MultiContext>? after = null)
-            => new Examine<TInput>.MultiParser(parser, before, after);
-
         /// <summary>
         /// Unconditionally returns failure.
         /// </summary>

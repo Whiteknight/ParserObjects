@@ -184,36 +184,6 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        public class MultiParser : IMultiParser<TInput>
-        {
-            private readonly IMultiParser<TInput> _parser;
-            private readonly Action<MultiContext>? _before;
-            private readonly Action<MultiContext>? _after;
-
-            public MultiParser(IMultiParser<TInput> parser, Action<MultiContext>? before, Action<MultiContext>? after)
-            {
-                _parser = parser;
-                _before = before;
-                _after = after;
-                Name = string.Empty;
-            }
-
-            public string Name { get; set; }
-
-            public IMultiResult Parse(IParseState<TInput> state)
-            {
-                Assert.ArgumentNotNull(state, nameof(state));
-                _before?.Invoke(new MultiContext(_parser, state, null));
-                var result = _parser.Parse(state);
-                _after?.Invoke(new MultiContext(_parser, state, result));
-                return result;
-            }
-
-            public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
-
-            public override string ToString() => DefaultStringifier.ToString(this);
-        }
-
         /// <summary>
         /// The context object which holds information able to be examined.
         /// </summary>
@@ -221,16 +191,6 @@ namespace ParserObjects.Parsers
             IParser<TInput> Parser,
             IParseState<TInput> State,
             IResult? Result
-        )
-        {
-            public IDataStore Data => State.Data;
-            public ISequence<TInput> Input => State.Input;
-        }
-
-        public record MultiContext(
-            IMultiParser<TInput> Parser,
-            IParseState<TInput> State,
-            IMultiResult? Result
         )
         {
             public IDataStore Data => State.Data;
