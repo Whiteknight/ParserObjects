@@ -10,9 +10,9 @@ namespace ParserObjects.Tests.Sequences
         public void GetNext_Test()
         {
             var target = new FilterSequence<int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3, 4, 5, 6 },
-                    () => 0
+                    0
                 ),
                 x => x % 2 == 0
             );
@@ -26,9 +26,9 @@ namespace ParserObjects.Tests.Sequences
         public void IsAtEnd_Test()
         {
             var target = new FilterSequence<int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x % 2 == 0
             );
@@ -41,9 +41,9 @@ namespace ParserObjects.Tests.Sequences
         public void Peek_Test()
         {
             var target = new FilterSequence<int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3, 4, 5, 6 },
-                    () => 0
+                    0
                 ),
                 x => x % 2 == 0
             );
@@ -60,9 +60,9 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Where_Test()
         {
-            var source = new EnumerableSequence<int>(
+            var source = new ListSequence<int>(
                 new[] { 1, 2, 3, 4, 5, 6 },
-                () => 0
+                0
             );
             var target = source.Where(x => x % 2 == 0);
             target.GetNext().Should().Be(2);

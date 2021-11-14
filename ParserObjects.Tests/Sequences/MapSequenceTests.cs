@@ -10,9 +10,9 @@ namespace ParserObjects.Tests.Sequences
         public void GetNext_Test()
         {
             var target = new MapSequence<int, int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x * 2
             );
@@ -26,9 +26,9 @@ namespace ParserObjects.Tests.Sequences
         public void Peek_Test()
         {
             var target = new MapSequence<int, int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x * 2
             );
@@ -42,9 +42,9 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Select_Test()
         {
-            var source = new EnumerableSequence<int>(
+            var source = new ListSequence<int>(
                 new[] { 1, 2, 3 },
-                () => 0
+                0
             );
             var target = source.Select(x => x * 2);
             target.GetNext().Should().Be(2);
@@ -56,9 +56,9 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void IsAtEnd_Test()
         {
-            var source = new EnumerableSequence<int>(
+            var source = new ListSequence<int>(
                 new[] { 1, 2, 3 },
-                () => 0
+                0
             );
             var target = source.Select(x => x * 2);
             target.IsAtEnd.Should().BeFalse();
@@ -74,9 +74,9 @@ namespace ParserObjects.Tests.Sequences
         public void Location_Test()
         {
             var target = new MapSequence<int, int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x
             );
@@ -94,9 +94,9 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_Test()
         {
             var target = new MapSequence<int, int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x * 2
             );
@@ -115,9 +115,9 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_IsAtEndRewind()
         {
             var target = new MapSequence<int, int>(
-                new EnumerableSequence<int>(
+                new ListSequence<int>(
                     new[] { 1, 2, 3 },
-                    () => 0
+                    0
                 ),
                 x => x * 2
             );
