@@ -466,7 +466,7 @@ namespace ParserObjects.Visitors
             state.Current.Append(')');
         }
 
-        protected virtual void Accept<TInput, TOutput>(SelectSingleResultParser<TInput, TOutput> p, State state)
+        protected virtual void Accept<TInput, TOutput>(Select<TInput, TOutput>.Parser p, State state)
         {
             state.Current.Append("SELECT ");
             VisitChild(p.GetChildren().Single(), state);
