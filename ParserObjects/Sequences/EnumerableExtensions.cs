@@ -11,10 +11,10 @@ namespace ParserObjects.Sequences
         /// <param name="enumerable"></param>
         /// <param name="endValue">An end value to return when the sequence is exhausted.</param>
         /// <returns></returns>
-        public static ISequence<T> ToSequence<T>(this IEnumerable<T> enumerable, T? endValue = default)
-            => new ListSequence<T>(enumerable, endValue);
+        public static ISequence<T?> ToSequence<T>(this IEnumerable<T> enumerable, T? endValue = default)
+            => new ListSequence<T?>(enumerable, endValue);
 
-        public static ISequence<T> ToSequence<T>(this IReadOnlyList<T> list, T? endValue = default)
-            => new ListSequence<T>(list, endValue);
+        public static ISequence<T?> ToSequence<T>(this IReadOnlyList<T> list, T? endValue = default)
+            => new ListSequence<T?>(list, endValue);
     }
 }

@@ -12,12 +12,12 @@ namespace ParserObjects.Sequences
     public sealed class ListSequence<T> : ISequence<T>
     {
         private readonly IReadOnlyList<T> _list;
-        private readonly T? _endSentinelValue;
+        private readonly T _endSentinelValue;
 
         private SequenceStatistics _stats;
         private int _index;
 
-        public ListSequence(IEnumerable<T> enumerable, T? endSentinel)
+        public ListSequence(IEnumerable<T> enumerable, T endSentinel)
         {
             Assert.ArgumentNotNull(enumerable, nameof(enumerable));
             _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToList();
@@ -28,7 +28,7 @@ namespace ParserObjects.Sequences
             _stats = default;
         }
 
-        public ListSequence(IReadOnlyList<T> list, T? endSentinel)
+        public ListSequence(IReadOnlyList<T> list, T endSentinel)
         {
             Assert.ArgumentNotNull(list, nameof(list));
             _list = list;
