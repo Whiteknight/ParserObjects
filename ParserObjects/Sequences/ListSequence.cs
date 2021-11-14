@@ -101,6 +101,6 @@ namespace ParserObjects.Sequences
             _index = index;
         }
 
-        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
+        public ISequenceStatistics GetStatistics() => _stats;
     }
 }
