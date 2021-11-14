@@ -13,8 +13,8 @@ namespace ParserObjects.Tests.Parsers
             var after = "";
             var target = Context(
                 Produce(() => "OK"),
-                (i, d) => before = "OK1",
-                (i, d) => after = "OK2"
+                state => before = "OK1",
+                state => after = "OK2"
             );
             var result = target.Parse("");
             result.Success.Should().BeTrue();
@@ -31,8 +31,8 @@ namespace ParserObjects.Tests.Parsers
             var target = Try(
                 Context(
                     Produce<string>(() => throw new System.Exception()),
-                    (i, d) => before = "OK1",
-                    (i, d) => after = "OK2"
+                    state => before = "OK1",
+                    state => after = "OK2"
                 )
             );
             var result = target.Parse("");
@@ -48,8 +48,8 @@ namespace ParserObjects.Tests.Parsers
             var after = "";
             var target = Context(
                 ProduceMulti(() => new[] { "OK" }),
-                (i, d) => before = "OK1",
-                (i, d) => after = "OK2"
+                state => before = "OK1",
+                state => after = "OK2"
             );
             var result = target.Parse("");
             result.Success.Should().BeTrue();
@@ -66,8 +66,8 @@ namespace ParserObjects.Tests.Parsers
             var target = Try(
                 Context(
                     ProduceMulti<string>(() => throw new System.Exception()),
-                    (i, d) => before = "OK1",
-                    (i, d) => after = "OK2"
+                    state => before = "OK1",
+                    state => after = "OK2"
                 )
             );
             var result = target.Parse("");
@@ -81,8 +81,8 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Context(
                 Produce(() => "OK"),
-                (i, d) => { },
-                (i, d) => { }
+                state => { },
+                state => { }
             ).Named("target");
             var result = target.ToBnf();
             result.Should().Contain("target := PRODUCE");
@@ -93,8 +93,8 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Context(
                 ProduceMulti(() => new[] { "OK" }),
-                (i, d) => { },
-                (i, d) => { }
+                state => { },
+                state => { }
             ).Named("target");
             var result = target.ToBnf();
             result.Should().Contain("target := PRODUCE");

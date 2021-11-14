@@ -47,5 +47,7 @@ namespace ParserObjects.Sequences
 
             return _parser.Parse(_state);
         }
+
+        public ISequenceStatistics GetStatistics() => _input.GetStatistics();
     }
 }
