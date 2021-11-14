@@ -57,61 +57,61 @@ namespace ParserObjects.Tests.Parsers
             result.Value.Should().Be("1");
         }
 
-        [Test]
-        public void StateData_MultiOutput_NameValue()
-        {
-            var target = DataContext(
-                ProduceMulti((i, d) =>
-                {
-                    var x = d.Get<char>("A").Value;
-                    return new[] { x };
-                }), "A", 'X'
-            );
+        // [Test]
+        // public void StateData_MultiOutput_NameValue()
+        // {
+        //     var target = DataContext(
+        //         ProduceMulti((i, d) =>
+        //         {
+        //             var x = d.Get<char>("A").Value;
+        //             return new[] { x };
+        //         }), "A", 'X'
+        //     );
 
-            var result = target.Parse("");
-            result.Success.Should().BeTrue();
-            result.Results[0].Value.Should().Be('X');
-        }
+        //     var result = target.Parse("");
+        //     result.Success.Should().BeTrue();
+        //     result.Results[0].Value.Should().Be('X');
+        // }
 
-        [Test]
-        public void StateData_MultiOutput_Dictionary()
-        {
-            var target = DataContext(
-                ProduceMulti((i, d) =>
-                {
-                    return new[] { d.Get<char>("A").Value, d.Get<char>("B").Value };
-                }),
-                new Dictionary<string, char>
-                {
-                    { "A", 'X' },
-                    { "B", 'Y' }
-                }
-            );
+        // [Test]
+        // public void StateData_MultiOutput_Dictionary()
+        // {
+        //     var target = DataContext(
+        //         ProduceMulti((i, d) =>
+        //         {
+        //             return new[] { d.Get<char>("A").Value, d.Get<char>("B").Value };
+        //         }),
+        //         new Dictionary<string, char>
+        //         {
+        //             { "A", 'X' },
+        //             { "B", 'Y' }
+        //         }
+        //     );
 
-            var result = target.Parse("");
-            result.Success.Should().BeTrue();
-            result.Results.Count.Should().Be(2);
-            result.Results[0].Value.Should().Be('X');
-            result.Results[1].Value.Should().Be('Y');
-        }
+        //     var result = target.Parse("");
+        //     result.Success.Should().BeTrue();
+        //     result.Results.Count.Should().Be(2);
+        //     result.Results[0].Value.Should().Be('X');
+        //     result.Results[1].Value.Should().Be('Y');
+        // }
 
-        [Test]
-        public void StateData_MultiOutput()
-        {
-            var target = DataContext(
-                ProduceMulti((i, d) =>
-                {
-                    d.Set("A", 'X');
-                    d.Set("B", 'Y');
-                    return new[] { d.Get<char>("A").Value, d.Get<char>("B").Value };
-                })
-            );
+        // [Test]
+        // public void StateData_MultiOutput()
+        // {
+        //     var target = DataContext(
+        //         ProduceMulti((i, d) =>
+        //         {
+        //             d.Set("A", 'X');
+        //             d.Set("B", 'Y');
+        //             return new[] { d.Get<char>("A").Value, d.Get<char>("B").Value };
+        //         })
+        //     );
 
-            var result = target.Parse("");
-            result.Success.Should().BeTrue();
-            result.Results.Count.Should().Be(2);
-            result.Results[0].Value.Should().Be('X');
-            result.Results[1].Value.Should().Be('Y');
-        }
+        //     var result = target.Parse("");
+        //     result.Success.Should().BeTrue();
+        //     result.Results.Count.Should().Be(2);
+        //     result.Results[0].Value.Should().Be('X');
+        //     result.Results[1].Value.Should().Be('Y');
+        // }
     }
 }
