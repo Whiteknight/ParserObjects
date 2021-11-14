@@ -48,6 +48,8 @@ namespace ParserObjects
             var newAlternatives = Results.Select(alt => alt.Transform(transform));
             return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
         }
+
+        public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
     }
 
     /// <summary>
