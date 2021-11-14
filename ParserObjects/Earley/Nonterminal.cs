@@ -21,7 +21,7 @@ namespace ParserObjects.Earley
 
         public IReadOnlyCollection<IProduction> Productions => _productions;
 
-        public void AddProductionObj(IProduction p)
+        public void AddProduction(IProduction p)
         {
             var typed = p as Production<TOutput> ?? throw new InvalidOperationException("Production must have a matching output type");
             if (!_productions.Contains(typed))

@@ -1,13 +1,16 @@
 ﻿namespace ParserObjects
 {
-    // marker interface for items which may act as a symbol in a grammar and also the top-most
-    // interface type for all parsers and similar objects
+    /// <summary>
+    /// Marker interface for types which can be used as grammar symbols.
+    /// </summary>
     public interface ISymbol : INamed
     {
     }
 
-    // marker interface for items which may act as a symbol in a grammar with a specific output
-    // type.
+    /// <summary>
+    /// Marker interface for types which can be used as grammar symbols with typed output.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public interface ISymbol<out TValue> : ISymbol
     {
     }

@@ -19,6 +19,15 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
             => new Context<TInput, TOutput>.Parser(parser, setup, cleanup);
 
+        /// <summary>
+        /// Adjust the current parse context before a parse, and cleanup and changes after the
+        /// parse.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="setup"></param>
+        /// <param name="cleanup"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Context<TInput, TOutput>.Function setup, Context<TInput, TOutput>.Function cleanup)
             => new Context<TInput, TOutput>.MultiParser(parser, setup, cleanup);
 
@@ -32,6 +41,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Create<TOutput>(Create<TInput, TOutput>.Function create)
             => new Create<TInput, TOutput>.Parser(create);
 
+        /// <summary>
+        /// Create a new multi parser using information from the current parse context. This parser
+        /// is not cached, but will also not be reported to visitors.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="create"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Create<TInput, TOutput>.MultiFunction create)
             => new Create<TInput, TOutput>.MultiParser(create);
 
@@ -99,8 +115,9 @@ namespace ParserObjects
             });
 
         /// <summary>
-        /// Creates a new contextual data frame to store data. Execute the inner parser. When the
-        /// inner parser concludes, pop the data frame off the data store.
+        /// Creates a new contextual data frame to store data if the data store supports frames.
+        /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+        /// data store.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <typeparam name="TData"></typeparam>
@@ -118,6 +135,16 @@ namespace ParserObjects
                 (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
             );
 
+        /// <summary>
+        /// Creates a new contextual data frame to store data if the data store supports frames.
+        /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+        /// data store.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="inner"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, Dictionary<string, TData> values)
             => Context(inner,
                 (_, d) =>
@@ -142,6 +169,14 @@ namespace ParserObjects
                 (_, d) => (d as CascadingKeyValueStore)?.PopFrame()
             );
 
+        /// <summary>
+        /// Creates a new contextual data frame to store data if the data store supports frames.
+        /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+        /// data store.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="inner"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
             => Context(inner,
                 (_, d) => (d as CascadingKeyValueStore)?.PushFrame(),
@@ -163,6 +198,17 @@ namespace ParserObjects
             where TData : notnull
             => DataContext(inner, new Dictionary<string, object> { { name, value } });
 
+        /// <summary>
+        /// Creates a new contextual data frame to store data if the data store supports frames.
+        /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+        /// data store.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="inner"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, string name, TData value)
             where TData : notnull
             => DataContext(inner, new Dictionary<string, object> { { name, value! } });

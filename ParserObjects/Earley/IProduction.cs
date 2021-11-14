@@ -2,10 +2,10 @@
 
 namespace ParserObjects.Earley
 {
-    // A production is the set of grammar elements which constitute a single rule. This would be
-    // of the form "A := XYZ". The production also has a callback which is invoked when the rule
-    // matches, to produce the output value.
-    // Production is an ordered list of symbols and a callback.
+    /// <summary>
+    /// A sequence of grammar symbols and a rule to convert the produced values of each symbol into
+    /// a single result value. A production is a rule in the form "A := XYZ".
+    /// </summary>
     public interface IProduction
     {
         INonterminal LeftHandSide { get; }

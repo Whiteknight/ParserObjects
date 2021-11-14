@@ -40,20 +40,70 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => ParserMethods<TInput>.DataContext(p);
 
+        /// <summary>
+        /// Push a recursive data frame before executing the given parser, and then pop the data
+        /// frame when the parser completes.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, string name, TData value)
             where TData : notnull
             => ParserMethods<TInput>.DataContext(p, name, value);
 
+        /// <summary>
+        /// Push a recursive data frame before executing the given parser, and then pop the data
+        /// frame when the parser completes.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, Dictionary<string, TData> values)
             => ParserMethods<TInput>.DataContext(p, values);
 
+        /// <summary>
+        /// Push a recursive data frame before executing the given parser, and then pop the data
+        /// frame when the parser completes.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
             => ParserMethods<TInput>.DataContext(p);
 
+        /// <summary>
+        /// Push a recursive data frame before executing the given parser, and then pop the data
+        /// frame when the parser completes.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, string name, TData value)
             where TData : notnull
             => ParserMethods<TInput>.DataContext(p, name, value);
 
+        /// <summary>
+        /// Push a recursive data frame before executing the given parser, and then pop the data
+        /// frame when the parser completes.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, Dictionary<string, TData> values)
             => ParserMethods<TInput>.DataContext(p, values);
     }

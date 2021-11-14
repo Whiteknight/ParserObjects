@@ -76,5 +76,19 @@ namespace ParserObjects
         /// <returns></returns>
         public static MultiReplaceResult Replace<TInput, TOutput>(this IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
             => FindParserVisitor.Replace(root, name, transform);
+
+        /// <summary>
+        /// Given a parser graph, find a ReplaceableParser matching a predicate and attempt to
+        /// transform the contents using the given transformation. The contents of the
+        /// ReplaceableParser will be replaced with the transformed result if it is new and valid.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static MultiReplaceResult Replace<TInput, TOutput>(this IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
+            => FindParserVisitor.ReplaceMulti(root, name, transform);
     }
 }

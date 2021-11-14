@@ -276,6 +276,13 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
             => new Replaceable<TInput, TOutput>.Parser(p);
 
+        /// <summary>
+        /// Make this parser replaceable.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
             => new Replaceable<TInput, TOutput>.MultiParser(p);
 
@@ -291,6 +298,15 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
             => new Replaceable<TInput, TOutput>.Parser(p).Named(name);
 
+        /// <summary>
+        /// Make this parser replaceable. Gives the parser a name so that it can be easily found
+        /// and replaced.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p, string name)
             => new Replaceable<TInput, TOutput>.MultiParser(p).Named(name);
 

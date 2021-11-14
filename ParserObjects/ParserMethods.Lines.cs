@@ -30,11 +30,13 @@ namespace ParserObjects
         /// </summary>
         /// <returns></returns>
         public static IParser<char, string> Line() => _line.Value;
-        private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(() =>
-        {
-            // We should cache this, in a dictionary by prefix
-            var notNewlineChar = Match(c => c != '\n');
-            return notNewlineChar.ListCharToString();
-        });
+
+        private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(
+            () =>
+            {
+                var notNewlineChar = Match(c => c != '\n');
+                return notNewlineChar.ListCharToString();
+            }
+        );
     }
 }

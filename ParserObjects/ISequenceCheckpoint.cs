@@ -11,9 +11,14 @@
         /// </summary>
         void Rewind();
 
-        // How many input items are consumed at the point of this checkpoint
+        /// <summary>
+        /// Gets the number of items consumed between the start of input and the current location.
+        /// </summary>
         int Consumed { get; }
 
+        /// <summary>
+        /// Gets the current location of the input sequence.
+        /// </summary>
         Location Location { get; }
     }
 }

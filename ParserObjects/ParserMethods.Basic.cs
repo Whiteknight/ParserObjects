@@ -100,6 +100,12 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
             => new Deferred<TInput, TOutput>.Parser(getParser);
 
+        /// <summary>
+        /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="getParser"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Deferred<TOutput>(Func<IMultiParser<TInput, TOutput>> getParser)
             => new Deferred<TInput, TOutput>.MultiParser(getParser);
 
@@ -132,6 +138,14 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
             => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
+        /// <summary>
+        /// Invoke callbacks before and after a parse.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Examine<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.MultiContext>? before = null, Action<Examine<TInput, TOutput>.MultiContext>? after = null)
             => new Examine<TInput, TOutput>.MultiParser(parser, before, after);
 
@@ -161,6 +175,12 @@ namespace ParserObjects
         public static IParser<TInput, TInput> Fail(string error = "Fail")
             => new Fail<TInput, TInput>.Parser(error);
 
+        /// <summary>
+        /// Returns a multi result with unconditional failure.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> FailMulti<TOutput>(string error = "Fail")
             => new Fail<TInput, TOutput>.MultiParser(error);
 
@@ -279,9 +299,22 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Produce<TOutput>(Produce<TInput, TOutput>.Function produce)
             => new Produce<TInput, TOutput>.Parser(produce);
 
+        /// <summary>
+        /// Produces a multi result with all returned values as alternatives.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="produce"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IEnumerable<TOutput>> produce)
             => new Produce<TInput, TOutput>.MultiParser((_, _) => produce());
 
+        /// <summary>
+        /// Produces a multi result with all returned values as alternatives, using the current
+        /// contextual data.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="produce"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Produce<TInput, TOutput>.MultiFunction produce)
             => new Produce<TInput, TOutput>.MultiParser(produce);
 
@@ -298,13 +331,18 @@ namespace ParserObjects
             => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new Fail<TInput, TOutput>.MultiParser());
 
         /// <summary>
-        /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
+        /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>()
             => new Replaceable<TInput, TOutput>.Parser(new Fail<TInput, TOutput>.Parser());
 
+        /// <summary>
+        /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ReplaceableMulti<TOutput>()
             => new Replaceable<TInput, TOutput>.MultiParser(new Fail<TInput, TOutput>.MultiParser());
 
@@ -319,7 +357,7 @@ namespace ParserObjects
             => new Sequential.Parser<TInput, TOutput>(func);
 
         /// <summary>
-        /// Transform one node into another node to fit into the grammar.
+        /// Transform the output value of the parser.
         /// </summary>
         /// <typeparam name="TMiddle"></typeparam>
         /// <typeparam name="TOutput"></typeparam>
@@ -329,6 +367,14 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => TransformResult(parser, (_, _, result) => result.Transform(transform));
 
+        /// <summary>
+        /// Transforms the output value of the parser.
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
             => TransformResult(parser, (_, _, result) => result.Transform(transform));
 
@@ -344,6 +390,15 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
             => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
 
+        /// <summary>
+        /// Transform one multi result into another multi result. Allows modifying the result
+        /// values and all result metadata.
+        /// </summary>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.MultiFunction transform)
             => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 

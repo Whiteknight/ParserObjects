@@ -46,6 +46,9 @@ namespace ParserObjects
         /// </summary>
         public IDataStore Data => _store;
 
+        /// <summary>
+        /// Gets the current result cache.
+        /// </summary>
         public IResultsCache Cache { get; }
 
         /// <summary>
