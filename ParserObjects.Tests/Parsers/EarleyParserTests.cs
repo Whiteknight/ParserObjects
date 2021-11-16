@@ -16,7 +16,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Earley<int>(symbols => symbols
                 .New("S")
-                .AddProduction(UnsignedInteger(), n => n)
+                .Rule(UnsignedInteger(), n => n)
             );
 
             var result = target.Parse("4");
@@ -30,7 +30,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Earley<int>(symbols => symbols
                 .New()
-                .AddProduction(UnsignedInteger(), n => n)
+                .Rule(UnsignedInteger(), n => n)
             );
 
             var result = target.Parse("4");
@@ -48,10 +48,10 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("star");
 
                 var expr = symbols.New("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                 return expr;
             });
@@ -79,10 +79,10 @@ namespace ParserObjects.Tests.Parsers
                     var star = Match('*').Named("star");
 
                     var expr = symbols.New("Expr")
-                        .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                        .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                    expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                    expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                    expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                    expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                     return expr;
                 }
@@ -120,15 +120,15 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("'*'");
 
                 var expr = symbols.New<int>("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                 var eof = IsEnd();
 
                 return symbols.New("S")
-                    .AddProduction(expr, eof, (e, _) => e);
+                    .Rule(expr, eof, (e, _) => e);
             });
 
             var result = target.Parse("4*5+6");
@@ -154,22 +154,22 @@ namespace ParserObjects.Tests.Parsers
                 var number = UnsignedInteger().Named("literal");
 
                 var primary = symbols.New("Primary")
-                    .AddProduction(number, n => (n.ToString(), n));
+                    .Rule(number, n => (n.ToString(), n));
 
                 var term = symbols.New<(string, int)>("Term");
-                term.AddProduction(primary, p => p);
-                term.AddProduction(term, star, primary, (l, _, r) => ($"({l.Item1}*{r.Item1})", l.Item2 * r.Item2));
-                term.AddProduction(term, divide, primary, (l, _, r) => ($"({l.Item1}/{r.Item1})", l.Item2 / r.Item2));
+                term.Rule(primary, p => p);
+                term.Rule(term, star, primary, (l, _, r) => ($"({l.Item1}*{r.Item1})", l.Item2 * r.Item2));
+                term.Rule(term, divide, primary, (l, _, r) => ($"({l.Item1}/{r.Item1})", l.Item2 / r.Item2));
 
                 var expr = symbols.New<(string, int)>("Expr");
-                expr.AddProduction(term, t => t);
-                expr.AddProduction(expr, plus, term, (l, _, r) => ($"({l.Item1}+{r.Item1})", l.Item2 + r.Item2));
-                expr.AddProduction(expr, minus, term, (l, _, r) => ($"({l.Item1}-{r.Item1})", l.Item2 - r.Item2));
+                expr.Rule(term, t => t);
+                expr.Rule(expr, plus, term, (l, _, r) => ($"({l.Item1}+{r.Item1})", l.Item2 + r.Item2));
+                expr.Rule(expr, minus, term, (l, _, r) => ($"({l.Item1}-{r.Item1})", l.Item2 - r.Item2));
 
                 var eof = IsEnd();
 
                 return symbols.New("S")
-                    .AddProduction(expr, eof, (e, _) => e);
+                    .Rule(expr, eof, (e, _) => e);
             });
 
             var result = target.Parse("4*5+6/3-2");
@@ -187,10 +187,10 @@ namespace ParserObjects.Tests.Parsers
                 var star = CharacterString("**").Named("star");
 
                 var expr = symbols.New("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
                 return expr;
             });
 
@@ -215,10 +215,10 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("star");
 
                 var expr = symbols.New("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
                 return expr;
             });
 
@@ -247,13 +247,13 @@ namespace ParserObjects.Tests.Parsers
                 var empty = Produce(() => 0);
 
                 var expr = symbols.New<int>("Expr")
-                    .AddProduction(empty, v => v);
-                expr.AddProduction(expr, Match('a'), (count, _) => count + 1);
+                    .Rule(empty, v => v);
+                expr.Rule(expr, Match('a'), (count, _) => count + 1);
 
                 var eof = IsEnd();
 
                 return symbols.New("Start")
-                    .AddProduction(expr, eof, (v, _) => v);
+                    .Rule(expr, eof, (v, _) => v);
             });
 
             var result = target.Parse("");
@@ -286,13 +286,13 @@ namespace ParserObjects.Tests.Parsers
                     var empty = Produce(() => 0);
 
                     var expr = symbols.New<int>("Expr")
-                        .AddProduction(empty, v => v);
-                    expr.AddProduction(expr, Match('a'), (count, _) => count + 1);
+                        .Rule(empty, v => v);
+                    expr.Rule(expr, Match('a'), (count, _) => count + 1);
 
                     var eof = IsEnd();
 
                     return symbols.New("Start")
-                        .AddProduction(expr, eof, (v, _) => v);
+                        .Rule(expr, eof, (v, _) => v);
                 }
             );
 
@@ -326,13 +326,13 @@ namespace ParserObjects.Tests.Parsers
                 var a = Match('a').Named("a");
 
                 var e = symbols.New<int>("E")
-                    .AddProduction(a, _ => 1);
-                e.AddProduction(a, e, (_, count) => count + 1);
+                    .Rule(a, _ => 1);
+                e.Rule(a, e, (_, count) => count + 1);
 
                 var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
-                    .AddProduction(e, eof, (count, _) => count).Named("S");
+                    .Rule(e, eof, (count, _) => count).Named("S");
             });
 
             // TODO: Need to look at the State listings to verify if we have Leo's optimization
@@ -366,13 +366,13 @@ namespace ParserObjects.Tests.Parsers
                     var a = Match('a').Named("a");
 
                     var e = symbols.New<int>("E")
-                        .AddProduction(a, _ => 1);
-                    e.AddProduction(a, e, (_, count) => count + 1);
+                        .Rule(a, _ => 1);
+                    e.Rule(a, e, (_, count) => count + 1);
 
                     var eof = IsEnd().Named("End");
 
                     return symbols.New("S")
-                        .AddProduction(e, eof, (count, _) => count).Named("S");
+                        .Rule(e, eof, (count, _) => count).Named("S");
                 }
             );
 
@@ -408,7 +408,7 @@ namespace ParserObjects.Tests.Parsers
                 var nullable = Produce(() => "Test");
                 var eof = IsEnd();
                 return symbols.New("S")
-                    .AddProduction(nullable, eof, (a, _) => a);
+                    .Rule(nullable, eof, (a, _) => a);
             });
 
             var results = target.Parse("");
@@ -433,11 +433,11 @@ namespace ParserObjects.Tests.Parsers
                 var rulea = Produce(() => "A").Named("A");
                 var ruleb = Produce(() => "B").Named("B");
                 var nullable = symbols.New("N")
-                    .AddProduction(rulea, ruleb, (a, b) => $"({a},{b})");
+                    .Rule(rulea, ruleb, (a, b) => $"({a},{b})");
 
                 var eof = IsEnd().Named("END");
                 return symbols.New("S")
-                    .AddProduction(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
+                    .Rule(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
             });
 
             var results = target.Parse("");
@@ -466,12 +466,12 @@ namespace ParserObjects.Tests.Parsers
                 var ruleb = Produce(() => "B").Named("B");
 
                 var nullable = symbols.New<string>("N")
-                    .AddProduction(rulea, a => a)
-                    .AddProduction(ruleb, b => b);
+                    .Rule(rulea, a => a)
+                    .Rule(ruleb, b => b);
 
                 var eof = IsEnd().Named("END");
                 return symbols.New("S")
-                    .AddProduction(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
+                    .Rule(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
             });
 
             // A:A A:B B:A B:B
@@ -499,8 +499,8 @@ namespace ParserObjects.Tests.Parsers
                 var a = Match('a').Named("a");
 
                 var e = symbols.New("E")
-                    .AddProduction(a, _ => "a");
-                e.AddProduction(a, e, (_, rr) => "a" + rr);
+                    .Rule(a, _ => "a");
+                e.Rule(a, e, (_, rr) => "a" + rr);
                 return e;
             });
 
@@ -533,8 +533,8 @@ namespace ParserObjects.Tests.Parsers
                 var a = Match('a').Named("a");
 
                 var e = symbols.New("E")
-                    .AddProduction(a, _ => "a");
-                e.AddProduction(a, e, (_, rr) => "a" + rr);
+                    .Rule(a, _ => "a");
+                e.Rule(a, e, (_, rr) => "a" + rr);
                 return e;
             });
 
@@ -546,10 +546,10 @@ namespace ParserObjects.Tests.Parsers
                 var start = symbols.New("Start");
                 var a = Match('a').Named("a");
                 var e = symbols.New("E")
-                    .AddProduction(a, _ => "a");
-                e.AddProduction(a, e, (_, rr) => "a" + rr);
+                    .Rule(a, _ => "a");
+                e.Rule(a, e, (_, rr) => "a" + rr);
 
-                start.AddProduction(left, e, (l, rr) => $"({l})({rr})");
+                start.Rule(left, e, (l, rr) => $"({l})({rr})");
                 return start;
             }));
 
@@ -585,20 +585,20 @@ namespace ParserObjects.Tests.Parsers
                 var a = Match('a').Named("a");
 
                 var e = symbols.New<int>("E")
-                    .AddProduction(a, _ => 1)
-                    .AddProduction(a, a, (_, _) => 2)
-                    .AddProduction(a, a, a, (_, _, _) => 3)
-                    .AddProduction(a, a, a, a, (_, _, _, _) => 4)
-                    .AddProduction(a, a, a, a, a, (_, _, _, _, _) => 5)
-                    .AddProduction(a, a, a, a, a, a, (_, _, _, _, _, _) => 6)
-                    .AddProduction(a, a, a, a, a, a, a, (_, _, _, _, _, _, _) => 7)
-                    .AddProduction(a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _) => 8)
-                    .AddProduction(a, a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _, _) => 9)
+                    .Rule(a, _ => 1)
+                    .Rule(a, a, (_, _) => 2)
+                    .Rule(a, a, a, (_, _, _) => 3)
+                    .Rule(a, a, a, a, (_, _, _, _) => 4)
+                    .Rule(a, a, a, a, a, (_, _, _, _, _) => 5)
+                    .Rule(a, a, a, a, a, a, (_, _, _, _, _, _) => 6)
+                    .Rule(a, a, a, a, a, a, a, (_, _, _, _, _, _, _) => 7)
+                    .Rule(a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _) => 8)
+                    .Rule(a, a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _, _) => 9)
                     ;
 
                 var eof = IsEnd().Named("END");
                 return symbols.New("S")
-                    .AddProduction(e, eof, (v, _) => v);
+                    .Rule(e, eof, (v, _) => v);
             });
 
             var result = target.Parse(pattern);
@@ -616,15 +616,15 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("'*'");
 
                 var expr = symbols.New<int>("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"));
+                    .Rule(UnsignedInteger().Named("literal"));
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                 var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
-                    .AddProduction(expr, eof, (e, _) => e);
+                    .Rule(expr, eof, (e, _) => e);
             });
 
             var result = target.ToBnf();
@@ -643,15 +643,15 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("'*'");
 
                 var expr = symbols.New<int>("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
 
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                 var eof = IsEnd().Named("End");
 
                 return symbols.New("S")
-                    .AddProduction(expr, eof, (e, _) => e);
+                    .Rule(expr, eof, (e, _) => e);
             });
 
             var result = target.GetChildren().ToList();
@@ -668,7 +668,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Earley<int>(symbols =>
             {
                 return symbols.New<int>("E")
-                    .AddProduction(Match('A'), (_) => throw new System.Exception("FAIL"));
+                    .Rule(Match('A'), (_) => throw new System.Exception("FAIL"));
             });
 
             var result = target.Parse("");
@@ -680,7 +680,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Examine(
                 Earley<char>(symbols => symbols
                     .New("S")
-                    .AddProduction(Digit(), n => n)
+                    .Rule(Digit(), n => n)
                 ),
                 c => c.Input.GetNext(),
                 c => c.Input.GetNext()
@@ -700,8 +700,8 @@ namespace ParserObjects.Tests.Parsers
             {
                 var plus = Match('+').Named("plus");
                 var expr = symbols.New("Expr")
-                    .AddProduction(UnsignedInteger().Named("literal"), n => n);
-                expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+                    .Rule(UnsignedInteger().Named("literal"), n => n);
+                expr.Rule(expr, plus, expr, (l, _, r) => l + r);
                 return expr;
             }).Named("inner");
             var target = Earley<int>(symbols =>
@@ -709,8 +709,8 @@ namespace ParserObjects.Tests.Parsers
                 var star = Match('*').Named("star");
 
                 var expr = symbols.New("Expr");
-                expr.AddProduction(inner, i => i);
-                expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+                expr.Rule(inner, i => i);
+                expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
                 return expr;
             });
