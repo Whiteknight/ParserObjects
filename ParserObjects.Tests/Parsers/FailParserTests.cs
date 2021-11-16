@@ -8,10 +8,14 @@ namespace ParserObjects.Tests.Parsers
 {
     public class FailParserTests
     {
+        private IParser<char, char> SingleInstance() => new FailParser<char, char>();
+
+        private IMultiParser<char, char> MultiInstance() => new FailParser<char, char>();
+
         [Test]
         public void Parse_Test()
         {
-            var parser = new Fail<char, object>.Parser();
+            var parser = SingleInstance();
             parser.CanMatch("").Should().BeFalse();
             parser.CanMatch(" ").Should().BeFalse();
             parser.CanMatch("1").Should().BeFalse();
@@ -21,7 +25,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Multi()
         {
-            var parser = new Fail<char, object>.MultiParser();
+            var parser = MultiInstance();
             parser.CanMatch("").Should().BeFalse();
             parser.CanMatch(" ").Should().BeFalse();
             parser.CanMatch("1").Should().BeFalse();

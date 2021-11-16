@@ -165,7 +165,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Fail<TOutput>(string error = "Fail")
-            => new Fail<TInput, TOutput>.Parser(error);
+            => new FailParser<TInput, TOutput>(error);
 
         /// <summary>
         /// Unconditionally returns failure.
@@ -173,7 +173,7 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <returns></returns>
         public static IParser<TInput, TInput> Fail(string error = "Fail")
-            => new Fail<TInput, TInput>.Parser(error);
+            => new FailParser<TInput, TInput>(error);
 
         /// <summary>
         /// Returns a multi result with unconditional failure.
@@ -182,7 +182,7 @@ namespace ParserObjects
         /// <param name="error"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> FailMulti<TOutput>(string error = "Fail")
-            => new Fail<TInput, TOutput>.MultiParser(error);
+            => new FailParser<TInput, TOutput>(error);
 
         /// <summary>
         /// Return the result of the first parser which succeeds.
@@ -325,10 +325,10 @@ namespace ParserObjects
         /// <param name="defaultParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
-            => new Replaceable<TInput, TOutput>.Parser(defaultParser ?? new Fail<TInput, TOutput>.Parser());
+            => new Replaceable<TInput, TOutput>.Parser(defaultParser ?? new FailParser<TInput, TOutput>());
 
         public static IMultiParser<TInput, TOutput> Replaceable<TOutput>(IMultiParser<TInput, TOutput> defaultParser)
-            => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new Fail<TInput, TOutput>.MultiParser());
+            => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
         /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
@@ -336,7 +336,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>()
-            => new Replaceable<TInput, TOutput>.Parser(new Fail<TInput, TOutput>.Parser());
+            => new Replaceable<TInput, TOutput>.Parser(new FailParser<TInput, TOutput>());
 
         /// <summary>
         /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
@@ -344,7 +344,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ReplaceableMulti<TOutput>()
-            => new Replaceable<TInput, TOutput>.MultiParser(new Fail<TInput, TOutput>.MultiParser());
+            => new Replaceable<TInput, TOutput>.MultiParser(new FailParser<TInput, TOutput>());
 
         /// <summary>
         /// Execute a specially-structured callback to turn a parse into sequential, procedural

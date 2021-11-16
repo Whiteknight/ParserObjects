@@ -5,7 +5,7 @@ using ParserObjects.Visitors;
 namespace ParserObjects.Earley
 {
     /// <summary>
-    /// Extension to BnfStringifyVisitor for producing pseudo-bnf for an Earley grammar
+    /// Extension to BnfStringifyVisitor for producing pseudo-bnf for an Earley grammar.
     /// </summary>
     public class BnfGrammarVisitor
     {

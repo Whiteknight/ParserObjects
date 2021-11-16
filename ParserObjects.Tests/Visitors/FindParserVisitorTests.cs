@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.OfType<Fail<char, char>.Parser>(haystack);
+            var result = FindParserVisitor.OfType<FailParser<char, char>>(haystack);
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(needle);
         }
