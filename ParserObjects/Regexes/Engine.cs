@@ -8,7 +8,7 @@ namespace ParserObjects.Regexes
     /// <summary>
     /// Engine to execute regex pattern matching given a Regex and an input sequence.
     /// </summary>
-    public class Engine
+    public static class Engine
     {
         private class BacktrackState
         {
@@ -135,7 +135,7 @@ namespace ParserObjects.Regexes
         /// <param name="input"></param>
         /// <param name="regex"></param>
         /// <returns></returns>
-        public IPartialResult<string> GetMatch(ISequence<char> input, Regex regex)
+        public static IPartialResult<string> GetMatch(ISequence<char> input, Regex regex)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(regex, nameof(regex));
@@ -152,7 +152,7 @@ namespace ParserObjects.Regexes
             return new FailurePartialResult<string>($"Match failed at position {consumed}", startLocation);
         }
 
-        private (bool matches, int length) Test(IReadOnlyList<State> states, SequenceBuffer<char> buffer)
+        private static (bool matches, int length) Test(IReadOnlyList<State> states, SequenceBuffer<char> buffer)
         {
             var context = new RegexContext(states);
 
@@ -161,31 +161,31 @@ namespace ParserObjects.Regexes
                 switch (context.CurrentState.Quantifier)
                 {
                     case Quantifier.ExactlyOne:
-                    {
-                        var indexBeforeBacktracking = context.Index;
-                        var ok = TestExactlyOne(context, buffer);
-                        if (ok)
-                            continue;
-                        return (false, indexBeforeBacktracking);
-                    }
+                        {
+                            var indexBeforeBacktracking = context.Index;
+                            var ok = TestExactlyOne(context, buffer);
+                            if (ok)
+                                continue;
+                            return (false, indexBeforeBacktracking);
+                        }
 
                     case Quantifier.ZeroOrOne:
-                    {
-                        TestZeroOrOne(context, buffer);
-                        continue;
-                    }
+                        {
+                            TestZeroOrOne(context, buffer);
+                            continue;
+                        }
 
                     case Quantifier.ZeroOrMore:
-                    {
-                        TestZeroOrMore(context, buffer);
-                        continue;
-                    }
+                        {
+                            TestZeroOrMore(context, buffer);
+                            continue;
+                        }
 
                     case Quantifier.Range:
-                    {
-                        TestRange(context, buffer);
-                        continue;
-                    }
+                        {
+                            TestRange(context, buffer);
+                            continue;
+                        }
 
                     default:
                         throw new RegexException("Unrecognized quantifier");
@@ -195,7 +195,7 @@ namespace ParserObjects.Regexes
             return (true, context.Index);
         }
 
-        private bool TestExactlyOne(RegexContext context, SequenceBuffer<char> buffer)
+        private static bool TestExactlyOne(RegexContext context, SequenceBuffer<char> buffer)
         {
             var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
             if (matches)
@@ -212,7 +212,7 @@ namespace ParserObjects.Regexes
             return false;
         }
 
-        private void TestZeroOrOne(RegexContext context, SequenceBuffer<char> buffer)
+        private static void TestZeroOrOne(RegexContext context, SequenceBuffer<char> buffer)
         {
             if (buffer.IsPastEnd(context.Index))
             {
@@ -227,7 +227,7 @@ namespace ParserObjects.Regexes
             context.MoveToNextState();
         }
 
-        private void TestZeroOrMore(RegexContext context, SequenceBuffer<char> buffer)
+        private static void TestZeroOrMore(RegexContext context, SequenceBuffer<char> buffer)
         {
             var backtrackState = new BacktrackState(true, context.CurrentState);
             while (true)
@@ -254,7 +254,7 @@ namespace ParserObjects.Regexes
             }
         }
 
-        private void TestRange(RegexContext context, SequenceBuffer<char> buffer)
+        private static void TestRange(RegexContext context, SequenceBuffer<char> buffer)
         {
             var backtrackState = new BacktrackState(true, context.CurrentState);
             int j = 0;
@@ -288,7 +288,7 @@ namespace ParserObjects.Regexes
             }
         }
 
-        private (bool matches, int length) MatchStateHere(State state, SequenceBuffer<char> context, int i)
+        private static (bool matches, int length) MatchStateHere(State state, SequenceBuffer<char> context, int i)
         {
             if (context.IsPastEnd(i))
             {
