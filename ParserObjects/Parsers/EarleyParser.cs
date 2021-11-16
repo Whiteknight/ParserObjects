@@ -132,7 +132,7 @@ namespace ParserObjects.Parsers
 
             public IEnumerable<IParser> GetChildren()
             {
-                var visitor = new ChildParserGatheringGrammarVisitor();
+                var visitor = new ChildParserListVisitor();
                 return visitor.Visit(_startSymbol);
             }
 

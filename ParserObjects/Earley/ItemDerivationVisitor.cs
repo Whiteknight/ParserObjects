@@ -13,11 +13,8 @@ namespace ParserObjects.Earley
 
         public ItemDerivationVisitor(ParseStatistics statistics)
         {
-            if (statistics == null)
-                throw new ArgumentNullException(nameof(statistics));
-
             _cache = new Dictionary<(IProduction, int, int), IReadOnlyList<object>>();
-            _statistics = statistics;
+            _statistics = statistics ?? throw new ArgumentNullException(nameof(statistics));
         }
 
         // Items work in a weird way. The _derivations list contains all possible values for the

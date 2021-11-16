@@ -2,23 +2,16 @@
 
 namespace ParserObjects.Earley
 {
-    public class ChildParserGatheringGrammarVisitor
+    /// <summary>
+    /// Visitor to get references to all child parsers referenced by the grammar.
+    /// </summary>
+    public class ChildParserListVisitor
     {
-        private class State
-        {
-            public State()
-            {
-                SeenItems = new HashSet<object>();
-                ChildParsers = new List<IParser>();
-            }
-
-            public HashSet<object> SeenItems { get; }
-            public List<IParser> ChildParsers { get; }
-        }
+        private record struct State(HashSet<object> SeenItems, List<IParser> ChildParsers);
 
         public IEnumerable<IParser> Visit(INonterminal item)
         {
-            var state = new State();
+            var state = new State(new HashSet<object>(), new List<IParser>());
             Visit(item, state);
             return state.ChildParsers;
         }
