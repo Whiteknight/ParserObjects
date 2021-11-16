@@ -8,7 +8,7 @@ namespace ParserObjects.Regexes
     /// <summary>
     /// Represents a compiled regex pattern. Used by the RegexEngine to perform a match.
     /// </summary>
-    public class Regex
+    public struct Regex
     {
         public IReadOnlyList<State> States { get; }
 
