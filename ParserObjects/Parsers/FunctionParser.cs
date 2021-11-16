@@ -24,7 +24,7 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly Func<IParseState<TInput>, IResult<TOutput>> _func;
-            private readonly IReadOnlyList<IParser> _children;
+            private readonly IReadOnlyList<IParser>? _children;
 
             public Parser(Func<IParseState<TInput>, IResult<TOutput>> func, string? description, IEnumerable<IParser>? children)
             {
@@ -32,8 +32,7 @@ namespace ParserObjects.Parsers
                 _func = func;
                 Name = string.Empty;
                 Description = description;
-                var childList = children?.ToList() as IReadOnlyList<IParser>;
-                _children = childList ?? Array.Empty<IParser>();
+                _children = children?.ToList();
             }
 
             public Parser(ParserFunction func, string? description, IEnumerable<IParser>? children)
@@ -42,8 +41,7 @@ namespace ParserObjects.Parsers
                 _func = state => AdaptParserFunctionToFunc(this, state, func);
                 Name = string.Empty;
                 Description = description;
-                var childList = children?.ToList() as IReadOnlyList<IParser>;
-                _children = childList ?? Array.Empty<IParser>();
+                _children = children?.ToList();
             }
 
             private static IResult<TOutput> AdaptParserFunctionToFunc(IParser<TInput, TOutput> parser, IParseState<TInput> state, ParserFunction func)
@@ -83,7 +81,7 @@ namespace ParserObjects.Parsers
 
             IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-            public IEnumerable<IParser> GetChildren() => _children;
+            public IEnumerable<IParser> GetChildren() => _children ?? Array.Empty<IParser>();
 
             public override string ToString() => DefaultStringifier.ToString(this);
         }

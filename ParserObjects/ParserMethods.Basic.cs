@@ -139,7 +139,12 @@ namespace ParserObjects
         /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
         /// </summary>
         /// <returns></returns>
-        public static IParser<TInput, bool> IsEnd() => If(End(), Produce(() => true));
+        public static IParser<TInput, bool> IsEnd()
+            => new Function<TInput, bool>.Parser(
+                (state, results) => state.Input.IsAtEnd ? results.Success(true) : results.Failure(""),
+                "IF END THEN PRODUCE",
+                null
+            );
 
         /// <summary>
         /// Invoke callbacks before and after a parse.
