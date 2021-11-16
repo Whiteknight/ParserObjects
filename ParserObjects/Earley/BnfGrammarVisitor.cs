@@ -4,27 +4,21 @@ using ParserObjects.Visitors;
 
 namespace ParserObjects.Earley
 {
+    /// <summary>
+    /// Extension to BnfStringifyVisitor for producing pseudo-bnf for an Earley grammar
+    /// </summary>
     public class BnfGrammarVisitor
     {
-        private class State
-        {
-            public State(BnfStringifyVisitor visitor, BnfStringifyVisitor.State state)
-            {
-                SeenItems = new HashSet<object>();
-                Lines = new List<string>();
-                Visitor = visitor;
-                OuterState = state;
-            }
-
-            public BnfStringifyVisitor Visitor { get; }
-            public BnfStringifyVisitor.State OuterState { get; }
-            public HashSet<object> SeenItems { get; }
-            public List<string> Lines { get; }
-        }
+        private record struct State(
+            BnfStringifyVisitor Visitor,
+            BnfStringifyVisitor.State OuterState,
+            HashSet<object> SeenItems,
+            List<string> Lines
+        );
 
         public string Visit(INonterminal rootRule, BnfStringifyVisitor visitor, BnfStringifyVisitor.State outerState)
         {
-            var state = new State(visitor, outerState);
+            var state = new State(visitor, outerState, new HashSet<object>(), new List<string>());
             Visit(rootRule, state);
             return string.Join("\n", state.Lines);
         }
