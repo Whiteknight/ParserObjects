@@ -2,15 +2,8 @@
 
 namespace ParserObjects.Earley
 {
-    public struct ParseResult<TOutput>
-    {
-        public ParseResult(IReadOnlyList<IResultAlternative<TOutput>> alternatives, IParseStatistics statistics)
-        {
-            Alternatives = alternatives;
-            Statistics = statistics;
-        }
-
-        public IReadOnlyList<IResultAlternative<TOutput>> Alternatives { get; set; }
-        public IParseStatistics Statistics { get; }
-    }
+    public record struct ParseResult<TOutput>(
+        IReadOnlyList<IResultAlternative<TOutput>> Alternatives,
+        IParseStatistics Statistics
+    );
 }
