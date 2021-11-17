@@ -2,7 +2,7 @@
 using System.Linq;
 using ParserObjects.Utility;
 
-namespace ParserObjects.Parsers.Multi
+namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Parser to continue a multi-parse by feeding each successful result into a new parser in

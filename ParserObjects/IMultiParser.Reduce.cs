@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using ParserObjects.Parsers.Multi;
+using ParserObjects.Parsers;
 using ParserObjects.Utility;
 
 namespace ParserObjects

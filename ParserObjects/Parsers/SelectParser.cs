@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Utility;
 
-namespace ParserObjects.Parsers.Multi
+namespace ParserObjects.Parsers
 {
     /// <summary>
     /// Parser to convert an IMultiResult into an IResult by selecting the best result alternative

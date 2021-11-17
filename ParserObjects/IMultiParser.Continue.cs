@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Parsers;
-using ParserObjects.Parsers.Multi;
 
 namespace ParserObjects
 {
@@ -29,6 +30,9 @@ namespace ParserObjects
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, ContinueWith<TInput, TMiddle, TOutput>.MultiParserSelector getParser)
             => new ContinueWith<TInput, TMiddle, TOutput>.MultiParser(multiParser, getParser);
+
+        public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> parser, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
+            => ContinueWith(parser, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray()));
 
         /// <summary>
         /// Transform the values of all result alternatives.

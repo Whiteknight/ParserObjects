@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Parsers;
-using ParserObjects.Parsers.Multi;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Visitors
@@ -209,6 +208,27 @@ namespace ParserObjects.Visitors
         protected virtual void Accept<TInput, TOutput>(Deferred<TInput, TOutput>.MultiParser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(EachParser<TInput, TOutput> p, State state)
+        {
+            var children = p.GetChildren().ToList();
+            if (children.Count == 1)
+            {
+                VisitChild(children[0], state);
+                return;
+            }
+
+            state.Current.Append("EACH(");
+            VisitChild(children[0], state);
+
+            for (int i = 1; i <= children.Count - 1; i++)
+            {
+                state.Current.Append(" | ");
+                VisitChild(children[i], state);
+            }
+
+            state.Current.Append(')');
         }
 
         protected virtual void Accept<TInput, TOutput>(Earley<TInput, TOutput>.Parser p, State state)

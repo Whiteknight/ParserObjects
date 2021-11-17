@@ -110,6 +110,16 @@ namespace ParserObjects
             => new Deferred<TInput, TOutput>.MultiParser(getParser);
 
         /// <summary>
+        /// Executes all the parsers from the current location and returns a multiresult with all
+        /// results.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parsers"></param>
+        /// <returns></returns>
+        public static IMultiParser<TInput, TOutput> Each<TOutput>(params IParser<TInput, TOutput>[] parsers)
+            => new EachParser<TInput, TOutput>(parsers);
+
+        /// <summary>
         /// The empty parser, consumers no input and always returns success at any point.
         /// </summary>
         /// <returns></returns>
