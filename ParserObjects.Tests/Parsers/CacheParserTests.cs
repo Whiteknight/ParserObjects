@@ -99,5 +99,29 @@ namespace ParserObjects.Tests.Parsers
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
         }
+
+        [Test]
+        public void ToBnf_NoValue()
+        {
+            var parser = Cache(End());
+            var result = parser.ToBnf();
+            result.Should().Contain("(TARGET) := END");
+        }
+
+        [Test]
+        public void ToBnf_SingleValue()
+        {
+            var parser = Cache(CharacterString("TEST"));
+            var result = parser.ToBnf();
+            result.Should().Contain("(TARGET) := 'T' 'E' 'S' 'T'");
+        }
+
+        [Test]
+        public void ToBnf_MultiValue()
+        {
+            var parser = Cache(ProduceMulti(() => new[] { "abc" }));
+            var result = parser.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE");
+        }
     }
 }

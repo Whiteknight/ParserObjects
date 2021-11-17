@@ -145,7 +145,7 @@ namespace ParserObjects.Visitors
             VisitChild(p.Inner, state);
         }
 
-        protected virtual void Accept<TInput, TOutput>(Cache.NoOutputParser<TInput> p, State state)
+        protected virtual void Accept<TInput>(Cache.NoOutputParser<TInput> p, State state)
         {
             VisitChild(p.Inner, state);
         }
