@@ -47,7 +47,5 @@ namespace ParserObjects.Sequences
             var next = _inputs.GetNext();
             return _map(next);
         }
-
-        // public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
     }
 }

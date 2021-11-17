@@ -27,9 +27,6 @@ namespace ParserObjects
         public ISequenceCheckpoint StartCheckpoint { get; }
 
         IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
-
-        // V4
-        // public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
     }
 
     public class MultiResult<TOutput> : IMultiResult<TOutput>
@@ -70,9 +67,6 @@ namespace ParserObjects
             var newAlternatives = Results.Select(alt => alt.Transform(transform));
             return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
         }
-
-        // V4
-        // public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
     }
 
     public class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>

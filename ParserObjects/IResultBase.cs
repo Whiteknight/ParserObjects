@@ -26,9 +26,6 @@
         /// which failure occured, null, or some other value.
         /// </summary>
         Location Location { get; }
-
-        // V4: Uncomment this for V4 because it's a breaking change.
-        // IOption<T> TryGetData<T>();
     }
 
     // V4: Merge this into IResultBase
