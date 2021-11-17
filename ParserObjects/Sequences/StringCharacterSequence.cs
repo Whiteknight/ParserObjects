@@ -11,8 +11,8 @@ namespace ParserObjects.Sequences
         private readonly bool _normalizeLineEndings;
         private readonly string _s;
         private readonly char _endSentinel;
-        private readonly SequenceStatistics _stats;
 
+        private SequenceStatistics _stats;
         private int _index;
         private int _line;
         private int _column;
@@ -21,7 +21,7 @@ namespace ParserObjects.Sequences
         public StringCharacterSequence(string s, string fileName = "", bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             Assert.ArgumentNotNull(s, nameof(s));
-            _stats = new SequenceStatistics();
+            _stats = default;
             _s = s;
             _line = 1;
             _column = 0;
@@ -128,6 +128,6 @@ namespace ParserObjects.Sequences
             _consumed = consumed;
         }
 
-        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
+        public ISequenceStatistics GetStatistics() => _stats;
     }
 }

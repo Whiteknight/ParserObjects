@@ -18,8 +18,8 @@ namespace ParserObjects.Sequences
         private readonly bool _normalizeLineEndings;
         private readonly char _endSentinel;
         private readonly char[] _buffer;
-        private readonly SequenceStatistics _stats;
 
+        private SequenceStatistics _stats;
         private BufferMetadata _metadata;
 
         private struct BufferMetadata
@@ -37,7 +37,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-            _stats = new SequenceStatistics();
+            _stats = default;
             _fileName = fileName;
             _metadata = default;
             _bufferSize = bufferSize;
@@ -54,7 +54,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNull(reader, nameof(reader));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-            _stats = new SequenceStatistics();
+            _stats = default;
             _fileName = fileName;
             _metadata = default;
             _bufferSize = bufferSize;
@@ -70,7 +70,7 @@ namespace ParserObjects.Sequences
         {
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-            _stats = new SequenceStatistics();
+            _stats = default;
             _metadata = default;
             _fileName = fileName ?? "stream";
             _bufferSize = bufferSize;
@@ -275,6 +275,6 @@ namespace ParserObjects.Sequences
             _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
         }
 
-        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
+        public ISequenceStatistics GetStatistics() => _stats;
     }
 }

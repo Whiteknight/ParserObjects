@@ -14,8 +14,8 @@ namespace ParserObjects.Sequences
         private readonly Stream _stream;
         private readonly byte[] _buffer;
         private readonly byte _endSentinel;
-        private readonly SequenceStatistics _stats;
 
+        private SequenceStatistics _stats;
         private bool _isComplete;
         private int _remainingBytes;
         private int _bufferIndex;
@@ -26,7 +26,7 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
 
-            _stats = new SequenceStatistics();
+            _stats = default;
             _fileName = fileName;
             _bufferSize = bufferSize;
             _bufferIndex = bufferSize;
@@ -42,7 +42,7 @@ namespace ParserObjects.Sequences
             Assert.ArgumentNotNull(stream, nameof(stream));
             Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
 
-            _stats = new SequenceStatistics();
+            _stats = default;
             _fileName = fileName;
             _bufferSize = bufferSize;
             _bufferIndex = bufferSize;
@@ -163,6 +163,6 @@ namespace ParserObjects.Sequences
             _isComplete = _remainingBytes <= 0;
         }
 
-        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
+        public ISequenceStatistics GetStatistics() => _stats;
     }
 }

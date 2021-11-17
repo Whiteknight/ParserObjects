@@ -14,8 +14,8 @@ namespace ParserObjects.Sequences
     {
         private readonly IEnumerator<T> _enumerator;
         private readonly T? _endSentinelValue;
-        private readonly SequenceStatistics _stats;
 
+        private SequenceStatistics _stats;
         private Node _current;
         private bool _enumeratorIsAtEnd;
         private int _index;
@@ -52,7 +52,7 @@ namespace ParserObjects.Sequences
             _index = 0;
             _consumed = 0;
 
-            _stats = new SequenceStatistics();
+            _stats = default;
         }
 
         private class Node
@@ -157,6 +157,6 @@ namespace ParserObjects.Sequences
             _consumed = consumed;
         }
 
-        public ISequenceStatistics GetStatistics() => _stats.Snapshot();
+        public ISequenceStatistics GetStatistics() => _stats;
     }
 }
