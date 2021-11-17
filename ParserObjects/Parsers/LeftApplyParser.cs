@@ -138,7 +138,7 @@ namespace ParserObjects.Parsers
 
             public TOutput? Value { get; set; }
 
-            public Location? Location { get; set; }
+            public Location Location { get; set; }
 
             public string Name { get; set; }
 
