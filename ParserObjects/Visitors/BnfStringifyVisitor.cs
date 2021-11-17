@@ -124,7 +124,7 @@ namespace ParserObjects.Visitors
         }
 
         // Some regex syntax:
-        // (?= ) is "positive lookahead" syntax. We use it to shoe something doesn't consume input
+        // (?= ) is "positive lookahead" syntax. We use it to show something doesn't consume input
         // (?! ) is "negative lookahead" syntax. We use it for non-follows situations
 
         protected virtual void Accept<TInput>(AndParser<TInput> p, State state)

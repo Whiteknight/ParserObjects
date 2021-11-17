@@ -51,9 +51,10 @@ namespace ParserObjects.Utility
     /// </summary>
     public struct MultiReplaceResult
     {
-        public MultiReplaceResult(IEnumerable<SingleReplaceResult> results)
+        public MultiReplaceResult(IReadOnlyList<SingleReplaceResult> results)
         {
-            Results = results.ToList();
+            Assert.ArgumentNotNull(results, nameof(results));
+            Results = results;
         }
 
         /// <summary>
