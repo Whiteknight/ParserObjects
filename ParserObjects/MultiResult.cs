@@ -5,30 +5,6 @@ using ParserObjects.Utility;
 
 namespace ParserObjects
 {
-    public class MultiResult : IMultiResult
-    {
-        public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative> results)
-        {
-            Parser = parser;
-            Results = results.ToList();
-            Success = Results.Any(r => r.Success);
-            Location = location;
-            StartCheckpoint = startCheckpoint;
-        }
-
-        public IParser Parser { get; }
-
-        public bool Success { get; }
-
-        public Location Location { get; }
-
-        public IReadOnlyList<IResultAlternative> Results { get; }
-
-        public ISequenceCheckpoint StartCheckpoint { get; }
-
-        IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
-    }
-
     public class MultiResult<TOutput> : IMultiResult<TOutput>
     {
         public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results)
