@@ -113,7 +113,7 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
-        public void Replace_Multi_ByName()
+        public void ReplaceMulti_ByName()
         {
             var fail = FailMulti<char>();
             var needle = FailMulti<char>().Replaceable().Named("needle");
@@ -123,7 +123,7 @@ namespace ParserObjects.Tests.Visitors
             var parseResult = haystack.Parse("X");
             parseResult.Success.Should().BeFalse();
 
-            var result = FindParserVisitor.Replace(haystack, "needle", success);
+            var result = FindParserVisitor.ReplaceMulti<char, char>(haystack, "needle", x => success);
             result.Success.Should().BeTrue();
 
             parseResult = haystack.Parse("X");
