@@ -16,18 +16,18 @@ namespace ParserObjects.Parsers
     {
         public static IMultiParser<TInput, TOutput> Setup(Func<Earley<TInput, TOutput>.SymbolFactory, INonterminal<TInput, TOutput>> setup)
         {
-            var factory = new SymbolFactory();
+            var factory = new SymbolFactory(new Dictionary<string, ISymbol>());
             var startNonterminal = setup(factory) ?? throw new GrammarException("Setup callback did not return a valid start symbol");
             return new Parser(startNonterminal);
         }
 
-        public class SymbolFactory
+        public struct SymbolFactory
         {
             private readonly Dictionary<string, ISymbol> _symbols;
 
-            public SymbolFactory()
+            public SymbolFactory(Dictionary<string, ISymbol> symbols)
             {
-                _symbols = new Dictionary<string, ISymbol>();
+                _symbols = symbols;
             }
 
             public INonterminal<TInput, TOutput> New()

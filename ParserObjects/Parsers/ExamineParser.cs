@@ -123,7 +123,7 @@ namespace ParserObjects.Parsers
         /// <summary>
         /// Context information available during an examination.
         /// </summary>
-        public record Context(
+        public record struct Context(
             IParser<TInput, TOutput> Parser,
             IParseState<TInput> State,
             IResult<TOutput>? Result
@@ -133,7 +133,7 @@ namespace ParserObjects.Parsers
             public ISequence<TInput> Input => State.Input;
         }
 
-        public record MultiContext(
+        public record struct MultiContext(
             IMultiParser<TInput, TOutput> Parser,
             IParseState<TInput> State,
             IMultiResult<TOutput>? Result
@@ -187,7 +187,7 @@ namespace ParserObjects.Parsers
         /// <summary>
         /// The context object which holds information able to be examined.
         /// </summary>
-        public record Context(
+        public record struct Context(
             IParser<TInput> Parser,
             IParseState<TInput> State,
             IResult? Result
