@@ -94,6 +94,9 @@ namespace ParserObjects.Visitors
                 state.Current.Append('>');
             }
 
+            if (parser is IHiddenInternalParser)
+                return;
+
             // Start a new builder, so we can start stringifying this new parser on it's own line.
             state.History.Push(state.Current);
             state.Current = new StringBuilder();
@@ -180,14 +183,18 @@ namespace ParserObjects.Visitors
 
         protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.MultiParser p, State state)
         {
-            VisitChild(p.GetChildren().Single(), state);
-            state.Current.Append(" CONTINUE");
+            var children = p.GetChildren().ToList();
+            VisitChild(children[0], state);
+            state.Current.Append(" CONTINUEWITH ");
+            VisitChild(children[1], state);
         }
 
         protected virtual void Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.SingleParser p, State state)
         {
-            VisitChild(p.GetChildren().Single(), state);
-            state.Current.Append(" CONTINUE");
+            var children = p.GetChildren().ToList();
+            VisitChild(children[0], state);
+            state.Current.Append(" CONTINUEWITH ");
+            VisitChild(children[1], state);
         }
 
         protected virtual void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, State state)

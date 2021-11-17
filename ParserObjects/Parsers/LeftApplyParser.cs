@@ -129,7 +129,7 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        private class LeftValue : IParser<TInput, TOutput>
+        private class LeftValue : IParser<TInput, TOutput>, IHiddenInternalParser
         {
             public LeftValue()
             {

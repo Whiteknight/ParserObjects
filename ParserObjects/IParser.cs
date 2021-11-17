@@ -65,4 +65,12 @@ namespace ParserObjects
         /// <param name="parser"></param>
         SingleReplaceResult SetParser(IParser parser);
     }
+
+    /// <summary>
+    /// Tag type to mark parsers which are hidden, internal implementation details and not
+    /// first-class parser types.
+    /// </summary>
+    public interface IHiddenInternalParser
+    {
+    }
 }

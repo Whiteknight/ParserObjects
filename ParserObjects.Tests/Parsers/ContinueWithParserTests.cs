@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Tests.Parsers.Multi
+namespace ParserObjects.Tests.Parsers
 {
     public class ContinueWithParserTests
     {
@@ -67,6 +67,35 @@ namespace ParserObjects.Tests.Parsers.Multi
             result.Success.Should().BeTrue();
             result.Results[0].Value.Should().Be("AX");
             result.Results[1].Value.Should().Be("BX");
+        }
+
+        [Test]
+        public void ToBnf_Single()
+        {
+            var target = ProduceMulti(() => new[] { 'A', 'B' })
+                .ContinueWith(left =>
+                    Rule(
+                        left,
+                        Produce(() => 'X'),
+                        (l, x) => $"{l}{x}"
+                    )
+                );
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE CONTINUEWITH (<(TARGET)> PRODUCE)");
+        }
+
+        [Test]
+        public void ToBnf_Multi()
+        {
+            var target = ProduceMulti(() => new[] { 'A', 'B' })
+                .ContinueWith(left =>
+                    Each(
+                        Rule(left, Any(), (l, x) => $"{l}{x}"),
+                        Rule(left, Produce(() => 'Y'), (l, x) => $"{l}{x}")
+                    )
+                );
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE CONTINUEWITH EACH((<(TARGET)> .) | (<(TARGET)> PRODUCE))");
         }
     }
 }

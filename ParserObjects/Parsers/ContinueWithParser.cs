@@ -20,18 +20,32 @@ namespace ParserObjects.Parsers
         public class SingleParser : IMultiParser<TInput, TOutput>
         {
             private readonly IMultiParser<TInput, TMiddle> _inner;
-            private readonly SingleParserSelector _getParser;
+            private readonly LeftValue _left;
+            private readonly IParser<TInput, TOutput> _right;
+
+            private string _name;
 
             public SingleParser(IMultiParser<TInput, TMiddle> inner, SingleParserSelector getParser)
             {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(getParser, nameof(getParser));
                 _inner = inner;
-                _getParser = getParser;
-                Name = string.Empty;
+                _left = new LeftValue();
+                _right = getParser(_left);
+                _name = string.Empty;
             }
 
-            public string Name { get; set; }
+            public string Name
+            {
+                get => _name;
+                set
+                {
+                    _name = value;
+                    _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
+                }
+            }
 
-            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+            public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
@@ -41,10 +55,10 @@ namespace ParserObjects.Parsers
 
                 foreach (var alt in multiResult.Results.Where(r => r.Success))
                 {
-                    var left = new LeftValue(alt.Value, multiResult.Location);
-                    var rightParser = _getParser(left);
                     alt.Continuation.Rewind();
-                    var result = rightParser.Parse(state);
+                    _left.Location = alt.Continuation.Location;
+                    _left.Value = alt.Value;
+                    var result = _right.Parse(state);
                     if (!result.Success)
                     {
                         results.Add(new FailureResultAlternative<TOutput>(result.ErrorMessage, multiResult.StartCheckpoint));
@@ -67,18 +81,32 @@ namespace ParserObjects.Parsers
         public class MultiParser : IMultiParser<TInput, TOutput>
         {
             private readonly IMultiParser<TInput, TMiddle> _inner;
-            private readonly MultiParserSelector _getParser;
+            private readonly LeftValue _left;
+            private readonly IMultiParser<TInput, TOutput> _right;
+
+            private string _name;
 
             public MultiParser(IMultiParser<TInput, TMiddle> inner, MultiParserSelector getParser)
             {
+                Assert.ArgumentNotNull(inner, nameof(inner));
+                Assert.ArgumentNotNull(getParser, nameof(getParser));
                 _inner = inner;
-                _getParser = getParser;
-                Name = string.Empty;
+                _left = new LeftValue();
+                _right = getParser(_left);
+                _name = string.Empty;
             }
 
-            public string Name { get; set; }
+            public string Name
+            {
+                get => _name;
+                set
+                {
+                    _name = value;
+                    _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
+                }
+            }
 
-            public IEnumerable<IParser> GetChildren() => new[] { _inner };
+            public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
@@ -88,10 +116,10 @@ namespace ParserObjects.Parsers
 
                 foreach (var alt in multiResult.Results.Where(r => r.Success))
                 {
-                    var left = new LeftValue(alt.Value, multiResult.Location);
-                    var rightParser = _getParser(left);
                     alt.Continuation.Rewind();
-                    var result = rightParser.Parse(state);
+                    _left.Location = multiResult.Location;
+                    _left.Value = alt.Value;
+                    var result = _right.Parse(state);
                     if (!result.Success)
                     {
                         results.Add(new FailureResultAlternative<TOutput>("Right parser returned no valid results", multiResult.StartCheckpoint));
@@ -112,18 +140,16 @@ namespace ParserObjects.Parsers
                 => Parse(state);
         }
 
-        private class LeftValue : IParser<TInput, TMiddle>
+        private class LeftValue : IParser<TInput, TMiddle>, IHiddenInternalParser
         {
-            public LeftValue(TMiddle value, Location location)
+            public LeftValue()
             {
                 Name = "LEFT";
-                Value = value;
-                Location = location;
             }
 
-            public TMiddle Value { get; }
+            public TMiddle? Value { get; set; }
 
-            public Location Location { get; }
+            public Location Location { get; set; }
 
             public string Name { get; set; }
 
