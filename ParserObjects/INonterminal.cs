@@ -34,7 +34,7 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public interface INonterminal<TInput, TOutput> : ISymbol<TOutput>, INonterminal
+    public interface INonterminal<TInput, out TOutput> : ISymbol<TOutput>, INonterminal
     {
     }
 
