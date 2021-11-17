@@ -6,7 +6,7 @@ namespace ParserObjects.Utility
     /// <summary>
     /// Result of a single replacement operation
     /// </summary>
-    public record SingleReplaceResult(
+    public record struct SingleReplaceResult(
         IReplaceableParserUntyped Replaceable,
         IParser Previous,
         IParser Current

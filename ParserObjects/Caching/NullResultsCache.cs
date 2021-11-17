@@ -2,12 +2,7 @@
 {
     public class NullResultsCache : IResultsCache
     {
-        private int _attempts;
-
-        public NullResultsCache()
-        {
-            _attempts = 0;
-        }
+        private CacheStatistics _stats;
 
         public void Add<TValue>(ISymbol parser, Location location, TValue value)
         {
@@ -16,10 +11,10 @@
 
         public IOption<TValue> Get<TValue>(ISymbol parser, Location location)
         {
-            _attempts++;
+            _stats.Attempts++;
             return FailureOption<TValue>.Instance;
         }
 
-        public ICacheStatistics GetStatistics() => new CacheStatistics(_attempts, 0, _attempts);
+        public ICacheStatistics GetStatistics() => _stats;
     }
 }

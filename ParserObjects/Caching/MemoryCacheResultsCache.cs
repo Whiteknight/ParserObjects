@@ -8,39 +8,23 @@ namespace ParserObjects.Caching
         private readonly IMemoryCache _cache;
         private readonly bool _ownsCache;
 
-        private int _attempts;
-        private int _hits;
-        private int _misses;
+        private CacheStatistics _stats;
 
         public MemoryCacheResultsCache()
         {
             _cache = new MemoryCache(new MemoryCacheOptions());
             _ownsCache = true;
-            _attempts = 0;
-            _hits = 0;
-            _misses = 0;
+            _stats = default;
         }
 
         public MemoryCacheResultsCache(IMemoryCache cache)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _ownsCache = false;
-            _attempts = 0;
-            _hits = 0;
-            _misses = 0;
+            _stats = default;
         }
 
-        private struct Key
-        {
-            public Key(ISymbol symbol, Location location)
-            {
-                Symbol = symbol;
-                Location = location;
-            }
-
-            public ISymbol Symbol { get; }
-            public Location Location { get; }
-        }
+        private record struct Key(ISymbol Symbol, Location Location);
 
         public void Add<TValue>(ISymbol parser, Location location, TValue value)
         {
@@ -56,18 +40,18 @@ namespace ParserObjects.Caching
 
         public IOption<TValue> Get<TValue>(ISymbol parser, Location location)
         {
-            _attempts++;
+            _stats.Attempts++;
             var key = new Key(parser, location);
             if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)
             {
-                _hits++;
+                _stats.Hits++;
                 return new SuccessOption<TValue>(typed);
             }
 
-            _misses++;
+            _stats.Misses++;
             return FailureOption<TValue>.Instance;
         }
 
-        public ICacheStatistics GetStatistics() => new CacheStatistics(_attempts, _hits, _misses);
+        public ICacheStatistics GetStatistics() => _stats;
     }
 }

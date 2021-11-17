@@ -139,8 +139,8 @@ namespace ParserObjects.Utility
         }
     }
 
-    [System.Serializable]
-    public class TrieInsertException : System.Exception
+    [Serializable]
+    public class TrieInsertException : Exception
     {
         public TrieInsertException()
         {
@@ -150,7 +150,7 @@ namespace ParserObjects.Utility
         {
         }
 
-        public TrieInsertException(string message, System.Exception inner) : base(message, inner)
+        public TrieInsertException(string message, Exception inner) : base(message, inner)
         {
         }
 
