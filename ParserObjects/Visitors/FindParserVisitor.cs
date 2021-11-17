@@ -122,8 +122,7 @@ namespace ParserObjects.Visitors
             var results = new List<SingleReplaceResult>();
             foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
             {
-                var parser = found.ReplaceableChild as IParser<TInput, TOutput>;
-                if (parser == null)
+                if (found.ReplaceableChild is not IParser<TInput, TOutput> parser)
                     continue;
                 var replacement = transform(parser);
                 if (replacement == null || ReferenceEquals(replacement, parser))
@@ -170,8 +169,7 @@ namespace ParserObjects.Visitors
             var results = new List<SingleReplaceResult>();
             foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
             {
-                var parser = found.ReplaceableChild as IMultiParser<TInput, TOutput>;
-                if (parser == null)
+                if (found.ReplaceableChild is not IMultiParser<TInput, TOutput> parser)
                     continue;
                 var replacement = transform(parser);
                 if (replacement == null || ReferenceEquals(replacement, parser))
