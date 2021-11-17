@@ -15,7 +15,18 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <returns></returns>
         public static string ToBnf(this IParser parser)
-            => new BnfStringifyVisitor().ToBnf(parser);
+        {
+            if (string.IsNullOrEmpty(parser.Name))
+            {
+                var old = parser.Name;
+                parser.Name = "(TARGET)";
+                var value = new BnfStringifyVisitor().ToBnf(parser);
+                parser.Name = old;
+                return value;
+            }
+
+            return new BnfStringifyVisitor().ToBnf(parser);
+        }
 
         /// <summary>
         /// Convert a parser and it's input sequence into a new sequence of parse result values.
