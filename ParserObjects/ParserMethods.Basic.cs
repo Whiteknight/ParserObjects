@@ -334,9 +334,23 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
-            => new Replaceable<TInput, TOutput>.Parser(defaultParser ?? new FailParser<TInput, TOutput>());
+        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput>? defaultParser = null)
+            => new Replaceable<TInput, TOutput>.SingleParser(defaultParser ?? new FailParser<TInput, TOutput>());
 
+        /// <summary>
+        /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
+        /// </summary>
+        /// <param name="defaultParser"></param>
+        /// <returns></returns>
+        public static IParser<TInput> Replaceable(IParser<TInput> defaultParser)
+            => new Replaceable<TInput>.SingleParser(defaultParser ?? new FailParser<TInput, object>());
+
+        /// <summary>
+        /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="defaultParser"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Replaceable<TOutput>(IMultiParser<TInput, TOutput> defaultParser)
             => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new FailParser<TInput, TOutput>());
 
@@ -346,7 +360,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TOutput>()
-            => new Replaceable<TInput, TOutput>.Parser(new FailParser<TInput, TOutput>());
+            => new Replaceable<TInput, TOutput>.SingleParser(new FailParser<TInput, TOutput>());
 
         /// <summary>
         /// Serves as a placeholder in the parser graph where an in-place replacement can be made.

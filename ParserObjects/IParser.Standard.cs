@@ -274,7 +274,16 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
-            => new Replaceable<TInput, TOutput>.Parser(p);
+            => ParserMethods<TInput>.Replaceable(p);
+
+        /// <summary>
+        /// Make this parser replaceable.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static IParser<TInput> Replaceable<TInput>(this IParser<TInput> p)
+            => ParserMethods<TInput>.Replaceable(p);
 
         /// <summary>
         /// Make this parser replaceable.
@@ -284,7 +293,7 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
-            => new Replaceable<TInput, TOutput>.MultiParser(p);
+            => ParserMethods<TInput>.Replaceable(p);
 
         /// <summary>
         /// Make this parser replaceable. Gives the parser a name so that it can be easily
@@ -296,7 +305,7 @@ namespace ParserObjects
         /// <param name="name"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
-            => new Replaceable<TInput, TOutput>.Parser(p).Named(name);
+            => ParserMethods<TInput>.Replaceable(p).Named(name);
 
         /// <summary>
         /// Make this parser replaceable. Gives the parser a name so that it can be easily found
@@ -308,7 +317,7 @@ namespace ParserObjects
         /// <param name="name"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p, string name)
-            => new Replaceable<TInput, TOutput>.MultiParser(p).Named(name);
+            => ParserMethods<TInput>.Replaceable(p).Named(name);
 
         /// <summary>
         /// Transform the output of the given parser to a new value.

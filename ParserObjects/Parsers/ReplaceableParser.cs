@@ -3,6 +3,39 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    public static class Replaceable<TInput>
+    {
+        public class SingleParser : IParser<TInput>, IReplaceableParserUntyped
+        {
+            private IParser<TInput> _value;
+
+            public SingleParser(IParser<TInput> defaultValue)
+            {
+                Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+                _value = defaultValue;
+                Name = string.Empty;
+            }
+
+            public string Name { get; set; }
+
+            public IParser ReplaceableChild => _value;
+
+            public IResult Parse(IParseState<TInput> state) => _value.Parse(state);
+
+            public IEnumerable<IParser> GetChildren() => new[] { _value };
+
+            public SingleReplaceResult SetParser(IParser parser)
+            {
+                var previous = _value;
+                if (parser is IParser<TInput> typed)
+                    _value = typed;
+                return new SingleReplaceResult(this, previous, _value);
+            }
+
+            public override string ToString() => DefaultStringifier.ToString(this);
+        }
+    }
+
     /// <summary>
     /// Delegates to an internal parser, and allows the internal parser to be replaced in-place
     /// after the parser graph has been created. Useful for cases where grammar extensions or
@@ -12,11 +45,11 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Replaceable<TInput, TOutput>
     {
-        public class Parser : IParser<TInput, TOutput>, IReplaceableParserUntyped
+        public class SingleParser : IParser<TInput, TOutput>, IReplaceableParserUntyped
         {
             private IParser<TInput, TOutput> _value;
 
-            public Parser(IParser<TInput, TOutput> defaultValue)
+            public SingleParser(IParser<TInput, TOutput> defaultValue)
             {
                 Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
                 _value = defaultValue;

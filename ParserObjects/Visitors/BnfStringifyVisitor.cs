@@ -455,7 +455,12 @@ namespace ParserObjects.Visitors
             state.Current.Append('/').Append(p.Pattern).Append('/');
         }
 
-        protected virtual void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.Parser p, State state)
+        protected virtual void Accept<TInput>(Replaceable<TInput>.SingleParser p, State state)
+        {
+            VisitChild(p.GetChildren().First(), state);
+        }
+
+        protected virtual void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.SingleParser p, State state)
         {
             VisitChild(p.GetChildren().First(), state);
         }
