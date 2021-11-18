@@ -134,5 +134,29 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("");
             result.Success.Should().BeFalse();
         }
+
+        [Test]
+        public void ToBnf_SingleOutput()
+        {
+            var target = Try(Any());
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := .");
+        }
+
+        [Test]
+        public void ToBnf_SingleNoOutput()
+        {
+            var target = Try(End());
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := END");
+        }
+
+        [Test]
+        public void ToBnf_MultiOutput()
+        {
+            var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE");
+        }
     }
 }

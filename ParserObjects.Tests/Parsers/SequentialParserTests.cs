@@ -109,5 +109,17 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeFalse();
             input.Peek().Should().Be('a');
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = Sequential(s =>
+            {
+                return "";
+            });
+
+            var result = parser.ToBnf();
+            result.Should().Contain("(TARGET) := User Function");
+        }
     }
 }
