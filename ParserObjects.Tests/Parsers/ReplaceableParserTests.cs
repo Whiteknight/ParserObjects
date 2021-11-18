@@ -52,5 +52,21 @@ namespace ParserObjects.Tests.Parsers
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(anyParser);
         }
+
+        [Test]
+        public void ToBnf_Single()
+        {
+            var parser = Replaceable(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Multi()
+        {
+            var parser = Replaceable(ProduceMulti(() => new char[0])).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := PRODUCE");
+        }
     }
 }

@@ -49,5 +49,21 @@ namespace ParserObjects.Tests.Parsers
             result.Results.Should().Contain(r => r.Value == "b");
             result.Results.Should().Contain(r => r.Value == "c");
         }
+
+        [Test]
+        public void ToBnf_Single()
+        {
+            var parser = Deferred(() => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Multi()
+        {
+            var target = Deferred(() => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE");
+        }
     }
 }

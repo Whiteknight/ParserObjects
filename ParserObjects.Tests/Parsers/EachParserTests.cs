@@ -22,7 +22,17 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ToBnf_Test()
+        public void ToBnf_Test_1()
+        {
+            var target = Each(
+                Produce(() => 'A')
+            );
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := PRODUCE");
+        }
+
+        [Test]
+        public void ToBnf_Test_3()
         {
             var target = Each(
                 Produce(() => 'A'),

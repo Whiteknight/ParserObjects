@@ -158,5 +158,29 @@ namespace ParserObjects.Tests.Parsers
             children.Count().Should().Be(1);
             children.Single().Should().BeSameAs(anyParser);
         }
+
+        [Test]
+        public void ToBnf_Single_NoOutput()
+        {
+            var parser = Examine(End()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := END");
+        }
+
+        [Test]
+        public void ToBnf_Single_Output()
+        {
+            var parser = Examine(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .");
+        }
+
+        [Test]
+        public void ToBnf_Multi_Output()
+        {
+            var parser = Examine(ProduceMulti(() => new char[0])).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := PRODUCE");
+        }
     }
 }

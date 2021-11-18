@@ -74,22 +74,6 @@ namespace ParserObjects.Tests.Visitors
         }
 
         [Test]
-        public void ToBnf_Create()
-        {
-            var parser = Create((t, d) => Any()).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := CREATE");
-        }
-
-        [Test]
-        public void ToBnf_Deferred()
-        {
-            var parser = Deferred(() => Any()).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := .");
-        }
-
-        [Test]
         public void ToBnf_Empty()
         {
             var parser = Empty().Named("parser");
@@ -103,22 +87,6 @@ namespace ParserObjects.Tests.Visitors
             var parser = End().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := END");
-        }
-
-        [Test]
-        public void ToBnf_Examine()
-        {
-            var parser = Examine(End()).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := END");
-        }
-
-        [Test]
-        public void ToBnf_Examine_Output()
-        {
-            var parser = Examine(Any()).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := .");
         }
 
         [Test]
@@ -353,14 +321,6 @@ namespace ParserObjects.Tests.Visitors
             var parser = Regex("(a|b)c*d").Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := /(a|b)c*d/");
-        }
-
-        [Test]
-        public void ToBnf_Replaceable()
-        {
-            var parser = Replaceable(Any()).Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := .");
         }
 
         [Test]
