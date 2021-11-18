@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
     public class ReplaceableParserTests
     {
         [Test]
-        public void Parse_Test()
+        public void Parse_SingleOutput()
         {
             var anyParser = Any();
             var target = Replaceable(anyParser);
@@ -21,7 +21,16 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Fail()
+        public void Parse_SingleNoOutput()
+        {
+            var target = Replaceable(End());
+            var input = new StringCharacterSequence("");
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
+        public void Parse_SingleOutput_Fail()
         {
             var anyParser = Fail<char>();
             var target = Replaceable(anyParser);
@@ -32,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void SetParser_Test()
+        public void SetParser_SingleOutput_Test()
         {
             var anyParser = Any();
             var failParser = Fail<char>();
@@ -44,13 +53,23 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void GetChildren_Test()
+        public void GetChildren_SingleOutput_Test()
         {
             var anyParser = Any();
             var target = Replaceable(anyParser);
             var result = target.GetChildren().ToList();
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(anyParser);
+        }
+
+        [Test]
+        public void GetChildren_SingleNoOutput_Test()
+        {
+            var end = End();
+            var target = Replaceable(end);
+            var result = target.GetChildren().ToList();
+            result.Count.Should().Be(1);
+            result[0].Should().BeSameAs(end);
         }
 
         [Test]
