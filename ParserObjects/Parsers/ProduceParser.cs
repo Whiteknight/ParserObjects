@@ -78,7 +78,8 @@ namespace ParserObjects.Parsers
                 var startLocation = state.Input.CurrentLocation;
                 var startCheckpoint = state.Input.Checkpoint();
                 var values = _produce(state.Input, state.Data);
-                var alternatives = values.Select(v => new SuccessResultAlternative<TOutput>(v, 0, startCheckpoint));
+                var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
+                var alternatives = values.Select(v => new SuccessResultAlternative<TOutput>(v, totalConsumed, startCheckpoint));
                 return new MultiResult<TOutput>(this, startLocation, startCheckpoint, alternatives);
             }
 

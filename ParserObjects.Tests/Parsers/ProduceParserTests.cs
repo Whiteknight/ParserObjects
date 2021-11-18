@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ProduceMulti_Test()
+        public void ProduceMulti_NoArgs()
         {
             var target = ProduceMulti(() => new[] { "a", "b", "c" });
             var result = target.Parse(new StringCharacterSequence(""));
@@ -35,6 +35,48 @@ namespace ParserObjects.Tests.Parsers
             result.Results.Should().Contain(r => r.Value == "a");
             result.Results.Should().Contain(r => r.Value == "b");
             result.Results.Should().Contain(r => r.Value == "c");
+        }
+
+        [Test]
+        public void ProduceMulti_Args_GetNextInput()
+        {
+            var target = ProduceMulti((s, d) =>
+            {
+                var x = s.GetNext();
+                return new[] { x, 'b', 'c' };
+            });
+            var result = target.Parse(new StringCharacterSequence("X"));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be('X');
+            result.Results[0].Consumed.Should().Be(1);
+            result.Results[1].Value.Should().Be('b');
+            result.Results[1].Consumed.Should().Be(1);
+            result.Results[2].Value.Should().Be('c');
+            result.Results[2].Consumed.Should().Be(1);
+        }
+
+        [Test]
+        public void ProduceMulti_Args_GetData()
+        {
+            var target = DataContext(
+                ProduceMulti((s, d) =>
+                {
+                    var x = d.Get<char>("Value").Value;
+                    return new[] { x, 'b', 'c' };
+                }),
+                "Value",
+                'X'
+            );
+            var result = target.Parse(new StringCharacterSequence("X"));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be('X');
+            result.Results[0].Consumed.Should().Be(0);
+            result.Results[1].Value.Should().Be('b');
+            result.Results[1].Consumed.Should().Be(0);
+            result.Results[2].Value.Should().Be('c');
+            result.Results[2].Consumed.Should().Be(0);
         }
     }
 }
