@@ -334,7 +334,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="defaultParser"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput>? defaultParser = null)
+        public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
             => new Replaceable<TInput, TOutput>.SingleParser(defaultParser ?? new FailParser<TInput, TOutput>());
 
         /// <summary>
