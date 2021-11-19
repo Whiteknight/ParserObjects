@@ -140,7 +140,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Try(Any());
             var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := .");
+            result.Should().Contain("(TARGET) := TRY .");
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Try(End());
             var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := END");
+            result.Should().Contain("(TARGET) := TRY END");
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
             var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := PRODUCE");
+            result.Should().Contain("(TARGET) := TRY PRODUCE");
         }
     }
 }
