@@ -2,6 +2,8 @@
 
 Multi Parsers, using the `IMultiParser<TInput>` and `IMultiParser<TInput, TOutput>` interfaces handle ambiguous grammars where multiple valid parses might exist starting from the current input location. Often times this is undesirable because we want our grammars to be unambiguous. However there are cases where we might want to consider multiple parses. Either we can show the options to the user with suggestions to select one, or we can provide a selection criteria ourselves.
 
+In the literature, multiple return values from such a parser is called a "Parse Forest".
+
 ## Multi Results
 
 An `IMultiResult` or `IMultiResult<TOutput>` contains a list of all possible results from the parser. This list may be empty or it may contain many values. Each `IResultAlternative<TOutput>` may represent a success or a failure. The `IMultiResult` is considered a success if any alternative in the list is successful. Otherwise, if the list is empty or if all alternatives are failures, the `IMultiResult` is a failure. 
@@ -23,6 +25,14 @@ Several of the [Fundamental Parser Types](parsers_core.md) have variants which w
 
 ## Multi Parser Types
 
+### Each
+
+The `Each` parser takes a list of `IParser<TInput, TOutput>` and attempts each from the current position. The results from each parser are returned as alternatives of a single multi-result.
+
+```csharp
+var parser = Each(p1, p2, p3...);
+```
+
 ### Earley
 
 The `Earley` parser implements the [Earley Algorithm](https://en.wikipedia.org/wiki/Earley_parser) which can handle ambiguous grammars and both left- and right-recursion in rules. To create an Earley parser:
@@ -42,12 +52,27 @@ Once we have executed a multi parser and received a multi-result, we can continu
 The `ContinueWith` parser continues the parse by treating each result alternative as the starting point and passing each one individually to the next parser in line. The parser which continues may be either a single- or multi-parser. If a continuation fails, that alternative is removed. If a continuation succeeds, that result (or results) is added to the new `IMultiResult<TOutput>`.
 
 ```csharp
-var parser = multiParser.ContinueWith(parser);
+var parser = multiParser.ContinueWith(result => ...create a parser...);
+```
+
+### Continue With Each
+
+The `ContinueWithEach` parser is a combination of `ContinueWith` and `Each`. The multiparser is executed, and then the result value is used to construct a list of individual parsers to execute.
+
+```csharp
+var parser = multiParser.ContinueWithEach(result => {
+    return new[] {
+        p1,
+        p2,
+        p3,
+        ...
+    }
+})
 ```
 
 ### Transform
 
-The `Transform` parser transforms the successful values 
+The `Transform` parser transforms the successful values.
 
 ```csharp
 var parser = multiParser.Transform(r => ...);
@@ -77,7 +102,7 @@ If there is a tie, the first option is selected.
 
 ### Select
 
-The `Select` parser allows the user to select the best result based on any criteria. `Select` is used to implement the other selection parsers described in this section.
+The `Select` parser allows the user to select the best result based on any criteria. `Select` is used to implement the other selection parsers described in this section. The select callback takes three parameters, the multiresult, a factory to create a success result and a factory to create a failure result.
 
 ```csharp
 var parser = multiParser.Select((result, success, fail) => {

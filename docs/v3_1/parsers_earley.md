@@ -16,7 +16,7 @@ var sym = symbols.New<string>("S");
 Once you have a symbol you can add productions to it. A production is like a `Rule()` parser, where a series of other symbols or parsers are evaluated in sequence and, if they all match, a production rule is executed to produce a value of the symbol's type (`<string>`, in the example above):
 
 ```csharp
-sym.AddProduction(
+sym.Rule(
     parser1, 
     parser2, 
     symbol3, 

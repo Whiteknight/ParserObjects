@@ -32,9 +32,9 @@ Now we can create an Expression symbol in the Earley parser which combines these
 ```csharp
 var parser = Earley<int>(symbols => {
     var expr = symbols.New("Expression");
-    expr.AddProduction(number, n => n);
-    expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-    expr.AddProduction(expr, star, expr, (l, _, r) => l * r);
+    expr.Rule(number, n => n);
+    expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+    expr.Rule(expr, star, expr, (l, _, r) => l * r);
     return expr;
 });
 ```
@@ -80,7 +80,7 @@ First we probably want to get rid of the two partial solutions. We want the pars
 ```csharp
 var eof = IsEnd();
 var s = symbols.New("S");
-s.AddProduction(expr, eof, (value, _) => value);
+s.Rule(expr, eof, (value, _) => value);
 return s;
 ```
 
@@ -88,43 +88,43 @@ This allows us to weed out the two partial results, but it doesn't help to disam
 
 ```csharp
 var term = symbols.New<int>("Term");
-term.AddProduction(number, n => n);
-term.AddProduction(term, star, term, (l, _, r) => l * r);
+term.Rule(number, n => n);
+term.Rule(term, star, term, (l, _, r) => l * r);
 
 var expr = symbols.New<int>("Expr");
-expr.AddProduction(term, t => t);
-expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
+expr.Rule(term, t => t);
+expr.Rule(expr, plus, expr, (l, _, r) => l + r);
 ```
 
 This works the way we expect. An input `"4*5+6"` now correctly parses as `"(4*5)+6" = 26`. This is a good success. Now we can start to add more operators:
 
 ```csharp
 var term = symbols.New<int>("Term");
-term.AddProduction(number, n => n);
-term.AddProduction(term, star, term, (l, _, r) => l * r);
-term.AddProduction(term, divide, term, (l, _, r) => l / r);
+term.Rule(number, n => n);
+term.Rule(term, star, term, (l, _, r) => l * r);
+term.Rule(term, divide, term, (l, _, r) => l / r);
 
 var expr = symbols.New<int>("Expr");
-expr.AddProduction(term, t => t);
-expr.AddProduction(expr, plus, expr, (l, _, r) => l + r);
-expr.AddProduction(expr, minus, expr, (l, _, r) => l - r);
+expr.Rule(term, t => t);
+expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+expr.Rule(expr, minus, expr, (l, _, r) => l - r);
 ```
 
 Now the input `4*5+6/3-2` should be parsed as `"(4*5)+(6/3)-2" = 20`  but when we run the code we get two values. The number `20` is in the list twice! It turns out that the Earley algorithm arrived at the same result in two different ways, `<Expr> + <Expr>` and `<Expr> - <Expr>`. The addition and subtraction can, after all, happen in any order depending whether we recurse `<Expr>` on the left or on the right. So, let's remove the option and only recurse on the left. These operators are typically left-associative, after all:
 
 ```csharp
 var primary = symbols.New("Primary")
-    .AddProduction(number, n => n);
+    .Rule(number, n => n);
 
 var term = symbols.New<int>("Term");
-term.AddProduction(primary, n => n);
-term.AddProduction(term, star, primary, (l, _, r) => l * r);
-term.AddProduction(term, divide, primary, (l, _, r) => l / r);
+term.Rule(primary, n => n);
+term.Rule(term, star, primary, (l, _, r) => l * r);
+term.Rule(term, divide, primary, (l, _, r) => l / r);
 
 var expr = symbols.New<int>("Expr");
-expr.AddProduction(term, t => t);
-expr.AddProduction(expr, plus, term, (l, _, r) => l + r);
-expr.AddProduction(expr, minus, term, (l, _, r) => l - r);
+expr.Rule(term, t => t);
+expr.Rule(expr, plus, term, (l, _, r) => l + r);
+expr.Rule(expr, minus, term, (l, _, r) => l - r);
 ```
 
 Now when we run the calculator example we get the one answer we expect, `20`. 
