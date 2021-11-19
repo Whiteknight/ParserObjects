@@ -361,6 +361,14 @@ namespace ParserObjects
                     addSuccess(value);
             }, "PRODUCE", null);
 
+        public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IParseState<TInput>, IEnumerable<TOutput>> produce)
+            => new Function<TInput, TOutput>.MultiParser((state, addSuccess, _) =>
+            {
+                var values = produce(state);
+                foreach (var value in values)
+                    addSuccess(value);
+            }, "PRODUCE", null);
+
         /// <summary>
         /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
         /// </summary>

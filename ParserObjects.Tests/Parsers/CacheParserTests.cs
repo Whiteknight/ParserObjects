@@ -105,7 +105,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = Cache(End());
             var result = parser.ToBnf();
-            result.Should().Contain("(TARGET) := END");
+            result.Should().Contain("(TARGET) := CACHED(END)");
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = Cache(CharacterString("TEST"));
             var result = parser.ToBnf();
-            result.Should().Contain("(TARGET) := 'T' 'E' 'S' 'T'");
+            result.Should().Contain("(TARGET) := CACHED('T' 'E' 'S' 'T')");
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
             var result = parser.ToBnf();
-            result.Should().Contain("(TARGET) := PRODUCE");
+            result.Should().Contain("(TARGET) := CACHED(PRODUCE)");
         }
     }
 }
