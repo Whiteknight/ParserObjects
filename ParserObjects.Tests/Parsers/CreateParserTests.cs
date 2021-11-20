@@ -8,6 +8,16 @@ namespace ParserObjects.Tests.Parsers
     public class CreateParserTests
     {
         [Test]
+        public void Parse_Single()
+        {
+            var target = Create(state => Produce(() => 'A'));
+            var result = target.Parse(new StringCharacterSequence(""));
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            result.Value.Should().Be('A');
+        }
+
+        [Test]
         public void Parse_Multi()
         {
             var target = CreateMulti(state => ProduceMulti(() => new[] { "a", "b", "c" }));
@@ -35,6 +45,29 @@ namespace ParserObjects.Tests.Parsers
             result.Should().Contain("(TARGET) := CREATE");
         }
 
-        // TODO: Tests where we consume input during the create delegate
+        [Test]
+        public void Parse_ConsumeInput_Single()
+        {
+            var target = Create(state => Produce(() => state.Input.GetNext()));
+            var result = target.Parse(new StringCharacterSequence("A"));
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(1);
+            result.Value.Should().Be('A');
+        }
+
+        [Test]
+        public void Parse_ConsumeInput_Multi()
+        {
+            var target = CreateMulti(state => ProduceMulti(() => new[] { state.Input.GetNext(), state.Input.GetNext(), 'c' }));
+            var result = target.Parse(new StringCharacterSequence("AB"));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be('A');
+            result.Results[0].Consumed.Should().Be(2);
+            result.Results[1].Value.Should().Be('B');
+            result.Results[1].Consumed.Should().Be(2);
+            result.Results[2].Value.Should().Be('c');
+            result.Results[2].Consumed.Should().Be(2);
+        }
     }
 }
