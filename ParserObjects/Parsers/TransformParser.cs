@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -8,22 +9,29 @@ namespace ParserObjects.Parsers
     /// success flag or error message.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput1"></typeparam>
-    /// <typeparam name="TOutput2"></typeparam>
-    public static class Transform<TInput, TOutput1, TOutput2>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    public static class Transform<TInput, TMiddle, TOutput>
     {
-        public delegate IResult<TOutput2> Function(IParseState<TInput> state, IResultFactory<TOutput2> factory, IResult<TOutput1> result);
-
-        // TODO: Add an IResultFactory or IResultBuilder parameter here
-
-        public delegate IMultiResult<TOutput2> MultiFunction(IParseState<TInput> state, IMultiResult<TOutput1> result);
-
-        public class Parser : IParser<TInput, TOutput2>
+        public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, IResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint)
         {
-            private readonly IParser<TInput, TOutput1> _inner;
-            private readonly Function _transform;
+            public ISequence<TInput> Input => State.Input;
+            public IDataStore Data => State.Data;
+            public IResult<TOutput> Failure(string errorMessage, Location? location = null)
+                => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation);
 
-            public Parser(IParser<TInput, TOutput1> inner, Function transform)
+            public IResult<TOutput> Success(TOutput value, Location? location = null)
+                => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation);
+        }
+
+        public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IMultiResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint);
+
+        public class Parser : IParser<TInput, TOutput>
+        {
+            private readonly IParser<TInput, TMiddle> _inner;
+            private readonly Func<SingleArguments, IResult<TOutput>> _transform;
+
+            public Parser(IParser<TInput, TMiddle> inner, Func<SingleArguments, IResult<TOutput>> transform)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(transform, nameof(transform));
@@ -34,15 +42,15 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IResult<TOutput2> Parse(IParseState<TInput> state)
+            public IResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startCheckpoint = state.Input.Checkpoint();
 
                 // Execute the parse and transform the result
                 var result = _inner.Parse(state);
-                var resultFactory = new ResultFactory(this, state, startCheckpoint.Consumed);
-                var transformedResult = _transform(state, resultFactory, result);
+                var args = new SingleArguments(this, state, result, startCheckpoint);
+                var transformedResult = _transform(args);
 
                 // If the transform callback returns failure, see if we have to rewind input and
                 // then return directly (we don't need to calculate consumed or anything)
@@ -70,32 +78,12 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        private class ResultFactory : IResultFactory<TOutput2>
+        public class MultiParser : IMultiParser<TInput, TOutput>
         {
-            private readonly IParser<TInput, TOutput2> _parser;
-            private readonly IParseState<TInput> _state;
-            private readonly int _startConsumed;
+            private readonly IMultiParser<TInput, TMiddle> _inner;
+            private readonly Func<MultiArguments, IMultiResult<TOutput>> _transform;
 
-            public ResultFactory(IParser<TInput, TOutput2> parser, IParseState<TInput> state, int startConsumed)
-            {
-                _parser = parser;
-                _state = state;
-                _startConsumed = startConsumed;
-            }
-
-            public IResult<TOutput2> Failure(string errorMessage, Location? location = null)
-                => _state.Fail(_parser, errorMessage, location ?? _state.Input.CurrentLocation);
-
-            public IResult<TOutput2> Success(TOutput2 value, Location? location = null)
-                => _state.Success(_parser, value, _state.Input.Consumed - _startConsumed, location ?? _state.Input.CurrentLocation);
-        }
-
-        public class MultiParser : IMultiParser<TInput, TOutput2>
-        {
-            private readonly IMultiParser<TInput, TOutput1> _inner;
-            private readonly MultiFunction _transform;
-
-            public MultiParser(IMultiParser<TInput, TOutput1> inner, MultiFunction transform)
+            public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<MultiArguments, IMultiResult<TOutput>> transform)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(transform, nameof(transform));
@@ -106,7 +94,7 @@ namespace ParserObjects.Parsers
 
             public string Name { get; set; }
 
-            public IMultiResult<TOutput2> Parse(IParseState<TInput> state)
+            public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startCheckpoint = state.Input.Checkpoint();
@@ -115,7 +103,8 @@ namespace ParserObjects.Parsers
                 var result = _inner.Parse(state);
                 result.StartCheckpoint.Rewind();
                 var beforeTransformConsumed = state.Input.Consumed;
-                var transformedResult = _transform(state, result);
+                var args = new MultiArguments(this, state, result, startCheckpoint);
+                var transformedResult = _transform(args);
                 var afterTransformConsumed = state.Input.Consumed;
                 var totalTransformConsumed = afterTransformConsumed - beforeTransformConsumed;
                 totalTransformConsumed = totalTransformConsumed < 0 ? 0 : totalTransformConsumed;

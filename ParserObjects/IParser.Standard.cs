@@ -21,7 +21,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Func<IResult, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(None(p), getNext, mentions);
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> TransformResult<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
+        public static IParser<TInput, TOutput> TransformResult<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.SingleArguments, IResult<TOutput>> transform)
             => ParserMethods<TInput>.TransformResult(parser, transform);
     }
 }

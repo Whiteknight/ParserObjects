@@ -203,7 +203,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                (t, d) => "X"
+                state => "X"
             );
 
             var input = new StringCharacterSequence("1a");
@@ -225,7 +225,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                (t, d) => "X",
+                state => "X",
                 Quantifier.ZeroOrOne
             );
 
@@ -248,7 +248,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                (t, d) => "X",
+                state => "X",
                 Quantifier.ExactlyOne
             );
 
@@ -335,7 +335,7 @@ namespace ParserObjects.Tests.Parsers
                 numberParser,
                 letterParser,
                 (l, m, r) => $"({l}{m}{r})",
-                (t, d) => "X"
+                state => "X"
             );
 
             var input = new StringCharacterSequence("1a2b");

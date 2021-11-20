@@ -23,10 +23,10 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, bool> Bool(IParser<TInput> p)
-            => new Function<TInput, bool>.Parser((state, results) =>
+            => new Function<TInput, bool>.Parser(args =>
             {
-                var result = p.Parse(state);
-                return results.Success(result.Success);
+                var result = p.Parse(args.State);
+                return args.Success(result.Success);
             }, "IF {child}", new[] { p });
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Chain<TOutput>(IParser<TInput> p, Chain<TInput, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Chain<TOutput>(IParser<TInput> p, Func<IResult, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace ParserObjects
         /// <param name="getNext"></param>
         /// <param name="mentions"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Chain<TInput, TMiddle, TOutput>.GetParser getNext, params IParser[] mentions)
+        public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
             => new Chain<TInput, TMiddle, TOutput>.Parser(None(p), getNext, mentions);
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace ParserObjects
         /// <returns></returns>
         public static IParser<TInput, bool> IsEnd()
             => new Function<TInput, bool>.Parser(
-                (state, results) => state.Input.IsAtEnd ? results.Success(true) : results.Failure(""),
+                args => args.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
                 "IF END THEN PRODUCE",
                 null
             );
@@ -220,10 +220,7 @@ namespace ParserObjects
         /// <param name="func"></param>
         /// <param name="description"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Function<TOutput>(Func<IParseState<TInput>, IResult<TOutput>> func, string? description = null)
-            => new Function<TInput, TOutput>.Parser(func, description, null);
-
-        public static IParser<TInput, TOutput> Function<TOutput>(Function<TInput, TOutput>.ParserFunction func, string? description = null)
+        public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string? description = null)
             => new Function<TInput, TOutput>.Parser(func, description, null);
 
         public static IParser<TInput> Function(Func<IParseState<TInput>, IResult> func)
@@ -236,17 +233,17 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> p)
-            => new Function<TInput, TOutput>.Parser(state =>
+            => new Function<TInput, TOutput>.Parser(args =>
             {
-                var cp = state.Input.Checkpoint();
-                var result = p.Parse(state);
+                var cp = args.Input.Checkpoint();
+                var result = p.Parse(args.State);
                 if (result.Success)
                 {
                     cp.Rewind();
-                    return state.Success(p, result.Value, 0, result.Location);
+                    return args.Success(result.Value, result.Location);
                 }
 
-                return state.Fail(p, result.ErrorMessage, result.Location);
+                return args.Failure(result.ErrorMessage, result.Location);
             }, "(?={child})", new[] { p });
 
         /// <summary>
@@ -277,10 +274,10 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
-            => TransformResult<TOutput, IOption<TOutput>>(p, (state, factory, result) =>
+            => TransformResult<TOutput, IOption<TOutput>>(p, args =>
             {
-                var option = result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
-                return factory.Success(option);
+                var option = args.Result.Success ? new SuccessOption<TOutput>(args.Result.Value) : FailureOption<TOutput>.Instance;
+                return args.Success(option);
             });
 
         /// <summary>
@@ -293,20 +290,20 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            return TransformResult<TOutput, TOutput>(p, args =>
             {
-                var option = result.Success ? result.Value : getDefault();
-                return factory.Success(option);
+                var option = args.Result.Success ? args.Result.Value : getDefault();
+                return args.Success(option);
             });
         }
 
         public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
         {
             Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-            return TransformResult<TOutput, TOutput>(p, (state, factory, result) =>
+            return TransformResult<TOutput, TOutput>(p, args =>
             {
-                var option = result.Success ? result.Value : getDefault(state);
-                return factory.Success(option);
+                var option = args.Result.Success ? args.Result.Value : getDefault(args.State);
+                return args.Success(option);
             });
         }
 
@@ -334,17 +331,17 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-            => new Function<TInput, TOutput>.Parser((state, results) =>
+            => new Function<TInput, TOutput>.Parser(args =>
             {
                 var value = produce();
-                return results.Success(value);
+                return args.Success(value);
             }, "PRODUCE", null);
 
         public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
-            => new Function<TInput, TOutput>.Parser((state, results) =>
+            => new Function<TInput, TOutput>.Parser(args =>
             {
-                var value = produce(state);
-                return results.Success(value);
+                var value = produce(args.State);
+                return args.Success(value);
             }, "PRODUCE", null);
 
         /// <summary>
@@ -354,19 +351,17 @@ namespace ParserObjects
         /// <param name="produce"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IEnumerable<TOutput>> produce)
-            => new Function<TInput, TOutput>.MultiParser((state, addSuccess, _) =>
+            => new Function<TInput, TOutput>.MultiParser(builder =>
             {
                 var values = produce();
-                foreach (var value in values)
-                    addSuccess(value);
+                builder.AddSuccesses(values);
             }, "PRODUCE", null);
 
         public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IParseState<TInput>, IEnumerable<TOutput>> produce)
-            => new Function<TInput, TOutput>.MultiParser((state, addSuccess, _) =>
+            => new Function<TInput, TOutput>.MultiParser(builder =>
             {
-                var values = produce(state);
-                foreach (var value in values)
-                    addSuccess(value);
+                var values = produce(builder.State);
+                builder.AddSuccesses(values);
             }, "PRODUCE", null);
 
         /// <summary>
@@ -430,7 +425,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult<TMiddle, TOutput>(parser, (_, _, result) => result.Transform(transform));
+            => TransformResult<TMiddle, TOutput>(parser, args => args.Result.Transform(transform));
 
         /// <summary>
         /// Transforms the output value of the parser.
@@ -441,7 +436,7 @@ namespace ParserObjects
         /// <param name="transform"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-            => TransformResult(parser, (_, result) => result.Transform(transform));
+            => TransformResultMulti<TMiddle, TOutput>(parser, args => args.Result.Transform(transform));
 
         /// <summary>
         /// Transform one result into another result. Allows modifying the result value and all
@@ -452,7 +447,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.Function transform)
+        public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.SingleArguments, IResult<TOutput>> transform)
             => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
 
         /// <summary>
@@ -464,7 +459,7 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Transform<TInput, TMiddle, TOutput>.MultiFunction transform)
+        public static IMultiParser<TInput, TOutput> TransformResultMulti<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
             => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
         /// <summary>
@@ -478,12 +473,12 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-            => new Function<TInput, TOutput>.Parser(state =>
+            => new Function<TInput, TOutput>.Parser(args =>
             {
-                var cp = state.Input.Checkpoint();
+                var cp = args.Input.Checkpoint();
                 try
                 {
-                    return parser.Parse(state);
+                    return parser.Parse(args.State);
                 }
                 catch (ControlFlowException)
                 {
@@ -497,7 +492,7 @@ namespace ParserObjects
                     examine?.Invoke(e);
                     if (bubble)
                         throw;
-                    return state.Fail(parser, e.Message ?? "Caught unhandled exception");
+                    return args.Failure(e.Message ?? "Caught unhandled exception");
                 }
             }, "TRY {child}", new[] { parser });
 
@@ -546,12 +541,12 @@ namespace ParserObjects
         /// <param name="bubble"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Try<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-           => new Function<TInput, TOutput>.MultiParser(state =>
+           => new Function<TInput, TOutput>.MultiParser(args =>
            {
-               var cp = state.Input.Checkpoint();
+               var cp = args.Input.Checkpoint();
                try
                {
-                   return parser.Parse(state);
+                   return parser.Parse(args.State);
                }
                catch (ControlFlowException)
                {

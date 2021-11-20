@@ -15,11 +15,11 @@ namespace ParserObjects
         /// <param name="multiParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Single<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-            => multiParser.Select((multiResult, success, fail) =>
+            => multiParser.Select(args =>
             {
-                if (multiResult.Results.Count == 1)
-                    return success(multiResult.Results[0]);
-                return fail();
+                if (args.Result.Results.Count == 1)
+                    return args.Success(args.Result.Results[0]);
+                return args.Failure();
             });
 
         /// <summary>
@@ -32,13 +32,13 @@ namespace ParserObjects
         /// <param name="multiParser"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Longest<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-            => multiParser.Select((multiResult, success, fail) =>
+            => multiParser.Select(args =>
             {
-                var longest = multiResult.Results
+                var longest = args.Result.Results
                     .Where(r => r.Success)
                     .OrderByDescending(r => r.Consumed)
                     .FirstOrDefault();
-                return longest != null ? success(longest) : fail();
+                return longest != null ? args.Success(longest) : args.Failure();
             });
 
         /// <summary>
@@ -53,10 +53,10 @@ namespace ParserObjects
         public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IResultAlternative<TOutput>, bool> predicate)
         {
             Assert.ArgumentNotNull(predicate, nameof(predicate));
-            return multiParser.Select((multiResult, success, fail) =>
+            return multiParser.Select(args =>
             {
-                var selected = multiResult.Results.FirstOrDefault(predicate);
-                return selected != null ? success(selected) : fail();
+                var selected = args.Result.Results.FirstOrDefault(predicate);
+                return selected != null ? args.Success(selected) : args.Failure();
             });
         }
 
@@ -79,7 +79,7 @@ namespace ParserObjects
         /// <param name="multiparser"></param>
         /// <param name="select"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiparser, Select<TInput, TOutput>.Function select)
+        public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiparser, Func<Select<TInput, TOutput>.Arguments, IOption<IResultAlternative<TOutput>>> select)
             => new Select<TInput, TOutput>.Parser(multiparser, select);
     }
 }

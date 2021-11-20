@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -13,10 +14,6 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class ContinueWith<TInput, TMiddle, TOutput>
     {
-        public delegate IParser<TInput, TOutput> SingleParserSelector(IParser<TInput, TMiddle> p);
-
-        public delegate IMultiParser<TInput, TOutput> MultiParserSelector(IParser<TInput, TMiddle> p);
-
         public class SingleParser : IMultiParser<TInput, TOutput>
         {
             private readonly IMultiParser<TInput, TMiddle> _inner;
@@ -25,7 +22,7 @@ namespace ParserObjects.Parsers
 
             private string _name;
 
-            public SingleParser(IMultiParser<TInput, TMiddle> inner, SingleParserSelector getParser)
+            public SingleParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
@@ -86,7 +83,7 @@ namespace ParserObjects.Parsers
 
             private string _name;
 
-            public MultiParser(IMultiParser<TInput, TMiddle> inner, MultiParserSelector getParser)
+            public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(getParser, nameof(getParser));

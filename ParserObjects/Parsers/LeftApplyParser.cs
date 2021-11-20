@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -14,8 +15,6 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class LeftApply<TInput, TOutput>
     {
-        public delegate IParser<TInput, TOutput> GetRightFunc(IParser<TInput, TOutput> left);
-
         /// <summary>
         /// The left-apply parser, which handles left-associative parses without recursion.
         /// </summary>
@@ -28,7 +27,7 @@ namespace ParserObjects.Parsers
 
             private string _name;
 
-            public Parser(IParser<TInput, TOutput> initial, GetRightFunc getRight, Quantifier arity)
+            public Parser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity)
             {
                 Assert.ArgumentNotNull(initial, nameof(initial));
                 Assert.ArgumentNotNull(getRight, nameof(getRight));

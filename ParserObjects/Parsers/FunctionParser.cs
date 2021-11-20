@@ -13,43 +13,30 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Function<TInput, TOutput>
     {
-        public delegate IResult<TOutput> ParserFunction(IParseState<TInput> t, IResultFactory<TOutput> results);
+        public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, ISequenceCheckpoint StartCheckpoint)
+        {
+            public ISequence<TInput> Input => State.Input;
+            public IDataStore Data => State.Data;
+            public IResultsCache Cache => State.Cache;
+            public IResult<TOutput> Failure(string errorMessage, Location? location = null)
+                => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation);
 
-        public delegate void FailureAdder(string error);
-
-        public delegate void SuccessAdder(TOutput value);
-
-        public delegate void MultiParserBuilder(IParseState<TInput> t, SuccessAdder addSuccess, FailureAdder addFailure);
+            public IResult<TOutput> Success(TOutput value, Location? location = null)
+                => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation);
+        }
 
         public class Parser : IParser<TInput, TOutput>
         {
-            private readonly Func<IParseState<TInput>, IResult<TOutput>> _func;
+            private readonly Func<SingleArguments, IResult<TOutput>> _func;
             private readonly IReadOnlyList<IParser>? _children;
 
-            public Parser(Func<IParseState<TInput>, IResult<TOutput>> func, string? description, IEnumerable<IParser>? children)
+            public Parser(Func<SingleArguments, IResult<TOutput>> func, string? description, IEnumerable<IParser>? children)
             {
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = func;
                 Name = string.Empty;
                 Description = description;
                 _children = children?.ToList();
-            }
-
-            public Parser(ParserFunction func, string? description, IEnumerable<IParser>? children)
-            {
-                Assert.ArgumentNotNull(func, nameof(func));
-                _func = state => AdaptParserFunctionToFunc(this, state, func);
-                Name = string.Empty;
-                Description = description;
-                _children = children?.ToList();
-            }
-
-            private static IResult<TOutput> AdaptParserFunctionToFunc(IParser<TInput, TOutput> parser, IParseState<TInput> state, ParserFunction func)
-            {
-                var startConsumed = state.Input.Consumed;
-                var resultFactory = new ResultFactory(parser, state, startConsumed);
-
-                return func(state, resultFactory);
             }
 
             public string Name { get; set; }
@@ -61,7 +48,8 @@ namespace ParserObjects.Parsers
                 Assert.ArgumentNotNull(state, nameof(state));
                 var startCheckpoint = state.Input.Checkpoint();
 
-                var result = _func(state);
+                var args = new SingleArguments(this, state, startCheckpoint);
+                var result = _func(args);
                 if (result == null)
                     return state.Fail(this, "No result returned");
 
@@ -86,42 +74,56 @@ namespace ParserObjects.Parsers
             public override string ToString() => DefaultStringifier.ToString(this);
         }
 
-        private class ResultFactory : IResultFactory<TOutput>
+        public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
         {
-            private readonly IParser<TInput, TOutput> _parser;
-            private readonly IParseState<TInput> _state;
-            private readonly int _startConsumed;
+            public ISequence<TInput> Input => State.Input;
+            public IDataStore Data => State.Data;
+            public IResultsCache Cache => State.Cache;
+        }
 
-            public ResultFactory(IParser<TInput, TOutput> parser, IParseState<TInput> state, int startConsumed)
+        public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, ISequenceCheckpoint StartCheckpoint)
+        {
+            public ISequence<TInput> Input => State.Input;
+            public IDataStore Data => State.Data;
+            public IResultsCache Cache => State.Cache;
+
+            public void AddSuccess(TOutput value)
             {
-                _parser = parser;
-                _state = state;
-                _startConsumed = startConsumed;
+                var checkpoint = Input.Checkpoint();
+                var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
+                Results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
             }
 
-            public IResult<TOutput> Failure(string errorMessage, Location? location = null)
-                => _state.Fail(_parser, errorMessage, location ?? _state.Input.CurrentLocation);
+            public void AddSuccesses(IEnumerable<TOutput> values)
+            {
+                var checkpoint = Input.Checkpoint();
+                var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
+                foreach (var value in values)
+                    Results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
+            }
 
-            public IResult<TOutput> Success(TOutput value, Location? location = null)
-                => _state.Success(_parser, value, _state.Input.Consumed - _startConsumed, location ?? _state.Input.CurrentLocation);
+            public void AddFailure(string err)
+            {
+                Results.Add(new FailureResultAlternative<TOutput>(err, StartCheckpoint));
+            }
         }
 
         public class MultiParser : IMultiParser<TInput, TOutput>
         {
-            private readonly Func<IParseState<TInput>, IMultiResult<TOutput>> _func;
+            private readonly Func<MultiArguments, IMultiResult<TOutput>> _func;
             private readonly IReadOnlyList<IParser> _children;
 
-            public MultiParser(MultiParserBuilder builder, string? description, IEnumerable<IParser>? children)
+            public MultiParser(Action<MultiBuilder> builder, string? description, IEnumerable<IParser>? children)
             {
                 Assert.ArgumentNotNull(builder, nameof(builder));
-                _func = (state) => AdaptMultiParserBuilderToFunction(this, builder, state);
+                _func = args => AdaptMultiParserBuilderToFunction(args, builder);
                 Name = string.Empty;
                 Description = description;
                 var childList = children?.ToList() as IReadOnlyList<IParser>;
                 _children = childList ?? Array.Empty<IParser>();
             }
 
-            public MultiParser(Func<IParseState<TInput>, IMultiResult<TOutput>> func, string? description, IEnumerable<IParser> children)
+            public MultiParser(Func<MultiArguments, IMultiResult<TOutput>> func, string? description, IEnumerable<IParser> children)
             {
                 Assert.ArgumentNotNull(func, nameof(func));
                 _func = func;
@@ -131,29 +133,16 @@ namespace ParserObjects.Parsers
                 _children = childList ?? Array.Empty<IParser>();
             }
 
-            private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(IParser parser, MultiParserBuilder builder, IParseState<TInput> state)
+            private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(MultiArguments args, Action<MultiBuilder> build)
             {
-                Assert.ArgumentNotNull(builder, nameof(builder));
-                var startCheckpoint = state.Input.Checkpoint();
+                Assert.ArgumentNotNull(build, nameof(build));
+                var startCheckpoint = args.Input.Checkpoint();
 
-                var results = new List<IResultAlternative<TOutput>>();
-
-                void AddSuccess(TOutput value)
-                {
-                    var checkpoint = state.Input.Checkpoint();
-                    var consumed = checkpoint.Consumed - startCheckpoint.Consumed;
-                    results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
-                }
-
-                void AddFailure(string err)
-                {
-                    results.Add(new FailureResultAlternative<TOutput>(err, startCheckpoint));
-                }
-
-                builder(state, AddSuccess, AddFailure);
+                var buildArgs = new MultiBuilder(args.Parser, args.State, new List<IResultAlternative<TOutput>>(), startCheckpoint);
+                build(buildArgs);
 
                 startCheckpoint.Rewind();
-                return new MultiResult<TOutput>(parser, startCheckpoint.Location, startCheckpoint, results);
+                return new MultiResult<TOutput>(args.Parser, startCheckpoint.Location, startCheckpoint, buildArgs.Results);
             }
 
             public string Name { get; set; }
@@ -165,7 +154,8 @@ namespace ParserObjects.Parsers
             public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             {
                 Assert.ArgumentNotNull(state, nameof(state));
-                return _func(state);
+                var args = new MultiArguments(this, state);
+                return _func(args);
             }
 
             IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

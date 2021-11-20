@@ -13,19 +13,15 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Create<TInput, TOutput>
     {
-        public delegate IParser<TInput, TOutput> Function(ISequence<TInput> input, IDataStore data);
-
-        public delegate IMultiParser<TInput, TOutput> MultiFunction(ISequence<TInput> input, IDataStore data);
-
         /// <summary>
         /// Create a parser dynamically using information from the parse state. The parser created is
         /// not expected to be constant and will not be cached.
         /// </summary>
         public class Parser : IParser<TInput, TOutput>
         {
-            private readonly Function _getParser;
+            private readonly Func<IParseState<TInput>, IParser<TInput, TOutput>> _getParser;
 
-            public Parser(Function getParser)
+            public Parser(Func<IParseState<TInput>, IParser<TInput, TOutput>> getParser)
             {
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
                 _getParser = getParser;
@@ -39,7 +35,7 @@ namespace ParserObjects.Parsers
                 // Get the parser. The callback has access to the input, so it may consume items.
                 // If so, we have to properly report that.
                 var startCheckpoint = state.Input.Checkpoint();
-                var parser = _getParser(state.Input, state.Data) ?? throw new InvalidOperationException("Create parser value must not be null");
+                var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
                 var consumedDuringCreation = state.Input.Consumed - startCheckpoint.Consumed;
 
                 var result = parser.Parse(state);
@@ -68,9 +64,9 @@ namespace ParserObjects.Parsers
 
         public class MultiParser : IMultiParser<TInput, TOutput>
         {
-            private readonly MultiFunction _getParser;
+            private readonly Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> _getParser;
 
-            public MultiParser(MultiFunction getParser)
+            public MultiParser(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> getParser)
             {
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
                 _getParser = getParser;
@@ -84,7 +80,7 @@ namespace ParserObjects.Parsers
                 // Get the parser. The callback has access to the input, so it may consume items.
                 // If so, we have to properly report that.
                 var startCheckpoint = state.Input.Checkpoint();
-                var parser = _getParser(state.Input, state.Data) ?? throw new InvalidOperationException("Create parser value must not be null");
+                var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
                 var consumedDuringCreation = state.Input.Consumed - startCheckpoint.Consumed;
 
                 var result = parser.Parse(state);

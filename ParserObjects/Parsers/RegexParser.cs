@@ -10,15 +10,15 @@ namespace ParserObjects.Parsers
     /// </summary>
     public class RegexParser : IParser<char, string>
     {
-        private readonly Regex _regex;
-
         public RegexParser(Regex regex, string describe)
         {
             Assert.ArgumentNotNull(regex, nameof(regex));
-            _regex = regex;
+            Regex = regex;
             Name = $"/{describe}/";
             Pattern = describe;
         }
+
+        public Regex Regex { get; }
 
         public string Pattern { get; }
 
@@ -28,7 +28,7 @@ namespace ParserObjects.Parsers
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var startCp = state.Input.Checkpoint();
-            var result = Engine.GetMatch(state.Input, _regex);
+            var result = Engine.GetMatch(state.Input, Regex);
             if (!result.Success)
                 startCp.Rewind();
             return state.Result(this, result);

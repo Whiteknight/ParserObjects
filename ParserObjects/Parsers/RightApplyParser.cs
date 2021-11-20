@@ -12,23 +12,7 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class RightApply<TInput, TMiddle, TOutput>
     {
-        /// <summary>
-        /// Callback delegate for producing a result from a complete set of left, middle and right
-        /// values.
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="middle"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public delegate TOutput Produce(TOutput left, TMiddle middle, TOutput right);
-
-        /// <summary>
-        /// Callback delegate to create a missing object.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public delegate TOutput Create(ISequence<TInput> input, IDataStore data);
+        public record struct Arguments(TOutput Left, TMiddle Middle, TOutput Right);
 
         /// <summary>
         /// Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
@@ -38,13 +22,13 @@ namespace ParserObjects.Parsers
         {
             private readonly IParser<TInput, TOutput> _item;
             private readonly IParser<TInput, TMiddle> _middle;
-            private readonly Produce _produce;
-            private readonly Create? _getMissingRight;
+            private readonly Func<Arguments, TOutput> _produce;
+            private readonly Func<IParseState<TInput>, TOutput>? _getMissingRight;
             private readonly Quantifier _quantifier;
 
             // <item> (<middle> <item>)* with right-associativity in the production method
 
-            public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Produce produce, Quantifier quantifier, Create? getMissingRight = null)
+            public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<Arguments, TOutput> produce, Quantifier quantifier, Func<IParseState<TInput>, TOutput>? getMissingRight = null)
             {
                 Assert.ArgumentNotNull(item, nameof(item));
                 Assert.ArgumentNotNull(middle, nameof(middle));
@@ -88,7 +72,8 @@ namespace ParserObjects.Parsers
                     while (resultStack.Count > 0)
                     {
                         var (left, middle) = resultStack.Pop();
-                        right = _produce(left, middle, right);
+                        var args = new Arguments(left, middle, right);
+                        right = _produce(args);
                     }
 
                     return state.Success(this, right, consumed, leftResult.Location);
@@ -130,7 +115,7 @@ namespace ParserObjects.Parsers
                         // again, fail the <middle> and exit at that point, but this is faster and
                         // doesn't require allocating a new IResult<T>
                         consumed += middleResult.Consumed;
-                        var syntheticRight = _getMissingRight(state.Input, state.Data);
+                        var syntheticRight = _getMissingRight(state);
                         resultStack.Push((left, middleResult.Value));
                         return ProduceSuccess(syntheticRight, consumed);
                     }
@@ -151,7 +136,8 @@ namespace ParserObjects.Parsers
                 var rightResult = _item.Parse(state);
                 if (rightResult.Success)
                 {
-                    var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
+                    var args = new Arguments(leftResult.Value, middleResult.Value, rightResult.Value);
+                    var result = _produce(args);
                     return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
                 }
 
@@ -163,8 +149,9 @@ namespace ParserObjects.Parsers
                     // create a synthetic right item and short-circuit exit (we could go around
                     // again, fail the <middle> and exit at that point, but this is faster and
                     // doesn't require allocating a new IResult<T>
-                    var syntheticRight = _getMissingRight(state.Input, state.Data);
-                    var result = _produce(leftResult.Value, middleResult.Value, syntheticRight);
+                    var syntheticRight = _getMissingRight(state);
+                    var args = new Arguments(leftResult.Value, middleResult.Value, syntheticRight);
+                    var result = _produce(args);
                     return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
                 }
 
@@ -181,7 +168,8 @@ namespace ParserObjects.Parsers
                 var rightResult = _item.Parse(state);
                 if (rightResult.Success)
                 {
-                    var result = _produce(leftResult.Value, middleResult.Value, rightResult.Value);
+                    var args = new Arguments(leftResult.Value, middleResult.Value, rightResult.Value);
+                    var result = _produce(args);
                     return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
                 }
 
@@ -192,8 +180,9 @@ namespace ParserObjects.Parsers
                     // again, fail the <middle> and exit at that point, but this is faster and
                     // doesn't require allocating a new IResult<T>
                     middleCp.Rewind();
-                    var syntheticRight = _getMissingRight(state.Input, state.Data);
-                    var result = _produce(leftResult.Value, middleResult.Value, syntheticRight);
+                    var syntheticRight = _getMissingRight(state);
+                    var args = new Arguments(leftResult.Value, middleResult.Value, syntheticRight);
+                    var result = _produce(args);
                     return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
                 }
 

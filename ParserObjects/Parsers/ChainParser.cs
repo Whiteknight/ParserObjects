@@ -13,8 +13,6 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Chain<TInput, TMiddle, TOutput>
     {
-        public delegate IParser<TInput, TOutput> GetParser(IResult<TMiddle> result);
-
         /// <summary>
         /// Configures the parsers which may be selected and invoked by the Chain parser.
         /// </summary>
@@ -59,10 +57,10 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput, TMiddle> _inner;
-            private readonly GetParser _getParser;
+            private readonly Func<IResult<TMiddle>, IParser<TInput, TOutput>> _getParser;
             private readonly IReadOnlyList<IParser> _mentions;
 
-            public Parser(IParser<TInput, TMiddle> inner, GetParser getParser, IEnumerable<IParser> mentions)
+            public Parser(IParser<TInput, TMiddle> inner, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
@@ -128,8 +126,6 @@ namespace ParserObjects.Parsers
 
     public static class Chain<TInput, TOutput>
     {
-        public delegate IParser<TInput, TOutput> GetParser(IResult result);
-
         /// <summary>
         /// Configures the parsers to be invoked by the Chain parser.
         /// </summary>
@@ -174,10 +170,10 @@ namespace ParserObjects.Parsers
         public class Parser : IParser<TInput, TOutput>
         {
             private readonly IParser<TInput> _inner;
-            private readonly GetParser _getParser;
+            private readonly Func<IResult, IParser<TInput, TOutput>> _getParser;
             private readonly IReadOnlyList<IParser> _mentions;
 
-            public Parser(IParser<TInput> inner, GetParser getParser, IEnumerable<IParser> mentions)
+            public Parser(IParser<TInput> inner, Func<IResult, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions)
             {
                 Assert.ArgumentNotNull(inner, nameof(inner));
                 Assert.ArgumentNotNull(getParser, nameof(getParser));
