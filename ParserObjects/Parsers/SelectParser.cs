@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
@@ -11,18 +12,27 @@ namespace ParserObjects.Parsers
     /// <typeparam name="TOutput"></typeparam>
     public static class Select<TInput, TOutput>
     {
-        public delegate IOption<IResultAlternative<TOutput>> SuccessFactory(IResultAlternative<TOutput> alt);
+        public struct Arguments
+        {
+            public Arguments(IMultiResult<TOutput> result, Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> success, Func<IOption<IResultAlternative<TOutput>>> failure)
+            {
+                Result = result;
+                Success = success;
+                Failure = failure;
+            }
 
-        public delegate IOption<IResultAlternative<TOutput>> FailureFactory();
-
-        public delegate IOption<IResultAlternative<TOutput>> Function(IMultiResult<TOutput> result, SuccessFactory success, FailureFactory fail);
+            public IMultiResult<TOutput> Result { get; }
+            public Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> Success { get; }
+            public Func<IOption<IResultAlternative<TOutput>>> Failure { get; }
+        }
 
         public class Parser : IParser<TInput, TOutput>
         {
-            private readonly Function _selector;
             private readonly IMultiParser<TInput, TOutput> _parser;
 
-            public Parser(IMultiParser<TInput, TOutput> parser, Function selector)
+            private readonly Func<Arguments, IOption<IResultAlternative<TOutput>>> _selector;
+
+            public Parser(IMultiParser<TInput, TOutput> parser, Func<Arguments, IOption<IResultAlternative<TOutput>>> selector)
             {
                 Assert.ArgumentNotNull(parser, nameof(parser));
                 Assert.ArgumentNotNull(selector, nameof(selector));
@@ -51,7 +61,8 @@ namespace ParserObjects.Parsers
                 static IOption<IResultAlternative<TOutput>> Fail()
                     => FailureOption<IResultAlternative<TOutput>>.Instance;
 
-                var selected = _selector(multi, Success, Fail);
+                var args = new Arguments(multi, Success, Fail);
+                var selected = _selector(args);
                 if (selected == null || !selected.Success)
                     return state.Fail(this, "No alternative selected, or no matching value could be found");
 

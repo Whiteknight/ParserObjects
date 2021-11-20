@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Multi()
         {
-            var target = CreateMulti((i, d) => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var target = CreateMulti(state => ProduceMulti(() => new[] { "a", "b", "c" }));
             var result = target.Parse(new StringCharacterSequence(""));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
@@ -22,7 +22,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ToBnf_Single()
         {
-            var parser = Create((t, d) => Any()).Named("parser");
+            var parser = Create(state => Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := CREATE");
         }
@@ -30,9 +30,11 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ToBnf_Multi()
         {
-            var target = CreateMulti((i, d) => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var target = CreateMulti(state => ProduceMulti(() => new[] { "a", "b", "c" }));
             var result = target.ToBnf();
             result.Should().Contain("(TARGET) := CREATE");
         }
+
+        // TODO: Tests where we consume input during the create delegate
     }
 }

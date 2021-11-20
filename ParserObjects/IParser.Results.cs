@@ -1,4 +1,5 @@
-﻿using ParserObjects.Parsers;
+﻿using System;
+using ParserObjects.Parsers;
 
 namespace ParserObjects
 {
@@ -13,12 +14,12 @@ namespace ParserObjects
         /// <param name="parser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, Transform<TInput, TOutput, TOutput>.Function transform)
-            => new Transform<TInput, TOutput, TOutput>.Parser(parser, (t, d, r) =>
+        public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, Func<Transform<TInput, TOutput, TOutput>.SingleArguments, IResult<TOutput>> transform)
+            => new Transform<TInput, TOutput, TOutput>.Parser(parser, args =>
             {
-                if (r.Success)
-                    return r;
-                return transform(t, d, r);
+                if (args.Result.Success)
+                    return args.Result;
+                return transform(args);
             });
     }
 }

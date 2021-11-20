@@ -1,4 +1,5 @@
-﻿using ParserObjects.Parsers;
+﻿using System;
+using ParserObjects.Parsers;
 
 namespace ParserObjects
 {
@@ -15,7 +16,7 @@ namespace ParserObjects
         /// <param name="getRight"></param>
         /// <param name="quantifier"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, LeftApply<TInput, TOutput>.GetRightFunc getRight, Quantifier quantifier = Quantifier.ZeroOrMore)
+        public static IParser<TInput, TOutput> LeftApply<TOutput>(IParser<TInput, TOutput> left, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier quantifier = Quantifier.ZeroOrMore)
             => new LeftApply<TInput, TOutput>.Parser(left, getRight, quantifier);
 
         /// <summary>
@@ -30,7 +31,10 @@ namespace ParserObjects
         /// <param name="getMissingRight"></param>
         /// <param name="quantifier"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, RightApply<TInput, TMiddle, TOutput>.Produce produce, RightApply<TInput, TMiddle, TOutput>.Create? getMissingRight = null, Quantifier quantifier = Quantifier.ZeroOrMore)
+        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<RightApply<TInput, TMiddle, TOutput>.Arguments, TOutput> produce, Func<IParseState<TInput>, TOutput>? getMissingRight = null, Quantifier quantifier = Quantifier.ZeroOrMore)
             => new RightApply<TInput, TMiddle, TOutput>.Parser(item, middle, produce, quantifier, getMissingRight);
+
+        public static IParser<TInput, TOutput> RightApply<TMiddle, TOutput>(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<TOutput, TMiddle, TOutput, TOutput> produce, Func<IParseState<TInput>, TOutput>? getMissingRight = null, Quantifier quantifier = Quantifier.ZeroOrMore)
+            => new RightApply<TInput, TMiddle, TOutput>.Parser(item, middle, args => produce(args.Left, args.Middle, args.Right), quantifier, getMissingRight);
     }
 }

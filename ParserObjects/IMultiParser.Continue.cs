@@ -16,7 +16,7 @@ namespace ParserObjects
         /// <param name="multiParser"></param>
         /// <param name="getParser"></param>
         /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, ContinueWith<TInput, TMiddle, TOutput>.SingleParserSelector getParser)
+        public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser)
             => new ContinueWith<TInput, TMiddle, TOutput>.SingleParser(multiParser, getParser);
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace ParserObjects
         /// <param name="multiParser"></param>
         /// <param name="getParser"></param>
         /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, ContinueWith<TInput, TMiddle, TOutput>.MultiParserSelector getParser)
+        public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser)
             => new ContinueWith<TInput, TMiddle, TOutput>.MultiParser(multiParser, getParser);
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace ParserObjects
         /// <param name="multiParser"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Transform<TInput, TMiddle, TOutput>.MultiFunction transform)
-            => ParserMethods<TInput>.TransformResult(multiParser, transform);
+        public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
+            => ParserMethods<TInput>.TransformResultMulti(multiParser, transform);
     }
 }

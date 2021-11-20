@@ -16,23 +16,24 @@ namespace ParserObjects
         /// <param name="setup"></param>
         /// <param name="cleanup"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
-            => new Function<TInput, TOutput>.Parser(state =>
+        public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<Function<TInput, TOutput>.SingleArguments> setup, Action<Function<TInput, TOutput>.SingleArguments> cleanup)
+            => new Function<TInput, TOutput>.Parser(args =>
             {
                 try
                 {
-                    setup(state);
-                    return parser.Parse(state);
+                    setup(args);
+                    return parser.Parse(args.State);
                 }
                 finally
                 {
-                    cleanup(state);
+                    cleanup(args);
                 }
             }, null, new[] { parser });
 
         public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
-            => new Function<TInput, TOutput>.MultiParser(state =>
+            => new Function<TInput, TOutput>.MultiParser(args =>
             {
+                var state = args.State;
                 try
                 {
                     setup(state);
@@ -51,7 +52,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="create"></param>
         /// <returns></returns>
-        public static IParser<TInput, TOutput> Create<TOutput>(Create<TInput, TOutput>.Function create)
+        public static IParser<TInput, TOutput> Create<TOutput>(Func<IParseState<TInput>, IParser<TInput, TOutput>> create)
             => new Create<TInput, TOutput>.Parser(create);
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace ParserObjects
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="create"></param>
         /// <returns></returns>
-        public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Create<TInput, TOutput>.MultiFunction create)
+        public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> create)
             => new Create<TInput, TOutput>.MultiParser(create);
 
         /// <summary>
@@ -72,12 +73,12 @@ namespace ParserObjects
         /// <param name="name"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> GetData<TValue>(string name)
-            => Function<TValue>((t, results) =>
+            => Function<TValue>(args =>
             {
-                var result = t.Data.Get<TValue>(name);
+                var result = args.Data.Get<TValue>(name);
                 return result.Success ?
-                    results.Success(result.Value, t.Input.CurrentLocation) :
-                    results.Failure($"State data '{name}' does not exist", t.Input.CurrentLocation);
+                    args.Success(result.Value, args.Input.CurrentLocation) :
+                    args.Failure($"State data '{name}' does not exist", args.Input.CurrentLocation);
             });
 
         /// <summary>
@@ -89,10 +90,10 @@ namespace ParserObjects
         /// <param name="value"></param>
         /// <returns></returns>
         public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-            => Function<TValue>((t, results) =>
+            => Function<TValue>(args =>
             {
-                t.Data.Set(name, value);
-                return results.Success(value, t.Input.CurrentLocation);
+                args.Data.Set(name, value);
+                return args.Success(value, args.Input.CurrentLocation);
             });
 
         /// <summary>
@@ -118,15 +119,15 @@ namespace ParserObjects
         /// <param name="getValue"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-            => TransformResult<TOutput, TOutput>(p, (state, _, result) =>
+            => TransformResult<TOutput, TOutput>(p, args =>
             {
-                if (result.Success)
+                if (args.Result.Success)
                 {
-                    var value = getValue(result.Value);
-                    state.Data.Set(name, value);
+                    var value = getValue(args.Result.Value);
+                    args.Data.Set(name, value);
                 }
 
-                return result;
+                return args.Result;
             });
 
         /// <summary>

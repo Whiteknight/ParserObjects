@@ -222,12 +222,12 @@ namespace ParserObjects.Tests.Parsers
                 return expr;
             });
 
-            var target = parser.Select((r, success, fail) =>
+            var target = parser.Select(args =>
             {
-                var best = r.Results.Where(alt => alt.Value % 2 == 1).OrderByDescending(alt => alt.Value).FirstOrDefault();
+                var best = args.Result.Results.Where(alt => alt.Value % 2 == 1).OrderByDescending(alt => alt.Value).FirstOrDefault();
                 if (best == null)
-                    return fail();
-                return success(best);
+                    return args.Failure();
+                return args.Success(best);
             });
 
             var result = target.Parse("11+25*30");

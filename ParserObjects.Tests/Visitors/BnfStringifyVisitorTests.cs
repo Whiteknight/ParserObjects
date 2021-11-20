@@ -145,7 +145,7 @@ namespace ParserObjects.Tests.Visitors
         [Test]
         public void ToBnf_Func()
         {
-            var parser = Function<string>((t, r) => r.Success("")).Named("parser");
+            var parser = Function<string>(args => args.Success("")).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := User Function");
         }
@@ -337,7 +337,7 @@ namespace ParserObjects.Tests.Visitors
             var equality = RightApply(
                     number,
                     equals,
-                    (l, op, r) => l + op + r
+                    args => args.Left + args.Middle + args.Right
                 )
                 .Named("equality");
 

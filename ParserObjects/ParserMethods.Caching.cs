@@ -40,14 +40,14 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IParser<TInput, TOutput> Cache<TOutput>(IParser<TInput, TOutput> p)
-            => new Function<TInput, TOutput>.Parser(state =>
+            => new Function<TInput, TOutput>.Parser(args =>
             {
-                var location = state.Input.CurrentLocation;
-                var cached = state.Cache.Get<Tuple<IResult<TOutput>, ISequenceCheckpoint>>(p, location);
+                var location = args.Input.CurrentLocation;
+                var cached = args.Cache.Get<Tuple<IResult<TOutput>, ISequenceCheckpoint>>(p, location);
                 if (!cached.Success)
                 {
-                    var result = p.Parse(state);
-                    state.Cache.Add(p, location, Tuple.Create(result, state.Input.Checkpoint()));
+                    var result = p.Parse(args.State);
+                    args.Cache.Add(p, location, Tuple.Create(result, args.Input.Checkpoint()));
                     return result;
                 }
 
@@ -69,15 +69,15 @@ namespace ParserObjects
         /// <param name="p"></param>
         /// <returns></returns>
         public static IMultiParser<TInput, TOutput> Cache<TOutput>(IMultiParser<TInput, TOutput> p)
-            => new Function<TInput, TOutput>.MultiParser(state =>
+            => new Function<TInput, TOutput>.MultiParser(args =>
             {
-                var location = state.Input.CurrentLocation;
-                var cached = state.Cache.Get<IMultiResult<TOutput>>(p, location);
+                var location = args.Input.CurrentLocation;
+                var cached = args.Cache.Get<IMultiResult<TOutput>>(p, location);
                 if (cached.Success)
                     return cached.Value;
 
-                var result = p.Parse(state);
-                state.Cache.Add(p, location, result);
+                var result = p.Parse(args.State);
+                args.Cache.Add(p, location, result);
                 return result;
             }, "CACHED({child})", new[] { p });
     }

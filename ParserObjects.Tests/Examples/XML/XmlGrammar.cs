@@ -28,9 +28,9 @@ namespace ParserObjects.Tests.Examples.XML
 
             // closeTagName gets the current XmlNode instance from the current data frame, and
             // creates a Match() parser to match it.
-            var closeTagName = Create((t, d) =>
+            var closeTagName = Create(state =>
             {
-                var result = d.Get<XmlNode>("tag");
+                var result = state.Data.Get<XmlNode>("tag");
                 if (result.Success)
                     return Match(result.Value.Name);
                 return Fail<IReadOnlyList<char>>("No tag found in current data frame");

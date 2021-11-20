@@ -10,9 +10,9 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var target = ProduceMulti(() => new[] { 'A', 'B', 'C' })
-                .Select((result, success, failure) =>
+                .Select(args =>
                 {
-                    return success(result.Results[1]);
+                    return args.Success(args.Result.Results[1]);
                 });
             var result = target.Parse("");
             result.Success.Should().BeTrue();
@@ -23,9 +23,9 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Fail()
         {
             var target = ProduceMulti(() => new[] { 'A', 'B', 'C' })
-                .Select((result, success, failure) =>
+                .Select(args =>
                 {
-                    return failure();
+                    return args.Failure();
                 });
             var result = target.Parse("");
             result.Success.Should().BeFalse();
@@ -35,9 +35,9 @@ namespace ParserObjects.Tests.Parsers
         public void ToBnf_Test()
         {
             var target = ProduceMulti(() => new[] { 'A', 'B', 'C' })
-                .Select((result, success, failure) =>
+                .Select(args =>
                 {
-                    return success(result.Results[1]);
+                    return args.Success(args.Result.Results[1]);
                 });
             var result = target.ToBnf();
             result.Should().Contain("(TARGET) := SELECT PRODUCE");
