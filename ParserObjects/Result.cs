@@ -71,49 +71,4 @@ namespace ParserObjects
 
         public override string ToString() => $"{Parser} FAIL at {Location}";
     }
-
-    /// <summary>
-    /// A partial result representing failure. This result contains an error message and information
-    /// about the error. Attempting to access the Value property will trigger an exception.
-    /// </summary>
-    /// <typeparam name="TValue"></typeparam>
-    public class FailurePartialResult<TValue> : IPartialResult<TValue>
-    {
-        public FailurePartialResult(string error, Location location)
-        {
-            Location = location;
-            ErrorMessage = error;
-        }
-
-        public bool Success => false;
-        public TValue Value => throw new InvalidOperationException("This result does not have a successful value");
-
-        public int Consumed => 0;
-        public Location Location { get; }
-
-        public string ErrorMessage { get; }
-    }
-
-    /// <summary>
-    /// A partial result representing success. This result contains a valid result value and
-    /// metadata about that value.
-    /// </summary>
-    /// <typeparam name="TValue"></typeparam>
-    public class SuccessPartialResult<TValue> : IPartialResult<TValue>
-    {
-        public SuccessPartialResult(TValue value, int consumed, Location location)
-        {
-            Value = value;
-            Consumed = consumed;
-            Location = location;
-        }
-
-        public bool Success => true;
-        public TValue Value { get; }
-
-        public int Consumed { get; }
-        public Location Location { get; }
-
-        public string ErrorMessage => string.Empty;
-    }
 }
