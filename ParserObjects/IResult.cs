@@ -46,42 +46,6 @@ namespace ParserObjects
         IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
     }
 
-    /// <summary>
-    /// Like an IResult but doesn't contain a reference to a Parser and some of the values may not
-    /// be filled in completely. This is used internally by some parsers to communicate partial
-    /// or incomplete results between components.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IPartialResult<out T>
-    {
-        /// <summary>
-        /// Gets a value indicating whether the parse succeeded.
-        /// </summary>
-        bool Success { get; }
-
-        /// <summary>
-        /// Gets the approximate location of the successful parse in the input sequence. On failure, this
-        /// value is undefined and may show the location of the start of the attempt, the location at
-        /// which failure occured, null, or some other value.
-        /// </summary>
-        Location Location { get; }
-
-        /// <summary>
-        /// Gets a text description of the failure, if the result is not success.
-        /// </summary>
-        string ErrorMessage { get; }
-
-        /// <summary>
-        /// Gets the result value of the operation, if any.
-        /// </summary>
-        T Value { get; }
-
-        /// <summary>
-        /// Gets the number of input items consumed during the operation.
-        /// </summary>
-        int Consumed { get; }
-    }
-
     public static class ParseResultExtensions
     {
         /// <summary>

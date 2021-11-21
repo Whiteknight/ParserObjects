@@ -135,7 +135,7 @@ namespace ParserObjects.Regexes
         /// <param name="input"></param>
         /// <param name="regex"></param>
         /// <returns></returns>
-        public static IPartialResult<string> GetMatch(ISequence<char> input, Regex regex)
+        public static PartialResult<string> GetMatch(ISequence<char> input, Regex regex)
         {
             Assert.ArgumentNotNull(input, nameof(input));
             Assert.ArgumentNotNull(regex, nameof(regex));
@@ -146,10 +146,10 @@ namespace ParserObjects.Regexes
             if (matches)
             {
                 var charArray = buffer.Capture(consumed);
-                return new SuccessPartialResult<string>(new string(charArray), consumed, startLocation);
+                return new PartialResult<string>(new string(charArray), consumed, startLocation);
             }
 
-            return new FailurePartialResult<string>($"Match failed at position {consumed}", startLocation);
+            return new PartialResult<string>($"Match failed at position {consumed}", startLocation);
         }
 
         private static (bool matches, int length) Test(IReadOnlyList<State> states, SequenceBuffer<char> buffer)

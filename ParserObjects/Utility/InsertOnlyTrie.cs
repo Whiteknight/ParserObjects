@@ -35,7 +35,7 @@ namespace ParserObjects.Utility
             return this;
         }
 
-        public IPartialResult<TResult> Get(ISequence<TKey> keys)
+        public PartialResult<TResult> Get(ISequence<TKey> keys)
         {
             Assert.ArgumentNotNull(keys, nameof(keys));
             return Node.Get(_root, keys);
@@ -57,7 +57,7 @@ namespace ParserObjects.Utility
 
             public TResult? Result { get; private set; }
 
-            public static IPartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
+            public static PartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
             {
                 var startLocation = keys.CurrentLocation;
                 var current = thisNode;
@@ -69,7 +69,7 @@ namespace ParserObjects.Utility
                 var startConsumed = keys.Consumed;
                 previous.Push((current, startCont));
 
-                IPartialResult<TResult> FindBestResult()
+                PartialResult<TResult> FindBestResult()
                 {
                     while (previous.Count > 0)
                     {
@@ -77,13 +77,13 @@ namespace ParserObjects.Utility
                         if (node.HasResult)
                         {
                             cont.Rewind();
-                            return new SuccessPartialResult<TResult>(node.Result!, keys.Consumed - startConsumed, startLocation);
+                            return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed, startLocation);
                         }
                     }
 
                     // No node matched, so return failure
                     startCont.Rewind();
-                    return new FailurePartialResult<TResult>("Trie does not contain matching item", startLocation);
+                    return new PartialResult<TResult>("Trie does not contain matching item", startLocation);
                 }
 
                 while (true)

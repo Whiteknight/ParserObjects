@@ -10,7 +10,7 @@ namespace ParserObjects
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public interface IReadOnlyTrie<TKey, out TResult>
+    public interface IReadOnlyTrie<TKey, TResult>
     {
         /// <summary>
         /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
@@ -18,7 +18,7 @@ namespace ParserObjects
         /// </summary>
         /// <param name="keys"></param>
         /// <returns></returns>
-        IPartialResult<TResult> Get(ISequence<TKey> keys);
+        PartialResult<TResult> Get(ISequence<TKey> keys);
 
         /// <summary>
         /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so
@@ -84,7 +84,7 @@ namespace ParserObjects
         {
             var input = new StringCharacterSequence(keys);
             var result = trie.Get(input);
-            return result.Success ? new SuccessOption<TResult>(result.Value) : FailureOption<TResult>.Instance;
+            return result.Match(FailureOption<TResult>.Instance, value => new SuccessOption<TResult>(value));
         }
     }
 }

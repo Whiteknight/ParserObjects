@@ -20,7 +20,7 @@ namespace ParserObjects.Pratt
             _ledableParselets = parselets.Where(p => p.CanLed).ToList();
         }
 
-        public IPartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp)
+        public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var levelCp = state.Input.Checkpoint();
@@ -31,17 +31,17 @@ namespace ParserObjects.Pratt
             catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
             {
                 levelCp.Rewind();
-                return new FailurePartialResult<TOutput>(pe.Message, pe.Location ?? state.Input.CurrentLocation);
+                return new PartialResult<TOutput>(pe.Message, pe.Location ?? state.Input.CurrentLocation);
             }
         }
 
-        private IPartialResult<TOutput> Parse(IParseState<TInput> state, int rbp)
+        private PartialResult<TOutput> Parse(IParseState<TInput> state, int rbp)
         {
             var startLocation = state.Input.CurrentLocation;
             var leftResult = GetLeft(state);
             if (!leftResult.Success)
-                return new FailurePartialResult<TOutput>(string.Empty, startLocation);
-            var leftToken = leftResult.Value;
+                return new PartialResult<TOutput>(string.Empty, startLocation);
+            var leftToken = leftResult.Value!;
             int consumed = leftResult.Consumed;
 
             while (true)
@@ -61,10 +61,10 @@ namespace ParserObjects.Pratt
                     break;
             }
 
-            return new SuccessPartialResult<TOutput>(leftToken.Value, consumed, startLocation);
+            return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
         }
 
-        private IPartialResult<IToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
+        private PartialResult<IToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _ledableParselets.Where(p => rbp < p.Lbp))
@@ -87,13 +87,13 @@ namespace ParserObjects.Pratt
                     continue;
                 }
 
-                return new SuccessPartialResult<IToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
+                return new PartialResult<IToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
             }
 
-            return new FailurePartialResult<IToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
+            return new PartialResult<IToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
         }
 
-        private IPartialResult<IToken<TOutput>> GetLeft(IParseState<TInput> state)
+        private PartialResult<IToken<TOutput>> GetLeft(IParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
             foreach (var parselet in _nudableParselets)
@@ -116,10 +116,10 @@ namespace ParserObjects.Pratt
                 }
 
                 consumed += leftContext.Consumed;
-                return new SuccessPartialResult<IToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
+                return new PartialResult<IToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
             }
 
-            return new FailurePartialResult<IToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
+            return new PartialResult<IToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
         }
     }
 }

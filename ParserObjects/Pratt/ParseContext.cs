@@ -44,8 +44,8 @@ namespace ParserObjects.Pratt
             EnsureRecursionIsPermitted();
             var result = _engine.TryParse(_state, rbp);
             if (!result.Success)
-                throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, this, result.Location);
-            return result.Value;
+                throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage!, this, result.Location);
+            return result.Value!;
         }
 
         public TValue Parse<TValue>(IParser<TInput, TValue> parser)
@@ -97,7 +97,7 @@ namespace ParserObjects.Pratt
             if (!_canRecurse)
                 return FailureOption<TOutput>.Instance;
             var result = _engine.TryParse(_state, rbp);
-            return result.Success ? new SuccessOption<TOutput>(result.Value) : FailureOption<TOutput>.Instance;
+            return result.Match(FailureOption<TOutput>.Instance, value => new SuccessOption<TOutput>(value));
         }
 
         public IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
