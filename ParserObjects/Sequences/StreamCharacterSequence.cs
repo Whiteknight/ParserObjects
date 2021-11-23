@@ -11,6 +11,8 @@ namespace ParserObjects.Sequences;
 /// </summary>
 public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 {
+    private static readonly char[] _surrogateBuffer = new char[2];
+
     private readonly int _bufferSize;
     private readonly string _fileName;
     private readonly StreamReader _reader;
@@ -192,26 +194,29 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
             // high surrogate
             Debug.Assert(char.IsLowSurrogate(c), "Make sure the low surrogate is still there");
             _expectLowSurrogate = false;
+            FillBuffer();
+            return c;
         }
-        else if (char.IsHighSurrogate(c))
+
+        if (char.IsHighSurrogate(c))
         {
             // If c is a high surrogate we MUST get next char to find the matching low surrogate.
             // That is the only way to get a valid size calculation for stream position. Set
             // a flag to say that we are in between surrogates so we don't do something stupid
             // like try to set a checkpoint.
             var low = GetLowSurrogateOrThrow();
-            var size = _encoding.GetByteCount(new[] { c, low });
-            _metadata.StreamPosition += size;
+            _surrogateBuffer[0] = c;
+            _surrogateBuffer[1] = low;
+            var totalSize = _encoding.GetByteCount(_surrogateBuffer);
+            _metadata.StreamPosition += totalSize;
             _expectLowSurrogate = true;
-        }
-        else
-        {
-            var size = GetEncodingByteCountForCharacter(c);
-            _metadata.StreamPosition += size;
+            FillBuffer();
+            return c;
         }
 
+        var size = GetEncodingByteCountForCharacter(c);
+        _metadata.StreamPosition += size;
         FillBuffer();
-
         return c;
     }
 

@@ -345,22 +345,34 @@ public class BnfStringifyVisitor
     protected virtual void Accept<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, State state)
     {
         VisitChild(p.GetChildren().First(), state);
+
+        // If we have a maximum, handle a range with a maximum. We always have a minimum
         if (p.Maximum.HasValue)
         {
             if (p.Maximum == p.Minimum)
+            {
                 state.Current.Append('{').Append(p.Minimum).Append('}');
-            else
-                state.Current.Append('{').Append(p.Minimum).Append(", ").Append(p.Maximum).Append('}');
+                return;
+            }
+
+            state.Current.Append('{').Append(p.Minimum).Append(", ").Append(p.Maximum).Append('}');
+            return;
         }
-        else
+
+        // No maximum, so handle special cases with minimum values first.
+        if (p.Minimum == 0)
         {
-            if (p.Minimum == 0)
-                state.Current.Append('*');
-            else if (p.Minimum == 1)
-                state.Current.Append('+');
-            else
-                state.Current.Append('{').Append(p.Minimum).Append(",}");
+            state.Current.Append('*');
+            return;
         }
+
+        if (p.Minimum == 1)
+        {
+            state.Current.Append('+');
+            return;
+        }
+
+        state.Current.Append('{').Append(p.Minimum).Append(",}");
     }
 
     protected virtual void Accept<TInput>(MatchPredicateParser<TInput> p, State state)
