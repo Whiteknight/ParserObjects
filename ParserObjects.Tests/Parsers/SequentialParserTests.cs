@@ -11,11 +11,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Sequential(s =>
             {
                 var first = s.Parse(Any());
-                char second;
-                if (first == 'a')
-                    second = s.Parse(Match('b'));
-                else
-                    second = s.Parse(Match('y'));
+                char second = first == 'a' ? s.Parse(Match('b')) : s.Parse(Match('y'));
                 var third = s.Parse(Match('c'));
 
                 return $"{first}{second}{third}".ToUpper();

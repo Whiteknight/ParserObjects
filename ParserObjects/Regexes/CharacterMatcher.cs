@@ -16,9 +16,12 @@ public class CharacterMatcher
         foreach (var range in ranges)
         {
             if (range.high == range.low)
+            {
                 _exactChars.Add(range.high);
-            else
-                rangeList.Add(range);
+                continue;
+            }
+
+            rangeList.Add(range);
         }
 
         _ranges = rangeList;
