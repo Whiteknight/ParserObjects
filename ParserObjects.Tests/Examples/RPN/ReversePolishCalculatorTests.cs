@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.RPN
+﻿namespace ParserObjects.Tests.Examples.RPN
 {
     public class ReversePolishCalculatorTests
     {

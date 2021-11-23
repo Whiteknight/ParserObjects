@@ -1,8 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
-using FluentAssertions;
-using NUnit.Framework;
 using ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ParserObjects.Tests.Examples.PN
+﻿namespace ParserObjects.Tests.Examples.PN
 {
     public class PolishCalculator
     {

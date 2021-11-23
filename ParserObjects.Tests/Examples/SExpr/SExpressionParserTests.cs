@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.SExpr
+﻿namespace ParserObjects.Tests.Examples.SExpr
 {
     public class SExpressionParserTests
     {

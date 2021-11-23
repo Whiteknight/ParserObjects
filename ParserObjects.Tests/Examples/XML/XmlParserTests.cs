@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.XML
+﻿namespace ParserObjects.Tests.Examples.XML
 {
     public class XmlParserTests
     {

@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
