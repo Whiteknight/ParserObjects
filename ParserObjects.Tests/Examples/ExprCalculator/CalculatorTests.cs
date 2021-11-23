@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.ExprCalculator
+﻿namespace ParserObjects.Tests.Examples.ExprCalculator
 {
     public class CalculatorTests
     {

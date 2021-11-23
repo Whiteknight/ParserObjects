@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests
+﻿namespace ParserObjects.Tests
 {
     public class LocationTests
     {

@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
 using ParserObjects.Sequences;
 using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.ParserMethods;

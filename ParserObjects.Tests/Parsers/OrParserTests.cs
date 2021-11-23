@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using ParserObjects.Sequences;
+﻿using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers.Logical

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using FluentAssertions;
-using NUnit.Framework;
+﻿using System.IO;
 using ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences

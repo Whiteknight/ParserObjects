@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
 
 namespace ParserObjects.Tests.Examples.JSON
 {

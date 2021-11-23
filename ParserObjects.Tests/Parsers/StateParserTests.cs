@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using FluentAssertions;
-using NUnit.Framework;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers

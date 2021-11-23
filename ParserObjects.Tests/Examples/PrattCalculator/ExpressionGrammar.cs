@@ -1,5 +1,4 @@
-﻿using System;
-using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.PrattCalculator.Token>;
+﻿using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.PrattCalculator.Token>;
 using static ParserObjects.Tests.Examples.PrattCalculator.TokenParserExtension;
 
 namespace ParserObjects.Tests.Examples.PrattCalculator

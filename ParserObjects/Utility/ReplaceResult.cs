@@ -1,80 +1,79 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ParserObjects.Utility
+namespace ParserObjects.Utility;
+
+/// <summary>
+/// Result of a single replacement operation
+/// </summary>
+public record struct SingleReplaceResult(
+    IReplaceableParserUntyped Replaceable,
+    IParser Previous,
+    IParser Current
+)
 {
     /// <summary>
-    /// Result of a single replacement operation
+    /// Gets a value indicating whether the replace happened, false if it did not.
     /// </summary>
-    public record struct SingleReplaceResult(
-        IReplaceableParserUntyped Replaceable,
-        IParser Previous,
-        IParser Current
-    )
+    public bool Success => !ReferenceEquals(Previous, Current);
+
+    /// <summary>
+    /// Get the previous and current parser value.
+    /// </summary>
+    /// <param name="success"></param>
+    /// <param name="previous"></param>
+    /// <param name="current"></param>
+    public void Deconstruct(out bool success, out IParser previous, out IParser current)
     {
-        /// <summary>
-        /// Gets a value indicating whether the replace happened, false if it did not.
-        /// </summary>
-        public bool Success => !ReferenceEquals(Previous, Current);
-
-        /// <summary>
-        /// Get the previous and current parser value.
-        /// </summary>
-        /// <param name="success"></param>
-        /// <param name="previous"></param>
-        /// <param name="current"></param>
-        public void Deconstruct(out bool success, out IParser previous, out IParser current)
-        {
-            success = Success;
-            previous = Previous;
-            current = Current;
-        }
-
-        /// <summary>
-        /// Get the previous parser, current parser, and the ReplaceableParser parent.
-        /// </summary>
-        /// <param name="success"></param>
-        /// <param name="previous"></param>
-        /// <param name="current"></param>
-        /// <param name="replaceable"></param>
-        public void Deconstruct(out bool success, out IParser previous, out IParser current, out IReplaceableParserUntyped replaceable)
-        {
-            success = Success;
-            previous = Previous;
-            current = Current;
-            replaceable = Replaceable;
-        }
+        success = Success;
+        previous = Previous;
+        current = Current;
     }
 
     /// <summary>
-    /// Contains the results of multiple replaces from the parser graph.
+    /// Get the previous parser, current parser, and the ReplaceableParser parent.
     /// </summary>
-    public struct MultiReplaceResult
+    /// <param name="success"></param>
+    /// <param name="previous"></param>
+    /// <param name="current"></param>
+    /// <param name="replaceable"></param>
+    public void Deconstruct(out bool success, out IParser previous, out IParser current, out IReplaceableParserUntyped replaceable)
     {
-        public MultiReplaceResult(IReadOnlyList<SingleReplaceResult> results)
-        {
-            Assert.ArgumentNotNull(results, nameof(results));
-            Results = results;
-        }
+        success = Success;
+        previous = Previous;
+        current = Current;
+        replaceable = Replaceable;
+    }
+}
 
-        /// <summary>
-        /// Gets the individual replace results.
-        /// </summary>
-        public IReadOnlyList<SingleReplaceResult> Results { get; }
+/// <summary>
+/// Contains the results of multiple replaces from the parser graph.
+/// </summary>
+public struct MultiReplaceResult
+{
+    public MultiReplaceResult(IReadOnlyList<SingleReplaceResult> results)
+    {
+        Assert.ArgumentNotNull(results, nameof(results));
+        Results = results;
+    }
 
-        /// <summary>
-        /// Gets a value indicating whether all replacements succeeded. False if no attempts were
-        /// made or if any result
-        /// failed.
-        /// </summary>
-        public bool Success => Results != null && Results.Count > 0 && Results.All(r => r.Success);
+    /// <summary>
+    /// Gets the individual replace results.
+    /// </summary>
+    public IReadOnlyList<SingleReplaceResult> Results { get; }
 
-        public static MultiReplaceResult Failure() => default;
+    /// <summary>
+    /// Gets a value indicating whether all replacements succeeded. False if no attempts were
+    /// made or if any result
+    /// failed.
+    /// </summary>
+    public bool Success => Results != null && Results.Count > 0 && Results.All(r => r.Success);
 
-        public void Deconstruct(out bool success, out IReadOnlyList<SingleReplaceResult> results)
-        {
-            success = Success;
-            results = Results;
-        }
+    public static MultiReplaceResult Failure() => default;
+
+    public void Deconstruct(out bool success, out IReadOnlyList<SingleReplaceResult> results)
+    {
+        success = Success;
+        results = Results;
     }
 }

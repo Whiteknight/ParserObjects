@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.Parens
+﻿namespace ParserObjects.Tests.Examples.Parens
 {
     public class ExpressionParenthesizerTests
     {

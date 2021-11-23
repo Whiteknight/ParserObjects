@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using ParserObjects.Sequences;
+﻿using ParserObjects.Sequences;
 using static ParserObjects.JavaScriptStyleParserMethods;
 
 namespace ParserObjects.Tests

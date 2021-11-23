@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;

@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-
-namespace ParserObjects.Tests.Examples.PN
+﻿namespace ParserObjects.Tests.Examples.PN
 {
     public class PolishCalculatorTests
     {
