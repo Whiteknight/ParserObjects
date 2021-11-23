@@ -25,19 +25,25 @@ public class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 
         foreach (var parser in _parsers)
         {
-            var result = parser.Parse(state);
-            if (!result.Success)
-                results.Add(new FailureResultAlternative<TOutput>(result.ErrorMessage, startCheckpoint));
-            else
-            {
-                var endCheckpoint = state.Input.Checkpoint();
-                results.Add(new SuccessResultAlternative<TOutput>(result.Value, result.Consumed, endCheckpoint));
-            }
-
+            var result = ParseOne(parser, state, startCheckpoint);
+            results.Add(result);
             startCheckpoint.Rewind();
+            continue;
         }
 
         return new MultiResult<TOutput>(this, startCheckpoint.Location, startCheckpoint, results);
+    }
+
+    private static IResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, ISequenceCheckpoint startCheckpoint)
+    {
+        var result = parser.Parse(state);
+        if (result.Success)
+        {
+            var endCheckpoint = state.Input.Checkpoint();
+            return new SuccessResultAlternative<TOutput>(result.Value, result.Consumed, endCheckpoint);
+        }
+
+        return new FailureResultAlternative<TOutput>(result.ErrorMessage, startCheckpoint);
     }
 
     IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
