@@ -40,10 +40,14 @@ public class CascadingKeyValueStore : IDataStore
         var dict = _store!.Last!.Value!;
         if (value == null)
             return;
+
         if (dict.ContainsKey(name))
+        {
             dict[name] = value;
-        else
-            dict.Add(name, value);
+            return;
+        }
+
+        dict.Add(name, value);
     }
 
     public void PushFrame()
