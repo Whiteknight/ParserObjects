@@ -7,10 +7,8 @@ namespace ParserObjects.Sequences;
 /// </summary>
 public class StringCharacterSequence : ISequence<char>
 {
-    private readonly string _fileName;
-    private readonly bool _normalizeLineEndings;
     private readonly string _s;
-    private readonly char _endSentinel;
+    private readonly Options _options;
 
     private SequenceStatistics _stats;
     private int _index;
@@ -18,27 +16,35 @@ public class StringCharacterSequence : ISequence<char>
     private int _column;
     private int _consumed;
 
-    public StringCharacterSequence(string s, string fileName = "", bool normalizeLineEndings = true, char endSentinel = '\0')
+    public record struct Options(string FileName = "", bool NormalizeLineEndings = true, char EndSentinel = '\0')
+    {
+        public void Validate()
+        {
+            if (FileName == null)
+                FileName = "";
+        }
+    }
+
+    public StringCharacterSequence(string s, Options options = default)
     {
         Assert.ArgumentNotNull(s, nameof(s));
+        options.Validate();
         _stats = default;
         _s = s;
         _line = 1;
         _column = 0;
-        _fileName = fileName;
-        _normalizeLineEndings = normalizeLineEndings;
+        _options = options;
         _consumed = 0;
-        _endSentinel = endSentinel;
     }
 
     public char GetNext()
     {
         var next = GetNextInternal(true);
-        if (next == _endSentinel)
+        if (next == _options.EndSentinel)
             return next;
 
         // If line endings are normalized, we replace \r -> \n and \r\n -> \n
-        if (_normalizeLineEndings && next == '\r')
+        if (_options.NormalizeLineEndings && next == '\r')
         {
             if (GetNextInternal(false) == '\n')
                 GetNextInternal(true);
@@ -65,7 +71,7 @@ public class StringCharacterSequence : ISequence<char>
     private char GetNextInternal(bool advance)
     {
         if (_index >= _s.Length)
-            return _endSentinel;
+            return _options.EndSentinel;
         var value = _s[_index];
         if (advance)
             _index++;
@@ -75,13 +81,13 @@ public class StringCharacterSequence : ISequence<char>
     public char Peek()
     {
         var next = GetNextInternal(false);
-        if (_normalizeLineEndings && next == '\r')
+        if (_options.NormalizeLineEndings && next == '\r')
             next = '\n';
         _stats.ItemsPeeked++;
         return next;
     }
 
-    public Location CurrentLocation => new Location(_fileName, _line, _column);
+    public Location CurrentLocation => new Location(_options.FileName, _line, _column);
 
     public bool IsAtEnd => _index >= _s.Length;
 
@@ -113,7 +119,7 @@ public class StringCharacterSequence : ISequence<char>
     private record StringCheckpoint(StringCharacterSequence S, int Index, int Line, int Column, int Consumed)
         : ISequenceCheckpoint
     {
-        public Location Location => new Location(S._fileName, Line, Column);
+        public Location Location => new Location(S._options.FileName, Line, Column);
 
         public void Rewind() => S.Rewind(Index, Line, Column, Consumed);
     }

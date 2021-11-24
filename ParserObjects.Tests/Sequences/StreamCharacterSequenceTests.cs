@@ -12,7 +12,12 @@ namespace ParserObjects.Tests.Sequences
             var b = Encoding.UTF8.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamCharacterSequence(memoryStream, Encoding.UTF8, bufferSize: bufferSize, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
+            return new StreamCharacterSequence(memoryStream, new StreamCharacterSequence.Options
+            {
+                BufferSize = bufferSize,
+                NormalizeLineEndings = normalizeLineEndings,
+                EndSentinel = endSentinel
+            }, Encoding.UTF8);
         }
 
         [Test]
@@ -330,13 +335,14 @@ namespace ParserObjects.Tests.Sequences
             try
             {
                 File.WriteAllText(fileName, "test");
-                using (var target = new StreamCharacterSequence(fileName))
+                using var target = new StreamCharacterSequence(new StreamCharacterSequence.Options
                 {
-                    target.GetNext().Should().Be('t');
-                    target.GetNext().Should().Be('e');
-                    target.GetNext().Should().Be('s');
-                    target.GetNext().Should().Be('t');
-                }
+                    FileName = fileName
+                });
+                target.GetNext().Should().Be('t');
+                target.GetNext().Should().Be('e');
+                target.GetNext().Should().Be('s');
+                target.GetNext().Should().Be('t');
             }
             finally
             {
