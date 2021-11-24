@@ -13,13 +13,10 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 {
     private static readonly char[] _surrogateBuffer = new char[2];
 
-    private readonly int _bufferSize;
-    private readonly string _fileName;
     private readonly StreamReader _reader;
     private readonly Encoding _encoding;
-    private readonly bool _normalizeLineEndings;
-    private readonly char _endSentinel;
     private readonly char[] _buffer;
+    private readonly Options _options;
 
     private SequenceStatistics _stats;
     private BufferMetadata _metadata;
@@ -35,53 +32,55 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         public long BufferStartStreamPosition { get; set; }
     }
 
-    public StreamCharacterSequence(string fileName, Encoding? encoding = null, int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
+    public record struct Options(string FileName = "", int BufferSize = 1024, bool NormalizeLineEndings = true, char EndSentinel = '\0')
     {
-        Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
-        Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
-        _stats = default;
-        _fileName = fileName;
-        _metadata = default;
-        _bufferSize = bufferSize;
-        _buffer = new char[_bufferSize];
-        var stream = File.OpenRead(_fileName);
-        _encoding = encoding ?? Encoding.UTF8;
-        _reader = new StreamReader(stream, _encoding);
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
-        _normalizeLineEndings = normalizeLineEndings;
-        _endSentinel = endSentinel;
+        public void Validate()
+        {
+            if (FileName == null)
+                FileName = "";
+            if (BufferSize <= 0)
+                BufferSize = 1024;
+        }
     }
 
-    public StreamCharacterSequence(StreamReader reader, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
+    public StreamCharacterSequence(Options options, Encoding? encoding = null)
+    {
+        Assert.ArgumentNotNullOrEmpty(options.FileName, nameof(options.FileName));
+        options.Validate();
+        _options = options;
+        _stats = default;
+        _metadata = default;
+        _buffer = new char[_options.BufferSize];
+        var stream = File.OpenRead(_options.FileName);
+        _encoding = encoding ?? Encoding.UTF8;
+        _reader = new StreamReader(stream, _encoding);
+        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+    }
+
+    public StreamCharacterSequence(StreamReader reader, Options options)
     {
         Assert.ArgumentNotNull(reader, nameof(reader));
-        Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+        options.Validate();
+        _options = options;
         _stats = default;
-        _fileName = fileName;
         _metadata = default;
-        _bufferSize = bufferSize;
-        _buffer = new char[_bufferSize];
+        _buffer = new char[_options.BufferSize];
         _reader = reader;
         _encoding = _reader.CurrentEncoding;
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
-        _normalizeLineEndings = normalizeLineEndings;
-        _endSentinel = endSentinel;
+        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
-    public StreamCharacterSequence(Stream stream, Encoding? encoding = null, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
+    public StreamCharacterSequence(Stream stream, Options options, Encoding? encoding = null)
     {
         Assert.ArgumentNotNull(stream, nameof(stream));
-        Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+        options.Validate();
+        _options = options;
         _stats = default;
         _metadata = default;
-        _fileName = fileName ?? "stream";
-        _bufferSize = bufferSize;
-        _buffer = new char[_bufferSize];
+        _buffer = new char[_options.BufferSize];
         _encoding = encoding ?? Encoding.UTF8;
         _reader = new StreamReader(stream, _encoding);
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
-        _normalizeLineEndings = normalizeLineEndings;
-        _endSentinel = endSentinel;
+        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
     /*
@@ -107,10 +106,10 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     public char GetNext()
     {
         var c = GetNextCharRaw(true);
-        if (c == _endSentinel)
+        if (c == _options.EndSentinel)
             return c;
 
-        if (_normalizeLineEndings && c == '\r')
+        if (_options.NormalizeLineEndings && c == '\r')
         {
             if (GetNextCharRaw(false) == '\n')
                 GetNextCharRaw(true);
@@ -133,13 +132,13 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     public char Peek()
     {
         var next = GetNextCharRaw(false);
-        if (_normalizeLineEndings && next == '\r')
+        if (_options.NormalizeLineEndings && next == '\r')
             next = '\n';
         _stats.ItemsPeeked++;
         return next;
     }
 
-    public Location CurrentLocation => new Location(_fileName, _metadata.Line + 1, _metadata.Column);
+    public Location CurrentLocation => new Location(_options.FileName, _metadata.Line + 1, _metadata.Column);
 
     public bool IsAtEnd => _metadata.TotalCharsInBuffer == 0;
 
@@ -177,7 +176,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         // character. If the buffer doesn't have any data in it at this point, it's because
         // we're at the end of input.
         if (_metadata.TotalCharsInBuffer == 0)
-            return _endSentinel;
+            return _options.EndSentinel;
 
         var c = _buffer[_metadata.Index];
         if (!advance)
@@ -228,7 +227,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 
         _stats.BufferFills++;
         _metadata.BufferStartStreamPosition = _metadata.StreamPosition;
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
+        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _metadata.Index = 0;
     }
 
@@ -245,7 +244,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         public int Consumed => Metadata.Consumed;
 
-        public Location Location => new Location(S._fileName, Metadata.Line + 1, Metadata.Column);
+        public Location Location => new Location(S._options.FileName, Metadata.Line + 1, Metadata.Column);
 
         public void Rewind() => S.Rewind(Metadata);
     }
@@ -277,7 +276,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _metadata = metadata;
         _reader.BaseStream.Seek(_metadata.BufferStartStreamPosition, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _bufferSize);
+        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
     public ISequenceStatistics GetStatistics() => _stats;

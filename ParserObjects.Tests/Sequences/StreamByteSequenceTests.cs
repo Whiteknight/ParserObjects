@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Sequences
             var memoryStream = new MemoryStream();
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamByteSequence(memoryStream, bufferSize: 5);
+            return new StreamByteSequence(memoryStream, new StreamByteSequence.Options { BufferSize = 5 });
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace ParserObjects.Tests.Sequences
             try
             {
                 File.WriteAllText(fileName, "test");
-                using var target = new StreamByteSequence(fileName);
+                using var target = new StreamByteSequence(new StreamByteSequence.Options { FileName = fileName });
                 target.GetNext().Should().Be((byte)'t');
                 target.GetNext().Should().Be((byte)'e');
                 target.GetNext().Should().Be((byte)'s');
@@ -150,7 +150,7 @@ namespace ParserObjects.Tests.Sequences
             var memoryStream = new MemoryStream();
             memoryStream.Write(new byte[] { 1, 2, 3 }, 0, 3);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var target = new StreamByteSequence(memoryStream, bufferSize: 5, endSentinel: 9);
+            var target = new StreamByteSequence(memoryStream, new StreamByteSequence.Options { BufferSize = 5, EndSentinel = 9 });
             target.GetNext().Should().Be(1);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);

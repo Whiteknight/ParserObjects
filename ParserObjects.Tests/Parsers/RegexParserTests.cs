@@ -48,7 +48,7 @@ namespace ParserObjects.Tests.Parsers
             // Second test with a stream sequence, just to show that they are equivalent
             var bytes = Encoding.UTF8.GetBytes(input);
             using var memoryStream = new MemoryStream(bytes);
-            var streamSequence = new StreamCharacterSequence(memoryStream);
+            var streamSequence = new StreamCharacterSequence(memoryStream, default);
             RegexTest(expectedMatch, parser, streamSequence);
         }
 

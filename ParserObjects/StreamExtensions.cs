@@ -11,50 +11,29 @@ public static class StreamExtensions
     /// will dispose the stream as well.
     /// </summary>
     /// <param name="stream"></param>
-    /// <param name="fileName"></param>
-    /// <param name="bufferSize"></param>
-    /// <param name="endSentinel"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<byte> ToByteSequence(this Stream stream, string fileName = "", int bufferSize = 1024, byte endSentinel = 0)
-        => new StreamByteSequence(stream, fileName, bufferSize, endSentinel);
+    public static ISequence<byte> ToByteSequence(this Stream stream, StreamByteSequence.Options options = default)
+        => new StreamByteSequence(stream, options);
 
     /// <summary>
     /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
     /// Calling .Dispose() on the sequence will dispose the stream as well.
     /// </summary>
     /// <param name="stream"></param>
-    /// <param name="fileName"></param>
-    /// <param name="bufferSize"></param>
-    /// <param name="normalizeLineEndings"></param>
-    /// <param name="endSentinel"></param>
-    /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this Stream stream, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
-        => new StreamCharacterSequence(stream, Encoding.UTF8, fileName, bufferSize: bufferSize, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
-
-    /// <summary>
-    /// Converts an existing Stream to a sequence of char using the provided encoding. Calling
-    /// .Dispose() on the sequence will dispose the stream as well.
-    /// </summary>
-    /// <param name="stream"></param>
     /// <param name="encoding"></param>
-    /// <param name="fileName"></param>
-    /// <param name="bufferSize"></param>
-    /// <param name="normalizeLineEndings"></param>
-    /// <param name="endSentinel"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this Stream stream, Encoding encoding, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
-        => new StreamCharacterSequence(stream, encoding, fileName, bufferSize: bufferSize, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
+    public static ISequence<char> ToCharSequence(this Stream stream, Encoding? encoding = null, StreamCharacterSequence.Options options = default)
+        => new StreamCharacterSequence(stream, options, encoding ?? Encoding.UTF8);
 
     /// <summary>
     /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
     /// sequence will dispose the reader as well.
     /// </summary>
     /// <param name="streamReader"></param>
-    /// <param name="fileName"></param>
-    /// <param name="bufferSize"></param>
-    /// <param name="normalizeLineEndings"></param>
-    /// <param name="endSentinel"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this StreamReader streamReader, string fileName = "", int bufferSize = 1024, bool normalizeLineEndings = true, char endSentinel = '\0')
-        => new StreamCharacterSequence(streamReader, fileName, bufferSize: bufferSize, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
+    public static ISequence<char> ToCharSequence(this StreamReader streamReader, StreamCharacterSequence.Options options = default)
+        => new StreamCharacterSequence(streamReader, options);
 }

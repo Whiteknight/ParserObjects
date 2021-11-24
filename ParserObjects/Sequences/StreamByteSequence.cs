@@ -9,11 +9,9 @@ namespace ParserObjects.Sequences;
 /// </summary>
 public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 {
-    private readonly string _fileName;
-    private readonly int _bufferSize;
     private readonly Stream _stream;
     private readonly byte[] _buffer;
-    private readonly byte _endSentinel;
+    private readonly Options _options;
 
     private SequenceStatistics _stats;
     private bool _isComplete;
@@ -21,44 +19,52 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private int _bufferIndex;
     private int _consumed;
 
-    public StreamByteSequence(string fileName, int bufferSize = 1024, byte endSentinel = 0)
+    public record struct Options(string FileName, int BufferSize, byte EndSentinel)
     {
-        Assert.ArgumentNotNullOrEmpty(fileName, nameof(fileName));
-        Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+        public void Validate()
+        {
+            if (FileName == null)
+                FileName = string.Empty;
+            if (BufferSize <= 0)
+                BufferSize = 1024;
+        }
+    }
+
+    public StreamByteSequence(Options options)
+    {
+        options.Validate();
+        _options = options;
+        Assert.ArgumentNotNullOrEmpty(_options.FileName, nameof(_options.FileName));
 
         _stats = default;
-        _fileName = fileName;
-        _bufferSize = bufferSize;
-        _bufferIndex = bufferSize;
-        _buffer = new byte[bufferSize];
-        _stream = File.OpenRead(_fileName);
+        _bufferIndex = _options.BufferSize;
+        _buffer = new byte[_options.BufferSize];
+        _stream = File.OpenRead(_options.FileName);
         _consumed = 0;
-        _endSentinel = endSentinel;
         FillBuffer();
     }
 
-    public StreamByteSequence(Stream stream, string fileName = "", int bufferSize = 1024, byte endSentinel = 0)
+    public StreamByteSequence(Stream stream, Options options)
     {
         Assert.ArgumentNotNull(stream, nameof(stream));
-        Assert.ArgumentGreaterThan(bufferSize, 0, nameof(bufferSize));
+
+        options.Validate();
+        _options = options;
 
         _stats = default;
-        _fileName = fileName;
-        _bufferSize = bufferSize;
-        _bufferIndex = bufferSize;
-        _buffer = new byte[bufferSize];
+        _bufferIndex = _options.BufferSize;
+        _buffer = new byte[_options.BufferSize];
         _stream = stream;
         if (!_stream.CanSeek || !_stream.CanRead)
             throw new InvalidOperationException("Stream must support Read and Seek to be used in a Sequence");
         _consumed = 0;
-        _endSentinel = endSentinel;
         FillBuffer();
     }
 
     public byte GetNext()
     {
         var b = GetNextByteRaw(true);
-        if (b == _endSentinel)
+        if (b == _options.EndSentinel)
             return b;
         _stats.ItemsRead++;
         _consumed++;
@@ -72,7 +78,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         return b;
     }
 
-    public Location CurrentLocation => new Location(_fileName, 1, _consumed);
+    public Location CurrentLocation => new Location(_options.FileName, 1, _consumed);
 
     public bool IsAtEnd => _isComplete;
 
@@ -86,10 +92,10 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private byte GetNextByteRaw(bool advance)
     {
         if (_isComplete)
-            return _endSentinel;
+            return _options.EndSentinel;
 
-        if (_remainingBytes == 0 || _bufferIndex >= _bufferSize)
-            return _endSentinel;
+        if (_remainingBytes == 0 || _bufferIndex >= _options.BufferSize)
+            return _options.EndSentinel;
 
         var b = _buffer[_bufferIndex];
 
@@ -106,10 +112,10 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     private void FillBuffer()
     {
-        if (_remainingBytes != 0 && _bufferIndex < _bufferSize)
+        if (_remainingBytes != 0 && _bufferIndex < _options.BufferSize)
             return;
         _stats.BufferFills++;
-        _remainingBytes = _stream.Read(_buffer, 0, _bufferSize);
+        _remainingBytes = _stream.Read(_buffer, 0, _options.BufferSize);
         if (_remainingBytes == 0)
             _isComplete = true;
         _bufferIndex = 0;
@@ -127,7 +133,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private record SequenceCheckpoint(StreamByteSequence S, long CurrentPosition, int Consumed)
         : ISequenceCheckpoint
     {
-        public Location Location => new Location(S._fileName, 1, Consumed);
+        public Location Location => new Location(S._options.FileName, 1, Consumed);
 
         public void Rewind() => S.Rewind(CurrentPosition, Consumed);
     }
@@ -151,12 +157,12 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
         // The position is outside the current buffer, so we need to refill the buffer.
 
-        var bestStartPos = position - (_bufferSize >> 2);
+        var bestStartPos = position - (_options.BufferSize >> 2);
         if (bestStartPos < 0)
             bestStartPos = 0;
         var forward = (int)(position - bestStartPos);
         _stream.Seek(bestStartPos, SeekOrigin.Begin);
-        var availableBytes = _stream.Read(_buffer, 0, _bufferSize);
+        var availableBytes = _stream.Read(_buffer, 0, _options.BufferSize);
         _remainingBytes = availableBytes - forward;
         _bufferIndex = forward;
         _consumed = consumed;

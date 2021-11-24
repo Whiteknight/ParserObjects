@@ -8,9 +8,8 @@ public static class StringExtensions
     /// Wrap the string as a sequence of characters.
     /// </summary>
     /// <param name="str"></param>
-    /// <param name="normalizeLineEndings"></param>
-    /// <param name="endSentinel"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharacterSequence(this string str, bool normalizeLineEndings = true, char endSentinel = '\0')
-        => new StringCharacterSequence(str, normalizeLineEndings: normalizeLineEndings, endSentinel: endSentinel);
+    public static ISequence<char> ToCharacterSequence(this string str, StringCharacterSequence.Options options = default)
+        => new StringCharacterSequence(str, options);
 }
