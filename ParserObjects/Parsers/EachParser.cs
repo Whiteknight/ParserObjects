@@ -4,6 +4,12 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers
 {
+    /// <summary>
+    /// Executes all the given parsers at the current input location and returns a multi-result
+    /// with all the individual results, in order.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
     {
         private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;
