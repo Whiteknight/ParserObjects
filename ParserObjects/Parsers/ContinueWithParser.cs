@@ -14,7 +14,7 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class ContinueWith<TInput, TMiddle, TOutput>
 {
-    public class SingleParser : IMultiParser<TInput, TOutput>
+    public sealed class SingleParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;
@@ -75,7 +75,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             => Parse(state);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;

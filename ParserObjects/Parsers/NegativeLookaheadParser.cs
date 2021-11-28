@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// success if the parser does not match, fail otherwise. Consumes no input.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class NegativeLookaheadParser<TInput> : IParser<TInput>
+public sealed class NegativeLookaheadParser<TInput> : IParser<TInput>
 {
     private readonly IParser<TInput> _inner;
 

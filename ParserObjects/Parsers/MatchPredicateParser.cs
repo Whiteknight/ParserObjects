@@ -10,7 +10,7 @@ namespace ParserObjects.Parsers;
 /// the end sentinel will be made available to the predicate and may match.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MatchPredicateParser<T> : IParser<T, T>
+public sealed class MatchPredicateParser<T> : IParser<T, T>
 {
     private readonly Func<T, bool> _predicate;
 

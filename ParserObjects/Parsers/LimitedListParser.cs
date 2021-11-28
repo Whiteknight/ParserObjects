@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
+public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
 {
     private readonly IParser<TInput, TOutput> _parser;
 

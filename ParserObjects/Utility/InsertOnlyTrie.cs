@@ -10,7 +10,7 @@ namespace ParserObjects.Utility;
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 /// <typeparam name="TResult"></typeparam>
-public class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResult>
+public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResult>
 {
     private readonly Node _root;
     private readonly List<IReadOnlyList<TKey>> _patterns;

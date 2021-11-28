@@ -7,7 +7,7 @@ namespace ParserObjects.Earley;
 /// <summary>
 /// Extension to BnfStringifyVisitor for producing pseudo-bnf for an Earley grammar.
 /// </summary>
-public class BnfGrammarVisitor
+public sealed class BnfGrammarVisitor
 {
     private record struct State(
         BnfStringifyVisitor Visitor,

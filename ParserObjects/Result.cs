@@ -8,7 +8,7 @@ namespace ParserObjects;
 /// that value.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class SuccessResult<TValue> : IResult<TValue>
+public sealed class SuccessResult<TValue> : IResult<TValue>
 {
     public SuccessResult(IParser parser, TValue value, Location location, int consumed)
     {
@@ -44,7 +44,7 @@ public class SuccessResult<TValue> : IResult<TValue>
 /// exception.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class FailResult<TValue> : IResult<TValue>
+public sealed class FailResult<TValue> : IResult<TValue>
 {
     public FailResult(IParser parser, Location location, string message)
     {

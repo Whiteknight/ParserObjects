@@ -10,7 +10,7 @@ namespace ParserObjects.Pratt;
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutput>
+public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutput>
 {
     private readonly IParser<TInput, TValue> _match;
     private readonly NudFunc<TInput, TValue, TOutput>? _nud;

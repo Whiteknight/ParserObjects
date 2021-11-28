@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers;
 /// besides the end.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class EndParser<TInput> : IParser<TInput>
+public sealed class EndParser<TInput> : IParser<TInput>
 {
     public EndParser()
     {

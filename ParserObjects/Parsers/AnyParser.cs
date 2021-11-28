@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers;
 /// returns it.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AnyParser<T> : IParser<T, T>
+public sealed class AnyParser<T> : IParser<T, T>
 {
     public AnyParser()
     {

@@ -4,7 +4,7 @@ using ParserObjects.Utility;
 
 namespace ParserObjects.Parsers;
 
-public class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
+public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 {
     private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;
 

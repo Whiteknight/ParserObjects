@@ -27,7 +27,7 @@ public static class Chain<TInput, TMiddle, TOutput>
         IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser);
     }
 
-    private class Configuration : IConfiguration
+    private sealed class Configuration : IConfiguration
     {
         private readonly List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
 
@@ -54,7 +54,7 @@ public static class Chain<TInput, TMiddle, TOutput>
             => _parsers.Select(v => v.parser);
     }
 
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TMiddle> _inner;
         private readonly Func<IResult<TMiddle>, IParser<TInput, TOutput>> _getParser;
@@ -140,7 +140,7 @@ public static class Chain<TInput, TOutput>
         IConfiguration When(Func<object, bool> equals, IParser<TInput, TOutput> parser);
     }
 
-    private class Configuration : IConfiguration
+    private sealed class Configuration : IConfiguration
     {
         private readonly List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
 
@@ -167,7 +167,7 @@ public static class Chain<TInput, TOutput>
             => _parsers.Select(v => v.parser);
     }
 
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput> _inner;
         private readonly Func<IResult, IParser<TInput, TOutput>> _getParser;

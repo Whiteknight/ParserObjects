@@ -10,7 +10,7 @@ namespace ParserObjects.Regexes;
 /// </summary>
 public static class Engine
 {
-    private class BacktrackState
+    private sealed class BacktrackState
     {
         public BacktrackState(bool isBacktrackable, State state)
         {
@@ -50,7 +50,7 @@ public static class Engine
         }
     }
 
-    private class RegexContext
+    private sealed class RegexContext
     {
         private readonly List<State> _queue;
         private readonly Stack<BacktrackState> _backtrackStack;

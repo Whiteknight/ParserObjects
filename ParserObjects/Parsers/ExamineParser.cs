@@ -16,7 +16,7 @@ public static class Examine<TInput, TOutput>
     /// Examine parser for parsers which return typed output. Executes callbacks before and
     /// after the parse.
     /// </summary>
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _parser;
         private readonly Action<Context>? _before;
@@ -63,7 +63,7 @@ public static class Examine<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TOutput> _parser;
         private readonly Action<MultiContext>? _before;
@@ -154,7 +154,7 @@ public static class Examine<TInput>
     /// The examine parser. Executes callbacks before and after the parser. Does not return
     /// typed output.
     /// </summary>
-    public class Parser : IParser<TInput>
+    public sealed class Parser : IParser<TInput>
     {
         private readonly IParser<TInput> _parser;
         private readonly Action<Context>? _before;

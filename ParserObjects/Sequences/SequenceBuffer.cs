@@ -11,7 +11,7 @@ namespace ParserObjects.Sequences;
 /// on the buffer has completed.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SequenceBuffer<T>
+public sealed class SequenceBuffer<T>
 {
     private readonly ISequence<T> _input;
     private readonly List<(T value, ISequenceCheckpoint cont)> _buffer;

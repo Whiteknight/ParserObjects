@@ -25,7 +25,7 @@ public static class Function<TInput, TOutput>
             => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation);
     }
 
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly Func<SingleArguments, IResult<TOutput>> _func;
         private readonly IReadOnlyList<IParser>? _children;
@@ -108,7 +108,7 @@ public static class Function<TInput, TOutput>
         }
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly Func<MultiArguments, IMultiResult<TOutput>> _func;
         private readonly IReadOnlyList<IParser> _children;
@@ -166,7 +166,7 @@ public static class Function<TInput, TOutput>
 
 public static class Function<TInput>
 {
-    public class Parser : IParser<TInput>
+    public sealed class Parser : IParser<TInput>
     {
         private readonly Func<IParseState<TInput>, IResult> _func;
         private readonly IReadOnlyList<IParser> _children;

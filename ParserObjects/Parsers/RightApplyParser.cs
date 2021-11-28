@@ -18,7 +18,7 @@ public static class RightApply<TInput, TMiddle, TOutput>
     /// Attempts to parse a right-recursive or right-associative parse rule. Useful for limited
     /// situations, especially for parsing expressions.
     /// </summary>
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _item;
         private readonly IParser<TInput, TMiddle> _middle;

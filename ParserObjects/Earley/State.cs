@@ -6,7 +6,7 @@ using System.Text;
 namespace ParserObjects.Earley;
 
 // An "Earley State", which holds all in-progress Items at the current position of input.
-public class State
+public sealed class State
 {
     public State(int number, ISequenceCheckpoint cp)
     {

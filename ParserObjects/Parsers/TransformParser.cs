@@ -26,7 +26,7 @@ public static class Transform<TInput, TMiddle, TOutput>
 
     public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IMultiResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint);
 
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TMiddle> _inner;
         private readonly Func<SingleArguments, IResult<TOutput>> _transform;
@@ -78,7 +78,7 @@ public static class Transform<TInput, TMiddle, TOutput>
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly Func<MultiArguments, IMultiResult<TOutput>> _transform;

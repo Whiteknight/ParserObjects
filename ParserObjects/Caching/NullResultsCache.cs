@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects.Caching;
 
-public class NullResultsCache : IResultsCache
+public sealed class NullResultsCache : IResultsCache
 {
     private CacheStatistics _stats;
 

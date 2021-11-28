@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
     private readonly IParser<TInput> _predicate;
     private readonly IParser<TInput, TOutput> _onSuccess;

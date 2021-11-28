@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects.Earley;
 
-public class ParseStatistics : IParseStatistics
+public sealed class ParseStatistics : IParseStatistics
 {
     public int NumberOfStates { get; set; }
     public int CreatedItems { get; set; }

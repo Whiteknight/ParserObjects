@@ -15,7 +15,7 @@ public static class Sequential
     /// management.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public class State<TInput>
+    public sealed class State<TInput>
     {
         private readonly IParseState<TInput> _state;
 
@@ -68,7 +68,7 @@ public static class Sequential
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class Parser<TInput, TOutput> : IParser<TInput, TOutput>
+    public sealed class Parser<TInput, TOutput> : IParser<TInput, TOutput>
     {
         private readonly Func<State<TInput>, TOutput> _func;
 

@@ -8,7 +8,7 @@ namespace ParserObjects.Sequences;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
+public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
 {
     private readonly ISequence<TInput> _input;
     private readonly ParseState<TInput> _state;

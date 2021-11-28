@@ -62,7 +62,7 @@ public static class Earley<TInput, TOutput>
         }
     }
 
-    private class MultiResult : IMultiResult<TOutput>
+    private sealed class MultiResult : IMultiResult<TOutput>
     {
         private readonly IParseStatistics _statistics;
 
@@ -116,7 +116,7 @@ public static class Earley<TInput, TOutput>
         }
     }
 
-    public class Parser : IMultiParser<TInput, TOutput>
+    public sealed class Parser : IMultiParser<TInput, TOutput>
     {
         private readonly Engine<TInput, TOutput> _engine;
         private readonly INonterminal<TInput, TOutput> _startSymbol;

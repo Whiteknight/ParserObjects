@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// otherwise. Consumes input but returns no explicit output.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class OrParser<TInput> : IParser<TInput>
+public sealed class OrParser<TInput> : IParser<TInput>
 {
     private readonly IReadOnlyList<IParser<TInput>> _parsers;
 

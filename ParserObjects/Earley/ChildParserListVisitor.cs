@@ -5,7 +5,7 @@ namespace ParserObjects.Earley;
 /// <summary>
 /// Visitor to get references to all child parsers referenced by the grammar.
 /// </summary>
-public class ChildParserListVisitor
+public sealed class ChildParserListVisitor
 {
     private record struct State(HashSet<object> SeenItems, List<IParser> ChildParsers);
 

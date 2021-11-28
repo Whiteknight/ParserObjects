@@ -11,7 +11,7 @@ namespace ParserObjects.Sequences;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class MapSequence<TInput, TOutput> : ISequence<TOutput>
+public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 {
     private readonly ISequence<TInput> _inputs;
     private readonly Func<TInput, TOutput> _map;

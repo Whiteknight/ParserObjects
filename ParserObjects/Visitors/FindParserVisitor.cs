@@ -8,7 +8,7 @@ namespace ParserObjects.Visitors;
 /// <summary>
 /// Parser-visitor type to traverse the parser tree and find matching parser nodes.
 /// </summary>
-public class FindParserVisitor
+public sealed class FindParserVisitor
 {
     private struct State
     {

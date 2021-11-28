@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// The empty parser, consumes no input and always returns success.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class EmptyParser<TInput> : IParser<TInput>
+public sealed class EmptyParser<TInput> : IParser<TInput>
 {
     public EmptyParser()
     {

@@ -6,7 +6,7 @@ namespace ParserObjects.Utility;
 /// A layered user data store with string keys. Accessing data in the current layer will
 /// cascade to previous layers if the value isn't found.
 /// </summary>
-public class CascadingKeyValueStore : IDataStore
+public sealed class CascadingKeyValueStore : IDataStore
 {
     private readonly LinkedList<Dictionary<string, object>> _store;
 

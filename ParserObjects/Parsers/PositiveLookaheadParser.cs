@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// not consume any actual input.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class PositiveLookaheadParser<TInput> : IParser<TInput>
+public sealed class PositiveLookaheadParser<TInput> : IParser<TInput>
 {
     private readonly IParser<TInput> _inner;
 
