@@ -38,6 +38,10 @@ namespace ParserObjects
         bool Is(T value);
     }
 
+    /// <summary>
+    /// Represents the successful result of an operation. The Value should exist and be meaningful.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SuccessOption<T> : IOption<T>
     {
         public SuccessOption(T value)
@@ -59,6 +63,11 @@ namespace ParserObjects
         }
     }
 
+    /// <summary>
+    /// Represents an unsuccessful result of an operation. The Value does not exist and any
+    /// attempt to access it will result in an exception.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class FailureOption<T> : IOption<T>
     {
         public static IOption<T> Instance { get; } = new FailureOption<T>();

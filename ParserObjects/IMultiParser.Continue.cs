@@ -31,6 +31,15 @@ namespace ParserObjects
         public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, ContinueWith<TInput, TMiddle, TOutput>.MultiParserSelector getParser)
             => new ContinueWith<TInput, TMiddle, TOutput>.MultiParser(multiParser, getParser);
 
+        /// <summary>
+        /// Continue the parse with all the given parsers.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TMiddle"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="getParsers"></param>
+        /// <returns></returns>
         public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> parser, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
             => ContinueWith(parser, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray()));
 
