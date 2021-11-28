@@ -12,7 +12,7 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
     private readonly Configuration<TInput, TOutput> _config;
     private readonly Engine<TInput, TOutput> _engine;

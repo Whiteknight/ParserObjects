@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Regexes;
 
-public class CharacterMatcher
+public sealed class CharacterMatcher
 {
     private readonly HashSet<char> _exactChars;
     private readonly IReadOnlyList<(char low, char high)> _ranges;

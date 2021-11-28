@@ -5,7 +5,7 @@ namespace ParserObjects.Sequences;
 /// <summary>
 /// A sequence of characters read from a string.
 /// </summary>
-public class StringCharacterSequence : ISequence<char>
+public sealed class StringCharacterSequence : ISequence<char>
 {
     private readonly string _s;
     private readonly Options _options;

@@ -9,7 +9,7 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
     public IReadOnlyTrie<TInput, TOutput> Trie { get; }
 

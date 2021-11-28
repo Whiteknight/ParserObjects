@@ -9,7 +9,7 @@ namespace ParserObjects.Earley;
 // this sense, Nonterminal is the Earley-world equivalent of First()
 // A Production is an ordered list of symbols which must be matched in order and contain a
 // derivation callback. Production is the Earley-world equivalent of Rule()
-public class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
+public sealed class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
 {
     private readonly HashSet<Production<TOutput>> _productions;
 

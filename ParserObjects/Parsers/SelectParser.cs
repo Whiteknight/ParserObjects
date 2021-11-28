@@ -26,7 +26,7 @@ public static class Select<TInput, TOutput>
         public Func<IOption<IResultAlternative<TOutput>>> Failure { get; }
     }
 
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TOutput> _parser;
 

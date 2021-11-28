@@ -49,19 +49,8 @@ public record struct SingleReplaceResult(
 /// <summary>
 /// Contains the results of multiple replaces from the parser graph.
 /// </summary>
-public struct MultiReplaceResult
+public record struct MultiReplaceResult(IReadOnlyList<SingleReplaceResult> Results)
 {
-    public MultiReplaceResult(IReadOnlyList<SingleReplaceResult> results)
-    {
-        Assert.ArgumentNotNull(results, nameof(results));
-        Results = results;
-    }
-
-    /// <summary>
-    /// Gets the individual replace results.
-    /// </summary>
-    public IReadOnlyList<SingleReplaceResult> Results { get; }
-
     /// <summary>
     /// Gets a value indicating whether all replacements succeeded. False if no attempts were
     /// made or if any result

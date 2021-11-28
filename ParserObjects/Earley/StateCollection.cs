@@ -10,7 +10,7 @@ namespace ParserObjects.Earley;
 // the parse are kept alive, while any that are unreferenced can be safely collected by the GC
 // We keep the linked list so .MoveToNext() is O(1), though it can create some O(n) situations
 // in .GetAhead()
-public class StateCollection
+public sealed class StateCollection
 {
     private StateNode _current;
 

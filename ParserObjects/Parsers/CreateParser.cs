@@ -17,7 +17,7 @@ public static class Create<TInput, TOutput>
     /// Create a parser dynamically using information from the parse state. The parser created is
     /// not expected to be constant and will not be cached.
     /// </summary>
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly Func<IParseState<TInput>, IParser<TInput, TOutput>> _getParser;
 
@@ -62,7 +62,7 @@ public static class Create<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> _getParser;
 

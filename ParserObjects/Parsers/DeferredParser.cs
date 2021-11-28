@@ -10,9 +10,9 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public abstract class Deferred<TInput, TOutput>
+public static class Deferred<TInput, TOutput>
 {
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly Func<IParser<TInput, TOutput>> _getParser;
 
@@ -38,7 +38,7 @@ public abstract class Deferred<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly Func<IMultiParser<TInput, TOutput>> _getParser;
 

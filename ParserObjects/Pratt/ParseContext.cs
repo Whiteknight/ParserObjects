@@ -7,7 +7,7 @@ namespace ParserObjects.Pratt;
 // Simple contextual wrapper, so that private Engine methods can be
 // exposed to user callbacks. This class is for internal use only. Users should interact with
 // the provided abstractions.
-public class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutput>
+public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutput>
 {
     private readonly IParseState<TInput> _state;
     private readonly Engine<TInput, TOutput> _engine;

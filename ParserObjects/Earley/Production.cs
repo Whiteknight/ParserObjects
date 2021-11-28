@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ParserObjects.Earley;
 
-public class Production<TValue> : IProduction
+public sealed class Production<TValue> : IProduction
 {
     private readonly Func<object[], TValue> _reduce;
 

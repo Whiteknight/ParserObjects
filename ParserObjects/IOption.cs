@@ -42,7 +42,7 @@ public interface IOption<T>
 /// Represents the successful result of an operation. The Value should exist and be meaningful.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SuccessOption<T> : IOption<T>
+public sealed class SuccessOption<T> : IOption<T>
 {
     public SuccessOption(T value)
     {
@@ -68,7 +68,7 @@ public class SuccessOption<T> : IOption<T>
 /// attempt to access it will result in an exception.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class FailureOption<T> : IOption<T>
+public sealed class FailureOption<T> : IOption<T>
 {
     public static IOption<T> Instance { get; } = new FailureOption<T>();
 

@@ -8,7 +8,7 @@ namespace ParserObjects.Regexes;
 /// Represents a state at a point in evaluating a regular expression. At each point, the
 /// regex will attempt to match the current state against the current input.
 /// </summary>
-public class State : INamed
+public sealed class State : INamed
 {
     public State(string name)
     {

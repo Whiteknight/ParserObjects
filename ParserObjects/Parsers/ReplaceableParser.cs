@@ -11,7 +11,7 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Replaceable<TInput>
 {
-    public class SingleParser : IParser<TInput>, IReplaceableParserUntyped
+    public sealed class SingleParser : IParser<TInput>, IReplaceableParserUntyped
     {
         private IParser<TInput> _value;
 
@@ -51,7 +51,7 @@ public static class Replaceable<TInput>
 /// <typeparam name="TOutput"></typeparam>
 public static class Replaceable<TInput, TOutput>
 {
-    public class SingleParser : IParser<TInput, TOutput>, IReplaceableParserUntyped
+    public sealed class SingleParser : IParser<TInput, TOutput>, IReplaceableParserUntyped
     {
         private IParser<TInput, TOutput> _value;
 
@@ -83,7 +83,7 @@ public static class Replaceable<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
+    public sealed class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
     {
         private IMultiParser<TInput, TOutput> _value;
 

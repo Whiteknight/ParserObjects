@@ -18,7 +18,7 @@ public static class LeftApply<TInput, TOutput>
     /// <summary>
     /// The left-apply parser, which handles left-associative parses without recursion.
     /// </summary>
-    public class Parser : IParser<TInput, TOutput>
+    public sealed class Parser : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _initial;
         private readonly Quantifier _quantifier;

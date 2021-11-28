@@ -10,7 +10,7 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class RuleParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed class RuleParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
     private readonly IReadOnlyList<IParser<TInput>> _parsers;
     private readonly Func<IReadOnlyList<object>, TOutput> _produce;

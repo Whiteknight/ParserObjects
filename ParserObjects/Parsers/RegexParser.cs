@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// <summary>
 /// Uses limited Regular Expression syntax to match a pattern of characters.
 /// </summary>
-public class RegexParser : IParser<char, string>
+public sealed class RegexParser : IParser<char, string>
 {
     public RegexParser(Regex regex, string describe)
     {

@@ -10,7 +10,7 @@ namespace ParserObjects.Parsers;
 /// entire series matches, return it. Otherwise return failure.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
+public sealed class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
 {
     public IReadOnlyList<T> Pattern { get; }
 

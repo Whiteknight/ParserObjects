@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 
 namespace ParserObjects;
 
-public class MultiResult<TOutput> : IMultiResult<TOutput>
+public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
     public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results)
     {
@@ -52,7 +52,7 @@ public class MultiResult<TOutput> : IMultiResult<TOutput>
 /// the parse from the point of the success.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
-public class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>
+public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>
 {
     public SuccessResultAlternative(TOutput value, int consumed, ISequenceCheckpoint continuation)
     {
@@ -90,7 +90,7 @@ public class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>
 /// Result value which represents a single failure.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
-public class FailureResultAlternative<TOutput> : IResultAlternative<TOutput>
+public sealed class FailureResultAlternative<TOutput> : IResultAlternative<TOutput>
 {
     public FailureResultAlternative(string errorMessage, ISequenceCheckpoint continuation)
     {

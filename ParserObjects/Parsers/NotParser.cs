@@ -8,7 +8,7 @@ namespace ParserObjects.Parsers;
 /// Failure. Otherwise returns Success. Consumes no input in either case and returns no output.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public class NotParser<TInput> : IParser<TInput>
+public sealed class NotParser<TInput> : IParser<TInput>
 {
     private readonly IParser<TInput> _inner;
 
