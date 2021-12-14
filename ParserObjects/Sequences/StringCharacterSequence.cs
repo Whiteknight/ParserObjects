@@ -25,7 +25,7 @@ public sealed class StringCharacterSequence : ISequence<char>
         }
     }
 
-    public StringCharacterSequence(string s, Options options = default)
+    public StringCharacterSequence(string s, Options options)
     {
         Assert.ArgumentNotNull(s, nameof(s));
         options.Validate();
@@ -35,6 +35,11 @@ public sealed class StringCharacterSequence : ISequence<char>
         _column = 0;
         _options = options;
         _consumed = 0;
+    }
+
+    public StringCharacterSequence(string s)
+        : this(s, new Options("", true, '\0'))
+    {
     }
 
     public char GetNext()
