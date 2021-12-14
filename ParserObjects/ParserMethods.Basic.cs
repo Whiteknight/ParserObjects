@@ -11,11 +11,23 @@ namespace ParserObjects;
 /// <typeparam name="TInput"></typeparam>
 public static partial class ParserMethods<TInput>
 {
+    private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
+    private static readonly IParser<TInput> _empty = new EmptyParser<TInput>();
+    private static readonly IParser<TInput> _end = new EndParser<TInput>();
+
+    private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser(
+        args => args.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
+        "IF END THEN PRODUCE",
+        Array.Empty<IParser>()
+    );
+
+    private static readonly IParser<TInput, TInput> _peek = new PeekParser<TInput>();
+
     /// <summary>
     /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput, TInput> Any() => new AnyParser<TInput>();
+    public static IParser<TInput, TInput> Any() => _any;
 
     /// <summary>
     /// Parses a parser, returns true if the parser succeeds, false if it fails.
@@ -61,7 +73,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
-        => new Chain<TInput, TMiddle, TOutput>.Parser(p, setup);
+        => Parsers.Chain<TInput, TMiddle, TOutput>.Configure(p, setup);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -71,7 +83,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TOutput>(IParser<TInput> p, Action<Chain<TInput, TOutput>.IConfiguration> setup)
-        => new Chain<TInput, TOutput>.Parser(p, setup);
+        => Parsers.Chain<TInput, TOutput>.Configure(p, setup);
 
     /// <summary>
     /// Executes a parser without consuming any input, and uses the value to determine the next
@@ -127,24 +139,19 @@ public static partial class ParserMethods<TInput>
     /// The empty parser, consumers no input and always returns success at any point.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput> Empty() => new EmptyParser<TInput>();
+    public static IParser<TInput> Empty() => _empty;
 
     /// <summary>
     /// Matches affirmatively at the end of the input, fails everywhere else. Returns no value.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput> End() => new EndParser<TInput>();
+    public static IParser<TInput> End() => _end;
 
     /// <summary>
     /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput, bool> IsEnd()
-        => new Function<TInput, bool>.Parser(
-            args => args.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
-            "IF END THEN PRODUCE",
-            null
-        );
+    public static IParser<TInput, bool> IsEnd() => _isEnd;
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -220,8 +227,8 @@ public static partial class ParserMethods<TInput>
     /// <param name="func"></param>
     /// <param name="description"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string? description = null)
-        => new Function<TInput, TOutput>.Parser(func, description, null);
+    public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string description = "")
+        => new Function<TInput, TOutput>.Parser(func, description ?? "", Array.Empty<IParser>());
 
     public static IParser<TInput> Function(Func<IParseState<TInput>, IResult> func)
         => new Function<TInput>.Parser(func, null, null);
@@ -312,7 +319,7 @@ public static partial class ParserMethods<TInput>
     /// input, success otherwise.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput, TInput> Peek() => new PeekParser<TInput>();
+    public static IParser<TInput, TInput> Peek() => _peek;
 
     /// <summary>
     /// Given the next input lookahead value, select the appropriate parser to use to continue
@@ -322,7 +329,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Predict<TOutput>(Action<Chain<TInput, TInput, TOutput>.IConfiguration> setup)
-         => new Chain<TInput, TInput, TOutput>.Parser(Peek(), setup);
+         => Parsers.Chain<TInput, TInput, TOutput>.Configure(Peek(), setup);
 
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.
@@ -335,14 +342,14 @@ public static partial class ParserMethods<TInput>
         {
             var value = produce();
             return args.Success(value);
-        }, "PRODUCE", null);
+        }, "PRODUCE", Array.Empty<IParser>());
 
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
         => new Function<TInput, TOutput>.Parser(args =>
         {
             var value = produce(args.State);
             return args.Success(value);
-        }, "PRODUCE", null);
+        }, "PRODUCE", Array.Empty<IParser>());
 
     /// <summary>
     /// Produces a multi result with all returned values as alternatives.
@@ -355,14 +362,14 @@ public static partial class ParserMethods<TInput>
         {
             var values = produce();
             builder.AddSuccesses(values);
-        }, "PRODUCE", null);
+        }, "PRODUCE", Array.Empty<IParser>());
 
     public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IParseState<TInput>, IEnumerable<TOutput>> produce)
         => new Function<TInput, TOutput>.MultiParser(builder =>
         {
             var values = produce(builder.State);
             builder.AddSuccesses(values);
-        }, "PRODUCE", null);
+        }, "PRODUCE", Array.Empty<IParser>());
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -482,9 +489,9 @@ public static partial class ParserMethods<TInput>
             }
             catch (ControlFlowException)
             {
-                    // These exceptions are used within the library for non-local control flow, and
-                    // should not be caught or modified here.
-                    throw;
+                // These exceptions are used within the library for non-local control flow, and
+                // should not be caught or modified here.
+                throw;
             }
             catch (Exception e)
             {
@@ -516,9 +523,9 @@ public static partial class ParserMethods<TInput>
             }
             catch (ControlFlowException)
             {
-                    // These exceptions are used within the library for non-local control flow, and
-                    // should not be caught or modified here.
-                    throw;
+                // These exceptions are used within the library for non-local control flow, and
+                // should not be caught or modified here.
+                throw;
             }
             catch (Exception e)
             {
@@ -550,9 +557,9 @@ public static partial class ParserMethods<TInput>
            }
            catch (ControlFlowException)
            {
-                   // These exceptions are used within the library for non-local control flow, and
-                   // should not be caught or modified here.
-                   throw;
+               // These exceptions are used within the library for non-local control flow, and
+               // should not be caught or modified here.
+               throw;
            }
            catch (Exception e)
            {

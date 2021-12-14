@@ -8,15 +8,10 @@ namespace ParserObjects.Parsers;
 /// The empty parser, consumes no input and always returns success.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed class EmptyParser<TInput> : IParser<TInput>
+public sealed record EmptyParser<TInput>(
+    string Name = ""
+) : IParser<TInput>
 {
-    public EmptyParser(string name = "")
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -27,5 +22,5 @@ public sealed class EmptyParser<TInput> : IParser<TInput>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new EmptyParser<TInput>(name);
+    public INamed SetName(string name) => this with { Name = name };
 }

@@ -8,23 +8,15 @@ namespace ParserObjects.Parsers;
 /// otherwise. Consumes input but returns no explicit output.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed class OrParser<TInput> : IParser<TInput>
+public sealed record OrParser<TInput>(
+    IReadOnlyList<IParser<TInput>> Parsers,
+    string Name = ""
+) : IParser<TInput>
 {
-    private readonly IReadOnlyList<IParser<TInput>> _parsers;
-
-    public OrParser(IReadOnlyList<IParser<TInput>> parsers, string name = "")
-    {
-        Assert.ArgumentNotNull(parsers, nameof(parsers));
-        _parsers = parsers;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        foreach (var parser in _parsers)
+        foreach (var parser in Parsers)
         {
             var result = parser.Parse(state);
             if (result.Success)
@@ -34,9 +26,9 @@ public sealed class OrParser<TInput> : IParser<TInput>
         return state.Fail(this, "None of the given parsers match");
     }
 
-    public IEnumerable<IParser> GetChildren() => _parsers;
+    public IEnumerable<IParser> GetChildren() => Parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new OrParser<TInput>(_parsers, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

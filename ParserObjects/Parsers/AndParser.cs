@@ -8,31 +8,16 @@ namespace ParserObjects.Parsers;
 /// return Failure. Consumes input but returns no explicit output.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed class AndParser<TInput> : IParser<TInput>
+public sealed record AndParser<TInput>(
+    IReadOnlyList<IParser<TInput>> Parsers,
+    string Name = ""
+) : IParser<TInput>
 {
-    private readonly IReadOnlyList<IParser<TInput>> _parsers;
-
-    public AndParser(params IParser<TInput>[] parsers)
-    {
-        Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
-        _parsers = parsers;
-        Name = string.Empty;
-    }
-
-    // TODO: Make name available in the public constructor
-    private AndParser(IReadOnlyList<IParser<TInput>> parsers, string name)
-    {
-        _parsers = parsers;
-        Name = name;
-    }
-
-    public string Name { get; set; }
-
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCheckpoint = state.Input.Checkpoint();
-        foreach (var parser in _parsers)
+        foreach (var parser in Parsers)
         {
             var result = parser.Parse(state);
             if (!result.Success)
@@ -46,9 +31,9 @@ public sealed class AndParser<TInput> : IParser<TInput>
         return state.Success(this, Defaults.ObjectInstance, consumed, startCheckpoint.Location);
     }
 
-    public IEnumerable<IParser> GetChildren() => _parsers;
+    public IEnumerable<IParser> GetChildren() => Parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new AndParser<TInput>(_parsers, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

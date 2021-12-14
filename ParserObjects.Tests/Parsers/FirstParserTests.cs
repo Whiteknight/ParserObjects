@@ -9,11 +9,12 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = new FirstParser<char, char>(
+            var parser = new FirstParser<char, char>(new[]
+            {
                 Match('a'),
                 Match('X'),
                 Match('1')
-            );
+            });
 
             parser.CanMatch("a").Should().BeTrue();
             parser.CanMatch("X").Should().BeTrue();

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Utility;
 
+// Replaceable parsers should be the only parser types which have mutable data.
+// Keep it localized to just one place.
+
 namespace ParserObjects.Parsers;
 
 /// <summary>

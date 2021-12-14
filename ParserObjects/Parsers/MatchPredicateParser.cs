@@ -10,19 +10,11 @@ namespace ParserObjects.Parsers;
 /// the end sentinel will be made available to the predicate and may match.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class MatchPredicateParser<T> : IParser<T, T>
+public sealed record MatchPredicateParser<T>(
+    Func<T, bool> Predicate,
+    string Name = ""
+) : IParser<T, T>
 {
-    private readonly Func<T, bool> _predicate;
-
-    public MatchPredicateParser(Func<T, bool> predicate, string name = "")
-    {
-        Assert.ArgumentNotNull(predicate, nameof(predicate));
-        _predicate = predicate;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -31,7 +23,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
         var startConsumed = state.Input.Consumed;
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next))
+        if (next == null || !Predicate(next))
             return state.Fail(this, "Next item does not match the predicate");
 
         state.Input.GetNext();
@@ -44,5 +36,5 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

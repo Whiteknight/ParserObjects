@@ -10,25 +10,11 @@ namespace ParserObjects.Parsers;
 /// entire series matches, return it. Otherwise return failure.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
+public sealed record MatchPatternParser<T>(
+    IReadOnlyList<T> Pattern,
+    string Name = ""
+) : IParser<T, IReadOnlyList<T>>
 {
-    public IReadOnlyList<T> Pattern { get; }
-
-    public MatchPatternParser(IEnumerable<T> find, string name = "")
-    {
-        Assert.ArgumentNotNull(find, nameof(find));
-        Pattern = find.ToArray();
-        Name = name;
-    }
-
-    private MatchPatternParser(IReadOnlyList<T> find, string name)
-    {
-        Pattern = find;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -79,5 +65,5 @@ public sealed class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new MatchPatternParser<T>(Pattern, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

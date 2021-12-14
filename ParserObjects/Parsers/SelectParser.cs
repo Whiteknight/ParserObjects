@@ -12,42 +12,23 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Select<TInput, TOutput>
 {
-    public struct Arguments
+    public record struct Arguments(
+        IMultiResult<TOutput> Result,
+        Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> Success,
+        Func<IOption<IResultAlternative<TOutput>>> Failure
+    );
+
+    public sealed record Parser(
+        IMultiParser<TInput, TOutput> Initial,
+        Func<Arguments, IOption<IResultAlternative<TOutput>>> Selector,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
     {
-        public Arguments(IMultiResult<TOutput> result, Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> success, Func<IOption<IResultAlternative<TOutput>>> failure)
-        {
-            Result = result;
-            Success = success;
-            Failure = failure;
-        }
-
-        public IMultiResult<TOutput> Result { get; }
-        public Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> Success { get; }
-        public Func<IOption<IResultAlternative<TOutput>>> Failure { get; }
-    }
-
-    public sealed class Parser : IParser<TInput, TOutput>
-    {
-        private readonly IMultiParser<TInput, TOutput> _parser;
-
-        private readonly Func<Arguments, IOption<IResultAlternative<TOutput>>> _selector;
-
-        public Parser(IMultiParser<TInput, TOutput> parser, Func<Arguments, IOption<IResultAlternative<TOutput>>> selector, string name = "")
-        {
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            Assert.ArgumentNotNull(selector, nameof(selector));
-            _selector = selector;
-            _parser = parser;
-            Name = name;
-        }
-
-        public string Name { get; }
-
-        public IEnumerable<IParser> GetChildren() => new[] { _parser };
+        public IEnumerable<IParser> GetChildren() => new[] { Initial };
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            var multi = _parser.Parse(state);
+            var multi = Initial.Parse(state);
             if (!multi.Success)
                 return state.Fail(this, "Parser returned no valid results");
 
@@ -62,7 +43,7 @@ public static class Select<TInput, TOutput>
                 => FailureOption<IResultAlternative<TOutput>>.Instance;
 
             var args = new Arguments(multi, Success, Fail);
-            var selected = _selector(args);
+            var selected = Selector(args);
             if (selected == null || !selected.Success)
                 return state.Fail(this, "No alternative selected, or no matching value could be found");
 
@@ -75,6 +56,6 @@ public static class Select<TInput, TOutput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Select<TInput, TOutput>.Parser(_parser, _selector, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 }

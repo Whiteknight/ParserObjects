@@ -9,31 +9,19 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed record IfParser<TInput, TOutput>(
+    IParser<TInput> Predicate,
+    IParser<TInput, TOutput> OnSuccess,
+    IParser<TInput, TOutput> OnFailure,
+    string Name = ""
+) : IParser<TInput, TOutput>
 {
-    private readonly IParser<TInput> _predicate;
-    private readonly IParser<TInput, TOutput> _onSuccess;
-    private readonly IParser<TInput, TOutput> _onFail;
-
-    public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail, string name = "")
-    {
-        Assert.ArgumentNotNull(predicate, nameof(predicate));
-        Assert.ArgumentNotNull(onSuccess, nameof(onSuccess));
-        Assert.ArgumentNotNull(onFail, nameof(onFail));
-        _predicate = predicate;
-        _onSuccess = onSuccess;
-        _onFail = onFail;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var cp = state.Input.Checkpoint();
-        var result = _predicate.Parse(state);
-        return Parse(state, result.Success ? _onSuccess : _onFail, cp, result.Consumed);
+        var result = Predicate.Parse(state);
+        return Parse(state, result.Success ? OnSuccess : OnFailure, cp, result.Consumed);
     }
 
     private static IResult<TOutput> Parse(IParseState<TInput> state, IParser<TInput, TOutput> parser, ISequenceCheckpoint cp, int predicateConsumed)
@@ -47,9 +35,9 @@ public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess, _onFail };
+    public IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new IfParser<TInput, TOutput>(_predicate, _onSuccess, _onFail, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

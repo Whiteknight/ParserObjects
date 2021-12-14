@@ -8,15 +8,10 @@ namespace ParserObjects.Parsers;
 /// Obtain the next item of input without advancing the input sequence.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class PeekParser<T> : IParser<T, T>
+public sealed record PeekParser<T>(
+    string Name = ""
+) : IParser<T, T>
 {
-    public PeekParser(string name = "")
-    {
-        Name = name;
-    }
-
-    public string Name { get; set; }
-
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -33,5 +28,5 @@ public sealed class PeekParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new PeekParser<T>(name);
+    public INamed SetName(string name) => this with { Name = name };
 }

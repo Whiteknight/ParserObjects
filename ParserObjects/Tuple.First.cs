@@ -13,7 +13,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2 });
     }
 
     /// <summary>
@@ -25,7 +25,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3 });
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 });
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 });
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 });
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 });
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 });
     }
 
     /// <summary>
@@ -97,6 +97,6 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this (IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>, IParser<TInput, TOutput>) parsers)
     {
-        return new FirstParser<TInput, TOutput>(parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9);
+        return new FirstParser<TInput, TOutput>(new[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 });
     }
 }

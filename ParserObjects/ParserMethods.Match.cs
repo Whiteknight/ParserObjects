@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Parsers;
 using ParserObjects.Utility;
 
@@ -30,7 +31,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="pattern"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
-        => new MatchPatternParser<TInput>(pattern);
+        => new MatchPatternParser<TInput>(pattern.ToList());
 
     /// <summary>
     /// Optimized implementation of First() which returns an input which matches any of the given pattern
