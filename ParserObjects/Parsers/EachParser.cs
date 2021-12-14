@@ -8,10 +8,16 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 {
     private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;
 
-    public EachParser(IEnumerable<IParser<TInput, TOutput>> parsers)
+    public EachParser(IEnumerable<IParser<TInput, TOutput>> parsers, string name = "")
     {
         _parsers = parsers.OrEmptyIfNull().ToList();
-        Name = string.Empty;
+        Name = name;
+    }
+
+    private EachParser(IReadOnlyList<IParser<TInput, TOutput>> parsers, string name)
+    {
+        _parsers = parsers;
+        Name = name;
     }
 
     public string Name { get; set; }
@@ -49,4 +55,6 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
     IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new EachParser<TInput, TOutput>(_parsers, name);
 }

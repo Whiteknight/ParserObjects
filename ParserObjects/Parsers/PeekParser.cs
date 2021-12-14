@@ -10,9 +10,9 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="T"></typeparam>
 public sealed class PeekParser<T> : IParser<T, T>
 {
-    public PeekParser()
+    public PeekParser(string name = "")
     {
-        Name = string.Empty;
+        Name = name;
     }
 
     public string Name { get; set; }
@@ -32,4 +32,6 @@ public sealed class PeekParser<T> : IParser<T, T>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new PeekParser<T>(name);
 }

@@ -24,30 +24,22 @@ public static class LeftApply<TInput, TOutput>
         private readonly Quantifier _quantifier;
         private readonly IParser<TInput, TOutput> _right;
         private readonly LeftValue _left;
+        private readonly Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> _getRight;
 
-        private string _name;
-
-        public Parser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity)
+        public Parser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity, string name = "")
         {
             Assert.ArgumentNotNull(initial, nameof(initial));
             Assert.ArgumentNotNull(getRight, nameof(getRight));
 
             _initial = initial;
             _quantifier = arity;
-            _left = new LeftValue();
+            _left = new LeftValue(name);
             _right = getRight(_left);
-            _name = string.Empty;
+            _getRight = getRight;
+            Name = name;
         }
 
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
-            }
-        }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -126,20 +118,22 @@ public static class LeftApply<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_initial, _getRight, _quantifier, name);
     }
 
     private class LeftValue : IParser<TInput, TOutput>, IHiddenInternalParser
     {
-        public LeftValue()
+        public LeftValue(string name)
         {
-            Name = "LEFT";
+            Name = name;
         }
 
         public TOutput? Value { get; set; }
 
         public Location Location { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
@@ -148,5 +142,7 @@ public static class LeftApply<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename the internal value parser");
     }
 }

@@ -19,28 +19,20 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;
         private readonly IParser<TInput, TOutput> _right;
+        private readonly Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> _getParser;
 
-        private string _name;
-
-        public SingleParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser)
+        public SingleParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _inner = inner;
-            _left = new LeftValue();
+            _left = new LeftValue(name);
             _right = getParser(_left);
-            _name = string.Empty;
+            _getParser = getParser;
+            Name = name;
         }
 
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
-            }
-        }
+        public string Name { get; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
@@ -73,6 +65,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
+
+        public INamed SetName(string name) => new SingleParser(_inner, _getParser, name);
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
@@ -80,28 +74,20 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;
         private readonly IMultiParser<TInput, TOutput> _right;
+        private readonly Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> _getParser;
 
-        private string _name;
-
-        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser)
+        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _inner = inner;
-            _left = new LeftValue();
+            _left = new LeftValue(name);
             _right = getParser(_left);
-            _name = string.Empty;
+            _getParser = getParser;
+            Name = name;
         }
 
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                _left.Name = string.IsNullOrEmpty(_name) ? "LEFT" : _name;
-            }
-        }
+        public string Name { get; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
@@ -135,20 +121,22 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
+
+        public INamed SetName(string name) => new MultiParser(_inner, _getParser, name);
     }
 
     private class LeftValue : IParser<TInput, TMiddle>, IHiddenInternalParser
     {
-        public LeftValue()
+        public LeftValue(string name)
         {
-            Name = "LEFT";
+            Name = name;
         }
 
         public TMiddle? Value { get; set; }
 
         public Location Location { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TMiddle> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
@@ -157,5 +145,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename inner value parser");
     }
 }

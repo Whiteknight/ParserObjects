@@ -121,14 +121,14 @@ public static class Earley<TInput, TOutput>
         private readonly Engine<TInput, TOutput> _engine;
         private readonly INonterminal<TInput, TOutput> _startSymbol;
 
-        public Parser(INonterminal<TInput, TOutput> startSymbol)
+        public Parser(INonterminal<TInput, TOutput> startSymbol, string? name = null)
         {
             _engine = new Engine<TInput, TOutput>(startSymbol);
-            Name = startSymbol.Name;
+            Name = name ?? startSymbol.Name;
             _startSymbol = startSymbol;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IEnumerable<IParser> GetChildren()
         {
@@ -158,5 +158,7 @@ public static class Earley<TInput, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
+
+        public INamed SetName(string name) => new Parser(_startSymbol, name);
     }
 }

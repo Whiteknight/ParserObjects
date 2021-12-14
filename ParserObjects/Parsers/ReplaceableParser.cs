@@ -15,14 +15,14 @@ public static class Replaceable<TInput>
     {
         private IParser<TInput> _value;
 
-        public SingleParser(IParser<TInput> defaultValue)
+        public SingleParser(IParser<TInput> defaultValue, string name = "")
         {
             Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
             _value = defaultValue;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IParser ReplaceableChild => _value;
 
@@ -39,6 +39,8 @@ public static class Replaceable<TInput>
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new SingleParser(_value, name);
     }
 }
 
@@ -55,14 +57,14 @@ public static class Replaceable<TInput, TOutput>
     {
         private IParser<TInput, TOutput> _value;
 
-        public SingleParser(IParser<TInput, TOutput> defaultValue)
+        public SingleParser(IParser<TInput, TOutput> defaultValue, string name = "")
         {
             Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
             _value = defaultValue;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IParser ReplaceableChild => _value;
 
@@ -81,20 +83,22 @@ public static class Replaceable<TInput, TOutput>
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new SingleParser(_value, name);
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
     {
         private IMultiParser<TInput, TOutput> _value;
 
-        public MultiParser(IMultiParser<TInput, TOutput> defaultValue)
+        public MultiParser(IMultiParser<TInput, TOutput> defaultValue, string name = "")
         {
             Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
             _value = defaultValue;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IParser ReplaceableChild => _value;
 
@@ -113,5 +117,7 @@ public static class Replaceable<TInput, TOutput>
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new MultiParser(_value, name);
     }
 }

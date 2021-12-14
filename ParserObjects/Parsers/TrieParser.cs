@@ -13,14 +13,14 @@ public sealed class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
     public IReadOnlyTrie<TInput, TOutput> Trie { get; }
 
-    public TrieParser(IReadOnlyTrie<TInput, TOutput> trie)
+    public TrieParser(IReadOnlyTrie<TInput, TOutput> trie, string name = "")
     {
         Assert.ArgumentNotNull(trie, nameof(trie));
         Trie = trie;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -33,4 +33,7 @@ public sealed class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name)
+        => new TrieParser<TInput, TOutput>(Trie, name);
 }

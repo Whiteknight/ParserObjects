@@ -13,7 +13,7 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
 {
     private readonly IParser<TInput, TOutput> _parser;
 
-    public LimitedListParser(IParser<TInput, TOutput> parser, int minimum, int? maximum)
+    public LimitedListParser(IParser<TInput, TOutput> parser, int minimum, int? maximum, string name = "")
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
 
@@ -23,10 +23,10 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
             Maximum = Minimum;
 
         _parser = parser;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
     public int Minimum { get; }
     public int? Maximum { get; }
 
@@ -63,4 +63,6 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
     public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new LimitedListParser<TInput, TOutput>(_parser, Minimum, Maximum, name);
 }

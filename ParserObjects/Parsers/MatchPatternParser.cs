@@ -14,14 +14,20 @@ public sealed class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
 {
     public IReadOnlyList<T> Pattern { get; }
 
-    public MatchPatternParser(IEnumerable<T> find)
+    public MatchPatternParser(IEnumerable<T> find, string name = "")
     {
         Assert.ArgumentNotNull(find, nameof(find));
         Pattern = find.ToArray();
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    private MatchPatternParser(IReadOnlyList<T> find, string name)
+    {
+        Pattern = find;
+        Name = name;
+    }
+
+    public string Name { get; }
 
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
@@ -72,4 +78,6 @@ public sealed class MatchPatternParser<T> : IParser<T, IReadOnlyList<T>>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new MatchPatternParser<T>(Pattern, name);
 }

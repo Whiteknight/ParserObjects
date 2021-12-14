@@ -26,7 +26,7 @@ public sealed class ParseletConfiguration<TInput, TValue, TOutput> : IParseletCo
         Name = string.Empty;
     }
 
-    public string Name { get; set; }
+    public string Name { get; private set; }
 
     public IEnumerable<IParselet<TInput, TOutput>> Build()
     {
@@ -74,6 +74,12 @@ public sealed class ParseletConfiguration<TInput, TValue, TOutput> : IParseletCo
             rbp,
             n
         ));
+        return this;
+    }
+
+    public INamed SetName(string name)
+    {
+        Name = name;
         return this;
     }
 }

@@ -72,13 +72,13 @@ public static class Sequential
     {
         private readonly Func<State<TInput>, TOutput> _func;
 
-        public Parser(Func<State<TInput>, TOutput> func)
+        public Parser(Func<State<TInput>, TOutput> func, string name = "")
         {
             _func = func;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -118,6 +118,8 @@ public static class Sequential
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Sequential.Parser<TInput, TOutput>(_func, name);
     }
 
     [Serializable]

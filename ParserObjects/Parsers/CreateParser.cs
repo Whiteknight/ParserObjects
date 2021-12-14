@@ -21,14 +21,14 @@ public static class Create<TInput, TOutput>
     {
         private readonly Func<IParseState<TInput>, IParser<TInput, TOutput>> _getParser;
 
-        public Parser(Func<IParseState<TInput>, IParser<TInput, TOutput>> getParser)
+        public Parser(Func<IParseState<TInput>, IParser<TInput, TOutput>> getParser, string name = "")
         {
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _getParser = getParser;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -60,20 +60,22 @@ public static class Create<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_getParser, name);
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> _getParser;
 
-        public MultiParser(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> getParser)
+        public MultiParser(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> getParser, string name = "")
         {
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _getParser = getParser;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -105,5 +107,7 @@ public static class Create<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new MultiParser(_getParser, name);
     }
 }

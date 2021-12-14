@@ -11,12 +11,12 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public sealed class EndParser<TInput> : IParser<TInput>
 {
-    public EndParser()
+    public EndParser(string name = "")
     {
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult Parse(IParseState<TInput> state)
     {
@@ -29,4 +29,6 @@ public sealed class EndParser<TInput> : IParser<TInput>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new EndParser<TInput>(name);
 }

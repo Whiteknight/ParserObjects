@@ -20,7 +20,14 @@ public sealed class FirstParser<TInput, TOutput> : IParser<TInput, TOutput>
         Name = string.Empty;
     }
 
-    public string Name { get; set; }
+    // TODO: Find a way to expose name in the public constructor
+    private FirstParser(IReadOnlyList<IParser<TInput, TOutput>> parsers, string name)
+    {
+        _parsers = parsers;
+        Name = name;
+    }
+
+    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -44,4 +51,6 @@ public sealed class FirstParser<TInput, TOutput> : IParser<TInput, TOutput>
     public IEnumerable<IParser> GetChildren() => _parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new FirstParser<TInput, TOutput>(_parsers, name);
 }

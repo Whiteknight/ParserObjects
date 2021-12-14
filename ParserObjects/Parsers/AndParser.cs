@@ -19,6 +19,13 @@ public sealed class AndParser<TInput> : IParser<TInput>
         Name = string.Empty;
     }
 
+    // TODO: Make name available in the public constructor
+    private AndParser(IReadOnlyList<IParser<TInput>> parsers, string name)
+    {
+        _parsers = parsers;
+        Name = name;
+    }
+
     public string Name { get; set; }
 
     public IResult Parse(IParseState<TInput> state)
@@ -42,4 +49,6 @@ public sealed class AndParser<TInput> : IParser<TInput>
     public IEnumerable<IParser> GetChildren() => _parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new AndParser<TInput>(_parsers, name);
 }

@@ -15,7 +15,7 @@ public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
     private readonly IParser<TInput, TOutput> _onSuccess;
     private readonly IParser<TInput, TOutput> _onFail;
 
-    public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail)
+    public IfParser(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail, string name = "")
     {
         Assert.ArgumentNotNull(predicate, nameof(predicate));
         Assert.ArgumentNotNull(onSuccess, nameof(onSuccess));
@@ -23,10 +23,10 @@ public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
         _predicate = predicate;
         _onSuccess = onSuccess;
         _onFail = onFail;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -50,4 +50,6 @@ public sealed class IfParser<TInput, TOutput> : IParser<TInput, TOutput>
     public IEnumerable<IParser> GetChildren() => new IParser[] { _predicate, _onSuccess, _onFail };
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new IfParser<TInput, TOutput>(_predicate, _onSuccess, _onFail, name);
 }
