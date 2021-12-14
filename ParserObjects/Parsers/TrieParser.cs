@@ -9,19 +9,11 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed record TrieParser<TInput, TOutput>(
+    IReadOnlyTrie<TInput, TOutput> Trie,
+    string Name = ""
+) : IParser<TInput, TOutput>
 {
-    public IReadOnlyTrie<TInput, TOutput> Trie { get; }
-
-    public TrieParser(IReadOnlyTrie<TInput, TOutput> trie, string name = "")
-    {
-        Assert.ArgumentNotNull(trie, nameof(trie));
-        Trie = trie;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Trie.Get(state.Input);
@@ -34,6 +26,5 @@ public sealed class TrieParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name)
-        => new TrieParser<TInput, TOutput>(Trie, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

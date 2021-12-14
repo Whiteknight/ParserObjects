@@ -17,25 +17,17 @@ public static class Create<TInput, TOutput>
     /// Create a parser dynamically using information from the parse state. The parser created is
     /// not expected to be constant and will not be cached.
     /// </summary>
-    public sealed class Parser : IParser<TInput, TOutput>
+    public sealed record Parser(
+        Func<IParseState<TInput>, IParser<TInput, TOutput>> GetParser,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
     {
-        private readonly Func<IParseState<TInput>, IParser<TInput, TOutput>> _getParser;
-
-        public Parser(Func<IParseState<TInput>, IParser<TInput, TOutput>> getParser, string name = "")
-        {
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
-            _getParser = getParser;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
             // If so, we have to properly report that.
             var startCheckpoint = state.Input.Checkpoint();
-            var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
+            var parser = GetParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
             var consumedDuringCreation = state.Input.Consumed - startCheckpoint.Consumed;
 
             var result = parser.Parse(state);
@@ -61,28 +53,20 @@ public static class Create<TInput, TOutput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Parser(_getParser, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 
-    public sealed class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed record MultiParser(
+        Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> GetParser,
+        string Name = ""
+    ) : IMultiParser<TInput, TOutput>
     {
-        private readonly Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> _getParser;
-
-        public MultiParser(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> getParser, string name = "")
-        {
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
-            _getParser = getParser;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
             // If so, we have to properly report that.
             var startCheckpoint = state.Input.Checkpoint();
-            var parser = _getParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
+            var parser = GetParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
             var consumedDuringCreation = state.Input.Consumed - startCheckpoint.Consumed;
 
             var result = parser.Parse(state);
@@ -108,6 +92,6 @@ public static class Create<TInput, TOutput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new MultiParser(_getParser, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 }

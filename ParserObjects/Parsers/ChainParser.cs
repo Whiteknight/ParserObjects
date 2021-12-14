@@ -54,44 +54,28 @@ public static class Chain<TInput, TMiddle, TOutput>
             => _parsers.Select(v => v.parser);
     }
 
-    public sealed class Parser : IParser<TInput, TOutput>
+    public static Parser Configure(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup, string name = "")
     {
-        private readonly IParser<TInput, TMiddle> _inner;
-        private readonly Func<IResult<TMiddle>, IParser<TInput, TOutput>> _getParser;
-        private readonly IReadOnlyList<IParser> _mentions;
+        Assert.ArgumentNotNull(inner, nameof(inner));
+        Assert.ArgumentNotNull(setup, nameof(setup));
+        var config = new Configuration();
+        setup(config);
+        return new Parser(inner, r => config.Pick(r.Value), config.GetChildren().ToList(), name);
+    }
 
-        public Parser(IParser<TInput, TMiddle> inner, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
-
-            _inner = inner;
-            _getParser = getParser;
-            _mentions = mentions.OrEmptyIfNull().ToList();
-            Name = name;
-        }
-
-        public Parser(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(setup, nameof(setup));
-
-            var config = new Configuration();
-            setup(config);
-            _inner = inner;
-            _getParser = r => config.Pick(r.Value);
-            _mentions = config.GetChildren().ToList();
-            Name = name;
-        }
-
-        public string Name { get; }
-
+    public sealed record Parser(
+        IParser<TInput, TMiddle> Inner,
+        Func<IResult<TMiddle>, IParser<TInput, TOutput>> GetParser,
+        IReadOnlyList<IParser> Mentions,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
+    {
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
             var checkpoint = state.Input.Checkpoint();
-            var initial = _inner.Parse(state);
+            var initial = Inner.Parse(state);
 
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
@@ -106,7 +90,7 @@ public static class Chain<TInput, TMiddle, TOutput>
         {
             try
             {
-                var nextParser = _getParser(initial);
+                var nextParser = GetParser(initial);
                 return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
             }
             catch
@@ -118,11 +102,11 @@ public static class Chain<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
+        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Parser(_inner, _getParser, _mentions, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 }
 
@@ -169,44 +153,29 @@ public static class Chain<TInput, TOutput>
             => _parsers.Select(v => v.parser);
     }
 
-    public sealed class Parser : IParser<TInput, TOutput>
+    public static Parser Configure(IParser<TInput> inner, Action<IConfiguration> setup, string name = "")
     {
-        private readonly IParser<TInput> _inner;
-        private readonly Func<IResult, IParser<TInput, TOutput>> _getParser;
-        private readonly IReadOnlyList<IParser> _mentions;
+        Assert.ArgumentNotNull(inner, nameof(inner));
+        Assert.ArgumentNotNull(setup, nameof(setup));
 
-        public Parser(IParser<TInput> inner, Func<IResult, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
+        var config = new Configuration();
+        setup(config);
+        return new Parser(inner, r => config.Pick(r.Value), config.GetChildren().ToList(), name);
+    }
 
-            _inner = inner;
-            _getParser = getParser;
-            _mentions = mentions.OrEmptyIfNull().ToList();
-            Name = name;
-        }
-
-        public Parser(IParser<TInput> inner, Action<IConfiguration> setup, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(setup, nameof(setup));
-
-            var config = new Configuration();
-            setup(config);
-            _inner = inner;
-            _getParser = r => config.Pick(r.Value);
-            _mentions = config.GetChildren().ToList();
-            Name = name;
-        }
-
-        public string Name { get; }
-
+    public sealed record Parser(
+        IParser<TInput> Inner,
+        Func<IResult, IParser<TInput, TOutput>> GetParser,
+        IReadOnlyList<IParser> Mentions,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
+    {
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
 
             var checkpoint = state.Input.Checkpoint();
-            var initial = _inner.Parse(state);
+            var initial = Inner.Parse(state);
 
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
@@ -221,7 +190,7 @@ public static class Chain<TInput, TOutput>
         {
             try
             {
-                var nextParser = _getParser(initial);
+                var nextParser = GetParser(initial);
                 return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
             }
             catch
@@ -233,10 +202,10 @@ public static class Chain<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
+        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Parser(_inner, _getParser, _mentions, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 }

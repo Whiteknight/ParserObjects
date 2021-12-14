@@ -16,31 +16,21 @@ public static class Examine<TInput, TOutput>
     /// Examine parser for parsers which return typed output. Executes callbacks before and
     /// after the parse.
     /// </summary>
-    public sealed class Parser : IParser<TInput, TOutput>
+    public sealed record Parser(
+        IParser<TInput, TOutput> Inner,
+        Action<Context>? Before,
+        Action<Context>? After,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
     {
-        private readonly IParser<TInput, TOutput> _parser;
-        private readonly Action<Context>? _before;
-        private readonly Action<Context>? _after;
-
-        public Parser(IParser<TInput, TOutput> parser, Action<Context>? before, Action<Context>? after, string name = "")
-        {
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            _parser = parser;
-            _before = before;
-            _after = after;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
             var startConsumed = state.Input.Consumed;
-            _before?.Invoke(new Context(_parser, state, null));
-            var result = _parser.Parse(state);
-            _after?.Invoke(new Context(_parser, state, result));
+            Before?.Invoke(new Context(Inner, state, null));
+            var result = Inner.Parse(state);
+            After?.Invoke(new Context(Inner, state, result));
             var totalConsumed = state.Input.Consumed - startConsumed;
 
             // The callbacks have access to Input, so the user might consume data. Make sure
@@ -58,30 +48,20 @@ public static class Examine<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+        public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Parser(_parser, _before, _after, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 
-    public sealed class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed record MultiParser(
+        IMultiParser<TInput, TOutput> Inner,
+        Action<MultiContext>? Before,
+        Action<MultiContext>? After,
+        string Name = ""
+    ) : IMultiParser<TInput, TOutput>
     {
-        private readonly IMultiParser<TInput, TOutput> _parser;
-        private readonly Action<MultiContext>? _before;
-        private readonly Action<MultiContext>? _after;
-
-        public MultiParser(IMultiParser<TInput, TOutput> parser, Action<MultiContext>? before, Action<MultiContext>? after, string name = "")
-        {
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            _parser = parser;
-            _before = before;
-            _after = after;
-            Name = name;
-        }
-
-        public string Name { get; set; }
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -89,13 +69,13 @@ public static class Examine<TInput, TOutput>
             var startCheckpoint = state.Input.Checkpoint();
 
             var beforeFirstConsumed = state.Input.Consumed;
-            _before?.Invoke(new MultiContext(_parser, state, null));
+            Before?.Invoke(new MultiContext(Inner, state, null));
             var afterFirstConsumed = state.Input.Consumed;
 
-            var result = _parser.Parse(state);
+            var result = Inner.Parse(state);
 
             var beforeSecondConsumed = state.Input.Consumed;
-            _after?.Invoke(new MultiContext(_parser, state, result));
+            After?.Invoke(new MultiContext(Inner, state, result));
             var afterSecondConsumed = state.Input.Consumed;
 
             var totalConsumedInCallbacks = (afterFirstConsumed - beforeFirstConsumed) + (afterSecondConsumed - beforeSecondConsumed);
@@ -117,11 +97,11 @@ public static class Examine<TInput, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+        public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new MultiParser(_parser, _before, _after, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 
     /// <summary>

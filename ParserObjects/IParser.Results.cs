@@ -20,5 +20,5 @@ public static class ParserResultsExtensions
             if (args.Result.Success)
                 return args.Result;
             return transform(args);
-        });
+        }, "");
 }

@@ -9,48 +9,33 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class FirstParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed record FirstParser<TInput, TOutput>(
+    IReadOnlyList<IParser<TInput, TOutput>> Parsers,
+    string Name = ""
+) : IParser<TInput, TOutput>
 {
-    private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;
-
-    public FirstParser(params IParser<TInput, TOutput>[] parsers)
-    {
-        Assert.ArrayNotNullAndContainsNoNulls(parsers, nameof(parsers));
-        _parsers = parsers;
-        Name = string.Empty;
-    }
-
-    // TODO: Find a way to expose name in the public constructor
-    private FirstParser(IReadOnlyList<IParser<TInput, TOutput>> parsers, string name)
-    {
-        _parsers = parsers;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        if (_parsers.Count == 0)
+        if (Parsers.Count == 0)
             return state.Fail(this, "No parsers given");
 
-        for (int i = 0; i < _parsers.Count - 1; i++)
+        for (int i = 0; i < Parsers.Count - 1; i++)
         {
-            var parser = _parsers[i];
+            var parser = Parsers[i];
             var result = parser.Parse(state);
             if (result.Success)
                 return result;
         }
 
-        return _parsers[_parsers.Count - 1].Parse(state);
+        return Parsers[Parsers.Count - 1].Parse(state);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public IEnumerable<IParser> GetChildren() => _parsers;
+    public IEnumerable<IParser> GetChildren() => Parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new FirstParser<TInput, TOutput>(_parsers, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

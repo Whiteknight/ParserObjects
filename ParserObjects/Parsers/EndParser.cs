@@ -9,15 +9,10 @@ namespace ParserObjects.Parsers;
 /// besides the end.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed class EndParser<TInput> : IParser<TInput>
+public sealed record EndParser<TInput>(
+    string Name = ""
+) : IParser<TInput>
 {
-    public EndParser(string name = "")
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -30,5 +25,5 @@ public sealed class EndParser<TInput> : IParser<TInput>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new EndParser<TInput>(name);
+    public INamed SetName(string name) => this with { Name = name };
 }

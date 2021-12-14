@@ -68,18 +68,11 @@ public static class Sequential
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public sealed class Parser<TInput, TOutput> : IParser<TInput, TOutput>
+    public sealed record Parser<TInput, TOutput>(
+        Func<State<TInput>, TOutput> Function,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
     {
-        private readonly Func<State<TInput>, TOutput> _func;
-
-        public Parser(Func<State<TInput>, TOutput> func, string name = "")
-        {
-            _func = func;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -87,7 +80,7 @@ public static class Sequential
             try
             {
                 var seqState = new State<TInput>(state);
-                var result = _func(seqState);
+                var result = Function(seqState);
                 return state.Success(this, result, seqState.Consumed, startCheckpoint.Location);
             }
             catch (ParseFailedException spe)
@@ -119,7 +112,7 @@ public static class Sequential
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Sequential.Parser<TInput, TOutput>(_func, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 
     [Serializable]

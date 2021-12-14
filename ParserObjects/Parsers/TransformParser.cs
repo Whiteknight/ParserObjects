@@ -26,31 +26,21 @@ public static class Transform<TInput, TMiddle, TOutput>
 
     public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IMultiResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint);
 
-    public sealed class Parser : IParser<TInput, TOutput>
+    public sealed record Parser(
+        IParser<TInput, TMiddle> Inner,
+        Func<SingleArguments, IResult<TOutput>> Transform,
+        string Name = ""
+    ) : IParser<TInput, TOutput>
     {
-        private readonly IParser<TInput, TMiddle> _inner;
-        private readonly Func<SingleArguments, IResult<TOutput>> _transform;
-
-        public Parser(IParser<TInput, TMiddle> inner, Func<SingleArguments, IResult<TOutput>> transform, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(transform, nameof(transform));
-            _inner = inner;
-            _transform = transform;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
 
             // Execute the parse and transform the result
-            var result = _inner.Parse(state);
+            var result = Inner.Parse(state);
             var args = new SingleArguments(this, state, result, startCheckpoint);
-            var transformedResult = _transform(args);
+            var transformedResult = Transform(args);
 
             // If the transform callback returns failure, see if we have to rewind input and
             // then return directly (we don't need to calculate consumed or anything)
@@ -73,40 +63,30 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+        public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name) => new Transform<TInput, TMiddle, TOutput>.Parser(_inner, _transform, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 
-    public sealed class MultiParser : IMultiParser<TInput, TOutput>
+    public sealed record MultiParser(
+        IMultiParser<TInput, TMiddle> Inner,
+        Func<MultiArguments, IMultiResult<TOutput>> Transform,
+        string Name = ""
+    ) : IMultiParser<TInput, TOutput>
     {
-        private readonly IMultiParser<TInput, TMiddle> _inner;
-        private readonly Func<MultiArguments, IMultiResult<TOutput>> _transform;
-
-        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<MultiArguments, IMultiResult<TOutput>> transform, string name = "")
-        {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(transform, nameof(transform));
-            _inner = inner;
-            _transform = transform;
-            Name = name;
-        }
-
-        public string Name { get; }
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
 
             // Execute the parse and transform the result
-            var result = _inner.Parse(state);
+            var result = Inner.Parse(state);
             result.StartCheckpoint.Rewind();
             var beforeTransformConsumed = state.Input.Consumed;
             var args = new MultiArguments(this, state, result, startCheckpoint);
-            var transformedResult = _transform(args);
+            var transformedResult = Transform(args);
             var afterTransformConsumed = state.Input.Consumed;
             var totalTransformConsumed = afterTransformConsumed - beforeTransformConsumed;
             totalTransformConsumed = totalTransformConsumed < 0 ? 0 : totalTransformConsumed;
@@ -130,11 +110,10 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+        public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public INamed SetName(string name)
-            => new Transform<TInput, TMiddle, TOutput>.MultiParser(_inner, _transform, name);
+        public INamed SetName(string name) => this with { Name = name };
     }
 }

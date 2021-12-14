@@ -18,7 +18,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            var target = new TrieParser<char, string>(trie);
+            var target = new TrieParser<char, string>(trie, "");
 
             var input = new StringCharacterSequence("===>=<=><<==");
 
@@ -42,7 +42,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            var target = new TrieParser<char, string>(trie);
+            var target = new TrieParser<char, string>(trie, "");
 
             var input = new StringCharacterSequence("X===>=<=><<==");
 
@@ -159,7 +159,7 @@ namespace ParserObjects.Tests.Parsers
         public void GetChildren_Test()
         {
             var trie = new InsertOnlyTrie<char, string>();
-            var target = new TrieParser<char, string>(trie);
+            var target = new TrieParser<char, string>(trie, "");
             target.GetChildren().Count().Should().Be(0);
         }
     }

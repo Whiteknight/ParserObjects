@@ -12,33 +12,29 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed record PrattParser<TInput, TOutput>(
+    Configuration<TInput, TOutput> Config,
+    Engine<TInput, TOutput> Engine,
+    string Name = ""
+) : IParser<TInput, TOutput>
 {
-    private readonly Configuration<TInput, TOutput> _config;
-    private readonly Engine<TInput, TOutput> _engine;
+    // TODO: Try to make Engine stateless, and pass the parselets in the TryParse method if
+    // possible.
 
-    // TODO: Move this constructor with callback into a static factory method and make the private
-    // config constructor the primary public one.
-    public PrattParser(Action<IConfiguration<TInput, TOutput>> setup, string name = "")
+    public static PrattParser<TInput, TOutput> Configure(Action<IConfiguration<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(setup, nameof(setup));
         var config = new Configuration<TInput, TOutput>();
         setup(config);
-        _config = config;
-        _engine = new Engine<TInput, TOutput>(_config.Parselets);
-        Name = name;
+        var engine = new Engine<TInput, TOutput>(config.Parselets);
+        return new PrattParser<TInput, TOutput>(config, engine, name);
     }
 
-    private PrattParser(Configuration<TInput, TOutput> config, string name)
+    public static PrattParser<TInput, TOutput> Create(Configuration<TInput, TOutput> config, string name = "")
     {
-        // TODO: Try to make Engine stateless, and pass the parselets in the TryParse method if
-        // possible.
-        _config = config;
-        _engine = new Engine<TInput, TOutput>(_config.Parselets);
-        Name = name;
+        var engine = new Engine<TInput, TOutput>(config.Parselets);
+        return new PrattParser<TInput, TOutput>(config, engine, name);
     }
-
-    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -50,7 +46,7 @@ public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
         try
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var result = _engine.TryParse(state, 0);
+            var result = Engine.TryParse(state, 0);
             return state.Result(this, result);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
@@ -66,9 +62,9 @@ public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public IEnumerable<IParser> GetChildren() => _config.GetParsers();
+    public IEnumerable<IParser> GetChildren() => Config.GetParsers();
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new PrattParser<TInput, TOutput>(_config, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

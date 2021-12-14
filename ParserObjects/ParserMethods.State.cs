@@ -28,7 +28,7 @@ public static partial class ParserMethods<TInput>
             {
                 cleanup(args);
             }
-        }, null, new[] { parser });
+        }, string.Empty, new[] { parser });
 
     public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
         => new Function<TInput, TOutput>.MultiParser(args =>
@@ -43,7 +43,7 @@ public static partial class ParserMethods<TInput>
             {
                 cleanup(state);
             }
-        }, null, new[] { parser });
+        }, string.Empty, new[] { parser });
 
     /// <summary>
     /// Create a new parser using information from the current parse context. This parser is

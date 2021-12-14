@@ -8,25 +8,17 @@ namespace ParserObjects.Parsers;
 /// success if the parser does not match, fail otherwise. Consumes no input.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed class NegativeLookaheadParser<TInput> : IParser<TInput>
+public sealed record NegativeLookaheadParser<TInput>(
+    IParser<TInput> Inner,
+    string Name = ""
+) : IParser<TInput>
 {
-    private readonly IParser<TInput> _inner;
-
-    public NegativeLookaheadParser(IParser<TInput> inner, string name = "")
-    {
-        Assert.ArgumentNotNull(inner, nameof(inner));
-        _inner = inner;
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCheckpoint = state.Input.Checkpoint();
 
-        var result = _inner.Parse(state);
+        var result = Inner.Parse(state);
         if (!result.Success)
             return state.Success(this, Defaults.ObjectInstance, 0);
 
@@ -34,9 +26,9 @@ public sealed class NegativeLookaheadParser<TInput> : IParser<TInput>
         return state.Fail(this, "Lookahead pattern existed but was not supposed to");
     }
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
+    public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new NegativeLookaheadParser<TInput>(_inner, name);
+    public INamed SetName(string name) => this with { Name = name };
 }

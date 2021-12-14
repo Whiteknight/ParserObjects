@@ -9,15 +9,10 @@ namespace ParserObjects.Parsers;
 /// returns it.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class AnyParser<T> : IParser<T, T>
+public sealed record AnyParser<T>(
+    string Name = ""
+) : IParser<T, T>
 {
-    public AnyParser(string name = "")
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -35,5 +30,5 @@ public sealed class AnyParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new AnyParser<T>(name);
+    public INamed SetName(string name) => this with { Name = name };
 }

@@ -9,17 +9,11 @@ namespace ParserObjects.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
+public sealed record FailParser<TInput, TOutput>(
+    string ErrorMessage = "Fail",
+    string Name = ""
+) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
-    public FailParser(string? errorMessage = null, string name = "")
-    {
-        ErrorMessage = errorMessage ?? "Guaranteed fail";
-        Name = name;
-    }
-
-    public string Name { get; }
-    public string ErrorMessage { get; }
-
     IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -46,5 +40,5 @@ public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMul
 
     public override string ToString() => DefaultStringifier.ToString(this);
 
-    public INamed SetName(string name) => new FailParser<TInput, TOutput>(ErrorMessage, name);
+    public INamed SetName(string name) => this with { Name = name };
 }
