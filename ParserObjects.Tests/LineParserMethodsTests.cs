@@ -38,7 +38,8 @@ NOT LINE");
             var parser = Line();
             var input = new StringCharacterSequence(@"line
 NOT LINE");
-            parser.Parse(input).Value.Should().Be("line");
+            var result = parser.Parse(input);
+            result.Value.Should().Be("line");
         }
     }
 }
