@@ -12,14 +12,14 @@ public sealed class OrParser<TInput> : IParser<TInput>
 {
     private readonly IReadOnlyList<IParser<TInput>> _parsers;
 
-    public OrParser(params IParser<TInput>[] parsers)
+    public OrParser(IReadOnlyList<IParser<TInput>> parsers, string name = "")
     {
         Assert.ArgumentNotNull(parsers, nameof(parsers));
         _parsers = parsers;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult Parse(IParseState<TInput> state)
     {
@@ -37,4 +37,6 @@ public sealed class OrParser<TInput> : IParser<TInput>
     public IEnumerable<IParser> GetChildren() => _parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new OrParser<TInput>(_parsers, name);
 }

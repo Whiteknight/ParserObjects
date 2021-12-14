@@ -11,12 +11,12 @@ namespace ParserObjects.Parsers;
 /// <typeparam name="T"></typeparam>
 public sealed class AnyParser<T> : IParser<T, T>
 {
-    public AnyParser()
+    public AnyParser(string name = "")
     {
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<T> Parse(IParseState<T> state)
     {
@@ -34,4 +34,6 @@ public sealed class AnyParser<T> : IParser<T, T>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new AnyParser<T>(name);
 }

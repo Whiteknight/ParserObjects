@@ -1,3 +1,4 @@
+using System;
 using ParserObjects.Utility;
 
 namespace ParserObjects.Pratt;
@@ -31,7 +32,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
     public int TokenTypeId { get; }
     public int Lbp { get; }
     public int Rbp { get; }
-    public string Name { get; set; }
+    public string Name { get; }
     public IParser Parser => _match;
 
     public bool CanNud => _nud != null;
@@ -80,4 +81,6 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
     }
 
     public override string ToString() => Name;
+
+    public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename an internal parselet");
 }

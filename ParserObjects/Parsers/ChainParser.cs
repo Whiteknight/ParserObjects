@@ -60,7 +60,7 @@ public static class Chain<TInput, TMiddle, TOutput>
         private readonly Func<IResult<TMiddle>, IParser<TInput, TOutput>> _getParser;
         private readonly IReadOnlyList<IParser> _mentions;
 
-        public Parser(IParser<TInput, TMiddle> inner, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions)
+        public Parser(IParser<TInput, TMiddle> inner, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
@@ -68,10 +68,10 @@ public static class Chain<TInput, TMiddle, TOutput>
             _inner = inner;
             _getParser = getParser;
             _mentions = mentions.OrEmptyIfNull().ToList();
-            Name = string.Empty;
+            Name = name;
         }
 
-        public Parser(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup)
+        public Parser(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(setup, nameof(setup));
@@ -81,10 +81,10 @@ public static class Chain<TInput, TMiddle, TOutput>
             _inner = inner;
             _getParser = r => config.Pick(r.Value);
             _mentions = config.GetChildren().ToList();
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -121,6 +121,8 @@ public static class Chain<TInput, TMiddle, TOutput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_inner, _getParser, _mentions, name);
     }
 }
 
@@ -173,7 +175,7 @@ public static class Chain<TInput, TOutput>
         private readonly Func<IResult, IParser<TInput, TOutput>> _getParser;
         private readonly IReadOnlyList<IParser> _mentions;
 
-        public Parser(IParser<TInput> inner, Func<IResult, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions)
+        public Parser(IParser<TInput> inner, Func<IResult, IParser<TInput, TOutput>> getParser, IEnumerable<IParser> mentions, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
@@ -181,10 +183,10 @@ public static class Chain<TInput, TOutput>
             _inner = inner;
             _getParser = getParser;
             _mentions = mentions.OrEmptyIfNull().ToList();
-            Name = string.Empty;
+            Name = name;
         }
 
-        public Parser(IParser<TInput> inner, Action<IConfiguration> setup)
+        public Parser(IParser<TInput> inner, Action<IConfiguration> setup, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(setup, nameof(setup));
@@ -194,10 +196,10 @@ public static class Chain<TInput, TOutput>
             _inner = inner;
             _getParser = r => config.Pick(r.Value);
             _mentions = config.GetChildren().ToList();
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -234,5 +236,7 @@ public static class Chain<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_inner, _getParser, _mentions, name);
     }
 }

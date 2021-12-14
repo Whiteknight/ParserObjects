@@ -17,13 +17,7 @@ public static class ParserExtensions
     public static string ToBnf(this IParser parser)
     {
         if (string.IsNullOrEmpty(parser.Name))
-        {
-            var old = parser.Name;
-            parser.Name = "(TARGET)";
-            var value = new BnfStringifyVisitor().ToBnf(parser);
-            parser.Name = old;
-            return value;
-        }
+            parser = parser.Named("(TARGET)");
 
         return new BnfStringifyVisitor().ToBnf(parser);
     }

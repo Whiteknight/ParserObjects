@@ -12,14 +12,14 @@ public sealed class NegativeLookaheadParser<TInput> : IParser<TInput>
 {
     private readonly IParser<TInput> _inner;
 
-    public NegativeLookaheadParser(IParser<TInput> inner)
+    public NegativeLookaheadParser(IParser<TInput> inner, string name = "")
     {
         Assert.ArgumentNotNull(inner, nameof(inner));
         _inner = inner;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult Parse(IParseState<TInput> state)
     {
@@ -37,4 +37,6 @@ public sealed class NegativeLookaheadParser<TInput> : IParser<TInput>
     public IEnumerable<IParser> GetChildren() => new IParser[] { _inner };
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new NegativeLookaheadParser<TInput>(_inner, name);
 }

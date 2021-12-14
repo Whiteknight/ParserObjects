@@ -30,16 +30,16 @@ public static class Function<TInput, TOutput>
         private readonly Func<SingleArguments, IResult<TOutput>> _func;
         private readonly IReadOnlyList<IParser>? _children;
 
-        public Parser(Func<SingleArguments, IResult<TOutput>> func, string? description, IEnumerable<IParser>? children)
+        public Parser(Func<SingleArguments, IResult<TOutput>> func, string? description, IEnumerable<IParser>? children, string name = "")
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
-            Name = string.Empty;
+            Name = name;
             Description = description;
             _children = children?.ToList();
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public string? Description { get; }
 
@@ -72,6 +72,8 @@ public static class Function<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => _children ?? Array.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_func, Description, _children, name);
     }
 
     public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
@@ -113,21 +115,21 @@ public static class Function<TInput, TOutput>
         private readonly Func<MultiArguments, IMultiResult<TOutput>> _func;
         private readonly IReadOnlyList<IParser> _children;
 
-        public MultiParser(Action<MultiBuilder> builder, string? description, IEnumerable<IParser>? children)
+        public MultiParser(Action<MultiBuilder> builder, string? description, IEnumerable<IParser>? children, string name = "")
         {
             Assert.ArgumentNotNull(builder, nameof(builder));
             _func = args => AdaptMultiParserBuilderToFunction(args, builder);
-            Name = string.Empty;
+            Name = name;
             Description = description;
             var childList = children?.ToList() as IReadOnlyList<IParser>;
             _children = childList ?? Array.Empty<IParser>();
         }
 
-        public MultiParser(Func<MultiArguments, IMultiResult<TOutput>> func, string? description, IEnumerable<IParser> children)
+        public MultiParser(Func<MultiArguments, IMultiResult<TOutput>> func, string? description, IEnumerable<IParser> children, string name = "")
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
-            Name = string.Empty;
+            Name = name;
             Description = description;
             var childList = children?.ToList() as IReadOnlyList<IParser>;
             _children = childList ?? Array.Empty<IParser>();
@@ -145,7 +147,7 @@ public static class Function<TInput, TOutput>
             return new MultiResult<TOutput>(args.Parser, startCheckpoint.Location, startCheckpoint, buildArgs.Results);
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public string? Description { get; }
 
@@ -161,6 +163,8 @@ public static class Function<TInput, TOutput>
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new MultiParser(_func, Description, _children, name);
     }
 }
 
@@ -171,17 +175,17 @@ public static class Function<TInput>
         private readonly Func<IParseState<TInput>, IResult> _func;
         private readonly IReadOnlyList<IParser> _children;
 
-        public Parser(Func<IParseState<TInput>, IResult> func, string? description, IEnumerable<IParser>? children)
+        public Parser(Func<IParseState<TInput>, IResult> func, string? description, IEnumerable<IParser>? children, string name = "")
         {
             Assert.ArgumentNotNull(func, nameof(func));
             _func = func;
-            Name = string.Empty;
+            Name = name;
             Description = description;
             var childList = children?.ToList() as IReadOnlyList<IParser>;
             _children = childList ?? Array.Empty<IParser>();
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public string? Description { get; }
 
@@ -201,5 +205,7 @@ public static class Function<TInput>
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_func, Description, _children, name);
     }
 }

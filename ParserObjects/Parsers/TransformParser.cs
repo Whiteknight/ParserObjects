@@ -31,16 +31,16 @@ public static class Transform<TInput, TMiddle, TOutput>
         private readonly IParser<TInput, TMiddle> _inner;
         private readonly Func<SingleArguments, IResult<TOutput>> _transform;
 
-        public Parser(IParser<TInput, TMiddle> inner, Func<SingleArguments, IResult<TOutput>> transform)
+        public Parser(IParser<TInput, TMiddle> inner, Func<SingleArguments, IResult<TOutput>> transform, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(transform, nameof(transform));
             _inner = inner;
             _transform = transform;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -76,6 +76,8 @@ public static class Transform<TInput, TMiddle, TOutput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Transform<TInput, TMiddle, TOutput>.Parser(_inner, _transform, name);
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
@@ -83,16 +85,16 @@ public static class Transform<TInput, TMiddle, TOutput>
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly Func<MultiArguments, IMultiResult<TOutput>> _transform;
 
-        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<MultiArguments, IMultiResult<TOutput>> transform)
+        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<MultiArguments, IMultiResult<TOutput>> transform, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(transform, nameof(transform));
             _inner = inner;
             _transform = transform;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -131,5 +133,8 @@ public static class Transform<TInput, TMiddle, TOutput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name)
+            => new Transform<TInput, TMiddle, TOutput>.MultiParser(_inner, _transform, name);
     }
 }

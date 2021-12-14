@@ -73,10 +73,7 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true)
-            {
-                Name = parselet.Name
-            };
+            var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true, parselet.Name);
 
             // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
             // the current left value
@@ -102,10 +99,7 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0)
-            {
-                Name = parselet.Name
-            };
+            var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0, parselet.Name);
 
             // Transform the IToken into IToken<TInput> using the NullDenominator rule
             var leftResult = token.NullDenominator(leftContext);

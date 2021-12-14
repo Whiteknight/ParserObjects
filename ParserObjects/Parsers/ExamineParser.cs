@@ -22,16 +22,16 @@ public static class Examine<TInput, TOutput>
         private readonly Action<Context>? _before;
         private readonly Action<Context>? _after;
 
-        public Parser(IParser<TInput, TOutput> parser, Action<Context>? before, Action<Context>? after)
+        public Parser(IParser<TInput, TOutput> parser, Action<Context>? before, Action<Context>? after, string name = "")
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             _parser = parser;
             _before = before;
             _after = after;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -61,6 +61,8 @@ public static class Examine<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_parser, _before, _after, name);
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
@@ -69,13 +71,13 @@ public static class Examine<TInput, TOutput>
         private readonly Action<MultiContext>? _before;
         private readonly Action<MultiContext>? _after;
 
-        public MultiParser(IMultiParser<TInput, TOutput> parser, Action<MultiContext>? before, Action<MultiContext>? after)
+        public MultiParser(IMultiParser<TInput, TOutput> parser, Action<MultiContext>? before, Action<MultiContext>? after, string name = "")
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             _parser = parser;
             _before = before;
             _after = after;
-            Name = string.Empty;
+            Name = name;
         }
 
         public string Name { get; set; }
@@ -118,6 +120,8 @@ public static class Examine<TInput, TOutput>
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new MultiParser(_parser, _before, _after, name);
     }
 
     /// <summary>
@@ -160,15 +164,15 @@ public static class Examine<TInput>
         private readonly Action<Context>? _before;
         private readonly Action<Context>? _after;
 
-        public Parser(IParser<TInput> parser, Action<Context>? before, Action<Context>? after)
+        public Parser(IParser<TInput> parser, Action<Context>? before, Action<Context>? after, string name = "")
         {
             _parser = parser;
             _before = before;
             _after = after;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult Parse(IParseState<TInput> state)
         {
@@ -182,6 +186,8 @@ public static class Examine<TInput>
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Parser(_parser, _before, _after, name);
     }
 
     /// <summary>

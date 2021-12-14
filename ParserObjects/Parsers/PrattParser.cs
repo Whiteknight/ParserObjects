@@ -17,17 +17,28 @@ public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
     private readonly Configuration<TInput, TOutput> _config;
     private readonly Engine<TInput, TOutput> _engine;
 
-    public PrattParser(Action<IConfiguration<TInput, TOutput>> setup)
+    // TODO: Move this constructor with callback into a static factory method and make the private
+    // config constructor the primary public one.
+    public PrattParser(Action<IConfiguration<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(setup, nameof(setup));
         var config = new Configuration<TInput, TOutput>();
         setup(config);
         _config = config;
         _engine = new Engine<TInput, TOutput>(_config.Parselets);
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    private PrattParser(Configuration<TInput, TOutput> config, string name)
+    {
+        // TODO: Try to make Engine stateless, and pass the parselets in the TryParse method if
+        // possible.
+        _config = config;
+        _engine = new Engine<TInput, TOutput>(_config.Parselets);
+        Name = name;
+    }
+
+    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -58,4 +69,6 @@ public sealed class PrattParser<TInput, TOutput> : IParser<TInput, TOutput>
     public IEnumerable<IParser> GetChildren() => _config.GetParsers();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new PrattParser<TInput, TOutput>(_config, name);
 }

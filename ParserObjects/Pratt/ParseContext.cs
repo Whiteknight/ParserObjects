@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Utility;
 
@@ -17,7 +18,7 @@ public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutpu
 
     private readonly int _startConsumed;
 
-    public ParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse)
+    public ParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         Assert.ArgumentNotNull(engine, nameof(engine));
@@ -25,7 +26,7 @@ public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutpu
         _engine = engine;
         _rbp = rbp;
         _startConsumed = state.Input.Consumed;
-        Name = string.Empty;
+        Name = name;
         _canRecurse = canRecurse;
     }
 
@@ -33,7 +34,7 @@ public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutpu
 
     public int Consumed => _state.Input.Consumed - _startConsumed;
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public ISequence<TInput> Input => _state.Input;
 
@@ -116,4 +117,6 @@ public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutpu
         if (!_canRecurse)
             throw new ParseException(ParseExceptionSeverity.Rule, "The parser consumed zero input, so an attempt to recurse was denied to avoid an infinite loop.", this, _state.Input.CurrentLocation);
     }
+
+    public INamed SetName(string name) => throw new InvalidOperationException("Cannot name an internal parse context");
 }

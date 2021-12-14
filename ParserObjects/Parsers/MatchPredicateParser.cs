@@ -14,14 +14,14 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 {
     private readonly Func<T, bool> _predicate;
 
-    public MatchPredicateParser(Func<T, bool> predicate)
+    public MatchPredicateParser(Func<T, bool> predicate, string name = "")
     {
         Assert.ArgumentNotNull(predicate, nameof(predicate));
         _predicate = predicate;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<T> Parse(IParseState<T> state)
     {
@@ -43,4 +43,6 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
 }

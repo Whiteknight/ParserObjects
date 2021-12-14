@@ -7,10 +7,12 @@
 public interface INamed
 {
     /// <summary>
-    /// Gets or Sets the name of the object. This value is only used for bookkeeping, debugging
+    /// Gets the name of the object. This value is used for bookkeeping, debugging
     /// and tracing only. It does not have any effect on parsing or other processes.
     /// </summary>
-    string Name { get; set; }
+    string Name { get; }
+
+    INamed SetName(string name);
 }
 
 public static class NamedExtensions
@@ -25,7 +27,6 @@ public static class NamedExtensions
     public static T Named<T>(this T nameable, string name)
          where T : INamed
     {
-        nameable.Name = name;
-        return nameable;
+        return (T)nameable.SetName(name);
     }
 }

@@ -10,11 +10,11 @@ namespace ParserObjects.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>
 {
-    public RegexParser(Regex regex, string describe)
+    public RegexParser(Regex regex, string describe, string? name = null)
     {
         Assert.ArgumentNotNull(regex, nameof(regex));
         Regex = regex;
-        Name = $"/{describe}/";
+        Name = name ?? $"/{describe}/";
         Pattern = describe;
     }
 
@@ -22,7 +22,7 @@ public sealed class RegexParser : IParser<char, string>
 
     public string Pattern { get; }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<string> Parse(IParseState<char> state)
     {
@@ -39,4 +39,6 @@ public sealed class RegexParser : IParser<char, string>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new RegexParser(Regex, Pattern, name);
 }

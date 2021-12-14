@@ -192,9 +192,9 @@ public sealed class State : INamed
     public List<List<State>>? Alternations { get; set; }
 
     /// <summary>
-    /// Gets or sets a brief description of the state, to help with tracing/debugging.
+    /// Gets a brief description of the state, to help with tracing/debugging.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; }
 
     /// <summary>
     /// Gets or sets the maximum number of times this state can match, if it supports more than
@@ -204,9 +204,11 @@ public sealed class State : INamed
 
     public override string ToString() => $"{Quantifier} {Name}";
 
-    public State Clone()
+    public State Clone() => Clone(Name);
+
+    private State Clone(string name)
     {
-        return new State(Name)
+        return new State(name)
         {
             Type = Type,
             CanBacktrack = CanBacktrack,
@@ -217,4 +219,6 @@ public sealed class State : INamed
             Maximum = Maximum
         };
     }
+
+    public INamed SetName(string name) => Clone(name);
 }

@@ -19,6 +19,12 @@ public sealed class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
         Name = string.IsNullOrEmpty(name) ? $"N{UniqueIntegerGenerator.GetNext()}" : name;
     }
 
+    private Nonterminal(IEnumerable<Production<TOutput>> productions, string name)
+    {
+        _productions = new HashSet<Production<TOutput>>(productions);
+        Name = name;
+    }
+
     public IReadOnlyCollection<IProduction> Productions => _productions;
 
     public void Add(IProduction p)
@@ -31,7 +37,9 @@ public sealed class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
     public bool Contains(IProduction p)
         => p is Production<TOutput> typed && _productions.Contains(typed);
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public override string ToString() => string.Join("\n", _productions.Select(p => p.ToString()));
+
+    public INamed SetName(string name) => new Nonterminal<TInput, TOutput>(_productions, name);
 }

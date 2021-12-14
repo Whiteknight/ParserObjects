@@ -28,7 +28,7 @@ public static class RightApply<TInput, TMiddle, TOutput>
 
         // <item> (<middle> <item>)* with right-associativity in the production method
 
-        public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<Arguments, TOutput> produce, Quantifier quantifier, Func<IParseState<TInput>, TOutput>? getMissingRight = null)
+        public Parser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<Arguments, TOutput> produce, Quantifier quantifier, Func<IParseState<TInput>, TOutput>? getMissingRight = null, string name = "")
         {
             Assert.ArgumentNotNull(item, nameof(item));
             Assert.ArgumentNotNull(middle, nameof(middle));
@@ -39,10 +39,10 @@ public static class RightApply<TInput, TMiddle, TOutput>
             _produce = produce;
             _getMissingRight = getMissingRight;
             _quantifier = quantifier;
-            Name = string.Empty;
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -195,5 +195,8 @@ public static class RightApply<TInput, TMiddle, TOutput>
         public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name)
+            => new RightApply<TInput, TMiddle, TOutput>.Parser(_item, _middle, _produce, _quantifier, _getMissingRight, name);
     }
 }

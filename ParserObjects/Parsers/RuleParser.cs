@@ -15,16 +15,16 @@ public sealed class RuleParser<TInput, TOutput> : IParser<TInput, TOutput>
     private readonly IReadOnlyList<IParser<TInput>> _parsers;
     private readonly Func<IReadOnlyList<object>, TOutput> _produce;
 
-    public RuleParser(IReadOnlyList<IParser<TInput>> parsers, Func<IReadOnlyList<object>, TOutput> produce)
+    public RuleParser(IReadOnlyList<IParser<TInput>> parsers, Func<IReadOnlyList<object>, TOutput> produce, string name = "")
     {
         Assert.ArgumentNotNull(parsers, nameof(parsers));
         Assert.ArgumentNotNull(produce, nameof(produce));
         _parsers = parsers;
         _produce = produce;
-        Name = string.Empty;
+        Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -58,4 +58,6 @@ public sealed class RuleParser<TInput, TOutput> : IParser<TInput, TOutput>
     public IEnumerable<IParser> GetChildren() => _parsers;
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public INamed SetName(string name) => new RuleParser<TInput, TOutput>(_parsers, _produce, name);
 }

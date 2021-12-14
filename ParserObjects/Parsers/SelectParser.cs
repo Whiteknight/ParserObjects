@@ -32,16 +32,16 @@ public static class Select<TInput, TOutput>
 
         private readonly Func<Arguments, IOption<IResultAlternative<TOutput>>> _selector;
 
-        public Parser(IMultiParser<TInput, TOutput> parser, Func<Arguments, IOption<IResultAlternative<TOutput>>> selector)
+        public Parser(IMultiParser<TInput, TOutput> parser, Func<Arguments, IOption<IResultAlternative<TOutput>>> selector, string name = "")
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
             Assert.ArgumentNotNull(selector, nameof(selector));
             _selector = selector;
             _parser = parser;
-            Name = "";
+            Name = name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
@@ -74,5 +74,7 @@ public static class Select<TInput, TOutput>
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public INamed SetName(string name) => new Select<TInput, TOutput>.Parser(_parser, _selector, name);
     }
 }
