@@ -7,13 +7,16 @@ namespace ParserObjects;
 
 public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
-    public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results)
+    private readonly IReadOnlyList<object>? _data;
+
+    public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
     {
         Parser = parser;
         Results = results.ToList();
         Success = Results.Any(r => r.Success);
         Location = location;
         StartCheckpoint = startCheckpoint;
+        _data = data;
     }
 
     public IParser Parser { get; }
@@ -44,7 +47,19 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
     }
 
-    public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+    public IOption<T> TryGetData<T>()
+    {
+        if (_data == null)
+            return FailureOption<T>.Instance;
+
+        foreach (var item in _data)
+        {
+            if (item is T typed)
+                return new SuccessOption<T>(typed);
+        }
+
+        return FailureOption<T>.Instance;
+    }
 }
 
 /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Earley;
 using ParserObjects.Utility;
 using ParserObjects.Visitors;
@@ -62,60 +61,6 @@ public static class Earley<TInput, TOutput>
         }
     }
 
-    private sealed class MultiResult : IMultiResult<TOutput>
-    {
-        private readonly IParseStatistics _statistics;
-
-        public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IParseStatistics statistics)
-        {
-            Parser = parser;
-            Results = results.ToList();
-            Success = Results.Any(r => r.Success);
-            Location = location;
-            StartCheckpoint = startCheckpoint;
-            _statistics = statistics;
-        }
-
-        public IParser Parser { get; }
-
-        public bool Success { get; }
-
-        public Location Location { get; }
-
-        public IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
-
-        public ISequenceCheckpoint StartCheckpoint { get; }
-
-        IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
-
-        public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, ISequenceCheckpoint? startCheckpoint = null, Location? location = null)
-        {
-            Assert.ArgumentNotNull(recreate, nameof(recreate));
-            var newAlternatives = Results.Select(alt =>
-            {
-                if (!alt.Success)
-                    return alt;
-                return recreate(alt, alt.Factory);
-            });
-            var newCheckpoint = startCheckpoint ?? StartCheckpoint;
-            var newLocation = location ?? Location;
-            return new MultiResult(Parser, newLocation, newCheckpoint, newAlternatives, _statistics);
-        }
-
-        public IMultiResult<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
-        {
-            var newAlternatives = Results.Select(alt => alt.Transform(transform));
-            return new Earley<TInput, TValue>.MultiResult(Parser, Location, StartCheckpoint, newAlternatives, _statistics);
-        }
-
-        public IOption<T> TryGetData<T>()
-        {
-            if (_statistics is T tStats)
-                return new SuccessOption<T>(tStats);
-            return FailureOption<T>.Instance;
-        }
-    }
-
     public sealed class Parser : IMultiParser<TInput, TOutput>
     {
         private readonly Engine<TInput, TOutput> _engine;
@@ -144,7 +89,7 @@ public static class Earley<TInput, TOutput>
             var results = _engine.Parse(state);
 
             startCheckpoint.Rewind();
-            return new MultiResult(this, startLocation, startCheckpoint, results.Alternatives, results.Statistics);
+            return new MultiResult<TOutput>(this, startLocation, startCheckpoint, results.Alternatives, new[] { results.Statistics });
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);

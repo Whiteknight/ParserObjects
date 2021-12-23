@@ -23,6 +23,8 @@ public interface IResult : IResultBase
     /// operation.
     /// </summary>
     int Consumed { get; }
+
+    IResult AdjustConsumed(int consumed);
 }
 
 /// <summary>
@@ -44,6 +46,8 @@ public interface IResult<out TValue> : IResult
     /// <param name="transform"></param>
     /// <returns></returns>
     IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
+
+    new IResult<TValue> AdjustConsumed(int consumed);
 }
 
 public static class ParseResultExtensions
@@ -76,26 +80,4 @@ public static class ParseResultExtensions
     /// <returns></returns>
     public static object GetValueOrDefault(this IResult result, object defaultValue)
         => result.Success ? result.Value : defaultValue;
-
-    /// <summary>
-    /// Create a copy of the result, with a new error message. If the original result is
-    /// Success, the result is returned unmodified.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="result"></param>
-    /// <param name="error"></param>
-    /// <returns></returns>
-    public static IResult<T> WithError<T>(this IResult<T> result, string error)
-        => result.Success ? result : new FailResult<T>(result.Parser, result.Location, error);
-
-    /// <summary>
-    /// Create a copy of the result with a modified error message. If the original result is
-    /// Success, the result is returned unmodified.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="result"></param>
-    /// <param name="mutateError"></param>
-    /// <returns></returns>
-    public static IResult<T> WithError<T>(this IResult<T> result, Func<string, string> mutateError)
-        => result.Success ? result : new FailResult<T>(result.Parser, result.Location, mutateError?.Invoke(result.ErrorMessage) ?? result.ErrorMessage);
 }

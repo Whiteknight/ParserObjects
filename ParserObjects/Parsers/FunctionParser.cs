@@ -18,11 +18,11 @@ public static class Function<TInput, TOutput>
         public ISequence<TInput> Input => State.Input;
         public IDataStore Data => State.Data;
         public IResultsCache Cache => State.Cache;
-        public IResult<TOutput> Failure(string errorMessage, Location? location = null)
-            => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation);
+        public IResult<TOutput> Failure(string errorMessage, Location? location = null, IReadOnlyList<object>? data = null)
+            => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation, data);
 
-        public IResult<TOutput> Success(TOutput value, Location? location = null)
-            => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation);
+        public IResult<TOutput> Success(TOutput value, Location? location = null, IReadOnlyList<object>? data = null)
+            => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation, data);
     }
 
     public sealed record Parser(
@@ -45,15 +45,11 @@ public static class Function<TInput, TOutput>
             if (!result.Success)
             {
                 startCheckpoint.Rewind();
-                if (result.Consumed != 0)
-                    return state.Fail(this, result.ErrorMessage);
                 return result;
             }
 
             var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            if (result.Consumed != totalConsumed)
-                return state.Success(this, result.Value, totalConsumed);
-            return result;
+            return result.AdjustConsumed(totalConsumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -166,14 +162,15 @@ public static class Function<TInput>
         public IResult Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var matched = _func(state);
-            if (!matched.Success)
+            var result = _func(state);
+            if (!result.Success)
             {
                 startCheckpoint.Rewind();
-                return state.Fail(this, "Matcher returned false");
+                return result;
             }
 
-            return state.Success(this, Defaults.ObjectInstance, state.Input.Consumed - startCheckpoint.Consumed);
+            var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
+            return result.AdjustConsumed(totalConsumed);
         }
 
         public override string ToString() => DefaultStringifier.ToString(this);

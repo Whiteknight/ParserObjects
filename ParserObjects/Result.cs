@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Utility;
 
 namespace ParserObjects;
@@ -8,34 +9,49 @@ namespace ParserObjects;
 /// that value.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public sealed class SuccessResult<TValue> : IResult<TValue>
+public sealed record SuccessResult<TValue>(
+    IParser Parser,
+    TValue Value,
+    Location Location,
+    int Consumed,
+    IReadOnlyList<object>? Data
+) : IResult<TValue>
 {
-    public SuccessResult(IParser parser, TValue value, Location location, int consumed)
-    {
-        Parser = parser;
-        Value = value;
-        Location = location;
-        Consumed = consumed;
-    }
-
-    public IParser Parser { get; }
     public bool Success => true;
-    public TValue Value { get; }
-    public Location Location { get; }
     public string ErrorMessage => string.Empty;
-    public int Consumed { get; }
     object IResult.Value => Value!;
 
     public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
     {
         Assert.ArgumentNotNull(transform, nameof(transform));
         var newValue = transform(Value);
-        return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed);
+        return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed, Data);
     }
 
-    public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+    public IOption<T> TryGetData<T>()
+    {
+        if (Data == null)
+            return FailureOption<T>.Instance;
+
+        foreach (var item in Data)
+        {
+            if (item is T typed)
+                return new SuccessOption<T>(typed);
+        }
+
+        return FailureOption<T>.Instance;
+    }
 
     public override string ToString() => $"{Parser} Ok at {Location}";
+
+    public IResult<TValue> AdjustConsumed(int consumed)
+    {
+        if (Consumed == consumed)
+            return this;
+        return this with { Consumed = consumed };
+    }
+
+    IResult IResult.AdjustConsumed(int consumed) => AdjustConsumed(consumed);
 }
 
 /// <summary>
@@ -44,30 +60,41 @@ public sealed class SuccessResult<TValue> : IResult<TValue>
 /// exception.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public sealed class FailResult<TValue> : IResult<TValue>
+public sealed record FailureResult<TValue>(
+    IParser Parser,
+    Location Location,
+    string ErrorMessage,
+    IReadOnlyList<object>? Data
+) : IResult<TValue>
 {
-    public FailResult(IParser parser, Location location, string message)
-    {
-        Parser = parser;
-        Location = location;
-        ErrorMessage = message;
-    }
-
-    public IParser Parser { get; }
     public bool Success => false;
     public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
-    public Location Location { get; }
-    public string ErrorMessage { get; }
     public int Consumed => 0;
     object IResult.Value => Value!;
 
     public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
     {
         Assert.ArgumentNotNull(transform, nameof(transform));
-        return new FailResult<TOutput>(Parser, Location, ErrorMessage);
+        return new FailureResult<TOutput>(Parser, Location, ErrorMessage, Data);
     }
 
-    public IOption<T> TryGetData<T>() => FailureOption<T>.Instance;
+    public IOption<T> TryGetData<T>()
+    {
+        if (Data == null)
+            return FailureOption<T>.Instance;
+
+        foreach (var item in Data)
+        {
+            if (item is T typed)
+                return new SuccessOption<T>(typed);
+        }
+
+        return FailureOption<T>.Instance;
+    }
 
     public override string ToString() => $"{Parser} FAIL at {Location}";
+
+    public IResult<TValue> AdjustConsumed(int consumed) => this;
+
+    IResult IResult.AdjustConsumed(int consumed) => this;
 }

@@ -40,11 +40,10 @@ public static class Create<TInput, TOutput>
             }
 
             // If no inputs were consumed during parser creation, we can just return the result
-            if (consumedDuringCreation == 0)
-                return result;
+            if (consumedDuringCreation != 0)
+                return result.AdjustConsumed(result.Consumed + consumedDuringCreation);
 
-            // Otherwise construct a new result with correct consumed value.
-            return state.Success(this, result.Value, result.Consumed + consumedDuringCreation, result.Location);
+            return result;
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

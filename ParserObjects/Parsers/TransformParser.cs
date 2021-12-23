@@ -55,10 +55,7 @@ public static class Transform<TInput, TMiddle, TOutput>
             // consumed inputs (the transformer didn't secretly consume some without properly
             // accounting for them)
             var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            if (transformedResult.Consumed != totalConsumed)
-                return state.Success(this, transformedResult.Value, totalConsumed, transformedResult.Location);
-
-            return transformedResult;
+            return transformedResult.AdjustConsumed(totalConsumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

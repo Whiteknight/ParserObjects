@@ -41,9 +41,7 @@ public static class Examine<TInput, TOutput>
                 return result;
             }
 
-            if (result.Consumed == totalConsumed)
-                return result;
-            return state.Success(this, result.Value, totalConsumed, result.Location);
+            return result.AdjustConsumed(totalConsumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

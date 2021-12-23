@@ -12,6 +12,8 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
             result.Consumed.Should().Be(1);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
@@ -21,6 +23,8 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("abc");
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
@@ -30,6 +34,8 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
@@ -39,25 +45,33 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
         public void Parse_Output_Throw()
         {
-            var target = Try(Produce<char>(() => throw new System.Exception()));
+            var target = Try(Produce<char>(() => throw new Exception("test")));
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeTrue();
+            ex.Value.Message.Should().Be("test");
         }
 
         [Test]
         public void Parse_Untyped_Throw()
         {
-            var inner = (IParser<char>)Produce<char>(() => throw new System.Exception());
+            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
             var target = Try(inner);
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeTrue();
+            ex.Value.Message.Should().Be("test");
         }
 
         [Test]
@@ -86,6 +100,8 @@ namespace ParserObjects.Tests.Parsers
 
             var result = target.Parse("ab");
             result.Success.Should().BeFalse();
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
@@ -106,7 +122,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add(Match('b'), p => p
                     .ProduceRight((_, _) =>
                     {
-                        throw new System.Exception();
+                        throw new Exception("test");
                     })
                 )
             );
@@ -123,14 +139,19 @@ namespace ParserObjects.Tests.Parsers
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Results[0].Value.Should().Be('a');
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
         }
 
         [Test]
         public void Parse_Multi_Output_Throw()
         {
-            var target = Try(ProduceMulti<char>(() => throw new System.Exception()));
+            var target = Try(ProduceMulti<char>(() => throw new Exception("test")));
             var result = target.Parse("");
             result.Success.Should().BeFalse();
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeTrue();
+            ex.Value.Message.Should().Be("test");
         }
 
         [Test]

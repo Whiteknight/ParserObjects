@@ -499,7 +499,7 @@ public static partial class ParserMethods<TInput>
                 examine?.Invoke(e);
                 if (bubble)
                     throw;
-                return args.Failure(e.Message ?? "Caught unhandled exception");
+                return args.Failure(e.Message ?? "Caught unhandled exception", data: new[] { e });
             }
         }, "TRY {child}", new[] { parser });
 
@@ -533,7 +533,7 @@ public static partial class ParserMethods<TInput>
                 examine?.Invoke(e);
                 if (bubble)
                     throw;
-                return state.Fail(parser, e.Message);
+                return state.Fail(parser, e.Message, data: new[] { e });
             }
         }, "TRY {child}", new[] { parser });
 
@@ -567,7 +567,7 @@ public static partial class ParserMethods<TInput>
                examine?.Invoke(e);
                if (bubble)
                    throw;
-               return new MultiResult<TOutput>(parser, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>());
+               return new MultiResult<TOutput>(parser, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new[] { e });
            }
        }, "TRY {child}", new[] { parser });
 }
