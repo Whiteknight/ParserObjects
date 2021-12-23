@@ -21,7 +21,7 @@ public static partial class ParserMethods
         var prefixParser = Match(prefix).Transform(c => prefix);
         var charsParser = notNewlineChar.ListCharToString();
         return (prefixParser, charsParser)
-            .Produce((p, content) => p + content)
+            .Rule((p, content) => p + content)
             .Named($"linePrefixed:{prefix}");
     }
 

@@ -29,15 +29,15 @@ namespace ParserObjects.Tests.Examples.JSON
             var valueList = value.ListSeparatedBy(comma);
 
             var objectProperty = (str, colon, value)
-                .Produce((name, _, val) => (name.Value, val));
+                .Rule((name, _, val) => (name.Value, val));
             var objectPropertyList = objectProperty.ListSeparatedBy(comma);
 
             var jsonObject = (openCurlyBracket, objectPropertyList, closeCurlyBracket)
-                .Produce((_, v, _) => new JsonObject(v))
+                .Rule((_, v, _) => new JsonObject(v))
                 .Named("JSON Object");
 
             var jsonArray = (openSquareBracket, valueList, closeSquareBracket)
-                .Produce((_, items, _) => new JsonArray(items))
+                .Rule((_, items, _) => new JsonArray(items))
                 .Named("JSON Array");
 
             valueInner = Predict<IJsonValue>(c => c

@@ -41,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_2_Test()
         {
-            var target = (_any, _any).Produce((a, b) => $"{a}{b}");
+            var target = (_any, _any).Rule((a, b) => $"{a}{b}");
 
             var input = new StringCharacterSequence("abc");
 
@@ -76,7 +76,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_3_Test()
         {
-            var target = (_any, _any, _any).Produce((a, b, c) => $"{a}{b}{c}");
+            var target = (_any, _any, _any).Rule((a, b, c) => $"{a}{b}{c}");
 
             var input = new StringCharacterSequence("abc");
 
@@ -112,7 +112,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_4_Test()
         {
-            var target = (_any, _any, _any, _any).Produce((a, b, c, d) => $"{a}{b}{c}{d}");
+            var target = (_any, _any, _any, _any).Rule((a, b, c, d) => $"{a}{b}{c}{d}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
@@ -149,7 +149,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_5_Test()
         {
-            var target = (_any, _any, _any, _any, _any).Produce((a, b, c, d, e) => $"{a}{b}{c}{d}{e}");
+            var target = (_any, _any, _any, _any, _any).Rule((a, b, c, d, e) => $"{a}{b}{c}{d}{e}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
@@ -187,7 +187,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_6_Test()
         {
-            var target = (_any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}");
+            var target = (_any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
@@ -226,7 +226,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_7_Test()
         {
-            var target = (_any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}");
+            var target = (_any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
@@ -266,7 +266,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_8_Test()
         {
-            var target = (_any, _any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}");
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
@@ -330,7 +330,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ValueTuple_Produce_9_Test()
         {
-            var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Produce((a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}");
+            var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 

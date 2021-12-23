@@ -26,7 +26,7 @@ public static class CStyleParserMethods
             var bodyChars = bodyChar.ListCharToString();
 
             return (start, bodyChars, end)
-                .Produce((s, b, e) => s + b + e)
+                .Rule((s, b, e) => s + b + e)
                 .Named("C-Style Comment");
         }
     );
@@ -39,7 +39,7 @@ public static class CStyleParserMethods
 
     private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
         () => (Match("0x"), ParserMethods.HexadecimalString())
-            .Produce((prefix, value) => prefix + value)
+            .Rule((prefix, value) => prefix + value)
             .Named("C-Style Hex String")
     );
 
@@ -51,7 +51,7 @@ public static class CStyleParserMethods
 
     private static readonly Lazy<IParser<char, int>> _hexInteger = new Lazy<IParser<char, int>>(
         () => (Match("0x"), ParserMethods.HexadecimalString())
-            .Produce((prefix, value) => int.Parse(value, NumberStyles.HexNumber))
+            .Rule((prefix, value) => int.Parse(value, NumberStyles.HexNumber))
             .Named("C-Style Hex Literal")
     );
 
@@ -69,7 +69,7 @@ public static class CStyleParserMethods
             var digits = Digit().ListCharToString();
             var zero = Match('0').Transform(c => "0");
             var nonZeroNumber = (maybeMinus, nonZeroDigit, digits)
-                .Produce((sign, start, body) => sign + start + body);
+                .Rule((sign, start, body) => sign + start + body);
             return (nonZeroNumber, zero)
                 .First()
                 .Named("C-Style Integer String");
@@ -100,7 +100,7 @@ public static class CStyleParserMethods
             var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
             var digits = Digit().ListCharToString();
             var zero = Match('0').Transform(c => "0");
-            var nonZeroNumber = (nonZeroDigit, digits).Produce((start, body) => start + body);
+            var nonZeroNumber = (nonZeroDigit, digits).Rule((start, body) => start + body);
             return (nonZeroNumber, zero)
                 .First()
                 .Named("C-Style Unsigned Integer String");
@@ -127,7 +127,7 @@ public static class CStyleParserMethods
 
     private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
         () => (IntegerString(), Match('.'), DigitString())
-            .Produce((whole, dot, fract) => whole + dot + fract)
+            .Rule((whole, dot, fract) => whole + dot + fract)
             .Named("C-Style Double String")
     );
 
@@ -156,7 +156,7 @@ public static class CStyleParserMethods
             var bodyChar = Match(c => c == '_' || char.IsLetterOrDigit(c));
             var bodyChars = bodyChar.ListCharToString();
             return (startChar, bodyChars)
-                .Produce((start, rest) => start + rest)
+                .Rule((start, rest) => start + rest)
                 .Named("C-Style Identifier");
         }
     );

@@ -82,7 +82,7 @@ public static class RegexPatternParser
 
         var requiredEnd = If(End(), Produce(() => Utility.Defaults.ObjectInstance), Produce(ThrowEndOfPatternException));
 
-        return (regex, requiredEnd).Produce((r, _) => r)
+        return (regex, requiredEnd).Rule((r, _) => r)
             .Transform(r => new Regex(r))
             .Named("RegexPattern");
     }

@@ -65,7 +65,7 @@ public static class JavaScriptStyleParserMethods
 
             // number := <minus>? <wholePart> <fractPart> <expPart>
             return (maybeMinus, wholePart, fractPart, expPart)
-                .Produce((sign, whole, fract, exp) => sign + whole + fract + exp)
+                .Rule((sign, whole, fract, exp) => sign + whole + fract + exp)
                 .Named("JavaScript-Style Number String");
         }
     );

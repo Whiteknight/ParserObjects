@@ -347,7 +347,7 @@ namespace ParserObjects.Tests.Visitors
         [Test]
         public void ToBnf_Rule_2()
         {
-            var parser = (Any(), Any()).Produce((a, b) => "").Named("parser");
+            var parser = (Any(), Any()).Rule((a, b) => "").Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := (. .)");
         }

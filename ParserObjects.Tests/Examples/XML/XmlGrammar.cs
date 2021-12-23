@@ -22,7 +22,7 @@ namespace ParserObjects.Tests.Examples.XML
             // openTag sets the generated XmlNode instance to the current data frame with
             // .SetResultState
             var openTag = (Match('<'), nodeName, Match('>'))
-                .Produce((open, name, close) => new XmlNode(name))
+                .Rule((open, name, close) => new XmlNode(name))
                 .Named("openTag")
                 .SetResultData("tag");
 
@@ -38,7 +38,7 @@ namespace ParserObjects.Tests.Examples.XML
 
             // closeTag references closeTagName
             var closeTag = (Match("</"), closeTagName, Match('>'))
-                .Produce((open, name, close) => (object)null)
+                .Rule((open, name, close) => (object)null)
                 .Named("closeTag");
 
             // nodeInternal is the implementation of node above, it is an open tag and matching

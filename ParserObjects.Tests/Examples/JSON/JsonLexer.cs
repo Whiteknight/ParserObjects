@@ -47,7 +47,7 @@ namespace ParserObjects.Tests.Examples.JSON
             ).First();
 
             return (whitespace, token)
-                .Produce((_, t) => t)
+                .Rule((_, t) => t)
                 .Named("token");
         }
     }
