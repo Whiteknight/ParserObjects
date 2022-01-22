@@ -7,13 +7,22 @@ namespace ParserObjects;
 public static class ParserFindReplaceExtensions
 {
     /// <summary>
+    /// Recurse the tree searching for a parser with the given id value. Returns a result with the
+    /// parser if found, a failure otherwise.
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public static IOption<IParser> Find(this IParser root, int id) => FindParserVisitor.ById(root, id);
+
+    /// <summary>
     /// Recurse the tree searching for a parser with the given name. Returns a result with the
     /// parser if found, a failure flag otherwise.
     /// </summary>
     /// <param name="root"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IOption<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(name, root);
+    public static IOption<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(root, name);
 
     /// <summary>
     /// Given a parser tree, replace all children of ReplaceableParsers matching the given

@@ -28,24 +28,39 @@ public sealed class FindParserVisitor
         }
     }
 
-    /// <summary>
-    /// Search for a parser with the given Name. Returns only the first result in case of
-    /// duplicates.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="root"></param>
-    /// <returns></returns>
-    public static IOption<IParser> Named(string name, IParser root)
+    public static IOption<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
     {
-        Assert.ArgumentNotNullOrEmpty(name, nameof(name));
         Assert.ArgumentNotNull(root, nameof(root));
+        Assert.ArgumentNotNull(predicate, nameof(predicate));
         var visitor = new FindParserVisitor();
-        var state = new State(p => p.Name == name, true);
+        var state = new State(predicate, true);
         visitor.Visit(root, state);
         if (state.Found.Count > 0)
             return new SuccessOption<IParser>(state.Found.First());
         return FailureOption<IParser>.Instance;
     }
+
+    /// <summary>
+    /// Search for a parser with the given Name. Returns only the first result in case of
+    /// duplicates.
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public static IOption<IParser> Named(IParser root, string name)
+    {
+        Assert.ArgumentNotNullOrEmpty(name, nameof(name));
+        return FindSingle(root, p => p.Name == name);
+    }
+
+    /// <summary>
+    /// Search for a parser with the given Id.
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public static IOption<IParser> ById(IParser root, int id)
+        => FindSingle(root, p => p.Id == id);
 
     /// <summary>
     /// Search for all parsers of the given type. Returns all results.

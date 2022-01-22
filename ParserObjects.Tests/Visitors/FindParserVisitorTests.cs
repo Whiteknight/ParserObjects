@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Visitors
         {
             var needle = Fail<char>().Named("needle");
             var haystack = (Any(), Any(), Any(), needle).First();
-            var result = FindParserVisitor.Named("needle", haystack);
+            var result = FindParserVisitor.Named(haystack, "needle");
             result.Success.Should().BeTrue();
             result.Value.Should().BeSameAs(needle);
         }
