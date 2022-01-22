@@ -32,6 +32,8 @@ public static class Function<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -107,6 +109,8 @@ public static class Function<TInput, TOutput>
         {
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(MultiArguments args, Action<MultiBuilder> build)
         {
             Assert.ArgumentNotNull(build, nameof(build));
@@ -152,6 +156,8 @@ public static class Function<TInput>
             var childList = children?.ToList() as IReadOnlyList<IParser>;
             _children = childList ?? Array.Empty<IParser>();
         }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 

@@ -22,6 +22,8 @@ public static class Create<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
@@ -60,6 +62,8 @@ public static class Create<TInput, TOutput>
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.

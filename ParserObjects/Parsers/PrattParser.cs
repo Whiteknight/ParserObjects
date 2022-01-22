@@ -36,6 +36,8 @@ public sealed record PrattParser<TInput, TOutput>(
         return new PrattParser<TInput, TOutput>(config, engine, name);
     }
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));

@@ -25,6 +25,8 @@ public static class Replaceable<TInput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IParser ReplaceableChild => _value;
@@ -67,6 +69,8 @@ public static class Replaceable<TInput, TOutput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IParser ReplaceableChild => _value;
@@ -100,6 +104,8 @@ public static class Replaceable<TInput, TOutput>
             _value = defaultValue;
             Name = name;
         }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 

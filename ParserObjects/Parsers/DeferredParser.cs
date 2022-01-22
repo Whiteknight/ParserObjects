@@ -17,6 +17,8 @@ public static class Deferred<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);
@@ -48,6 +50,8 @@ public static class Deferred<TInput, TOutput>
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);

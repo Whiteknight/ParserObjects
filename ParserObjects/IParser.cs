@@ -9,6 +9,11 @@ namespace ParserObjects;
 public interface IParser : ISymbol
 {
     /// <summary>
+    /// Gets a unique ID for this parser instance.
+    /// </summary>
+    int Id { get; }
+
+    /// <summary>
     /// Get a list of child parsers, if any.
     /// </summary>
     /// <returns></returns>

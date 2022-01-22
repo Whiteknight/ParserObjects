@@ -24,6 +24,8 @@ public static class Select<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IEnumerable<IParser> GetChildren() => new[] { Initial };
 
         public IResult<TOutput> Parse(IParseState<TInput> state)

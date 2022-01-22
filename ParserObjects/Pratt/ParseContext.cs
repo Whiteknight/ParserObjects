@@ -34,6 +34,8 @@ public sealed class ParseContext<TInput, TOutput> : IParseContext<TInput, TOutpu
 
     public int Consumed => _state.Input.Consumed - _startConsumed;
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public string Name { get; }
 
     public ISequence<TInput> Input => _state.Input;

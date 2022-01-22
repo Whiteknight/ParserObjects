@@ -22,6 +22,8 @@ public sealed class RegexParser : IParser<char, string>
 
     public string Pattern { get; }
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public string Name { get; }
 
     public IResult<string> Parse(IParseState<char> state)

@@ -32,6 +32,8 @@ public static class Transform<TInput, TMiddle, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -73,6 +75,8 @@ public static class Transform<TInput, TMiddle, TOutput>
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));

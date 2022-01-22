@@ -73,6 +73,8 @@ public static class Earley<TInput, TOutput>
             _startSymbol = startSymbol;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IEnumerable<IParser> GetChildren()

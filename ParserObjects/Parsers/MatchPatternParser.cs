@@ -15,6 +15,8 @@ public sealed record MatchPatternParser<T>(
     string Name = ""
 ) : IParser<T, IReadOnlyList<T>>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));

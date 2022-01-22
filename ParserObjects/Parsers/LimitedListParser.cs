@@ -26,6 +26,7 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
         Name = name;
     }
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
     public string Name { get; }
     public int Minimum { get; }
     public int? Maximum { get; }

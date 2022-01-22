@@ -12,6 +12,8 @@ public sealed record TrieParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Trie.Get(state.Input);

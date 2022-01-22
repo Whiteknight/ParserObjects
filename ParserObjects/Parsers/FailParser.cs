@@ -14,6 +14,8 @@ public sealed record FailParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));

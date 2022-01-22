@@ -23,6 +23,8 @@ public static class Examine<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -60,6 +62,8 @@ public static class Examine<TInput, TOutput>
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
@@ -149,6 +153,8 @@ public static class Examine<TInput>
             _after = after;
             Name = name;
         }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 

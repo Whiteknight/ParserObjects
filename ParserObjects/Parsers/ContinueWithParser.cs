@@ -32,6 +32,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
@@ -87,6 +89,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
@@ -135,6 +139,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         public TMiddle? Value { get; set; }
 
         public Location Location { get; set; }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 

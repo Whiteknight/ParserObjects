@@ -12,6 +12,8 @@ public sealed record EmptyParser<TInput>(
     string Name = ""
 ) : IParser<TInput>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));

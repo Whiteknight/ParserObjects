@@ -42,6 +42,8 @@ public static class RightApply<TInput, TMiddle, TOutput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)

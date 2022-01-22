@@ -39,6 +39,7 @@ public static class LeftApply<TInput, TOutput>
             Name = name;
         }
 
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
         public string Name { get; }
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
@@ -132,6 +133,8 @@ public static class LeftApply<TInput, TOutput>
         public TOutput? Value { get; set; }
 
         public Location Location { get; set; }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 

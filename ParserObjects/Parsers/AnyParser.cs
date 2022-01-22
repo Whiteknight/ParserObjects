@@ -13,6 +13,8 @@ public sealed record AnyParser<T>(
     string Name = ""
 ) : IParser<T, T>
 {
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));

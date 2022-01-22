@@ -20,6 +20,8 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
         Name = name;
     }
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public string Name { get; set; }
 
     public IEnumerable<IParser> GetChildren() => _parsers;
