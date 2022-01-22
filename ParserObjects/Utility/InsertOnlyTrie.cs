@@ -41,6 +41,12 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
         return Node.Get(_root, keys);
     }
 
+    public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        return Node.GetMany(_root, keys);
+    }
+
     public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 
     private class Node
@@ -108,6 +114,42 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
                 // parsing from onto the stack, and prepare for the next loop iteration.
                 current = current._children[wrappedKey];
                 previous.Push((current, cont));
+            }
+        }
+
+        public static IReadOnlyList<IResultAlternative<TResult>> GetMany(Node thisNode, ISequence<TKey> keys)
+        {
+            var current = thisNode;
+            var results = new List<IResultAlternative<TResult>>();
+
+            // The node, and the continuation checkpoint that allows parsing to continue
+            // immediately afterwards.
+            var previous = new Stack<(Node node, ISequenceCheckpoint cont)>();
+            var startCont = keys.Checkpoint();
+            previous.Push((current, startCont));
+
+            while (true)
+            {
+                // Check degenerate cases first. If we're at the end of input or we're at a
+                // leaf node in the trie, we're done digging so return any values we have
+                if (keys.IsAtEnd || current._children.Count == 0)
+                    return results;
+
+                // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
+                // null.
+                var key = keys.GetNext();
+                var cont = keys.Checkpoint();
+                var wrappedKey = new ValueTuple<TKey>(key);
+
+                // If there's no matching child in this node, return the results we have
+                if (!current._children.ContainsKey(wrappedKey))
+                    return results;
+
+                // Otherwise push the current node and the checkpoint from which we can continue
+                // parsing from onto the stack, and prepare for the next loop iteration.
+                current = current._children[wrappedKey];
+                if (current.HasResult && current.Result != null)
+                    results.Add(new SuccessResultAlternative<TResult>(current.Result, cont.Consumed, cont));
             }
         }
 

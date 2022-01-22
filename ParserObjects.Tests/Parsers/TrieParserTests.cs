@@ -18,7 +18,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            var target = new TrieParser<char, string>(trie, "");
+            IParser<char, string> target = new TrieParser<char, string>(trie, "");
 
             var input = new StringCharacterSequence("===>=<=><<==");
 
@@ -42,7 +42,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            var target = new TrieParser<char, string>(trie, "");
+            IParser<char, string> target = new TrieParser<char, string>(trie, "");
 
             var input = new StringCharacterSequence("X===>=<=><<==");
 
@@ -50,7 +50,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Trie_Action_Operators()
+        public void Single_Action_Operators()
         {
             var target = Trie<string>(trie => trie
                 .Add("=", "=")
@@ -71,6 +71,62 @@ namespace ParserObjects.Tests.Parsers
             target.Parse(input).Value.Should().Be("<");
             target.Parse(input).Value.Should().Be("<=");
             target.Parse(input).Value.Should().Be("=");
+        }
+
+        [Test]
+        public void Multi_Action_Operators()
+        {
+            var target = TrieMulti<string>(trie => trie
+                .Add("=", "=")
+                .Add("==", "==")
+                .Add("===", "===")
+                .Add(">=", ">=")
+                .Add("<=", "<=")
+                .Add("<", "<")
+                .Add(">", ">")
+            );
+
+            var input = new StringCharacterSequence("===>=<=><<==");
+
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be("=");
+            result.Results[0].Consumed.Should().Be(1);
+            result.Results[1].Value.Should().Be("==");
+            result.Results[1].Consumed.Should().Be(2);
+            result.Results[2].Value.Should().Be("===");
+            result.Results[2].Consumed.Should().Be(3);
+        }
+
+        [Test]
+        public void Multi_Action_Continue()
+        {
+            var trie = new InsertOnlyTrie<char, string>();
+            trie.Add("=", "=");
+            trie.Add("==", "==");
+            trie.Add("===", "===");
+            trie.Add(">=", ">=");
+            trie.Add("<=", "<=");
+            trie.Add("<", "<");
+            trie.Add(">", ">");
+
+            var multiTrieParser = TrieMulti(trie);
+            var singleTrieParser = Trie(trie);
+
+            var target = multiTrieParser.ContinueWith(left => Rule(
+                left,
+                singleTrieParser,
+                (l, r) => $"{l} {r}"
+            ));
+            var input = new StringCharacterSequence("===>=<=><<==");
+
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be("= ==");
+            result.Results[1].Value.Should().Be("== =");
+            result.Results[2].Value.Should().Be("=== >=");
         }
 
         [Test]

@@ -7,12 +7,10 @@ namespace ParserObjects.Parsers;
 /// <summary>
 /// Uses a Trie to match the longest pattern from among available options.
 /// </summary>
-/// <typeparam name="TInput"></typeparam>
-/// <typeparam name="TOutput"></typeparam>
 public sealed record TrieParser<TInput, TOutput>(
     IReadOnlyTrie<TInput, TOutput> Trie,
     string Name = ""
-) : IParser<TInput, TOutput>
+) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
@@ -21,6 +19,15 @@ public sealed record TrieParser<TInput, TOutput>(
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+    IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    {
+        var startCheckpoint = state.Input.Checkpoint();
+        var results = Trie.GetMany(state.Input);
+        return new MultiResult<TOutput>(this, startCheckpoint.Location, startCheckpoint, results);
+    }
+
+    IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state);
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

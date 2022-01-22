@@ -21,6 +21,14 @@ public interface IReadOnlyTrie<TKey, TResult>
     PartialResult<TResult> Get(ISequence<TKey> keys);
 
     /// <summary>
+    /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
+    /// list of values from the trie which successfully consume values from the composite key.
+    /// </summary>
+    /// <param name="keys"></param>
+    /// <returns></returns>
+    IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys);
+
+    /// <summary>
     /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so
     /// the results should be cached if possible.
     /// </summary>
