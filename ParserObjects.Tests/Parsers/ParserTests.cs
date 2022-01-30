@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ParserObjects.Visitors;
+using ParserObjects.Bnf;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -30,7 +30,7 @@ namespace ParserObjects.Tests.Parsers
                 .Where(t => (t.IsPublic || t.IsNestedPublic) && !t.IsInterface && !t.IsAbstract && typeof(IParser).IsAssignableFrom(t))
                 .ToList();
 
-            var visitMethods1 = typeof(BnfStringifyVisitor)
+            var visitMethods1 = typeof(BuiltInTypesBnfStringifyVisitor)
                 .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
                 .ToList();
 
@@ -41,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
                     Method = m,
                     Parameters = m.GetParameters()
                 })
-                .Where(x => x.Parameters.Length == 2 && x.Parameters[1].ParameterType == typeof(BnfStringifyVisitor.State))
+                .Where(x => x.Parameters.Length == 2 && x.Parameters[1].ParameterType == typeof(BnfStringifyVisitor))
                 .Select(x => x.Parameters[0].ParameterType)
                 .ToList();
 

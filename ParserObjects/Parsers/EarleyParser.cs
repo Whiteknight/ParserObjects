@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Bnf;
 using ParserObjects.Earley;
 using ParserObjects.Utility;
-using ParserObjects.Visitors;
 
 namespace ParserObjects.Parsers;
 
@@ -96,10 +96,10 @@ public static class Earley<TInput, TOutput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public string GetBnf(BnfStringifyVisitor visitor, BnfStringifyVisitor.State state)
+        public string GetBnf(BnfStringifyVisitor state)
         {
             var grammarVisitor = new BnfGrammarVisitor();
-            var bnf = grammarVisitor.Visit(_startSymbol, visitor, state);
+            var bnf = grammarVisitor.Visit(_startSymbol, state);
             return $"EARLEY(\n{bnf}\n)";
         }
 

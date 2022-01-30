@@ -1,4 +1,8 @@
-﻿using static ParserObjects.ParserMethods;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ParserObjects.Bnf;
+using ParserObjects.Utility;
+using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Visitors
@@ -363,6 +367,56 @@ namespace ParserObjects.Tests.Visitors
                 .Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
+        }
+
+        private class TestParser : IParser<char, string>
+        {
+            public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+            public string Name => null;
+
+            public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+            public IResult<string> Parse(IParseState<char> state)
+            {
+                throw new NotImplementedException();
+            }
+
+            public INamed SetName(string name)
+            {
+                throw new NotImplementedException();
+            }
+
+            IResult IParser<char>.Parse(IParseState<char> state)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class TestParserBnfVisitor : IPartialVisitor<BnfStringifyVisitor>
+        {
+            public bool TryAccept(IParser parser, BnfStringifyVisitor state)
+            {
+                if (parser is TestParser tp)
+                {
+                    state.Append("TEST");
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        [Test]
+        public void CustomParserTest()
+        {
+            var stringifier = new BnfStringifier();
+            stringifier.Add<TestParserBnfVisitor>();
+
+            var parser = List(new TestParser()).Named("TARGET");
+
+            var result = stringifier.Stringify(parser);
+            result.Should().Contain("TARGET := TEST*");
         }
     }
 }

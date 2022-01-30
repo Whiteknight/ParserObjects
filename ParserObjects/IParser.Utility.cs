@@ -1,7 +1,7 @@
 ﻿using System;
+using ParserObjects.Bnf;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
-using ParserObjects.Visitors;
 
 namespace ParserObjects;
 
@@ -19,7 +19,7 @@ public static class ParserExtensions
         if (string.IsNullOrEmpty(parser.Name))
             parser = parser.Named("(TARGET)");
 
-        return new BnfStringifyVisitor().ToBnf(parser);
+        return BnfStringifier.Instance.Stringify(parser);
     }
 
     /// <summary>

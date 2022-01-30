@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Visitors;
+using ParserObjects.Bnf;
 
 namespace ParserObjects.Earley;
 
@@ -10,15 +10,14 @@ namespace ParserObjects.Earley;
 public sealed class BnfGrammarVisitor
 {
     private record struct State(
-        BnfStringifyVisitor Visitor,
-        BnfStringifyVisitor.State OuterState,
+        BnfStringifyVisitor OuterState,
         HashSet<object> SeenItems,
         List<string> Lines
     );
 
-    public string Visit(INonterminal rootRule, BnfStringifyVisitor visitor, BnfStringifyVisitor.State outerState)
+    public string Visit(INonterminal rootRule, BnfStringifyVisitor outerState)
     {
-        var state = new State(visitor, outerState, new HashSet<object>(), new List<string>());
+        var state = new State(outerState, new HashSet<object>(), new List<string>());
         Visit(rootRule, state);
         return string.Join("\n", state.Lines);
     }
@@ -40,7 +39,7 @@ public sealed class BnfGrammarVisitor
 
     private static void Accept(IParser terminal, State state)
     {
-        state.Visitor.VisitChild(terminal, state.OuterState, false);
+        state.OuterState.Visit(terminal, false);
     }
 
     private void Accept(INonterminal nonterminal, State state)
