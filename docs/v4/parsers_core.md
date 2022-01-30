@@ -210,7 +210,7 @@ var parser = Function((t, success, fail) => {
 });
 ```
 
-The Function parser is very similar to the `Sequential` parser. Both use a callback to execute the parse. The Function parser is almost completely free from structure and does not assume that the parse internally is performed using `IParser` instances. The Sequential parser, on the other hand provides a state object which should be used to perform parses, and expects that the parsing internally will be done using `IParser` instances.
+The Function parser is very similar to the `Sequential` parser. Both use a callback to execute the parse. The Function parser is almost completely free from structure and does not assume that the parse internally is performed using `IParser` instances. The Sequential parser, on the other hand provides a state object which should be used to perform parses, and expects that the parsing internally will be done using `IParser` instances. The `Function` parser is used internally to implement several of the other parser types in this list.
 
 ### List Parser
 

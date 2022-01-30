@@ -32,7 +32,9 @@ The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to 
 
 We will discuss multi parsers and working with multiple results in more detail later on.
 
-In addition, all the core parser types try to be completely generic in terms of input type. Parsers can generally operate on sequences of `char` just as easily as on sequences of `byte`, or custom token objects.
+All the core parser types try to be completely generic in terms of input type. Parsers can generally operate on sequences of `char` just as easily as on sequences of `byte`, or custom token objects. All internal parser types are, or are considered to be, immutable. A parser will not allow it's data to be changed and attempts to change data may result in a new parser instance being created. There are a few counter-examples, but these should be considered the rare exception and not treated as permission to have parsers with mutable data.
+
+It is possible to implement your own `IParser` classes in your own project. When doing so, it is strongly recommended that your parser types are designed to follow these invariants as well, and keep your parsers immutable.
 
 ## Parser Results
 
@@ -152,12 +154,22 @@ var methodDeclareParser = Rule(
 
 ## Naming, Finding and Replacing
 
-You can give a parser a name using the `.Named("name")` extension method. You can also set the `.Name` property on the parser.
+All `IParser` instances will have a unique `Id` value. These Id values should be unique across the entire application. If you are writing your own custom `IParser` implementation, care should be taken to make sure you set this unique Id value for every instance. 
 
 ```csharp
-parser = parser.Named("myParser");
-var parser = new MyParser().Named("myParser");
-var parser = new MyParser() { Name = "myParser" };
+public int Id { get; } = ParserObjects.Utility.UniqueIntegerGenerator.GetNext();
+```
+
+If you know the Id of a parser, you can find it:
+
+```csharp
+var needleParser = haystackParser.ById(25);
+```
+
+Parsers may optionally have a name to help with debugging, stringification, find/replace operations and other situations. The `.Named("...")` extension method will create a new parser, with all data copied from the original parser, with the specified name. If the parser already has the desired name, the same instance will be returned. It is recommended that the names of parsers should be unique, though this is not required. Some operations, such as find/replace will assume names are unique and will return only the first instance with the given name. 
+
+```csharp
+var newParser = parser.Named("myParser");
 ```
 
 Names are useful for debugging purposes, so you can see which parser is executing. You can also search for parsers by name if you have a composed parser:
@@ -169,10 +181,12 @@ var needleParser = haystackParser.FindNamed("myParser").Value;
 The real power of this mechanism is the ability to replace a parser at runtime. This is done by using the special `ReplaceableParser` and the `.Replace()` method:
 
 ```csharp
-var result = parser.Replace("myParser", newParser);
+var result = parser.Replace("myParser", replacement);
 ```
 
-The replacement parser must be assignable to the same `IParser<TInput, TOutput>` as the original, because all parsers are type safe.
+The replacement parser must be assignable to the same `IParser<TInput, TOutput>` as the original, because all parsers are type safe. If the replacement is not the correct type, the replace operation will fail.
+
+Parsers **must** have a unique Id value but they may not have a name and those names might not be unique if they are set.
 
 ## Stringification and BNF
 
@@ -184,7 +198,7 @@ var bnf = parser.ToBnf();
 
 This string is useful primarily as an auditing or debugging tool, to make sure that parsers implement the grammar you expect. Some parsers cannot be completely reduced to BNF form (`Sequential` and `Function` parsers, for example). Other parsers will be converted to something which is not standards-compliant BNF, but which may still be useful in debugging.
 
-For BNF stringification to work, parsers must have a name. Only parsers which have a name will get a line of BNF generated in the output. It is a very good idea to use `.Named("...")` in general, and it is nearly mandatory if you want to have usable BNF stringification.
+For BNF stringification to work properly, parsers must have a name. Only parsers which have a name will get a line of BNF generated in the output. It is a very good idea to use `.Named("...")` in general, and it is nearly mandatory if you want to have usable BNF stringification.
 
 **Note**: The output of `.ToBnf()` is described as "pseudo-BNF" on purpose. The output string is not guaranteed to be standards-compliant, machine-readable BNF, and in fact should be assumed not to be. It is a mixture of BNF, RegularExpression pattern syntax and human-readable notes, and is generally intended for reading by humans as a tool for verification and debugging only. 
 
