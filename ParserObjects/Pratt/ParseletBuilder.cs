@@ -6,19 +6,19 @@ using ParserObjects.Utility;
 namespace ParserObjects.Pratt;
 
 /// <summary>
-/// Configuration class for setting up a parselet.
+/// Builder to create an IParselet from an IParser with specified configuration and binding values.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class ParseletConfiguration<TInput, TValue, TOutput> : IParseletConfiguration<TInput, TValue, TOutput>
+public sealed class ParseletBuilder<TInput, TValue, TOutput> : IPrattParseletBuilder<TInput, TValue, TOutput>
 {
     private readonly List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>> _getParselets;
     private readonly IParser<TInput, TValue> _matcher;
 
     private int _typeId;
 
-    public ParseletConfiguration(IParser<TInput, TValue> matcher)
+    public ParseletBuilder(IParser<TInput, TValue> matcher)
     {
         Assert.ArgumentNotNull(matcher, nameof(matcher));
         _matcher = matcher;
@@ -35,16 +35,13 @@ public sealed class ParseletConfiguration<TInput, TValue, TOutput> : IParseletCo
         return parselets;
     }
 
-    public IParseletConfiguration<TInput, TValue, TOutput> TypeId(int id)
+    public IPrattParseletBuilder<TInput, TValue, TOutput> TypeId(int id)
     {
         _typeId = id;
         return this;
     }
 
-    public IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(NudFunc<TInput, TValue, TOutput> getNud)
-        => ProduceRight(0, getNud);
-
-    public IParseletConfiguration<TInput, TValue, TOutput> ProduceRight(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
+    public IPrattParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
         Assert.ArgumentNotNull(getNud, nameof(getNud));
         _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
@@ -59,10 +56,7 @@ public sealed class ParseletConfiguration<TInput, TValue, TOutput> : IParseletCo
         return this;
     }
 
-    public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed)
-        => ProduceLeft(lbp, lbp + 1, getLed);
-
-    public IParseletConfiguration<TInput, TValue, TOutput> ProduceLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
+    public IPrattParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
         Assert.ArgumentNotNull(getLed, nameof(getLed));
         _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(

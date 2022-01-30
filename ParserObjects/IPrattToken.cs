@@ -1,9 +1,9 @@
-﻿namespace ParserObjects.Pratt;
+﻿namespace ParserObjects;
 
 /// <summary>
 /// A value in the Pratt parser with precidence/associativity and ID information.
 /// </summary>
-public interface IToken
+public interface IPrattToken
 {
     /// <summary>
     /// Gets a user-provided ID value which can be used for matching purposes.
@@ -32,7 +32,7 @@ public interface IToken
 /// by the engine.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public interface IToken<out TValue> : IToken
+public interface IPrattToken<out TValue> : IPrattToken
 {
     /// <summary>
     /// Gets the parse result value of the token.
@@ -47,7 +47,7 @@ public interface IToken<out TValue> : IToken
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IToken<TInput, TOutput> : IToken
+public interface IPrattToken<TInput, TOutput> : IPrattToken
 {
     /// <summary>
     /// Calculates the null denominator (prefix production) of this token, converting it into
@@ -55,7 +55,7 @@ public interface IToken<TInput, TOutput> : IToken
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context);
+    IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
 
     /// <summary>
     /// Calculates the left denominator (suffix production) of this token, converting it into
@@ -64,5 +64,5 @@ public interface IToken<TInput, TOutput> : IToken
     /// <param name="context"></param>
     /// <param name="left"></param>
     /// <returns></returns>
-    IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left);
+    IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
 }

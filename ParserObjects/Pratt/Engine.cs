@@ -64,7 +64,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
     }
 
-    private PartialResult<IToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IToken<TOutput> leftToken)
+    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IPrattToken<TOutput> leftToken)
     {
         var cp = state.Input.Checkpoint();
         foreach (var parselet in _ledableParselets.Where(p => rbp < p.Lbp))
@@ -84,13 +84,13 @@ public sealed class Engine<TInput, TOutput>
                 continue;
             }
 
-            return new PartialResult<IToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
+            return new PartialResult<IPrattToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
         }
 
-        return new PartialResult<IToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
+        return new PartialResult<IPrattToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
     }
 
-    private PartialResult<IToken<TOutput>> GetLeft(IParseState<TInput> state)
+    private PartialResult<IPrattToken<TOutput>> GetLeft(IParseState<TInput> state)
     {
         var cp = state.Input.Checkpoint();
         foreach (var parselet in _nudableParselets)
@@ -110,9 +110,9 @@ public sealed class Engine<TInput, TOutput>
             }
 
             consumed += leftContext.Consumed;
-            return new PartialResult<IToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
+            return new PartialResult<IPrattToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
         }
 
-        return new PartialResult<IToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
+        return new PartialResult<IPrattToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
     }
 }

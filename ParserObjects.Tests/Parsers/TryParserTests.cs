@@ -83,14 +83,14 @@ namespace ParserObjects.Tests.Parsers
             // cause the whole Pratt to fail.
             var target = Pratt<string>(c => c
                 .Add(Match('a'), p => p
-                    .ProduceRight((ctx, _) =>
+                    .Bind((ctx, _) =>
                     {
                         var next = ctx.TryParse(Try(ctx));
                         return "a" + next.GetValueOrDefault("fail");
                     })
                 )
                 .Add(Match('b'), p => p
-                    .ProduceRight((ctx, _) =>
+                    .Bind((ctx, _) =>
                     {
                         ctx.FailAll();
                         return "b";
@@ -113,14 +113,14 @@ namespace ParserObjects.Tests.Parsers
             // The Pratt will succeed, with "afail"
             var target = Pratt<string>(c => c
                 .Add(Match('a'), p => p
-                    .ProduceRight((ctx, _) =>
+                    .Bind((ctx, _) =>
                     {
                         var next = ctx.TryParse(Try(ctx));
                         return "a" + next.GetValueOrDefault("fail");
                     })
                 )
                 .Add(Match('b'), p => p
-                    .ProduceRight((_, _) =>
+                    .Bind((_, _) =>
                     {
                         throw new Exception("test");
                     })

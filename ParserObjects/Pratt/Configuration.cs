@@ -19,12 +19,12 @@ public sealed class Configuration<TInput, TOutput> : IConfiguration<TInput, TOut
 
     public List<IParselet<TInput, TOutput>> Parselets { get; }
 
-    public IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IParseletConfiguration<TInput, TValue, TOutput>> setup)
+    public IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IPrattParseletBuilder<TInput, TValue, TOutput>> setup)
     {
         Assert.ArgumentNotNull(matcher, nameof(matcher));
         Assert.ArgumentNotNull(setup, nameof(setup));
 
-        var parseletConfig = new ParseletConfiguration<TInput, TValue, TOutput>(matcher);
+        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher);
         setup(parseletConfig);
         var parselets = parseletConfig.Build();
         Parselets.AddRange(parselets);
@@ -32,7 +32,7 @@ public sealed class Configuration<TInput, TOutput> : IConfiguration<TInput, TOut
     }
 
     public IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher)
-        => Add(matcher, p => p.ProduceRight(0, (ctx, v) => v.Value));
+        => Add(matcher, p => p.Bind(0, (ctx, v) => v.Value));
 
     public IConfiguration<TInput, TOutput> Reference(IParser parser)
     {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ParserObjects.Pratt;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Regexes;
@@ -21,29 +20,29 @@ public static class RegexPatternParser
 
             // Atoms
             .Add(normalChar, p => p
-                .ProduceRight(2, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
-                .ProduceLeft(2, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
+                .Bind(2, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
+                .BindLeft(2, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
             )
             .Add(Match('['), p => p
-                .ProduceRight(2, (ctx, _) => ParseCharacterClass(ctx, null))
-                .ProduceLeft(2, (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
+                .Bind(2, (ctx, _) => ParseCharacterClass(ctx, null))
+                .BindLeft(2, (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
             )
             .Add(Match('.'), p => p
-                .ProduceRight(2, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
-                .ProduceLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
+                .Bind(2, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
+                .BindLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
             )
             .Add(Match('\\'), p => p
-                .ProduceRight(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(any)))
-                .ProduceLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(any)))
+                .Bind(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(any)))
+                .BindLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(any)))
             )
             .Add(Match('('), p => p
-                .ProduceRight(2, (ctx, _) =>
+                .Bind(2, (ctx, _) =>
                 {
                     var group = ctx.Parse(0);
                     ctx.Expect(Match(')'));
                     return State.AddGroupState(null, group);
                 })
-                .ProduceLeft(2, (ctx, states, _) =>
+                .BindLeft(2, (ctx, states, _) =>
                 {
                     var group = ctx.Parse(0);
                     ctx.Expect(Match(')'));
@@ -53,26 +52,26 @@ public static class RegexPatternParser
 
             // Quantifiers
             .Add(Match('{'), p => p
-                .ProduceLeft(2, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
+                .BindLeft(2, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
             )
             .Add(Match('?'), p => p
-                .ProduceLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
+                .BindLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
             )
             .Add(Match('+'), p => p
-                .ProduceLeft(2, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+                .BindLeft(2, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
             )
             .Add(Match('*'), p => p
-                .ProduceLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
+                .BindLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
             )
 
             // Alternation
             .Add(Match('|'), p => p
-                .ProduceLeft(2, (ctx, states, _) => ParseAlternation(ctx, states.Value))
+                .BindLeft(2, (ctx, states, _) => ParseAlternation(ctx, states.Value))
             )
 
             // End Anchor
             .Add(Match('$'), p => p
-                .ProduceLeft(4, (_, states, _) =>
+                .BindLeft(4, (_, states, _) =>
                 {
                     states.Value.Add(State.EndOfInput);
                     return states.Value;
@@ -87,7 +86,7 @@ public static class RegexPatternParser
             .Named("RegexPattern");
     }
 
-    private static char GetUnescapedCharacter(IParseContext<char> ctx, char c)
+    private static char GetUnescapedCharacter(IPrattParseContext<char> ctx, char c)
     {
         if (c != '\\')
             return c;
@@ -98,7 +97,7 @@ public static class RegexPatternParser
         return ctx.Input.GetNext();
     }
 
-    private static List<State> ParseCharacterClass(IParseContext<char> ctx, List<State>? states)
+    private static List<State> ParseCharacterClass(IPrattParseContext<char> ctx, List<State>? states)
     {
         var invertResult = ctx.TryParse(Match('^'));
         var ranges = new List<(char low, char high)>();
@@ -125,7 +124,7 @@ public static class RegexPatternParser
         return State.AddMatch(states, c => matcher.IsMatch(c), "class");
     }
 
-    private static (char low, char high) ParseCharacterRange(IParseContext<char> ctx, char c)
+    private static (char low, char high) ParseCharacterRange(IPrattParseContext<char> ctx, char c)
     {
         var low = c;
         var next = ctx.Input.Peek();
@@ -150,7 +149,7 @@ public static class RegexPatternParser
     private static object ThrowEndOfPatternException(IParseState<char> t)
         => throw new RegexException("Expected end of pattern but found '" + t.Input.GetNext());
 
-    private static List<State> ParseRepetitionRange(IParseContext<char> ctx, List<State> states, IParser<char, int> digits)
+    private static List<State> ParseRepetitionRange(IPrattParseContext<char> ctx, List<State> states, IParser<char, int> digits)
     {
         if (states.Last().Type == StateType.EndOfInput)
             throw new RegexException("Cannot quantify the end anchor $");
@@ -175,7 +174,7 @@ public static class RegexPatternParser
         return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
     }
 
-    private static List<State> ParseAlternation(IParseContext<char, List<State>> ctx, List<State> states)
+    private static List<State> ParseAlternation(IPrattParseContext<char, List<State>> ctx, List<State> states)
     {
         var options = new List<List<State>>() { states };
         while (true)

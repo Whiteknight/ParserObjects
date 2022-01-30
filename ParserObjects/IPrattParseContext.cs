@@ -1,6 +1,6 @@
-﻿namespace ParserObjects.Pratt;
+﻿namespace ParserObjects;
 
-public interface IParseContext<TInput>
+public interface IPrattParseContext<TInput>
 {
     /// <summary>
     /// Gets the contextual data store for the current parse operation.
@@ -63,7 +63,7 @@ public interface IParseContext<TInput>
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IParseContext<TInput, TOutput> : IParseContext<TInput>, IParser<TInput, TOutput>
+public interface IPrattParseContext<TInput, TOutput> : IPrattParseContext<TInput>, IParser<TInput, TOutput>
 {
     /// <summary>
     /// Invoke the Pratt engine recursively to obtain the next output value, with the current

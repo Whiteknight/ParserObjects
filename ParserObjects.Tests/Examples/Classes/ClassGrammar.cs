@@ -46,9 +46,9 @@ namespace ParserObjects.Tests.Examples.Classes
             var closeBracket = ows.Then(Match('}')).Named("Close Bracket");
 
             var definition = Pratt<Definition>(setup => setup
-                .Add(name, p => p.ProduceRight(0, (ctx, n) => new Definition(n.Value)))
+                .Add(name, p => p.Bind(0, (ctx, n) => new Definition(n.Value)))
                 .Add(accessModifier, p => p
-                    .ProduceRight(3, (ctx, am) =>
+                    .Bind(3, (ctx, am) =>
                     {
                         var def = ctx.Parse();
                         if (string.IsNullOrEmpty(def.StructureType))
@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Examples.Classes
                     })
                 )
                 .Add(structureType, p => p
-                    .ProduceRight(5, (ctx, st) =>
+                    .Bind(5, (ctx, st) =>
                     {
                         var def = ctx.Parse();
                         if (!string.IsNullOrEmpty(def.StructureType))
@@ -72,7 +72,7 @@ namespace ParserObjects.Tests.Examples.Classes
                     })
                 )
                 .Add(openBracket, p => p
-                    .ProduceLeft(1, (ctx, defToken, _) =>
+                    .BindLeft(1, (ctx, defToken, _) =>
                     {
                         var def = defToken.Value;
 

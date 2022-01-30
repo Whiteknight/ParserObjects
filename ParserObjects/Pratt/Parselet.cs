@@ -39,7 +39,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public bool CanLed => _led != null;
 
-    public (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
+    public (bool success, IPrattToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
     {
         var result = _match.Parse(state);
         if (!result.Success)
@@ -47,36 +47,36 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         return (true, new ParseletToken<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
     }
 
-    public IOption<IToken<TOutput>> Nud(IParseContext<TInput, TOutput> context, IToken<TValue> sourceToken)
+    public IOption<IPrattToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IPrattToken<TValue> sourceToken)
     {
         if (_nud == null)
-            return FailureOption<IToken<TOutput>>.Instance;
+            return FailureOption<IPrattToken<TOutput>>.Instance;
         try
         {
             var resultValue = _nud(context, sourceToken);
             var token = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new SuccessOption<IToken<TOutput>>(token);
+            return new SuccessOption<IPrattToken<TOutput>>(token);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
-            return FailureOption<IToken<TOutput>>.Instance;
+            return FailureOption<IPrattToken<TOutput>>.Instance;
         }
     }
 
-    public IOption<IToken<TOutput>> Led(IParseContext<TInput, TOutput> context, IToken left, IToken<TValue> sourceToken)
+    public IOption<IPrattToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IPrattToken<TValue> sourceToken)
     {
-        if (_led == null || left is not IToken<TOutput> leftTyped)
-            return FailureOption<IToken<TOutput>>.Instance;
+        if (_led == null || left is not IPrattToken<TOutput> leftTyped)
+            return FailureOption<IPrattToken<TOutput>>.Instance;
 
         try
         {
             var resultValue = _led(context, leftTyped, sourceToken);
             var resultToken = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new SuccessOption<IToken<TOutput>>(resultToken);
+            return new SuccessOption<IPrattToken<TOutput>>(resultToken);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
-            return FailureOption<IToken<TOutput>>.Instance;
+            return FailureOption<IPrattToken<TOutput>>.Instance;
         }
     }
 

@@ -3,7 +3,7 @@
 // Simple token type which wraps a value from the input stream and metadata necessary to
 // work with it inside the Engine. This class is for (mostly) internal use only and shouldn't
 // be used directly except through the provided abstractions.
-public sealed class ParseletToken<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
+public sealed class ParseletToken<TInput, TValue, TOutput> : IPrattToken<TValue>, IPrattToken<TInput, TOutput>
 {
     private readonly Parselet<TInput, TValue, TOutput> _parselet;
 
@@ -26,16 +26,16 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IToken<TValue>, ITo
     public bool IsValid { get; }
     public string Name { get; }
 
-    public IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context)
+    public IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
         => _parselet.Nud(context, this);
 
-    public IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left)
+    public IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
         => _parselet.Led(context, left, this);
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }
 
-public sealed class ValueToken<TInput, TValue, TOutput> : IToken<TValue>, IToken<TInput, TOutput>
+public sealed class ValueToken<TInput, TValue, TOutput> : IPrattToken<TValue>, IPrattToken<TInput, TOutput>
 {
     public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
     {
@@ -55,9 +55,9 @@ public sealed class ValueToken<TInput, TValue, TOutput> : IToken<TValue>, IToken
     public bool IsValid { get; }
     public string Name { get; }
 
-    public IOption<IToken<TOutput>> NullDenominator(IParseContext<TInput, TOutput> context) => FailureOption<IToken<TOutput>>.Instance;
+    public IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context) => FailureOption<IPrattToken<TOutput>>.Instance;
 
-    public IOption<IToken<TOutput>> LeftDenominator(IParseContext<TInput, TOutput> context, IToken left) => FailureOption<IToken<TOutput>>.Instance;
+    public IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left) => FailureOption<IPrattToken<TOutput>>.Instance;
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }

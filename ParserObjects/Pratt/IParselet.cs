@@ -35,7 +35,7 @@ public interface IParselet<TInput, TOutput> : INamed
     /// </summary>
     /// <param name="state"></param>
     /// <returns></returns>
-    (bool success, IToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state);
+    (bool success, IPrattToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state);
 
     /// <summary>
     /// Gets a value indicating whether this parselet can be used as a null denominator.

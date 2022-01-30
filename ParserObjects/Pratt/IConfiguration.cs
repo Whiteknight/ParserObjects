@@ -16,7 +16,7 @@ public interface IConfiguration<TInput, TOutput>
     /// <param name="matcher"></param>
     /// <param name="setup"></param>
     /// <returns></returns>
-    IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IParseletConfiguration<TInput, TValue, TOutput>> setup);
+    IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IPrattParseletBuilder<TInput, TValue, TOutput>> setup);
 
     /// <summary>
     /// Add a parselet using the given parser as a null denominator with 0 binding power.
