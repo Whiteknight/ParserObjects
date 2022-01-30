@@ -118,11 +118,11 @@ namespace ParserObjects.Tests.Utility
 
             var result = target.GetAllPatterns().ToList();
             result.Count.Should().Be(5);
-            result[0].Should().BeEquivalentTo('a', 'b', 'c');
-            result[1].Should().BeEquivalentTo('a', 'b', 'd');
-            result[2].Should().BeEquivalentTo('a', 'e', 'f');
-            result[3].Should().BeEquivalentTo('a', 'e', 'g');
-            result[4].Should().BeEquivalentTo('h', 'i', 'j');
+            result[0].Should().BeEquivalentTo(new[] { 'a', 'b', 'c' });
+            result[1].Should().BeEquivalentTo(new[] { 'a', 'b', 'd' });
+            result[2].Should().BeEquivalentTo(new[] { 'a', 'e', 'f' });
+            result[3].Should().BeEquivalentTo(new[] { 'a', 'e', 'g' });
+            result[4].Should().BeEquivalentTo(new[] { 'h', 'i', 'j' });
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace ParserObjects.Tests.Utility
 
             var result = target.GetAllPatterns().ToList();
             result.Count.Should().Be(1);
-            result[0].Should().BeEquivalentTo('a', 'b', 'c');
+            result[0].Should().BeEquivalentTo(new[] { 'a', 'b', 'c' });
         }
     }
 }
