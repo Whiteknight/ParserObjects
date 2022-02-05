@@ -28,7 +28,7 @@ public sealed record PeekParser<T>(
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Peek", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

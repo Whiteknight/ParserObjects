@@ -40,7 +40,7 @@ public static class Deferred<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -73,7 +73,7 @@ public static class Deferred<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }

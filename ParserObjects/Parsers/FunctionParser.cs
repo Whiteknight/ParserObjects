@@ -58,7 +58,7 @@ public static class Function<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => Children ?? Array.Empty<IParser>();
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Function (Single)", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -134,7 +134,7 @@ public static class Function<TInput, TOutput>
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Function (Multi)", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -179,7 +179,7 @@ public static class Function<TInput>
             return result.AdjustConsumed(totalConsumed);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Function", Name, Id);
 
         public INamed SetName(string name) => new Parser(_func, Description, _children, name);
     }

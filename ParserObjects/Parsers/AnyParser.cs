@@ -30,7 +30,7 @@ public sealed record AnyParser<T>(
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Any", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

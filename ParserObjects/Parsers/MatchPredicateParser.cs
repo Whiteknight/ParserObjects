@@ -36,7 +36,7 @@ public sealed record MatchPredicateParser<T>(
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

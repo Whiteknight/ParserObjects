@@ -37,7 +37,7 @@ public sealed record FirstParser<TInput, TOutput>(
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("First", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

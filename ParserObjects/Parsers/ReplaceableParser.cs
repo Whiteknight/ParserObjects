@@ -43,7 +43,7 @@ public static class Replaceable<TInput>
             return new SingleReplaceResult(this, previous, _value);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new SingleParser(_value, name);
     }
@@ -89,7 +89,7 @@ public static class Replaceable<TInput, TOutput>
             return new SingleReplaceResult(this, previous, _value);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new SingleParser(_value, name);
     }
@@ -125,7 +125,7 @@ public static class Replaceable<TInput, TOutput>
             return new SingleReplaceResult(this, previous, _value);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new MultiParser(_value, name);
     }

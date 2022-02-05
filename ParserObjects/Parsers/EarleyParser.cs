@@ -94,7 +94,7 @@ public static class Earley<TInput, TOutput>
             return new MultiResult<TOutput>(this, startLocation, startCheckpoint, results.Alternatives, new[] { results.Statistics });
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Earley", Name, Id);
 
         public string GetBnf(BnfStringifyVisitor state)
         {

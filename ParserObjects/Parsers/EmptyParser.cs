@@ -22,7 +22,7 @@ public sealed record EmptyParser<TInput>(
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Empty", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

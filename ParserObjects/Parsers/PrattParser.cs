@@ -66,7 +66,7 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public IEnumerable<IParser> GetChildren() => Config.GetParsers();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Pratt", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

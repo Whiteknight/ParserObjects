@@ -24,6 +24,11 @@ public interface IResult : IResultBase
     /// </summary>
     int Consumed { get; }
 
+    /// <summary>
+    /// Return a new result with an updated Consumed count.
+    /// </summary>
+    /// <param name="consumed"></param>
+    /// <returns></returns>
     IResult AdjustConsumed(int consumed);
 }
 
@@ -47,6 +52,11 @@ public interface IResult<out TValue> : IResult
     /// <returns></returns>
     IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
 
+    /// <summary>
+    /// Return a new result with an updated Consumed count.
+    /// </summary>
+    /// <param name="consumed"></param>
+    /// <returns></returns>
     new IResult<TValue> AdjustConsumed(int consumed);
 }
 

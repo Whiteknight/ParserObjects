@@ -65,7 +65,7 @@ public sealed record MatchPatternParser<T>(
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("MatchPattern", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

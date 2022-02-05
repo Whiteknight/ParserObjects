@@ -118,7 +118,7 @@ public static class LeftApply<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("LeftApply", Name, Id);
 
         public INamed SetName(string name) => new Parser(_initial, _getRight, _quantifier, name);
     }

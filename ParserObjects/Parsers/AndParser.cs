@@ -35,7 +35,7 @@ public sealed record AndParser<TInput>(
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("And", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

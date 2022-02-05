@@ -30,7 +30,7 @@ public sealed record OrParser<TInput>(
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Or", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

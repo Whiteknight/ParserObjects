@@ -29,7 +29,7 @@ public sealed record NotParser<TInput>(
 
     public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Not", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

@@ -50,7 +50,7 @@ public static class Examine<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -101,7 +101,7 @@ public static class Examine<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -169,7 +169,7 @@ public static class Examine<TInput>
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
         public INamed SetName(string name) => new Parser(_parser, _before, _after, name);
     }

@@ -112,7 +112,7 @@ public static class Sequential
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Sequential", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }

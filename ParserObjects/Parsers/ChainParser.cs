@@ -106,7 +106,7 @@ public static class Chain<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -208,7 +208,7 @@ public static class Chain<TInput, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Chain (Multi)", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }

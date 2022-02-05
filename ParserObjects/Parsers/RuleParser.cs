@@ -50,7 +50,7 @@ public sealed record RuleParser<TInput, TOutput>(
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("Rule", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
 }

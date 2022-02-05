@@ -64,7 +64,7 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
@@ -113,7 +113,7 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }

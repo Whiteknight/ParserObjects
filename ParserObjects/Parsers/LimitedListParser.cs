@@ -63,7 +63,7 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
 
     public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
-    public override string ToString() => DefaultStringifier.ToString(this);
+    public override string ToString() => DefaultStringifier.ToString("LimitedList", Name, Id);
 
     public INamed SetName(string name) => new LimitedListParser<TInput, TOutput>(_parser, Minimum, Maximum, name);
 }

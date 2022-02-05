@@ -63,7 +63,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             return new MultiResult<TOutput>(this, multiResult.Location, multiResult.StartCheckpoint, results);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
@@ -121,7 +121,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             return new MultiResult<TOutput>(this, multiResult.Location, multiResult.StartCheckpoint, results);
         }
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);

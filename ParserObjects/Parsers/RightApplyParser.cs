@@ -196,7 +196,7 @@ public static class RightApply<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("RightApply", Name, Id);
 
         public INamed SetName(string name)
             => new RightApply<TInput, TMiddle, TOutput>.Parser(_item, _middle, _produce, _quantifier, _getMissingRight, name);

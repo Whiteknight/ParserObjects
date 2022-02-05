@@ -56,7 +56,7 @@ public static class Select<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public override string ToString() => DefaultStringifier.ToString(this);
+        public override string ToString() => DefaultStringifier.ToString("Select", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
     }
