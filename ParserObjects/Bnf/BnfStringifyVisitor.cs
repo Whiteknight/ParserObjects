@@ -8,19 +8,19 @@ namespace ParserObjects.Bnf;
 public sealed class BnfStringifyVisitor
 {
     private readonly IReadOnlyList<IPartialVisitor<BnfStringifyVisitor>> _partials;
+    private readonly StringBuilder _builder;
+    private readonly Stack<StringBuilder> _history;
+    private readonly HashSet<IParser> _seen;
 
-    public StringBuilder Builder { get; }
-    public Stack<StringBuilder> History { get; }
-    public HashSet<IParser> Seen { get; }
-    public StringBuilder Current { get; set; }
+    private StringBuilder Current => _history.Peek();
 
     public BnfStringifyVisitor(StringBuilder sb, IReadOnlyList<IPartialVisitor<BnfStringifyVisitor>> partials)
     {
-        Builder = sb;
+        _builder = sb;
         _partials = partials;
-        History = new Stack<StringBuilder>();
-        Seen = new HashSet<IParser>();
-        Current = new StringBuilder();
+        _history = new Stack<StringBuilder>();
+        _history.Push(new StringBuilder());
+        _seen = new HashSet<IParser>();
     }
 
     public void Visit(IParser parser, bool writeInPlace = true)
@@ -28,28 +28,30 @@ public sealed class BnfStringifyVisitor
         if (parser == null)
             return;
 
-        // If we have already seen this parser, just put in a tag to represent it
-        if (Seen.Contains(parser))
+        // We have already seen this parser. Figure out how to display it without getting into a loop
+        if (_seen.Contains(parser))
         {
+            // If it has a name, just write a tag here
             if (!string.IsNullOrEmpty(parser.Name))
             {
                 Current.Append('<').Append(parser.Name).Append('>');
                 return;
             }
 
+            // If it doesn't have children, we can safely recurse without getting into a loop
             if (!parser.GetChildren().Any())
             {
-                // if it's a simple parser with no recursion, we can just visit it again.
-                // No harm because it won't cause a loop
                 TryVisit(parser);
                 return;
             }
 
-            Current.Append("<ALREADY SEEN UNNAMED PARSER>");
+            // Recursing would cause an infinite loop. Instead write a warning tag with type/id
+            // You should really give your parsers names.
+            Current.Append($"<ALREADY SEEN {parser}>");
             return;
         }
 
-        Seen.Add(parser);
+        _seen.Add(parser);
 
         // If the parser doesn't have a name, recursively visit it in-place
         if (writeInPlace && string.IsNullOrEmpty(parser.Name))
@@ -58,35 +60,27 @@ public sealed class BnfStringifyVisitor
             return;
         }
 
-        // If the parser does have a name, write a tag for it
         if (writeInPlace)
-        {
-            Current.Append('<');
-            Current.Append(parser.Name);
-            Current.Append('>');
-        }
+            Current.Append(parser.ToString());
 
         if (parser is IHiddenInternalParser)
             return;
 
         // Start a new builder, so we can start stringifying this new parser on it's own line.
-        History.Push(Current);
-        Current = new StringBuilder();
-
-        // Visit the parser recursively to fill in the builder
+        var current = new StringBuilder();
+        _history.Push(current);
         TryVisit(parser);
+        _history.Pop();
 
         // Append the current builder to the overall builder
-        var rule = Current.ToString();
+        var rule = current.ToString();
         if (!string.IsNullOrEmpty(rule))
         {
-            Builder.Append(parser.Name);
-            Builder.Append(" := ");
-            Builder.Append(Current);
-            Builder.AppendLine(";");
+            _builder.Append(parser.Name);
+            _builder.Append(" := ");
+            _builder.Append(rule);
+            _builder.AppendLine(";");
         }
-
-        Current = History.Pop();
     }
 
     private void TryVisit(IParser parser)
@@ -98,8 +92,8 @@ public sealed class BnfStringifyVisitor
                 return;
         }
 
-        Debug.WriteLine($"No override match found for {parser.GetType().Name}");
-        Current.Append($"<UNVISITABLE PARSER Id={parser.Id} Type={parser.GetType().FullName}>");
+        Debug.WriteLine($"No override match found for {parser.GetType().FullName}");
+        Current.Append($"<UNVISITABLE PARSER {parser}>");
     }
 
     public BnfStringifyVisitor Append(char c)

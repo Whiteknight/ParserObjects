@@ -24,7 +24,8 @@ namespace ParserObjects.Tests.Visitors
             var offender = Deferred(() => Any());
             var parser = (offender, offender).First().Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := (. | <ALREADY SEEN UNNAMED PARSER>)");
+            var offenderString = offender.ToString();
+            result.Should().Contain($"parser := (. | <ALREADY SEEN {offenderString}>)");
         }
 
         [Test]
