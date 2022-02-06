@@ -5,7 +5,7 @@ using ParserObjects.Utility;
 namespace ParserObjects.Sequences;
 
 /// <summary>
-/// A sequence of bytes pulled from a Stream or StreamReader.
+/// A sequence of bytes pulled from a Stream. Stream must support Read and Seek operations.
 /// </summary>
 public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 {
@@ -156,13 +156,17 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         }
 
         // The position is outside the current buffer, so we need to refill the buffer.
-
+        // Try to fill the buffer such that the desired location is about 1/4th the way into the
+        // buffer in case we need to make a few more quick rewinds in the vicinity.
         var bestStartPos = position - (_options.BufferSize >> 2);
         if (bestStartPos < 0)
             bestStartPos = 0;
-        var forward = (int)(position - bestStartPos);
+
+        // Seek the stream to the desired start position and fill the buffer
         _stream.Seek(bestStartPos, SeekOrigin.Begin);
         var availableBytes = _stream.Read(_buffer, 0, _options.BufferSize);
+
+        var forward = (int)(position - bestStartPos);
         _remainingBytes = availableBytes - forward;
         _bufferIndex = forward;
         _consumed = consumed;
