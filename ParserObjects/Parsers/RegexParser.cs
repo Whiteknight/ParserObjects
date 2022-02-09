@@ -40,7 +40,6 @@ public sealed class RegexParser : IParser<char, string>
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
-    // TODO: Should show /.../ format?
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);
 
     public INamed SetName(string name) => new RegexParser(Regex, Pattern, name);

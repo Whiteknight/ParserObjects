@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Parsers;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Bnf;
 
@@ -9,9 +10,13 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 {
     public bool TryAccept(IParser parser, BnfStringifyVisitor state)
     {
+        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(state, nameof(state));
+
         var result = ((dynamic)this).Accept((dynamic)parser, state);
         if (result == null)
             return false;
+
         var asBool = Convert.ToBoolean(result);
         return asBool;
     }

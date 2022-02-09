@@ -37,6 +37,7 @@ public sealed class CharacterMatcher
     {
         if (_exactChars.Contains(c))
             return true;
+
         foreach (var (low, high) in _ranges)
         {
             if (low <= c && c <= high)

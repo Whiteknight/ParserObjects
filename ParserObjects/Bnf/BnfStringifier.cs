@@ -8,9 +8,8 @@ namespace ParserObjects.Bnf;
 /// <summary>
 /// Parser-visitor to traverse the parser-graph and attempt to produce a string of approximate
 /// pseudo-BNF to describe the grammar. Proper execution of this visitor depends on parsers having
-/// the .Name value set. If you have custom parser types you can create a subclass of this visitor
-/// type with signature 'public state.Visit(MyParserType parser, State state)' and it should dispatch to
-/// them as required.
+/// the .Name value set. If you have custom parser types you can implement
+/// IPartialVisitor&lt;BnfStringifyVisitor&rt; and call .Add() to include it in the visit.
 /// </summary>
 public sealed class BnfStringifier
 {
@@ -32,6 +31,7 @@ public sealed class BnfStringifier
 
     public void Add(IPartialVisitor<BnfStringifyVisitor> partial)
     {
+        Assert.ArgumentNotNull(partial, nameof(partial));
         if (partial == null || _partials.Contains(partial))
             return;
         _partials.Add(partial);

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
+using ParserObjects.Utility;
 
 namespace ParserObjects.Caching;
 
@@ -26,9 +27,10 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
 
     private record struct Key(ISymbol Symbol, Location Location);
 
-    public void Add<TValue>(ISymbol parser, Location location, TValue value)
+    public void Add<TValue>(ISymbol symbol, Location location, TValue value)
     {
-        var key = new Key(parser, location);
+        Assert.ArgumentNotNull(symbol, nameof(symbol));
+        var key = new Key(symbol, location);
         _cache.Set(key, value);
     }
 
@@ -38,10 +40,11 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
             _cache.Dispose();
     }
 
-    public IOption<TValue> Get<TValue>(ISymbol parser, Location location)
+    public IOption<TValue> Get<TValue>(ISymbol symbol, Location location)
     {
+        Assert.ArgumentNotNull(symbol, nameof(symbol));
         _stats.Attempts++;
-        var key = new Key(parser, location);
+        var key = new Key(symbol, location);
         if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)
         {
             _stats.Hits++;

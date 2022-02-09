@@ -18,9 +18,6 @@ public sealed record PrattParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
-    // TODO: Try to make Engine stateless, and pass the parselets in the TryParse method if
-    // possible.
-
     public static PrattParser<TInput, TOutput> Configure(Action<IConfiguration<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(setup, nameof(setup));
