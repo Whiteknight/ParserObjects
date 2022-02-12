@@ -10,6 +10,38 @@ using static ParserObjects.ParserMethods;
 
 ## Matching Parsers
 
+### Character Matcher
+
+The `MatchChar` parser matches a given character. It operates the same as `Match(char)` except it caches instances for characters that have previously been requested.
+
+```csharp
+var parser = MatchChar('x');
+```
+
+This is functionally equivalent to the following, but caches the instance to reduce memory consumption if parsers are being re-requested multiple times:
+
+```csharp
+var parser = Match('x');
+```
+
+### Character In Collection
+
+If you want to match a character which is one of a finite set of options, you can use the `MatchAny` parser to check if the character is in a collection. 
+
+```csharp
+var possibilities = new HashSet<char>() { 'x', 'y', 'z' };
+var parser = MatchAny(possibilities);
+```
+
+`HashSet<char>` or another collection type optimized for fast `.Contains()` is preferred, but you can use any collection. 
+
+There is also a `NotMatchAny` which returns success if the character is *not* in the collection:
+
+```csharp
+var forbidden = new HashSet<char>() { 'a', 'b', c' };
+var parser = NotMatchAny(forbidden);
+```
+
 ### Character String Parser
 
 The `CharacterString` parser matches a literal string of characters against a `char` input and returns the string on success.

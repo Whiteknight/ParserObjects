@@ -17,8 +17,8 @@ public static class JavaScriptStyleParserMethods
     private static readonly Lazy<IParser<char, string>> _numberString = new Lazy<IParser<char, string>>(
         () =>
         {
-            var maybeMinus = Match('-').Transform(c => "-").Optional(() => "");
-            var zero = Match('0').Transform(c => "0");
+            var maybeMinus = MatchChar('-').Transform(c => "-").Optional(() => "");
+            var zero = MatchChar('0').Transform(c => "0");
             var maybeDigits = Digit().ListCharToString();
             var empty = Produce(() => "");
 
@@ -35,7 +35,7 @@ public static class JavaScriptStyleParserMethods
             // fractPart := '.' <digit>+ | <empty>
             var fractPart = First(
                 Rule(
-                    Match('.').Transform(c => "."),
+                    MatchChar('.').Transform(c => "."),
                     DigitString(),
                     (dot, fract) => dot + fract
                 ),
@@ -45,12 +45,12 @@ public static class JavaScriptStyleParserMethods
             // expExpr := ('e' | 'E') ('+' | '-' | <empty>) <digit>+
             var expExpr = Rule(
                 First(
-                    Match('e').Transform(c => "e"),
-                    Match('E').Transform(c => "E")
+                    MatchChar('e').Transform(c => "e"),
+                    MatchChar('E').Transform(c => "E")
                 ),
                 First(
-                    Match('+').Transform(c => "+"),
-                    Match('-').Transform(c => "-"),
+                    MatchChar('+').Transform(c => "+"),
+                    MatchChar('-').Transform(c => "-"),
                     Produce(() => "+")
                 ),
                 DigitString(),
@@ -107,13 +107,13 @@ public static class JavaScriptStyleParserMethods
             var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => _escapableStringChars[c]);
 
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 2),
                 (x, hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString()
             );
 
             var unicodeEscapeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
             );
@@ -121,15 +121,15 @@ public static class JavaScriptStyleParserMethods
             var unicodeCodePointEscapeSequence = Rule(
                 Match("u{"),
                 HexadecimalDigit().ListCharToString(1, 8),
-                Match('}'),
+                MatchChar('}'),
                 (open, hex, close) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
             );
 
             var escapeSequenceForSingleQuotedString = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\n').Transform(_ => ""),
-                    Match('\'').Transform(_ => "'"),
+                    MatchChar('\n').Transform(_ => ""),
+                    MatchChar('\'').Transform(_ => "'"),
                     escapeCharacter,
                     hexSequence,
                     unicodeEscapeSequence,
@@ -144,17 +144,17 @@ public static class JavaScriptStyleParserMethods
             );
 
             var singleQuotedString = Rule(
-                Match('\''),
+                MatchChar('\''),
                 bodyCharForSingleQuotedString.ListStringsToString(),
-                Match('\''),
+                MatchChar('\''),
                 (open, body, close) => body
             ).Named("JavaScript-Style Single-Quoted Stripped String");
 
             var escapeSequenceForDoubleQuotedString = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\n').Transform(_ => ""),
-                    Match('"').Transform(_ => "\""),
+                    MatchChar('\n').Transform(_ => ""),
+                    MatchChar('"').Transform(_ => "\""),
                     escapeCharacter,
                     hexSequence,
                     unicodeEscapeSequence,
@@ -169,9 +169,9 @@ public static class JavaScriptStyleParserMethods
             );
 
             var doubleQuotedString = Rule(
-                Match('"'),
+                MatchChar('"'),
                 bodyCharForDoubleQuotedString.ListStringsToString(),
-                Match('"'),
+                MatchChar('"'),
                 (open, body, close) => body
             ).Named("JavaScript-Style Double-Quoted Stripped String");
 
@@ -195,13 +195,13 @@ public static class JavaScriptStyleParserMethods
             var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
 
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 2),
                 (x, hex) => "x" + hex
             );
 
             var unicodeEscapeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => "u" + hex
             );
@@ -209,15 +209,15 @@ public static class JavaScriptStyleParserMethods
             var unicodeCodePointEscapeSequence = Rule(
                 Match("u{"),
                 HexadecimalDigit().ListCharToString(1, 8),
-                Match('}'),
+                MatchChar('}'),
                 (open, hex, close) => "u{" + hex + "}"
             );
 
             var escapeSequenceForSingleQuotedString = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\n').Transform(_ => ""),
-                    Match('\'').Transform(_ => "'"),
+                    MatchChar('\n').Transform(_ => ""),
+                    MatchChar('\'').Transform(_ => "'"),
                     escapeCharacter,
                     hexSequence,
                     unicodeEscapeSequence,
@@ -232,17 +232,17 @@ public static class JavaScriptStyleParserMethods
             );
 
             var singleQuotedString = Rule(
-                Match('\''),
+                MatchChar('\''),
                 bodyCharForSingleQuotedString.ListStringsToString(),
-                Match('\''),
+                MatchChar('\''),
                 (open, body, close) => "'" + body + "'"
             ).Named("JavaScript-Style Single-Quoted String");
 
             var escapeSequenceForDoubleQuotedString = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\n').Transform(_ => ""),
-                    Match('"').Transform(_ => "\""),
+                    MatchChar('\n').Transform(_ => ""),
+                    MatchChar('"').Transform(_ => "\""),
                     escapeCharacter,
                     hexSequence,
                     unicodeEscapeSequence,
@@ -257,9 +257,9 @@ public static class JavaScriptStyleParserMethods
             );
 
             var doubleQuotedString = Rule(
-                Match('"'),
+                MatchChar('"'),
                 bodyCharForDoubleQuotedString.ListStringsToString(),
-                Match('"'),
+                MatchChar('"'),
                 (open, body, close) => "\"" + body + "\""
             ).Named("JavaScript-Style Double-Quoted String");
 

@@ -19,7 +19,7 @@ public static class CStyleParserMethods
         {
             var start = Match("/*").Transform(c => "/*");
             var end = Match("*/").Transform(c => "*/");
-            var standaloneAsterisk = Match('*').NotFollowedBy(Match('/'));
+            var standaloneAsterisk = MatchChar('*').NotFollowedBy(MatchChar('/'));
             var notAsterisk = Match(c => c != '*');
 
             var bodyChar = (standaloneAsterisk, notAsterisk).First();
@@ -64,10 +64,10 @@ public static class CStyleParserMethods
     private static readonly Lazy<IParser<char, string>> _integerString = new Lazy<IParser<char, string>>(
         () =>
         {
-            var maybeMinus = Match('-').Transform(c => "-").Optional(() => string.Empty);
+            var maybeMinus = MatchChar('-').Transform(c => "-").Optional(() => string.Empty);
             var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
             var digits = Digit().ListCharToString();
-            var zero = Match('0').Transform(c => "0");
+            var zero = MatchChar('0').Transform(c => "0");
             var nonZeroNumber = (maybeMinus, nonZeroDigit, digits)
                 .Rule((sign, start, body) => sign + start + body);
             return (nonZeroNumber, zero)
@@ -99,7 +99,7 @@ public static class CStyleParserMethods
         {
             var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
             var digits = Digit().ListCharToString();
-            var zero = Match('0').Transform(c => "0");
+            var zero = MatchChar('0').Transform(c => "0");
             var nonZeroNumber = (nonZeroDigit, digits).Rule((start, body) => start + body);
             return (nonZeroNumber, zero)
                 .First()
@@ -126,7 +126,7 @@ public static class CStyleParserMethods
     public static IParser<char, string> DoubleString() => _doubleString.Value;
 
     private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
-        () => (IntegerString(), Match('.'), DigitString())
+        () => (IntegerString(), MatchChar('.'), DigitString())
             .Rule((whole, dot, fract) => whole + dot + fract)
             .Named("C-Style Double String")
     );
@@ -193,24 +193,24 @@ public static class CStyleParserMethods
                 return ((char)value).ToString();
             });
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 4),
                 (x, hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString()
             );
             var lowUnicodeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
             );
             var highUnicodeSequence = Rule(
-                Match('U'),
+                MatchChar('U'),
                 HexadecimalDigit().ListCharToString(8, 8),
                 (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
             );
             var escapeSequence = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('"').Transform(_ => "\""),
+                    MatchChar('"').Transform(_ => "\""),
                     escapeCharacter,
                     octalSequence,
                     hexSequence,
@@ -226,9 +226,9 @@ public static class CStyleParserMethods
             );
 
             return Rule(
-                Match('"'),
+                MatchChar('"'),
                 bodyChar.ListStringsToString(),
-                Match('"'),
+                MatchChar('"'),
                 (open, body, close) => body
             ).Named("C-Style Stripped String");
         }
@@ -246,24 +246,24 @@ public static class CStyleParserMethods
             var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
             var octalSequence = Match(c => c >= '0' && c <= '7').ListCharToString(3, 3);
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 4),
                 (x, hex) => "x" + hex
             );
             var lowUnicodeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => "u" + hex
             );
             var highUnicodeSequence = Rule(
-                Match('U'),
+                MatchChar('U'),
                 HexadecimalDigit().ListCharToString(8, 8),
                 (u, hex) => "U" + hex
             );
             var escapeSequence = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('"').Transform(_ => "\""),
+                    MatchChar('"').Transform(_ => "\""),
                     escapeCharacter,
                     octalSequence,
                     hexSequence,
@@ -279,9 +279,9 @@ public static class CStyleParserMethods
             );
 
             return Rule(
-                Match('"'),
+                MatchChar('"'),
                 bodyChar.ListStringsToString(),
-                Match('"'),
+                MatchChar('"'),
                 (open, body, close) => "\"" + body + "\""
             ).Named("C-Style String");
         }
@@ -305,25 +305,25 @@ public static class CStyleParserMethods
                 return (char)value;
             });
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 4),
                 (x, hex) => (char)int.Parse(hex, NumberStyles.HexNumber)
             );
             var lowUnicodeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))[0]
             );
             var highUnicodeSequence = Rule(
-                Match('U'),
+                MatchChar('U'),
                 HexadecimalDigit().ListCharToString(8, 8),
                 (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))[0]
             );
             var escapeSequence = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\'').Transform(_ => '\''),
-                    Match('0').Transform(_ => '\0'),
+                    MatchChar('\'').Transform(_ => '\''),
+                    MatchChar('0').Transform(_ => '\0'),
                     escapeCharacter,
                     octalSequence,
                     hexSequence,
@@ -339,9 +339,9 @@ public static class CStyleParserMethods
             );
 
             return Rule(
-                Match('\''),
+                MatchChar('\''),
                 bodyChar,
-                Match('\''),
+                MatchChar('\''),
                 (open, body, close) => body
             ).Named("C-Style Stripped Character");
         }
@@ -359,25 +359,25 @@ public static class CStyleParserMethods
             var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
             var octalSequence = Match(c => c >= '0' && c <= '7').ListCharToString(3, 3);
             var hexSequence = Rule(
-                Match('x'),
+                MatchChar('x'),
                 HexadecimalDigit().ListCharToString(2, 4),
                 (x, hex) => "x" + hex
             );
             var lowUnicodeSequence = Rule(
-                Match('u'),
+                MatchChar('u'),
                 HexadecimalDigit().ListCharToString(4, 4),
                 (u, hex) => "u" + hex
             );
             var highUnicodeSequence = Rule(
-                Match('U'),
+                MatchChar('U'),
                 HexadecimalDigit().ListCharToString(8, 8),
                 (u, hex) => "U" + hex
             );
             var escapeSequence = Rule(
-                Match('\\'),
+                MatchChar('\\'),
                 First(
-                    Match('\'').Transform(_ => "'"),
-                    Match('0').Transform(_ => "0"),
+                    MatchChar('\'').Transform(_ => "'"),
+                    MatchChar('0').Transform(_ => "0"),
                     escapeCharacter,
                     octalSequence,
                     hexSequence,
@@ -393,9 +393,9 @@ public static class CStyleParserMethods
             );
 
             return Rule(
-                Match('\''),
+                MatchChar('\''),
                 bodyChar,
-                Match('\''),
+                MatchChar('\''),
                 (open, body, close) => "'" + body + "'"
             ).Named("C-Style Character");
         }

@@ -8,6 +8,8 @@ namespace ParserObjects;
 
 public static partial class ParserMethods
 {
+    private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
+
     /// <summary>
     /// Matches a Letter character.
     /// </summary>
@@ -47,6 +49,21 @@ public static partial class ParserMethods
     /// <returns></returns>
     public static IParser<char, char> NotMatchAny(ICollection<char> possibilities)
         => new MatchPredicateParser<char>(c => !possibilities.Contains(c));
+
+    /// <summary>
+    /// Optimized version of Match(char) which caches common instances for reuse.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <returns></returns>
+    public static IParser<char, char> MatchChar(char c)
+    {
+        if (_matchByChar.ContainsKey(c))
+            return _matchByChar[c];
+
+        var p = Match(c);
+        _matchByChar.Add(c, p);
+        return p;
+    }
 
     /// <summary>
     /// Matches a series of consecutive letter characters.
