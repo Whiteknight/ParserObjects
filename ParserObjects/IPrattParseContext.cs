@@ -55,6 +55,11 @@ public interface IPrattParseContext<TInput>
     /// </summary>
     /// <param name="message"></param>
     void FailAll(string message = "");
+
+    /// <summary>
+    /// Mark the parse as being complete. The parser will not attempt to read any further inputs.
+    /// </summary>
+    void Complete();
 }
 
 /// <summary>

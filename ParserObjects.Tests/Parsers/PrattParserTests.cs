@@ -511,6 +511,64 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Complete()
+        {
+            var target = Pratt<string>(c => c
+                .Add(Any(), p => p
+                    .Bind(1, (ctx, x) => x.Value.ToString())
+                    .BindLeft(1, (ctx, str, x) =>
+                    {
+                        var r = str.Value + x.ToString();
+                        if (r.Length >= 3)
+                            ctx.Complete();
+                        return r;
+                    })
+                )
+            );
+
+            var input = new StringCharacterSequence("abcdefg");
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+            input.GetRemainder().Should().Be("defg");
+        }
+
+        [Test]
+        public void Parse_Complete_Fail()
+        {
+            // We should match 'a', Any('b') then when we see 'c' we Complete() and FailRule(). This
+            // will cause the entire parser to abort and return "ab" even though Any() should accept
+            // 'c'. The parser won't even try it because it's marked complete.
+            // Not that this is ordering dependent, because Match('c') is defined before Any() so it
+            // is tested first.
+            var target = Pratt<string>(c => c
+                .Add(Match('a'), p => p
+                    .Bind(1, (ctx, x) => x.Value.ToString())
+                )
+                .Add(Match('c'), p => p
+                    .BindLeft(1, (ctx, str, x) =>
+                    {
+                        ctx.Complete();
+                        ctx.FailRule();
+                        return "";
+                    })
+                )
+                .Add(Any(), p => p
+                    .BindLeft(1, (ctx, str, x) =>
+                    {
+                        return str.Value + x.ToString();
+                    })
+                )
+            );
+
+            var input = new StringCharacterSequence("abcdefg");
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("ab");
+            input.GetRemainder().Should().Be("cdefg");
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var a = Any();

@@ -21,12 +21,15 @@ public sealed class Engine<TInput, TOutput>
     }
 
     public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp)
+        => TryParse(state, rbp, new ParseControl());
+
+    public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var levelCp = state.Input.Checkpoint();
         try
         {
-            return Parse(state, rbp);
+            return Parse(state, rbp, parseControl);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
         {
@@ -35,18 +38,22 @@ public sealed class Engine<TInput, TOutput>
         }
     }
 
-    private PartialResult<TOutput> Parse(IParseState<TInput> state, int rbp)
+    private PartialResult<TOutput> Parse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
         var startLocation = state.Input.CurrentLocation;
-        var leftResult = GetLeft(state);
+        var leftResult = GetLeft(state, parseControl);
         if (!leftResult.Success)
             return new PartialResult<TOutput>(string.Empty, startLocation);
+
+        if (parseControl.IsComplete)
+            return new PartialResult<TOutput>(leftResult.Value!.Value, leftResult.Consumed, startLocation);
+
         var leftToken = leftResult.Value!;
         int consumed = leftResult.Consumed;
 
-        while (true)
+        while (!parseControl.IsComplete)
         {
-            var rightResult = GetRight(state, rbp, leftToken);
+            var rightResult = GetRight(state, rbp, leftToken, parseControl);
             if (!rightResult.Success || rightResult.Value == null)
                 break;
 
@@ -64,7 +71,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
     }
 
-    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IPrattToken<TOutput> leftToken)
+    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IPrattToken<TOutput> leftToken, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
         foreach (var parselet in _ledableParselets.Where(p => rbp < p.Lbp))
@@ -73,7 +80,7 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true, parselet.Name);
+            var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true, parselet.Name, parseControl);
 
             // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
             // the current left value
@@ -81,6 +88,8 @@ public sealed class Engine<TInput, TOutput>
             if (!rightResult.Success)
             {
                 cp.Rewind();
+                if (parseControl.IsComplete)
+                    return new PartialResult<IPrattToken<TOutput>>("The parse is complete", state.Input.CurrentLocation);
                 continue;
             }
 
@@ -90,7 +99,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<IPrattToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
     }
 
-    private PartialResult<IPrattToken<TOutput>> GetLeft(IParseState<TInput> state)
+    private PartialResult<IPrattToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
         foreach (var parselet in _nudableParselets)
@@ -99,13 +108,15 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0, parselet.Name);
+            var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0, parselet.Name, parseControl);
 
             // Transform the IToken into IToken<TInput> using the NullDenominator rule
             var leftResult = token.NullDenominator(leftContext);
             if (!leftResult.Success)
             {
                 cp.Rewind();
+                if (parseControl.IsComplete)
+                    return new PartialResult<IPrattToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.", state.Input.CurrentLocation);
                 continue;
             }
 
@@ -115,4 +126,9 @@ public sealed class Engine<TInput, TOutput>
 
         return new PartialResult<IPrattToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
     }
+}
+
+public class ParseControl
+{
+    public bool IsComplete { get; set; }
 }
