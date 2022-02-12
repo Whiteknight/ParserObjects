@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Parsers;
-using ParserObjects.Utility;
 
 namespace ParserObjects;
 
@@ -32,18 +31,4 @@ public static partial class ParserMethods<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
         => new MatchPatternParser<TInput>(pattern.ToList());
-
-    /// <summary>
-    /// Optimized implementation of First() which returns an input which matches any of the given pattern
-    /// strings. Uses a Trie internally to greedily match the longest matching input sequence.
-    /// </summary>
-    /// <param name="patterns"></param>
-    /// <returns></returns>
-    public static IParser<char, string> MatchAny(IEnumerable<string> patterns)
-    {
-        var trie = new InsertOnlyTrie<char, string>();
-        foreach (var pattern in patterns)
-            trie.Add(pattern, pattern);
-        return new TrieParser<char, string>(trie);
-    }
 }

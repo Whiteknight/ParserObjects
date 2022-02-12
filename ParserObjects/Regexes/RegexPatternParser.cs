@@ -14,14 +14,13 @@ public static class RegexPatternParser
 
         // Literal match of any non-slash and non-control character
         var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
-        var any = Any();
 
         var regex = Pratt<List<State>>(config => config
 
-            // Atoms
+            // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
             .Add(normalChar, p => p
-                .Bind(2, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
-                .BindLeft(2, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
+                .Bind(1, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
+                .BindLeft(1, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
             )
             .Add(Match('['), p => p
                 .Bind(2, (ctx, _) => ParseCharacterClass(ctx, null))
@@ -32,8 +31,8 @@ public static class RegexPatternParser
                 .BindLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
             )
             .Add(Match('\\'), p => p
-                .Bind(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(any)))
-                .BindLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(any)))
+                .Bind(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
+                .BindLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
             .Add(Match('('), p => p
                 .Bind(2, (ctx, _) =>
@@ -79,9 +78,7 @@ public static class RegexPatternParser
             )
         );
 
-        var requiredEnd = If(End(), Produce(() => Utility.Defaults.ObjectInstance), Produce(ThrowEndOfPatternException));
-
-        return (regex, requiredEnd).Rule((r, _) => r)
+        return (regex, IsEnd()).Rule((r, _) => r)
             .Transform(r => new Regex(r))
             .Named("RegexPattern");
     }

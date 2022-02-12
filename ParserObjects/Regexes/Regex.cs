@@ -12,7 +12,7 @@ public struct Regex
 {
     public IReadOnlyList<State> States { get; }
 
-    public Regex(List<State> states)
+    public Regex(IReadOnlyList<State> states)
     {
         Assert.ArgumentNotNull(states, nameof(states));
         States = states;

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
 
@@ -10,72 +9,108 @@ namespace ParserObjects.Regexes;
 /// </summary>
 public static class Engine
 {
+    // Keeps track of places in the parse history where backtracking may be possible.
     private sealed class BacktrackState
     {
+        // Number of characters in a complete match of the current State. For example the regex
+        // "(AB)+" could match after 2, 4, or 6 characters, etc. The Engine greedily consumes as
+        // many characters as possible for a match, but keeps track of the character counts at each
+        // success milestone, so we can backtrack if necessary.
+        private readonly Stack<int> _consumptions;
+
+        private int _totalConsumptions;
+
         public BacktrackState(bool isBacktrackable, State state)
         {
             IsBacktrackable = isBacktrackable;
             State = state;
-            Consumptions = new Stack<int>();
+            _consumptions = new Stack<int>();
+            _totalConsumptions = 0;
         }
 
         public BacktrackState(bool isBacktrackable, State state, int consumed)
         {
             IsBacktrackable = isBacktrackable;
             State = state;
-            Consumptions = new Stack<int>();
-            Consumptions.Push(consumed);
+            _consumptions = new Stack<int>();
+            _consumptions.Push(consumed);
+            _totalConsumptions = consumed;
         }
 
-        public BacktrackState(bool isBacktrackable, State state, Stack<int> consumptions)
-        {
-            IsBacktrackable = isBacktrackable;
-            State = state;
-            Consumptions = consumptions;
-        }
+        // This point allows backtracking. True if the State supports a variable number of consumed
+        // characters.
+        public bool IsBacktrackable { get; private set; }
 
-        public bool IsBacktrackable { get; set; }
+        // The state in the regex which produced this backtrack point
+        public State State { get; }
 
-        public State State { get; set; }
-
-        public Stack<int> Consumptions { get; }
-
+        // Flag that this state consumed 0 inputs. This means that it could not be backtracked to
         public void AddZeroConsumed()
         {
-            if (Consumptions.Count == 0)
+            if (_consumptions.Count == 0)
             {
-                Consumptions.Push(0);
+                _consumptions.Push(0);
                 IsBacktrackable = false;
+                _totalConsumptions = 0;
             }
+        }
+
+        public int GetNextConsumption()
+        {
+            if (_consumptions.Count == 0)
+                return 0;
+            var consumption = _consumptions.Pop();
+            _totalConsumptions -= consumption;
+            return consumption;
+        }
+
+        public int TotalConsumed => _totalConsumptions;
+
+        public bool HasConsumptions => _consumptions.Count > 0;
+
+        public void AddConsumption(int consumed)
+        {
+            _consumptions.Push(consumed);
+            _totalConsumptions += consumed;
         }
     }
 
+    // Holds information about the current state of the match
     private sealed class RegexContext
     {
-        private readonly List<State> _queue;
+        private readonly Stack<State> _queue;
         private readonly Stack<BacktrackState> _backtrackStack;
 
-        private int _i;
+        // current index into the character buffer
+        private int _index;
 
-        public RegexContext(IEnumerable<State> states)
+        public RegexContext(IReadOnlyList<State> states)
         {
-            _queue = new List<State>(states.Where(s => s.Type != StateType.Fence));
-            _queue.Add(State.EndSentinel);
+            _queue = new Stack<State>();
+            _queue.Push(State.EndSentinel);
+            for (int i = states.Count - 1; i >= 0; i--)
+            {
+                var state = states[i];
+                if (state.Type == StateType.Fence)
+                    continue;
+                _queue.Push(state);
+            }
+
             _backtrackStack = new Stack<BacktrackState>();
-            _i = 0;
-            CurrentState = _queue[0];
-            _queue.RemoveAt(0);
+            _index = 0;
+            CurrentState = _queue.Pop();
         }
 
         public State CurrentState { get; private set; }
 
-        public int Index => _i;
+        public int Index => _index;
 
-        public void AdvanceIndex(int i)
+        public void AdvanceIndex(int numCharacters)
         {
-            _i += i;
+            _index += numCharacters;
         }
 
+        // The previous state matched successfully, so advance to the next state
         public void MoveToNextState()
         {
             if (_queue.Count == 0)
@@ -84,42 +119,46 @@ public static class Engine
                 return;
             }
 
-            CurrentState = _queue[0];
-            _queue.RemoveAt(0);
+            CurrentState = _queue.Pop();
         }
 
+        // Attempt a backtrack when the CurrentState fails. We look through all the items in the
+        // backtrack stack, adding States back to the queue and rewinding the input by the size of
+        // backtracked consumption counts.
         public bool Backtrack()
         {
-            _queue.Insert(0, CurrentState);
-            var couldBacktrack = false;
+            // Add the CurrentState back to the queue
+            _queue.Push(CurrentState);
             while (_backtrackStack.Count > 0)
             {
+                // Look for a backtrackable state.
+                // If the state is not backtrackable, add the state to the queue and continue
                 var backtrackState = _backtrackStack.Pop();
                 if (!backtrackState.IsBacktrackable)
                 {
-                    _queue.Insert(0, backtrackState.State);
-                    foreach (var consumed in backtrackState.Consumptions)
-                        _i -= consumed;
+                    _queue.Push(backtrackState.State);
+                    _index -= backtrackState.TotalConsumed;
                     continue;
                 }
 
-                if (backtrackState.Consumptions.Count == 0)
+                // If the state has no consumptions, add it to the queue and continue
+                if (!backtrackState.HasConsumptions)
                 {
-                    _queue.Insert(0, backtrackState.State);
+                    _queue.Push(backtrackState.State);
                     continue;
                 }
 
-                var n = backtrackState.Consumptions.Pop();
-                _i -= n;
-                _backtrackStack.Push(new BacktrackState(backtrackState.IsBacktrackable, backtrackState.State, backtrackState.Consumptions));
-                couldBacktrack = true;
-
-                break;
+                // Pull 1 consumption off the current backtrackState, that is going to be the place
+                // where we attempt to continue the match. Push that state back onto the stack in
+                // case we need to try again with the remaining consumptions.
+                var consumption = backtrackState.GetNextConsumption();
+                _index -= consumption;
+                _backtrackStack.Push(backtrackState);
+                CurrentState = _queue.Pop();
+                return true;
             }
 
-            if (couldBacktrack)
-                MoveToNextState();
-            return couldBacktrack;
+            return false;
         }
 
         public void Push(BacktrackState backtrackState)
@@ -249,7 +288,7 @@ public static class Engine
                 break;
             }
 
-            backtrackState.Consumptions.Push(consumed);
+            backtrackState.AddConsumption(consumed);
             context.AdvanceIndex(consumed);
         }
     }
@@ -277,7 +316,7 @@ public static class Engine
                 break;
             }
 
-            backtrackState.Consumptions.Push(consumed);
+            backtrackState.AddConsumption(consumed);
             context.AdvanceIndex(consumed);
             j++;
             if (j >= context.CurrentState.Maximum)
@@ -299,6 +338,7 @@ public static class Engine
 
         if (state.Type == StateType.EndOfInput)
             return (false, 0);
+
         if (state.Type == StateType.MatchValue)
         {
             var match = state.ValuePredicate?.Invoke(context[i]) ?? false;
@@ -307,6 +347,7 @@ public static class Engine
 
         if (state.Type == StateType.Group)
             return Test(state.Group!, context.CopyFrom(i));
+
         if (state.Type == StateType.Alternation)
         {
             foreach (var substate in state.Alternations!)

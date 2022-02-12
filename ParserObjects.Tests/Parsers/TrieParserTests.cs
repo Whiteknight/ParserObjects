@@ -2,6 +2,7 @@
 using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
+using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers

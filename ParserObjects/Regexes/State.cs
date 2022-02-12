@@ -58,6 +58,7 @@ public sealed class State : INamed
             throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
         if (min < 0 || max <= 0)
             throw new RegexException("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
+
         var previousState = states.LastOrDefault();
         if (previousState == null)
             throw new RegexException("Range quantifier must appear after a valid atom");
