@@ -11,7 +11,7 @@ public sealed class ParseStatistics : IParseStatistics
     public int CompletedParentItem { get; set; }
     public int CompletedNullables { get; set; }
     public int DerivationCacheHit { get; set; }
-    public int DerivationSingleSymbolShortcircuits { get; set; }
+    public int DerivationSingleSymbolShortCircuits { get; set; }
     public int ItemsWithZeroDerivations { get; set; }
     public int ItemsWithSingleDerivation { get; set; }
     public int ProductionRuleAttempts { get; set; }

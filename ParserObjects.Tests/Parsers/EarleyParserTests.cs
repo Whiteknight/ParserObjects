@@ -101,10 +101,10 @@ namespace ParserObjects.Tests.Parsers
             statistics.CompletedNullables.Should().Be(0);
             statistics.CompletedParentItem.Should().Be(18);
 
-            statistics.ProductionRuleAttempts.Should().Be(4);
-            statistics.ProductionRuleSuccesses.Should().Be(4);
+            statistics.ProductionRuleAttempts.Should().Be(7);
+            statistics.ProductionRuleSuccesses.Should().Be(7);
             statistics.DerivationCacheHit.Should().Be(5);
-            statistics.DerivationSingleSymbolShortcircuits.Should().Be(3);
+            statistics.DerivationSingleSymbolShortCircuits.Should().Be(3);
             statistics.ItemsWithSingleDerivation.Should().Be(0);
             statistics.ItemsWithZeroDerivations.Should().Be(0);
         }
@@ -306,10 +306,10 @@ namespace ParserObjects.Tests.Parsers
             statistics.CompletedNullables.Should().Be(2);
             statistics.CompletedParentItem.Should().Be(2);
 
-            statistics.ProductionRuleAttempts.Should().Be(1);
-            statistics.ProductionRuleSuccesses.Should().Be(1);
+            statistics.ProductionRuleAttempts.Should().Be(2);
+            statistics.ProductionRuleSuccesses.Should().Be(2);
             statistics.DerivationCacheHit.Should().Be(0);
-            statistics.DerivationSingleSymbolShortcircuits.Should().Be(1);
+            statistics.DerivationSingleSymbolShortCircuits.Should().Be(1);
             statistics.ItemsWithSingleDerivation.Should().Be(0);
             statistics.ItemsWithZeroDerivations.Should().Be(0);
         }
@@ -389,10 +389,10 @@ namespace ParserObjects.Tests.Parsers
             statistics.CompletedNullables.Should().Be(0);
             statistics.CompletedParentItem.Should().Be(1);
 
-            statistics.ProductionRuleAttempts.Should().Be(1);
-            statistics.ProductionRuleSuccesses.Should().Be(1);
+            statistics.ProductionRuleAttempts.Should().Be(2);
+            statistics.ProductionRuleSuccesses.Should().Be(2);
             statistics.DerivationCacheHit.Should().Be(0);
-            statistics.DerivationSingleSymbolShortcircuits.Should().Be(1);
+            statistics.DerivationSingleSymbolShortCircuits.Should().Be(1);
             statistics.ItemsWithSingleDerivation.Should().Be(0);
             statistics.ItemsWithZeroDerivations.Should().Be(0);
         }

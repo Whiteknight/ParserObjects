@@ -56,12 +56,8 @@ public class ItemDerivationVisitor
         // terminal, just return those derivation results directly without any buffering.
         if (production.Symbols.Count == 1 && production.Symbols[0] is IParser)
         {
-            _statistics.DerivationSingleSymbolShortcircuits++;
-            return endItem.Derivations!
-                .Select(d => production.Apply(new[] { d }))
-                .Where(o => o.Success)
-                .Select(o => o.Value)
-                .ToList();
+            _statistics.DerivationSingleSymbolShortCircuits++;
+            return GenerateValueForSingleSymbol(endItem, production);
         }
 
         Item current = endItem;
@@ -74,9 +70,8 @@ public class ItemDerivationVisitor
         // has only one possible value after recursing, just return that without buffering.
         if (count == 1 && values[0].Count == 1)
         {
-            var result = production.Apply(new[] { values[0][0] });
             _statistics.ItemsWithSingleDerivation++;
-            return result.Success ? new object[] { result.Value } : Array.Empty<object>();
+            return GenerateValueForSingleSymbolSingleValue(production, values[0][0]);
         }
 
         // Allocate a buffer and fill with initial values
@@ -98,7 +93,10 @@ public class ItemDerivationVisitor
         // 1 gets to the last value, we reset it to 0 and increment position 2, etc. When
         // we've incremented the last position past the number of items in the last column, we
         // break from the loop and are done.
-        var results = new List<object>();
+        int maxResultsCount = 1;
+        for (int i = 0; i < count; i++)
+            maxResultsCount *= values[i].Count;
+        var results = new List<object>(maxResultsCount);
         do
         {
             _statistics.ProductionRuleAttempts++;
@@ -111,9 +109,47 @@ public class ItemDerivationVisitor
         }
         while (IncrementBufferItems(count, indices, values, buffer));
 
+        Debug.Assert(results.Count <= maxResultsCount, "We didn't allocate enough space");
+
         ArrayPool<IReadOnlyList<object>>.Shared.Return(values);
         ArrayPool<object>.Shared.Return(buffer);
         ArrayPool<int>.Shared.Return(indices);
+        return results;
+    }
+
+    private IReadOnlyList<object> GenerateValueForSingleSymbolSingleValue(IProduction production, object singleValue)
+    {
+        // We're going to reuse buffer here to avoid allocating two arrays (one for the production
+        // args and one for the result array).
+        var buffer = new object[1];
+        buffer[0] = singleValue;
+        _statistics.ProductionRuleAttempts++;
+        var result = production.Apply(buffer);
+        if (!result.Success)
+            return Array.Empty<object>();
+        _statistics.ProductionRuleSuccesses++;
+        buffer[0] = result.Value;
+        return buffer;
+    }
+
+    private IReadOnlyList<object> GenerateValueForSingleSymbol(Item endItem, IProduction production)
+    {
+        Debug.Assert(endItem?.Derivations != null, "Must have a valid endItem here");
+        var argBuffer = new object[1];
+        var results = new List<object>(endItem.Derivations.Count);
+
+        for (int i = 0; i < endItem.Derivations!.Count; i++)
+        {
+            var d = endItem.Derivations[i];
+            argBuffer[0] = d;
+            _statistics.ProductionRuleAttempts++;
+            var produced = production.Apply(argBuffer);
+            if (!produced.Success)
+                continue;
+            _statistics.ProductionRuleSuccesses++;
+            results.Add(produced.Value);
+        }
+
         return results;
     }
 

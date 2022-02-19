@@ -125,11 +125,18 @@ public sealed class BnfStringifyVisitor
         foreach (var arg in args)
         {
             if (arg is string s)
+            {
                 Current.Append(s);
-            else if (arg is IParser p)
+                continue;
+            }
+
+            if (arg is IParser p)
+            {
                 Visit(p);
-            else
-                Current.Append(arg);
+                continue;
+            }
+
+            Current.Append(arg);
         }
 
         return this;

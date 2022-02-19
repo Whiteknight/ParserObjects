@@ -7,7 +7,7 @@ public interface IParseStatistics
     int CompletedNullables { get; }
     int CompletedParentItem { get; }
     int DerivationCacheHit { get; }
-    int DerivationSingleSymbolShortcircuits { get; }
+    int DerivationSingleSymbolShortCircuits { get; }
     int ItemsWithSingleDerivation { get; }
     int ItemsWithZeroDerivations { get; }
     int PredictedItems { get; }
