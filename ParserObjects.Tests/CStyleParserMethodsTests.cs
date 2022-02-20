@@ -64,12 +64,25 @@ namespace ParserObjects.Tests
         }
 
         [Test]
-        public void String_Escapes()
+        [TestCase("\"\\\"\"")]
+        [TestCase("\"\\a\"")]
+        [TestCase("\"\\b\"")]
+        [TestCase("\"\\n\"")]
+        [TestCase("\"\\r\"")]
+        [TestCase("\"\\v\"")]
+        [TestCase("\"\\60\"")]
+        [TestCase("\"\\101\"")]
+        [TestCase("\"\\x41\"")]
+        [TestCase("\"\\x041\"")]
+        [TestCase("\"\\x0041\"")]
+        [TestCase("\"\\u0026\"")]
+        [TestCase("\"\\U00000027\"")]
+        public void String_Escapes(string value)
         {
             var parser = String();
-            var result = parser.Parse("\"\\a\\n\\r\\x0A\"");
+            var result = parser.Parse(value);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be("\"\\a\\n\\r\\x0A\"");
+            result.Value.Should().Be(value);
         }
 
         [Test]
@@ -77,6 +90,21 @@ namespace ParserObjects.Tests
         {
             var parser = String();
             var result = parser.Parse("\"\\z\"");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase("")]
+        [TestCase("\"")]
+        [TestCase("test\"")]
+        [TestCase("\"\\\"")]
+        [TestCase("\"\\x\"")]
+        [TestCase("\"\\u\"")]
+        [TestCase("\"\\U\"")]
+        public void String_Fail(string attempt)
+        {
+            var parser = String();
+            var result = parser.Parse(attempt);
             result.Success.Should().BeFalse();
         }
 
@@ -90,12 +118,25 @@ namespace ParserObjects.Tests
         }
 
         [Test]
-        public void StrippedString_Escapes()
+        [TestCase("\"\\\"\"", "\"")]
+        [TestCase("\"\\a\"", "\a")]
+        [TestCase("\"\\b\"", "\b")]
+        [TestCase("\"\\n\"", "\n")]
+        [TestCase("\"\\r\"", "\r")]
+        [TestCase("\"\\v\"", "\v")]
+        [TestCase("\"\\101\"", "A")]
+        [TestCase("\"\\46\"", "&")]
+        [TestCase("\"\\x61\"", "a")]
+        [TestCase("\"\\x061\"", "a")]
+        [TestCase("\"\\x0061\"", "a")]
+        [TestCase("\"\\u0061\"", "a")]
+        [TestCase("\"\\U00000061\"", "a")]
+        public void StrippedString_Escapes(string input, string expected)
         {
             var parser = StrippedString();
-            var result = parser.Parse("\"\\a\\n\\r\\x0A\"");
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be("\a\n\r\x0A");
+            result.Value.Should().Be(expected);
         }
 
         [Test]
@@ -107,21 +148,35 @@ namespace ParserObjects.Tests
         }
 
         [Test]
-        public void Character_Tests()
+        [TestCase("")]
+        [TestCase("\"")]
+        [TestCase("test\"")]
+        [TestCase("\"\\\"")]
+        [TestCase("\"\\x\"")]
+        [TestCase("\"\\u\"")]
+        [TestCase("\"\\U\"")]
+        public void StrippedString_Fail(string attempt)
         {
-            var parser = Character();
-            var result = parser.Parse("'a'");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("'a'");
+            var parser = StrippedString();
+            var result = parser.Parse(attempt);
+            result.Success.Should().BeFalse();
         }
 
         [Test]
-        public void Character_Escapes()
+        [TestCase("'a'", "'a'")]
+        [TestCase("'\\n'", "'\\n'")]
+        [TestCase("'\\101'", "'\\101'")]
+        [TestCase("'\\x60'", "'\\x60'")]
+        [TestCase("'\\x060'", "'\\x060'")]
+        [TestCase("'\\x0060'", "'\\x0060'")]
+        [TestCase("'\\u0060'", "'\\u0060'")]
+        [TestCase("'\\U00000060'", "'\\U00000060'")]
+        public void Character_Tests(string input, string expected)
         {
             var parser = Character();
-            var result = parser.Parse("'\\n'");
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be("'\\n'");
+            result.Value.Should().Be(expected);
         }
 
         [Test]
@@ -133,12 +188,35 @@ namespace ParserObjects.Tests
         }
 
         [Test]
-        public void StrippedCharacter_Tests()
+        [TestCase("")]
+        [TestCase("'")]
+        [TestCase("test'")]
+        [TestCase("'\\'")]
+        [TestCase("'\\x'")]
+        [TestCase("'\\u'")]
+        [TestCase("'\\U'")]
+        public void Character_Fail(string input)
+        {
+            var parser = Character();
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase("'a'", 'a')]
+        [TestCase("'\\n'", '\n')]
+        [TestCase("'\\101'", 'A')]
+        [TestCase("'\\x61'", 'a')]
+        [TestCase("'\\x061'", 'a')]
+        [TestCase("'\\x0061'", 'a')]
+        [TestCase("'\\u0061'", 'a')]
+        [TestCase("'\\U00000061'", 'a')]
+        public void StrippedCharacter_Tests(string input, char expected)
         {
             var parser = StrippedCharacter();
-            var result = parser.Parse("'a'");
+            var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
+            result.Value.Should().Be(expected);
         }
 
         [Test]
@@ -155,6 +233,21 @@ namespace ParserObjects.Tests
         {
             var parser = StrippedCharacter();
             var result = parser.Parse("'\\z'");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase("")]
+        [TestCase("'")]
+        [TestCase("test'")]
+        [TestCase("'\\'")]
+        [TestCase("'\\x'")]
+        [TestCase("'\\u'")]
+        [TestCase("'\\U'")]
+        public void StrippedCharacter_Fail(string input)
+        {
+            var parser = StrippedCharacter();
+            var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
     }

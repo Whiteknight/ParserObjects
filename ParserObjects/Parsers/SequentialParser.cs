@@ -33,11 +33,11 @@ public static class Sequential
 
         public int Consumed => _consumed;
 
-        public TOutput Parse<TOutput>(IParser<TInput, TOutput> p)
+        public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
         {
             var result = p.Parse(_state);
             if (!result.Success)
-                throw new ParseFailedException(result);
+                throw new ParseFailedException(result, errorMessage);
             _consumed += result.Consumed;
             return result.Value;
         }
@@ -126,8 +126,16 @@ public static class Sequential
             Result = result;
         }
 
-        public ParseFailedException(string message) : base(message)
+        public ParseFailedException(string message)
+            : base(message)
         {
+        }
+
+        public ParseFailedException(IResult result, string message)
+            : base(message)
+        {
+            Location = result.Location;
+            Result = result;
         }
 
         public Location? Location { get; }
