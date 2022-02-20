@@ -86,7 +86,7 @@ public static class Engine
 
         public RegexContext(IReadOnlyList<State> states)
         {
-            _queue = new Stack<State>();
+            _queue = new Stack<State>(states.Count + 1);
             _queue.Push(State.EndSentinel);
             for (int i = states.Count - 1; i >= 0; i--)
             {
@@ -96,7 +96,7 @@ public static class Engine
                 _queue.Push(state);
             }
 
-            _backtrackStack = new Stack<BacktrackState>();
+            _backtrackStack = new Stack<BacktrackState>(states.Count);
             _index = 0;
             CurrentState = _queue.Pop();
         }

@@ -29,5 +29,5 @@ public static partial class ParserMethods
     /// <returns></returns>
     public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
 
-    private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(RegexPatternParser.Create);
+    private static readonly Lazy<IParser<char, Regex>> _regexPattern = new Lazy<IParser<char, Regex>>(RegexPatternGrammar.CreateParser);
 }

@@ -5,11 +5,11 @@ using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Regexes;
 
-public static class RegexPatternParser
+public static class RegexPatternGrammar
 {
     private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|', '[', '.', '?', '+', '*', '{', '}' };
 
-    public static IParser<char, Regex> Create()
+    public static IParser<char, Regex> CreateParser()
     {
         var digits = CStyleParserMethods.UnsignedInteger();
 
@@ -187,12 +187,12 @@ public static class RegexPatternParser
             return states;
 
         return new List<State>
+        {
+            new State("alternation")
             {
-                new State("alternation")
-                {
-                    Type = StateType.Alternation,
-                    Alternations = options
-                }
-            };
+                Type = StateType.Alternation,
+                Alternations = options
+            }
+        };
     }
 }
