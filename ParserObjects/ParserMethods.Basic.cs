@@ -423,6 +423,9 @@ public static partial class ParserMethods<TInput>
     public static IParser<TInput, TOutput> Sequential<TOutput>(Func<Sequential.State<TInput>, TOutput> func)
         => new Sequential.Parser<TInput, TOutput>(func);
 
+    public static IParser<TInput, TOutput> Synchronize<TOutput>(IParser<TInput, TOutput> attempt, Func<TInput, bool> discardUntil)
+        => new SynchronizeParser<TInput, TOutput>(attempt, discardUntil);
+
     /// <summary>
     /// Transform the output value of the parser.
     /// </summary>
