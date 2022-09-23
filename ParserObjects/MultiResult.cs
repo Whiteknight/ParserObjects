@@ -7,7 +7,7 @@ namespace ParserObjects;
 
 public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
-    private readonly IReadOnlyList<object>? _data;
+    private readonly ResultData _data;
 
     public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
     {
@@ -16,7 +16,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         Success = Results.Any(r => r.Success);
         Location = location;
         StartCheckpoint = startCheckpoint;
-        _data = data;
+        _data = new ResultData(data);
     }
 
     public IParser Parser { get; }
@@ -47,20 +47,10 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
     }
 
-    public IOption<T> TryGetData<T>()
-    {
-        if (_data == null)
-            return FailureOption<T>.Instance;
-
-        foreach (var item in _data)
-        {
-            if (item is T typed)
-                return new SuccessOption<T>(typed);
-        }
-
-        return FailureOption<T>.Instance;
-    }
+    public IOption<T> TryGetData<T>() => _data.TryGetData<T>();
 }
+
+// TODO: See about adding _data to Success and Failure result alternatives, as well as the parent multi
 
 /// <summary>
 /// Result value which represents a single success, including information necessary to continue
