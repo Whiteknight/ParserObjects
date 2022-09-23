@@ -48,7 +48,7 @@ public static class ParseStateExtensions
     public static IResult<TOutput> Fail<TInput, TOutput>(this IParseState<TInput> state, IParser parser, string error, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, location, error, data);
+        return new FailureResult<TOutput>(parser, location, error, new ResultData(data));
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public static class ParseStateExtensions
     public static IResult<TOutput> Fail<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, string error, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, location, error, data);
+        return new FailureResult<TOutput>(parser, location, error, new ResultData(data));
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public static class ParseStateExtensions
     public static IResult Fail<TInput>(this IParseState<TInput> state, IParser<TInput> parser, string error, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<object>(parser, location, error, data);
+        return new FailureResult<object>(parser, location, error, new ResultData(data));
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public static class ParseStateExtensions
     public static IResult<TOutput> Success<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Succeeded");
-        return new SuccessResult<TOutput>(parser, output, location, consumed, data);
+        return new SuccessResult<TOutput>(parser, output, location, consumed, new ResultData(data));
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public static class ParseStateExtensions
     public static IResult<object> Success<TInput>(this IParseState<TInput> state, IParser<TInput> parser, object output, int consumed, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Succeeded");
-        return new SuccessResult<object>(parser, output, location, consumed, data);
+        return new SuccessResult<object>(parser, output, location, consumed, new ResultData(data));
     }
 
     /// <summary>

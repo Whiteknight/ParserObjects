@@ -4,28 +4,13 @@ using ParserObjects.Utility;
 
 namespace ParserObjects;
 
-/// <summary>
-/// Result object representing success. This result contains a valid value and metadata about
-/// that value.
-/// </summary>
-/// <typeparam name="TValue"></typeparam>
-public sealed record SuccessResult<TValue>(
-    IParser Parser,
-    TValue Value,
-    Location Location,
-    int Consumed,
-    IReadOnlyList<object>? Data
-) : IResult<TValue>
+public struct ResultData
 {
-    public bool Success => true;
-    public string ErrorMessage => string.Empty;
-    object IResult.Value => Value!;
+    public IReadOnlyList<object>? Data { get; }
 
-    public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
+    public ResultData(IReadOnlyList<object> data)
     {
-        Assert.ArgumentNotNull(transform, nameof(transform));
-        var newValue = transform(Value);
-        return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed, Data);
+        Data = data;
     }
 
     public IOption<T> TryGetData<T>()
@@ -41,6 +26,33 @@ public sealed record SuccessResult<TValue>(
 
         return FailureOption<T>.Instance;
     }
+}
+
+/// <summary>
+/// Result object representing success. This result contains a valid value and metadata about
+/// that value.
+/// </summary>
+/// <typeparam name="TValue"></typeparam>
+public sealed record SuccessResult<TValue>(
+    IParser Parser,
+    TValue Value,
+    Location Location,
+    int Consumed,
+    ResultData Data
+) : IResult<TValue>
+{
+    public bool Success => true;
+    public string ErrorMessage => string.Empty;
+    object IResult.Value => Value!;
+
+    public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
+    {
+        Assert.ArgumentNotNull(transform, nameof(transform));
+        var newValue = transform(Value);
+        return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed, Data);
+    }
+
+    public IOption<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public override string ToString() => $"{Parser} Ok at {Location}";
 
@@ -64,7 +76,7 @@ public sealed record FailureResult<TValue>(
     IParser Parser,
     Location Location,
     string ErrorMessage,
-    IReadOnlyList<object>? Data
+    ResultData Data
 ) : IResult<TValue>
 {
     public bool Success => false;
@@ -78,19 +90,7 @@ public sealed record FailureResult<TValue>(
         return new FailureResult<TOutput>(Parser, Location, ErrorMessage, Data);
     }
 
-    public IOption<T> TryGetData<T>()
-    {
-        if (Data == null)
-            return FailureOption<T>.Instance;
-
-        foreach (var item in Data)
-        {
-            if (item is T typed)
-                return new SuccessOption<T>(typed);
-        }
-
-        return FailureOption<T>.Instance;
-    }
+    public IOption<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public override string ToString() => $"{Parser} FAIL at {Location}";
 

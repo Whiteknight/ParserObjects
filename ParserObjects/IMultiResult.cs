@@ -129,7 +129,7 @@ public static class MultiResultExtensions
     public static IResult<TOutput> ToResult<TOutput>(this IMultiResult<TOutput> result, IResultAlternative<TOutput> alt)
     {
         if (alt.Success)
-            return new SuccessResult<TOutput>(result.Parser, alt.Value, result.Location, alt.Consumed, null);
-        return new FailureResult<TOutput>(result.Parser, result.Location, alt.ErrorMessage, null);
+            return new SuccessResult<TOutput>(result.Parser, alt.Value, result.Location, alt.Consumed, default);
+        return new FailureResult<TOutput>(result.Parser, result.Location, alt.ErrorMessage, default);
     }
 }
