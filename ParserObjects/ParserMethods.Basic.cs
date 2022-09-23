@@ -424,6 +424,19 @@ public static partial class ParserMethods<TInput>
         => new Sequential.Parser<TInput, TOutput>(func);
 
     /// <summary>
+    /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
+    /// discarded until the next "good" location and the parse will be attempted again. Subsequent
+    /// attempts will always return failure, but with error information about all the errors which
+    /// were seen.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="attempt"></param>
+    /// <param name="discardUntil"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Synchronize<TOutput>(IParser<TInput, TOutput> attempt, Func<TInput, bool> discardUntil)
+        => new SynchronizeParser<TInput, TOutput>(attempt, discardUntil);
+
+    /// <summary>
     /// Transform the output value of the parser.
     /// </summary>
     /// <typeparam name="TMiddle"></typeparam>
