@@ -398,6 +398,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private bool Accept<TInput, TOutput>(SynchronizeParser<TInput, TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append(p.GetChildren().First());
+        return true;
+    }
+
     private bool Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, BnfStringifyVisitor state)
     {
         state.Append(p.GetChildren().First());
