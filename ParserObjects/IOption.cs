@@ -37,8 +37,20 @@ public interface IOption<T>
     /// <returns></returns>
     bool Is(T value);
 
+    /// <summary>
+    /// Return another Option object whose value (if it exists) is tranformed.
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="selector"></param>
+    /// <returns></returns>
     IOption<TResult> Select<TResult>(Func<T, TResult> selector);
 
+    /// <summary>
+    /// Return a new Option object whose value (if it exists) is tranformed.
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="selector"></param>
+    /// <returns></returns>
     IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> selector);
 }
 
