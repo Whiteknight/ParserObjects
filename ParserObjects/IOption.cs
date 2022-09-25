@@ -36,6 +36,10 @@ public interface IOption<T>
     /// <param name="value"></param>
     /// <returns></returns>
     bool Is(T value);
+
+    IOption<TResult> Select<TResult>(Func<T, TResult> selector);
+
+    IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> selector);
 }
 
 /// <summary>
@@ -61,6 +65,22 @@ public sealed class SuccessOption<T> : IOption<T>
             return Value == null;
         return value.Equals(Value);
     }
+
+    public IOption<TResult> Select<TResult>(Func<T, TResult> selector)
+        => new SuccessOption<TResult>(selector(Value));
+
+    public IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> selector)
+        => selector(Value);
+
+    public override bool Equals(object obj)
+    {
+        return obj is SuccessOption<T> other && object.Equals(Value, other.Value);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
 }
 
 /// <summary>
@@ -78,4 +98,20 @@ public sealed class FailureOption<T> : IOption<T>
     public T GetValueOrDefault(T defaultValue) => defaultValue;
 
     public bool Is(T value) => false;
+
+    public IOption<TResult> Select<TResult>(Func<T, TResult> _)
+        => FailureOption<TResult>.Instance;
+
+    public IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> _)
+        => FailureOption<TResult>.Instance;
+
+    public override bool Equals(object obj)
+    {
+        return obj is FailureOption<T>;
+    }
+
+    public override int GetHashCode()
+    {
+        return 0;
+    }
 }
