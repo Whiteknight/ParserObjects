@@ -4,15 +4,8 @@ using ParserObjects.Utility;
 
 namespace ParserObjects;
 
-public struct ResultData
+public readonly record struct ResultData(IReadOnlyList<object>? Data)
 {
-    public IReadOnlyList<object>? Data { get; }
-
-    public ResultData(IReadOnlyList<object> data)
-    {
-        Data = data;
-    }
-
     public IOption<T> TryGetData<T>()
     {
         if (Data == null)
@@ -92,7 +85,7 @@ public sealed record FailureResult<TValue>(
 
     public IOption<T> TryGetData<T>() => Data.TryGetData<T>();
 
-    public override string ToString() => $"{Parser} FAIL at {Location}";
+    public override string ToString() => $"{Parser} FAIL at {Location}: {ErrorMessage}";
 
     public IResult<TValue> AdjustConsumed(int consumed) => this;
 
