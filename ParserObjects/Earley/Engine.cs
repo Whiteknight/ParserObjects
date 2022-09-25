@@ -270,15 +270,5 @@ public sealed class Engine<TInput, TOutput>
             AddCompletedNullable(completedNullables, item, item.Production, stats);
     }
 
-    private struct CachedParseResult
-    {
-        public CachedParseResult(IResult result, ISequenceCheckpoint continuation)
-        {
-            Result = result;
-            Continuation = continuation;
-        }
-
-        public IResult Result { get; }
-        public ISequenceCheckpoint Continuation { get; }
-    }
+    private record CachedParseResult(IResult Result, ISequenceCheckpoint Continuation);
 }
