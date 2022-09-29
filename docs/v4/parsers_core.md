@@ -375,6 +375,24 @@ var parser = Sequential(t =>
 
 The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
 
+### Synchronize Parser
+
+The `Synchronize` parser allows entering **panic mode** when a parse fails. In panic mode, the parser will discard tokens to get back to a known "good" state, before attempting the parse again. This is useful for cases where you want to report all syntax errors to the user, not just the first error.
+
+```csharp
+var parser = Synchronize(parser, x => x == ';');
+```
+
+Once you define your parser, you can check to see if there are any errors. If the parser eventually succeeds, the successful result will also be available:
+
+```csharp
+var result = parser.Parse(...);
+var allErrors = result.TryGetData<ErrorList>();
+var successResult = result.TryGetData<IResult>();
+```
+
+You can use the list of errors to report problems back to the user.
+
 ### Try Parser
 
 The `Try` parser catches user-thrown exceptions from within the parse and handles them. When an exception is caught, the input sequence is rewound to the location where the `Try` parser began.
