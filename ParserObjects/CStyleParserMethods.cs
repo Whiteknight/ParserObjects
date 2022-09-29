@@ -235,7 +235,6 @@ public static class CStyleParserMethods
 
                 var hex = ParseStrippedHexChar(s, c);
                 sb.Append(hex);
-                continue;
             }
 
             s.Fail("No end quote");
@@ -340,7 +339,6 @@ public static class CStyleParserMethods
                 }
 
                 ParseHexSequence(s, sb, c);
-                continue;
             }
 
             s.Fail("No end quote");

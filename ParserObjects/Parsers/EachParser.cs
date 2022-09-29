@@ -36,7 +36,6 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
             var result = ParseOne(parser, state, startCheckpoint);
             results.Add(result);
             startCheckpoint.Rewind();
-            continue;
         }
 
         return new MultiResult<TOutput>(this, startCheckpoint.Location, startCheckpoint, results);
