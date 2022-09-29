@@ -21,6 +21,7 @@ Several of the [Fundamental Parser Types](parsers_core.md) have variants which w
 * `Replaceable` allows a multi-parser instance to be replaced
 * `Transform` transforms the values in each alternative
 * `TransformResult` transforms the entire multi result object
+* `TrieMulti` uses a trie to find all matches with the given prefix sequence
 * `Try` executes the parser and captures any exceptions thrown
 
 ## Multi Parser Types

@@ -321,7 +321,7 @@ var parser = Empty().Transform(_ => "abcd");
 
 ### Rule Parser
 
-The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewound and the whole parser fails. You can create rule parsers by using the `.Produce()` extension method on a `Tuple` or `ValueTuple` of parser objects, which may be cleaner to read and write in some situations
+The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewound and the whole parser fails. You can create rule parsers by using the `.Rule()` extension method on a `Tuple` or `ValueTuple` of parser objects, which may be cleaner to read and write in some situations
 
 ```csharp
 var parser = Rule(
@@ -330,7 +330,7 @@ var parser = Rule(
     parser3, 
     (r1, r2, r3) => ...
 );
-var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
+var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
 ```
 
 The `Rule()` method and tuple variants are both limited to 9 parsers at most. If you need to combine the results of more than 9 parsers, use the `Combine` parser instead. 
@@ -402,6 +402,13 @@ var parser = Try(innerParser, ex => {...}, bubble: true);
 ```
 
 The second parameter is a callback to allow examining the exception when it is received. This can be a useful place to set a breakpoint during debugging. The third parameter `bubble` tells whether to rethrow the exception (`true`) or to handle the exception and return a failure result (`false`).
+
+You can get information about the exception thrown from the result, if you set `bubble: false`:
+
+```csharp
+var result = parser.Parse(...);
+var exception = result.TryGetData<Exception>();
+```
 
 ## Matching Parsers
 

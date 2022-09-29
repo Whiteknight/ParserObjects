@@ -170,3 +170,11 @@ var result = parser.Parse(sequence);
 ```
 
 In this operation, the parser will read as many input values from the sequence as necessary to make the match, and any additional data will be left in the sequence. Subsequent calls to parse with the same sequence will continue from the point where the previous parse left off. See the ["Parser Invariants" section of the Parser Usage page](parser_usage.md) for more information about how a parser interacts with a sequence.
+
+## Statistics
+
+All sequences allow accessing statistics, which are useful in some cases to understand performance. 
+
+```csharp
+var stats = sequence.GetStatistics();
+```
