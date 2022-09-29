@@ -84,14 +84,14 @@ public sealed class SuccessOption<T> : IOption<T>
     public IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> selector)
         => selector(Value);
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is SuccessOption<T> other && object.Equals(Value, other.Value);
     }
 
     public override int GetHashCode()
     {
-        return Value.GetHashCode();
+        return Value!.GetHashCode();
     }
 }
 
@@ -117,7 +117,7 @@ public sealed class FailureOption<T> : IOption<T>
     public IOption<TResult> SelectMany<TResult>(Func<T, IOption<TResult>> _)
         => FailureOption<TResult>.Instance;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is FailureOption<T>;
     }
