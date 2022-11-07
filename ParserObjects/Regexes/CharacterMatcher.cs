@@ -30,7 +30,8 @@ public sealed class CharacterMatcher
     public bool IsMatch(char c)
     {
         var isMatch = IsMatchBasic(c);
-        return _invert ? !isMatch : isMatch;
+        // small strength reduction from "_invert ? !isMatch : isMatch"
+        return _invert ^ isMatch;
     }
 
     private bool IsMatchBasic(char c)
