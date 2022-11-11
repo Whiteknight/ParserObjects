@@ -36,6 +36,11 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
+            // Possible Results:
+            // 1. The inner parser succeeds, Transform succeeds. Return success, with this parser listed as the source
+            // 2. The inner parser succeeds, Transform fails. Return failure, with this parser listed as the source
+            // 2. The inner parser fails. Return failure directly, with the inner parser listed as source
+
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
 

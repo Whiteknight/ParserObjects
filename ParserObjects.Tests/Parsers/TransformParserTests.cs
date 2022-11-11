@@ -8,11 +8,14 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
+            var any = Any();
             var parser = Transform(
-                Any(),
+                any,
                 c => int.Parse(c.ToString())
             );
-            parser.Parse("1").Value.Should().Be(1);
+            var result = parser.Parse("1");
+            result.Value.Should().Be(1);
+            result.Parser.Should().BeSameAs(parser);
         }
 
         [Test]
@@ -49,11 +52,14 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Failure()
         {
+            var fail = Fail<char>();
             var parser = Transform(
-                Fail<char>(),
+                fail,
                 c => int.Parse(c.ToString())
             );
-            parser.Parse("1").Success.Should().BeFalse();
+            var result = parser.Parse("1");
+            result.Success.Should().BeFalse();
+            result.Parser.Should().BeSameAs(fail);
         }
 
         [Test]

@@ -445,7 +445,16 @@ public static partial class ParserMethods<TInput>
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => TransformResult<TMiddle, TOutput>(parser, args => args.Result.Transform(transform));
+        => TransformResult<TMiddle, TOutput>(parser, args =>
+        {
+            // If the inner parser fails, run IResult.Transform to change the type and return it
+            if (!args.Result.Success)
+                return args.Result.Transform(transform);
+
+            // Otherwise transform the value and produce a new result with that value
+            var newValue = transform(args.Result.Value);
+            return args.State.Success(args.Parser, newValue, args.Result.Consumed, args.Result.Location);
+        });
 
     /// <summary>
     /// Transforms the output value of the parser.
