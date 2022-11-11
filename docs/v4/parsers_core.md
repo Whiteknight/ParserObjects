@@ -98,7 +98,7 @@ The Chain parser will throw an `InvalidOperationException` if the callback metho
 The `ChainWith` parser is related to the `Chain` parser but uses a different fluent syntax for selecting a value.
 
 ```csharp
-var parser = ChainWith(config => config
+var parser = ChainWith(initial, config => config
     .When(x => x == 'a', new AParser())
     .When(x => x == 'b', new BParser())
 );
