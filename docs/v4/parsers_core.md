@@ -380,7 +380,8 @@ The `t` object assists in performing the parse and it has ability to handle erro
 The `Synchronize` parser allows entering **panic mode** when a parse fails. In panic mode, the parser will discard tokens to get back to a known "good" state, before attempting the parse again. This is useful for cases where you want to report all syntax errors to the user, not just the first error.
 
 ```csharp
-var parser = Synchronize(parser, x => x == ';');
+var parser = Synchronize(inner, x => x == ';');
+var parser = inner.Synchronize(x => x == ';');
 ```
 
 Once you define your parser, you can check to see if there are any errors. If the parser eventually succeeds, the successful result will also be available:

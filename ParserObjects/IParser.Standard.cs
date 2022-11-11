@@ -320,6 +320,20 @@ public static class ParserCombinatorExtensions
         => ParserMethods<TInput>.Replaceable(p).Named(name);
 
     /// <summary>
+    /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
+    /// discarded until the next "good" location and the parse will be attempted again. Subsequent
+    /// attempts will always return failure, but with error information about all the errors which
+    /// were seen.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="discardUntil"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Synchronize<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TInput, bool> discardUntil)
+        => ParserMethods<TInput>.Synchronize<TOutput>(p, discardUntil);
+
+    /// <summary>
     /// Transform the output of the given parser to a new value.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
