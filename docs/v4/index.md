@@ -31,7 +31,7 @@ The `IResult<T>` and `IMultiResult<T>` abstractions represent the result of a pa
 
 See the page on [Parser Usage](parser_usage.md) for information about using parsers. 
 
-* [Generic Parsers Reference](parsers_core.md)
+* [Core Parsers Reference](parsers_core.md)
 * [Logical Parsers Reference](parsers_logical.md)
 * [String/Character Parser Reference](parsers_chars.md)
 * [Programming Parser Reference](parsers_programming.md)
