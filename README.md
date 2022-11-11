@@ -49,4 +49,5 @@ We welcome contributions including code, feedback, bug reports and suggestions.
 
 ## Current Status
 
-ParserObjects library is currently in active development. **v3.1.0** is available on Nuget and is preferred over all previous versions. v3.0.0 and later are not backwards-compatible with v2.X or v1.X versions.
+ParserObjects library is currently in active development. **v4.0.0** is available on Nuget and is preferred over all previous versions. 
+
