@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
@@ -63,21 +62,39 @@ namespace ParserObjects.Tests.Parsers
 
         public class Basic
         {
-            [Test]
-            public void Parse_Test()
+            [TestCase("a", true)]
+            [TestCase("X", true)]
+            [TestCase("1", true)]
+            [TestCase("Z", false)]
+            public void Parse_Test(string test, bool shouldMatch)
             {
-                var parser = new FirstParser<char, char>(new[]
+                var parser = First(
+                    Match('a'),
+                    Match('X'),
+                    Match('1')
+                );
+
+                var result = parser.Parse(test);
+                result.Success.Should().Be(shouldMatch);
+                result.Consumed.Should().Be(shouldMatch ? 1 : 0);
+            }
+
+            [TestCase("a", true)]
+            [TestCase("X", true)]
+            [TestCase("1", true)]
+            [TestCase("Z", false)]
+            public void Parse_Array(string test, bool shouldMatch)
+            {
+                var parser = First(new[]
                 {
                     Match('a'),
                     Match('X'),
                     Match('1')
                 });
 
-                parser.CanMatch("a").Should().BeTrue();
-                parser.CanMatch("X").Should().BeTrue();
-                parser.CanMatch("1").Should().BeTrue();
-
-                parser.CanMatch("b").Should().BeFalse();
+                var result = parser.Parse(test);
+                result.Success.Should().Be(shouldMatch);
+                result.Consumed.Should().Be(shouldMatch ? 1 : 0);
             }
 
             [Test]
@@ -102,72 +119,121 @@ namespace ParserObjects.Tests.Parsers
 
         public class OnValueTuple
         {
-            // TODO: Need to make sure we can match against all options
-            private IParser<char, char> _a = Match('a');
+            private static readonly IParser<char, char> _a = Match('a');
+            private static readonly IParser<char, char> _b = Match('b');
+            private static readonly IParser<char, char> _c = Match('c');
+            private static readonly IParser<char, char> _d = Match('d');
+            private static readonly IParser<char, char> _e = Match('e');
+            private static readonly IParser<char, char> _f = Match('f');
+            private static readonly IParser<char, char> _g = Match('g');
+            private static readonly IParser<char, char> _h = Match('h');
+            private static readonly IParser<char, char> _i = Match('i');
 
-            private IParser<char, char> _b = Match('b');
-            private IParser<char, char> _c = Match('c');
-            private IParser<char, char> _d = Match('d');
-            private IParser<char, char> _e = Match('e');
-            private IParser<char, char> _f = Match('f');
-            private IParser<char, char> _g = Match('g');
-            private IParser<char, char> _h = Match('h');
-            private IParser<char, char> _i = Match('i');
-
-            [Test]
-            public void ValueTyple_First_2()
+            private static void RunTest(IParser<char, char> target, string test, bool shouldMatch)
             {
-                var target = (_b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var result = target.Parse(test);
+                result.Success.Should().Be(shouldMatch);
+                result.Consumed.Should().Be(shouldMatch ? 1 : 0);
             }
 
-            [Test]
-            public void ValueTyple_First_3()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_2(string test, bool shouldMatch)
             {
-                var target = (_c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_4()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_3(string test, bool shouldMatch)
             {
-                var target = (_d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_5()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_4(string test, bool shouldMatch)
             {
-                var target = (_e, _d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c, _d).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_6()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("e", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_5(string test, bool shouldMatch)
             {
-                var target = (_f, _e, _d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c, _d, _e).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_7()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("e", true)]
+            [TestCase("f", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_6(string test, bool shouldMatch)
             {
-                var target = (_g, _f, _e, _d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c, _d, _e, _f).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_8()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("e", true)]
+            [TestCase("f", true)]
+            [TestCase("g", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_7(string test, bool shouldMatch)
             {
-                var target = (_h, _g, _f, _e, _d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c, _d, _e, _f, _g).First();
+                RunTest(target, test, shouldMatch);
             }
 
-            [Test]
-            public void ValueTyple_First_9()
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("e", true)]
+            [TestCase("f", true)]
+            [TestCase("g", true)]
+            [TestCase("h", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_8(string test, bool shouldMatch)
             {
-                var target = (_i, _h, _g, _f, _e, _d, _c, _b, _a).First();
-                target.CanMatch("a").Should().BeTrue();
+                var target = (_a, _b, _c, _d, _e, _f, _g, _h).First();
+                RunTest(target, test, shouldMatch);
+            }
+
+            [TestCase("a", true)]
+            [TestCase("b", true)]
+            [TestCase("c", true)]
+            [TestCase("d", true)]
+            [TestCase("e", true)]
+            [TestCase("f", true)]
+            [TestCase("g", true)]
+            [TestCase("h", true)]
+            [TestCase("i", true)]
+            [TestCase("Z", false)]
+            public void ValueTyple_First_9(string test, bool shouldMatch)
+            {
+                var target = (_a, _b, _c, _d, _e, _f, _g, _h, _i).First();
+                RunTest(target, test, shouldMatch);
             }
         }
     }
