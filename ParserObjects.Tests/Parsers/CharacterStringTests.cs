@@ -1,17 +1,19 @@
-﻿using ParserObjects.Sequences;
-
-namespace ParserObjects.Tests.Parsers;
+﻿namespace ParserObjects.Tests.Parsers;
 
 internal class CharacterStringTests
 {
-    [Test]
-    public void CharacterString_Test()
+    [TestCase("abc", "abcd", true)]
+    [TestCase("abc", "xyz", false)]
+    [TestCase("abc", "abZ", false)]
+    [TestCase("abc", "a", false)]
+    public void Parse_Test(string pattern, string test, bool shouldMatch)
     {
-        var parser = ParserMethods.CharacterString("abc");
-        var input = new StringCharacterSequence("abcd");
-        var result = parser.Parse(input);
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("abc");
-        result.Consumed.Should().Be(3);
+        var parser = ParserMethods.CharacterString(pattern);
+
+        var result = parser.Parse(test);
+        result.Success.Should().Be(shouldMatch);
+        result.Consumed.Should().Be(shouldMatch ? pattern.Length : 0);
+        if (shouldMatch)
+            result.Value.Should().Be(pattern);
     }
 }

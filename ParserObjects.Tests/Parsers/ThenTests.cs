@@ -9,7 +9,7 @@ internal class ThenTests
     private readonly IParser<char, bool> _failParser = Fail<bool>();
 
     [Test]
-    public void ExtThen_Success_ThenSuccess()
+    public void Parse_Success_ThenSuccess()
     {
         var parser = _successParser.Then(Any());
 
@@ -21,7 +21,7 @@ internal class ThenTests
     }
 
     [Test]
-    public void ExtThen_Fail_ThenSuccess()
+    public void Parse_Fail_ThenSuccess()
     {
         var parser = _failParser.Then(Any());
 
