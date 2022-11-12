@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.C;
 internal class CommentTests
 {
     [Test]
-    public void CStyleCommentLiteral_Tests()
+    public void Parse_Test()
     {
         var parser = Comment();
         var result = parser.Parse(new StringCharacterSequence("/* TEST */"));
