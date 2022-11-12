@@ -437,11 +437,17 @@ public static class CStyleParserMethods
             }
 
             c = s.Input.GetNext();
-            if (c >= '0' && c <= '3')
+            if (c >= '0' && c <= '7')
             {
                 var value = ParseStrippedOctalChar(s, c);
                 ExpectEndQuote();
                 return value;
+            }
+
+            if (c == '\'')
+            {
+                ExpectEndQuote();
+                return c;
             }
 
             if (_escapableStringChars.ContainsKey(c))
@@ -504,6 +510,13 @@ public static class CStyleParserMethods
             if (c >= '0' && c <= '3')
             {
                 ParseOctalSequence(s, sb, c);
+                ExpectEndQuote();
+                return sb.ToString();
+            }
+
+            if (c == '\'')
+            {
+                sb.Append(c);
                 ExpectEndQuote();
                 return sb.ToString();
             }
