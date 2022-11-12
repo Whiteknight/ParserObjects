@@ -4,17 +4,24 @@ namespace ParserObjects.Tests.Whitespaces;
 
 internal class OptionalWhitespaceTests
 {
-    [Test]
-    public void OptionalWhitespace_Tests()
+    [TestCase("")]
+    [TestCase(" ")]
+    [TestCase("\t")]
+    [TestCase("\r")]
+    [TestCase("\n")]
+    [TestCase("\v")]
+    public void OptionalWhitespace_Tests(string test)
     {
         var parser = OptionalWhitespace();
-        parser.CanMatch("").Should().BeTrue();
-        parser.CanMatch(" ").Should().BeTrue();
-        parser.CanMatch("\t").Should().BeTrue();
-        parser.CanMatch("\r").Should().BeTrue();
-        parser.CanMatch("\n").Should().BeTrue();
-        parser.CanMatch("\v").Should().BeTrue();
+        var result = parser.Parse(test);
+        result.Success.Should().BeTrue();
+        result.Consumed.Should().Be(test.Length);
+    }
 
+    [Test]
+    public void Parse_EmptyPrefix()
+    {
+        var parser = OptionalWhitespace();
         // It will find 0 whitespace chars at the beginning of the sequence and return that
         // The "x" will be left on the input sequence.
         var result = parser.Parse("x");

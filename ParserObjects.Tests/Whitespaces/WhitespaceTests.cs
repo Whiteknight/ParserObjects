@@ -4,16 +4,22 @@ namespace ParserObjects.Tests.Whitespaces;
 
 internal class WhitespaceTests
 {
-    [Test]
-    public void Whitespace_Tests()
+    [TestCase(" ")]
+    [TestCase("\t")]
+    [TestCase("\r")]
+    [TestCase("\n")]
+    [TestCase("\v")]
+    public void Parse_Test(string test)
     {
         var parser = Whitespace();
-        parser.CanMatch("").Should().BeFalse();
-        parser.CanMatch(" ").Should().BeTrue();
-        parser.CanMatch("\t").Should().BeTrue();
-        parser.CanMatch("\r").Should().BeTrue();
-        parser.CanMatch("\n").Should().BeTrue();
-        parser.CanMatch("\v").Should().BeTrue();
-        parser.CanMatch("x").Should().BeFalse();
+        parser.CanMatch(test).Should().BeTrue();
+    }
+
+    [TestCase("")]
+    [TestCase("x")]
+    public void Parse_Fail(string test)
+    {
+        var parser = Whitespace();
+        parser.CanMatch(test).Should().BeFalse();
     }
 }
