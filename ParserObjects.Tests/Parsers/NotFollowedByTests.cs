@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Parsers;
 internal class NotFollowedByTests
 {
     [Test]
-    public void NotFollowedBy_Success()
+    public void Parse_Success()
     {
         var parser = Match('[').NotFollowedBy(Match("~"));
         var input = new StringCharacterSequence("[test]");
@@ -16,7 +16,7 @@ internal class NotFollowedByTests
     }
 
     [Test]
-    public void NotFollowedBy_Fail()
+    public void Parse_Fail()
     {
         var parser = Match('[').NotFollowedBy(Match("~"));
         var input = new StringCharacterSequence("[~test]");

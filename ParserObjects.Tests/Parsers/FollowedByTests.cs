@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Parsers;
 internal class FollowedByTests
 {
     [Test]
-    public void FollowedBy_Fail()
+    public void Parse_Fail()
     {
         var parser = Match('[').FollowedBy(Match('~'));
         var input = new StringCharacterSequence("[test]");
@@ -17,7 +17,7 @@ internal class FollowedByTests
     }
 
     [Test]
-    public void FollowedBy_Success()
+    public void Parse_Success()
     {
         var parser = Match('[').FollowedBy(Match('~'));
         var input = new StringCharacterSequence("[~test]");
