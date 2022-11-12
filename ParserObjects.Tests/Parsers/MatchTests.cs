@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Test()
             {
                 var parser = Match("abc");
-                var input = new StringCharacterSequence("abcd");
+                var input = FromString("abcd");
                 var result = parser.Parse(input);
                 result.Success.Should().BeTrue();
                 result.Value.Count.Should().Be(3);
@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Fail_Start()
             {
                 var parser = Match("abc");
-                var input = new StringCharacterSequence("Xabcd");
+                var input = FromString("Xabcd");
                 var result = parser.Parse(input);
                 result.Success.Should().BeFalse();
                 result.Consumed.Should().Be(0);
@@ -36,7 +36,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Fail_Second()
             {
                 var parser = Match("abc");
-                var input = new StringCharacterSequence("aXbcd");
+                var input = FromString("aXbcd");
                 var result = parser.Parse(input);
                 result.Success.Should().BeFalse();
                 result.Consumed.Should().Be(0);
@@ -46,7 +46,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Fail_Third()
             {
                 var parser = Match("abc");
-                var input = new StringCharacterSequence("abXcd");
+                var input = FromString("abXcd");
                 var result = parser.Parse(input);
                 result.Success.Should().BeFalse();
                 result.Consumed.Should().Be(0);
@@ -56,7 +56,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Empty()
             {
                 var parser = Match("");
-                var input = new StringCharacterSequence("abc");
+                var input = FromString("abc");
                 var result = parser.Parse(input);
                 result.Success.Should().BeTrue();
                 result.Value.Count.Should().Be(0);
@@ -67,7 +67,7 @@ namespace ParserObjects.Tests.Parsers
             public void GetChildren_Test()
             {
                 var parser = Match("abc");
-                var input = new StringCharacterSequence("abcd");
+                var input = FromString("abcd");
                 parser.GetChildren().Count().Should().Be(0);
             }
         }
@@ -78,7 +78,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Test()
             {
                 var parser = Match(char.IsNumber);
-                var input = new StringCharacterSequence("123");
+                var input = FromString("123");
                 var result = parser.Parse(input);
                 result.Value.Should().Be('1');
                 result.Consumed.Should().Be(1);
@@ -88,7 +88,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Fail()
             {
                 var parser = Match(char.IsLetter);
-                var input = new StringCharacterSequence("123");
+                var input = FromString("123");
                 var result = parser.Parse(input);
                 result.Success.Should().BeFalse();
                 result.Consumed.Should().Be(0);

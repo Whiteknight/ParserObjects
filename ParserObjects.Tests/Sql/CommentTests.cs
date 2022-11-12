@@ -1,4 +1,4 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.SequenceMethods;
 using static ParserObjects.SqlStyleParserMethods;
 
 namespace ParserObjects.Tests.Sql;
@@ -9,7 +9,7 @@ internal class CommentTests
     public void Parse_Test()
     {
         var parser = Comment();
-        var result = parser.Parse(new StringCharacterSequence("-- TEST\n"));
+        var result = parser.Parse(FromString("-- TEST\n"));
         result.Success.Should().BeTrue();
         result.Value.Should().Be("-- TEST");
     }

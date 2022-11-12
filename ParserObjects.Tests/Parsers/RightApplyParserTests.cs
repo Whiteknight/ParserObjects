@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -17,7 +17,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => $"({l}{m}{r})"
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a(2b(3c4)))");
@@ -36,7 +36,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
@@ -55,7 +55,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
@@ -74,7 +74,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
@@ -93,7 +93,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.Range
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             Action act = () => parser.Parse(input);
             act.Should().Throw<InvalidOperationException>();
         }
@@ -110,7 +110,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
@@ -129,7 +129,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -147,7 +147,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -164,7 +164,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => $"({l}{m}{r})"
             );
 
-            var input = new StringCharacterSequence("X");
+            var input = FromString("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -181,7 +181,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => $"({l}{m}{r})"
             );
 
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
@@ -203,7 +203,7 @@ namespace ParserObjects.Tests.Parsers
                 state => "X"
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
@@ -226,7 +226,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
@@ -249,7 +249,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1aX)");
@@ -270,7 +270,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => $"({l}{m}{r})"
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Value.Should().Be("1");
             input.Peek().Should().Be('a');
@@ -292,7 +292,7 @@ namespace ParserObjects.Tests.Parsers
                 quantifier: Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = parser.Parse(input);
             result.Value.Should().Be("1");
             input.Peek().Should().Be('a');
@@ -313,7 +313,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => $"({l}{m}{r})"
             );
 
-            var input = new StringCharacterSequence("1a2b");
+            var input = FromString("1a2b");
             var result = parser.Parse(input);
             result.Value.Should().Be("(1a2)");
             input.Peek().Should().Be('b');
@@ -335,7 +335,7 @@ namespace ParserObjects.Tests.Parsers
                 state => "X"
             );
 
-            var input = new StringCharacterSequence("1a2b");
+            var input = FromString("1a2b");
             var result = parser.Parse(input);
             result.Value.Should().Be("(1a(2bX))");
             result.Consumed.Should().Be(4);
@@ -367,7 +367,7 @@ namespace ParserObjects.Tests.Parsers
                 (l, m, r) => null
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be(null);

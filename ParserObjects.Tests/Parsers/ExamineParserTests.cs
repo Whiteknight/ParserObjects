@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             string after = "";
             var parser = Examine(Any(), s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');
@@ -25,7 +25,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             string after = "";
             var parser = Examine(Any(), s => before = s.Input.GetNext(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(2);
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
                 s => before = s.Input.GetNext(),
                 s => after = s.Input.GetNext()
             );
-            var input = new StringCharacterSequence("ac");
+            var input = FromString("ac");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');
@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Parsers
                 s => before = s.Input.GetNext(),
                 s => after = s.Input.GetNext()
             );
-            var input = new StringCharacterSequence("ac");
+            var input = FromString("ac");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             before.Should().Be('a');
@@ -73,7 +73,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             char after = '\0';
             var parser = Examine(Fail(), s => before = s.Input.GetNext(), s => after = s.Input.Peek());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -87,7 +87,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             char after = '\0';
             var parser = Examine(Fail(), s => before = s.Input.Peek(), s => after = s.Input.Peek());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             before.Should().Be('a');
@@ -100,7 +100,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             char after = '\0';
             var parser = Any().Examine(s => before = s.Input.Peek(), s => after = s.Input.Peek());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');
@@ -125,7 +125,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             string after = "";
             var parser = Examine((IParser<char>)Any(), s => before = s.Input.Peek(), s => after = $"{s.Result.Value}{s.Input.Peek()}");
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');
@@ -138,7 +138,7 @@ namespace ParserObjects.Tests.Parsers
             char before = '\0';
             char after = '\0';
             var parser = ((IParser<char>)Any()).Examine(s => before = s.Input.Peek(), s => after = s.Input.Peek());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             before.Should().Be('a');

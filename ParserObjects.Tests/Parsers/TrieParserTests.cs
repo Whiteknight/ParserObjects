@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add(">", ">");
             IParser<char, string> target = Trie(trie);
 
-            var input = new StringCharacterSequence("===>=<=><<==");
+            var input = FromString("===>=<=><<==");
 
             target.Parse(input).Value.Should().Be("==");
             target.Parse(input).Value.Should().Be("=");
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add(">", ">");
             IParser<char, string> target = Trie(trie);
 
-            var input = new StringCharacterSequence("X===>=<=><<==");
+            var input = FromString("X===>=<=><<==");
 
             target.Parse(input).Success.Should().BeFalse();
         }
@@ -60,7 +60,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add(">", ">")
             );
 
-            var input = new StringCharacterSequence("===>=<=><<==");
+            var input = FromString("===>=<=><<==");
 
             target.Parse(input).Value.Should().Be("==");
             target.Parse(input).Value.Should().Be("=");
@@ -85,7 +85,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add(">", ">")
             );
 
-            var input = new StringCharacterSequence("===>=<=><<==");
+            var input = FromString("===>=<=><<==");
 
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
@@ -118,7 +118,7 @@ namespace ParserObjects.Tests.Parsers
                 singleTrieParser,
                 (l, r) => $"{l} {r}"
             ));
-            var input = new StringCharacterSequence("===>=<=><<==");
+            var input = FromString("===>=<=><<==");
 
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
@@ -140,7 +140,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add(">", ">");
             var target = Trie(trie);
 
-            var input = new StringCharacterSequence("===>=<=><<==");
+            var input = FromString("===>=<=><<==");
 
             target.Parse(input).Value.Should().Be("==");
             target.Parse(input).Value.Should().Be("=");
@@ -164,7 +164,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add(">", ">")
             );
 
-            var input = new StringCharacterSequence("===X");
+            var input = FromString("===X");
 
             var result = target.Parse(input);
             result.Value.Should().Be("==");
@@ -186,7 +186,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add("\0\0\0", "ok")
             );
 
-            var input = new StringCharacterSequence("\0");
+            var input = FromString("\0");
 
             var result = target.Parse(input);
             result.Success.Should().BeFalse();

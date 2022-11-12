@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -21,7 +21,7 @@ namespace ParserObjects.Tests.Parsers
                 )
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(((1a2)b3)c4)");
@@ -44,7 +44,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
@@ -67,7 +67,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1a2b3c4");
+            var input = FromString("1a2b3c4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("(1a2)");
@@ -87,7 +87,7 @@ namespace ParserObjects.Tests.Parsers
                 left => letterParser
             );
 
-            var input = new StringCharacterSequence("1abc");
+            var input = FromString("1abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("c");
@@ -109,7 +109,7 @@ namespace ParserObjects.Tests.Parsers
                 )
             );
 
-            var input = new StringCharacterSequence("X");
+            var input = FromString("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -131,7 +131,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("X");
+            var input = FromString("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -153,7 +153,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("X");
+            var input = FromString("X");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -175,7 +175,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ExactlyOne
             );
 
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -197,7 +197,7 @@ namespace ParserObjects.Tests.Parsers
                 Quantifier.ZeroOrOne
             );
 
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");

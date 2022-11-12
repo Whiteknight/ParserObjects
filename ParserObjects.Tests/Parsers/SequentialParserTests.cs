@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -98,7 +98,7 @@ namespace ParserObjects.Tests.Parsers
                 return $"{first}{second}{third}".ToUpper();
             });
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse("abc");
             result.Success.Should().BeFalse();
             input.Peek().Should().Be('a');

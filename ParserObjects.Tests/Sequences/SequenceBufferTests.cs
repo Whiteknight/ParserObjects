@@ -1,4 +1,4 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
@@ -7,7 +7,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Indexer_Test()
         {
-            var sequence = new StringCharacterSequence("abcdefg");
+            var sequence = FromString("abcdefg");
             var buffer = sequence.CreateBuffer();
             buffer[0].Should().Be('a');
             buffer[1].Should().Be('b');

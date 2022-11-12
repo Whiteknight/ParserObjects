@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_NotAtLeastOne()
         {
             var parser = List(Any(), false);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(3);
@@ -24,7 +24,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_None_AtLeastOneFalse()
         {
             var parser = List(Match(char.IsNumber), false);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
@@ -45,7 +45,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var parser = List(Any());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(3);
@@ -59,7 +59,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Minimum_Fail()
         {
             var parser = List(Any(), 4);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -69,7 +69,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Exactly_Success()
         {
             var parser = List(Any(), 4, 4);
-            var input = new StringCharacterSequence("abcd");
+            var input = FromString("abcd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(4);
@@ -79,7 +79,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Exactly_TooFew()
         {
             var parser = List(Any(), 4, 4);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -89,7 +89,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Maximum()
         {
             var parser = List(Any(), 0, 2);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(2);
@@ -103,7 +103,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_None()
         {
             var parser = List(Match(char.IsNumber));
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
@@ -114,7 +114,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Empty()
         {
             var parser = List(Produce(() => new object()));
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);
@@ -127,7 +127,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Empty_Minimum()
         {
             var parser = List(Produce(() => new object()), minimum: 3);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);

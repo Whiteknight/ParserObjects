@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -24,7 +24,7 @@ internal class CombineTests
     public void RewindInput_Test()
     {
         var parser = (Match('a'), Match('b'), Match('c')).Combine();
-        var input = new StringCharacterSequence("abd");
+        var input = FromString("abd");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         input.Peek().Should().Be('a');
@@ -35,7 +35,7 @@ internal class CombineTests
     {
         var target = (_any, _any).Combine();
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
 
         target.Parse(input).Value.Count.Should().Be(2);
     }
@@ -45,7 +45,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
 
         target.Parse(input).Value.Count.Should().Be(3);
     }
@@ -55,7 +55,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         target.Parse(input).Value.Count.Should().Be(4);
     }
@@ -65,7 +65,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         target.Parse(input).Value.Count.Should().Be(5);
     }
@@ -75,7 +75,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         target.Parse(input).Value.Count.Should().Be(6);
     }
@@ -85,7 +85,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         target.Parse(input).Value.Count.Should().Be(7);
     }
@@ -95,7 +95,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any, _any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         target.Parse(input).Value.Count.Should().Be(8);
     }
@@ -105,7 +105,7 @@ internal class CombineTests
     {
         var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Combine();
 
-        var input = new StringCharacterSequence("abcdefghi");
+        var input = FromString("abcdefghi");
 
         var result = target.Parse(input).Value;
         result.Count.Should().Be(9);

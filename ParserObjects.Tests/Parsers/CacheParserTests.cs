@@ -1,7 +1,7 @@
 ﻿using ParserObjects.Caching;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         public void Method_Parse_NoOutput()
         {
             var parser = Cache(End());
-            var input = new StringCharacterSequence("TEST");
+            var input = FromString("TEST");
             var start = input.Checkpoint();
             var cache = new MemoryCacheResultsCache();
             var state = new ParseState<char>(input, _ => { }, cache);
@@ -40,7 +40,7 @@ namespace ParserObjects.Tests.Parsers
         public void Method_Parse_Output()
         {
             var parser = Cache(CharacterString("TEST"));
-            var input = new StringCharacterSequence("TEST");
+            var input = FromString("TEST");
             var start = input.Checkpoint();
             var cache = new MemoryCacheResultsCache();
             var state = new ParseState<char>(input, _ => { }, cache);
@@ -71,7 +71,7 @@ namespace ParserObjects.Tests.Parsers
         public void Method_Parse_MultiOutput()
         {
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
-            var input = new StringCharacterSequence("TEST");
+            var input = FromString("TEST");
             var start = input.Checkpoint();
             var cache = new MemoryCacheResultsCache();
             var state = new ParseState<char>(input, _ => { }, cache);

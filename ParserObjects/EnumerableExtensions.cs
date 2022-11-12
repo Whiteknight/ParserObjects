@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Sequences;
 
-namespace ParserObjects.Sequences;
+namespace ParserObjects;
 
 public static class EnumerableExtensions
 {

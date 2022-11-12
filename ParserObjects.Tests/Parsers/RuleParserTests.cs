@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -17,7 +17,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b) => $"{a}{b}"
             );
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
 
             target.Parse(input).Value.Should().Be("ab");
         }
@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b) => $"{a}{b}"
             );
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
 
             var result = target.Parse(input);
             result.Value.Should().Be("ab");
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any).Rule((a, b) => $"{a}{b}");
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
 
             target.Parse(input).Value.Should().Be("ab");
         }
@@ -58,7 +58,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c) => $"{a}{b}{c}"
             );
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
 
             target.Parse(input).Value.Should().Be("abc");
         }
@@ -68,7 +68,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any).Rule((a, b, c) => $"{a}{b}{c}");
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
 
             target.Parse(input).Value.Should().Be("abc");
         }
@@ -84,7 +84,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d) => $"{a}{b}{c}{d}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcd");
         }
@@ -94,7 +94,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any).Rule((a, b, c, d) => $"{a}{b}{c}{d}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcd");
         }
@@ -111,7 +111,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e) => $"{a}{b}{c}{d}{e}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcde");
         }
@@ -121,7 +121,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any, _any).Rule((a, b, c, d, e) => $"{a}{b}{c}{d}{e}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcde");
         }
@@ -139,7 +139,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdef");
         }
@@ -149,7 +149,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdef");
         }
@@ -168,7 +168,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefg");
         }
@@ -178,7 +178,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefg");
         }
@@ -198,7 +198,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefgh");
         }
@@ -208,7 +208,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefgh");
         }
@@ -229,7 +229,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefghi");
         }
@@ -250,7 +250,7 @@ namespace ParserObjects.Tests.Parsers
                 (a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}"
             );
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             var result = target.Parse(input);
             result.Value.Should().Be("abcdefghi");
@@ -262,7 +262,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}");
 
-            var input = new StringCharacterSequence("abcdefghijklmn");
+            var input = FromString("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefghi");
         }
@@ -292,7 +292,7 @@ namespace ParserObjects.Tests.Parsers
                 Match('c'),
                 (a, b, c) => "ok"
             );
-            var input = new StringCharacterSequence("abd");
+            var input = FromString("abd");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             input.Peek().Should().Be('a');

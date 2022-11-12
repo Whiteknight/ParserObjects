@@ -1,19 +1,16 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class MapSequenceTests
+    public class SelectTests
     {
         [Test]
         public void GetNext_Test()
         {
-            var target = new MapSequence<int, int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3 },
-                    0
-                ),
-                x => x * 2
-            );
+            var target = FromList(
+                new[] { 1, 2, 3 },
+                0
+            ).Select(x => x * 2);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(4);
             target.GetNext().Should().Be(6);
@@ -23,13 +20,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_Test()
         {
-            var target = new MapSequence<int, int>(
-                new ListSequence<int>(
+            var target = FromList(
                     new[] { 1, 2, 3 },
                     0
-                ),
-                x => x * 2
-            );
+                ).Select(x => x * 2);
             target.Peek().Should().Be(2);
             target.Peek().Should().Be(2);
             target.Peek().Should().Be(2);
@@ -40,7 +34,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Select_Test()
         {
-            var source = new ListSequence<int>(
+            var source = FromList(
                 new[] { 1, 2, 3 },
                 0
             );
@@ -54,7 +48,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void IsAtEnd_Test()
         {
-            var source = new ListSequence<int>(
+            var source = FromList(
                 new[] { 1, 2, 3 },
                 0
             );
@@ -71,13 +65,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Location_Test()
         {
-            var target = new MapSequence<int, int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3 },
-                    0
-                ),
-                x => x
-            );
+            var target = FromList(
+                new[] { 1, 2, 3 },
+                0
+            ).Select(x => x);
             target.GetNext().Should().Be(1);
             target.CurrentLocation.Column.Should().Be(1);
             target.GetNext().Should().Be(2);
@@ -91,13 +82,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_Test()
         {
-            var target = new MapSequence<int, int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3 },
-                    0
-                ),
-                x => x * 2
-            );
+            var target = FromList(
+                new[] { 1, 2, 3 },
+                0
+            ).Select(x => x * 2);
             target.GetNext().Should().Be(2);
             var cp = target.Checkpoint();
             target.GetNext().Should().Be(4);
@@ -112,13 +100,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_IsAtEndRewind()
         {
-            var target = new MapSequence<int, int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3 },
-                    0
-                ),
-                x => x * 2
-            );
+            var target = FromList(
+                new[] { 1, 2, 3 },
+                0
+            ).Select(x => x * 2);
             target.GetNext().Should().Be(2);
             var cp = target.Checkpoint();
             target.GetNext().Should().Be(4);

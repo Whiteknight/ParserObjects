@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using ParserObjects.Sequences;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Examples.PrattCalculator
 {
@@ -8,7 +8,7 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
         public int Calculate(string equation)
         {
             // Turn the input string into a sequence of characters
-            var characterSequence = new StringCharacterSequence(equation);
+            var characterSequence = FromString(equation);
 
             // Get the lexical grammar, and use it to create a sequence of tokens
             var lexicalParser = LexicalGrammar.CreateParser();

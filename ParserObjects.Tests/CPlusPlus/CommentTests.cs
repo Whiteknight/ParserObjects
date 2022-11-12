@@ -1,5 +1,4 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.CPlusPlusStyleParserMethods;
+﻿using static ParserObjects.CPlusPlusStyleParserMethods;
 
 namespace ParserObjects.Tests.CPlusPlus;
 
@@ -9,7 +8,7 @@ internal class CommentTests
     public void Parse_Test()
     {
         var parser = Comment();
-        var result = parser.Parse(new StringCharacterSequence("// TEST\n"));
+        var result = parser.Parse("// TEST\n");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("// TEST");
     }

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         public void Any_Test()
         {
             var target = Any();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             target.Parse(input).Value.Should().Be('a');
             target.Parse(input).Value.Should().Be('b');
             target.Parse(input).Value.Should().Be('c');

@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -13,7 +13,7 @@ public class NotParserTests
     {
         var parser = Not(_failParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Consumed.Should().Be(0);
@@ -24,7 +24,7 @@ public class NotParserTests
     {
         var parser = _failParser.Not();
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Consumed.Should().Be(0);
@@ -35,7 +35,7 @@ public class NotParserTests
     {
         var parser = Not(_anyParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);

@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
-    public class ChainParserTests
+    public static class ChainParserTests
     {
         public class Output
         {
@@ -47,7 +47,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Throw()
             {
                 var parser = Any().Chain<char, char, object>(c => throw new System.Exception());
-                var input = new StringCharacterSequence("abc");
+                var input = FromString("abc");
                 Action act = () => parser.Parse(input);
                 act.Should().Throw<Exception>();
                 input.GetNext().Should().Be('a');
@@ -150,7 +150,7 @@ namespace ParserObjects.Tests.Parsers
             public void Parse_Throw()
             {
                 var parser = ((IParser<char>)Any()).Chain<char, object>(c => throw new System.Exception());
-                var input = new StringCharacterSequence("abc");
+                var input = FromString("abc");
                 Action act = () => parser.Parse(input);
                 act.Should().Throw<Exception>();
                 input.GetNext().Should().Be('a');

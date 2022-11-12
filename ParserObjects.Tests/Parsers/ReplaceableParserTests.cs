@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var anyParser = Any();
             var target = Replaceable(anyParser);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Value.Should().Be('a');
             result.Consumed.Should().Be(1);
@@ -21,7 +21,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_SingleNoOutput()
         {
             var target = Replaceable(End());
-            var input = new StringCharacterSequence("");
+            var input = FromString("");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
         }
@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Parsers
         {
             var anyParser = Fail<char>();
             var target = Replaceable(anyParser);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -44,7 +44,7 @@ namespace ParserObjects.Tests.Parsers
             var failParser = Fail<char>();
             var target = Replaceable(failParser);
             (target as IReplaceableParserUntyped)?.SetParser(anyParser);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Value.Should().Be('a');
         }

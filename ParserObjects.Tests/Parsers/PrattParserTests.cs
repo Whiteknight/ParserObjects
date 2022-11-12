@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -26,7 +26,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
             );
-            var input = new StringCharacterSequence("+!@#");
+            var input = FromString("+!@#");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -39,7 +39,7 @@ namespace ParserObjects.Tests.Parsers
             var target = Pratt<string>(c => c
                 .Add(DigitString())
             );
-            var input = new StringCharacterSequence("1a");
+            var input = FromString("1a");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("1");
@@ -526,7 +526,7 @@ namespace ParserObjects.Tests.Parsers
                 )
             );
 
-            var input = new StringCharacterSequence("abcdefg");
+            var input = FromString("abcdefg");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");
@@ -561,7 +561,7 @@ namespace ParserObjects.Tests.Parsers
                 )
             );
 
-            var input = new StringCharacterSequence("abcdefg");
+            var input = FromString("abcdefg");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ab");

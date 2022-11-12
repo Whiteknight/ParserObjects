@@ -1,16 +1,17 @@
 ﻿using System.IO;
 using ParserObjects.Sequences;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class StreamByteSequenceTests
+    public class FromStream_Byte_Tests
     {
-        private static StreamByteSequence GetTarget(params byte[] b)
+        private static ISequence<byte> GetTarget(params byte[] b)
         {
             var memoryStream = new MemoryStream();
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamByteSequence(memoryStream, new StreamByteSequence.Options { BufferSize = 5 });
+            return FromStream(memoryStream, new StreamByteSequence.Options { BufferSize = 5 });
         }
 
         [Test]

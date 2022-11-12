@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var parser = Empty();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().NotBeNull();
@@ -20,7 +20,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_End()
         {
             var parser = Empty();
-            var input = new StringCharacterSequence("");
+            var input = FromString("");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().NotBeNull();

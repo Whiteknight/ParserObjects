@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -15,7 +15,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: false
             );
-            var input = new StringCharacterSequence("1,2,3,4");
+            var input = FromString("1,2,3,4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();
@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: false
             );
-            var input = new StringCharacterSequence("1,2,3,4,");
+            var input = FromString("1,2,3,4,");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();
@@ -53,7 +53,7 @@ namespace ParserObjects.Tests.Parsers
                     Match(","),
                     atLeastOne: false
                 );
-            var input = new StringCharacterSequence("1,2,3,4");
+            var input = FromString("1,2,3,4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();
@@ -71,7 +71,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: false
             );
-            var input = new StringCharacterSequence("");
+            var input = FromString("");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count().Should().Be(0);
@@ -86,7 +86,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: true
             );
-            var input = new StringCharacterSequence("1");
+            var input = FromString("1");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();
@@ -101,7 +101,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: true
             );
-            var input = new StringCharacterSequence("1,2,3");
+            var input = FromString("1,2,3");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();
@@ -118,7 +118,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 atLeastOne: true
             );
-            var input = new StringCharacterSequence("");
+            var input = FromString("");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
@@ -131,7 +131,7 @@ namespace ParserObjects.Tests.Parsers
                 Match(","),
                 4
             );
-            var input = new StringCharacterSequence("1,2,3");
+            var input = FromString("1,2,3");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
         }
@@ -145,7 +145,7 @@ namespace ParserObjects.Tests.Parsers
                 0,
                 2
             );
-            var input = new StringCharacterSequence("1,2,3");
+            var input = FromString("1,2,3");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             var value = result.Value.ToList();

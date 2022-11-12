@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -13,7 +13,7 @@ public class AndParserTests
     {
         var parser = And(_anyParser, _anyParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Consumed.Should().Be(2);
@@ -25,7 +25,7 @@ public class AndParserTests
         // Same as above, just different syntax
         var parser = _anyParser.And(_anyParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Consumed.Should().Be(2);
@@ -36,7 +36,7 @@ public class AndParserTests
     {
         var parser = And(_anyParser, _failParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -47,7 +47,7 @@ public class AndParserTests
     {
         var parser = And(_failParser, _anyParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -58,7 +58,7 @@ public class AndParserTests
     {
         var parser = And(_failParser, _failParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);

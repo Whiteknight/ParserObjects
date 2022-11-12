@@ -1,4 +1,4 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Examples.JSON
 {
@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Examples.JSON
     {
         public IJsonValue Deserialize(string json)
         {
-            var input = new StringCharacterSequence(json);
+            var input = FromString(json);
             var lexer = JsonLexer.CreateParser();
             var tokens = lexer.ToSequence(input).Select(r => r.Value);
             var parser = JsonGrammar.CreateParser();

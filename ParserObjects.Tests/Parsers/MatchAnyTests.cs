@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -11,7 +11,7 @@ public class MatchAnyTests
     {
         var target = MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });
 
-        var input = new StringCharacterSequence("===>=<=><<==");
+        var input = FromString("===>=<=><<==");
 
         target.Parse(input).Value.Should().Be("==");
         target.Parse(input).Value.Should().Be("=");
@@ -28,7 +28,7 @@ public class MatchAnyTests
     {
         var target = MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });
 
-        var input = new StringCharacterSequence("");
+        var input = FromString("");
 
         var result = target.Parse(input);
         result.Success.Should().BeFalse();
@@ -47,7 +47,7 @@ public class MatchAnyTests
     {
         var target = MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });
 
-        var input = new StringCharacterSequence("X===>=<=><<==");
+        var input = FromString("X===>=<=><<==");
 
         target.Parse(input).Success.Should().BeFalse();
     }

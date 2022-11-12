@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using ParserObjects.Utility;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Utility
 {
@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Utility
             target.Add("abcde", 2);
 
             // looks for "abcd", has a node but no value. Then backtracks to "abc" and finds the value
-            var input = new StringCharacterSequence("abcd");
+            var input = FromString("abcd");
 
             target.Get(input).Value.Should().Be(1);
         }
@@ -95,15 +95,15 @@ namespace ParserObjects.Tests.Utility
             target.Add("aeg", 4);
             target.Add("hij", 5);
 
-            target.Get(new StringCharacterSequence("abc")).Value.Should().Be(1);
-            target.Get(new StringCharacterSequence("abd")).Value.Should().Be(2);
-            target.Get(new StringCharacterSequence("aef")).Value.Should().Be(3);
-            target.Get(new StringCharacterSequence("aeg")).Value.Should().Be(4);
-            target.Get(new StringCharacterSequence("hij")).Value.Should().Be(5);
+            target.Get(FromString("abc")).Value.Should().Be(1);
+            target.Get(FromString("abd")).Value.Should().Be(2);
+            target.Get(FromString("aef")).Value.Should().Be(3);
+            target.Get(FromString("aeg")).Value.Should().Be(4);
+            target.Get(FromString("hij")).Value.Should().Be(5);
 
-            target.Get(new StringCharacterSequence("abX")).Success.Should().BeFalse();
-            target.Get(new StringCharacterSequence("aXc")).Success.Should().BeFalse();
-            target.Get(new StringCharacterSequence("Xbc")).Success.Should().BeFalse();
+            target.Get(FromString("abX")).Success.Should().BeFalse();
+            target.Get(FromString("aXc")).Success.Should().BeFalse();
+            target.Get(FromString("Xbc")).Success.Should().BeFalse();
         }
 
         [Test]

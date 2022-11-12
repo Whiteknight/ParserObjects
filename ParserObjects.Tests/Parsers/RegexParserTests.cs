@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Text;
 using ParserObjects.Regexes;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -42,13 +42,13 @@ namespace ParserObjects.Tests.Parsers
             var parser = Regex(pattern);
 
             // First test with a string sequence
-            var stringSequence = new StringCharacterSequence(input);
+            var stringSequence = FromString(input);
             RegexTest(expectedMatch, parser, stringSequence);
 
             // Second test with a stream sequence, just to show that they are equivalent
             var bytes = Encoding.UTF8.GetBytes(input);
             using var memoryStream = new MemoryStream(bytes);
-            var streamSequence = new StreamCharacterSequence(memoryStream, default);
+            var streamSequence = FromStream(memoryStream, Encoding.UTF8);
             RegexTest(expectedMatch, parser, streamSequence);
         }
 
@@ -69,7 +69,7 @@ namespace ParserObjects.Tests.Parsers
 
         private void RegexTestFail(string pattern, string input)
         {
-            var sequence = new StringCharacterSequence(input);
+            var sequence = FromString(input);
             var parser = Regex(pattern);
             var result = parser.Parse(sequence);
             result.Success.Should().BeFalse();

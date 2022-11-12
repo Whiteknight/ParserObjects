@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -14,7 +14,7 @@ public class IfParserTests
     {
         var parser = Any().If(_successParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Value.Should().Be('b');
@@ -26,7 +26,7 @@ public class IfParserTests
     {
         var parser = Any().If(_failParser);
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -37,7 +37,7 @@ public class IfParserTests
     {
         var parser = If(_successParser, Any());
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Value.Should().Be('b');
@@ -49,7 +49,7 @@ public class IfParserTests
     {
         var parser = If(_failParser, Any());
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -60,7 +60,7 @@ public class IfParserTests
     {
         var parser = If(_successParser, _failParser, Produce(() => true));
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         input.Peek().Should().Be('a');
@@ -102,7 +102,7 @@ public class IfParserTests
             bracketed,
             any
         ).List();
-        var input = new StringCharacterSequence("ab[c]d");
+        var input = FromString("ab[c]d");
         var result = parser.Parse(input).Value.ToList();
         result[0].Should().Be("a");
         result[1].Should().Be("b");

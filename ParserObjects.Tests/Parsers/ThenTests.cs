@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -13,7 +13,7 @@ internal class ThenTests
     {
         var parser = _successParser.Then(Any());
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeTrue();
         result.Value.Should().Be('b');
@@ -25,7 +25,7 @@ internal class ThenTests
     {
         var parser = _failParser.Then(Any());
 
-        var input = new StringCharacterSequence("abc");
+        var input = FromString("abc");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);

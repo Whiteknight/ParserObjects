@@ -57,6 +57,13 @@ public interface ISequence<out T> : ISequence
     T Peek();
 }
 
+public interface ICharSequenceWithRemainder : ISequence<char>
+{
+    string GetRemainder();
+
+    void Reset();
+}
+
 public static class SequenceExtensions
 {
     /// <summary>

@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods;
+﻿using static ParserObjects.ParserMethods;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Lines;
 
@@ -9,7 +9,7 @@ internal class PrefixedLineTests
     public void Parse_NoPrefix()
     {
         var parser = PrefixedLine("");
-        var input = new StringCharacterSequence(@"line
+        var input = FromString(@"line
 NOT LINE");
         parser.Parse(input).Value.Should().Be("line");
     }
@@ -18,7 +18,7 @@ NOT LINE");
     public void Parse_Prefix()
     {
         var parser = PrefixedLine("XXX");
-        var input = new StringCharacterSequence(@"XXXline
+        var input = FromString(@"XXXline
 NOT LINE");
         parser.Parse(input).Value.Should().Be("XXXline");
     }
@@ -27,7 +27,7 @@ NOT LINE");
     public void Parse_Prefix_Fail()
     {
         var parser = PrefixedLine("YYY");
-        var input = new StringCharacterSequence(@"XXXline
+        var input = FromString(@"XXXline
 NOT LINE");
         parser.Parse(input).Success.Should().BeFalse();
     }

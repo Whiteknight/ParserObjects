@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Parsers
             var failParser = Fail<char>();
             var parser = PositiveLookahead(failParser);
 
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);

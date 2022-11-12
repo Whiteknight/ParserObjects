@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -11,7 +11,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Output_Test()
         {
             var target = Any().None();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
@@ -23,7 +23,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Output_Fail()
         {
             var target = Fail<char>().None();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -34,7 +34,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var target = And(Any(), Any()).None();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);
@@ -45,7 +45,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Fail()
         {
             var target = And(Any(), Fail<char>()).None();
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);

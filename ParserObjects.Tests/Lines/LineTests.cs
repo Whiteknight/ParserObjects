@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods;
+﻿using static ParserObjects.ParserMethods;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Lines;
 
@@ -9,7 +9,7 @@ internal class LineTests
     public void Parse_Test()
     {
         var parser = Line();
-        var input = new StringCharacterSequence(@"line
+        var input = FromString(@"line
 NOT LINE");
         var result = parser.Parse(input);
         result.Value.Should().Be("line");

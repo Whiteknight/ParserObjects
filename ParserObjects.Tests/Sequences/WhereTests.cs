@@ -1,19 +1,16 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class FilterSequenceTests
+    public class WhereTests
     {
         [Test]
         public void GetNext_Test()
         {
-            var target = new FilterSequence<int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3, 4, 5, 6 },
-                    0
-                ),
-                x => x % 2 == 0
-            );
+            var target = FromList(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                0
+            ).Where(x => x % 2 == 0);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(4);
             target.GetNext().Should().Be(6);
@@ -23,13 +20,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void IsAtEnd_Test()
         {
-            var target = new FilterSequence<int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3 },
-                    0
-                ),
-                x => x % 2 == 0
-            );
+            var target = FromList(
+                new[] { 1, 2, 3 },
+                0
+            ).Where(x => x % 2 == 0);
             target.IsAtEnd.Should().BeFalse();
             target.GetNext().Should().Be(2);
             target.IsAtEnd.Should().BeTrue();
@@ -38,13 +32,10 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_Test()
         {
-            var target = new FilterSequence<int>(
-                new ListSequence<int>(
-                    new[] { 1, 2, 3, 4, 5, 6 },
-                    0
-                ),
-                x => x % 2 == 0
-            );
+            var target = FromList(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                0
+            ).Where(x => x % 2 == 0);
             target.Peek().Should().Be(2);
             target.GetNext().Should().Be(2);
             target.Peek().Should().Be(4);
@@ -58,7 +49,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Where_Test()
         {
-            var source = new ListSequence<int>(
+            var source = FromList(
                 new[] { 1, 2, 3, 4, 5, 6 },
                 0
             );
@@ -72,10 +63,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_Test()
         {
-            var target = new FilterSequence<char>(
-                "aBcDeFgH".ToCharacterSequence(),
-                x => char.IsUpper(x)
-            );
+            var target = "aBcDeFgH".ToCharacterSequence().Where(x => char.IsUpper(x));
             target.GetNext().Should().Be('B');
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('D');

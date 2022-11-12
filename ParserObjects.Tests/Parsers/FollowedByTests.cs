@@ -1,5 +1,5 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.ParserMethods<char>;
+﻿using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -9,7 +9,7 @@ internal class FollowedByTests
     public void Parse_Fail()
     {
         var parser = Match('[').FollowedBy(Match('~'));
-        var input = new StringCharacterSequence("[test]");
+        var input = FromString("[test]");
         var result = parser.Parse(input);
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -20,7 +20,7 @@ internal class FollowedByTests
     public void Parse_Success()
     {
         var parser = Match('[').FollowedBy(Match('~'));
-        var input = new StringCharacterSequence("[~test]");
+        var input = FromString("[~test]");
         var result = parser.Parse(input);
         result.Value.Should().Be('[');
         result.Consumed.Should().Be(1);

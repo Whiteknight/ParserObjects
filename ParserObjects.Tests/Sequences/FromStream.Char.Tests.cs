@@ -1,23 +1,24 @@
 ﻿using System.IO;
 using System.Text;
 using ParserObjects.Sequences;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class StreamCharacterSequenceTests
+    public class FromStream_Char_Tests
     {
-        private static StreamCharacterSequence GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0')
+        private static ISequence<char> GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
             var memoryStream = new MemoryStream();
             var b = Encoding.UTF8.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return new StreamCharacterSequence(memoryStream, new StreamCharacterSequence.Options
+            return FromStream(memoryStream, Encoding.UTF8, new StreamCharacterSequence.Options
             {
                 BufferSize = bufferSize,
                 NormalizeLineEndings = normalizeLineEndings,
                 EndSentinel = endSentinel
-            }, Encoding.UTF8);
+            });
         }
 
         [Test]

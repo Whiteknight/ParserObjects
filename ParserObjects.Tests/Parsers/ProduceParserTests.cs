@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var target = Produce(() => 5);
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             var result = target.Parse(input);
             result.Value.Should().Be(5);
             result.Consumed.Should().Be(0);
@@ -27,7 +27,7 @@ namespace ParserObjects.Tests.Parsers
         public void ProduceMulti_NoArgs()
         {
             var target = ProduceMulti(() => new[] { "a", "b", "c" });
-            var result = target.Parse(new StringCharacterSequence(""));
+            var result = target.Parse(FromString(""));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
             result.Results.Should().Contain(r => r.Value == "a");
@@ -43,7 +43,7 @@ namespace ParserObjects.Tests.Parsers
                 var x = state.Input.GetNext();
                 return new[] { x, 'b', 'c' };
             });
-            var result = target.Parse(new StringCharacterSequence("X"));
+            var result = target.Parse(FromString("X"));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
             result.Results[0].Value.Should().Be('X');
@@ -66,7 +66,7 @@ namespace ParserObjects.Tests.Parsers
                 "Value",
                 'X'
             );
-            var result = target.Parse(new StringCharacterSequence("X"));
+            var result = target.Parse(FromString("X"));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
             result.Results[0].Value.Should().Be('X');

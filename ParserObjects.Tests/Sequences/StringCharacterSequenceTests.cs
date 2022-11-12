@@ -1,4 +1,5 @@
 ﻿using ParserObjects.Sequences;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
@@ -7,7 +8,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
@@ -17,7 +18,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
@@ -26,7 +27,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_End()
         {
-            var target = new StringCharacterSequence("");
+            var target = FromString("");
             target.Peek().Should().Be('\0');
         }
 
@@ -43,7 +44,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetRemainder_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.GetNext().Should().Be('a');
             target.GetRemainder().Should().Be("bc");
         }
@@ -51,21 +52,21 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetRemainder_Full()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.GetRemainder().Should().Be("abc");
         }
 
         [Test]
         public void GetRemainder_Empty()
         {
-            var target = new StringCharacterSequence("");
+            var target = FromString("");
             target.GetRemainder().Should().Be("");
         }
 
         [Test]
         public void GetRemainder_End()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.GetNext();
             target.GetNext();
             target.GetNext();
@@ -75,7 +76,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_Empty()
         {
-            var target = new StringCharacterSequence("");
+            var target = FromString("");
             // Every get attempt past the end of the string will return '\0'
             target.GetNext().Should().Be('\0');
             target.GetNext().Should().Be('\0');
@@ -86,7 +87,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_Empty_CustomEndSentinel()
         {
-            var target = new StringCharacterSequence("", new StringCharacterSequence.Options
+            var target = FromString("", new StringCharacterSequence.Options
             {
                 EndSentinel = 'X'
             });
@@ -100,7 +101,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_WindowsNewlines()
         {
-            var target = new StringCharacterSequence("\r\na\r\n");
+            var target = FromString("\r\na\r\n");
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
@@ -110,7 +111,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_WindowsNewlines_NonNormalized()
         {
-            var target = new StringCharacterSequence("\r\na\r\n", new StringCharacterSequence.Options
+            var target = FromString("\r\na\r\n", new StringCharacterSequence.Options
             {
                 NormalizeLineEndings = false
             });
@@ -125,7 +126,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_UnixNewlines()
         {
-            var target = new StringCharacterSequence("\na\n");
+            var target = FromString("\na\n");
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
@@ -135,7 +136,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_OldMacNewlines()
         {
-            var target = new StringCharacterSequence("\ra\r");
+            var target = FromString("\ra\r");
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
@@ -145,7 +146,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_OldMacNewlines_NonNormalized()
         {
-            var target = new StringCharacterSequence("\ra\r", new StringCharacterSequence.Options
+            var target = FromString("\ra\r", new StringCharacterSequence.Options
             {
                 NormalizeLineEndings = false
             });
@@ -158,7 +159,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_WindowsNewlines()
         {
-            var target = new StringCharacterSequence("\r\na\r\n");
+            var target = FromString("\r\na\r\n");
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -171,7 +172,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_UnixNewlines()
         {
-            var target = new StringCharacterSequence("\na\n");
+            var target = FromString("\na\n");
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -184,7 +185,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_OldMacNewlines()
         {
-            var target = new StringCharacterSequence("\ra\r");
+            var target = FromString("\ra\r");
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -197,7 +198,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Location_Test()
         {
-            var target = new StringCharacterSequence("a\nbc");
+            var target = FromString("a\nbc");
             target.GetNext().Should().Be('a');
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(1);
@@ -218,7 +219,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Location_Rewind()
         {
-            var target = new StringCharacterSequence("abc\nde");
+            var target = FromString("abc\nde");
             target.GetNext();
             target.GetNext();
             target.GetNext();
@@ -238,7 +239,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Reset_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
@@ -252,7 +253,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void IsAtEnd_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeFalse();
@@ -265,7 +266,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_Test()
         {
-            var target = new StringCharacterSequence("abc");
+            var target = FromString("abc");
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
@@ -281,7 +282,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void ReadNewlineIncrementsConsumed()
         {
-            var target = new StringCharacterSequence("\r\n");
+            var target = FromString("\r\n");
             var next = target.GetNext();
             next.Should().Be('\n');
             target.Consumed.Should().Be(1);

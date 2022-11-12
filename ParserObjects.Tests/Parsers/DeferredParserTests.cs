@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Parsers
 {
@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Any()
         {
             var target = Deferred(() => Any());
-            var input = new StringCharacterSequence("abc");
+            var input = FromString("abc");
             target.Parse(input).Value.Should().Be('a');
             target.Parse(input).Value.Should().Be('b');
             target.Parse(input).Value.Should().Be('c');
@@ -39,7 +39,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Multi()
         {
             var target = Deferred(() => ProduceMulti(() => new[] { "a", "b", "c" }));
-            var result = target.Parse(new StringCharacterSequence(""));
+            var result = target.Parse(FromString(""));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
             result.Results.Should().Contain(r => r.Value == "a");

@@ -1,5 +1,5 @@
 ﻿using ParserObjects.Parsers;
-using ParserObjects.Sequences;
+using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
 {
@@ -9,7 +9,7 @@ namespace ParserObjects.Tests.Sequences
         public void GetNext_Test()
         {
             var parser = new AnyParser<char>();
-            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser, null);
+            var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
             target.GetNext().Value.Should().Be('c');
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Sequences
         public void Peek_Test()
         {
             var parser = new AnyParser<char>();
-            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser, null);
+            var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.Peek().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('a');
             target.Peek().Value.Should().Be('b');
@@ -32,7 +32,7 @@ namespace ParserObjects.Tests.Sequences
         public void IsAtEnd_Test()
         {
             var parser = new AnyParser<char>();
-            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser, null);
+            var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeFalse();
@@ -46,7 +46,7 @@ namespace ParserObjects.Tests.Sequences
         public void Location_Test()
         {
             var parser = new AnyParser<char>();
-            var target = new ParseResultSequence<char, char>("abc".ToCharacterSequence(), parser, null);
+            var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(0);
             target.GetNext();
@@ -64,7 +64,7 @@ namespace ParserObjects.Tests.Sequences
         public void Checkpoint_Test()
         {
             var parser = new AnyParser<char>();
-            var target = new ParseResultSequence<char, char>("abcde".ToCharacterSequence(), parser, null);
+            var target = FromParseResult("abcde".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
             var cp = target.Checkpoint();
