@@ -2,7 +2,7 @@
 using ParserObjects.Parsers;
 using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Tests.Parsers.Multi
+namespace ParserObjects.Tests.Parsers
 {
     public static class FirstTests
     {

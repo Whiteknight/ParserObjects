@@ -1,7 +1,7 @@
 ﻿using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Tests.Parsers.Logical
+namespace ParserObjects.Tests.Parsers
 {
     public class OrParserTests
     {
