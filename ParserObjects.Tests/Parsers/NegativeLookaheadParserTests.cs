@@ -7,26 +7,6 @@ namespace ParserObjects.Tests.Parsers
     public class NegativeLookaheadParserTests
     {
         [Test]
-        public void NotFollowedBy_Success()
-        {
-            var parser = Match('[').NotFollowedBy(Match("~"));
-            var input = new StringCharacterSequence("[test]");
-            var result = parser.Parse(input);
-            result.Value.Should().Be('[');
-            result.Consumed.Should().Be(1);
-        }
-
-        [Test]
-        public void NotFollowedBy_Fail()
-        {
-            var parser = Match('[').NotFollowedBy(Match("~"));
-            var input = new StringCharacterSequence("[~test]");
-            var result = parser.Parse(input);
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-        }
-
-        [Test]
         public void Parse_Fail()
         {
             var failParser = Fail<char>();

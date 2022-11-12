@@ -7,7 +7,8 @@ namespace ParserObjects.Tests.Parsers.Multi
         [Test]
         public void Parse_Test()
         {
-            var target = ProduceMulti(() => "a").Single();
+            var target = ProduceMulti(() => "a")
+                .Single();
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
@@ -16,7 +17,8 @@ namespace ParserObjects.Tests.Parsers.Multi
         [Test]
         public void Parse_FailNoResults()
         {
-            var target = ProduceMulti(() => "").Single();
+            var target = ProduceMulti(() => "")
+                .Single();
             var result = target.Parse("");
             result.Success.Should().BeFalse();
         }
@@ -24,7 +26,8 @@ namespace ParserObjects.Tests.Parsers.Multi
         [Test]
         public void Parse_FailTooMany()
         {
-            var target = ProduceMulti(() => "abc").Single();
+            var target = ProduceMulti(() => "abc")
+                .Single();
             var result = target.Parse("");
             result.Success.Should().BeFalse();
         }

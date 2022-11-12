@@ -39,23 +39,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_2_Test()
+        public void ValueTuple_Rule_2_Test()
         {
             var target = (_any, _any).Rule((a, b) => $"{a}{b}");
 
             var input = new StringCharacterSequence("abc");
 
             target.Parse(input).Value.Should().Be("ab");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_2_Test()
-        {
-            var target = (_any, _any).Combine();
-
-            var input = new StringCharacterSequence("abc");
-
-            target.Parse(input).Value.Count.Should().Be(2);
         }
 
         [Test]
@@ -74,23 +64,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_3_Test()
+        public void ValueTuple_Rule_3_Test()
         {
             var target = (_any, _any, _any).Rule((a, b, c) => $"{a}{b}{c}");
 
             var input = new StringCharacterSequence("abc");
 
             target.Parse(input).Value.Should().Be("abc");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_3_Test()
-        {
-            var target = (_any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abc");
-
-            target.Parse(input).Value.Count.Should().Be(3);
         }
 
         [Test]
@@ -110,23 +90,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_4_Test()
+        public void ValueTuple_Rule_4_Test()
         {
             var target = (_any, _any, _any, _any).Rule((a, b, c, d) => $"{a}{b}{c}{d}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcd");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_4_Test()
-        {
-            var target = (_any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            target.Parse(input).Value.Count.Should().Be(4);
         }
 
         [Test]
@@ -147,23 +117,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_5_Test()
+        public void ValueTuple_Rule_5_Test()
         {
             var target = (_any, _any, _any, _any, _any).Rule((a, b, c, d, e) => $"{a}{b}{c}{d}{e}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcde");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_5_Test()
-        {
-            var target = (_any, _any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            target.Parse(input).Value.Count.Should().Be(5);
         }
 
         [Test]
@@ -185,23 +145,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_6_Test()
+        public void ValueTuple_Rule_6_Test()
         {
             var target = (_any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f) => $"{a}{b}{c}{d}{e}{f}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdef");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_6_Test()
-        {
-            var target = (_any, _any, _any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            target.Parse(input).Value.Count.Should().Be(6);
         }
 
         [Test]
@@ -224,23 +174,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_7_Test()
+        public void ValueTuple_Rule_7_Test()
         {
             var target = (_any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g) => $"{a}{b}{c}{d}{e}{f}{g}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefg");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_7_Test()
-        {
-            var target = (_any, _any, _any, _any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            target.Parse(input).Value.Count.Should().Be(7);
         }
 
         [Test]
@@ -264,23 +204,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_8_Test()
+        public void ValueTuple_Rule_8_Test()
         {
             var target = (_any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h) => $"{a}{b}{c}{d}{e}{f}{g}{h}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefgh");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_8_Test()
-        {
-            var target = (_any, _any, _any, _any, _any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            target.Parse(input).Value.Count.Should().Be(8);
         }
 
         [Test]
@@ -328,24 +258,13 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ValueTuple_Produce_9_Test()
+        public void ValueTuple_Rule_9_Test()
         {
             var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Rule((a, b, c, d, e, f, g, h, i) => $"{a}{b}{c}{d}{e}{f}{g}{h}{i}");
 
             var input = new StringCharacterSequence("abcdefghijklmn");
 
             target.Parse(input).Value.Should().Be("abcdefghi");
-        }
-
-        [Test]
-        public void ValueTuple_Combine_9_Test()
-        {
-            var target = (_any, _any, _any, _any, _any, _any, _any, _any, _any).Combine();
-
-            var input = new StringCharacterSequence("abcdefghi");
-
-            var result = target.Parse(input).Value;
-            result.Count.Should().Be(9);
         }
 
         [Test]

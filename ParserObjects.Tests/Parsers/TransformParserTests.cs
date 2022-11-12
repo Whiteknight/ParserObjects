@@ -31,22 +31,17 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Extension()
         {
-            var parser = Any().Transform(c => int.Parse(c.ToString()));
+            var parser = Any()
+                .Transform(c => int.Parse(c.ToString()));
             parser.Parse("1").Value.Should().Be(1);
         }
 
         [Test]
         public void Parse_Extension_Multi()
         {
-            var parser = ProduceMulti(() => new[] { "1" }).Transform(c => int.Parse(c.ToString()));
+            var parser = ProduceMulti(() => new[] { "1" })
+                .Transform(c => int.Parse(c.ToString()));
             parser.Parse("").Results[0].Value.Should().Be(1);
-        }
-
-        [Test]
-        public void Parse_Extension_Map()
-        {
-            var parser = Any().Map(c => int.Parse(c.ToString()));
-            parser.Parse("1").Value.Should().Be(1);
         }
 
         [Test]
@@ -89,6 +84,17 @@ namespace ParserObjects.Tests.Parsers
             var results = parser.GetChildren().ToList();
             results.Count.Should().Be(1);
             results[0].Should().BeSameAs(failParser);
+        }
+
+        [Test]
+        public void Parse_ExtensionOnMulti_Test()
+        {
+            var target = ProduceMulti(() => new[] { 'A', 'B' })
+                .Transform(l => $"{l}X");
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be("AX");
+            result.Results[1].Value.Should().Be("BX");
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using ParserObjects.Utility;
-using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
@@ -19,7 +17,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            IParser<char, string> target = new TrieParser<char, string>(trie, "");
+            IParser<char, string> target = Trie(trie);
 
             var input = new StringCharacterSequence("===>=<=><<==");
 
@@ -43,7 +41,7 @@ namespace ParserObjects.Tests.Parsers
             trie.Add("<=", "<=");
             trie.Add("<", "<");
             trie.Add(">", ">");
-            IParser<char, string> target = new TrieParser<char, string>(trie, "");
+            IParser<char, string> target = Trie(trie);
 
             var input = new StringCharacterSequence("X===>=<=><<==");
 
@@ -155,23 +153,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void MatchAny_Parse_Operators()
-        {
-            var target = MatchAny(new[] { "=", "==", ">=", "<=", "<", ">" });
-
-            var input = new StringCharacterSequence("===>=<=><<==");
-
-            target.Parse(input).Value.Should().Be("==");
-            target.Parse(input).Value.Should().Be("=");
-            target.Parse(input).Value.Should().Be(">=");
-            target.Parse(input).Value.Should().Be("<=");
-            target.Parse(input).Value.Should().Be(">");
-            target.Parse(input).Value.Should().Be("<");
-            target.Parse(input).Value.Should().Be("<=");
-            target.Parse(input).Value.Should().Be("=");
-        }
-
-        [Test]
         public void Parse_Consumed()
         {
             var target = Trie<string>(trie => trie
@@ -216,7 +197,7 @@ namespace ParserObjects.Tests.Parsers
         public void GetChildren_Test()
         {
             var trie = new InsertOnlyTrie<char, string>();
-            var target = new TrieParser<char, string>(trie, "");
+            var target = Trie(trie);
             target.GetChildren().Count().Should().Be(0);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
 using ParserObjects.Sequences;
 using static ParserObjects.ParserMethods<char>;
 
@@ -43,8 +42,8 @@ namespace ParserObjects.Tests.Parsers
         {
             var anyParser = Any();
             var failParser = Fail<char>();
-            var target = new Replaceable<char, char>.SingleParser(failParser);
-            target.SetParser(anyParser);
+            var target = Replaceable(failParser);
+            (target as IReplaceableParserUntyped)?.SetParser(anyParser);
             var input = new StringCharacterSequence("abc");
             var result = target.Parse(input);
             result.Value.Should().Be('a');

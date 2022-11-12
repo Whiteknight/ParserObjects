@@ -57,17 +57,6 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Transform_Test()
-        {
-            var target = ProduceMulti(() => new[] { 'A', 'B' })
-                .Transform(l => $"{l}X");
-            var result = target.Parse("");
-            result.Success.Should().BeTrue();
-            result.Results[0].Value.Should().Be("AX");
-            result.Results[1].Value.Should().Be("BX");
-        }
-
-        [Test]
         public void ToBnf_Single()
         {
             var target = ProduceMulti(() => new[] { 'A', 'B' })

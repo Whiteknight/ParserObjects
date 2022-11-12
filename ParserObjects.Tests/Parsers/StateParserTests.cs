@@ -3,7 +3,7 @@ using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
-    public class StateParserTests
+    public class DataContextTests
     {
         [Test]
         public void StateData_SingleOutput_Test1()

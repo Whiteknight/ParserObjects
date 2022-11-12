@@ -1,6 +1,7 @@
-﻿using static ParserObjects.ParserMethods<char>;
+﻿using ParserObjects;
+using static ParserObjects.ParserMethods<char>;
 
-namespace ParserObjects.Tests.Parsers
+namespace ParserObjects.Tests.Examples
 {
     public class ExpressionExamplesTests
     {
@@ -80,7 +81,7 @@ namespace ParserObjects.Tests.Parsers
             var equality = RightApply(
                 number,
                 equals,
-                (l, op, r) => (ParseNode)new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
+                (l, op, r) => new InfixExpressionParseNode { Left = l, Operator = op, Right = r }
             );
             var result1 = equality.Parse("1=2=3").Value as InfixExpressionParseNode;
             (result1.Left as NumberValueParseNode).Value.Should().Be("1");

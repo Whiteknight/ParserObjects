@@ -48,10 +48,11 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ListSeparatedBy_Parse_Test()
         {
-            var parser = Integer().ListSeparatedBy(
-                Match(","),
-                atLeastOne: false
-            );
+            var parser = Integer()
+                .ListSeparatedBy(
+                    Match(","),
+                    atLeastOne: false
+                );
             var input = new StringCharacterSequence("1,2,3,4");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

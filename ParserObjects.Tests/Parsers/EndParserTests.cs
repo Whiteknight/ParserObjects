@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
@@ -9,7 +8,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = new EndParser<char>();
+            var parser = End();
             parser.CanMatch("").Should().BeTrue();
             parser.CanMatch("x").Should().BeFalse();
         }
