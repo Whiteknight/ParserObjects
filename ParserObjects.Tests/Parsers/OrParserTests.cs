@@ -20,7 +20,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void OrExtension_Parse_Success_Success()
+        public void Parse_Extension_Success_Success()
         {
             var parser = _anyParser.Or(_anyParser);
 

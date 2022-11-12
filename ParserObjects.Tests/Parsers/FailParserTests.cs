@@ -10,24 +10,26 @@ namespace ParserObjects.Tests.Parsers
 
         private IMultiParser<char, char> MultiInstance() => new FailParser<char, char>();
 
-        [Test]
-        public void Parse_Test()
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("a")]
+        [TestCase("1")]
+        [TestCase(".")]
+        public void Parse_Test(string test)
         {
             var parser = SingleInstance();
-            parser.CanMatch("").Should().BeFalse();
-            parser.CanMatch(" ").Should().BeFalse();
-            parser.CanMatch("1").Should().BeFalse();
-            parser.CanMatch("x").Should().BeFalse();
+            parser.CanMatch(test).Should().BeFalse();
         }
 
-        [Test]
-        public void Parse_Multi()
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("a")]
+        [TestCase("1")]
+        [TestCase(".")]
+        public void Parse_Multi(string test)
         {
             var parser = MultiInstance();
-            parser.CanMatch("").Should().BeFalse();
-            parser.CanMatch(" ").Should().BeFalse();
-            parser.CanMatch("1").Should().BeFalse();
-            parser.CanMatch("x").Should().BeFalse();
+            parser.CanMatch(test).Should().BeFalse();
         }
 
         [Test]

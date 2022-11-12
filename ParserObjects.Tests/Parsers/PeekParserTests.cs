@@ -7,7 +7,7 @@ namespace ParserObjects.Tests.Parsers
     public class PeekParserTests
     {
         [Test]
-        public void Peek_Test()
+        public void Parse_Test()
         {
             var target = Peek();
             var input = new StringCharacterSequence("abc");

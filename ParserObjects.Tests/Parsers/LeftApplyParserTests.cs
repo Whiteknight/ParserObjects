@@ -7,7 +7,7 @@ namespace ParserObjects.Tests.Parsers
     public class LeftApplyParserTests
     {
         [Test]
-        public void ZeroOrMore_Parse_Test()
+        public void Parse_ZeroOrMore_More()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -29,7 +29,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrOne_Parse_Test()
+        public void Parse_ZeroOrOne_One()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -52,7 +52,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ExactlyOne_Parse_Test()
+        public void Parse_ExactlyOne_Success()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -75,7 +75,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrMore_Parse_NoLeftParser()
+        public void Parse_NoLeftParser()
         {
             var numberParser = Match(char.IsNumber).Transform(c => c.ToString());
             var letterParser = Match(char.IsLetter).Transform(c => c.ToString());
@@ -95,7 +95,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrMore_Parse_FailLeft()
+        public void Parse_FailLeft()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -116,7 +116,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ExactlyOne_Parse_FailLeft()
+        public void Parse_ExactlyOne_FailLeft()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -138,7 +138,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrOne_Parse_FailLeft()
+        public void Parse_ZeroOrOne_FailLeft()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -160,7 +160,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ExactlyOne_Parse_FailNoRight()
+        public void Parse_ExactlyOne_FailNoRight()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
@@ -182,7 +182,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ZeroOrOne_Parse_NoRight()
+        public void Parse_ZeroOrOne_NoRight()
         {
             var numberParser = Match(char.IsNumber);
             var letterParser = Match(char.IsLetter);
