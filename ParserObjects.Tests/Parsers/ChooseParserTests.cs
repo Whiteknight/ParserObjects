@@ -2,97 +2,100 @@
 
 namespace ParserObjects.Tests.Parsers
 {
-    public class ChooseParserTests
+    public static class ChooseParserTests
     {
-        [Test]
-        public void Extension_Basic()
+        public class Extension
         {
-            var parser = Any().Choose(r =>
+            [TestCase("aX", true)]
+            [TestCase("bY", true)]
+            [TestCase("aY", false)]
+            [TestCase("bX", false)]
+            [TestCase("cC", true)]
+            [TestCase("dW", false)]
+            public void Parse_Extension(string text, bool shouldMatch)
             {
-                var c = r.Value;
-                if (c == 'a')
-                    return Match("aX");
-                if (c == 'b')
-                    return Match("bY");
-                return Match(new[] { c, char.ToUpper(c) });
-            }).Transform(x => $"{x[0]}{x[1]}");
-            var result = parser.Parse("aX");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("aX");
-            result.Consumed.Should().Be(2);
+                var parser = Any().Choose(r =>
+                {
+                    var c = r.Value;
+                    if (c == 'a')
+                        return Match("aX");
+                    if (c == 'b')
+                        return Match("bY");
+                    return Match(new[] { c, char.ToUpper(c) });
+                }).Transform(x => $"{x[0]}{x[1]}");
 
-            result = parser.Parse("bY");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("bY");
-            result.Consumed.Should().Be(2);
+                var result = parser.Parse(text);
+                result.Success.Should().Be(shouldMatch);
+                result.Consumed.Should().Be(shouldMatch ? text.Length : 0);
+                if (shouldMatch)
+                    result.Value.Should().Be(text);
+            }
 
-            result = parser.Parse("aY");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-
-            result = parser.Parse("bX");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-
-            result = parser.Parse("cC");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("cC");
-            result.Consumed.Should().Be(2);
-        }
-
-        [Test]
-        public void Method_Basic()
-        {
-            var parser = Choose(Any(), r =>
+            [Test]
+            public void Parse_InitialFail()
             {
-                var c = r.Value;
-                if (c == 'a')
-                    return Match("aX");
-                if (c == 'b')
-                    return Match("bY");
-                return Match(new[] { c, char.ToUpper(c) });
-            }).Transform(x => $"{x[0]}{x[1]}");
-            var result = parser.Parse("aX");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("aX");
-            result.Consumed.Should().Be(2);
+                var parser = Fail<object>().Choose(c => Produce(() => c.Success));
+                var result = parser.Parse("a");
+                result.Success.Should().BeTrue();
+                result.Value.Should().BeFalse();
+                result.Consumed.Should().Be(0);
+            }
 
-            result = parser.Parse("bY");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("bY");
-            result.Consumed.Should().Be(2);
-
-            result = parser.Parse("aY");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-
-            result = parser.Parse("bX");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-
-            result = parser.Parse("cC");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("cC");
-            result.Consumed.Should().Be(2);
+            [Test]
+            public void Parse_NullParser()
+            {
+                var parser = Any().Choose(c => (IParser<char, string>)null);
+                var result = parser.Parse("a");
+                result.Success.Should().BeFalse();
+                result.Consumed.Should().Be(0);
+            }
         }
 
-        [Test]
-        public void Extension_InitialFail()
+        public class Method
         {
-            var parser = Fail<object>().Choose(c => Produce(() => c.Success));
-            var result = parser.Parse("a");
-            result.Success.Should().BeTrue();
-            result.Value.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-        }
+            [TestCase("aX", true)]
+            [TestCase("bY", true)]
+            [TestCase("aY", false)]
+            [TestCase("bX", false)]
+            [TestCase("cC", true)]
+            [TestCase("dW", false)]
+            public void Parse_Test(string text, bool shouldMatch)
+            {
+                var parser = Choose(Any(), r =>
+                {
+                    var c = r.Value;
+                    if (c == 'a')
+                        return Match("aX");
+                    if (c == 'b')
+                        return Match("bY");
+                    return Match(new[] { c, char.ToUpper(c) });
+                }).Transform(x => $"{x[0]}{x[1]}");
 
-        [Test]
-        public void Parse_NullParser()
-        {
-            var parser = Any().Choose(c => (IParser<char, string>)null);
-            var result = parser.Parse("a");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
+                var result = parser.Parse(text);
+                result.Success.Should().Be(shouldMatch);
+                result.Consumed.Should().Be(shouldMatch ? text.Length : 0);
+                if (shouldMatch)
+                    result.Value.Should().Be(text);
+            }
+
+            [Test]
+            public void Parse_InitialFail()
+            {
+                var parser = Choose(Fail<object>(), c => Produce(() => c.Success));
+                var result = parser.Parse("a");
+                result.Success.Should().BeTrue();
+                result.Value.Should().BeFalse();
+                result.Consumed.Should().Be(0);
+            }
+
+            [Test]
+            public void Parse_NullParser()
+            {
+                var parser = Choose(Any(), c => (IParser<char, string>)null);
+                var result = parser.Parse("a");
+                result.Success.Should().BeFalse();
+                result.Consumed.Should().Be(0);
+            }
         }
     }
 }
