@@ -1,16 +1,20 @@
-﻿using ParserObjects.Sequences;
-using static ParserObjects.JavaScriptStyleParserMethods;
+﻿using static ParserObjects.JavaScriptStyleParserMethods;
 
 namespace ParserObjects.Tests.JavaScript;
 
 internal class NumberTests
 {
-    [Test]
-    public void JavaScriptStyleNumberLiteral_Tests()
+    [TestCase("0", 0.0)]
+    [TestCase("-0", 0.0)]
+    [TestCase("0.0", 0.0)]
+    [TestCase("123", 123.0)]
+    [TestCase("-123", -123.0)]
+    [TestCase("-1.23e+4", -12300.0)]
+    public void Parse_Test(string test, double value)
     {
         var parser = Number();
-        var result = parser.Parse(new StringCharacterSequence("-1.23e+4"));
+        var result = parser.Parse(test);
         result.Success.Should().BeTrue();
-        result.Value.Should().Be(-12300.0);
+        result.Value.Should().Be(value);
     }
 }

@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Lines;
 internal class PrefixedLineTests
 {
     [Test]
-    public void PrefixedLine_NoPrefix()
+    public void Parse_NoPrefix()
     {
         var parser = PrefixedLine("");
         var input = new StringCharacterSequence(@"line
@@ -15,7 +15,7 @@ NOT LINE");
     }
 
     [Test]
-    public void PrefixedLine_Prefix()
+    public void Parse_Prefix()
     {
         var parser = PrefixedLine("XXX");
         var input = new StringCharacterSequence(@"XXXline
@@ -24,7 +24,7 @@ NOT LINE");
     }
 
     [Test]
-    public void PrefixedLine_Prefix_NoMatch()
+    public void Parse_Prefix_Fail()
     {
         var parser = PrefixedLine("YYY");
         var input = new StringCharacterSequence(@"XXXline
