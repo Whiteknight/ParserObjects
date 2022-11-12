@@ -5,23 +5,25 @@ namespace ParserObjects.Tests.Parsers;
 
 internal class ChainWithTests
 {
-    [Test]
-    public void Output_Configuration_Test()
+    [TestCase("aX", true)]
+    [TestCase("bY", true)]
+    [TestCase("cZ", true)]
+    [TestCase("aZ", false)]
+    [TestCase("dW", false)]
+    public void Parse_Test(string test, bool shouldMatch)
     {
         var target = ChainWith<char, char>(Any(), x => x
             .When(c => c == 'a', Match('X'))
             .When(c => c == 'b', Match('Y'))
             .When(c => c == 'c', Match('Z'))
         );
-        target.Parse("aX").Success.Should().BeTrue();
-        target.Parse("bY").Success.Should().BeTrue();
-        target.Parse("cZ").Success.Should().BeTrue();
-        target.Parse("aZ").Success.Should().BeFalse();
-        target.Parse("dW").Success.Should().BeFalse();
+        var result = target.Parse(test);
+        result.Success.Should().Be(shouldMatch);
+        result.Consumed.Should().Be(shouldMatch ? 2 : 0);
     }
 
     [Test]
-    public void Output_ChainWith_GetChildren_Test()
+    public void GetChildren_Test()
     {
         var first = Any();
         var x = Match('X');
@@ -41,23 +43,25 @@ internal class ChainWithTests
         result.Should().Contain(z);
     }
 
-    [Test]
-    public void NoOutput_Configuration_Test()
+    [TestCase("aX", true)]
+    [TestCase("bY", true)]
+    [TestCase("cZ", true)]
+    [TestCase("aZ", false)]
+    [TestCase("dW", false)]
+    public void Parse_NoOutput(string test, bool shouldMatch)
     {
         var target = ChainWith<char>((IParser<char>)Any(), x => x
             .When(c => (char)c == 'a', Match('X'))
             .When(c => (char)c == 'b', Match('Y'))
             .When(c => (char)c == 'c', Match('Z'))
         );
-        target.Parse("aX").Success.Should().BeTrue();
-        target.Parse("bY").Success.Should().BeTrue();
-        target.Parse("cZ").Success.Should().BeTrue();
-        target.Parse("aZ").Success.Should().BeFalse();
-        target.Parse("dW").Success.Should().BeFalse();
+        var result = target.Parse(test);
+        result.Success.Should().Be(shouldMatch);
+        result.Consumed.Should().Be(shouldMatch ? 2 : 0);
     }
 
     [Test]
-    public void NoOutput_ChainWith_GetChildren_Test()
+    public void GetChildren_NoOutput()
     {
         var first = (IParser<char>)Any();
         var x = Match('X');
