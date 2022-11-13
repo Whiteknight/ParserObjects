@@ -2,6 +2,7 @@
 using System.Linq;
 using ParserObjects.Pratt;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Internal.Regexes;
@@ -12,7 +13,7 @@ public static class RegexPatternGrammar
 
     public static IParser<char, Regex> CreateParser()
     {
-        var digits = CStyleParserMethods.UnsignedInteger();
+        var digits = UnsignedInteger();
 
         // Literal match of any non-slash and non-control character
         var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));

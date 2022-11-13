@@ -11,6 +11,7 @@ namespace ParserObjects.Internal.Visitors;
 /// </summary>
 public sealed class FindParserVisitor
 {
+    // TODO: Need to make sure all necessary find/replace operations are exposed in the facade.
     private struct State
     {
         public Func<IParser, bool> Predicate { get; }

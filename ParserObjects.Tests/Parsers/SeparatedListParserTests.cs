@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using static ParserObjects.CStyleParserMethods;
+using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 

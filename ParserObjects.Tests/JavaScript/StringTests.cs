@@ -1,4 +1,4 @@
-﻿using static ParserObjects.JavaScriptStyleParserMethods;
+﻿using static ParserObjects.Parsers.JS;
 
 namespace ParserObjects.Tests.JavaScript;
 

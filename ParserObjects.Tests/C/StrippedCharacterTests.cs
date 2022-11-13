@@ -1,4 +1,4 @@
-﻿using static ParserObjects.CStyleParserMethods;
+﻿using static ParserObjects.Parsers.C;
 
 namespace ParserObjects.Tests.C;
 

@@ -1,5 +1,5 @@
-﻿using static ParserObjects.CStyleParserMethods;
-using static ParserObjects.Parsers;
+﻿using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Examples.SExpr

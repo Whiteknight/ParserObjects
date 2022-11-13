@@ -1,5 +1,5 @@
-﻿using static ParserObjects.JavaScriptStyleParserMethods;
-using static ParserObjects.Parsers;
+﻿using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.JS;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Examples.JSON

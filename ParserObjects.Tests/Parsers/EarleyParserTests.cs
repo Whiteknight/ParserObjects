@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
-using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers
