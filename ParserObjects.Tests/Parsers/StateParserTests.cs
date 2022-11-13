@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers
 {

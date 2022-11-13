@@ -3,7 +3,7 @@ using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Cache the eresult of the given parser so subsequent calls to .Parse at the same

@@ -2,7 +2,7 @@
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Zero-length assertion that the given pattern does not match from the current position. No

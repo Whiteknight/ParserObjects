@@ -1,5 +1,5 @@
 ﻿using ParserObjects.Internal.Utility;
-using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.ExprCalculator.Token>;
+using static ParserObjects.Parsers<ParserObjects.Tests.Examples.ExprCalculator.Token>;
 using static ParserObjects.Tests.Examples.ExprCalculator.TokenParserExtension;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator

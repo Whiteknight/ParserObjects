@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.ParserMethods<char>;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Examples.RPN
 {
@@ -56,7 +56,7 @@ namespace ParserObjects.Tests.Examples.RPN
                 .ToSequence(FromString(s))
                 .Select(r => r.GetValueOrDefault(() => new RpnToken(r.ErrorMessage, RpnTokenType.Failure)));
 
-            var parser = ParserMethods<RpnToken>.Function<int>(args =>
+            var parser = Parsers<RpnToken>.Function<int>(args =>
             {
                 var startingLocation = args.Input.CurrentLocation;
                 var stack = new Stack<int>();

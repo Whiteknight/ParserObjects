@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects.Tests.Parsers;
 
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 public class TransformResultParserTests
 {

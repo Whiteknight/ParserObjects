@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 

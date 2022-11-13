@@ -4,7 +4,7 @@ using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Parse a list of items.

@@ -2,8 +2,8 @@
 using System.Linq;
 using ParserObjects.Internal.Bnf;
 using ParserObjects.Internal.Utility;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Visitors
 {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using ParserObjects.Internal.Sequences;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {

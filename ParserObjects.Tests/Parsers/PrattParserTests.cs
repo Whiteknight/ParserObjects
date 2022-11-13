@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using ParserObjects.Pratt;
 using static ParserObjects.CStyleParserMethods;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.ParserMethods<char>;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers
 {

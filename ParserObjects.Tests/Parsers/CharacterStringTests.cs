@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Tests.Parsers;
+﻿using static ParserObjects.Parsers;
+
+namespace ParserObjects.Tests.Parsers;
 
 internal class CharacterStringTests
 {
@@ -8,7 +10,7 @@ internal class CharacterStringTests
     [TestCase("abc", "a", false)]
     public void Parse_Test(string pattern, string test, bool shouldMatch)
     {
-        var parser = ParserMethods.CharacterString(pattern);
+        var parser = CharacterString(pattern);
 
         var result = parser.Parse(test);
         result.Success.Should().Be(shouldMatch);

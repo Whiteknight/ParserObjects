@@ -3,7 +3,7 @@ using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// A left-associative parser where the left item is parsed unconditionally, and the result of the

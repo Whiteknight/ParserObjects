@@ -1,4 +1,4 @@
-﻿using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.ExprCalculator.Token>;
+﻿using static ParserObjects.Parsers<ParserObjects.Tests.Examples.ExprCalculator.Token>;
 
 namespace ParserObjects.Tests.Examples.ExprCalculator
 {

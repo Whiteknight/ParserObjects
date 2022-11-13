@@ -98,7 +98,7 @@ public static class ParserCombinatorExtensions
     /// <param name="lookahead"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-        => ParserMethods<TInput>.Combine(p, ParserMethods<TInput>.PositiveLookahead(lookahead)).Transform(r => (TOutput)r[0]);
+        => Parsers<TInput>.Combine(p, Parsers<TInput>.PositiveLookahead(lookahead)).Transform(r => (TOutput)r[0]);
 
     /// <summary>
     /// Returns a list of results from the given parser. Continues to parse until the parser returns
@@ -160,7 +160,7 @@ public static class ParserCombinatorExtensions
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
-        => ParserMethods<TInput>.SeparatedList(p, separator, atLeastOne);
+        => Parsers<TInput>.SeparatedList(p, separator, atLeastOne);
 
     /// <summary>
     /// Returns a list of results from the given parser separated by a separator
@@ -176,7 +176,7 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
-        => ParserMethods<TInput>.SeparatedList(p, separator, minimum, maximum);
+        => Parsers<TInput>.SeparatedList(p, separator, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
@@ -198,7 +198,7 @@ public static class ParserCombinatorExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => ParserMethods<TInput>.Transform(parser, transform);
+        => Parsers<TInput>.Transform(parser, transform);
 
     /// <summary>
     /// Wraps the given parser to guarantee that it consumes no input.
@@ -208,7 +208,7 @@ public static class ParserCombinatorExtensions
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> None<TInput, TOutput>(this IParser<TInput, TOutput> inner)
-        => ParserMethods<TInput>.None(inner);
+        => Parsers<TInput>.None(inner);
 
     /// <summary>
     /// Wraps the given parser to guarantee that it consumes no input.
@@ -217,7 +217,7 @@ public static class ParserCombinatorExtensions
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput> None<TInput>(this IParser<TInput> inner)
-        => ParserMethods<TInput>.None(inner);
+        => Parsers<TInput>.None(inner);
 
     /// <summary>
     /// Zero-length assertion that the given parser's match result is not followed by a lookahead pattern.
@@ -229,7 +229,7 @@ public static class ParserCombinatorExtensions
     /// <param name="lookahead"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-        => ParserMethods<TInput>.Combine(p, ParserMethods<TInput>.NegativeLookahead(lookahead)).Transform(r => (TOutput)r[0]);
+        => Parsers<TInput>.Combine(p, Parsers<TInput>.NegativeLookahead(lookahead)).Transform(r => (TOutput)r[0]);
 
     /// <summary>
     /// The results of the given parser are optional. Returns success with an Option value
@@ -240,7 +240,7 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput, IOption<TOutput>> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.Optional(p);
+        => Parsers<TInput>.Optional(p);
 
     /// <summary>
     /// The results of the given parser are optional. If the inner parser fails, a default
@@ -252,7 +252,7 @@ public static class ParserCombinatorExtensions
     /// <param name="getDefault"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault)
-        => ParserMethods<TInput>.Optional(p, getDefault);
+        => Parsers<TInput>.Optional(p, getDefault);
 
     /// <summary>
     /// The results of the given parser are optional. If the given parser fails, a default value
@@ -264,7 +264,7 @@ public static class ParserCombinatorExtensions
     /// <param name="getDefault"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
-        => ParserMethods<TInput>.Optional(p, getDefault);
+        => Parsers<TInput>.Optional(p, getDefault);
 
     /// <summary>
     /// Make this parser replaceable.
@@ -274,7 +274,7 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.Replaceable(p);
+        => Parsers<TInput>.Replaceable(p);
 
     /// <summary>
     /// Make this parser replaceable.
@@ -283,7 +283,7 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput> Replaceable<TInput>(this IParser<TInput> p)
-        => ParserMethods<TInput>.Replaceable(p);
+        => Parsers<TInput>.Replaceable(p);
 
     /// <summary>
     /// Make this parser replaceable.
@@ -293,7 +293,7 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.Replaceable(p);
+        => Parsers<TInput>.Replaceable(p);
 
     /// <summary>
     /// Make this parser replaceable. Gives the parser a name so that it can be easily
@@ -305,7 +305,7 @@ public static class ParserCombinatorExtensions
     /// <param name="name"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
-        => ParserMethods<TInput>.Replaceable(p).Named(name);
+        => Parsers<TInput>.Replaceable(p).Named(name);
 
     /// <summary>
     /// Make this parser replaceable. Gives the parser a name so that it can be easily found
@@ -317,7 +317,7 @@ public static class ParserCombinatorExtensions
     /// <param name="name"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p, string name)
-        => ParserMethods<TInput>.Replaceable(p).Named(name);
+        => Parsers<TInput>.Replaceable(p).Named(name);
 
     /// <summary>
     /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
@@ -331,7 +331,7 @@ public static class ParserCombinatorExtensions
     /// <param name="discardUntil"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Synchronize<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TInput, bool> discardUntil)
-        => ParserMethods<TInput>.Synchronize<TOutput>(p, discardUntil);
+        => Parsers<TInput>.Synchronize<TOutput>(p, discardUntil);
 
     /// <summary>
     /// Transform the output of the given parser to a new value.
@@ -343,7 +343,7 @@ public static class ParserCombinatorExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => ParserMethods<TInput>.Transform(parser, transform);
+        => Parsers<TInput>.Transform(parser, transform);
 
     /// <summary>
     /// Transform the complete result object of the given parser.
@@ -355,5 +355,5 @@ public static class ParserCombinatorExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> TransformResult<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.SingleArguments, IResult<TOutput>> transform)
-        => ParserMethods<TInput>.TransformResult(parser, transform);
+        => Parsers<TInput>.TransformResult(parser, transform);
 }

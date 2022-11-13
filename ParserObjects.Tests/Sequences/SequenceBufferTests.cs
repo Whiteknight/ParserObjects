@@ -1,4 +1,4 @@
-﻿using static ParserObjects.SequenceMethods;
+﻿using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {

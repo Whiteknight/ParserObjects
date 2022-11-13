@@ -53,7 +53,7 @@ public static partial class MultiParserExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<TMiddle, TOutput> transform)
-        => ParserMethods<TInput>.Transform(multiParser, transform);
+        => Parsers<TInput>.Transform(multiParser, transform);
 
     /// <summary>
     /// Transform the values of all result alternatives.
@@ -65,5 +65,5 @@ public static partial class MultiParserExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
-        => ParserMethods<TInput>.TransformResultMulti(multiParser, transform);
+        => Parsers<TInput>.TransformResultMulti(multiParser, transform);
 }

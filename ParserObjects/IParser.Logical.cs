@@ -26,7 +26,7 @@ public static class ParserLogicalExtensions
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> If<TInput, TOutput>(this IParser<TInput, TOutput> parser, IParser<TInput> predicate)
-        => new IfParser<TInput, TOutput>(predicate, parser, ParserMethods<TInput>.Fail<TOutput>());
+        => new IfParser<TInput, TOutput>(predicate, parser, Parsers<TInput>.Fail<TOutput>());
 
     /// <summary>
     /// Parses with the given parser, inverting the result so Success becomes Failure and Failure becomes
@@ -61,5 +61,5 @@ public static class ParserLogicalExtensions
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Then<TInput, TOutput>(this IParser<TInput> predicate, IParser<TInput, TOutput> parser)
-        => new IfParser<TInput, TOutput>(predicate, parser, ParserMethods<TInput>.Fail<TOutput>());
+        => new IfParser<TInput, TOutput>(predicate, parser, Parsers<TInput>.Fail<TOutput>());
 }

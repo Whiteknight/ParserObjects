@@ -1,9 +1,9 @@
 ﻿using System;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     /// <summary>
     /// Parses a line of text, starting with a prefix and going until a newline or end

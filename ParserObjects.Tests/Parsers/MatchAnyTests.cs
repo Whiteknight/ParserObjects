@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Parsers;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
 

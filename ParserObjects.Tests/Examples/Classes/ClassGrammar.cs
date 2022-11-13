@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Internal;
 using ParserObjects.Pratt;
 using static ParserObjects.CStyleParserMethods;
-using static ParserObjects.ParserMethods;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Examples.Classes
 {

@@ -9,7 +9,7 @@ namespace ParserObjects;
 /// Parser methods for building combinators using declarative syntax.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
     private static readonly IParser<TInput> _empty = new EmptyParser<TInput>();

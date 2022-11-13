@@ -1,9 +1,9 @@
 ﻿using System;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     /// <summary>
     /// Double-quoted string literal, with backslash-escaped quotes. The returned string is the string
@@ -11,6 +11,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> DoubleQuotedString() => _doubleQuotedString.Value;
+
     private static readonly Lazy<IParser<char, string>> _doubleQuotedString = new Lazy<IParser<char, string>>(
         () => DelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Double-Quoted String")
     );
@@ -21,6 +22,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> SingleQuotedString() => _singleQuotedString.Value;
+
     private static readonly Lazy<IParser<char, string>> _singleQuotedString = new Lazy<IParser<char, string>>(
         () => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Single-Quoted String")
     );
@@ -56,6 +58,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> StrippedDoubleQuotedString() => _strippedDoubleQuotedString.Value;
+
     private static readonly Lazy<IParser<char, string>> _strippedDoubleQuotedString = new Lazy<IParser<char, string>>(
         () => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Stripped Double-Quoted String")
     );
@@ -66,6 +69,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> StrippedSingleQuotedString() => _strippedSingleQuotedString.Value;
+
     private static readonly Lazy<IParser<char, string>> _strippedSingleQuotedString = new Lazy<IParser<char, string>>(
         () => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Stripped Single-Quoted String")
     );

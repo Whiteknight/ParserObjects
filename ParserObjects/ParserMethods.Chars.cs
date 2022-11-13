@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Utility;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
 

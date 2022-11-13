@@ -14,7 +14,7 @@ public static class ParserStateExtensions
     /// <param name="name"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
-        => ParserMethods<TInput>.SetResultData(p, name);
+        => Parsers<TInput>.SetResultData(p, name);
 
     /// <summary>
     /// The result value of the parser is stored as contextual state data in the parse state.
@@ -27,7 +27,7 @@ public static class ParserStateExtensions
     /// <param name="getValue"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TInput, TOutput, TValue>(this IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-        => ParserMethods<TInput>.SetResultData(p, name, getValue);
+        => Parsers<TInput>.SetResultData(p, name, getValue);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -38,7 +38,7 @@ public static class ParserStateExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.DataContext(p);
+        => Parsers<TInput>.DataContext(p);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -53,7 +53,7 @@ public static class ParserStateExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, string name, TData value)
         where TData : notnull
-        => ParserMethods<TInput>.DataContext(p, name, value);
+        => Parsers<TInput>.DataContext(p, name, value);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -66,7 +66,7 @@ public static class ParserStateExtensions
     /// <param name="values"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, Dictionary<string, TData> values)
-        => ParserMethods<TInput>.DataContext(p, values);
+        => Parsers<TInput>.DataContext(p, values);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -77,7 +77,7 @@ public static class ParserStateExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.DataContext(p);
+        => Parsers<TInput>.DataContext(p);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -92,7 +92,7 @@ public static class ParserStateExtensions
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, string name, TData value)
         where TData : notnull
-        => ParserMethods<TInput>.DataContext(p, name, value);
+        => Parsers<TInput>.DataContext(p, name, value);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -105,5 +105,5 @@ public static class ParserStateExtensions
     /// <param name="values"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, Dictionary<string, TData> values)
-        => ParserMethods<TInput>.DataContext(p, values);
+        => Parsers<TInput>.DataContext(p, values);
 }

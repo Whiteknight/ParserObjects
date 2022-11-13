@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     /// <summary>
     /// Parses a CamelCase identifier and returns the list of individual strings in

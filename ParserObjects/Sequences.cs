@@ -5,7 +5,7 @@ using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
 
-public static class SequenceMethods
+public static class Sequences
 {
     public static ICharSequenceWithRemainder FromString(string s)
         => new StringCharacterSequence(s);

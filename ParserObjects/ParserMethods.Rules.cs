@@ -3,7 +3,7 @@ using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Parse a sequence of productions and reduce them into a single output. If any item fails, rollback

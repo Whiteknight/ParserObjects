@@ -1,6 +1,6 @@
 ﻿using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Visitors;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Visitors
 {

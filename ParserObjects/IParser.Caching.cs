@@ -12,7 +12,7 @@ public static class ParserCachingExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Cache<TInput, TOutput>(this IParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.Cache(p);
+        => Parsers<TInput>.Cache(p);
 
     /// <summary>
     /// Cache the output of the given parser so that the next call to .Parse at the same
@@ -23,5 +23,5 @@ public static class ParserCachingExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput> Cache<TInput>(this IParser<TInput> p)
-        => ParserMethods<TInput>.Cache(p);
+        => Parsers<TInput>.Cache(p);
 }

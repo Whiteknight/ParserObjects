@@ -5,7 +5,7 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Adjust the current parse context before a parse, and cleanup any changes after the

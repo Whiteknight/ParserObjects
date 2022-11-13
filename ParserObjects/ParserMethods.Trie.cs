@@ -4,7 +4,7 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Look up sequences of inputs in an IReadOnlyTrie to greedily find the longest matching

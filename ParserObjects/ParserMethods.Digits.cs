@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using static ParserObjects.ParserMethods<char>;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     /// <summary>
     /// Parses a single digit 0-9.
     /// </summary>
     /// <returns></returns>
     public static IParser<char, char> Digit() => _digit.Value;
+
     private static readonly Lazy<IParser<char, char>> _digit = new Lazy<IParser<char, char>>(
         () => Match(char.IsDigit).Named("digit")
     );
@@ -20,6 +21,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
+
     private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
         () => Match(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
     );
@@ -29,6 +31,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> DigitString() => _digitString.Value;
+
     private static readonly Lazy<IParser<char, string>> _digitString = new Lazy<IParser<char, string>>(
         () => Digit().ListCharToString(true).Named("digits")
     );
@@ -38,7 +41,9 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
+
     private static readonly HashSet<char> _hexDigits = new HashSet<char>("abcdefABCDEF0123456789");
+
     private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
         () => Match(c => _hexDigits.Contains(c)).Named("hexDigit")
     );
@@ -48,6 +53,7 @@ public static partial class ParserMethods
     /// </summary>
     /// <returns></returns>
     public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
+
     private static readonly Lazy<IParser<char, string>> _hexadecimalString = new Lazy<IParser<char, string>>(
         () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
     );

@@ -1,4 +1,4 @@
-﻿using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.JSON.JsonToken>;
+﻿using static ParserObjects.Parsers<ParserObjects.Tests.Examples.JSON.JsonToken>;
 
 namespace ParserObjects.Tests.Examples.JSON
 {

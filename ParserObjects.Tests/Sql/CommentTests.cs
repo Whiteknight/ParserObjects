@@ -1,4 +1,4 @@
-﻿using static ParserObjects.SequenceMethods;
+﻿using static ParserObjects.Sequences;
 using static ParserObjects.SqlStyleParserMethods;
 
 namespace ParserObjects.Tests.Sql;

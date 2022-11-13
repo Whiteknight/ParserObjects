@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using static ParserObjects.ParserMethods;
+using static ParserObjects.Parsers;
 
 namespace ParserObjects.Tests.Identifiers;
 

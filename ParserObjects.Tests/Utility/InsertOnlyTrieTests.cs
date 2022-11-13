@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Utility;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Utility
 {

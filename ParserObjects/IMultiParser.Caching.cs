@@ -11,5 +11,5 @@ public static class MultiParserCachingExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Cache<TInput, TOutput>(this IMultiParser<TInput, TOutput> p)
-        => ParserMethods<TInput>.Cache(p);
+        => Parsers<TInput>.Cache(p);
 }

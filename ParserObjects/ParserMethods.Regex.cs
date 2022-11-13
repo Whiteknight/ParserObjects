@@ -4,7 +4,7 @@ using ParserObjects.Internal.Regexes;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods
+public static partial class Parsers
 {
     /// <summary>
     /// Creates a parser which attempts to match the given regular expression from the current

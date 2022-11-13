@@ -4,7 +4,7 @@ using ParserObjects.Pratt;
 
 namespace ParserObjects;
 
-public static partial class ParserMethods<TInput>
+public static partial class Parsers<TInput>
 {
     /// <summary>
     /// Creates a Pratt parser, which is especially useful for mathematical expression parsing.

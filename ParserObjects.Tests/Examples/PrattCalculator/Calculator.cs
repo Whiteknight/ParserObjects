@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using static ParserObjects.SequenceMethods;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Examples.PrattCalculator
 {
