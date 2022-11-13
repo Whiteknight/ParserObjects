@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
+using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 

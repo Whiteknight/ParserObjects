@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using ParserObjects.Parsers;
+using ParserObjects.Internal.Parsers;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 

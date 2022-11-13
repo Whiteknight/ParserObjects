@@ -1,6 +1,6 @@
 ﻿using System;
-using ParserObjects.Utility;
-using ParserObjects.Visitors;
+using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects;
 

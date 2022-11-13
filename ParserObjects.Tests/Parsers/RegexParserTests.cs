@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-using ParserObjects.Regexes;
+using ParserObjects.Internal.Regexes;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 using static ParserObjects.SequenceMethods;

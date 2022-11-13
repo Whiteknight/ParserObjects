@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Parsers;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -73,7 +73,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
-        => Parsers.Chain<TInput, TMiddle, TOutput>.Configure(p, setup);
+        => Chain<TInput, TMiddle, TOutput>.Configure(p, setup);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -83,7 +83,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TOutput>(IParser<TInput> p, Action<Chain<TInput, TOutput>.IConfiguration> setup)
-        => Parsers.Chain<TInput, TOutput>.Configure(p, setup);
+        => Internal.Parsers.Chain<TInput, TOutput>.Configure(p, setup);
 
     /// <summary>
     /// Executes a parser without consuming any input, and uses the value to determine the next
@@ -329,7 +329,7 @@ public static partial class ParserMethods<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Predict<TOutput>(Action<Chain<TInput, TInput, TOutput>.IConfiguration> setup)
-         => Parsers.Chain<TInput, TInput, TOutput>.Configure(Peek(), setup);
+         => Chain<TInput, TInput, TOutput>.Configure(Peek(), setup);
 
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.

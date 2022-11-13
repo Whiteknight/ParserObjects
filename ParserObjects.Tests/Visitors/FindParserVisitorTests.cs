@@ -1,5 +1,5 @@
-﻿using ParserObjects.Parsers;
-using ParserObjects.Visitors;
+﻿using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Visitors;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Visitors

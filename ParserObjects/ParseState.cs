@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
-using ParserObjects.Caching;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Caching;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 

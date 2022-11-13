@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using ParserObjects.Pratt;
 using static ParserObjects.CStyleParserMethods;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;

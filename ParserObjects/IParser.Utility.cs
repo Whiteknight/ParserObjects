@@ -1,7 +1,7 @@
 ﻿using System;
-using ParserObjects.Bnf;
-using ParserObjects.Sequences;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Bnf;
+using ParserObjects.Internal.Sequences;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 

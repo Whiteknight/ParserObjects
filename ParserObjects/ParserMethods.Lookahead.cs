@@ -1,4 +1,4 @@
-﻿using ParserObjects.Parsers;
+﻿using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 

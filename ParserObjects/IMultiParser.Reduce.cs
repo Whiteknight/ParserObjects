@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using ParserObjects.Parsers;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 

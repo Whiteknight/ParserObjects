@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ParserObjects;
-using ParserObjects.Bnf;
+using ParserObjects.Internal.Bnf;
 
 namespace ParserObjects.Tests.Meta
 {

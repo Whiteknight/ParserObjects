@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Sequences;
+using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
 

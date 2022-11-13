@@ -1,4 +1,4 @@
-﻿using ParserObjects.Parsers;
+﻿using static ParserObjects.ParserMethods<char>;
 using static ParserObjects.SequenceMethods;
 
 namespace ParserObjects.Tests.Sequences
@@ -8,7 +8,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_Test()
         {
-            var parser = new AnyParser<char>();
+            var parser = Any();
             var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
@@ -18,7 +18,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Peek_Test()
         {
-            var parser = new AnyParser<char>();
+            var parser = Any();
             var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.Peek().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('a');
@@ -31,7 +31,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void IsAtEnd_Test()
         {
-            var parser = new AnyParser<char>();
+            var parser = Any();
             var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
@@ -45,7 +45,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Location_Test()
         {
-            var parser = new AnyParser<char>();
+            var parser = Any();
             var target = FromParseResult("abc".ToCharacterSequence(), parser);
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(0);
@@ -63,7 +63,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_Test()
         {
-            var parser = new AnyParser<char>();
+            var parser = Any();
             var target = FromParseResult("abcde".ToCharacterSequence(), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');

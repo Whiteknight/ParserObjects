@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ParserObjects.Sequences;
+using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
 

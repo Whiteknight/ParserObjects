@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Parsers;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Utility;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects;

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Utility;
 using static ParserObjects.ParserMethods<char>;
 using static ParserObjects.SequenceMethods;
 
@@ -10,14 +9,15 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Operators()
         {
-            var trie = new InsertOnlyTrie<char, string>();
-            trie.Add("=", "=");
-            trie.Add("==", "==");
-            trie.Add(">=", ">=");
-            trie.Add("<=", "<=");
-            trie.Add("<", "<");
-            trie.Add(">", ">");
-            IParser<char, string> target = Trie(trie);
+            var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
 
             var input = FromString("===>=<=><<==");
 
@@ -34,14 +34,15 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Operators_Fail()
         {
-            var trie = new InsertOnlyTrie<char, string>();
-            trie.Add("=", "=");
-            trie.Add("==", "==");
-            trie.Add(">=", ">=");
-            trie.Add("<=", "<=");
-            trie.Add("<", "<");
-            trie.Add(">", ">");
-            IParser<char, string> target = Trie(trie);
+            var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
 
             var input = FromString("X===>=<=><<==");
 
@@ -101,17 +102,19 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Multi_Action_Continue()
         {
-            var trie = new InsertOnlyTrie<char, string>();
-            trie.Add("=", "=");
-            trie.Add("==", "==");
-            trie.Add("===", "===");
-            trie.Add(">=", ">=");
-            trie.Add("<=", "<=");
-            trie.Add("<", "<");
-            trie.Add(">", ">");
+            void Populate(IInsertableTrie<char, string> trie)
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add("===", "===");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            }
 
-            var multiTrieParser = TrieMulti(trie);
-            var singleTrieParser = Trie(trie);
+            var multiTrieParser = TrieMulti<string>(Populate);
+            var singleTrieParser = Trie<string>(Populate);
 
             var target = multiTrieParser.ContinueWith(left => Rule(
                 left,
@@ -131,14 +134,15 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Operators_Method()
         {
-            var trie = new InsertOnlyTrie<char, string>();
-            trie.Add("=", "=");
-            trie.Add("==", "==");
-            trie.Add(">=", ">=");
-            trie.Add("<=", "<=");
-            trie.Add("<", "<");
-            trie.Add(">", ">");
-            var target = Trie(trie);
+            var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
 
             var input = FromString("===>=<=><<==");
 
@@ -196,8 +200,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren_Test()
         {
-            var trie = new InsertOnlyTrie<char, string>();
-            var target = Trie(trie);
+            var target = Trie<char>(_ => { });
             target.GetChildren().Count().Should().Be(0);
         }
     }

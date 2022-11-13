@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Earley;
+using ParserObjects.Internal.Earley;
 
 namespace ParserObjects;
 

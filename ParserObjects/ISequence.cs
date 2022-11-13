@@ -1,5 +1,5 @@
 ﻿using System;
-using ParserObjects.Sequences;
+using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
 
@@ -57,6 +57,7 @@ public interface ISequence<out T> : ISequence
     T Peek();
 }
 
+// TODO: Rename this to something better
 public interface ICharSequenceWithRemainder : ISequence<char>
 {
     string GetRemainder();

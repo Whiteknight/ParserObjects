@@ -1,4 +1,5 @@
-﻿using static ParserObjects.ParserMethods<char>;
+﻿using ParserObjects.Pratt;
+using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {

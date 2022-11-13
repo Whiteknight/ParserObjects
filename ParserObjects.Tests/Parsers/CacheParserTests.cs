@@ -1,4 +1,4 @@
-﻿using ParserObjects.Caching;
+﻿using static ParserObjects.Caches;
 using static ParserObjects.ParserMethods;
 using static ParserObjects.ParserMethods<char>;
 using static ParserObjects.SequenceMethods;
@@ -13,7 +13,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Cache(End());
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = new MemoryCacheResultsCache();
+            var cache = InMemoryCache();
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -42,7 +42,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Cache(CharacterString("TEST"));
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = new MemoryCacheResultsCache();
+            var cache = InMemoryCache();
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -73,7 +73,7 @@ namespace ParserObjects.Tests.Parsers
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = new MemoryCacheResultsCache();
+            var cache = InMemoryCache();
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache

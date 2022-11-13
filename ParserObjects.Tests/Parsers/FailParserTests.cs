@@ -1,14 +1,13 @@
 ﻿using System.Linq;
-using ParserObjects.Parsers;
 using static ParserObjects.ParserMethods<char>;
 
 namespace ParserObjects.Tests.Parsers
 {
     public class FailParserTests
     {
-        private IParser<char, char> SingleInstance() => new FailParser<char, char>();
+        private IParser<char, char> SingleInstance() => Fail();
 
-        private IMultiParser<char, char> MultiInstance() => new FailParser<char, char>();
+        private IMultiParser<char, char> MultiInstance() => FailMulti<char>();
 
         [TestCase("")]
         [TestCase(" ")]
