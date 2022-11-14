@@ -1,6 +1,7 @@
 ﻿using System;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
+using ParserObjects.Regexes;
 
 namespace ParserObjects;
 

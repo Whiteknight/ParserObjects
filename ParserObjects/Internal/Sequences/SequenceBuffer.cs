@@ -38,7 +38,8 @@ public sealed class SequenceBuffer<T>
         _maxItems = parent._maxItems;
     }
 
-    public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(this, i);
+    public SequenceBuffer<T> CopyFrom(int i)
+        => i == 0 ? this : new SequenceBuffer<T>(this, _offset + i);
 
     public T[] Capture(int i)
     {
@@ -49,9 +50,14 @@ public sealed class SequenceBuffer<T>
         }
 
         _buffer[i - 1].cont.Rewind();
-        var result = new T[i];
-        for (int index = 0; index < i; index++)
-            result[index] = _buffer[_offset + index].value;
+        return Extract(0, i);
+    }
+
+    public T[] Extract(int start, int length)
+    {
+        var result = new T[length];
+        for (int index = 0; index < length; index++)
+            result[index] = _buffer[_offset + start + index].value;
         return result;
     }
 

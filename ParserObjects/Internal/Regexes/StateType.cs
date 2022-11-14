@@ -13,7 +13,11 @@ public enum StateType
     /// <summary>
     /// The state is a nested, parenthesized grouping of one or more substates
     /// </summary>
-    Group,
+    CapturingGroup,
+
+    NonCapturingCloister,
+
+    MatchBackreference,
 
     /// <summary>
     /// The state requires matching a value

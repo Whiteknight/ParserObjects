@@ -2,6 +2,7 @@
 using System.Linq;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -35,8 +36,14 @@ public sealed class RegexParser : IParser<char, string>
         var startCp = state.Input.Checkpoint();
         var result = Engine.GetMatch(state.Input, Regex, _maxItems);
         if (!result.Success)
+        {
             startCp.Rewind();
-        return state.Result(this, result);
+            return state.Fail<char, string>(this, result.ErrorMessage);
+        }
+
+        return state.Success<char, string>(this, result.Value, result.Consumed, result.Location, new[] {
+            new RegexMatch(result.Value, result.Captures)
+        });
     }
 
     IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);

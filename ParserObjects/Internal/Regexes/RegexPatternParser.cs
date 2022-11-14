@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Pratt;
+using ParserObjects.Regexes;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
@@ -37,18 +38,32 @@ public static class RegexPatternGrammar
                 .Bind(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                 .BindLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
-            .Add(MatchChar('('), p => p
+            .Add(Match("(?:"), p => p
                 .Bind(2, (ctx, _) =>
                 {
                     var group = ctx.Parse(0);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddGroupState(null, group);
+                    return State.AddNonCapturingCloisterState(null, group);
                 })
                 .BindLeft(2, (ctx, states, _) =>
                 {
                     var group = ctx.Parse(0);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddGroupState(states.Value, group);
+                    return State.AddNonCapturingCloisterState(states.Value, group);
+                })
+            )
+            .Add(MatchChar('('), p => p
+                .Bind(2, (ctx, _) =>
+                {
+                    var group = ctx.Parse(0);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddCapturingGroupState(null, group);
+                })
+                .BindLeft(2, (ctx, states, _) =>
+                {
+                    var group = ctx.Parse(0);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddCapturingGroupState(states.Value, group);
                 })
             )
 
@@ -173,6 +188,7 @@ public static class RegexPatternGrammar
         return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
     }
 
+    // TODO: Move most of this logic into a static factory method on State.
     private static List<State> ParseAlternation(IPrattParseContext<char, List<State>> ctx, List<State> states)
     {
         var options = new List<List<State>>() { states };

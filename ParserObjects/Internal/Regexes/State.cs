@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
 
@@ -128,17 +129,50 @@ public sealed class State : INamed
             'W' => CreateMatchState(c => char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsSymbol(c), "not word"),
             's' => CreateMatchState(c => char.IsWhiteSpace(c), "whitespace"),
             'S' => CreateMatchState(c => !char.IsWhiteSpace(c), "not whitespace"),
+            (>= '0') and (<= '9') => CreateBackreferenceState((int)(type - '0')),
             _ => CreateMatchState(type)
         };
         states.Add(matchState);
         return states;
     }
 
-    public static List<State> AddGroupState(List<State>? states, List<State> group)
+    private static State CreateBackreferenceState(int index)
+    {
+        return new State($"Match backreference {index}")
+        {
+            Type = StateType.MatchBackreference,
+            GroupNumber = index,
+        };
+    }
+
+    public static List<State> AddCapturingGroupState(List<State>? states, List<State> group)
     {
         states ??= new List<State>();
         if (states.LastOrDefault()?.Type == StateType.EndOfInput)
             throw new RegexException("Cannot have atoms after the end anchor $");
+
+        var groupState = new State("group")
+        {
+            Type = StateType.CapturingGroup,
+            Group = group,
+            // Set a GroupNumber to be the current position in the array
+            // If this group is cloned due to quantification, the GroupNumber of the clone will
+            // be the same. These get renumbered later.
+            GroupNumber = states.Count + 1,
+            Quantifier = Quantifier.ExactlyOne
+        };
+        states.Add(groupState);
+        return states;
+    }
+
+    public static List<State> AddNonCapturingCloisterState(List<State>? states, List<State> group)
+    {
+        states ??= new List<State>();
+        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
+            throw new RegexException("Cannot have atoms after the end anchor $");
+
+        // Minor optimization. Since we're not capturing, a cloister of 1 is the same as the inner
+        // state with no cloister
         if (group.Count == 1)
         {
             states.Add(group[0]);
@@ -147,8 +181,12 @@ public sealed class State : INamed
 
         var groupState = new State("group")
         {
-            Type = StateType.Group,
+            Type = StateType.NonCapturingCloister,
             Group = group,
+            // Set a GroupNumber to be the current position in the array
+            // If this group is cloned due to quantification, the GroupNumber of the clone will
+            // be the same. These get renumbered later.
+            GroupNumber = states.Count + 1,
             Quantifier = Quantifier.ExactlyOne
         };
         states.Add(groupState);
@@ -218,6 +256,7 @@ public sealed class State : INamed
             Quantifier = Quantifier,
             ValuePredicate = ValuePredicate,
             Group = Group,
+            GroupNumber = GroupNumber,
             Alternations = Alternations,
             Maximum = Maximum
         };

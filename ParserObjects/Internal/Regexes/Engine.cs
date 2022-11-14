@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using ParserObjects.Internal;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Sequences;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
 
@@ -17,7 +18,7 @@ public static class Engine
         // "(AB)+" could match after 2, 4, or 6 characters, etc. The Engine greedily consumes as
         // many characters as possible for a match, but keeps track of the character counts at each
         // success milestone, so we can backtrack if necessary.
-        private readonly Stack<int> _consumptions;
+        private readonly Stack<(int consumed, int captureIndex)> _consumptions;
 
         private int _totalConsumptions;
 
@@ -25,17 +26,8 @@ public static class Engine
         {
             IsBacktrackable = isBacktrackable;
             State = state;
-            _consumptions = new Stack<int>();
+            _consumptions = new Stack<(int, int)>();
             _totalConsumptions = 0;
-        }
-
-        public BacktrackState(bool isBacktrackable, State state, int consumed)
-        {
-            IsBacktrackable = isBacktrackable;
-            State = state;
-            _consumptions = new Stack<int>();
-            _consumptions.Push(consumed);
-            _totalConsumptions = consumed;
         }
 
         // This point allows backtracking. True if the State supports a variable number of consumed
@@ -50,29 +42,83 @@ public static class Engine
         {
             if (_consumptions.Count == 0)
             {
-                _consumptions.Push(0);
+                _consumptions.Push((0, -1));
                 IsBacktrackable = false;
                 _totalConsumptions = 0;
             }
         }
 
-        public int GetNextConsumption()
+        public (int consumption, int captureIndex) GetNextConsumption()
         {
             if (_consumptions.Count == 0)
-                return 0;
-            var consumption = _consumptions.Pop();
+                return (0, -1);
+            var (consumption, captureIndex) = _consumptions.Pop();
             _totalConsumptions -= consumption;
-            return consumption;
+            return (consumption, captureIndex);
         }
 
         public int TotalConsumed => _totalConsumptions;
 
         public bool HasConsumptions => _consumptions.Count > 0;
 
-        public void AddConsumption(int consumed)
+        public void AddConsumption(int consumed, int captureIndex)
         {
-            _consumptions.Push(consumed);
+            _consumptions.Push((consumed, captureIndex));
             _totalConsumptions += consumed;
+        }
+    }
+
+    private sealed class CaptureCollection
+    {
+        private readonly List<(int group, string value)> _captures;
+
+        public CaptureCollection()
+        {
+            _captures = new List<(int, string)>();
+            CaptureIndex = -1;
+        }
+
+        public int CaptureIndex { get; private set; }
+
+        public int AddCapture(int group, string value)
+        {
+            int currentIndex = CaptureIndex + 1;
+            if (_captures.Count > currentIndex)
+                _captures[currentIndex] = (group, value);
+            else
+            {
+                _captures.Add((group, value));
+                currentIndex = _captures.Count - 1;
+            }
+
+            CaptureIndex = currentIndex;
+            return CaptureIndex;
+        }
+
+        public void ResetCaptureIndex(int captureIndex)
+        {
+            CaptureIndex = captureIndex >= _captures.Count ? _captures.Count - 1 : captureIndex;
+        }
+
+        public IReadOnlyList<(int group, string value)> ToList()
+        {
+            if (CaptureIndex < 0)
+                return Array.Empty<(int, string)>();
+            var result = new (int, string)[CaptureIndex + 1];
+            for (int i = 0; i <= CaptureIndex; i++)
+                result[i] = _captures[i];
+            return result;
+        }
+
+        public string? GetLatestValueForGroup(int groupNumber)
+        {
+            for (int i = CaptureIndex; i >= 0; i--)
+            {
+                if (_captures[i].group == groupNumber)
+                    return _captures[i].value;
+            }
+
+            return null;
         }
     }
 
@@ -85,7 +131,7 @@ public static class Engine
         // current index into the character buffer
         private int _index;
 
-        public RegexContext(IReadOnlyList<State> states)
+        public RegexContext(IReadOnlyList<State> states, CaptureCollection captures)
         {
             _queue = new Stack<State>(states.Count + 1);
             _queue.Push(State.EndSentinel);
@@ -99,12 +145,16 @@ public static class Engine
 
             _backtrackStack = new Stack<BacktrackState>(states.Count);
             _index = 0;
+
             CurrentState = _queue.Pop();
+            Captures = captures;
         }
 
         public State CurrentState { get; private set; }
 
         public int Index => _index;
+
+        public CaptureCollection Captures { get; }
 
         public void AdvanceIndex(int numCharacters)
         {
@@ -152,8 +202,10 @@ public static class Engine
                 // Pull 1 consumption off the current backtrackState, that is going to be the place
                 // where we attempt to continue the match. Push that state back onto the stack in
                 // case we need to try again with the remaining consumptions.
-                var consumption = backtrackState.GetNextConsumption();
+                var (consumption, captureIndex) = backtrackState.GetNextConsumption();
                 _index -= consumption;
+                if (captureIndex >= 0)
+                    Captures.ResetCaptureIndex(captureIndex);
                 _backtrackStack.Push(backtrackState);
                 CurrentState = _queue.Pop();
                 return true;
@@ -176,26 +228,27 @@ public static class Engine
     /// <param name="regex"></param>
     /// <param name="maxItems"></param>
     /// <returns></returns>
-    public static PartialResult<string> GetMatch(ISequence<char> input, Regex regex, int maxItems = 0)
+    public static MatchResult GetMatch(ISequence<char> input, Regex regex, int maxItems = 0)
     {
         Assert.ArgumentNotNull(input, nameof(input));
         Assert.ArgumentNotNull(regex, nameof(regex));
 
         var startLocation = input.CurrentLocation;
         var buffer = new SequenceBuffer<char>(input, maxItems);
-        var (matches, consumed) = Test(regex.States, buffer);
+        var captures = new CaptureCollection();
+        var (matches, consumed) = Test(captures, regex.States, buffer);
         if (matches)
         {
             var charArray = buffer.Capture(consumed);
-            return new PartialResult<string>(new string(charArray), consumed, startLocation);
+            return new MatchResult(new string(charArray), consumed, startLocation, captures.ToList());
         }
 
-        return new PartialResult<string>($"Match failed at position {consumed}", startLocation);
+        return new MatchResult($"Match failed at position {consumed}", startLocation);
     }
 
-    private static (bool matches, int length) Test(IReadOnlyList<State> states, SequenceBuffer<char> buffer)
+    private static (bool matches, int length) Test(CaptureCollection captures, IReadOnlyList<State> states, SequenceBuffer<char> buffer)
     {
-        var context = new RegexContext(states);
+        var context = new RegexContext(states, captures);
 
         while (context.CurrentState.Type != StateType.EndSentinel)
         {
@@ -236,34 +289,53 @@ public static class Engine
         return (true, context.Index);
     }
 
+    private static void HandleSuccessfulMatch(RegexContext context, BacktrackState backtrackState, int consumed, int captureIndexBeforeMatch)
+    {
+        backtrackState.AddConsumption(consumed, captureIndexBeforeMatch);
+        context.AdvanceIndex(consumed);
+    }
+
     private static bool TestExactlyOne(RegexContext context, SequenceBuffer<char> buffer)
     {
-        var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+        var captureIndexBeforeMatch = context.Captures.CaptureIndex;
+        var (matches, consumed) = MatchStateHere(context, buffer, context.CurrentState, context.Index);
         if (matches)
         {
-            context.Push(new BacktrackState(false, context.CurrentState, consumed));
-            context.AdvanceIndex(consumed);
+            var backtrackState = new BacktrackState(false, context.CurrentState);
+            context.Push(backtrackState);
+            HandleSuccessfulMatch(context, backtrackState, consumed, captureIndexBeforeMatch);
             context.MoveToNextState();
             return true;
         }
 
-        var couldBacktrack = context.Backtrack();
-        if (couldBacktrack)
-            return true;
-        return false;
+        return context.Backtrack();
     }
 
     private static void TestZeroOrOne(RegexContext context, SequenceBuffer<char> buffer)
     {
         if (buffer.IsPastEnd(context.Index))
         {
-            context.Push(new BacktrackState(false, context.CurrentState, 0));
+            var backtrackState = new BacktrackState(false, context.CurrentState);
+            backtrackState.AddZeroConsumed();
+            context.Push(backtrackState);
             context.MoveToNextState();
             return;
         }
 
-        var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
-        context.Push(new BacktrackState(matches && consumed > 0, context.CurrentState, consumed));
+        var captureIndexBeforeMatch = context.Captures.CaptureIndex;
+        var (matches, consumed) = MatchStateHere(context, buffer, context.CurrentState, context.Index);
+        if (matches && consumed > 0)
+        {
+            var backtrackState = new BacktrackState(true, context.CurrentState);
+            context.Push(backtrackState);
+            HandleSuccessfulMatch(context, backtrackState, consumed, captureIndexBeforeMatch);
+            context.MoveToNextState();
+            return;
+        }
+
+        var fallbackBtState = new BacktrackState(false, context.CurrentState);
+        fallbackBtState.AddConsumption(consumed, -1);
+        context.Push(fallbackBtState);
         context.AdvanceIndex(consumed);
         context.MoveToNextState();
     }
@@ -281,7 +353,8 @@ public static class Engine
                 break;
             }
 
-            var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+            var captureIndexBeforeMatch = context.Captures.CaptureIndex;
+            var (matches, consumed) = MatchStateHere(context, buffer, context.CurrentState, context.Index);
             if (!matches || consumed == 0)
             {
                 backtrackState.AddZeroConsumed();
@@ -290,8 +363,7 @@ public static class Engine
                 break;
             }
 
-            backtrackState.AddConsumption(consumed);
-            context.AdvanceIndex(consumed);
+            HandleSuccessfulMatch(context, backtrackState, consumed, captureIndexBeforeMatch);
         }
     }
 
@@ -309,7 +381,8 @@ public static class Engine
                 break;
             }
 
-            var (matches, consumed) = MatchStateHere(context.CurrentState, buffer, context.Index);
+            var captureIndexBeforeMatch = context.Captures.CaptureIndex;
+            var (matches, consumed) = MatchStateHere(context, buffer, context.CurrentState, context.Index);
             if (!matches || consumed == 0)
             {
                 backtrackState.AddZeroConsumed();
@@ -318,8 +391,7 @@ public static class Engine
                 break;
             }
 
-            backtrackState.AddConsumption(consumed);
-            context.AdvanceIndex(consumed);
+            HandleSuccessfulMatch(context, backtrackState, consumed, captureIndexBeforeMatch);
             j++;
             if (j >= context.CurrentState.Maximum)
             {
@@ -329,9 +401,9 @@ public static class Engine
         }
     }
 
-    private static (bool matches, int length) MatchStateHere(State state, SequenceBuffer<char> context, int i)
+    private static (bool matches, int length) MatchStateHere(RegexContext context, SequenceBuffer<char> buffer, State state, int index)
     {
-        if (context.IsPastEnd(i))
+        if (buffer.IsPastEnd(index))
         {
             if (state.Type == StateType.EndOfInput)
                 return (true, 0);
@@ -343,18 +415,48 @@ public static class Engine
 
         if (state.Type == StateType.MatchValue)
         {
-            var match = state.ValuePredicate?.Invoke(context[i]) ?? false;
+            var match = state.ValuePredicate?.Invoke(buffer[index]) ?? false;
             return (match, match ? 1 : 0);
         }
 
-        if (state.Type == StateType.Group)
-            return Test(state.Group!, context.CopyFrom(i));
+        if (state.Type == StateType.CapturingGroup)
+        {
+            var groupBuffer = buffer.CopyFrom(index);
+            var (match, length) = Test(context.Captures, state.Group!, groupBuffer);
+            if (!match)
+                return (false, 0);
+
+            var value = new string(groupBuffer.Extract(0, length));
+            context.Captures.AddCapture(state.GroupNumber, value);
+            return (match, length);
+        }
+
+        if (state.Type == StateType.NonCapturingCloister)
+        {
+            var groupBuffer = buffer.CopyFrom(index);
+            return Test(context.Captures, state.Group!, groupBuffer);
+        }
+
+        if (state.Type == StateType.MatchBackreference)
+        {
+            var captureValue = context.Captures.GetLatestValueForGroup(state.GroupNumber);
+            if (captureValue == null)
+                return (false, 0);
+
+            for (int i = 0; i < captureValue.Length; i++)
+            {
+                if (buffer[index + i] != captureValue[i])
+                    return (false, 0);
+            }
+
+            return (true, captureValue.Length);
+        }
 
         if (state.Type == StateType.Alternation)
         {
             foreach (var substate in state.Alternations!)
             {
-                var (matches, consumed) = Test(substate, context.CopyFrom(i));
+                var (matches, consumed) = Test(context.Captures, substate, buffer.CopyFrom(index));
                 if (matches)
                     return (true, consumed);
             }

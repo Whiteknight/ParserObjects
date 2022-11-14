@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-using ParserObjects.Internal.Regexes;
+using ParserObjects.Regexes;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
@@ -240,6 +240,97 @@ namespace ParserObjects.Tests.Parsers
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(4);
             result.Value.Should().Be("abcd");
+        }
+
+        [Test]
+        public void Parse_Captures_Simple()
+        {
+            var target = Regex("(((...)))");
+            var result = target.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups[1][0].Should().Be("abc");
+            matches.Groups[2][0].Should().Be("abc");
+            matches.Groups[3][0].Should().Be("abc");
+        }
+
+        [TestCase("(.)(.)(.)", "abc", "a", "b", "c")]
+        [TestCase("(((..).).)", "abcd", "abcd", "abc", "ab")]
+        [TestCase("(.(.(..)))", "abcd", "abcd", "bcd", "cd")]
+        [TestCase("(.(.(..).).)", "abcdef", "abcdef", "bcde", "cd")]
+        public void Parse_3Groups1Capture(string pattern, string input, string group1, string group2, string group3)
+        {
+            var target = Regex(pattern);
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups[0][0].Should().Be(input);
+            matches.Groups[1][0].Should().Be(group1);
+            matches.Groups[2][0].Should().Be(group2);
+            matches.Groups[3][0].Should().Be(group3);
+        }
+
+        [TestCase("(..)+", "abcdef", "ab", "cd", "ef")]
+        [TestCase("(..)*", "abcdef", "ab", "cd", "ef")]
+        [TestCase("(..){3}", "abcdef", "ab", "cd", "ef")]
+        public void Parse_1Group3Captures(string pattern, string input, string capture1, string capture2, string capture3)
+        {
+            var target = Regex(pattern);
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups[0][0].Should().Be(input);
+            matches.Groups[1][0].Should().Be(capture1);
+            matches.Groups[1][1].Should().Be(capture2);
+            matches.Groups[1][2].Should().Be(capture3);
+        }
+
+        [Test]
+        public void Parse_GroupMultipleBacktrack()
+        {
+            // The first one-or-more group will match "a" then "d". Then it will need to backtrack
+            // to allow the second atom to match "d". In doing so, the capture of "d" by the group
+            // in the first pass should be discarded, and only "a" should be captured.
+            var target = Regex("(.)+d");
+            var result = target.Parse("ad");
+            result.Success.Should().BeTrue();
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups[0][0].Should().Be("ad");
+            matches.Groups.Count.Should().Be(2);
+            matches.Groups[1].Count.Should().Be(1);
+            matches.Groups[1][0].Should().Be("a");
+        }
+
+        [TestCase("(?:.)", "a")]
+        [TestCase("(?:..)", "ab")]
+        public void Parse_NonCapturingCloister_NoCaptures(string pattern, string input)
+        {
+            var target = Regex(pattern);
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups.Count.Should().Be(1);
+            matches.Groups[0][0].Should().Be(input);
+        }
+
+        [TestCase("(..)\\1", "abab")]
+        public void Parse_CaptureBackreference(string pattern, string input)
+        {
+            var target = Regex(pattern);
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(input);
         }
     }
 }
