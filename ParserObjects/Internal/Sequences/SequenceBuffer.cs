@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using ParserObjects;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
@@ -14,33 +12,33 @@ namespace ParserObjects.Internal.Sequences;
 /// <typeparam name="T"></typeparam>
 public sealed class SequenceBuffer<T>
 {
-    private const int DefaultMaxItems = 128;
+    private const int _defaultMaxItems = 128;
     private readonly ISequence<T> _input;
     private readonly int _maxItems;
     private readonly List<(T value, ISequenceCheckpoint cont)> _buffer;
     private readonly int _offset;
     private readonly ISequenceCheckpoint _startCheckpoint;
 
-    public SequenceBuffer(ISequence<T> input, int maxItems = DefaultMaxItems)
+    public SequenceBuffer(ISequence<T> input, int maxItems = _defaultMaxItems)
     {
         Assert.ArgumentNotNull(input, nameof(input));
         _input = input;
-        _maxItems = maxItems <= 0 ? DefaultMaxItems : maxItems;
+        _maxItems = maxItems <= 0 ? _defaultMaxItems : maxItems;
         _buffer = new List<(T value, ISequenceCheckpoint cont)>();
         _offset = 0;
         _startCheckpoint = _input.Checkpoint();
     }
 
-    private SequenceBuffer(ISequence<T> input, List<(T value, ISequenceCheckpoint cont)> buffer, int offset, ISequenceCheckpoint startCheckpoint, int maxItems)
+    private SequenceBuffer(SequenceBuffer<T> parent, int offset)
     {
-        _input = input;
-        _buffer = buffer;
+        _input = parent._input;
+        _buffer = parent._buffer;
         _offset = offset;
-        _startCheckpoint = startCheckpoint;
-        _maxItems = maxItems;
+        _startCheckpoint = parent._startCheckpoint;
+        _maxItems = parent._maxItems;
     }
 
-    public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(_input, _buffer, i, _startCheckpoint, _maxItems);
+    public SequenceBuffer<T> CopyFrom(int i) => new SequenceBuffer<T>(this, i);
 
     public T[] Capture(int i)
     {
@@ -51,7 +49,10 @@ public sealed class SequenceBuffer<T>
         }
 
         _buffer[i - 1].cont.Rewind();
-        return _buffer.Skip(_offset).Take(i).Select(v => v.value).ToArray();
+        var result = new T[i];
+        for (int index = 0; index < i; index++)
+            result[index] = _buffer[_offset + index].value;
+        return result;
     }
 
     public T? this[int index]
