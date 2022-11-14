@@ -187,6 +187,8 @@ public sealed class State : INamed
     /// </summary>
     public List<State>? Group { get; set; }
 
+    public int GroupNumber { get; set; }
+
     /// <summary>
     /// Gets or sets all possibilities in an alternation.
     /// </summary>
