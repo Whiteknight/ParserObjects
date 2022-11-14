@@ -10,12 +10,15 @@ namespace ParserObjects.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>
 {
-    public RegexParser(Regex regex, string describe, string? name = null)
+    private readonly int _maxItems;
+
+    public RegexParser(Regex regex, string describe, int maxItems = 0, string? name = null)
     {
         Assert.ArgumentNotNull(regex, nameof(regex));
         Regex = regex;
         Name = name ?? $"/{describe}/";
         Pattern = describe;
+        _maxItems = maxItems;
     }
 
     public Regex Regex { get; }
@@ -30,7 +33,7 @@ public sealed class RegexParser : IParser<char, string>
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCp = state.Input.Checkpoint();
-        var result = Engine.GetMatch(state.Input, Regex);
+        var result = Engine.GetMatch(state.Input, Regex, _maxItems);
         if (!result.Success)
             startCp.Rewind();
         return state.Result(this, result);
@@ -42,5 +45,5 @@ public sealed class RegexParser : IParser<char, string>
 
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);
 
-    public INamed SetName(string name) => new RegexParser(Regex, Pattern, name);
+    public INamed SetName(string name) => new RegexParser(Regex, Pattern, _maxItems, name);
 }

@@ -66,9 +66,10 @@ public static class SequenceExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="input"></param>
+    /// <param name="maxItems"></param>
     /// <returns></returns>
-    public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input)
-        => new SequenceBuffer<T>(input);
+    public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input, int maxItems = 0)
+        => new SequenceBuffer<T>(input, maxItems);
 
     /// <summary>
     /// Transform a sequence of one type into a sequence of another type by applying a transformation

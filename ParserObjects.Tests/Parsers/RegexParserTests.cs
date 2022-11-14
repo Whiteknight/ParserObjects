@@ -229,5 +229,17 @@ namespace ParserObjects.Tests.Parsers
         [TestCase("a{1")]
         public void Regex_Range_Errors(string pattern)
              => RegexTestThrow(pattern);
+
+        [Test]
+        public void Parse_MaxItemsLimit()
+        {
+            // The pattern should be able to match all 6 items in the string, but we limit the
+            // buffer to only 4 items so it cannot go further.
+            var target = Regex("(..)+", 4);
+            var result = target.Parse("abcdef");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(4);
+            result.Value.Should().Be("abcd");
+        }
     }
 }

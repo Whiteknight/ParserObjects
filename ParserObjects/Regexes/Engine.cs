@@ -173,14 +173,15 @@ public static class Engine
     /// </summary>
     /// <param name="input"></param>
     /// <param name="regex"></param>
+    /// <param name="maxItems"></param>
     /// <returns></returns>
-    public static PartialResult<string> GetMatch(ISequence<char> input, Regex regex)
+    public static PartialResult<string> GetMatch(ISequence<char> input, Regex regex, int maxItems = 0)
     {
         Assert.ArgumentNotNull(input, nameof(input));
         Assert.ArgumentNotNull(regex, nameof(regex));
 
         var startLocation = input.CurrentLocation;
-        var buffer = new SequenceBuffer<char>(input);
+        var buffer = new SequenceBuffer<char>(input, maxItems);
         var (matches, consumed) = Test(regex.States, buffer);
         if (matches)
         {
