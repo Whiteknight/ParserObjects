@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using ParserObjects;
-using ParserObjects.Internal;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Pratt;
 
@@ -13,14 +10,29 @@ public sealed class Engine<TInput, TOutput>
     // See https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
     // See https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing
 
-    private readonly IReadOnlyList<IParselet<TInput, TOutput>> _nudableParselets;
-    private readonly IReadOnlyList<IParselet<TInput, TOutput>> _ledableParselets;
+    private readonly IParselet<TInput, TOutput>[] _nudableParselets;
+    private readonly int _numNudableParselets;
+    private readonly IParselet<TInput, TOutput>[] _ledableParselets;
+    private readonly int _numLedableParselets;
 
     public Engine(IReadOnlyList<IParselet<TInput, TOutput>> parselets)
     {
         Assert.ArrayNotNullAndContainsNoNulls(parselets, nameof(parselets));
-        _nudableParselets = parselets.Where(p => p.CanNud).ToList();
-        _ledableParselets = parselets.Where(p => p.CanLed).ToList();
+        _nudableParselets = new IParselet<TInput, TOutput>[parselets.Count];
+        _ledableParselets = new IParselet<TInput, TOutput>[parselets.Count];
+        int numNudable = 0;
+        int numLedable = 0;
+        for (int i = 0; i < parselets.Count; i++)
+        {
+            var parselet = parselets[i];
+            if (parselet.CanNud)
+                _nudableParselets[numNudable++] = parselet;
+            if (parselet.CanLed)
+                _ledableParselets[numLedable++] = parselet;
+        }
+
+        _numLedableParselets = numLedable;
+        _numNudableParselets = numNudable;
     }
 
     public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp)
@@ -77,8 +89,12 @@ public sealed class Engine<TInput, TOutput>
     private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IPrattToken<TOutput> leftToken, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
-        foreach (var parselet in _ledableParselets.Where(p => rbp < p.Lbp))
+        for (int i = 0; i < _numLedableParselets; i++)
         {
+            var parselet = _ledableParselets[i];
+            if (rbp >= parselet.Lbp)
+                continue;
+
             var (success, token, consumed) = parselet.TryGetNext(state);
             if (!success)
                 continue;
@@ -105,8 +121,9 @@ public sealed class Engine<TInput, TOutput>
     private PartialResult<IPrattToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
-        foreach (var parselet in _nudableParselets)
+        for (int i = 0; i < _numNudableParselets; i++)
         {
+            var parselet = _nudableParselets[i];
             var (success, token, consumed) = parselet.TryGetNext(state);
             if (!success)
                 continue;

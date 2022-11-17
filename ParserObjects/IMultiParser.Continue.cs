@@ -41,7 +41,7 @@ public static partial class MultiParserExtensions
     /// <param name="getParsers"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> parser, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
-        => ContinueWith(parser, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray()));
+        => ContinueWith(parser, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray(), string.Empty));
 
     /// <summary>
     /// Transform the values of all result alternatives.

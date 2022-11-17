@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ParserObjects;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -45,8 +44,11 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
             var results = new List<IResultAlternative<TOutput>>();
 
-            foreach (var alt in multiResult.Results.Where(r => r.Success))
+            foreach (var alt in multiResult.Results)
             {
+                if (!alt.Success)
+                    continue;
+
                 alt.Continuation.Rewind();
                 _left.Location = alt.Continuation.Location;
                 _left.Value = alt.Value;
@@ -102,8 +104,11 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
             var results = new List<IResultAlternative<TOutput>>();
 
-            foreach (var alt in multiResult.Results.Where(r => r.Success))
+            foreach (var alt in multiResult.Results)
             {
+                if (!alt.Success)
+                    continue;
+
                 alt.Continuation.Rewind();
                 _left.Location = multiResult.Location;
                 _left.Value = alt.Value;

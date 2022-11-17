@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace ParserObjects.Internal.Utility;
 
@@ -49,14 +48,37 @@ public record struct SingleReplaceResult(
 /// <summary>
 /// Contains the results of multiple replaces from the parser graph.
 /// </summary>
-public record struct MultiReplaceResult(IReadOnlyList<SingleReplaceResult> Results)
+public struct MultiReplaceResult
 {
+    public IReadOnlyList<SingleReplaceResult> Results { get; }
+
     /// <summary>
     /// Gets a value indicating whether all replacements succeeded. False if no attempts were
     /// made or if any result
     /// failed.
     /// </summary>
-    public bool Success => Results != null && Results.Count > 0 && Results.All(r => r.Success);
+    public bool Success { get; }
+
+    public MultiReplaceResult(IReadOnlyList<SingleReplaceResult> results)
+    {
+        Results = results;
+        if (results == null || results.Count == 0)
+        {
+            Success = false;
+            return;
+        }
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            if (!results[i].Success)
+            {
+                Success = false;
+                return;
+            }
+        }
+
+        Success = true;
+    }
 
     public static MultiReplaceResult Failure() => default;
 

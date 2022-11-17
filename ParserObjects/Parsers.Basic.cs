@@ -133,7 +133,7 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Each<TOutput>(params IParser<TInput, TOutput>[] parsers)
-        => new EachParser<TInput, TOutput>(parsers);
+        => new EachParser<TInput, TOutput>(parsers, string.Empty);
 
     /// <summary>
     /// The empty parser, consumers no input and always returns success at any point.

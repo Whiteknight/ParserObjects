@@ -26,7 +26,7 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
         Assert.ArgumentNotNull(keys, nameof(keys));
         Assert.ArgumentNotNull(result, nameof(result));
         var current = _root;
-        var keyList = keys.ToList();
+        var keyList = keys.ToArray();
         foreach (var key in keyList)
             current = current.GetOrAdd(key);
 

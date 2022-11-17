@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using ParserObjects;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Pratt;
 
@@ -32,7 +30,9 @@ public sealed class ParseletBuilder<TInput, TValue, TOutput> : IPrattParseletBui
 
     public IEnumerable<IParselet<TInput, TOutput>> Build()
     {
-        var parselets = _getParselets.Select(f => f(_matcher, _typeId, Name)).ToList();
+        var parselets = new IParselet<TInput, TOutput>[_getParselets.Count];
+        for (int i = 0; i < _getParselets.Count; i++)
+            parselets[i] = _getParselets[i](_matcher, _typeId, Name);
         _getParselets.Clear();
         return parselets;
     }

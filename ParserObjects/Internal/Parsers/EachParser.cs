@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -8,13 +7,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 {
     private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;
 
-    public EachParser(IEnumerable<IParser<TInput, TOutput>> parsers, string name = "")
-    {
-        _parsers = parsers.OrEmptyIfNull().ToList();
-        Name = name;
-    }
-
-    private EachParser(IReadOnlyList<IParser<TInput, TOutput>> parsers, string name)
+    public EachParser(IReadOnlyList<IParser<TInput, TOutput>> parsers, string name)
     {
         _parsers = parsers;
         Name = name;

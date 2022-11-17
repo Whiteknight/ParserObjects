@@ -46,10 +46,15 @@ public static class Chain<TInput, TMiddle, TOutput>
         }
 
         public IParser<TInput, TOutput> Pick(TMiddle next)
-            => _parsers
-                .Where(rule => rule.equals(next))
-                .Select(rule => rule.parser)
-                .FirstOrDefault() ?? new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+        {
+            foreach (var (equals, parser) in _parsers)
+            {
+                if (equals(next))
+                    return parser;
+            }
+
+            return new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+        }
 
         public IEnumerable<IParser> GetChildren()
             => _parsers.Select(v => v.parser);
@@ -147,10 +152,15 @@ public static class Chain<TInput, TOutput>
         }
 
         public IParser<TInput, TOutput> Pick(object next)
-            => _parsers
-                .Where(rule => rule.equals(next))
-                .Select(rule => rule.parser)
-                .FirstOrDefault() ?? new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+        {
+            foreach (var (equals, parser) in _parsers)
+            {
+                if (equals(next))
+                    return parser;
+            }
+
+            return new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
+        }
 
         public IEnumerable<IParser> GetChildren()
             => _parsers.Select(v => v.parser);

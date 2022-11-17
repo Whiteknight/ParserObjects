@@ -153,7 +153,7 @@ public static class Function<TInput>
             _func = func;
             Name = name;
             Description = description;
-            var childList = children?.ToList() as IReadOnlyList<IParser>;
+            var childList = children?.ToArray() as IReadOnlyList<IParser>;
             _children = childList ?? Array.Empty<IParser>();
         }
 
