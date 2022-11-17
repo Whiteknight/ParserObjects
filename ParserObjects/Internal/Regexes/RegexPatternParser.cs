@@ -19,7 +19,7 @@ public static class RegexPatternGrammar
         // Literal match of any non-slash and non-control character
         var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
 
-        var regex = Pratt<List<State>>(config => config
+        var regex = Pratt<List<IState>>(config => config
 
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
             .Add(normalChar, p => p
@@ -112,7 +112,7 @@ public static class RegexPatternGrammar
         return ctx.Input.GetNext();
     }
 
-    private static List<State> ParseCharacterClass(IPrattParseContext<char> ctx, List<State>? states)
+    private static List<IState> ParseCharacterClass(IPrattParseContext<char> ctx, List<IState>? states)
     {
         var invertResult = ctx.TryParse(MatchChar('^'));
         var ranges = new List<(char low, char high)>();
@@ -161,9 +161,9 @@ public static class RegexPatternGrammar
         return (low, high);
     }
 
-    private static List<State> ParseRepetitionRange(IPrattParseContext<char> ctx, List<State> states, IParser<char, int> digits)
+    private static List<IState> ParseRepetitionRange(IPrattParseContext<char> ctx, List<IState> states, IParser<char, int> digits)
     {
-        if (states.Last().Type == StateType.EndOfInput)
+        if (states.Last() is EndAnchorState)
             throw new RegexException("Cannot quantify the end anchor $");
 
         int min = 0;
@@ -189,9 +189,9 @@ public static class RegexPatternGrammar
     }
 
     // TODO: Move most of this logic into a static factory method on State.
-    private static List<State> ParseAlternation(IPrattParseContext<char, List<State>> ctx, List<State> states)
+    private static List<IState> ParseAlternation(IPrattParseContext<char, List<IState>> ctx, List<IState> states)
     {
-        var options = new List<List<State>>() { states };
+        var options = new List<List<IState>>() { states };
         while (true)
         {
             var option = ctx.TryParse(0);
@@ -204,13 +204,9 @@ public static class RegexPatternGrammar
         if (options.Count == 1)
             return states;
 
-        return new List<State>
+        return new List<IState>
         {
-            new State("alternation")
-            {
-                Type = StateType.Alternation,
-                Alternations = options
-            }
+            new AlternationState("alternation", options)
         };
     }
 }

@@ -10,9 +10,9 @@ namespace ParserObjects.Internal.Regexes;
 /// </summary>
 public struct Regex
 {
-    public IReadOnlyList<State> States { get; }
+    public IReadOnlyList<IState> States { get; }
 
-    public Regex(IReadOnlyList<State> states)
+    public Regex(IReadOnlyList<IState> states)
     {
         Assert.ArgumentNotNull(states, nameof(states));
         States = states;
@@ -20,7 +20,7 @@ public struct Regex
         NumberGroups(states);
     }
 
-    private void NumberGroups(IReadOnlyList<State> states)
+    private void NumberGroups(IReadOnlyList<IState> states)
     {
         // The pattern parser numbers all Group states according to the index in the states array,
         // with "duplicate" groups having the same GroupNumber.
@@ -32,23 +32,23 @@ public struct Regex
         NumberGroups(states, 0);
     }
 
-    private int NumberGroups(IReadOnlyList<State> states, int destGroupNumber)
+    private int NumberGroups(IReadOnlyList<IState> states, int destGroupNumber)
     {
         int lastSrcGroupNumber = -1;
         foreach (var state in states)
         {
-            if (state.Type != StateType.CapturingGroup)
+            if (state is not CapturingGroupState groupState)
                 continue;
 
             // If this is a new source groupNumber, keep track and increment the destination number
-            if (lastSrcGroupNumber == -1 || state.GroupNumber != lastSrcGroupNumber)
+            if (lastSrcGroupNumber == -1 || groupState.GroupNumber != lastSrcGroupNumber)
             {
                 destGroupNumber++;
-                lastSrcGroupNumber = state.GroupNumber;
+                lastSrcGroupNumber = groupState.GroupNumber;
             }
 
-            state.GroupNumber = destGroupNumber;
-            var newNum = NumberGroups(state.Group!, destGroupNumber);
+            groupState.GroupNumber = destGroupNumber;
+            var newNum = NumberGroups(groupState.Group!, destGroupNumber);
             if (newNum != destGroupNumber)
                 lastSrcGroupNumber = -1;
         }

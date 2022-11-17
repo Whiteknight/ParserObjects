@@ -1,59 +1,423 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Internal.Sequences;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
+
+public interface IState : INamed
+{
+    /// <summary>
+    /// Gets or sets the quantifier that controls how many times this state should match.
+    /// </summary>
+    public Quantifier Quantifier { get; set; }
+
+    int Maximum { get; set; }
+
+    IState Clone();
+
+    (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test);
+}
+
+public sealed class EndAnchorState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    public string Name { get; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public EndAnchorState(string name)
+    {
+        Name = name;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+        => throw new RegexException("Cannot clone the EndAnchor state");
+
+    public override string ToString() => "end anchor";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        return (buffer.IsPastEnd(index), 0);
+    }
+}
+
+public sealed class CapturingGroupState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    /// <summary>
+    /// Gets or sets all substates if this state is a group.
+    /// </summary>
+    public List<IState> Group { get; set; }
+
+    public int GroupNumber { get; set; }
+
+    public CapturingGroupState(string name, int groupNumber, List<IState> group)
+    {
+        Name = name;
+        GroupNumber = groupNumber;
+        Group = group;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+         => new CapturingGroupState(name, GroupNumber, Group)
+         {
+             Quantifier = Quantifier,
+             Maximum = Maximum
+         };
+
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        if (buffer.IsPastEnd(index))
+            return (false, 0);
+
+        var groupBuffer = buffer.CopyFrom(index);
+        var (match, length) = test(context.Captures, Group, groupBuffer);
+        if (!match)
+            return (false, 0);
+
+        var value = new string(groupBuffer.Extract(0, length));
+        context.Captures.AddCapture(GroupNumber, value);
+        return (match, length);
+    }
+}
+
+public sealed class NonCapturingCloisterState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    /// <summary>
+    /// Gets or sets all substates if this state is a group.
+    /// </summary>
+    public List<IState> Group { get; set; }
+
+    public NonCapturingCloisterState(string name, List<IState> group)
+    {
+        Name = name;
+        Group = group;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+         => new NonCapturingCloisterState(name, Group)
+         {
+             Quantifier = Quantifier,
+             Maximum = Maximum
+         };
+
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        if (buffer.IsPastEnd(index))
+            return (false, 0);
+
+        var groupBuffer = buffer.CopyFrom(index);
+        return test(context.Captures, Group, groupBuffer);
+    }
+}
+
+public sealed class MatchBackreferenceState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    public int GroupNumber { get; set; }
+
+    public MatchBackreferenceState(string name, int groupNumber)
+    {
+        Name = name;
+        GroupNumber = groupNumber;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+        => new MatchBackreferenceState(name, GroupNumber)
+        {
+            Quantifier = Quantifier,
+            Maximum = Maximum
+        };
+
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        if (buffer.IsPastEnd(index))
+            return (false, 0);
+
+        var captureValue = context.Captures.GetLatestValueForGroup(GroupNumber);
+        if (captureValue == null)
+            return (false, 0);
+
+        for (int i = 0; i < captureValue.Length; i++)
+        {
+            if (buffer[index + i] != captureValue[i])
+                return (false, 0);
+        }
+
+        return (true, captureValue.Length);
+    }
+}
+
+public sealed class MatchValueState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    /// <summary>
+    /// Gets or sets a predicate that determines whether a value matches.
+    /// </summary>
+    public Func<char, bool> ValuePredicate { get; set; }
+
+    public MatchValueState(string name, Func<char, bool> predicate)
+    {
+        Name = name;
+        ValuePredicate = predicate;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+        => new MatchValueState(name, ValuePredicate)
+        {
+            Quantifier = Quantifier,
+            Maximum = Maximum
+        };
+
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        if (buffer.IsPastEnd(index))
+            return (false, 0);
+
+        var match = ValuePredicate(buffer[index]);
+        return (match, match ? 1 : 0);
+    }
+}
+
+public sealed class AlternationState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    /// <summary>
+    /// Gets or sets all possibilities in an alternation.
+    /// </summary>
+    public List<List<IState>> Alternations { get; set; }
+
+    public AlternationState(string name, List<List<IState>> alternations)
+    {
+        Name = name;
+        Alternations = alternations;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+    => new AlternationState(name, Alternations)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
+
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        if (buffer.IsPastEnd(index))
+            return (false, 0);
+
+        foreach (var substate in Alternations)
+        {
+            var (matches, consumed) = test(context.Captures, substate, buffer.CopyFrom(index));
+            if (matches)
+                return (true, consumed);
+        }
+
+        return (false, 0);
+    }
+}
+
+public sealed class EndSentinelState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    public EndSentinelState(string name)
+    {
+        Name = name;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+        => throw new RegexException("Cannot clone the EndSentinel state");
+
+    public override string ToString() => "end sentinel";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        throw new RegexException("Unsupported state type during match");
+    }
+}
+
+public sealed class FenceState : IState
+{
+    public Quantifier Quantifier { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of times this state can match, if it supports more than
+    /// one. Used only with Range quantifiers.
+    /// </summary>
+    public int Maximum { get; set; }
+
+    public string Name { get; }
+
+    public FenceState(string name)
+    {
+        Name = name;
+    }
+
+    public INamed SetName(string name) => Clone(name);
+
+    public IState Clone() => Clone(Name);
+
+    private IState Clone(string name)
+        => throw new RegexException("Cannot clone the Fence state");
+
+    public override string ToString() => "fence";
+
+    public (bool matches, int length) Match(RegexContext context, SequenceBuffer<char> buffer, int index, TestFunc test)
+    {
+        throw new RegexException("Unsupported state type during match");
+    }
+}
 
 /// <summary>
 /// Represents a state at a point in evaluating a regular expression. At each point, the
 /// regex will attempt to match the current state against the current input.
 /// </summary>
-public sealed class State : INamed
+public static class State
 {
-    public State(string name)
+    public static string QuantifierToString(Quantifier quantifier, int maximum)
     {
-        Name = name;
+        return quantifier switch
+        {
+            Quantifier.Range => $"0-{maximum}",
+            _ => quantifier.ToString()
+        };
     }
 
-    public static State EndOfInput { get; } = new State("end of input")
-    {
-        Type = StateType.EndOfInput
-    };
+    public static IState EndOfInput { get; } = new EndAnchorState("end of input");
 
-    public static State EndSentinel { get; } = new State("end sentinel")
-    {
-        Type = StateType.EndSentinel
-    };
+    public static IState EndSentinel { get; } = new EndSentinelState("end sentinel");
 
-    public static State Fence { get; } = new State("fence")
+    public static IState Fence { get; } = new FenceState("fence")
     {
-        Type = StateType.Fence,
         Quantifier = Quantifier.ZeroOrOne
     };
 
-    public static State CreateMatchState(char c)
+    public static IState CreateMatchState(char c)
         => CreateMatchState(x => x == c, $"Matches {c}");
 
-    public static List<State> AddMatch(List<State>? states, Func<char, bool> predicate, string description)
+    private static IState VerifyLastStateIsNotEndAnchor(List<IState> states)
     {
-        states ??= new List<State>();
-        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
-            throw new RegexException("Cannot have atoms after the end anchor $");
+        var previousState = states.LastOrDefault();
+        if (previousState is EndAnchorState)
+            throw new RegexException("Cannot add more states, or quantifiers, to end anchor$");
+        return previousState;
+    }
+
+    public static List<IState> AddMatch(List<IState>? states, Func<char, bool> predicate, string description)
+    {
+        states ??= new List<IState>();
+        VerifyLastStateIsNotEndAnchor(states);
 
         states.Add(CreateMatchState(predicate, description));
         return states;
     }
 
-    private static State CreateMatchState(Func<char, bool> predicate, string description)
-         => new State(description)
+    private static IState CreateMatchState(Func<char, bool> predicate, string description)
+         => new MatchValueState(description, predicate)
          {
-             Type = StateType.MatchValue,
-             ValuePredicate = predicate,
              Quantifier = Quantifier.ExactlyOne,
          };
 
-    public static List<State> SetPreviousStateRange(List<State> states, int min, int max)
+    public static List<IState> SetPreviousStateRange(List<IState> states, int min, int max)
     {
         if (min > max)
             throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
@@ -65,7 +429,7 @@ public sealed class State : INamed
             throw new RegexException("Range quantifier must appear after a valid atom");
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Range quantifier may only follow an unquantified atom");
-        if (previousState.Type == StateType.EndOfInput || previousState.Type == StateType.Fence)
+        if (previousState is EndAnchorState || previousState is FenceState)
             throw new RegexException("Range quantifier may not attach to End or Fence atoms");
 
         // we have an exact number to match, so add multiple references of previousState to
@@ -100,24 +464,24 @@ public sealed class State : INamed
         return states;
     }
 
-    public static List<State> SetPreviousQuantifier(List<State> states, Quantifier quantifier)
+    public static List<IState> SetPreviousQuantifier(List<IState> states, Quantifier quantifier)
     {
         if (quantifier == Quantifier.Range)
             throw new RegexException("Range quantifier must have minimum and maximum values");
-        var previousState = states.LastOrDefault();
-        if (previousState == null)
-            throw new RegexException("Quantifier must appear after a valid atom");
+
+        var previousState = VerifyLastStateIsNotEndAnchor(states);
+
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Quantifier may only follow an unquantified atom");
+
         previousState.Quantifier = quantifier;
         return states;
     }
 
-    public static List<State> AddSpecialMatch(List<State>? states, char type)
+    public static List<IState> AddSpecialMatch(List<IState>? states, char type)
     {
-        states ??= new List<State>();
-        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
-            throw new RegexException("Cannot have atoms after the end anchor $");
+        states ??= new List<IState>();
+        VerifyLastStateIsNotEndAnchor(states);
 
         // If it's one of the special char classes (\d \D \w \W \s \S) do that match. Otherwise
         // it's an escaped char and return a normal match.
@@ -136,40 +500,32 @@ public sealed class State : INamed
         return states;
     }
 
-    private static State CreateBackreferenceState(int index)
+    private static IState CreateBackreferenceState(int index)
     {
-        return new State($"Match backreference {index}")
+        return new MatchBackreferenceState($"Match backreference {index}", index)
         {
-            Type = StateType.MatchBackreference,
             GroupNumber = index,
         };
     }
 
-    public static List<State> AddCapturingGroupState(List<State>? states, List<State> group)
+    public static List<IState> AddCapturingGroupState(List<IState>? states, List<IState> group)
     {
-        states ??= new List<State>();
-        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
-            throw new RegexException("Cannot have atoms after the end anchor $");
+        states ??= new List<IState>();
+        VerifyLastStateIsNotEndAnchor(states);
 
-        var groupState = new State("group")
+        int groupNumber = states.Count + 1;
+        var groupState = new CapturingGroupState($"group {groupNumber}", groupNumber, group)
         {
-            Type = StateType.CapturingGroup,
-            Group = group,
-            // Set a GroupNumber to be the current position in the array
-            // If this group is cloned due to quantification, the GroupNumber of the clone will
-            // be the same. These get renumbered later.
-            GroupNumber = states.Count + 1,
             Quantifier = Quantifier.ExactlyOne
         };
         states.Add(groupState);
         return states;
     }
 
-    public static List<State> AddNonCapturingCloisterState(List<State>? states, List<State> group)
+    public static List<IState> AddNonCapturingCloisterState(List<IState>? states, List<IState> group)
     {
-        states ??= new List<State>();
-        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
-            throw new RegexException("Cannot have atoms after the end anchor $");
+        states ??= new List<IState>();
+        VerifyLastStateIsNotEndAnchor(states);
 
         // Minor optimization. Since we're not capturing, a cloister of 1 is the same as the inner
         // state with no cloister
@@ -179,88 +535,17 @@ public sealed class State : INamed
             return states;
         }
 
-        var groupState = new State("group")
+        int groupNumber = states.Count + 1;
+        var groupState = new NonCapturingCloisterState($"cloister {groupNumber}", group)
         {
-            Type = StateType.NonCapturingCloister,
-            Group = group,
-            // Set a GroupNumber to be the current position in the array
-            // If this group is cloned due to quantification, the GroupNumber of the clone will
-            // be the same. These get renumbered later.
-            GroupNumber = states.Count + 1,
             Quantifier = Quantifier.ExactlyOne
         };
         states.Add(groupState);
         return states;
     }
 
-    public static List<State> QuantifyPrevious(List<State> states, Quantifier quantifier)
+    public static List<IState> QuantifyPrevious(List<IState> states, Quantifier quantifier)
     {
-        if (states.LastOrDefault()?.Type == StateType.EndOfInput)
-            throw new RegexException("Cannot quantify the end anchor $");
         return SetPreviousQuantifier(states, quantifier);
     }
-
-    /// <summary>
-    /// Gets or Sets the type of state.
-    /// </summary>
-    public StateType Type { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether or not this state supports backtracking.
-    /// </summary>
-    public bool CanBacktrack { get; set; }
-
-    /// <summary>
-    /// Gets or sets the quantifier that controls how many times this state should match.
-    /// </summary>
-    public Quantifier Quantifier { get; set; }
-
-    /// <summary>
-    /// Gets or sets a predicate that determines whether a value matches.
-    /// </summary>
-    public Func<char, bool>? ValuePredicate { get; set; }
-
-    /// <summary>
-    /// Gets or sets all substates if this state is a group.
-    /// </summary>
-    public List<State>? Group { get; set; }
-
-    public int GroupNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets all possibilities in an alternation.
-    /// </summary>
-    public List<List<State>>? Alternations { get; set; }
-
-    /// <summary>
-    /// Gets a brief description of the state, to help with tracing/debugging.
-    /// </summary>
-    public string Name { get; }
-
-    /// <summary>
-    /// Gets or sets the maximum number of times this state can match, if it supports more than
-    /// one. Used only with Range quantifiers.
-    /// </summary>
-    public int Maximum { get; set; }
-
-    public override string ToString() => $"{Quantifier} {Name}";
-
-    public State Clone() => Clone(Name);
-
-    private State Clone(string name)
-    {
-        return new State(name)
-        {
-            Type = Type,
-            CanBacktrack = CanBacktrack,
-            Quantifier = Quantifier,
-            ValuePredicate = ValuePredicate,
-            Group = Group,
-            GroupNumber = GroupNumber,
-            Alternations = Alternations,
-            Maximum = Maximum
-        };
-    }
-
-    public INamed SetName(string name) => Clone(name);
 }
