@@ -157,6 +157,7 @@ namespace ParserObjects.Tests.Parsers
 
         [TestCase("abc$", "abcd")]
         [TestCase("abc|abd$|abe", "abde")]
+        [TestCase("$", "abc")]
         public void Regex_End_Fail(string pattern, string input)
             => RegexTestFail(pattern, input);
 
@@ -189,6 +190,18 @@ namespace ParserObjects.Tests.Parsers
         public void Regex_Range_Fail(string pattern, string input)
            => RegexTestFail(pattern, input);
 
+        [TestCase("a{5,3}")]
+        [TestCase("a{0,0}")]
+        [TestCase("a*{1}")]
+        [TestCase("a{1}*")]
+        [TestCase("a*{,1}")]
+        [TestCase("a{3")]
+        [TestCase("a{3,")]
+        [TestCase("a{3,5")]
+        [TestCase("{3}")]
+        public void Regex_Range_Throw(string pattern)
+             => RegexTestThrow(pattern);
+
         [TestCase("[a-c]*", "abcd", "abc")]
         [TestCase("[^a-c]*", "defabc", "def")]
         [TestCase("[abc]*", "abcd", "abc")]
@@ -200,6 +213,13 @@ namespace ParserObjects.Tests.Parsers
         [TestCase(@"[\]]*", "]", "]")]
         [TestCase(@"[\-]*", "-", "-")]
         [TestCase(@"[\\]*", "\\", "\\")]
+        [TestCase(@"[1-9]+", "1234567890", "123456789")]
+        [TestCase(@"[0-9]+", "1234567890", "1234567890")]
+        [TestCase(@"[a-z]+", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz")]
+        [TestCase(@"[A-Z]+", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
+        [TestCase("[\x01-\x31]+", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x10", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x10")]
+        [TestCase("[\x01-\x31]+", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x20", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x20")]
+        [TestCase("[\x01-\x31]+", "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x30", "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x30")]
         public void Regex_CharacterClass(string pattern, string input, string expectedMatch)
            => RegexTest(pattern, input, expectedMatch);
 
@@ -220,27 +240,6 @@ namespace ParserObjects.Tests.Parsers
         [TestCase("+")]
         public void Regex_Quantifier_Errors(string pattern)
             => RegexTestThrow(pattern);
-
-        [TestCase("a{5,3}")]
-        [TestCase("a{0,0}")]
-        [TestCase("a*{1}")]
-        [TestCase("a{1}*")]
-        [TestCase("a*{,1}")]
-        [TestCase("a{1")]
-        public void Regex_Range_Errors(string pattern)
-             => RegexTestThrow(pattern);
-
-        [Test]
-        public void Parse_MaxItemsLimit()
-        {
-            // The pattern should be able to match all 6 items in the string, but we limit the
-            // buffer to only 4 items so it cannot go further.
-            var target = Regex("(..)+", 4);
-            var result = target.Parse("abcdef");
-            result.Success.Should().BeTrue();
-            result.Consumed.Should().Be(4);
-            result.Value.Should().Be("abcd");
-        }
 
         [Test]
         public void Parse_Captures_Simple()
@@ -324,13 +323,20 @@ namespace ParserObjects.Tests.Parsers
             matches.Groups[0][0].Should().Be(input);
         }
 
-        [TestCase("(..)\\1", "abab")]
-        public void Parse_CaptureBackreference(string pattern, string input)
+        [TestCase("(..)\\1", "abab", "abab", "ab")]
+        [TestCase("(..)(\\1|ad)", "abad", "abad", "ab")] // partial backref match should rewind successfully
+        [TestCase("(?:..)(..)\\1", "abcdcd", "abcdcd", "cd")] // non-capturing cloister isn't used
+        public void Parse_CaptureBackreference(string pattern, string input, string group0, string group1)
         {
             var target = Regex(pattern);
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
-            result.Value.Should().Be(input);
+            result.Value.Should().Be(group0);
+            var matchOption = result.TryGetData<RegexMatch>();
+            matchOption.Success.Should().BeTrue();
+            var matches = matchOption.Value;
+            matches.Groups[0][0].Should().Be(group0);
+            matches.Groups[1][0].Should().Be(group1);
         }
     }
 }

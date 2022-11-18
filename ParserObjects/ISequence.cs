@@ -27,6 +27,8 @@ public interface ISequence
     /// <returns></returns>
     ISequenceCheckpoint Checkpoint();
 
+    bool Owns(ISequenceCheckpoint checkpoint);
+
     /// <summary>
     /// Gets a count of the total number of input items that have been consumed from this
     /// sequence so far.
@@ -55,6 +57,8 @@ public interface ISequence<out T> : ISequence
     /// </summary>
     /// <returns></returns>
     T Peek();
+
+    T[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end);
 }
 
 // TODO: Rename this to something better

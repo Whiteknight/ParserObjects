@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Utility;
+﻿using System;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -126,6 +127,14 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
     {
         public Location Location => new Location(S._options.FileName, Line, Column);
 
+        public int CompareTo(object obj)
+        {
+            if (obj is not StringCheckpoint typed || S != typed.S)
+                return 0;
+
+            return Consumed.CompareTo(typed.Consumed);
+        }
+
         public void Rewind() => S.Rewind(Index, Line, Column, Consumed);
     }
 
@@ -140,4 +149,26 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
+
+    public char[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        if (!Owns(start) || !Owns(end))
+            return Array.Empty<char>();
+
+        if (start.CompareTo(end) >= 0)
+            return Array.Empty<char>();
+
+        var currentPosition = Checkpoint();
+        start.Rewind();
+        var buffer = new char[end.Consumed - start.Consumed];
+        for (int i = 0; i < end.Consumed - start.Consumed; i++)
+            buffer[i] = GetNext();
+        currentPosition.Rewind();
+        return buffer;
+    }
+
+    public bool Owns(ISequenceCheckpoint checkpoint)
+    {
+        return checkpoint is StringCheckpoint typed && typed.S == this;
+    }
 }

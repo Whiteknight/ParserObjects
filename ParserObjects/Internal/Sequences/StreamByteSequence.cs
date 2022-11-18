@@ -135,6 +135,14 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     {
         public Location Location => new Location(S._options.FileName, 1, Consumed);
 
+        public int CompareTo(object obj)
+        {
+            if (obj is not SequenceCheckpoint typed || typed.S != S)
+                return 0;
+
+            return CurrentPosition.CompareTo(typed.CurrentPosition);
+        }
+
         public void Rewind() => S.Rewind(CurrentPosition, Consumed);
     }
 
@@ -174,4 +182,26 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
+
+    public byte[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        if (!Owns(start) || !Owns(end))
+            return Array.Empty<byte>();
+
+        if (start.CompareTo(end) >= 0)
+            return Array.Empty<byte>();
+
+        var currentPosition = Checkpoint();
+        start.Rewind();
+        var buffer = new byte[end.Consumed - start.Consumed];
+        for (int i = 0; i < end.Consumed - start.Consumed; i++)
+            buffer[i] = GetNext();
+        currentPosition.Rewind();
+        return buffer;
+    }
+
+    public bool Owns(ISequenceCheckpoint checkpoint)
+    {
+        return checkpoint is SequenceCheckpoint typed && typed.S == this;
+    }
 }

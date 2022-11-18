@@ -23,8 +23,8 @@ public static class RegexPatternGrammar
 
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
             .Add(normalChar, p => p
-                .Bind(1, (_, c) => State.AddMatch(null, x => x == c.Value, $"Match {c}"))
-                .BindLeft(1, (_, states, c) => State.AddMatch(states.Value, x => x == c.Value, $"Match {c}"))
+                .Bind(1, (_, c) => State.AddMatch(null, c.Value))
+                .BindLeft(1, (_, states, c) => State.AddMatch(states.Value, c.Value))
             )
             .Add(MatchChar('['), p => p
                 .Bind(2, (ctx, _) => ParseCharacterClass(ctx, null))
@@ -72,25 +72,26 @@ public static class RegexPatternGrammar
                 .BindLeft(2, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
             )
             .Add(MatchChar('?'), p => p
-                .BindLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrOne))
+                .BindLeft(2, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
             )
             .Add(MatchChar('+'), p => p
                 .BindLeft(2, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
             )
             .Add(MatchChar('*'), p => p
-                .BindLeft(2, (_, states, _) => State.QuantifyPrevious(states.Value, Quantifier.ZeroOrMore))
+                .BindLeft(2, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
             )
 
             // Alternation
             .Add(MatchChar('|'), p => p
-                .BindLeft(2, (ctx, states, _) => ParseAlternation(ctx, states.Value))
+                .BindLeft(3, (ctx, states, _) => ParseAlternation(ctx, states.Value))
             )
 
             // End Anchor
             .Add(MatchChar('$'), p => p
+                .Bind(4, (_, _) => new List<IState> { State.EndAnchor })
                 .BindLeft(4, (_, states, _) =>
                 {
-                    states.Value.Add(State.EndOfInput);
+                    states.Value.Add(State.EndAnchor);
                     return states.Value;
                 })
             )
@@ -128,6 +129,8 @@ public static class RegexPatternGrammar
 
             c = GetUnescapedCharacter(ctx, c);
 
+            // TODO: There is a potential optimization here where, if we have subsequent characters
+            // in a class like [abcde] we could replace with range [a-e]
             var range = ParseCharacterRange(ctx, c);
             ranges.Add(range);
         }
@@ -135,8 +138,7 @@ public static class RegexPatternGrammar
         if (ranges.Count == 0)
             throw new RegexException("Empty character class");
 
-        var matcher = new CharacterMatcher(invertResult.Success, ranges);
-        return State.AddMatch(states, c => matcher.IsMatch(c), "class");
+        return State.AddMatch(states, invertResult.Success, ranges);
     }
 
     private static (char low, char high) ParseCharacterRange(IPrattParseContext<char> ctx, char c)
@@ -181,7 +183,7 @@ public static class RegexPatternGrammar
             return State.SetPreviousStateRange(states, min, min);
         }
 
-        // At this point we might have X, X,Y or ,Y
+        // At this point we might have {X,} {X,Y} or {,Y}
         // In any case, min is filled in now with either a value or 0
         var second = ctx.TryParse(digits);
         ctx.Expect(MatchChar('}'));
@@ -198,7 +200,10 @@ public static class RegexPatternGrammar
             if (!option.Success || option.Value.Count == 0)
                 break;
 
-            options.Add(option.Value);
+            if (option.Value.Count == 1 && option.Value[0] is AlternationState alt)
+                options.AddRange(alt.Alternations);
+            else
+                options.Add(option.Value);
         }
 
         if (options.Count == 1)

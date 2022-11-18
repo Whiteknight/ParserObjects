@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
 
@@ -79,8 +80,8 @@ public sealed class ListSequence<T> : ISequence<T>
 
     private class SequenceCheckpoint : ISequenceCheckpoint
     {
-        private readonly ListSequence<T> _s;
-        private readonly int _index;
+        public readonly ListSequence<T> _s;
+        public readonly int _index;
 
         public SequenceCheckpoint(ListSequence<T> s, int index)
         {
@@ -92,6 +93,15 @@ public sealed class ListSequence<T> : ISequence<T>
 
         public Location Location => new Location(string.Empty, 1, _index);
 
+        public int CompareTo(object obj)
+        {
+            if (obj is not SequenceCheckpoint scp)
+                return 0;
+            if (_s != scp._s)
+                return 0;
+            return _index.CompareTo(scp._index);
+        }
+
         public void Rewind() => _s.Rewind(_index);
     }
 
@@ -102,4 +112,24 @@ public sealed class ListSequence<T> : ISequence<T>
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
+
+    public bool Owns(ISequenceCheckpoint checkpoint)
+    {
+        return checkpoint is SequenceCheckpoint typed && typed._s == this;
+    }
+
+    public T[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        if (!Owns(start) || !Owns(end))
+            return Array.Empty<T>();
+
+        if (start.CompareTo(end) >= 0)
+            return Array.Empty<T>();
+
+        var buffer = new T[end.Consumed - start.Consumed];
+        for (int i = 0; i < end.Consumed - start.Consumed; i++)
+            buffer[i] = _list[start.Consumed + i];
+
+        return buffer;
+    }
 }

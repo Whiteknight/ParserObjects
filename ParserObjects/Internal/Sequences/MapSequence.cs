@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
@@ -49,4 +50,12 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
     }
 
     public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
+
+    public TOutput[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        var values = _inputs.GetBetween(start, end);
+        return values.Select(_map).ToArray();
+    }
+
+    public bool Owns(ISequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
 }

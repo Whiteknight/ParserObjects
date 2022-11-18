@@ -49,4 +49,34 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
     }
 
     public ISequenceStatistics GetStatistics() => _input.GetStatistics();
+
+    public IResult<TOutput>[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        if (start.CompareTo(end) >= 0)
+            return Array.Empty<IResult<TOutput>>();
+
+        var currentPosition = _input.Checkpoint();
+        start.Rewind();
+        var buffer = new IResult<TOutput>[end.Consumed - start.Consumed];
+        int i = 0;
+        while (_input.Consumed < end.Consumed && i < buffer.Length)
+        {
+            var result = _parser.Parse(_state);
+            if (!result.Success)
+            {
+                currentPosition.Rewind();
+                return Array.Empty<IResult<TOutput>>();
+            }
+
+            if (result.Consumed == 0)
+                return Array.Empty<IResult<TOutput>>();
+
+            buffer[i++] = result;
+        }
+
+        currentPosition.Rewind();
+        return buffer;
+    }
+
+    public bool Owns(ISequenceCheckpoint checkpoint) => _input.Owns(checkpoint);
 }

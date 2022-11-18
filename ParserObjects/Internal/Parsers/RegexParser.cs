@@ -34,7 +34,7 @@ public sealed class RegexParser : IParser<char, string>
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCp = state.Input.Checkpoint();
-        var result = Engine.GetMatch(state.Input, Regex, _maxItems);
+        var result = Engine.GetMatch(state.Input, Regex);
         if (!result.Success)
         {
             startCp.Rewind();

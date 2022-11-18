@@ -246,6 +246,14 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 
         public Location Location => new Location(S._options.FileName, Metadata.Line + 1, Metadata.Column);
 
+        public int CompareTo(object obj)
+        {
+            if (obj is not SequenceCheckpoint scp || S != scp.S)
+                return 0;
+
+            return Consumed.CompareTo(scp.Consumed);
+        }
+
         public void Rewind() => S.Rewind(Metadata);
     }
 
@@ -282,4 +290,26 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
+
+    public char[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    {
+        if (!Owns(start) || !Owns(end))
+            return Array.Empty<char>();
+
+        if (start.CompareTo(end) >= 0)
+            return Array.Empty<char>();
+
+        var currentPosition = Checkpoint();
+        start.Rewind();
+        var buffer = new char[end.Consumed - start.Consumed];
+        for (int i = 0; i < end.Consumed - start.Consumed; i++)
+            buffer[i] = GetNext();
+        currentPosition.Rewind();
+        return buffer;
+    }
+
+    public bool Owns(ISequenceCheckpoint checkpoint)
+    {
+        return checkpoint is SequenceCheckpoint typed && typed.S == this;
+    }
 }
