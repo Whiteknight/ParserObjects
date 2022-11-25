@@ -70,16 +70,18 @@ public sealed class FilterSequence<T> : ISequence<T>
         }
     }
 
-    public ISequenceCheckpoint Checkpoint()
+    public SequenceCheckpoint Checkpoint()
         => _inputs.Checkpoint();
 
     public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
-    public T[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         var result = _inputs.GetBetween(start, end);
         return result.Where(_predicate).ToArray();
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
+    public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
+
+    public void Rewind(SequenceCheckpoint checkpoint) => _inputs.Rewind(checkpoint);
 }

@@ -13,7 +13,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Transform<TInput, TMiddle, TOutput>
 {
-    public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, IResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint)
+    public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, IResult<TMiddle> Result, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
         public IDataStore Data => State.Data;
@@ -24,7 +24,7 @@ public static class Transform<TInput, TMiddle, TOutput>
             => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation);
     }
 
-    public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IMultiResult<TMiddle> Result, ISequenceCheckpoint StartCheckpoint);
+    public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IMultiResult<TMiddle> Result, SequenceCheckpoint StartCheckpoint);
 
     public sealed record Parser(
         IParser<TInput, TMiddle> Inner,

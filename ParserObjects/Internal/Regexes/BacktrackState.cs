@@ -10,13 +10,13 @@ public sealed class BacktrackState
     // "(AB)+" could match after 2, 4, or 6 characters, etc. The Engine greedily consumes as
     // many characters as possible for a match, but keeps track of the character counts at each
     // success milestone, so we can backtrack if necessary.
-    private readonly Stack<(ISequenceCheckpoint? beforeMatch, int captureIndex)> _consumptions;
+    private readonly Stack<(SequenceCheckpoint? beforeMatch, int captureIndex)> _consumptions;
 
     public BacktrackState(bool isBacktrackable, IState state)
     {
         IsBacktrackable = isBacktrackable;
         State = state;
-        _consumptions = new Stack<(ISequenceCheckpoint?, int)>();
+        _consumptions = new Stack<(SequenceCheckpoint?, int)>();
     }
 
     // This point allows backtracking. True if the State supports a variable number of consumed
@@ -27,7 +27,7 @@ public sealed class BacktrackState
     public IState State { get; }
 
     // Flag that this state consumed 0 inputs. This means that it could not be backtracked to
-    public void AddZeroConsumed(ISequenceCheckpoint beforeMatch, int captureIndex)
+    public void AddZeroConsumed(SequenceCheckpoint beforeMatch, int captureIndex)
     {
         if (_consumptions.Count == 0)
         {
@@ -36,7 +36,7 @@ public sealed class BacktrackState
         }
     }
 
-    public (ISequenceCheckpoint? beforeMatch, int captureIndex) GetNextConsumption()
+    public (SequenceCheckpoint? beforeMatch, int captureIndex) GetNextConsumption()
     {
         if (_consumptions.Count == 0)
             return (null, -1);
@@ -46,7 +46,7 @@ public sealed class BacktrackState
 
     public bool HasConsumptions => _consumptions.Count > 0;
 
-    public void AddConsumption(ISequenceCheckpoint beforeMatch, int captureIndex)
+    public void AddConsumption(SequenceCheckpoint beforeMatch, int captureIndex)
     {
         _consumptions.Push((beforeMatch, captureIndex));
     }

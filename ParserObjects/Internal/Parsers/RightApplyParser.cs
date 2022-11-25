@@ -160,7 +160,7 @@ public static class RightApply<TInput, TMiddle, TOutput>
             return leftResult;
         }
 
-        private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state, IResult<TOutput> leftResult, ISequenceCheckpoint startCp)
+        private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state, IResult<TOutput> leftResult, SequenceCheckpoint startCp)
         {
             var middleCp = state.Input.Checkpoint();
             var middleResult = _middle.Parse(state);

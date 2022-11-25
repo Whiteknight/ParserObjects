@@ -73,7 +73,7 @@ public sealed class RegexContext
             // where we attempt to continue the match. Push that state back onto the stack in
             // case we need to try again with the remaining consumptions.
             var (beforeMatch, captureIndex) = backtrackState.GetNextConsumption();
-            beforeMatch.Rewind();
+            beforeMatch?.Rewind();
             if (captureIndex >= 0)
                 Captures.ResetCaptureIndex(captureIndex);
             _backtrackStack?.Push(backtrackState);

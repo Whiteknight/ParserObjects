@@ -32,7 +32,7 @@ public interface IResultAlternative
     /// Gets the sequence checkpoint from which to continue the parse if this alternate is
     /// selected.
     /// </summary>
-    ISequenceCheckpoint Continuation { get; }
+    SequenceCheckpoint Continuation { get; }
 }
 
 /// <summary>
@@ -43,7 +43,7 @@ public interface IResultAlternative
 /// <param name="consumed"></param>
 /// <param name="continuation"></param>
 /// <returns></returns>
-public delegate IResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, ISequenceCheckpoint continuation);
+public delegate IResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, SequenceCheckpoint continuation);
 
 /// <summary>
 /// A result alternative with typed output.
@@ -78,7 +78,7 @@ public interface IMultiResult : IResultBase
     /// <summary>
     /// Gets the sequence checkpoint from the start of the attempt.
     /// </summary>
-    ISequenceCheckpoint StartCheckpoint { get; }
+    SequenceCheckpoint StartCheckpoint { get; }
 
     /// <summary>
     /// Gets the list of result alternatives.
@@ -106,7 +106,7 @@ public interface IMultiResult<TOutput> : IMultiResult
     /// <param name="startCheckpoint"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, ISequenceCheckpoint? startCheckpoint = null, Location? location = null);
+    IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, SequenceCheckpoint? startCheckpoint = null, Location? location = null);
 
     /// <summary>
     /// Create a new IMultiResult by applying a transformation to every alternative value.

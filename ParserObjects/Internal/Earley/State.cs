@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Earley;
 // An "Earley State", which holds all in-progress Items at the current position of input.
 public sealed class State
 {
-    public State(int number, ISequenceCheckpoint cp)
+    public State(int number, SequenceCheckpoint cp)
     {
         Items = new List<Item>();
         Number = number;
@@ -24,7 +24,7 @@ public sealed class State
     public int Number { get; }
 
     // The checkpoint to return the input to the position of this state
-    public ISequenceCheckpoint Checkpoint { get; }
+    public SequenceCheckpoint Checkpoint { get; }
 
     public void Add(Item item)
     {

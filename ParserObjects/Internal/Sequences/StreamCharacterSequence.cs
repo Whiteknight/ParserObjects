@@ -231,59 +231,41 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _metadata.Index = 0;
     }
 
-    public ISequenceCheckpoint Checkpoint()
+    public SequenceCheckpoint Checkpoint()
     {
         if (_expectLowSurrogate)
             throw new InvalidOperationException("Cannot set a checkpoint between the high and low surrogates of a single codepoint");
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _metadata);
+        return new SequenceCheckpoint(this, _metadata.Consumed, _metadata.Index, _metadata.StreamPosition, new Location(_options.FileName, _metadata.Line, _metadata.Column));
     }
 
-    private record SequenceCheckpoint(StreamCharacterSequence S, BufferMetadata Metadata)
-        : ISequenceCheckpoint
-    {
-        public int Consumed => Metadata.Consumed;
-
-        public Location Location => new Location(S._options.FileName, Metadata.Line + 1, Metadata.Column);
-
-        public int CompareTo(object obj)
-        {
-            if (obj is not SequenceCheckpoint scp || S != scp.S)
-                return 0;
-
-            return Consumed.CompareTo(scp.Consumed);
-        }
-
-        public void Rewind() => S.Rewind(Metadata);
-    }
-
-    private void Rewind(BufferMetadata metadata)
+    public void Rewind(SequenceCheckpoint checkpoint)
     {
         // Clear this flag, just in case
         _expectLowSurrogate = false;
 
         _stats.Rewinds++;
 
+        var streamPosition = checkpoint.StreamPosition;
+
         // If we're rewinding to the current position, short-circuit
-        if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition && _metadata.StreamPosition == metadata.StreamPosition)
+        if (_metadata.StreamPosition == streamPosition)
         {
             _stats.RewindsToCurrentBuffer++;
             return;
         }
 
-        // If position is within the current buffer, just reset _bufferIndex and the metadata
-        // and continue
-        // TODO: If the position is inside the current buffer, but the buffer does not have the same
-        // start position, can we do some arithmetic to find where we want to be without refilling?
-        if (_metadata.BufferStartStreamPosition == metadata.BufferStartStreamPosition)
-        {
-            _stats.RewindsToCurrentBuffer++;
-            _metadata = metadata;
-            return;
-        }
+        // TODO: Need to find a way to rewind to the current buffer somehow, to prevent a lot of
+        // buffer thrashing. We would have to keep track of streamPosition for more than just the
+        // start of the buffer or something like that.
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
-        _metadata = metadata;
+        _metadata.BufferStartStreamPosition = streamPosition;
+        _metadata.StreamPosition = streamPosition;
+        _metadata.Index = 0;
+        _metadata.Line = checkpoint.Location.Line;
+        _metadata.Column = checkpoint.Location.Column;
+        _metadata.Consumed = checkpoint.Consumed;
         _reader.BaseStream.Seek(_metadata.BufferStartStreamPosition, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
@@ -291,7 +273,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 
     public ISequenceStatistics GetStatistics() => _stats;
 
-    public char[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (!Owns(start) || !Owns(end))
             return Array.Empty<char>();
@@ -308,8 +290,5 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         return buffer;
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint)
-    {
-        return checkpoint is SequenceCheckpoint typed && typed.S == this;
-    }
+    public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 }

@@ -94,7 +94,7 @@ public static class Chain<TInput, TMiddle, TOutput>
             return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
         }
 
-        private IParser<TInput, TOutput> GetNextParser(ISequenceCheckpoint checkpoint, IResult<TMiddle> initial)
+        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, IResult<TMiddle> initial)
         {
             try
             {
@@ -201,7 +201,7 @@ public static class Chain<TInput, TOutput>
             return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
         }
 
-        private IParser<TInput, TOutput> GetNextParser(ISequenceCheckpoint checkpoint, IResult initial)
+        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, IResult initial)
         {
             try
             {

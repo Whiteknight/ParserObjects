@@ -25,9 +25,11 @@ public interface ISequence
     /// sequence needs to be rewound.
     /// </summary>
     /// <returns></returns>
-    ISequenceCheckpoint Checkpoint();
+    SequenceCheckpoint Checkpoint();
 
-    bool Owns(ISequenceCheckpoint checkpoint);
+    bool Owns(SequenceCheckpoint checkpoint);
+
+    void Rewind(SequenceCheckpoint checkpoint);
 
     /// <summary>
     /// Gets a count of the total number of input items that have been consumed from this
@@ -58,7 +60,7 @@ public interface ISequence<out T> : ISequence
     /// <returns></returns>
     T Peek();
 
-    T[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end);
+    T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
 }
 
 // TODO: Rename this to something better
@@ -71,18 +73,6 @@ public interface ICharSequenceWithRemainder : ISequence<char>
 
 public static class SequenceExtensions
 {
-    /// <summary>
-    /// Create a buffer from the given sequence. A buffer allows random-order accessing of
-    /// input items using an array-like interface. Buffers require special cleanup to make
-    /// sure unused items are returned to the sequence.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="input"></param>
-    /// <param name="maxItems"></param>
-    /// <returns></returns>
-    public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input, int maxItems = 0)
-        => new SequenceBuffer<T>(input, maxItems);
-
     /// <summary>
     /// Transform a sequence of one type into a sequence of another type by applying a transformation
     /// function to every element.

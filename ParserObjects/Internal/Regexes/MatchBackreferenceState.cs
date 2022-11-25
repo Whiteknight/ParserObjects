@@ -39,7 +39,7 @@ public sealed class MatchBackreferenceState : IState
 
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
 
-    public bool Match(RegexContext context, ISequenceCheckpoint beforeMatch, TestFunc test)
+    public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {
         if (context.Input.IsAtEnd)
             return false;

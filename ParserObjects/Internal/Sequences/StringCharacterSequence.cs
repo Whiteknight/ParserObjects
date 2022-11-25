@@ -116,41 +116,25 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
         _consumed = 0;
     }
 
-    public ISequenceCheckpoint Checkpoint()
+    public SequenceCheckpoint Checkpoint()
     {
         _stats.CheckpointsCreated++;
-        return new StringCheckpoint(this, _index, _line, _column, _consumed);
+        return new SequenceCheckpoint(this, _consumed, _index, 0L, new Location(_options.FileName, _line, _column));
     }
 
-    private record StringCheckpoint(StringCharacterSequence S, int Index, int Line, int Column, int Consumed)
-        : ISequenceCheckpoint
-    {
-        public Location Location => new Location(S._options.FileName, Line, Column);
-
-        public int CompareTo(object obj)
-        {
-            if (obj is not StringCheckpoint typed || S != typed.S)
-                return 0;
-
-            return Consumed.CompareTo(typed.Consumed);
-        }
-
-        public void Rewind() => S.Rewind(Index, Line, Column, Consumed);
-    }
-
-    private void Rewind(int index, int line, int column, int consumed)
+    public void Rewind(SequenceCheckpoint checkpoint)
     {
         _stats.Rewinds++;
         _stats.RewindsToCurrentBuffer++;
-        _index = index;
-        _line = line;
-        _column = column;
-        _consumed = consumed;
+        _index = checkpoint.Index;
+        _line = checkpoint.Location.Line;
+        _column = checkpoint.Location.Column;
+        _consumed = checkpoint.Consumed;
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
 
-    public char[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (!Owns(start) || !Owns(end))
             return Array.Empty<char>();
@@ -167,8 +151,5 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
         return buffer;
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint)
-    {
-        return checkpoint is StringCheckpoint typed && typed.S == this;
-    }
+    public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 }

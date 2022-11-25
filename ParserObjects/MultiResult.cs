@@ -9,7 +9,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
     private readonly ResultData _data;
 
-    public MultiResult(IParser parser, Location location, ISequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
+    public MultiResult(IParser parser, Location location, SequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
     {
         Parser = parser;
         Results = results.ToList();
@@ -27,11 +27,11 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 
     public IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
 
-    public ISequenceCheckpoint StartCheckpoint { get; }
+    public SequenceCheckpoint StartCheckpoint { get; }
 
     IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
 
-    public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, ISequenceCheckpoint? startCheckpoint = null, Location? location = null)
+    public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, SequenceCheckpoint? startCheckpoint = null, Location? location = null)
     {
         Assert.ArgumentNotNull(recreate, nameof(recreate));
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
@@ -59,7 +59,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 /// <typeparam name="TOutput"></typeparam>
 public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutput>
 {
-    public SuccessResultAlternative(TOutput value, int consumed, ISequenceCheckpoint continuation)
+    public SuccessResultAlternative(TOutput value, int consumed, SequenceCheckpoint continuation)
     {
         Assert.ArgumentNotNull(continuation, nameof(continuation));
         Value = value;
@@ -67,7 +67,7 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
         Continuation = continuation;
     }
 
-    public static IResultAlternative<TOutput> FactoryMethod(TOutput value, int consumed, ISequenceCheckpoint continuation)
+    public static IResultAlternative<TOutput> FactoryMethod(TOutput value, int consumed, SequenceCheckpoint continuation)
         => new SuccessResultAlternative<TOutput>(value, consumed, continuation);
 
     public bool Success => true;
@@ -78,7 +78,7 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
 
     public int Consumed { get; }
 
-    public ISequenceCheckpoint Continuation { get; }
+    public SequenceCheckpoint Continuation { get; }
 
     public ResultAlternativeFactoryMethod<TOutput> Factory => FactoryMethod;
 
@@ -97,7 +97,7 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
 /// <typeparam name="TOutput"></typeparam>
 public sealed class FailureResultAlternative<TOutput> : IResultAlternative<TOutput>
 {
-    public FailureResultAlternative(string errorMessage, ISequenceCheckpoint continuation)
+    public FailureResultAlternative(string errorMessage, SequenceCheckpoint continuation)
     {
         ErrorMessage = errorMessage;
         Continuation = continuation;
@@ -113,7 +113,7 @@ public sealed class FailureResultAlternative<TOutput> : IResultAlternative<TOutp
 
     public int Consumed => 0;
 
-    public ISequenceCheckpoint Continuation { get; }
+    public SequenceCheckpoint Continuation { get; }
 
     public ResultAlternativeFactoryMethod<TOutput> Factory => throw new InvalidOperationException("This result is not a success and does not have a factory");
 

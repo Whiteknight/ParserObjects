@@ -16,7 +16,7 @@ public sealed class StateCollection
 
     private readonly Dictionary<int, StateNode> _lookup;
 
-    public StateCollection(ISequenceCheckpoint cp)
+    public StateCollection(SequenceCheckpoint cp)
     {
         InitialState = new State(0, cp);
         _current = new StateNode(InitialState);
@@ -40,7 +40,7 @@ public sealed class StateCollection
 
     // Get the future State i which is ahead of current State n. If the State i does not
     // exist, create it. Otherwise return it as-is.
-    public State GetAhead(int consumed, ISequenceCheckpoint checkpoint)
+    public State GetAhead(int consumed, SequenceCheckpoint checkpoint)
     {
         if (consumed <= 0)
             return _current.State;

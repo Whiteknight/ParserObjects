@@ -70,7 +70,7 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
 
             // The node, and the continuation checkpoint that allows parsing to continue
             // immediately afterwards.
-            var previous = new Stack<(Node node, ISequenceCheckpoint cont)>();
+            var previous = new Stack<(Node node, SequenceCheckpoint cont)>();
             var startCont = keys.Checkpoint();
             var startConsumed = keys.Consumed;
             previous.Push((current, startCont));
@@ -124,7 +124,7 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
 
             // The node, and the continuation checkpoint that allows parsing to continue
             // immediately afterwards.
-            var previous = new Stack<(Node node, ISequenceCheckpoint cont)>();
+            var previous = new Stack<(Node node, SequenceCheckpoint cont)>();
             var startCont = keys.Checkpoint();
             previous.Push((current, startCont));
 

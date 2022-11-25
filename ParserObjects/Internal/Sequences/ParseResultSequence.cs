@@ -33,7 +33,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     public int Consumed => _input.Consumed;
 
-    public ISequenceCheckpoint Checkpoint() => _input.Checkpoint();
+    public SequenceCheckpoint Checkpoint() => _input.Checkpoint();
 
     private IResult<TOutput> GetNext(bool advance)
     {
@@ -50,7 +50,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     public ISequenceStatistics GetStatistics() => _input.GetStatistics();
 
-    public IResult<TOutput>[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public IResult<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (start.CompareTo(end) >= 0)
             return Array.Empty<IResult<TOutput>>();
@@ -78,5 +78,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         return buffer;
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint) => _input.Owns(checkpoint);
+    public bool Owns(SequenceCheckpoint checkpoint) => _input.Owns(checkpoint);
+
+    public void Rewind(SequenceCheckpoint checkpoint) => _input.Rewind(checkpoint);
 }

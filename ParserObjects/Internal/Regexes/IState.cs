@@ -11,5 +11,5 @@ public interface IState : INamed
 
     IState Clone();
 
-    bool Match(RegexContext context, ISequenceCheckpoint beforeMatch, TestFunc test);
+    bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test);
 }

@@ -34,7 +34,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
         return new MultiResult<TOutput>(this, startCheckpoint.Location, startCheckpoint, results);
     }
 
-    private static IResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, ISequenceCheckpoint startCheckpoint)
+    private static IResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
     {
         var result = parser.Parse(state);
         if (result.Success)

@@ -121,34 +121,20 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         _bufferIndex = 0;
     }
 
-    public ISequenceCheckpoint Checkpoint()
+    public SequenceCheckpoint Checkpoint()
     {
         // FillBuffer to make sure we have data and all our pointers are valid
         FillBuffer();
         _stats.CheckpointsCreated++;
         var currentPosition = _stream.Position - _remainingBytes;
-        return new SequenceCheckpoint(this, currentPosition, _consumed);
+        return new SequenceCheckpoint(this, _consumed, 0, currentPosition, new Location(_options.FileName, 1, _consumed));
     }
 
-    private record SequenceCheckpoint(StreamByteSequence S, long CurrentPosition, int Consumed)
-        : ISequenceCheckpoint
-    {
-        public Location Location => new Location(S._options.FileName, 1, Consumed);
-
-        public int CompareTo(object obj)
-        {
-            if (obj is not SequenceCheckpoint typed || typed.S != S)
-                return 0;
-
-            return CurrentPosition.CompareTo(typed.CurrentPosition);
-        }
-
-        public void Rewind() => S.Rewind(CurrentPosition, Consumed);
-    }
-
-    private void Rewind(long position, int consumed)
+    public void Rewind(SequenceCheckpoint checkpoint)
     {
         _stats.Rewinds++;
+        var position = checkpoint.StreamPosition;
+        var consumed = checkpoint.Consumed;
         var sizeOfCurrentBuffer = _bufferIndex + _remainingBytes;
         var bufferStartPosition = _stream.Position - sizeOfCurrentBuffer;
 
@@ -183,7 +169,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public ISequenceStatistics GetStatistics() => _stats;
 
-    public byte[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public byte[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (!Owns(start) || !Owns(end))
             return Array.Empty<byte>();
@@ -200,8 +186,5 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         return buffer;
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint)
-    {
-        return checkpoint is SequenceCheckpoint typed && typed.S == this;
-    }
+    public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 }

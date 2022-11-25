@@ -30,6 +30,6 @@ public sealed class EndSentinelState : IState
 
     public override string ToString() => Name;
 
-    public bool Match(RegexContext context, ISequenceCheckpoint checkpoint, TestFunc test)
+    public bool Match(RegexContext context, SequenceCheckpoint checkpoint, TestFunc test)
         => throw new RegexException("Unsupported state type during match");
 }

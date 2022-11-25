@@ -13,7 +13,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Function<TInput, TOutput>
 {
-    public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, ISequenceCheckpoint StartCheckpoint)
+    public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
         public IDataStore Data => State.Data;
@@ -70,7 +70,7 @@ public static class Function<TInput, TOutput>
         public IResultsCache Cache => State.Cache;
     }
 
-    public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, ISequenceCheckpoint StartCheckpoint)
+    public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
         public IDataStore Data => State.Data;

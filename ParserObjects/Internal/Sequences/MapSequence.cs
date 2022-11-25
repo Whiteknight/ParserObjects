@@ -35,7 +35,7 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public int Consumed => _inputs.Consumed;
 
-    public ISequenceCheckpoint Checkpoint() => _inputs.Checkpoint();
+    public SequenceCheckpoint Checkpoint() => _inputs.Checkpoint();
 
     private TOutput GetNext(bool advance)
     {
@@ -51,11 +51,13 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
-    public TOutput[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public TOutput[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         var values = _inputs.GetBetween(start, end);
         return values.Select(_map).ToArray();
     }
 
-    public bool Owns(ISequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
+    public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
+
+    public void Rewind(SequenceCheckpoint checkpoint) => _inputs.Rewind(checkpoint);
 }

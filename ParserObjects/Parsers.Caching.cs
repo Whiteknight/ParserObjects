@@ -15,7 +15,7 @@ public static partial class Parsers<TInput>
         => new Function<TInput>.Parser(state =>
         {
             var location = state.Input.CurrentLocation;
-            var cached = state.Cache.Get<Tuple<IResult, ISequenceCheckpoint>>(p, location);
+            var cached = state.Cache.Get<Tuple<IResult, SequenceCheckpoint>>(p, location);
             if (!cached.Success)
             {
                 var result = p.Parse(state)!;
@@ -43,7 +43,7 @@ public static partial class Parsers<TInput>
         => new Function<TInput, TOutput>.Parser(args =>
         {
             var location = args.Input.CurrentLocation;
-            var cached = args.Cache.Get<Tuple<IResult<TOutput>, ISequenceCheckpoint>>(p, location);
+            var cached = args.Cache.Get<Tuple<IResult<TOutput>, SequenceCheckpoint>>(p, location);
             if (!cached.Success)
             {
                 var result = p.Parse(args.State);

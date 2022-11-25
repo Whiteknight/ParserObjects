@@ -72,53 +72,23 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public int Consumed => _index;
 
-    public ISequenceCheckpoint Checkpoint()
+    public SequenceCheckpoint Checkpoint()
     {
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _index);
+        return new SequenceCheckpoint(this, _index, _index, 0L, CurrentLocation);
     }
 
-    private class SequenceCheckpoint : ISequenceCheckpoint
-    {
-        public readonly ListSequence<T> _s;
-        public readonly int _index;
-
-        public SequenceCheckpoint(ListSequence<T> s, int index)
-        {
-            _s = s;
-            _index = index;
-        }
-
-        public int Consumed => _index;
-
-        public Location Location => new Location(string.Empty, 1, _index);
-
-        public int CompareTo(object obj)
-        {
-            if (obj is not SequenceCheckpoint scp)
-                return 0;
-            if (_s != scp._s)
-                return 0;
-            return _index.CompareTo(scp._index);
-        }
-
-        public void Rewind() => _s.Rewind(_index);
-    }
-
-    private void Rewind(int index)
+    public void Rewind(SequenceCheckpoint checkpoint)
     {
         _stats.Rewinds++;
-        _index = index;
+        _index = checkpoint.Index;
     }
 
     public ISequenceStatistics GetStatistics() => _stats;
 
-    public bool Owns(ISequenceCheckpoint checkpoint)
-    {
-        return checkpoint is SequenceCheckpoint typed && typed._s == this;
-    }
+    public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 
-    public T[] GetBetween(ISequenceCheckpoint start, ISequenceCheckpoint end)
+    public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (!Owns(start) || !Owns(end))
             return Array.Empty<T>();

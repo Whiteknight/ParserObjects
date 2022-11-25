@@ -82,7 +82,7 @@ public static class Engine
         return true;
     }
 
-    private static bool TestExactlyOne(RegexContext context, ISequenceCheckpoint beforeMatch)
+    private static bool TestExactlyOne(RegexContext context, SequenceCheckpoint beforeMatch)
     {
         var captureIndexBeforeMatch = context.Captures.CaptureIndex;
         var matches = context.CurrentState.Match(context, beforeMatch, Test);
@@ -100,7 +100,7 @@ public static class Engine
         return context.Backtrack();
     }
 
-    private static void TestZeroOrOne(RegexContext context, ISequenceCheckpoint beforeMatch)
+    private static void TestZeroOrOne(RegexContext context, SequenceCheckpoint beforeMatch)
     {
         // If we're at the end of input, treat it like 0 matches and return
         if (context.Input.IsAtEnd)
@@ -135,7 +135,7 @@ public static class Engine
         context.MoveToNextState();
     }
 
-    private static void TestZeroOrMore(RegexContext context, ISequenceCheckpoint beforeMatch)
+    private static void TestZeroOrMore(RegexContext context, SequenceCheckpoint beforeMatch)
     {
         var backtrackState = new BacktrackState(true, context.CurrentState);
         var currentCheckpoint = beforeMatch;
@@ -171,7 +171,7 @@ public static class Engine
         }
     }
 
-    private static void TestRange(RegexContext context, ISequenceCheckpoint beforeMatch)
+    private static void TestRange(RegexContext context, SequenceCheckpoint beforeMatch)
     {
         // Ranges are set up to always go from [0-Max) so there is no minimum value.
         // We can bail out at any time.

@@ -158,7 +158,7 @@ public sealed class Engine<TInput, TOutput>
         }
     }
 
-    private static (IResult result, ISequenceCheckpoint continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState, ISequenceCheckpoint stateCheckpoint)
+    private static (IResult result, SequenceCheckpoint continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState, SequenceCheckpoint stateCheckpoint)
     {
         var location = parseState.Input.CurrentLocation;
         var cached = parseState.Cache.Get<CachedParseResult>(terminal, location);
@@ -272,5 +272,5 @@ public sealed class Engine<TInput, TOutput>
             AddCompletedNullable(completedNullables, item, item.Production, stats);
     }
 
-    private record CachedParseResult(IResult Result, ISequenceCheckpoint Continuation);
+    private record CachedParseResult(IResult Result, SequenceCheckpoint Continuation);
 }
