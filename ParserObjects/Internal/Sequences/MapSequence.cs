@@ -49,7 +49,7 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
         return _map(next);
     }
 
-    public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
+    public SequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
     public TOutput[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {

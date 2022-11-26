@@ -37,7 +37,7 @@ public interface ISequence
     /// </summary>
     int Consumed { get; }
 
-    ISequenceStatistics GetStatistics();
+    SequenceStatistics GetStatistics();
 }
 
 /// <summary>

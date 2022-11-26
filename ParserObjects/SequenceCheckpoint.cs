@@ -27,10 +27,19 @@ public struct SequenceCheckpoint : IComparable<SequenceCheckpoint>
     /// </summary>
     public Location Location { get; }
 
+    /// <summary>
+    /// Gets the sequence which owns this checkpoint.
+    /// </summary>
     public ISequence Sequence { get; }
 
+    /// <summary>
+    /// Gets an index value used internally by the sequence to reset itself.
+    /// </summary>
     public int Index { get; }
 
+    /// <summary>
+    /// Gets a position in the stream which the sequence uses internally to reset itself.
+    /// </summary>
     public long StreamPosition { get; }
 
     /// <summary>
@@ -41,6 +50,12 @@ public struct SequenceCheckpoint : IComparable<SequenceCheckpoint>
         Sequence.Rewind(this);
     }
 
+    /// <summary>
+    /// Compares to another checkpoint to see which one comes later. If the two checkpoints are
+    /// not comparable for some reason, returns 0.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
     public int CompareTo(SequenceCheckpoint other)
     {
         if (other.Sequence != Sequence)

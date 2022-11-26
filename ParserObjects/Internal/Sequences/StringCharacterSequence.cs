@@ -11,7 +11,7 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
     private readonly string _s;
     private readonly SequenceOptions<char> _options;
 
-    private SequenceStatistics _stats;
+    private WorkingSequenceStatistics _stats;
     private int _index;
     private int _line;
     private int _column;
@@ -123,7 +123,7 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
         _consumed = checkpoint.Consumed;
     }
 
-    public ISequenceStatistics GetStatistics() => _stats;
+    public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
     public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {

@@ -13,7 +13,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private readonly byte[] _buffer;
     private readonly SequenceOptions<byte> _options;
 
-    private SequenceStatistics _stats;
+    private WorkingSequenceStatistics _stats;
     private bool _isComplete;
     private int _remainingBytes;
     private int _bufferIndex;
@@ -155,7 +155,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         _isComplete = _remainingBytes <= 0;
     }
 
-    public ISequenceStatistics GetStatistics() => _stats;
+    public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
     public byte[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {

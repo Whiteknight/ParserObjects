@@ -73,7 +73,7 @@ public sealed class FilterSequence<T> : ISequence<T>
     public SequenceCheckpoint Checkpoint()
         => _inputs.Checkpoint();
 
-    public ISequenceStatistics GetStatistics() => _inputs.GetStatistics();
+    public SequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
     public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {

@@ -48,7 +48,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         return _parser.Parse(_state);
     }
 
-    public ISequenceStatistics GetStatistics() => _input.GetStatistics();
+    public SequenceStatistics GetStatistics() => _input.GetStatistics();
 
     public IResult<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {

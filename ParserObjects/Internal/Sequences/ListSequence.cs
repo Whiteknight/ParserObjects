@@ -15,7 +15,7 @@ public sealed class ListSequence<T> : ISequence<T>
     private readonly IReadOnlyList<T> _list;
     private readonly T _endSentinelValue;
 
-    private SequenceStatistics _stats;
+    private WorkingSequenceStatistics _stats;
     private int _index;
 
     public ListSequence(IEnumerable<T> enumerable, T endSentinel)
@@ -84,7 +84,7 @@ public sealed class ListSequence<T> : ISequence<T>
         _index = checkpoint.Index;
     }
 
-    public ISequenceStatistics GetStatistics() => _stats;
+    public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 

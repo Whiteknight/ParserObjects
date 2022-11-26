@@ -16,7 +16,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     private readonly char[] _buffer;
     private readonly SequenceOptions<char> _options;
 
-    private SequenceStatistics _stats;
+    private WorkingSequenceStatistics _stats;
     private BufferMetadata _metadata;
 
     private struct BufferMetadata
@@ -263,7 +263,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
-    public ISequenceStatistics GetStatistics() => _stats;
+    public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
     public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
