@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ParserObjects.Internal.Sequences;
@@ -35,12 +36,15 @@ public static class Sequences
     public static ISequence<char> FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(stream, options);
 
+    public static ISequence<char> FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
+        => new StreamCharacterSequence(reader, options);
+
     public static ISequence<T> FromEnumerable<T>(IEnumerable<T> source, T endSentinel = default)
         => new ListSequence<T>(source, endSentinel);
 
     public static ISequence<T> FromList<T>(IReadOnlyList<T> list, T endSentinel = default)
         => new ListSequence<T>(list, endSentinel);
 
-    public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(ISequence<TInput> sequence, IParser<TInput, TResult> parser)
-        => new ParseResultSequence<TInput, TResult>(sequence, parser, s => { });
+    public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(ISequence<TInput> sequence, IParser<TInput, TResult> parser, Action<string>? log = null)
+        => new ParseResultSequence<TInput, TResult>(sequence, parser, log ?? (_ => { }));
 }

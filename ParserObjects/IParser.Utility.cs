@@ -1,7 +1,6 @@
 ﻿using System;
 using ParserObjects.Internal.Bnf;
-using ParserObjects.Internal.Sequences;
-using ParserObjects.Internal.Utility;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -32,5 +31,5 @@ public static class ParserExtensions
     /// <param name="log"></param>
     /// <returns></returns>
     public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
-        => new ParseResultSequence<TInput, TOutput>(input, parser, log ?? Defaults.LogMethod);
+        => FromParseResult(input, parser, log);
 }

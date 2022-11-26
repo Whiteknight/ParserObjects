@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using ParserObjects.Internal.Sequences;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -13,7 +13,7 @@ public static class StreamExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static ISequence<byte> ToByteSequence(this Stream stream, SequenceOptions<byte> options = default)
-        => new StreamByteSequence(stream, options);
+        => FromByteStream(stream, options);
 
     /// <summary>
     /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
@@ -23,7 +23,7 @@ public static class StreamExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static ISequence<char> ToCharacterSequence(this Stream stream, SequenceOptions<char> options = default)
-        => new StreamCharacterSequence(stream, options);
+        => FromCharacterStream(stream, options);
 
     /// <summary>
     /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
@@ -33,5 +33,5 @@ public static class StreamExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static ISequence<char> ToCharacterSequence(this StreamReader streamReader, SequenceOptions<char> options = default)
-        => new StreamCharacterSequence(streamReader, options);
+        => FromCharacterStream(streamReader, options);
 }
