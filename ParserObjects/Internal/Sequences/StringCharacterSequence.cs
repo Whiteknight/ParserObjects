@@ -9,7 +9,7 @@ namespace ParserObjects.Internal.Sequences;
 public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISequence<char>
 {
     private readonly string _s;
-    private readonly Options _options;
+    private readonly SequenceOptions<char> _options;
 
     private SequenceStatistics _stats;
     private int _index;
@@ -17,29 +17,20 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder, ISeque
     private int _column;
     private int _consumed;
 
-    public record struct Options(string FileName = "", bool NormalizeLineEndings = true, char EndSentinel = '\0')
-    {
-        public void Validate()
-        {
-            if (FileName == null)
-                FileName = "";
-        }
-    }
-
-    public StringCharacterSequence(string s, Options options)
+    public StringCharacterSequence(string s, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(s, nameof(s));
-        options.Validate();
         _stats = default;
         _s = s;
         _line = 1;
         _column = 0;
         _options = options;
+        _options.Validate();
         _consumed = 0;
     }
 
     public StringCharacterSequence(string s)
-        : this(s, new Options("", true, '\0'))
+        : this(s, default)
     {
     }
 

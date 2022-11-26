@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Text;
-using ParserObjects.Internal.Sequences;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
@@ -13,11 +12,12 @@ namespace ParserObjects.Tests.Sequences
             var b = Encoding.UTF8.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return FromStream(memoryStream, Encoding.UTF8, new StreamCharacterSequence.Options
+            return FromStream(memoryStream, new SequenceOptions<char>
             {
                 BufferSize = bufferSize,
-                NormalizeLineEndings = normalizeLineEndings,
-                EndSentinel = endSentinel
+                MaintainLineEndings = !normalizeLineEndings,
+                EndSentinel = endSentinel,
+                Encoding = Encoding.UTF8
             });
         }
 
@@ -333,13 +333,11 @@ namespace ParserObjects.Tests.Sequences
         public void FileStream_Test()
         {
             var fileName = Guid.NewGuid().ToString() + ".txt";
+            ISequence<char> target = null;
             try
             {
                 File.WriteAllText(fileName, "test");
-                using var target = new StreamCharacterSequence(new StreamCharacterSequence.Options
-                {
-                    FileName = fileName
-                });
+                target = FromCharacterFile(fileName);
                 target.GetNext().Should().Be('t');
                 target.GetNext().Should().Be('e');
                 target.GetNext().Should().Be('s');
@@ -347,6 +345,7 @@ namespace ParserObjects.Tests.Sequences
             }
             finally
             {
+                (target as IDisposable)?.Dispose();
                 if (File.Exists(fileName))
                     File.Delete(fileName);
             }

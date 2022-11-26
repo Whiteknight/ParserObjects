@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
@@ -14,9 +13,8 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     private static readonly char[] _surrogateBuffer = new char[2];
 
     private readonly StreamReader _reader;
-    private readonly Encoding _encoding;
     private readonly char[] _buffer;
-    private readonly Options _options;
+    private readonly SequenceOptions<char> _options;
 
     private SequenceStatistics _stats;
     private BufferMetadata _metadata;
@@ -32,54 +30,41 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         public long BufferStartStreamPosition { get; set; }
     }
 
-    public record struct Options(string FileName = "", int BufferSize = 1024, bool NormalizeLineEndings = true, char EndSentinel = '\0')
-    {
-        public void Validate()
-        {
-            if (FileName == null)
-                FileName = "";
-            if (BufferSize <= 0)
-                BufferSize = 1024;
-        }
-    }
-
-    public StreamCharacterSequence(Options options, Encoding? encoding = null)
+    public StreamCharacterSequence(SequenceOptions<char> options)
     {
         Assert.ArgumentNotNullOrEmpty(options.FileName, nameof(options.FileName));
-        options.Validate();
         _options = options;
+        _options.Validate();
         _stats = default;
         _metadata = default;
         _buffer = new char[_options.BufferSize];
         var stream = File.OpenRead(_options.FileName);
-        _encoding = encoding ?? Encoding.UTF8;
-        _reader = new StreamReader(stream, _encoding);
+        _reader = new StreamReader(stream, _options.Encoding);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
-    public StreamCharacterSequence(StreamReader reader, Options options)
+    public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(reader, nameof(reader));
-        options.Validate();
         _options = options;
+        _options.Encoding = reader.CurrentEncoding;
+        _options.Validate();
         _stats = default;
         _metadata = default;
         _buffer = new char[_options.BufferSize];
         _reader = reader;
-        _encoding = _reader.CurrentEncoding;
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
-    public StreamCharacterSequence(Stream stream, Options options, Encoding? encoding = null)
+    public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(stream, nameof(stream));
-        options.Validate();
         _options = options;
+        _options.Validate();
         _stats = default;
         _metadata = default;
         _buffer = new char[_options.BufferSize];
-        _encoding = encoding ?? Encoding.UTF8;
-        _reader = new StreamReader(stream, _encoding);
+        _reader = new StreamReader(stream, _options.Encoding);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
@@ -99,7 +84,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         unsafe
         {
-            return _encoding.GetByteCount(&c, 1);
+            return _options.Encoding.GetByteCount(&c, 1);
         }
     }
 
@@ -206,7 +191,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
             var low = GetLowSurrogateOrThrow();
             _surrogateBuffer[0] = c;
             _surrogateBuffer[1] = low;
-            var totalSize = _encoding.GetByteCount(_surrogateBuffer);
+            var totalSize = _options.Encoding.GetByteCount(_surrogateBuffer);
             _metadata.StreamPosition += totalSize;
             _expectLowSurrogate = true;
             FillBuffer();
@@ -258,6 +243,13 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         // TODO: Need to find a way to rewind to the current buffer somehow, to prevent a lot of
         // buffer thrashing. We would have to keep track of streamPosition for more than just the
         // start of the buffer or something like that.
+
+        // TODO: Consider saving BufferStartStreamPosition+Index instead of StreamPosition. It will
+        // allow us to Rewind to the current buffer more often (but might cause problems if we are
+        // doing a lot of reading/rewinding near the boundary of a buffer). Maybe be worthwhile
+        // keeping two buffers LRU-style, so we can check if we're in the correct buffer by
+        // the start position. Would need to store StreamPosition and BufferStartStreamPosition to
+        // make this work.
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
         _metadata.BufferStartStreamPosition = streamPosition;

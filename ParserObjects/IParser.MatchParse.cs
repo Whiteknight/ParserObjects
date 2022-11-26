@@ -50,7 +50,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static bool CanMatch(this IParser<char> parser, string input, StringCharacterSequence.Options options = default)
+    public static bool CanMatch(this IParser<char> parser, string input, SequenceOptions<char> options = default)
     {
         // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
         // reuse it
@@ -68,7 +68,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static bool CanMatch(this IMultiParser<char> parser, string input, StringCharacterSequence.Options options = default)
+    public static bool CanMatch(this IMultiParser<char> parser, string input, SequenceOptions<char> options = default)
     {
         // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
         // reuse it
@@ -89,7 +89,7 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, StringCharacterSequence.Options options = default, Action<string>? log = null)
+    public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
         => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, options), log ?? Defaults.LogMethod));
 
     /// <summary>
@@ -102,7 +102,7 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult Parse(this IParser<char> parser, string s, StringCharacterSequence.Options options = default, Action<string>? log = null)
+    public static IResult Parse(this IParser<char> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
         => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, options), log ?? Defaults.LogMethod));
 
     /// <summary>

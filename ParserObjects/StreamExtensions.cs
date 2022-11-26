@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
@@ -13,7 +12,7 @@ public static class StreamExtensions
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<byte> ToByteSequence(this Stream stream, StreamByteSequence.Options options = default)
+    public static ISequence<byte> ToByteSequence(this Stream stream, SequenceOptions<byte> options = default)
         => new StreamByteSequence(stream, options);
 
     /// <summary>
@@ -21,11 +20,10 @@ public static class StreamExtensions
     /// Calling .Dispose() on the sequence will dispose the stream as well.
     /// </summary>
     /// <param name="stream"></param>
-    /// <param name="encoding"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this Stream stream, Encoding? encoding = null, StreamCharacterSequence.Options options = default)
-        => new StreamCharacterSequence(stream, options, encoding ?? Encoding.UTF8);
+    public static ISequence<char> ToCharSequence(this Stream stream, SequenceOptions<char> options = default)
+        => new StreamCharacterSequence(stream, options);
 
     /// <summary>
     /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
@@ -34,6 +32,6 @@ public static class StreamExtensions
     /// <param name="streamReader"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this StreamReader streamReader, StreamCharacterSequence.Options options = default)
+    public static ISequence<char> ToCharSequence(this StreamReader streamReader, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(streamReader, options);
 }

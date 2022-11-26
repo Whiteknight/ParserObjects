@@ -1,5 +1,4 @@
-﻿using ParserObjects.Internal.Sequences;
-using static ParserObjects.Sequences;
+﻿using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {
@@ -87,7 +86,7 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_Empty_CustomEndSentinel()
         {
-            var target = FromString("", new StringCharacterSequence.Options
+            var target = FromString("", new SequenceOptions<char>
             {
                 EndSentinel = 'X'
             });
@@ -111,9 +110,9 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_WindowsNewlines_NonNormalized()
         {
-            var target = FromString("\r\na\r\n", new StringCharacterSequence.Options
+            var target = FromString("\r\na\r\n", new SequenceOptions<char>
             {
-                NormalizeLineEndings = false
+                MaintainLineEndings = true
             });
             target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('\n');
@@ -146,9 +145,9 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void GetNext_OldMacNewlines_NonNormalized()
         {
-            var target = FromString("\ra\r", new StringCharacterSequence.Options
+            var target = FromString("\ra\r", new SequenceOptions<char>
             {
-                NormalizeLineEndings = false
+                MaintainLineEndings = true
             });
             target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('a');

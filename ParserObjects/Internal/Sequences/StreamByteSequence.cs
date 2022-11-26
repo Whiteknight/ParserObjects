@@ -11,7 +11,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 {
     private readonly Stream _stream;
     private readonly byte[] _buffer;
-    private readonly Options _options;
+    private readonly SequenceOptions<byte> _options;
 
     private SequenceStatistics _stats;
     private bool _isComplete;
@@ -19,22 +19,11 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private int _bufferIndex;
     private int _consumed;
 
-    public record struct Options(string FileName, int BufferSize, byte EndSentinel)
+    public StreamByteSequence(SequenceOptions<byte> options)
     {
-        public void Validate()
-        {
-            if (FileName == null)
-                FileName = string.Empty;
-            if (BufferSize <= 0)
-                BufferSize = 1024;
-        }
-    }
-
-    public StreamByteSequence(Options options)
-    {
-        options.Validate();
         _options = options;
         Assert.ArgumentNotNullOrEmpty(_options.FileName, nameof(_options.FileName));
+        _options.Validate();
 
         _stats = default;
         _bufferIndex = _options.BufferSize;
@@ -44,12 +33,11 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         FillBuffer();
     }
 
-    public StreamByteSequence(Stream stream, Options options)
+    public StreamByteSequence(Stream stream, SequenceOptions<byte> options)
     {
         Assert.ArgumentNotNull(stream, nameof(stream));
-
-        options.Validate();
         _options = options;
+        _options.Validate();
 
         _stats = default;
         _bufferIndex = _options.BufferSize;

@@ -7,32 +7,36 @@ namespace ParserObjects;
 
 public static class Sequences
 {
-    public static ICharSequenceWithRemainder FromString(string s)
-        => new StringCharacterSequence(s);
-
-    public static ICharSequenceWithRemainder FromString(string s, StringCharacterSequence.Options options)
+    public static ICharSequenceWithRemainder FromString(string s, SequenceOptions<char> options = default)
         => new StringCharacterSequence(s, options);
 
     public static ISequence<char> FromCharacterFile(string fileName, Encoding? encoding = null)
-        => new StreamCharacterSequence(new StreamCharacterSequence.Options
+        => new StreamCharacterSequence(new SequenceOptions<char>
         {
-            FileName = fileName
-        }, encoding);
+            FileName = fileName,
+            Encoding = encoding
+        });
+
+    public static ISequence<char> FromCharacterFile(SequenceOptions<char> options)
+        => new StreamCharacterSequence(options);
 
     public static ISequence<byte> FromByteFile(string fileName)
-        => new StreamByteSequence(new StreamByteSequence.Options(fileName, 0, 0));
+        => new StreamByteSequence(new SequenceOptions<byte>
+        {
+            FileName = fileName
+        });
+
+    public static ISequence<byte> FromByteFile(SequenceOptions<byte> options)
+        => new StreamByteSequence(options);
 
     public static ISequence<byte> FromStream(Stream stream)
         => new StreamByteSequence(stream, default);
 
-    public static ISequence<byte> FromStream(Stream stream, StreamByteSequence.Options options)
+    public static ISequence<byte> FromStream(Stream stream, SequenceOptions<byte> options)
         => new StreamByteSequence(stream, options);
 
-    public static ISequence<char> FromStream(Stream stream, Encoding encoding)
-        => new StreamCharacterSequence(stream, default, encoding);
-
-    public static ISequence<char> FromStream(Stream stream, Encoding encoding, StreamCharacterSequence.Options options)
-        => new StreamCharacterSequence(stream, options, encoding);
+    public static ISequence<char> FromStream(Stream stream, SequenceOptions<char> options)
+        => new StreamCharacterSequence(stream, options);
 
     public static ISequence<T> FromEnumerable<T>(IEnumerable<T> source, T endSentinel = default)
         => new ListSequence<T>(source, endSentinel);

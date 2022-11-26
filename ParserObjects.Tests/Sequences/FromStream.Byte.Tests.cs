@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using ParserObjects.Internal.Sequences;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
@@ -11,7 +10,7 @@ namespace ParserObjects.Tests.Sequences
             var memoryStream = new MemoryStream();
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return FromStream(memoryStream, new StreamByteSequence.Options { BufferSize = 5 });
+            return FromStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5 });
         }
 
         [Test]
@@ -129,10 +128,11 @@ namespace ParserObjects.Tests.Sequences
         public void FileStream_Test()
         {
             var fileName = Guid.NewGuid().ToString() + ".txt";
+            ISequence<byte> target = null;
             try
             {
                 File.WriteAllText(fileName, "test");
-                using var target = new StreamByteSequence(new StreamByteSequence.Options { FileName = fileName });
+                target = FromByteFile(fileName);
                 target.GetNext().Should().Be((byte)'t');
                 target.GetNext().Should().Be((byte)'e');
                 target.GetNext().Should().Be((byte)'s');
@@ -140,6 +140,7 @@ namespace ParserObjects.Tests.Sequences
             }
             finally
             {
+                (target as IDisposable)?.Dispose();
                 if (File.Exists(fileName))
                     File.Delete(fileName);
             }
@@ -151,7 +152,7 @@ namespace ParserObjects.Tests.Sequences
             var memoryStream = new MemoryStream();
             memoryStream.Write(new byte[] { 1, 2, 3 }, 0, 3);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var target = new StreamByteSequence(memoryStream, new StreamByteSequence.Options { BufferSize = 5, EndSentinel = 9 });
+            var target = FromStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5, EndSentinel = 9 });
             target.GetNext().Should().Be(1);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);
