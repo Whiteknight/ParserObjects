@@ -15,10 +15,10 @@ public static class ParserResultsExtensions
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> TransformError<TInput, TOutput>(this IParser<TInput, TOutput> parser, Func<Transform<TInput, TOutput, TOutput>.SingleArguments, IResult<TOutput>> transform)
-        => new Transform<TInput, TOutput, TOutput>.Parser(parser, args =>
-        {
-            if (args.Result.Success)
-                return args.Result;
-            return transform(args);
-        }, "");
+        => Parsers<TInput>.TransformResult<TOutput, TOutput>(parser, args =>
+         {
+             if (args.Result.Success)
+                 return args.Result;
+             return transform(args);
+         });
 }

@@ -22,7 +22,7 @@ public static class ParserCombinatorExtensions
     /// <param name="mentions"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => new Chain<TInput, TMiddle, TOutput>.Parser(p, getNext, mentions);
+        => Parsers<TInput>.Chain(p, getNext, mentions);
 
     /// <summary>
     /// Execute a parser and use the result value to select the next parser to invoke. Uses
@@ -35,7 +35,7 @@ public static class ParserCombinatorExtensions
     /// <param name="mentions"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Func<IResult, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => new Chain<TInput, TOutput>.Parser(p, getNext, mentions);
+        => Parsers<TInput>.Chain(p, getNext, mentions);
 
     /// <summary>
     /// Execute a parser and use the result to select the nex parser to invoke. Uses a
@@ -49,7 +49,7 @@ public static class ParserCombinatorExtensions
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
-        => Internal.Parsers.Chain<TInput, TMiddle, TOutput>.Configure(p, setup);
+        => Parsers<TInput>.ChainWith(p, setup);
 
     /// <summary>
     /// Execute a parser but consume no input. Use the result to select the next parser to
@@ -63,7 +63,7 @@ public static class ParserCombinatorExtensions
     /// <param name="mentions"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => new Chain<TInput, TMiddle, TOutput>.Parser(None(p), getNext, mentions);
+        => Parsers<TInput>.Chain(None(p), getNext, mentions);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -75,7 +75,7 @@ public static class ParserCombinatorExtensions
     /// <param name="after"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
-        => new Examine<TInput, TOutput>.Parser(parser, before, after);
+        => Parsers<TInput>.Examine(parser, before, after);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -86,7 +86,7 @@ public static class ParserCombinatorExtensions
     /// <param name="after"></param>
     /// <returns></returns>
     public static IParser<TInput> Examine<TInput>(this IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
-        => new Examine<TInput>.Parser(parser, before, after);
+        => Parsers<TInput>.Examine(parser, before, after);
 
     /// <summary>
     /// Zero-length assertion that the given parser's result is followed by another sequence.
@@ -110,7 +110,7 @@ public static class ParserCombinatorExtensions
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
-        => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
+        => Parsers<TInput>.List(p, atLeastOne);
 
     /// <summary>
     /// Returns a list of results from the given parser, with limits. Continues to
@@ -124,7 +124,7 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
-        => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
+        => Parsers<TInput>.List(p, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses characters, parse a list of characters and return the sequence as a

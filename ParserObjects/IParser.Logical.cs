@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -14,7 +13,7 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => new AndParser<TInput>(new[] { p1 }.Concat(parsers).ToArray());
+        => Parsers<TInput>.And(new[] { p1 }.Concat(parsers).ToArray());
 
     /// <summary>
     /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
@@ -26,7 +25,7 @@ public static class ParserLogicalExtensions
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> If<TInput, TOutput>(this IParser<TInput, TOutput> parser, IParser<TInput> predicate)
-        => new IfParser<TInput, TOutput>(predicate, parser, Parsers<TInput>.Fail<TOutput>());
+        => Parsers<TInput>.If(predicate, parser, Parsers<TInput>.Fail<TOutput>());
 
     /// <summary>
     /// Parses with the given parser, inverting the result so Success becomes Failure and Failure becomes
@@ -37,7 +36,7 @@ public static class ParserLogicalExtensions
     /// <param name="p1"></param>
     /// <returns></returns>
     public static IParser<TInput> Not<TInput>(this IParser<TInput> p1)
-        => new NotParser<TInput>(p1);
+        => Parsers<TInput>.Not(p1);
 
     /// <summary>
     /// Attempts to parse with each parser successively, returning Success if any parser succeeds
@@ -49,7 +48,7 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => new OrParser<TInput>(new[] { p1 }.Concat(parsers).ToArray());
+        => Parsers<TInput>.Or(new[] { p1 }.Concat(parsers).ToArray());
 
     /// <summary>
     /// Attempt to parse with a predicate parser. If the predicate parser succeeds,
@@ -61,5 +60,5 @@ public static class ParserLogicalExtensions
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Then<TInput, TOutput>(this IParser<TInput> predicate, IParser<TInput, TOutput> parser)
-        => new IfParser<TInput, TOutput>(predicate, parser, Parsers<TInput>.Fail<TOutput>());
+        => Parsers<TInput>.If(predicate, parser, Parsers<TInput>.Fail<TOutput>());
 }
