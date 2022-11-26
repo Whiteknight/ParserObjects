@@ -22,7 +22,7 @@ public static class StreamExtensions
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this Stream stream, SequenceOptions<char> options = default)
+    public static ISequence<char> ToCharacterSequence(this Stream stream, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(stream, options);
 
     /// <summary>
@@ -32,6 +32,6 @@ public static class StreamExtensions
     /// <param name="streamReader"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharSequence(this StreamReader streamReader, SequenceOptions<char> options = default)
+    public static ISequence<char> ToCharacterSequence(this StreamReader streamReader, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(streamReader, options);
 }

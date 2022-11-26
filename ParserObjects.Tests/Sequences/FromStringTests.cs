@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class StringCharacterSequenceTests
+    public class FromStringTests
     {
         [Test]
         public void GetNext_Test()
@@ -28,16 +28,6 @@ namespace ParserObjects.Tests.Sequences
         {
             var target = FromString("");
             target.Peek().Should().Be('\0');
-        }
-
-        [Test]
-        public void AsCharacterSequence_GetNext_Test()
-        {
-            var target = "abc".ToCharacterSequence();
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
         }
 
         [Test]

@@ -4,7 +4,7 @@ using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class FromStream_Char_Tests
+    public class FromCharacterStreamTests
     {
         private static ISequence<char> GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0')
         {
@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Sequences
             var b = Encoding.UTF8.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return FromStream(memoryStream, new SequenceOptions<char>
+            return FromCharacterStream(memoryStream, new SequenceOptions<char>
             {
                 BufferSize = bufferSize,
                 MaintainLineEndings = !normalizeLineEndings,
@@ -298,57 +298,6 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\r');
             target.GetNext();
             target.Peek().Should().Be('\0');
-        }
-
-        [Test]
-        public void ToCharSequence_Stream()
-        {
-            var memoryStream = new MemoryStream();
-            var b = Encoding.UTF8.GetBytes("abc");
-            memoryStream.Write(b, 0, b.Length);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var target = memoryStream.ToCharSequence();
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void ToCharSequence_StreamReader()
-        {
-            var memoryStream = new MemoryStream();
-            var b = Encoding.UTF8.GetBytes("abc");
-            memoryStream.Write(b, 0, b.Length);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var reader = new StreamReader(memoryStream);
-            var target = reader.ToCharSequence();
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void FileStream_Test()
-        {
-            var fileName = Guid.NewGuid().ToString() + ".txt";
-            ISequence<char> target = null;
-            try
-            {
-                File.WriteAllText(fileName, "test");
-                target = FromCharacterFile(fileName);
-                target.GetNext().Should().Be('t');
-                target.GetNext().Should().Be('e');
-                target.GetNext().Should().Be('s');
-                target.GetNext().Should().Be('t');
-            }
-            finally
-            {
-                (target as IDisposable)?.Dispose();
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
-            }
         }
 
         [Test]

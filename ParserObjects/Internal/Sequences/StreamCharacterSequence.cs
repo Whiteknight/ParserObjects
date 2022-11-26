@@ -5,6 +5,11 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
+// TODO: If Encoding.IsSingleByte==true, we should be able to dramatically simplify the implementation
+// and enable several optimizations throughout.
+// TODO: If the length of the stream is sufficiently small, we should be able to load the whole
+// thing into a string in memory and use StringCharacterSequence instead.
+
 /// <summary>
 /// A sequence of characters read from a Stream or StreamReader, such as from a file.
 /// </summary>
@@ -19,6 +24,8 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     private WorkingSequenceStatistics _stats;
     private BufferMetadata _metadata;
 
+    // TODO: I don't think we need BufferMetadata struct anymore. We can just put these fields
+    // directly in the class, because we don't copy the entire struct anymore for checkpointing.
     private struct BufferMetadata
     {
         public int TotalCharsInBuffer { get; set; }
@@ -41,6 +48,8 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         var stream = File.OpenRead(_options.FileName);
         _reader = new StreamReader(stream, _options.Encoding);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _metadata.BufferStartStreamPosition = 0;
+        _stats.BufferFills++;
     }
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
@@ -54,6 +63,8 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _buffer = new char[_options.BufferSize];
         _reader = reader;
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _metadata.BufferStartStreamPosition = 0;
+        _stats.BufferFills++;
     }
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
@@ -66,6 +77,8 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _buffer = new char[_options.BufferSize];
         _reader = new StreamReader(stream, _options.Encoding);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _metadata.BufferStartStreamPosition = 0;
+        _stats.BufferFills++;
     }
 
     /*
@@ -240,16 +253,11 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
             return;
         }
 
-        // TODO: Need to find a way to rewind to the current buffer somehow, to prevent a lot of
-        // buffer thrashing. We would have to keep track of streamPosition for more than just the
-        // start of the buffer or something like that.
-
-        // TODO: Consider saving BufferStartStreamPosition+Index instead of StreamPosition. It will
-        // allow us to Rewind to the current buffer more often (but might cause problems if we are
-        // doing a lot of reading/rewinding near the boundary of a buffer). Maybe be worthwhile
-        // keeping two buffers LRU-style, so we can check if we're in the correct buffer by
-        // the start position. Would need to store StreamPosition and BufferStartStreamPosition to
-        // make this work.
+        // TODO: It would be nice to be able to rewind to the current buffer. But we would need
+        // three pieces of information: The BufferStartStreamPosition to line us up to the correct
+        // buffer, the character Index in the buffer, and the Stream Position associated with that
+        // index, so we can resume the count. This is a lot of extra data to add to SequenceCheckpoint
+        // that many other sequences won't use.
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
         _metadata.BufferStartStreamPosition = streamPosition;

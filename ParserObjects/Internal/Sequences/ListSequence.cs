@@ -46,6 +46,9 @@ public sealed class ListSequence<T> : ISequence<T>
         public Node? Next { get; set; }
     }
 
+    // Notice that if T == char, GetNext() here doesn't respect normalized line endings, line
+    // counting, etc.
+
     public T GetNext()
     {
         if (_index >= _list.Count)

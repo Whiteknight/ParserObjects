@@ -3,7 +3,7 @@ using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class ParseResultSequenceTests
+    public class FromParseResultTests
     {
         [Test]
         public void GetNext_Test()

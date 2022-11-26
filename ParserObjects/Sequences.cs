@@ -29,13 +29,10 @@ public static class Sequences
     public static ISequence<byte> FromByteFile(SequenceOptions<byte> options)
         => new StreamByteSequence(options);
 
-    public static ISequence<byte> FromStream(Stream stream)
-        => new StreamByteSequence(stream, default);
-
-    public static ISequence<byte> FromStream(Stream stream, SequenceOptions<byte> options)
+    public static ISequence<byte> FromByteStream(Stream stream, SequenceOptions<byte> options = default)
         => new StreamByteSequence(stream, options);
 
-    public static ISequence<char> FromStream(Stream stream, SequenceOptions<char> options)
+    public static ISequence<char> FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(stream, options);
 
     public static ISequence<T> FromEnumerable<T>(IEnumerable<T> source, T endSentinel = default)

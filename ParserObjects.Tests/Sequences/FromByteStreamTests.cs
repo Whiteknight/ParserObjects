@@ -3,14 +3,14 @@ using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences
 {
-    public class FromStream_Byte_Tests
+    public class FromByteStreamTests
     {
         private static ISequence<byte> GetTarget(params byte[] b)
         {
             var memoryStream = new MemoryStream();
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return FromStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5 });
+            return FromByteStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5 });
         }
 
         [Test]
@@ -111,48 +111,12 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
-        public void ToByteSequence_Test()
-        {
-            var memoryStream = new MemoryStream();
-            memoryStream.Write(new byte[] { 1, 2, 3, }, 0, 3);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var target = memoryStream.ToByteSequence();
-
-            target.GetNext().Should().Be(1);
-            target.GetNext().Should().Be(2);
-            target.GetNext().Should().Be(3);
-            target.GetNext().Should().Be(0);
-        }
-
-        [Test]
-        public void FileStream_Test()
-        {
-            var fileName = Guid.NewGuid().ToString() + ".txt";
-            ISequence<byte> target = null;
-            try
-            {
-                File.WriteAllText(fileName, "test");
-                target = FromByteFile(fileName);
-                target.GetNext().Should().Be((byte)'t');
-                target.GetNext().Should().Be((byte)'e');
-                target.GetNext().Should().Be((byte)'s');
-                target.GetNext().Should().Be((byte)'t');
-            }
-            finally
-            {
-                (target as IDisposable)?.Dispose();
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
-            }
-        }
-
-        [Test]
         public void CustomEndSentinel_Test()
         {
             var memoryStream = new MemoryStream();
             memoryStream.Write(new byte[] { 1, 2, 3 }, 0, 3);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var target = FromStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5, EndSentinel = 9 });
+            var target = FromByteStream(memoryStream, new SequenceOptions<byte> { BufferSize = 5, EndSentinel = 9 });
             target.GetNext().Should().Be(1);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);

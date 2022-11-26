@@ -6,42 +6,14 @@ namespace ParserObjects;
 /// A snapshot of a sequence at a specific point. Can be used to return the sequence to that
 /// point.
 /// </summary>
-public struct SequenceCheckpoint : IComparable<SequenceCheckpoint>
+public readonly record struct SequenceCheckpoint(
+    ISequence Sequence,
+    int Consumed,
+    int Index,
+    long StreamPosition,
+    Location Location
+) : IComparable<SequenceCheckpoint>
 {
-    public SequenceCheckpoint(ISequence sequence, int consumed, int index, long streamPosition, Location location)
-    {
-        Sequence = sequence;
-        Consumed = consumed;
-        Index = index;
-        StreamPosition = streamPosition;
-        Location = location;
-    }
-
-    /// <summary>
-    /// Gets the number of items consumed between the start of input and the current location.
-    /// </summary>
-    public int Consumed { get; }
-
-    /// <summary>
-    /// Gets the current location of the input sequence.
-    /// </summary>
-    public Location Location { get; }
-
-    /// <summary>
-    /// Gets the sequence which owns this checkpoint.
-    /// </summary>
-    public ISequence Sequence { get; }
-
-    /// <summary>
-    /// Gets an index value used internally by the sequence to reset itself.
-    /// </summary>
-    public int Index { get; }
-
-    /// <summary>
-    /// Gets a position in the stream which the sequence uses internally to reset itself.
-    /// </summary>
-    public long StreamPosition { get; }
-
     /// <summary>
     /// Return the sequence to the state it was when the checkpoint was taken.
     /// </summary>
@@ -55,7 +27,7 @@ public struct SequenceCheckpoint : IComparable<SequenceCheckpoint>
     /// not comparable for some reason, returns 0.
     /// </summary>
     /// <param name="other"></param>
-    /// <returns></returns>
+    /// <returns>Negative if this is less than other, 0 if they are equal or uncomparable, positive otherwise.</returns>
     public int CompareTo(SequenceCheckpoint other)
     {
         if (other.Sequence != Sequence)
