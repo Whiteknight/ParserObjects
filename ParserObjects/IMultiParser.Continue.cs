@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
@@ -17,7 +16,7 @@ public static partial class MultiParserExtensions
     /// <param name="getParser"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser)
-        => new ContinueWith<TInput, TMiddle, TOutput>.SingleParser(multiParser, getParser);
+        => Parsers<TInput>.ContinueWith(multiParser, getParser);
 
     /// <summary>
     /// Continue the parse with each alternative separately.
@@ -29,7 +28,7 @@ public static partial class MultiParserExtensions
     /// <param name="getParser"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ContinueWith<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser)
-        => new ContinueWith<TInput, TMiddle, TOutput>.MultiParser(multiParser, getParser);
+        => Parsers<TInput>.ContinueWith(multiParser, getParser);
 
     /// <summary>
     /// Continue the parse with all the given parsers.
@@ -41,7 +40,7 @@ public static partial class MultiParserExtensions
     /// <param name="getParsers"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> parser, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
-        => ContinueWith(parser, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray(), string.Empty));
+        => Parsers<TInput>.ContinueWithEach(parser, getParsers);
 
     /// <summary>
     /// Transform the values of all result alternatives.
