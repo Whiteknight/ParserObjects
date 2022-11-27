@@ -280,10 +280,10 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput, IOption<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
-        => TransformResult<TOutput, IOption<TOutput>>(p, args =>
+    public static IParser<TInput, Option<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
+        => TransformResult<TOutput, Option<TOutput>>(p, args =>
         {
-            var option = args.Result.Success ? new SuccessOption<TOutput>(args.Result.Value) : FailureOption<TOutput>.Instance;
+            var option = args.Result.Success ? new Option<TOutput>(true, args.Result.Value) : new Option<TOutput>(false, default);
             return args.Success(option);
         });
 

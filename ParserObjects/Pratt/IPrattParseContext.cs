@@ -32,7 +32,7 @@ public interface IPrattParseContext<TInput>
     /// <typeparam name="TValue"></typeparam>
     /// <param name="parser"></param>
     /// <returns></returns>
-    IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser);
+    Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser);
 
     bool Match(IParser<TInput> parser);
 
@@ -90,7 +90,7 @@ public interface IPrattParseContext<TInput, TOutput> : IPrattParseContext<TInput
     /// the current right binding power. Does not abort on failure.
     /// </summary>
     /// <returns></returns>
-    IOption<TOutput> TryParse();
+    Option<TOutput> TryParse();
 
     /// <summary>
     /// Attempt to invoke the Pratt engine recursively to obtain the next output value, with
@@ -98,5 +98,5 @@ public interface IPrattParseContext<TInput, TOutput> : IPrattParseContext<TInput
     /// </summary>
     /// <param name="rbp"></param>
     /// <returns></returns>
-    IOption<TOutput> TryParse(int rbp);
+    Option<TOutput> TryParse(int rbp);
 }

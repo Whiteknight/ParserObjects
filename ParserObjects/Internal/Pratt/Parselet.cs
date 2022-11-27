@@ -48,36 +48,36 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         return (true, new ParseletToken<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
     }
 
-    public IOption<IPrattToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IPrattToken<TValue> sourceToken)
+    public Option<IPrattToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IPrattToken<TValue> sourceToken)
     {
         if (_nud == null)
-            return FailureOption<IPrattToken<TOutput>>.Instance;
+            return default;
         try
         {
             var resultValue = _nud(context, sourceToken);
             var token = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new SuccessOption<IPrattToken<TOutput>>(token);
+            return new Option<IPrattToken<TOutput>>(true, token);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
-            return FailureOption<IPrattToken<TOutput>>.Instance;
+            return default;
         }
     }
 
-    public IOption<IPrattToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IPrattToken<TValue> sourceToken)
+    public Option<IPrattToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IPrattToken<TValue> sourceToken)
     {
         if (_led == null || left is not IPrattToken<TOutput> leftTyped)
-            return FailureOption<IPrattToken<TOutput>>.Instance;
+            return default;
 
         try
         {
             var resultValue = _led(context, leftTyped, sourceToken);
             var resultToken = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new SuccessOption<IPrattToken<TOutput>>(resultToken);
+            return new Option<IPrattToken<TOutput>>(true, resultToken);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
-            return FailureOption<IPrattToken<TOutput>>.Instance;
+            return default;
         }
     }
 

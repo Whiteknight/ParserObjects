@@ -13,7 +13,7 @@ public static class ParserFindReplaceExtensions
     /// <param name="root"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public static IOption<IParser> Find(this IParser root, int id) => FindParserVisitor.ById(root, id);
+    public static Option<IParser> Find(this IParser root, int id) => FindParserVisitor.ById(root, id);
 
     /// <summary>
     /// Recurse the tree searching for a parser with the given name. Returns a result with the
@@ -22,7 +22,7 @@ public static class ParserFindReplaceExtensions
     /// <param name="root"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IOption<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(root, name);
+    public static Option<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(root, name);
 
     /// <summary>
     /// Given a parser tree, replace all children of ReplaceableParsers matching the given

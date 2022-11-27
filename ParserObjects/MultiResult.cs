@@ -47,7 +47,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
     }
 
-    public IOption<T> TryGetData<T>() => _data.TryGetData<T>();
+    public Option<T> TryGetData<T>() => _data.TryGetData<T>();
 }
 
 // TODO: See about adding _data to Success and Failure result alternatives, as well as the parent multi

@@ -88,10 +88,10 @@ public static class TrieExtensions
     /// <param name="trie"></param>
     /// <param name="keys"></param>
     /// <returns></returns>
-    public static IOption<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
+    public static Option<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
     {
         var input = new StringCharacterSequence(keys, default);
         var result = trie.Get(input);
-        return result.Match(FailureOption<TResult>.Instance, value => new SuccessOption<TResult>(value));
+        return result.Match(default, value => new Option<TResult>(true, value));
     }
 }

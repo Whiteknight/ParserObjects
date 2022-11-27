@@ -93,7 +93,7 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="select"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> SelectResult<TOutput>(IMultiParser<TInput, TOutput> p, Func<Select<TInput, TOutput>.Arguments, IOption<IResultAlternative<TOutput>>> select)
+    public static IParser<TInput, TOutput> SelectResult<TOutput>(IMultiParser<TInput, TOutput> p, Func<Select<TInput, TOutput>.Arguments, Option<IResultAlternative<TOutput>>> select)
         => new Select<TInput, TOutput>.Parser(p, select);
 
     /// <summary>

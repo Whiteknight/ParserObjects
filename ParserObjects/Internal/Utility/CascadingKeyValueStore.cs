@@ -16,7 +16,7 @@ public sealed class CascadingKeyValueStore : IDataStore
         _store.AddLast(new Dictionary<string, object>());
     }
 
-    public IOption<T> Get<T>(string name)
+    public Option<T> Get<T>(string name)
     {
         var node = _store.Last;
         while (node != null)
@@ -25,14 +25,14 @@ public sealed class CascadingKeyValueStore : IDataStore
             {
                 var value = node.Value[name];
                 if (value is T typed)
-                    return new SuccessOption<T>(typed);
-                return FailureOption<T>.Instance;
+                    return new Option<T>(true, typed);
+                return default;
             }
 
             node = node.Previous;
         }
 
-        return FailureOption<T>.Instance;
+        return default;
     }
 
     public void Set<T>(string name, T value)

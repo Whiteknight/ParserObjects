@@ -11,5 +11,5 @@ public interface IProduction
     INonterminal LeftHandSide { get; }
     IReadOnlyList<ISymbol> Symbols { get; }
 
-    IOption<object> Apply(object[] argsList);
+    Option<object> Apply(object[] argsList);
 }

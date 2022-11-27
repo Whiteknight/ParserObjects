@@ -6,18 +6,18 @@ namespace ParserObjects;
 
 public readonly record struct ResultData(IReadOnlyList<object>? Data)
 {
-    public IOption<T> TryGetData<T>()
+    public Option<T> TryGetData<T>()
     {
         if (Data == null)
-            return FailureOption<T>.Instance;
+            return new Option<T>(false, default);
 
         foreach (var item in Data)
         {
             if (item is T typed)
-                return new SuccessOption<T>(typed);
+                return new Option<T>(true, typed);
         }
 
-        return FailureOption<T>.Instance;
+        return new Option<T>(false, default);
     }
 }
 
@@ -45,7 +45,7 @@ public sealed record SuccessResult<TValue>(
         return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed, Data);
     }
 
-    public IOption<T> TryGetData<T>() => Data.TryGetData<T>();
+    public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public override string ToString() => $"{Parser} Ok at {Location}";
 
@@ -83,7 +83,7 @@ public sealed record FailureResult<TValue>(
         return new FailureResult<TOutput>(Parser, Location, ErrorMessage, Data);
     }
 
-    public IOption<T> TryGetData<T>() => Data.TryGetData<T>();
+    public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public override string ToString() => $"{Parser} FAIL at {Location}: {ErrorMessage}";
 

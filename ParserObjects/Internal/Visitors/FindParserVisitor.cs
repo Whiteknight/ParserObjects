@@ -30,7 +30,7 @@ public sealed class FindParserVisitor
         }
     }
 
-    public static IOption<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
+    public static Option<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
     {
         Assert.ArgumentNotNull(root, nameof(root));
         Assert.ArgumentNotNull(predicate, nameof(predicate));
@@ -38,8 +38,8 @@ public sealed class FindParserVisitor
         var state = new State(predicate, true);
         visitor.Visit(root, state);
         if (state.Found.Count > 0)
-            return new SuccessOption<IParser>(state.Found.First());
-        return FailureOption<IParser>.Instance;
+            return new Option<IParser>(true, state.Found.First());
+        return default;
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public sealed class FindParserVisitor
     /// <param name="root"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IOption<IParser> Named(IParser root, string name)
+    public static Option<IParser> Named(IParser root, string name)
     {
         Assert.ArgumentNotNullOrEmpty(name, nameof(name));
         return FindSingle(root, p => p.Name == name);
@@ -61,7 +61,7 @@ public sealed class FindParserVisitor
     /// <param name="root"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public static IOption<IParser> ById(IParser root, int id)
+    public static Option<IParser> ById(IParser root, int id)
         => FindSingle(root, p => p.Id == id);
 
     /// <summary>

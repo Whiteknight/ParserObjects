@@ -28,10 +28,10 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IPrattToken<TValue>
     public bool IsValid { get; }
     public string Name { get; }
 
-    public IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
+    public Option<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
         => _parselet.Nud(context, this);
 
-    public IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
+    public Option<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
         => _parselet.Led(context, left, this);
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
@@ -57,9 +57,11 @@ public sealed class ValueToken<TInput, TValue, TOutput> : IPrattToken<TValue>, I
     public bool IsValid { get; }
     public string Name { get; }
 
-    public IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context) => FailureOption<IPrattToken<TOutput>>.Instance;
+    public Option<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
+        => default;
 
-    public IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left) => FailureOption<IPrattToken<TOutput>>.Instance;
+    public Option<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
+        => default;
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }

@@ -13,7 +13,7 @@ public interface IResultsCache
     /// <param name="parser"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    IOption<TValue> Get<TValue>(ISymbol parser, Location location);
+    Option<TValue> Get<TValue>(ISymbol parser, Location location);
 
     /// <summary>
     /// Adds a value to the cache with the given key.

@@ -27,5 +27,5 @@ public interface IResultBase
     /// </summary>
     Location Location { get; }
 
-    IOption<T> TryGetData<T>();
+    Option<T> TryGetData<T>();
 }

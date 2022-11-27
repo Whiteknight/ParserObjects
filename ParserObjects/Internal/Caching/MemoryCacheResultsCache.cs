@@ -40,7 +40,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
             _cache.Dispose();
     }
 
-    public IOption<TValue> Get<TValue>(ISymbol symbol, Location location)
+    public Option<TValue> Get<TValue>(ISymbol symbol, Location location)
     {
         Assert.ArgumentNotNull(symbol, nameof(symbol));
         _stats.Attempts++;
@@ -48,11 +48,11 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
         if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)
         {
             _stats.Hits++;
-            return new SuccessOption<TValue>(typed);
+            return new Option<TValue>(true, typed);
         }
 
         _stats.Misses++;
-        return FailureOption<TValue>.Instance;
+        return default;
     }
 
     public ICacheStatistics GetStatistics() => _stats;

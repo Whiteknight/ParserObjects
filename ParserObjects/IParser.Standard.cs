@@ -239,7 +239,7 @@ public static class ParserCombinatorExtensions
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput, IOption<TOutput>> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p)
+    public static IParser<TInput, Option<TOutput>> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p)
         => Parsers<TInput>.Optional(p);
 
     /// <summary>

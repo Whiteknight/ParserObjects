@@ -107,23 +107,23 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
         _parseControl.IsComplete = true;
     }
 
-    public IOption<TOutput> TryParse() => TryParse(_rbp);
+    public Option<TOutput> TryParse() => TryParse(_rbp);
 
-    public IOption<TOutput> TryParse(int rbp)
+    public Option<TOutput> TryParse(int rbp)
     {
         if (!_canRecurse || _parseControl.IsComplete)
-            return FailureOption<TOutput>.Instance;
+            return default;
         var result = _engine.TryParse(_state, rbp, _parseControl);
-        return result.Match(FailureOption<TOutput>.Instance, value => new SuccessOption<TOutput>(value));
+        return result.Match(default, value => new Option<TOutput>(true, value));
     }
 
-    public IOption<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
+    public Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
         if (_parseControl.IsComplete)
-            return FailureOption<TValue>.Instance;
+            return default;
         var result = parser.Parse(_state);
-        return result!.Success ? new SuccessOption<TValue>(result!.Value) : FailureOption<TValue>.Instance;
+        return result!.Success ? new Option<TValue>(true, result!.Value) : default;
     }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();

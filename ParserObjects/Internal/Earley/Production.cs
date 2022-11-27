@@ -22,17 +22,17 @@ public sealed class Production<TValue> : IProduction
 
     public INonterminal LeftHandSide { get; }
 
-    public IOption<object> Apply(object[] argsList)
+    public Option<object> Apply(object[] argsList)
     {
         try
         {
             Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
             var value = _reduce(argsList);
-            return value == null ? FailureOption<object>.Instance : new SuccessOption<object>(value);
+            return value == null ? default : new Option<object>(true, value);
         }
         catch (ProductionFailedException)
         {
-            return FailureOption<object>.Instance;
+            return default;
         }
     }
 

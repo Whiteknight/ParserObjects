@@ -9,10 +9,10 @@ public sealed class NullResultsCache : IResultsCache
         // No cache, so we do nothing here
     }
 
-    public IOption<TValue> Get<TValue>(ISymbol symbol, Location location)
+    public Option<TValue> Get<TValue>(ISymbol symbol, Location location)
     {
         _stats.Attempts++;
-        return FailureOption<TValue>.Instance;
+        return default;
     }
 
     public ICacheStatistics GetStatistics() => _stats;

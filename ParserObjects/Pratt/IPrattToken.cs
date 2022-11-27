@@ -55,7 +55,7 @@ public interface IPrattToken<TInput, TOutput> : IPrattToken
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    IOption<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
+    Option<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
 
     /// <summary>
     /// Calculates the left denominator (suffix production) of this token, converting it into
@@ -64,5 +64,5 @@ public interface IPrattToken<TInput, TOutput> : IPrattToken
     /// <param name="context"></param>
     /// <param name="left"></param>
     /// <returns></returns>
-    IOption<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
+    Option<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
 }

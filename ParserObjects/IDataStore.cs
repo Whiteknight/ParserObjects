@@ -12,7 +12,7 @@ public interface IDataStore
     /// <typeparam name="T"></typeparam>
     /// <param name="name"></param>
     /// <returns></returns>
-    IOption<T> Get<T>(string name);
+    Option<T> Get<T>(string name);
 
     /// <summary>
     /// Set a data value with type T to the given name in the current data frame.

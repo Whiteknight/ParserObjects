@@ -14,13 +14,13 @@ public static class Select<TInput, TOutput>
 {
     public record struct Arguments(
         IMultiResult<TOutput> Result,
-        Func<IResultAlternative<TOutput>, IOption<IResultAlternative<TOutput>>> Success,
-        Func<IOption<IResultAlternative<TOutput>>> Failure
+        Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,
+        Func<Option<IResultAlternative<TOutput>>> Failure
     );
 
     public sealed record Parser(
         IMultiParser<TInput, TOutput> Initial,
-        Func<Arguments, IOption<IResultAlternative<TOutput>>> Selector,
+        Func<Arguments, Option<IResultAlternative<TOutput>>> Selector,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -34,15 +34,15 @@ public static class Select<TInput, TOutput>
             if (!multi.Success)
                 return state.Fail(this, "Parser returned no valid results");
 
-            static IOption<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
+            static Option<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
             {
                 if (alt == null)
-                    return FailureOption<IResultAlternative<TOutput>>.Instance;
-                return new SuccessOption<IResultAlternative<TOutput>>(alt);
+                    return default;
+                return new Option<IResultAlternative<TOutput>>(true, alt);
             }
 
-            static IOption<IResultAlternative<TOutput>> Fail()
-                => FailureOption<IResultAlternative<TOutput>>.Instance;
+            static Option<IResultAlternative<TOutput>> Fail()
+                => default;
 
             var args = new Arguments(multi, Success, Fail);
             var selected = Selector(args);
