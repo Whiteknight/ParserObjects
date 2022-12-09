@@ -8,6 +8,7 @@
         Multiplication,
         Subtraction,
         Exponentiation,
+        Factorial,
         Number,
         OpenParen,
         CloseParen,

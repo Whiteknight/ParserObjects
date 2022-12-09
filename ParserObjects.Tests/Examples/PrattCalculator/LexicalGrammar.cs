@@ -23,6 +23,9 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
             var exponent = Match('^')
                 .Transform(_ => new Token(TokenType.Exponentiation, "^"));
 
+            var factorial = Match('!')
+                .Transform(_ => new Token(TokenType.Factorial, "!"));
+
             var openParen = Match('(')
                 .Transform(_ => new Token(TokenType.OpenParen, "("));
 
@@ -44,6 +47,7 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
                 multiplication,
                 division,
                 exponent,
+                factorial,
                 number,
                 openParen,
                 closeParen,

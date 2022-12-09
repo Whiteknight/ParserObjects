@@ -47,6 +47,14 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
                         var right = ctx.Parse();
                         return (int)Math.Pow(left.Value, right);
                     }))
+                .Add(Token(TokenType.Factorial), p => p
+                    .BindLeft(1, 0, (_, left, _) =>
+                    {
+                        var product = 1;
+                        for (int i = 2; i <= Math.Abs(left.Value); i++)
+                            product *= i;
+                        return product;
+                    }))
                 .Add(Token(TokenType.OpenParen), p => p
                     .Bind(0, (ctx, _) =>
                     {
