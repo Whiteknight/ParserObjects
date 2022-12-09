@@ -86,13 +86,13 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
     }
 
-    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int rbp, IPrattToken<TOutput> leftToken, ParseControl parseControl)
+    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, IPrattToken<TOutput> leftToken, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
         for (int i = 0; i < _numLedableParselets; i++)
         {
             var parselet = _ledableParselets[i];
-            if (rbp >= parselet.Lbp)
+            if (minBp >= parselet.Lbp)
                 continue;
 
             var (success, token, consumed) = parselet.TryGetNext(state);

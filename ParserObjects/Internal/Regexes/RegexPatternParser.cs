@@ -10,7 +10,21 @@ namespace ParserObjects.Internal.Regexes;
 
 public static class RegexPatternGrammar
 {
-    private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char> { '\\', '(', ')', '$', '|', '[', '.', '?', '+', '*', '{', '}' };
+    private const int _bpAll = 0;
+    private const int _bpAlt = 1;
+    private const int _bpAtom = 10;
+    private const int _bpQuant = 20;
+    private const int _bpAnchor = 30;
+
+    private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char>
+    {
+        '\\',
+        '(', ')',
+        '$', '|',
+        '[',
+        '.', '?', '+', '*',
+        '{', '}'
+    };
 
     public static IParser<char, Regex> CreateParser()
     {
@@ -21,75 +35,75 @@ public static class RegexPatternGrammar
 
         var regex = Pratt<List<IState>>(config => config
 
+            // Alternation
+            .Add(MatchChar('|'), p => p
+                .BindLeft(_bpAlt, (ctx, states, _) => ParseAlternation(ctx, states.Value))
+            )
+
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
             .Add(normalChar, p => p
-                .Bind(1, (_, c) => State.AddMatch(null, c.Value))
-                .BindLeft(1, (_, states, c) => State.AddMatch(states.Value, c.Value))
-            )
-            .Add(MatchChar('['), p => p
-                .Bind(2, (ctx, _) => ParseCharacterClass(ctx, null))
-                .BindLeft(2, (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
-            )
-            .Add(MatchChar('.'), p => p
-                .Bind(2, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
-                .BindLeft(2, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
-            )
-            .Add(MatchChar('\\'), p => p
-                .Bind(2, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
-                .BindLeft(2, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
-            )
-            .Add(Match("(?:"), p => p
-                .Bind(2, (ctx, _) =>
-                {
-                    var group = ctx.Parse(0);
-                    ctx.Expect(MatchChar(')'));
-                    return State.AddNonCapturingCloisterState(null, group);
-                })
-                .BindLeft(2, (ctx, states, _) =>
-                {
-                    var group = ctx.Parse(0);
-                    ctx.Expect(MatchChar(')'));
-                    return State.AddNonCapturingCloisterState(states.Value, group);
-                })
+                .Bind(_bpAtom, (_, c) => State.AddMatch(null, c.Value))
+                .BindLeft(_bpAtom, (_, states, c) => State.AddMatch(states.Value, c.Value))
             )
             .Add(MatchChar('('), p => p
-                .Bind(2, (ctx, _) =>
+                .Bind(_bpAtom, (ctx, _) =>
                 {
-                    var group = ctx.Parse(0);
+                    var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddCapturingGroupState(null, group);
                 })
-                .BindLeft(2, (ctx, states, _) =>
+                .BindLeft(_bpAtom, (ctx, states, _) =>
                 {
-                    var group = ctx.Parse(0);
+                    var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddCapturingGroupState(states.Value, group);
+                })
+            )
+            .Add(MatchChar('['), p => p
+                .Bind(_bpAtom, (ctx, _) => ParseCharacterClass(ctx, null))
+                .BindLeft(_bpAtom, (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
+            )
+            .Add(MatchChar('.'), p => p
+                .Bind(_bpAtom, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
+                .BindLeft(_bpAtom, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
+            )
+            .Add(MatchChar('\\'), p => p
+                .Bind(_bpAtom, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
+                .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
+            )
+            .Add(Match("(?:"), p => p
+                .Bind(_bpAtom, (ctx, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddNonCapturingCloisterState(null, group);
+                })
+                .BindLeft(_bpAtom, (ctx, states, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddNonCapturingCloisterState(states.Value, group);
                 })
             )
 
             // Quantifiers
             .Add(MatchChar('{'), p => p
-                .BindLeft(2, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
+                .BindLeft(_bpQuant, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
             )
             .Add(MatchChar('?'), p => p
-                .BindLeft(2, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
+                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
             )
             .Add(MatchChar('+'), p => p
-                .BindLeft(2, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
             )
             .Add(MatchChar('*'), p => p
-                .BindLeft(2, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
-            )
-
-            // Alternation
-            .Add(MatchChar('|'), p => p
-                .BindLeft(3, (ctx, states, _) => ParseAlternation(ctx, states.Value))
+                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
             )
 
             // End Anchor
             .Add(MatchChar('$'), p => p
-                .Bind(4, (_, _) => new List<IState> { State.EndAnchor })
-                .BindLeft(4, (_, states, _) =>
+                .Bind(_bpAnchor, (_, _) => new List<IState> { State.EndAnchor })
+                .BindLeft(_bpAnchor, (_, states, _) =>
                 {
                     states.Value.Add(State.EndAnchor);
                     return states.Value;
@@ -194,17 +208,15 @@ public static class RegexPatternGrammar
     private static List<IState> ParseAlternation(IPrattParseContext<char, List<IState>> ctx, List<IState> states)
     {
         var options = new List<List<IState>>() { states };
-        while (true)
+        do
         {
-            var option = ctx.TryParse(0);
+            var option = ctx.TryParse(_bpAlt);
             if (!option.Success || option.Value.Count == 0)
                 break;
 
-            if (option.Value.Count == 1 && option.Value[0] is AlternationState alt)
-                options.AddRange(alt.Alternations);
-            else
-                options.Add(option.Value);
+            options.Add(option.Value);
         }
+        while (ctx.Match(MatchChar('|')));
 
         if (options.Count == 1)
             return states;
