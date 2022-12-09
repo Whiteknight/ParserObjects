@@ -12,7 +12,7 @@ namespace ParserObjects.Internal.Earley;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class Engine<TInput, TOutput>
+public struct Engine<TInput, TOutput>
 {
     private readonly INonterminal<TInput, TOutput> _startSymbol;
 

@@ -13,7 +13,7 @@ public sealed class Production<TValue> : IProduction
 
     public Production(INonterminal lhs, Func<object[], TValue> reduce, params ISymbol[] symbols)
     {
-        Symbols = symbols.ToList();
+        Symbols = symbols.ToArray();
         _reduce = reduce;
         LeftHandSide = lhs;
     }
