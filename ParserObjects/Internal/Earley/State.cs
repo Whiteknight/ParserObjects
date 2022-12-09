@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using ParserObjects;
 using ParserObjects.Earley;
 
 namespace ParserObjects.Internal.Earley;
@@ -34,10 +34,19 @@ public sealed class State
 
     public bool Contains(Item item) => Items.Contains(item);
 
-    public IList<Item> GetLiveItemsWaitingForProduction(IProduction production)
-        => Items
-            .Where(i => i.IsWaitingFor(production))
-            .ToList();
+    public RentedArray<Item> GetLiveItemsWaitingForProduction(IProduction production)
+    {
+        var results = ArrayPool<Item>.Shared.Rent(Items.Count);
+        int count = 0;
+        for (var i = 0; i < Items.Count; i++)
+        {
+            var item = Items[i];
+            if (item.IsWaitingFor(production))
+                results[count++] = item;
+        }
+
+        return new RentedArray<Item>(results, count);
+    }
 
     public Item Import(Item item)
     {
@@ -57,7 +66,7 @@ public sealed class State
     public string GetCompleteListing()
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"==== S{Number} ====");
+        sb.Append("==== S").Append(Number).AppendLine(" ====");
         foreach (var item in Items)
             sb.Append(item.ToString());
         return sb.ToString();

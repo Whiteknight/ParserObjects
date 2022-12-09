@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ParserObjects;
 using ParserObjects.Earley;
 using ParserObjects.Internal.Utility;
 
@@ -49,22 +47,25 @@ public sealed class Engine<TInput, TOutput>
             currentState = states.MoveToNext();
         }
 
+        return DeriveAllResults(stats, resultItems);
+    }
+
+    private static ParseResult<TOutput> DeriveAllResults(ParseStatistics stats, List<(Item Item, State State)> resultItems)
+    {
         var derivationVisitor = new ItemDerivationVisitor(stats);
-        var results = resultItems
-            .SelectMany(v => derivationVisitor.GetDerivation(v.Item)
-                .OfType<TOutput>()
-                .Select(value => new
-                {
-                    v.Item,
-                    // The state.Number should be the number of input items consumed to get
-                    // to that point, so we can use that here.
-                    Consumed = v.State.Number,
-                    v.State.Checkpoint,
-                    Value = value
-                })
-            )
-            .Select(x => new SuccessResultAlternative<TOutput>(x.Value, x.Consumed, x.Checkpoint))
-            .ToList();
+        var results = new List<IResultAlternative<TOutput>>();
+        for (int i = 0; i < resultItems.Count; i++)
+        {
+            var resultItem = resultItems[i];
+            var derivations = derivationVisitor.GetDerivation(resultItem.Item);
+            for (int j = 0; j < derivations.Count; j++)
+            {
+                if (derivations[j] is not TOutput value)
+                    continue;
+                var result = new SuccessResultAlternative<TOutput>(value, resultItem.State.Number, resultItem.State.Checkpoint);
+                results.Add(result);
+            }
+        }
 
         return new ParseResult<TOutput>(results, stats);
     }
@@ -103,7 +104,7 @@ public sealed class Engine<TInput, TOutput>
 
                 // If the completed item is a start item, add it to the list of possible
                 // results.
-                if (item.ParentState == initialState && _startSymbol.Productions.Contains(item.Production))
+                if (item.ParentState == initialState && _startSymbol.Contains(item.Production))
                     resultItems.Add((item, currentState));
                 continue;
             }
@@ -150,8 +151,21 @@ public sealed class Engine<TInput, TOutput>
         {
             var aycockItem = state.Import(item.CreateNextItem(state));
             stats.CreatedItems++;
-            foreach (var nullableItem in relevantCompletedNullableProductions.SelectMany(p => completedNullables[p]).Distinct().ToList())
-                aycockItem.Add(nullableItem);
+            var seenNullables = new HashSet<Item>();
+            for (int i = 0; i < relevantCompletedNullableProductions.Count; i++)
+            {
+                var relevantProduction = relevantCompletedNullableProductions[i];
+                var assocatedNullables = completedNullables[relevantProduction];
+                for (int j = 0; j < assocatedNullables.Count; j++)
+                {
+                    var nullable = assocatedNullables[j];
+                    if (seenNullables.Contains(nullable))
+                        continue;
+                    seenNullables.Add(nullable);
+                    aycockItem.Add(nullable);
+                }
+            }
+
             state.Add(aycockItem);
             stats.PredictedItems++;
             stats.PredictedByCompletedNullable++;
@@ -207,8 +221,12 @@ public sealed class Engine<TInput, TOutput>
     private static void Scan(State currentState, Item item, IMultiParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
     {
         var result = TryParse(terminal, parseState);
-        foreach (var successResult in result.Results.Where(r => r.Success))
+        for (int i = 0; i < result.Results.Count; i++)
         {
+            var successResult = result.Results[i];
+            if (!successResult.Success)
+                continue;
+
             var nextState = states.GetAhead(successResult.Consumed, successResult.Continuation);
 
             var newItem = item.CreateNextItem(nextState);
@@ -242,8 +260,9 @@ public sealed class Engine<TInput, TOutput>
         // current state which is the same as the parent item, but advanced past the
         // non-terminal.
         var parentStateItemsToAdvance = item.ParentState.GetLiveItemsWaitingForProduction(item.Production);
-        foreach (var parentItem in parentStateItemsToAdvance)
+        for (int i = 0; i < parentStateItemsToAdvance.Count; i++)
         {
+            var parentItem = parentStateItemsToAdvance[i];
             var newItem = state.Import(parentItem.CreateNextItem(state));
             stats.CreatedItems++;
 
@@ -257,14 +276,18 @@ public sealed class Engine<TInput, TOutput>
             // to the current state so the next loop through will complete those too.
             if (newItem.ValueSymbol is INonterminal nonterminal)
             {
-                var relevantCompletedNullables = nonterminal.Productions
-                    .Where(p => completedNullables.ContainsKey(p))
-                    .SelectMany(p => completedNullables[p])
-                    .ToList();
-                foreach (var nullable in relevantCompletedNullables)
-                    newItem.Add(nullable);
+                foreach (var production in nonterminal.Productions)
+                {
+                    if (!completedNullables.ContainsKey(production))
+                        continue;
+                    var completedNullablesForThisProduction = completedNullables[production];
+                    for (int j = 0; j < completedNullablesForThisProduction.Count; j++)
+                        newItem.Add(completedNullablesForThisProduction[j]);
+                }
             }
         }
+
+        parentStateItemsToAdvance.Return();
 
         // If the parent state is the current state, that means the item is zero-length and
         // is considered "nullable"
