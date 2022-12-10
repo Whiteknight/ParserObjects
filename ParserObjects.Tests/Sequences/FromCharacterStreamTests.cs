@@ -6,10 +6,11 @@ namespace ParserObjects.Tests.Sequences
 {
     public class FromCharacterStreamTests
     {
-        private static ISequence<char> GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0')
+        private static ISequence<char> GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0', Encoding encoding = null)
         {
+            encoding ??= Encoding.UTF8;
             var memoryStream = new MemoryStream();
-            var b = Encoding.UTF8.GetBytes(sc);
+            var b = encoding.GetBytes(sc);
             memoryStream.Write(b, 0, b.Length);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return FromCharacterStream(memoryStream, new SequenceOptions<char>
@@ -17,53 +18,62 @@ namespace ParserObjects.Tests.Sequences
                 BufferSize = bufferSize,
                 MaintainLineEndings = !normalizeLineEndings,
                 EndSentinel = endSentinel,
-                Encoding = Encoding.UTF8
+                Encoding = encoding
             });
         }
 
-        [Test]
-        public void GetNext_Test()
+        /* Tests will generally run in several configurations:
+         * 1. Whether or not the buffer is large enough to hold the entire data
+         * 2. Whether or not we are using ASCII (a single-byte encoding)
+         * The FromCharacterStream() method may select different implementations depending on all
+         * these possibilities
+         */
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_Test(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("abc");
+            var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_CustomEndSentinel()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_CustomEndSentinel(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("abc", endSentinel: 'X');
+            var target = GetTarget("abc", endSentinel: 'X', bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('X');
         }
 
-        [Test]
-        public void Peek_Test()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_Test(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("abc");
+            var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
         }
 
-        [Test]
-        public void GetNext_UTF8()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void IsAtEnd_Test(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("abc");
-            target.GetNext().Should().Be('a');
-            target.GetNext().Should().Be('b');
-            target.GetNext().Should().Be('c');
-            target.GetNext().Should().Be('\0');
-        }
-
-        [Test]
-        public void IsAtEnd_Test()
-        {
-            var target = GetTarget("abc");
+            var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeFalse();
@@ -91,15 +101,16 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void Checkpoint_MultiByteChars()
+        [TestCase(5)]
+        [TestCase(2)]
+        public void Checkpoint_MultiByteChars(int bufferSize)
         {
             // a is a single byte. Followed by copyright (c) (2 bytes in UTF8), EMDASH (3 bytes)
             // Poop emoji from the astral plane (4 bytes), registered (r) (3 bytes) and then b
             // which is a single byte again.
             // String is approximately similar to "ac-Prb" if you squint real hard, with the buffer
             // break happening between the (r) and b.
-            var target = GetTarget("a\u00A9\u2014\U0001F4A9\u00AEb", 5);
+            var target = GetTarget("a\u00A9\u2014\U0001F4A9\u00AEb", bufferSize: bufferSize, encoding: Encoding.UTF8);
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
             cp.Rewind();
@@ -127,8 +138,11 @@ namespace ParserObjects.Tests.Sequences
         [Test]
         public void Checkpoint_MultiByteChars_CannotDivideSurrogates()
         {
-            // We cannot set a checkpoint between the high and low surrogates of a single codepoint
-            var target = GetTarget("\U0001F4A9", 5);
+            // For stream char sequences we cannot set a checkpoint between the high and low
+            // surrogates of a single code point. A string-based char sequence doesn't have this
+            // limitation. So, to force a stream-based sequence, make sure to set the buffer size
+            // smaller than the length of the string (1 < 2).
+            var target = GetTarget("\U0001F4A9", 1);
             target.GetNext().Should().Be('\uD83D');
             Action act = () => target.Checkpoint();
             act.Should().Throw<InvalidOperationException>();
@@ -146,10 +160,14 @@ namespace ParserObjects.Tests.Sequences
         //    act.Should().Throw<InvalidOperationException>();
         // }
 
-        [Test]
-        public void Checkpoint_PreviousBuffer()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Checkpoint_PreviousBuffer(bool useAscii)
         {
-            var target = GetTarget("abcdef", 5);
+            // bufferSize=5 means that we cannot keep all 6 chars in the buffer together.
+            // Setting ASCII or not may trigger an optimization in the sequence implementation
+            // so we want to test both ways.
+            var target = GetTarget("abcdef", bufferSize: 5, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             var cp = target.Checkpoint();
 
             // Read to the very end of the current buffer then rewind
@@ -179,20 +197,26 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_WindowsNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_WindowsNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\r\na\r\n");
+            var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_WindowsNewlines_NonNormalized()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_WindowsNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false);
+            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
@@ -201,40 +225,52 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_UnixNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_UnixNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\na\n");
+            var target = GetTarget("\na\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_OldMacNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_OldMacNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\ra\r");
+            var target = GetTarget("\ra\r", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_OldMacNewlines_NonNormalized()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetNext_OldMacNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\ra\r", normalizeLineEndings: false);
+            var target = GetTarget("\ra\r", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\r');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_WindowsNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_WindowsNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\r\na\r\n");
+            var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -244,10 +280,13 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_WindowsNewlines_NonNormalized()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_WindowsNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false);
+            var target = GetTarget("\r\na\r\n", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('\r');
             target.GetNext();
             target.Peek().Should().Be('\n');
@@ -261,10 +300,13 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_UnixNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_UnixNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\na\n");
+            var target = GetTarget("\na\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -274,10 +316,13 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_OldMacNewlines()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_OldMacNewlines(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\ra\r");
+            var target = GetTarget("\ra\r", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('\n');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -287,10 +332,13 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_OldMacNewlines_NonNormalized()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Peek_OldMacNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("\ra\r", normalizeLineEndings: false);
+            var target = GetTarget("\ra\r", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.Peek().Should().Be('\r');
             target.GetNext();
             target.Peek().Should().Be('a');
@@ -300,10 +348,13 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Location_Test()
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Location_Test(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("a\nbc");
+            var target = GetTarget("a\nbc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext().Should().Be('a');
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(1);
@@ -321,10 +372,13 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void Location_Rewind()
+        [TestCase(10, true)]
+        [TestCase(10, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Location_Rewind(int bufferSize, bool useAscii)
         {
-            var target = GetTarget("abc\nde");
+            var target = GetTarget("abc\nde", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
             target.GetNext();
             target.GetNext();
             target.GetNext();

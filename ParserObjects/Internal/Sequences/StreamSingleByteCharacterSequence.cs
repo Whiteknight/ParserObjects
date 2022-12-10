@@ -152,7 +152,7 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
             return;
 
         _stats.BufferFills++;
-        _reader.DiscardBufferedData();
+        //_reader.DiscardBufferedData();
         _bufferStartStreamPosition = _reader.BaseStream.Position;
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _index = 0;

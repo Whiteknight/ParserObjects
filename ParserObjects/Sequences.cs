@@ -12,14 +12,28 @@ public static class Sequences
         => new StringCharacterSequence(s, options);
 
     public static ISequence<char> FromCharacterFile(string fileName, Encoding? encoding = null)
-        => new StreamCharacterSequence(new SequenceOptions<char>
+        => FromCharacterFile(new SequenceOptions<char>
         {
             FileName = fileName,
             Encoding = encoding
         });
 
     public static ISequence<char> FromCharacterFile(SequenceOptions<char> options)
-        => new StreamCharacterSequence(options);
+    {
+        options.Validate();
+        var stream = File.OpenRead(options.FileName);
+        if (stream.Length <= options.BufferSize)
+        {
+            using var tempReader = new StreamReader(stream, options.Encoding!);
+            var s = tempReader.ReadToEnd();
+            return new StringCharacterSequence(s, options);
+        }
+
+        if (options.Encoding.IsSingleByte)
+            return new StreamSingleByteCharacterSequence(stream, options);
+
+        return new StreamCharacterSequence(stream, options);
+    }
 
     public static ISequence<byte> FromByteFile(string fileName)
         => new StreamByteSequence(new SequenceOptions<byte>
@@ -34,10 +48,29 @@ public static class Sequences
         => new StreamByteSequence(stream, options);
 
     public static ISequence<char> FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
-        => new StreamCharacterSequence(stream, options);
+    {
+        options.Validate();
+        if (stream.Length <= options.BufferSize)
+        {
+            using var reader = new StreamReader(stream);
+            var s = reader.ReadToEnd();
+            return new StringCharacterSequence(s, options);
+        }
+
+        if (options.Encoding.IsSingleByte)
+            return new StreamSingleByteCharacterSequence(stream, options);
+
+        return new StreamCharacterSequence(stream, options);
+    }
 
     public static ISequence<char> FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
-        => new StreamCharacterSequence(reader, options);
+    {
+        options.Validate();
+        if (reader.CurrentEncoding.IsSingleByte)
+            return new StreamSingleByteCharacterSequence(reader, options);
+
+        return new StreamCharacterSequence(reader, options);
+    }
 
     public static ISequence<T?> FromEnumerable<T>(IEnumerable<T> source, T? endSentinel = default)
         => new ListSequence<T>(source, endSentinel);
