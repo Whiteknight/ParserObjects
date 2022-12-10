@@ -22,15 +22,12 @@ public sealed class EndAnchorState : IState
 
     public string Name => "End Anchor $";
 
-    public INamed SetName(string name) => Clone(name);
+    public INamed SetName(string name) => throw new RegexException("Cannot clone the EndAnchor state");
 
-    public IState Clone() => Clone(Name);
-
-    private IState Clone(string _)
-        => throw new RegexException("Cannot clone the EndAnchor state");
+    public IState Clone() => throw new RegexException("Cannot clone the EndAnchor state");
 
     public override string ToString() => Name;
 
-    public bool Match(RegexContext context, SequenceCheckpoint checkpoint, TestFunc test)
+    public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => context.Input.IsAtEnd;
 }

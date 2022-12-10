@@ -38,11 +38,12 @@ public sealed class RegexParser : IParser<char, string>
         if (!result.Success)
         {
             startCp.Rewind();
-            return state.Fail<char, string>(this, result.ErrorMessage);
+            return state.Fail(this, result.ErrorMessage!);
         }
 
-        return state.Success<char, string>(this, result.Value, result.Consumed, result.Location, new[] {
-            new RegexMatch(result.Value, result.Captures)
+        return state.Success(this, result.Value!, result.Consumed, result.Location, new[]
+        {
+            new RegexMatch(result.Value!, result.Captures!)
         });
     }
 

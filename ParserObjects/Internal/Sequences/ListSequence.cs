@@ -40,12 +40,6 @@ public sealed class ListSequence<T> : ISequence<T>
         _stats = default;
     }
 
-    private class Node
-    {
-        public T? Value { get; set; }
-        public Node? Next { get; set; }
-    }
-
     // Notice that if T == char, GetNext() here doesn't respect normalized line endings, line
     // counting, etc.
 

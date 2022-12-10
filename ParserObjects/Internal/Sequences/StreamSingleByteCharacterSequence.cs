@@ -23,7 +23,7 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
         Assert.ArgumentNotNullOrEmpty(options.FileName, nameof(options.FileName));
         _options = options;
         _options.Validate();
-        if (!_options.Encoding.IsSingleByte)
+        if (!_options.Encoding!.IsSingleByte)
             throw new ArgumentException("This sequence is only for single-byte character encodings");
 
         _stats = default;
@@ -65,7 +65,7 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
         Assert.ArgumentNotNull(stream, nameof(stream));
         _options = options;
         _options.Validate();
-        if (!_options.Encoding.IsSingleByte)
+        if (!_options.Encoding!.IsSingleByte)
             throw new ArgumentException("This sequence is only for single-byte character encodings");
 
         _stats = default;

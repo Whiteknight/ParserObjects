@@ -46,7 +46,7 @@ public static class Select<TInput, TOutput>
 
             var args = new Arguments(multi, Success, Fail);
             var selected = Selector(args);
-            if (selected == null || !selected.Success)
+            if (!selected.Success || !selected.Value.Success)
                 return state.Fail(this, "No alternative selected, or no matching value could be found");
 
             var alt = selected.Value;

@@ -1,6 +1,6 @@
 ﻿namespace ParserObjects;
 
-public interface IPartialVisitor<TState>
+public interface IPartialVisitor<in TState>
 {
     bool TryAccept(IParser parser, TState state);
 }

@@ -35,7 +35,7 @@ public sealed class MatchCharacterState : IState
 
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
 
-    public bool Match(RegexContext context, SequenceCheckpoint checkpoint, TestFunc test)
+    public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {
         if (context.Input.IsAtEnd)
             return false;

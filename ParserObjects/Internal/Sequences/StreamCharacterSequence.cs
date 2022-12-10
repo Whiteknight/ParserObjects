@@ -46,7 +46,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _metadata = default;
         _buffer = new char[_options.BufferSize];
         var stream = File.OpenRead(_options.FileName);
-        _reader = new StreamReader(stream, _options.Encoding);
+        _reader = new StreamReader(stream, _options.Encoding!);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _metadata.BufferStartStreamPosition = 0;
         _stats.BufferFills++;
@@ -75,7 +75,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _stats = default;
         _metadata = default;
         _buffer = new char[_options.BufferSize];
-        _reader = new StreamReader(stream, _options.Encoding);
+        _reader = new StreamReader(stream, _options.Encoding!);
         _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _metadata.BufferStartStreamPosition = 0;
         _stats.BufferFills++;
@@ -97,7 +97,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     {
         unsafe
         {
-            return _options.Encoding.GetByteCount(&c, 1);
+            return _options.Encoding!.GetByteCount(&c, 1);
         }
     }
 
@@ -204,7 +204,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
             var low = GetLowSurrogateOrThrow();
             _surrogateBuffer[0] = c;
             _surrogateBuffer[1] = low;
-            var totalSize = _options.Encoding.GetByteCount(_surrogateBuffer);
+            var totalSize = _options.Encoding!.GetByteCount(_surrogateBuffer);
             _metadata.StreamPosition += totalSize;
             _expectLowSurrogate = true;
             FillBuffer();

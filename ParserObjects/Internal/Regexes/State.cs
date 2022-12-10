@@ -102,6 +102,8 @@ public static class State
             throw new RegexException("Range quantifier must have minimum and maximum values");
 
         var previousState = VerifyPreviousStateIsNotEndAnchor(states);
+        if (previousState == null)
+            throw new RegexException("No previous state to set quantifier on");
 
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Quantifier may only follow an unquantified atom");
@@ -125,7 +127,7 @@ public static class State
             'W' => CreateMatchState(c => char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsSymbol(c), "not word"),
             's' => CreateMatchState(c => char.IsWhiteSpace(c), "whitespace"),
             'S' => CreateMatchState(c => !char.IsWhiteSpace(c), "not whitespace"),
-            (>= '0') and (<= '9') => new MatchBackreferenceState((int)(type - '0')),
+            (>= '0') and (<= '9') => new MatchBackreferenceState(type - '0'),
             _ => new MatchCharacterState(type)
         };
         states.Add(matchState);
@@ -164,7 +166,7 @@ public static class State
     private static IState CreateMatchState(Func<char, bool> predicate, string description)
          => new MatchPredicateState(description, predicate);
 
-    private static IState VerifyPreviousStateIsNotEndAnchor(List<IState> states)
+    private static IState? VerifyPreviousStateIsNotEndAnchor(List<IState> states)
     {
         var previousState = states.LastOrDefault();
         if (previousState is EndAnchorState)

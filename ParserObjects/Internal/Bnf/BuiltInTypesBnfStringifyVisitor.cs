@@ -8,8 +8,16 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Bnf;
 
+#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable RCS1163 // Unused parameter.
+
 public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringifyVisitor>
 {
+    // WARNING: This class uses dynamic dispatch to call different Accept() method variants
+    // depending on the runtime type of the "IParser parser" parameter. Because the dispatch
+    // happens at runtime, these Accept() method variants appear to be unused at compile-time
+    // and the compiler will raise warnings about it. DO NOT DELETE "unused" CODE IN THIS FILE!
+
     public bool TryAccept(IParser parser, BnfStringifyVisitor state)
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
@@ -19,16 +27,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         if (result == null)
             return false;
 
-        var asBool = Convert.ToBoolean(result);
-        return asBool;
+        return Convert.ToBoolean(result);
     }
 
     // fallback method if a better match can't be found. This method should never be called if
     // we properly define a .Accept method variant for every type of parser
-    private bool Accept(IParser p, BnfStringifyVisitor state)
-    {
-        return false;
-    }
+    private bool Accept(IParser? p, BnfStringifyVisitor? state) => false;
 
     // Some regex syntax:
     // (?= ) is "positive lookahead" syntax. We use it to show something doesn't consume input
@@ -41,7 +45,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(AnyParser<TInput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(AnyParser<TInput> _, BnfStringifyVisitor state)
     {
         state.Append('.');
         return true;
@@ -75,13 +79,13 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser _, BnfStringifyVisitor state)
     {
         state.Append("CREATE");
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser _, BnfStringifyVisitor state)
     {
         state.Append("CREATE");
         return true;
@@ -123,13 +127,13 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(EmptyParser<TInput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(EmptyParser<TInput> _, BnfStringifyVisitor state)
     {
         state.Append("()");
         return true;
     }
 
-    private bool Accept<TInput>(EndParser<TInput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(EndParser<TInput> _, BnfStringifyVisitor state)
     {
         state.Append("END");
         return true;
@@ -278,7 +282,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(MatchPredicateParser<TInput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(MatchPredicateParser<TInput> _, BnfStringifyVisitor state)
     {
         state.Append("MATCH");
         return true;
@@ -311,7 +315,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(PeekParser<TInput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(PeekParser<TInput> _, BnfStringifyVisitor state)
     {
         state.Append("(?=.)");
         return true;
@@ -334,21 +338,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    /* Unmerged change from project 'ParserObjects (net5.0)'
-    Before:
-        private bool Accept<TInput, TOutput>(Pratt.ParseContext<TInput, TOutput> p, BnfStringifyVisitor state)
-    After:
-        private bool Accept<TInput, TOutput>(Internal.Pratt.ParseContext<TInput, TOutput> p, BnfStringifyVisitor state)
-    */
-
-    /* Unmerged change from project 'ParserObjects (net6.0)'
-    Before:
-        private bool Accept<TInput, TOutput>(Pratt.ParseContext<TInput, TOutput> p, BnfStringifyVisitor state)
-    After:
-        private bool Accept<TInput, TOutput>(Internal.Pratt.ParseContext<TInput, TOutput> p, BnfStringifyVisitor state)
-    */
-
-    private bool Accept<TInput, TOutput>(ParseContext<TInput, TOutput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(ParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
     {
         state.Append("PRATT RECURSE");
         return true;
@@ -408,7 +398,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> _, BnfStringifyVisitor state)
     {
         state.Append("User Function");
         return true;
@@ -455,3 +445,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 }
+
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore RCS1163 // Unused parameter.

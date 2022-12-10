@@ -127,8 +127,8 @@ public sealed class Item : IEquatable<Item>
     public bool CanImport(Item other)
     {
         return Equals(other)
-            && (other._derivations == null && _derivations == null ||
-                other._derivations != null && other._derivations.Count == 0);
+            && ((other._derivations == null && _derivations == null) ||
+                (other._derivations?.Count == 0));
     }
 
     public bool IsWaitingFor(IProduction production)
@@ -143,13 +143,13 @@ public sealed class Item : IEquatable<Item>
         {
             if (i == Index)
                 sb.Append("* ");
-            sb.Append($"<{Production.Symbols[i].Name}> ");
+            sb.Append('<').Append(Production.Symbols[i].Name).Append("> ");
         }
 
         if (Index == Production.Symbols.Count)
             sb.Append("* ");
 
-        sb.AppendLine($" ({ParentState.Number},{CurrentState.Number})");
+        sb.Append(" (").Append(ParentState.Number).Append(',').Append(CurrentState.Number).AppendLine(")");
         return sb.ToString();
     }
 }

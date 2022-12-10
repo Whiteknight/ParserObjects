@@ -33,11 +33,4 @@ public struct MatchResult
     public string? ErrorMessage { get; }
 
     public IReadOnlyList<(int group, string value)>? Captures { get; }
-
-    //public TResult Match<TResult>(TResult nothing, Func<TValue, TResult> success)
-    //{
-    //    if (!Success)
-    //        return nothing;
-    //    return success(Value!);
-    //}
 }

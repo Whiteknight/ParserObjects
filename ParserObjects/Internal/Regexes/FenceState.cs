@@ -25,12 +25,9 @@ public sealed class FenceState : IState
 
     public string Name => "Fence";
 
-    public INamed SetName(string name) => Clone(name);
+    public INamed SetName(string name) => throw new RegexException("Cannot clone the Fence state");
 
-    public IState Clone() => Clone(Name);
-
-    private IState Clone(string name)
-        => throw new RegexException("Cannot clone the Fence state");
+    public IState Clone() => throw new RegexException("Cannot clone the Fence state");
 
     public override string ToString() => Name;
 

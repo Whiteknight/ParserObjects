@@ -120,12 +120,6 @@ public static class Sequential
     [Serializable]
     private class ParseFailedException : ControlFlowException
     {
-        public ParseFailedException(IResult result)
-        {
-            Location = result.Location;
-            Result = result;
-        }
-
         public ParseFailedException(string message)
             : base(message)
         {

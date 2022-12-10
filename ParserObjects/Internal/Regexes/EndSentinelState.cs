@@ -21,15 +21,12 @@ public sealed class EndSentinelState : IState
 
     public string Name => "End Sentinel";
 
-    public INamed SetName(string name) => Clone(name);
+    public INamed SetName(string name) => throw new RegexException("Cannot clone the EndSentinel state");
 
-    public IState Clone() => Clone(Name);
-
-    private IState Clone(string name)
-        => throw new RegexException("Cannot clone the EndSentinel state");
+    public IState Clone() => throw new RegexException("Cannot clone the EndSentinel state");
 
     public override string ToString() => Name;
 
-    public bool Match(RegexContext context, SequenceCheckpoint checkpoint, TestFunc test)
+    public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => throw new RegexException("Unsupported state type during match");
 }
