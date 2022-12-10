@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using ParserObjects.Internal.Parsers;
+using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;

@@ -29,7 +29,7 @@ public readonly record struct Option<T>(bool Success, T Value)
             return false;
         if (value == null)
             return Value == null;
-        return Value.Equals(value);
+        return Value!.Equals(value);
     }
 
     /// <summary>
@@ -41,8 +41,8 @@ public readonly record struct Option<T>(bool Success, T Value)
     public Option<TResult> Select<TResult>(Func<T, TResult> selector)
     {
         if (!Success)
-            return new Option<TResult>(false, default);
-        return new Option<TResult>(true, selector(Value));
+            return default;
+        return new Option<TResult>(true, selector(Value!));
     }
 
     /// <summary>
@@ -54,14 +54,14 @@ public readonly record struct Option<T>(bool Success, T Value)
     public Option<TResult> SelectMany<TResult>(Func<T, Option<TResult>> selector)
     {
         if (!Success)
-            return new Option<TResult>(false, default);
-        return selector(Value);
+            return default;
+        return selector(Value!);
     }
 
     public override int GetHashCode()
     {
         if (!Success)
             return 0;
-        return Value.GetHashCode();
+        return Value!.GetHashCode();
     }
 }

@@ -283,7 +283,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, Option<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
         => TransformResult<TOutput, Option<TOutput>>(p, args =>
         {
-            var option = args.Result.Success ? new Option<TOutput>(true, args.Result.Value) : new Option<TOutput>(false, default);
+            var option = args.Result.Success ? new Option<TOutput>(true, args.Result.Value) : default;
             return args.Success(option);
         });
 

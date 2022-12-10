@@ -69,6 +69,10 @@ var allLowerCase = LowerCase().ListCharToString();
 
 ParserObjects provides parsers for parsing digits ('0'-'9') and sequences of digits.
 
+```csharp
+using static ParserObjects.Parsers.Digits;
+```
+
 If you want to parse formatted numbers with possible negative values, decimal values and syntactic rules (no leading 0, etc), consider using one of the [Programming Parser Methods](parsers_programming.md) instead.
 
 ### A Single Digit

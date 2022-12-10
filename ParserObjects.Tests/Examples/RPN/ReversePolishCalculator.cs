@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 

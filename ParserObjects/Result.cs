@@ -9,7 +9,7 @@ public readonly record struct ResultData(IReadOnlyList<object>? Data)
     public Option<T> TryGetData<T>()
     {
         if (Data == null)
-            return new Option<T>(false, default);
+            return default;
 
         foreach (var item in Data)
         {
@@ -17,7 +17,7 @@ public readonly record struct ResultData(IReadOnlyList<object>? Data)
                 return new Option<T>(true, typed);
         }
 
-        return new Option<T>(false, default);
+        return default;
     }
 }
 

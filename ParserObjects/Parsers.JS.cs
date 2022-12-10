@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
