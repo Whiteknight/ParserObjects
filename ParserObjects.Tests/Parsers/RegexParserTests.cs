@@ -42,13 +42,19 @@ namespace ParserObjects.Tests.Parsers
             var parser = Regex(pattern);
 
             // First test with a string sequence
-            var stringSequence = FromString(input);
+            var stringSequence = FromString(input, new SequenceOptions<char>
+            {
+                MaintainLineEndings = true
+            });
             RegexTest(expectedMatch, parser, stringSequence);
 
             // Second test with a stream sequence, just to show that they are equivalent
             var bytes = Encoding.UTF8.GetBytes(input);
             using var memoryStream = new MemoryStream(bytes);
-            var streamSequence = FromCharacterStream(memoryStream);
+            var streamSequence = FromCharacterStream(memoryStream, new SequenceOptions<char>
+            {
+                MaintainLineEndings = true
+            });
             RegexTest(expectedMatch, parser, streamSequence);
         }
 
@@ -217,11 +223,17 @@ namespace ParserObjects.Tests.Parsers
         [TestCase(@"[0-9]+", "1234567890", "1234567890")]
         [TestCase(@"[a-z]+", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz")]
         [TestCase(@"[A-Z]+", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
-        [TestCase("[\x01-\x31]+", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x10", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x10")]
-        [TestCase("[\x01-\x31]+", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x20", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x20")]
-        [TestCase("[\x01-\x31]+", "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x30", "\x21\x22\x23\x24\x25\x26\x27\x28\x29\x30")]
         public void Regex_CharacterClass(string pattern, string input, string expectedMatch)
            => RegexTest(pattern, input, expectedMatch);
+
+        [Test]
+        public void Regex_CharacterClass_NonPrinting()
+        {
+            // I put these here, instead of in the test above, because the test runner has a
+            // real problem with these non-printing characters in the test name
+            RegexTest("[\x01-\x1F]+", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10", "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10");
+            RegexTest("[\x01-\x1F]+", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F", "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F");
+        }
 
         [TestCase("[c-a]")]
         [TestCase("[a-]")]

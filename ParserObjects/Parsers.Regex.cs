@@ -17,7 +17,11 @@ public static partial class Parsers
     public static IParser<char, string> Regex(string pattern, int maxItems = 0)
     {
         var regexParser = RegexPattern();
-        var result = regexParser.Parse(pattern);
+        var result = regexParser.Parse(pattern, new SequenceOptions<char>
+        {
+            FileName = pattern,
+            MaintainLineEndings = true
+        });
         if (!result.Success)
             throw new RegexException("Could not parse pattern " + pattern);
 
