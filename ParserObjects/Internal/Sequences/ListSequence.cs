@@ -10,15 +10,15 @@ namespace ParserObjects.Internal.Sequences;
 /// operations.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class ListSequence<T> : ISequence<T>
+public sealed class ListSequence<T> : ISequence<T?>
 {
     private readonly IReadOnlyList<T> _list;
-    private readonly T _endSentinelValue;
+    private readonly T? _endSentinelValue;
 
     private WorkingSequenceStatistics _stats;
     private int _index;
 
-    public ListSequence(IEnumerable<T> enumerable, T endSentinel)
+    public ListSequence(IEnumerable<T> enumerable, T? endSentinel)
     {
         Assert.ArgumentNotNull(enumerable, nameof(enumerable));
         _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToArray();
@@ -29,7 +29,7 @@ public sealed class ListSequence<T> : ISequence<T>
         _stats = default;
     }
 
-    public ListSequence(IReadOnlyList<T> list, T endSentinel)
+    public ListSequence(IReadOnlyList<T> list, T? endSentinel)
     {
         Assert.ArgumentNotNull(list, nameof(list));
         _list = list;
@@ -43,7 +43,7 @@ public sealed class ListSequence<T> : ISequence<T>
     // Notice that if T == char, GetNext() here doesn't respect normalized line endings, line
     // counting, etc.
 
-    public T GetNext()
+    public T? GetNext()
     {
         if (_index >= _list.Count)
             return _endSentinelValue;
@@ -55,7 +55,7 @@ public sealed class ListSequence<T> : ISequence<T>
         return value;
     }
 
-    public T Peek()
+    public T? Peek()
     {
         if (_index >= _list.Count)
             return _endSentinelValue;
