@@ -36,21 +36,7 @@ public static class StringGrammar
                     continue;
                 }
 
-                sb.Append('\\');
-                c = s.Input.GetNext();
-                if (c >= '0' && c <= '7')
-                {
-                    ParseOctalSequence(s, sb, c);
-                    continue;
-                }
-
-                if (Constants.EscapableStringChars.ContainsKey(c))
-                {
-                    sb.Append(c);
-                    continue;
-                }
-
-                ParseHexSequence(s, sb, c);
+                ParseEscapeSequence(s, sb, false);
             }
 
             s.Fail("No end quote");
@@ -71,57 +57,66 @@ public static class StringGrammar
 
             var sb = new StringBuilder();
             sb.Append(startQuote);
-            void ExpectEndQuote()
-            {
-                var endQuote = s.Input.GetNext();
-                if (endQuote != '\'')
-                    s.Fail($"Expected close quote but found '{endQuote}'");
-                sb.Append(endQuote);
-            }
-
-            if (s.Input.IsAtEnd)
-                s.Fail("Unexpected end of input");
-
-            var c = s.Input.GetNext();
-            if (c == '\'')
-                s.Fail("Unexpected close quote");
+            char c = CheckForUnexpectedCharEnd(s);
 
             if (c != '\\')
             {
                 sb.Append(c);
-                ExpectEndQuote();
+                ExpectEndQuote(s, sb);
                 return sb.ToString();
             }
 
-            sb.Append('\\');
-            c = s.Input.GetNext();
-            if (c >= '0' && c <= '3')
-            {
-                ParseOctalSequence(s, sb, c);
-                ExpectEndQuote();
-                return sb.ToString();
-            }
-
-            if (c == '\'')
-            {
-                sb.Append(c);
-                ExpectEndQuote();
-                return sb.ToString();
-            }
-
-            if (Constants.EscapableStringChars.ContainsKey(c))
-            {
-                sb.Append(c);
-                ExpectEndQuote();
-                return sb.ToString();
-            }
-
-            ParseHexSequence(s, sb, c);
-            ExpectEndQuote();
+            ParseEscapeSequence(s, sb, true);
+            ExpectEndQuote(s, sb);
             return sb.ToString();
         });
 
         return parser.Named("C-Style Character");
+    }
+
+    private static char CheckForUnexpectedCharEnd(Sequential.State<char> s)
+    {
+        if (s.Input.IsAtEnd)
+            s.Fail("Unexpected end of input");
+
+        var c = s.Input.GetNext();
+        if (c == '\'')
+            s.Fail("Unexpected close quote");
+        return c;
+    }
+
+    private static void ExpectEndQuote(Sequential.State<char> s, StringBuilder sb)
+    {
+        var endQuote = s.Input.GetNext();
+        if (endQuote != '\'')
+            s.Fail($"Expected close quote but found '{endQuote}'");
+        sb.Append(endQuote);
+    }
+
+    private static void ParseEscapeSequence(Sequential.State<char> s, StringBuilder sb, bool isChar)
+    {
+        sb.Append('\\');
+        var c = s.Input.GetNext();
+
+        if (isChar && c == '\'')
+        {
+            sb.Append(c);
+            return;
+        }
+
+        if (c >= '0' && c <= '7')
+        {
+            ParseOctalSequence(s, sb, c);
+            return;
+        }
+
+        if (Constants.EscapableStringChars.ContainsKey(c))
+        {
+            sb.Append(c);
+            return;
+        }
+
+        ParseHexSequence(s, sb, c);
     }
 
     private static void ParseHexSequence(Sequential.State<char> s, StringBuilder sb, char typeChar)

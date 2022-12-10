@@ -46,20 +46,7 @@ public static class StrippedStringGrammar
     {
         var parser = Sequential(s =>
         {
-            void ExpectEndQuote()
-            {
-                var endQuote = s.Input.GetNext();
-                if (endQuote != '\'')
-                    s.Fail($"Expected close quote but found '{endQuote}'");
-            }
-
-            var startQuote = s.Input.Peek();
-            if (startQuote != '\'')
-                s.Fail($"Expected start quote but found '{startQuote}'");
-
-            s.Input.GetNext();
-            if (s.Input.IsAtEnd)
-                s.Fail("Unexpected end of input");
+            CheckForCharPreamble(s);
 
             var c = s.Input.GetNext();
             if (c == '\'')
@@ -67,36 +54,49 @@ public static class StrippedStringGrammar
 
             if (c != '\\')
             {
-                ExpectEndQuote();
+                ExpectEndQuote(s);
                 return c;
             }
 
-            c = s.Input.GetNext();
-            if (c >= '0' && c <= '7')
-            {
-                var value = ParseStrippedOctalChar(s, c);
-                ExpectEndQuote();
-                return value;
-            }
-
-            if (c == '\'')
-            {
-                ExpectEndQuote();
-                return c;
-            }
-
-            if (Constants.EscapableStringChars.ContainsKey(c))
-            {
-                ExpectEndQuote();
-                return Constants.EscapableStringChars[c][0];
-            }
-
-            var hex = ParseStrippedHexChar(s, c);
-            ExpectEndQuote();
-            return hex;
+            var value = ParseStrippedCharacterEscapeSequence(s);
+            ExpectEndQuote(s);
+            return value;
         });
 
         return parser.Named("C-Style Stripped Character");
+    }
+
+    private static void CheckForCharPreamble(Sequential.State<char> s)
+    {
+        var startQuote = s.Input.Peek();
+        if (startQuote != '\'')
+            s.Fail($"Expected start quote but found '{startQuote}'");
+
+        s.Input.GetNext();
+        if (s.Input.IsAtEnd)
+            s.Fail("Unexpected end of input");
+    }
+
+    private static void ExpectEndQuote(Sequential.State<char> s)
+    {
+        var endQuote = s.Input.GetNext();
+        if (endQuote != '\'')
+            s.Fail($"Expected close quote but found '{endQuote}'");
+    }
+
+    private static char ParseStrippedCharacterEscapeSequence(Sequential.State<char> s)
+    {
+        var c = s.Input.GetNext();
+        if (c >= '0' && c <= '7')
+            return ParseStrippedOctalChar(s, c);
+
+        if (c == '\'')
+            return c;
+
+        if (Constants.EscapableStringChars.ContainsKey(c))
+            return Constants.EscapableStringChars[c][0];
+
+        return ParseStrippedHexChar(s, c);
     }
 
     private static void ParseStrippedStringEscapeSequence(Sequential.State<char> s, StringBuilder sb, char c)
