@@ -101,6 +101,19 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void Checkpoint_SameLocation(int bufferSize, bool useAscii)
+        {
+            var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            target.GetNext().Should().Be('a');
+            var cp = target.Checkpoint();
+            cp.Rewind();
+            target.GetNext().Should().Be('b');
+        }
+
         [TestCase(5)]
         [TestCase(2)]
         public void Checkpoint_MultiByteChars(int bufferSize)
@@ -393,6 +406,62 @@ namespace ParserObjects.Tests.Sequences
             checkpoint.Rewind();
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(3);
+        }
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetBetween_Test(int bufferSize, bool useAscii)
+        {
+            var target = GetTarget("abcdef", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            var cp3 = target.Checkpoint();
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+            var cp4 = target.Checkpoint();
+            target.GetNext().Should().Be('\0');
+
+            new string(target.GetBetween(cp1, cp2)).Should().Be("ab");
+            new string(target.GetBetween(cp2, cp3)).Should().Be("cd");
+            new string(target.GetBetween(cp3, cp4)).Should().Be("ef");
+            new string(target.GetBetween(cp1, cp3)).Should().Be("abcd");
+            new string(target.GetBetween(cp2, cp4)).Should().Be("cdef");
+            new string(target.GetBetween(cp1, cp4)).Should().Be("abcdef");
+        }
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, true)]
+        public void GetBetween_OutOfOrder(int bufferSize, bool useAscii)
+        {
+            // If we .GetBetween() checkpoints which are out-of-order, it should just return us
+            // an empty list
+            var target = GetTarget("abcdef", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+            var cp3 = target.Checkpoint();
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+            var cp4 = target.Checkpoint();
+            target.GetNext().Should().Be('\0');
+
+            new string(target.GetBetween(cp2, cp1)).Should().Be("");
+            new string(target.GetBetween(cp3, cp2)).Should().Be("");
+            new string(target.GetBetween(cp4, cp3)).Should().Be("");
+            new string(target.GetBetween(cp3, cp1)).Should().Be("");
+            new string(target.GetBetween(cp4, cp2)).Should().Be("");
+            new string(target.GetBetween(cp4, cp1)).Should().Be("");
         }
     }
 }

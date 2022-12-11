@@ -1,18 +1,20 @@
 ﻿using System.IO;
+using System.Text;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences;
 
 public class FromCharacterFileTests
 {
-    private void Test(string content, Action<ISequence<char>> act)
+    private void Test(string content, SequenceOptions<char> options, Action<ISequence<char>> act)
     {
         var fileName = Guid.NewGuid().ToString() + ".txt";
         ISequence<char> target = null;
         try
         {
             File.WriteAllText(fileName, content);
-            target = FromCharacterFile(fileName);
+            options.FileName = fileName;
+            target = FromCharacterFile(options);
             act(target);
         }
         finally
@@ -23,10 +25,19 @@ public class FromCharacterFileTests
         }
     }
 
-    [Test]
-    public void GetNext_Test()
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void GetNext_Test(int bufferSize, bool isAscii)
     {
-        Test("test", target =>
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("test", options, target =>
         {
             target.GetNext().Should().Be('t');
             target.GetNext().Should().Be('e');
@@ -36,10 +47,19 @@ public class FromCharacterFileTests
         });
     }
 
-    [Test]
-    public void Peek_Test()
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void Peek_Test(int bufferSize, bool isAscii)
     {
-        Test("test", target =>
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("test", options, target =>
         {
             target.Peek().Should().Be('t');
             target.Peek().Should().Be('t');
@@ -47,10 +67,19 @@ public class FromCharacterFileTests
         });
     }
 
-    [Test]
-    public void CurrentLocation_Test()
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void CurrentLocation_Test(int bufferSize, bool isAscii)
     {
-        Test("te\nst", target =>
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("te\nst", options, target =>
         {
             target.GetNext().Should().Be('t');
             target.CurrentLocation.Column.Should().Be(1);
@@ -84,10 +113,19 @@ public class FromCharacterFileTests
         });
     }
 
-    [Test]
-    public void Rewind_Test()
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void Rewind_Test(int bufferSize, bool isAscii)
     {
-        Test("test", target =>
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("test", options, target =>
         {
             target.GetNext().Should().Be('t');
             target.GetNext().Should().Be('e');

@@ -151,7 +151,7 @@ public static class State
         VerifyPreviousStateIsNotEndAnchor(states);
 
         // Minor optimization. Since we're not capturing, a cloister of 1 is the same as the inner
-        // state with no cloister
+        // state with no cloister. /(a)/ is the same as /a/.
         if (group.Count == 1)
         {
             states.Add(group[0]);

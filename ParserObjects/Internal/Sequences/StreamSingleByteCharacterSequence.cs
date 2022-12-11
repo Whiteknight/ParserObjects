@@ -6,9 +6,10 @@ namespace ParserObjects.Internal.Sequences;
 
 public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDisposable
 {
-    private readonly StreamReader _reader;
+    private readonly byte[] _byteBuffer;
     private readonly char[] _buffer;
     private readonly SequenceOptions<char> _options;
+    private readonly Stream _stream;
 
     private WorkingSequenceStatistics _stats;
     private int _totalCharsInBuffer;
@@ -31,31 +32,10 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
         _column = 0;
         _index = 0;
         _consumed = 0;
+        _byteBuffer = new byte[_options.BufferSize];
         _buffer = new char[_options.BufferSize];
-        var stream = File.OpenRead(_options.FileName);
-        _reader = new StreamReader(stream, _options.Encoding);
-        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _bufferStartStreamPosition = 0;
-        _stats.BufferFills++;
-    }
-
-    public StreamSingleByteCharacterSequence(StreamReader reader, SequenceOptions<char> options)
-    {
-        Assert.ArgumentNotNull(reader, nameof(reader));
-        _options = options;
-        _options.Encoding = reader.CurrentEncoding;
-        _options.Validate();
-        if (!_options.Encoding.IsSingleByte)
-            throw new ArgumentException("This sequence is only for single-byte character encodings");
-
-        _stats = default;
-        _line = 0;
-        _column = 0;
-        _index = 0;
-        _consumed = 0;
-        _buffer = new char[_options.BufferSize];
-        _reader = reader;
-        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _stream = File.OpenRead(_options.FileName);
+        _totalCharsInBuffer = ReadStream();
         _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
@@ -73,9 +53,10 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
         _column = 0;
         _index = 0;
         _consumed = 0;
+        _byteBuffer = new byte[_options.BufferSize];
         _buffer = new char[_options.BufferSize];
-        _reader = new StreamReader(stream, _options.Encoding);
-        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _stream = stream;
+        _totalCharsInBuffer = ReadStream();
         _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
@@ -124,7 +105,7 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
 
     public void Dispose()
     {
-        _reader.Dispose();
+        _stream.Dispose();
     }
 
     private char GetNextCharRaw(bool advance)
@@ -152,9 +133,17 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
             return;
 
         _stats.BufferFills++;
-        _bufferStartStreamPosition = _reader.BaseStream.Position;
-        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _bufferStartStreamPosition = _stream.Position;
+        ReadStream();
         _index = 0;
+    }
+
+    private int ReadStream()
+    {
+        _totalCharsInBuffer = _stream.Read(_byteBuffer, 0, _options.BufferSize);
+        if (_totalCharsInBuffer > 0)
+            _options.Encoding.GetChars(_byteBuffer, 0, _totalCharsInBuffer, _buffer, 0);
+        return _totalCharsInBuffer;
     }
 
     public SequenceCheckpoint Checkpoint()
@@ -197,9 +186,8 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
 
         // Seek the stream to the desired start position and fill the buffer
         _bufferStartStreamPosition = bestStartPos;
-        _reader.BaseStream.Seek(bestStartPos, SeekOrigin.Begin);
-        _reader.DiscardBufferedData();
-        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _stream.Seek(bestStartPos, SeekOrigin.Begin);
+        ReadStream();
         _consumed = checkpoint.Consumed;
 
         _index = (int)(streamPosition - bestStartPos);

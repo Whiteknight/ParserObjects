@@ -106,13 +106,7 @@ public static class Sequences
     /// <param name="options"></param>
     /// <returns></returns>
     public static ISequence<char> FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
-    {
-        options.Validate();
-        if (reader.CurrentEncoding.IsSingleByte)
-            return new StreamSingleByteCharacterSequence(reader, options);
-
-        return new StreamCharacterSequence(reader, options);
-    }
+        => new StreamCharacterSequence(reader, options);
 
     /// <summary>
     /// Read the enumerable to an IReadOnlyList and wrap the list in a sequence.
