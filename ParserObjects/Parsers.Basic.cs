@@ -230,9 +230,6 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string description = "")
         => new Function<TInput, TOutput>.Parser(func, description ?? "", Array.Empty<IParser>());
 
-    public static IParser<TInput> Function(Func<IParseState<TInput>, IResult> func)
-        => new Function<TInput>.Parser(func, null, null);
-
     /// <summary>
     /// Wraps the parser to guarantee that it consumes no input.
     /// </summary>
@@ -264,10 +261,7 @@ public static partial class Parsers<TInput>
             var startCheckpoint = state.Input.Checkpoint();
             var result = p.Parse(state);
 
-            if (result.Consumed == 0)
-                return result;
-
-            if (!result.Success)
+            if (!result.Success || result.Consumed == 0)
                 return result;
 
             startCheckpoint.Rewind();
