@@ -29,7 +29,7 @@ public static class Sequences
             return new StringCharacterSequence(s, options);
         }
 
-        if (options.Encoding.IsSingleByte)
+        if (options.Encoding!.IsSingleByte)
             return new StreamSingleByteCharacterSequence(stream, options);
 
         return new StreamCharacterSequence(stream, options);
@@ -57,7 +57,7 @@ public static class Sequences
             return new StringCharacterSequence(s, options);
         }
 
-        if (options.Encoding.IsSingleByte)
+        if (options.Encoding!.IsSingleByte)
             return new StreamSingleByteCharacterSequence(stream, options);
 
         return new StreamCharacterSequence(stream, options);
