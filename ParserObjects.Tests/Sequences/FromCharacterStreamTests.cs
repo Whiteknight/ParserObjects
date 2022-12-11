@@ -109,7 +109,7 @@ namespace ParserObjects.Tests.Sequences
             // Poop emoji from the astral plane (4 bytes), registered (r) (3 bytes) and then b
             // which is a single byte again.
             // String is approximately similar to "ac-Prb" if you squint real hard, with the buffer
-            // break happening between the (r) and b.
+            // break happening between the (c) and -, or (r) and b.
             var target = GetTarget("a\u00A9\u2014\U0001F4A9\u00AEb", bufferSize: bufferSize, encoding: Encoding.UTF8);
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
