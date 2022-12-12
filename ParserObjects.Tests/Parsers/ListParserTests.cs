@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
@@ -136,6 +137,20 @@ namespace ParserObjects.Tests.Parsers
             list[0].Should().NotBeNull();
             list[1].Should().NotBeNull();
             list[2].Should().NotBeNull();
+        }
+
+        [Test]
+        public void Parse_Fail_DoesNotBacktrack()
+        {
+            // Test to show that List() is greedy and does not backtrack. This helps to contrast
+            // it against NonGreedyList()
+            var target = Rule(
+                List(Match('a')),
+                CharacterString("ab"),
+                (l, r) => $"{l}{r}"
+            );
+            var result = target.Parse("aaab");
+            result.Success.Should().BeFalse();
         }
 
         [Test]

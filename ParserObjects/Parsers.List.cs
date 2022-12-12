@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Parsers;
 
@@ -28,6 +29,9 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
         => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
 
+    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
+        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, getContinuation, minimum, maximum);
+
     /// <summary>
     /// Parse a list of items separated by a separator pattern.
     /// </summary>
@@ -52,6 +56,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, int minimum = 0, int? maximum = null)
     {
+        // TODO: I want to merge this into LimitedListParser. It would be more efficient to do it there.
         var atLeastOneItemList = Rule(
             p,
             List(
