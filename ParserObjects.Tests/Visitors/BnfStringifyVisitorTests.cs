@@ -188,7 +188,7 @@ namespace ParserObjects.Tests.Visitors
         [Test]
         public void ToBnf_LimitedList_Min()
         {
-            var parser = Any().List(minimum: 5).Named("parser");
+            var parser = Any().List(5).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := .{5,}");
         }

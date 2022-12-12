@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
@@ -16,7 +15,10 @@ public static partial class Parsers<TInput>
     /// false, an empty list returns success.</param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
-        => new LimitedListParser<TInput, TOutput>(p, atLeastOne ? 1 : 0, null);
+        => List(p, Empty(), atLeastOne);
+
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
+        => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
     /// <summary>
     /// Parse a list of items with defined minimum and maximum quantities.
@@ -26,27 +28,11 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
-        => new LimitedListParser<TInput, TOutput>(p, minimum, maximum);
-
-    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
-        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, getContinuation, minimum, maximum);
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum, int? maximum = null)
+        => new LimitedListParser<TInput, TOutput>(p, Empty(), minimum, maximum);
 
     /// <summary>
-    /// Parse a list of items separated by a separator pattern.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="separator"></param>
-    /// <param name="atLeastOne">True if the list must contain at least one element or failure. False
-    /// if an empty list can be returned.</param>
-    /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
-        => SeparatedList(p, separator, atLeastOne ? 1 : 0, null);
-
-    /// <summary>
-    /// Parse a list of items separated by a separator pattern, with minimum and
-    /// maximum item counts.
+    /// Parse a list of items with defined minimum and maximum quantities.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -54,32 +40,12 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> SeparatedList<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, int minimum = 0, int? maximum = null)
-    {
-        // TODO: I want to merge this into LimitedListParser. It would be more efficient to do it there.
-        var atLeastOneItemList = Rule(
-            p,
-            List(
-                Combine(
-                    separator,
-                    p
-                ).Transform(r => (TOutput)r[1]),
-                minimum - 1,
-                maximum - 1
-            ),
-            (first, rest) => (IReadOnlyList<TOutput>)new[] { first }.Concat(rest).ToList()
-        );
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
+        => new LimitedListParser<TInput, TOutput>(p, separator ?? Empty(), minimum, maximum);
 
-        if (minimum >= 1)
-        {
-            // <p> (<separator> <p>)*
-            return atLeastOneItemList;
-        }
+    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
+        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
 
-        // (<p> (<separator> <p>)*) | empty
-        return First(
-            atLeastOneItemList,
-            Produce<IReadOnlyList<TOutput>>(() => new List<TOutput>())
-        );
-    }
+    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
+        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator ?? Empty(), getContinuation, minimum, maximum);
 }

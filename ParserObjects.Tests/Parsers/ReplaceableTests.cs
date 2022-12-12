@@ -107,7 +107,7 @@ namespace ParserObjects.Tests.Parsers
             {
                 var parser = Replaceable(End()).Named("parser");
                 var result = parser.ToBnf();
-                result.Should().Contain("parser := .");
+                result.Should().Contain("parser := END");
             }
         }
 

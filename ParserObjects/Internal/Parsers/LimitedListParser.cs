@@ -12,8 +12,9 @@ namespace ParserObjects.Internal.Parsers;
 public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
 {
     private readonly IParser<TInput, TOutput> _parser;
+    private readonly IParser<TInput> _separator;
 
-    public LimitedListParser(IParser<TInput, TOutput> parser, int minimum, int? maximum, string name = "")
+    public LimitedListParser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
 
@@ -23,6 +24,7 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
             Maximum = Minimum;
 
         _parser = parser;
+        _separator = separator;
         Name = name;
     }
 
@@ -36,20 +38,38 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
         Assert.ArgumentNotNull(state, nameof(state));
 
         var startCheckpoint = state.Input.Checkpoint();
+        var currentFailureCheckpoint = startCheckpoint;
         var items = new List<TOutput>();
 
         int consumed = 0;
+        int separatorConsumed = 0;
         while (Maximum == null || items.Count < Maximum)
         {
             var result = _parser.Parse(state);
             if (!result.Success)
+            {
+                currentFailureCheckpoint.Rewind();
                 break;
-            consumed += result.Consumed;
+            }
+
+            consumed += result.Consumed + separatorConsumed;
             items.Add(result.Value);
             if (items.Count >= Minimum && result.Consumed == 0)
                 break;
+
+            // If we Succeed the separator but fail the subsequent item, we need to roll back to
+            // the point directly before the separator. Notice that this probably doesn't imply
+            // the failure of the entire List parse
+            currentFailureCheckpoint = state.Input.Checkpoint();
+            var separatorResult = _separator.Parse(state);
+            if (!separatorResult.Success)
+                break;
+
+            separatorConsumed = separatorResult.Consumed;
         }
 
+        // If we don't have at least Minimum items, we need to roll all the way back to the
+        // beginning of the attempt
         if (Minimum > 0 && items.Count < Minimum)
         {
             startCheckpoint.Rewind();
@@ -61,9 +81,10 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public IEnumerable<IParser> GetChildren() => new[] { _parser };
+    // TODO: Need to update BNF output to account for separator
+    public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 
     public override string ToString() => DefaultStringifier.ToString("LimitedList", Name, Id);
 
-    public INamed SetName(string name) => new LimitedListParser<TInput, TOutput>(_parser, Minimum, Maximum, name);
+    public INamed SetName(string name) => new LimitedListParser<TInput, TOutput>(_parser, _separator, Minimum, Maximum, name);
 }

@@ -403,7 +403,7 @@ namespace ParserObjects.Tests.Parsers
                 .Add(Match('('), p => p
                     .BindLeft(1, (ctx, l, op) =>
                     {
-                        var args = ctx.Parse(SeparatedList(ctx, Match(',')));
+                        var args = ctx.Parse(List(ctx, Match(',')));
                         ctx.Expect(Match(')'));
                         return $"args[0]={args[0]},args[1]={args[1]},method={l}";
                     })

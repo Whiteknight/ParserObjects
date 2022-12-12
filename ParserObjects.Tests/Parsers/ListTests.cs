@@ -1,11 +1,14 @@
 ﻿using System.Linq;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
-namespace ParserObjects.Tests.Parsers
+namespace ParserObjects.Tests.Parsers;
+
+public static class ListTests
 {
-    public class ListParserTests
+    public class UnseparatedMethod
     {
         [Test]
         public void Parse_NotAtLeastOne()
@@ -127,7 +130,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Empty_Minimum()
         {
-            var parser = List(Produce(() => new object()), minimum: 3);
+            var parser = List(Produce(() => new object()), 3);
             var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -162,5 +165,163 @@ namespace ParserObjects.Tests.Parsers
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(anyParser);
         }
+    }
+
+    public class UnseparatedExtension
+    {
+    }
+
+    public class SeparatedMethod
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: false
+            );
+            var input = FromString("1,2,3,4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+            result.Consumed.Should().Be(7);
+        }
+
+        [Test]
+        public void Parse_TrailingSeparator()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: false
+            );
+            var input = FromString("1,2,3,4,");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+            result.Consumed.Should().Be(7);
+        }
+
+        [Test]
+        public void ListSeparatedBy_Parse_Test()
+        {
+            var parser = Integer()
+                .ListSeparatedBy(
+                    Match(","),
+                    atLeastOne: false
+                );
+            var input = FromString("1,2,3,4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+        }
+
+        [Test]
+        public void Parse_Empty()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: false
+            );
+            var input = FromString("");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count().Should().Be(0);
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_AtLeastOne_HasOne()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: true
+            );
+            var input = FromString("1");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_AtLeastOne_Multiple()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: true
+            );
+            var input = FromString("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+        }
+
+        [Test]
+        public void Parse_AtLeastOne_Empty()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                atLeastOne: true
+            );
+            var input = FromString("");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Minimum_Fail()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                4
+            );
+            var input = FromString("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Maximum()
+        {
+            var parser = List(
+                Integer(),
+                Match(","),
+                0,
+                2
+            );
+            var input = FromString("1,2,3");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value.Count.Should().Be(2);
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+        }
+    }
+
+    public class SeparatedExtension
+    {
     }
 }

@@ -123,8 +123,23 @@ public static class ParserCombinatorExtensions
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum = 0, int? maximum = null)
-        => Parsers<TInput>.List(p, minimum, maximum);
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum, int? maximum = null)
+        => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
+
+    /// <summary>
+    /// Returns a list of results from the given parser, with limits. Continues to
+    /// parse until the parser returns failure or the maximum number of results is
+    /// reached.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="separator"></param>
+    /// <param name="minimum"></param>
+    /// <param name="maximum"></param>
+    /// <returns></returns>
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
+        => Parsers<TInput>.List(p, separator, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses characters, parse a list of characters and return the sequence as a
@@ -146,7 +161,9 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<char, string> ListCharToString(this IParser<char, char> p, int minimum = 0, int? maximum = null)
-        => p.List(minimum, maximum).Transform(c => new string(c.ToArray()));
+        => List(p, Parsers<char>.Empty(), minimum, maximum).Transform(c => new string(c.ToArray()));
+
+    // TODO: Merge .ListSeparatedBy() variants into .List()
 
     /// <summary>
     /// Returns a list of results from the given parser separated by a separator pattern. Continues until
@@ -160,7 +177,7 @@ public static class ParserCombinatorExtensions
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
-        => Parsers<TInput>.SeparatedList(p, separator, atLeastOne);
+        => Parsers<TInput>.List(p, separator, atLeastOne);
 
     /// <summary>
     /// Returns a list of results from the given parser separated by a separator
@@ -176,7 +193,7 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
-        => Parsers<TInput>.SeparatedList(p, separator, minimum, maximum);
+        => Parsers<TInput>.List(p, separator, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
