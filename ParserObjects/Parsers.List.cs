@@ -7,7 +7,8 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Parse a list of items.
+    /// Parse a list of items. Specify whether at least one item must match, or if the list may be
+    /// empty.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -17,6 +18,14 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
         => List(p, Empty(), atLeastOne);
 
+    /// <summary>
+    /// Parse a list of items with a separator between them.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="separator"></param>
+    /// <param name="atLeastOne"></param>
+    /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
         => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
@@ -29,7 +38,7 @@ public static partial class Parsers<TInput>
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum, int? maximum = null)
-        => new ListParser<TInput, TOutput>(p, Empty(), minimum, maximum);
+        => List(p, Empty(), minimum, maximum);
 
     /// <summary>
     /// Parse a list of items with defined minimum and maximum quantities.
@@ -43,9 +52,33 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
         => new ListParser<TInput, TOutput>(p, separator ?? Empty(), minimum, maximum);
 
+    /// <summary>
+    /// Parse a list of items non-greedily. Will only attempt to match another item if the
+    /// continuation parser does not match.
+    /// </summary>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="item"></param>
+    /// <param name="separator"></param>
+    /// <param name="getContinuation"></param>
+    /// <param name="minimum"></param>
+    /// <param name="maximum"></param>
+    /// <returns></returns>
     public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
         => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
 
+    /// <summary>
+    /// Parse a list of items non-greedily. Will only attempt to match another item if the
+    /// continuation parser does not match.
+    /// </summary>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="item"></param>
+    /// <param name="getContinuation"></param>
+    /// <param name="separator"></param>
+    /// <param name="minimum"></param>
+    /// <param name="maximum"></param>
+    /// <returns></returns>
     public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
         => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator ?? Empty(), getContinuation, minimum, maximum);
 }

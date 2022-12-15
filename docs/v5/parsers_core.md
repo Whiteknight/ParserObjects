@@ -215,17 +215,22 @@ The Function parser is very similar to the `Sequential` parser. Both use a callb
 
 ### List Parser
 
-The `List` parser attempts to parse the inner parser repeatedly until it fails, and returns an enumeration of the results. The List parser takes optional `minimum` and `maximum` values, to control the number of items matched. If you specify a minimum, the list will fail unless that number of items has been matched. If you do not specify a minimum, the list may return success if no items are matched, and return an empty list as a result. If a maximum number is specified, the list will continue matching only until that maximum number is reached then it will stop. 
+The `List` parser attempts to parse the **item** parser repeatedly until it fails, and returns an enumeration of the results. Optionally the items may have a **separator** between them. The List parser takes optional `minimum` and `maximum` values, to control the number of items matched. If you specify a minimum, the list will fail unless at least that number of items has been matched. If you do not specify a minimum, the list may return success if no items are matched, and return an empty list as a result. If a maximum number is specified, the list will continue matching only until that maximum number is reached then it will stop even if more matches are possible.
 
 ```csharp
 var parser = List(innerParser);
 var parser = List(innerParser, 3, 5);
+var parser = List(innerParser, separatorParser);
+var parser = List(innerParser, separatorParser, 3, 5);
 
 // same as List(innerParser, minimum: 1);
 var parser = List(innerParser, true);
+var parser = List(innerParser, separatorParser, true);
 
 var parser = innerParser.List();
 var parser = innerParser.List(3, 5);
+var parser = innerParser.List(separatorParser);
+var parser = innerParser.List(separatorParser, 3, 5);
 
 // Same as innerParser.List(minimum: 1);
 var parser = innerParser.List(true);
@@ -249,6 +254,23 @@ The `None` parser evaluates an inner parser and the rewinds the input sequence t
 var parser = None(Any());
 var parser = Any().None();
 ```
+
+### NonGreedyList Parser
+
+The `NonGreedyList` parser is similar to `List()` except it attempts to match the fewest number of items possible. It takes a continuation parser which will be invoked to continue the parse:
+
+```csharp
+var parser = NonGreedyList(
+    itemParser,
+    values => new Rule(
+        values,
+        finalParser
+        (v, f) => { ... }
+    )
+);
+```
+
+Like the `List()` parser, `NonGreedyList()` parser also takes optional **separator**, **minimum** and **maximum** parameters.
 
 ### Optional Parser
 
@@ -335,20 +357,6 @@ var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
 ```
 
 The `Rule()` method and tuple variants are both limited to 9 parsers at most. If you need to combine the results of more than 9 parsers, use the `Combine` parser instead. 
-
-### Separated List
-
-The `SeparatedList` parser is similar to a `List` parser except the items have separators between them. Like the List parser, the Separated List may take minimum and maximum values to control how many items are matched.
-
-```csharp
-var parser = SeparatedList(item, separator);
-var parser = SeparatedList(item, separator, 3, 5);
-
-// Same as SeparatedList(item, separator, minimum: 1);
-var parser = SeparatedList(item, separator, true);
-```
-
-This parser is implemented as a combination of several other parser types including List, Rule, First and Combine.
 
 ### Sequential Parser
 
