@@ -248,7 +248,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(LimitedListParser<TInput, TOutput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(ListParser<TInput, TOutput> p, BnfStringifyVisitor state)
     {
         state.Append(p.GetChildren().First());
 

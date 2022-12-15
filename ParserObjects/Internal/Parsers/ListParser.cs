@@ -9,12 +9,12 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
+public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
 {
     private readonly IParser<TInput, TOutput> _parser;
     private readonly IParser<TInput> _separator;
 
-    public LimitedListParser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
+    public ListParser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
 
@@ -86,5 +86,5 @@ public sealed class LimitedListParser<TInput, TOutput> : IParser<TInput, IReadOn
 
     public override string ToString() => DefaultStringifier.ToString("LimitedList", Name, Id);
 
-    public INamed SetName(string name) => new LimitedListParser<TInput, TOutput>(_parser, _separator, Minimum, Maximum, name);
+    public INamed SetName(string name) => new ListParser<TInput, TOutput>(_parser, _separator, Minimum, Maximum, name);
 }

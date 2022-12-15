@@ -29,7 +29,7 @@ public static partial class Parsers<TInput>
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum, int? maximum = null)
-        => new LimitedListParser<TInput, TOutput>(p, Empty(), minimum, maximum);
+        => new ListParser<TInput, TOutput>(p, Empty(), minimum, maximum);
 
     /// <summary>
     /// Parse a list of items with defined minimum and maximum quantities.
@@ -41,7 +41,7 @@ public static partial class Parsers<TInput>
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
-        => new LimitedListParser<TInput, TOutput>(p, separator ?? Empty(), minimum, maximum);
+        => new ListParser<TInput, TOutput>(p, separator ?? Empty(), minimum, maximum);
 
     public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
         => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
