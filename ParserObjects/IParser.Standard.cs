@@ -112,6 +112,9 @@ public static class ParserCombinatorExtensions
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
         => Parsers<TInput>.List(p, atLeastOne);
 
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
+        => Parsers<TInput>.List(p, separator, atLeastOne);
+
     /// <summary>
     /// Returns a list of results from the given parser, with limits. Continues to
     /// parse until the parser returns failure or the maximum number of results is
@@ -162,38 +165,6 @@ public static class ParserCombinatorExtensions
     /// <returns></returns>
     public static IParser<char, string> ListCharToString(this IParser<char, char> p, int minimum = 0, int? maximum = null)
         => List(p, Parsers<char>.Empty(), minimum, maximum).Transform(c => new string(c.ToArray()));
-
-    // TODO: Merge .ListSeparatedBy() variants into .List()
-
-    /// <summary>
-    /// Returns a list of results from the given parser separated by a separator pattern. Continues until
-    /// the item or separator parser return failure. Returns an enumerable of results.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TSeparator"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="separator"></param>
-    /// <param name="atLeastOne"></param>
-    /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, bool atLeastOne)
-        => Parsers<TInput>.List(p, separator, atLeastOne);
-
-    /// <summary>
-    /// Returns a list of results from the given parser separated by a separator
-    /// pattern. Continues until the item or separator pattern return failure, or
-    /// the minimum/maximum counts are not satisfied. Returns an enumeration of results.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TSeparator"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="separator"></param>
-    /// <param name="minimum"></param>
-    /// <param name="maximum"></param>
-    /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> ListSeparatedBy<TInput, TSeparator, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput, TSeparator> separator, int minimum = 0, int? maximum = null)
-        => Parsers<TInput>.List(p, separator, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined

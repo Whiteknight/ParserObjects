@@ -250,6 +250,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
     private bool Accept<TInput, TOutput>(ListParser<TInput, TOutput> p, BnfStringifyVisitor state)
     {
+        // TODO: Include separator
         state.Append(p.GetChildren().First());
 
         // If we have a maximum, handle a range with a maximum. We always have a minimum
@@ -298,6 +299,41 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
     private bool Accept<TInput>(NegativeLookaheadParser<TInput> p, BnfStringifyVisitor state)
     {
         state.Append("(?! ", p.GetChildren().First(), " )");
+        return true;
+    }
+
+    private bool Accept<TInput, TItem, TOutput>(NonGreedyList<TInput, TItem, TOutput>.Parser p, BnfStringifyVisitor state)
+    {
+        // TODO: Separator
+        state.Append(p.GetChildren().First());
+
+        // If we have a maximum, handle a range with a maximum. We always have a minimum
+        if (p.Maximum.HasValue)
+        {
+            if (p.Maximum == p.Minimum)
+            {
+                state.Append('{').Append(p.Minimum).Append('}');
+                return true;
+            }
+
+            state.Append('{').Append(p.Minimum).Append(", ").Append(p.Maximum).Append('}');
+            return true;
+        }
+
+        // No maximum, so handle special cases with minimum values first.
+        if (p.Minimum == 0)
+        {
+            state.Append('*');
+            return true;
+        }
+
+        if (p.Minimum == 1)
+        {
+            state.Append('+');
+            return true;
+        }
+
+        state.Append('{').Append(p.Minimum).Append(",}");
         return true;
     }
 

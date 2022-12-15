@@ -84,7 +84,7 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
     // TODO: Need to update BNF output to account for separator
     public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 
-    public override string ToString() => DefaultStringifier.ToString("LimitedList", Name, Id);
+    public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
 
     public INamed SetName(string name) => new ListParser<TInput, TOutput>(_parser, _separator, Minimum, Maximum, name);
 }

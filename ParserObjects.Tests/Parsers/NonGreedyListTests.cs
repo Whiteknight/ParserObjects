@@ -21,6 +21,7 @@ public class NonGreedyListTests
         var result = target.Parse("aaaab");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("(aaa)(ab)");
+        result.Consumed.Should().Be(5);
     }
 
     [Test]
@@ -39,6 +40,7 @@ public class NonGreedyListTests
         var result = target.Parse("a,a,a,ab");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("(aaa)(,ab)");
+        result.Consumed.Should().Be(8);
     }
 
     [Test]
@@ -56,6 +58,7 @@ public class NonGreedyListTests
         var result = target.Parse("ab");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("()(ab)");
+        result.Consumed.Should().Be(2);
     }
 
     [Test]
@@ -126,6 +129,4 @@ public class NonGreedyListTests
         children.Count.Should().Be(3);
         children.Should().Contain(p => p.Name == "InnerRule");
     }
-
-    // TODO: Tests for result.Consumed
 }

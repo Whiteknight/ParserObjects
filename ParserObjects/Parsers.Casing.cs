@@ -175,7 +175,7 @@ public static partial class Parsers
             var idChar = Match(c => char.IsLetterOrDigit(c) && c != '-');
             var word = idChar.ListCharToString();
             var separator = Match('-');
-            return word.ListSeparatedBy(separator, atLeastOne: true);
+            return word.List(separator, atLeastOne: true);
         }
     );
 
@@ -192,7 +192,7 @@ public static partial class Parsers
             var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
             var word = idChar.ListCharToString();
             var separator = Match('-');
-            return word.ListSeparatedBy(separator, atLeastOne: true);
+            return word.List(separator, atLeastOne: true);
         }
     );
 
@@ -209,7 +209,7 @@ public static partial class Parsers
             var idChar = Match(c => char.IsLetterOrDigit(c) && c != '_');
             var word = idChar.ListCharToString();
             var separator = Match('_');
-            return word.ListSeparatedBy(separator, atLeastOne: true);
+            return word.List(separator, atLeastOne: true);
         }
     );
 
@@ -226,7 +226,7 @@ public static partial class Parsers
             var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');
             var word = idChar.ListCharToString();
             var separator = Match('_');
-            return word.ListSeparatedBy(separator, atLeastOne: true);
+            return word.List(separator, atLeastOne: true);
         }
     );
 }

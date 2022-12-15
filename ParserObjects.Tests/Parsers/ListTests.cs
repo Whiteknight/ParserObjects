@@ -41,7 +41,7 @@ public static class ListTests
             var anyParser = Any();
             var parser = List(anyParser, false);
             var result = parser.GetChildren().ToList();
-            result.Count.Should().Be(1);
+            result.Count.Should().Be(2);
             result[0].Should().BeSameAs(anyParser);
         }
 
@@ -162,7 +162,7 @@ public static class ListTests
             var anyParser = Any();
             var parser = List(anyParser);
             var result = parser.GetChildren().ToList();
-            result.Count.Should().Be(1);
+            result.Count.Should().Be(2);
             result[0].Should().BeSameAs(anyParser);
         }
     }
@@ -209,24 +209,6 @@ public static class ListTests
             value[2].Should().Be(3);
             value[3].Should().Be(4);
             result.Consumed.Should().Be(7);
-        }
-
-        [Test]
-        public void ListSeparatedBy_Parse_Test()
-        {
-            var parser = Integer()
-                .ListSeparatedBy(
-                    Match(","),
-                    atLeastOne: false
-                );
-            var input = FromString("1,2,3,4");
-            var result = parser.Parse(input);
-            result.Success.Should().BeTrue();
-            var value = result.Value.ToList();
-            value[0].Should().Be(1);
-            value[1].Should().Be(2);
-            value[2].Should().Be(3);
-            value[3].Should().Be(4);
         }
 
         [Test]
@@ -323,5 +305,22 @@ public static class ListTests
 
     public class SeparatedExtension
     {
+        [Test]
+        public void ListSeparatedBy_Parse_Test()
+        {
+            var parser = Integer()
+                .List(
+                    Match(","),
+                    atLeastOne: false
+                );
+            var input = FromString("1,2,3,4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+        }
     }
 }

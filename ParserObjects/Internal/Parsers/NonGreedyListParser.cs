@@ -5,25 +5,23 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
-public static class NonGreedyList<TInput, TMiddle, TOutput>
+public static class NonGreedyList<TInput, TItem, TOutput>
 {
     public class Parser : IParser<TInput, TOutput>
     {
-        private readonly IParser<TInput, TMiddle> _itemParser;
+        private readonly IParser<TInput, TItem> _itemParser;
         private readonly IParser<TInput> _separator;
-        private readonly Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> _getContinuation;
-        private readonly int _minimum;
-        private readonly int? _maximum;
+        private readonly Func<IParser<TInput, IReadOnlyList<TItem>>, IParser<TInput, TOutput>> _getContinuation;
         private readonly LeftValue _leftValue;
         private readonly IParser<TInput, TOutput> _rightParser;
 
-        public Parser(IParser<TInput, TMiddle> itemParser, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum, int? maximum, string name = "")
+        public Parser(IParser<TInput, TItem> itemParser, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TItem>>, IParser<TInput, TOutput>> getContinuation, int minimum, int? maximum, string name = "")
         {
             _itemParser = itemParser;
             _separator = separator;
             _getContinuation = getContinuation;
-            _minimum = minimum;
-            _maximum = maximum;
+            Minimum = minimum;
+            Maximum = maximum;
             Name = name;
             _leftValue = new LeftValue(Name);
             _rightParser = getContinuation(_leftValue);
@@ -32,6 +30,9 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
+
+        public int Minimum { get; }
+        public int? Maximum { get; }
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _leftValue, _separator, _rightParser };
 
@@ -45,7 +46,7 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
             if (result.Success)
             {
                 // If there's no minimum, we can return success
-                if (_minimum <= 1)
+                if (Minimum <= 1)
                     return result;
 
                 // Rewind back to the beginning, the item and right parsers might share a prefix
@@ -74,7 +75,7 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
                 var finalResult = _rightParser.Parse(state);
                 if (finalResult.Success)
                 {
-                    if (count >= _minimum)
+                    if (count >= Minimum)
                         return state.Success(this, finalResult.Value, consumed + finalResult.Consumed, startCp.Location);
 
                     // Rewind to the space before the continuation was attempted, so we can continue
@@ -84,7 +85,7 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
 
                 // If we are already at maximum, we cannot continue. Return failure.
                 count++;
-                if (_maximum.HasValue && count >= _maximum.Value)
+                if (Maximum.HasValue && count >= Maximum.Value)
                 {
                     startCp.Rewind();
                     return state.Fail(this, "Matched too many items without a continuation");
@@ -104,19 +105,21 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
             }
         }
 
-        public INamed SetName(string name) => new Parser(_itemParser, _separator, _getContinuation, _minimum, _maximum, name);
+        public INamed SetName(string name) => new Parser(_itemParser, _separator, _getContinuation, Minimum, Maximum, name);
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        private class LeftValue : IParser<TInput, IReadOnlyList<TMiddle>>, IHiddenInternalParser
+        public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
+
+        private class LeftValue : IParser<TInput, IReadOnlyList<TItem>>, IHiddenInternalParser
         {
             public LeftValue(string name)
             {
                 Name = name;
-                Value = new List<TMiddle>();
+                Value = new List<TItem>();
             }
 
-            public List<TMiddle> Value { get; }
+            public List<TItem> Value { get; }
 
             public Location Location { get; set; }
 
@@ -124,7 +127,7 @@ public static class NonGreedyList<TInput, TMiddle, TOutput>
 
             public string Name { get; }
 
-            public IResult<IReadOnlyList<TMiddle>> Parse(IParseState<TInput> state) => state.Success(this, Value, 0, Location);
+            public IResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state) => state.Success(this, Value, 0, Location);
 
             IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location);
 

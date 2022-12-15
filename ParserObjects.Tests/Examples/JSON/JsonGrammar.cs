@@ -26,11 +26,11 @@ namespace ParserObjects.Tests.Examples.JSON
             // Setup the deferral to fix the circular reference
             IParser<JsonToken, IJsonValue> valueInner = null;
             var value = Deferred(() => valueInner);
-            var valueList = value.ListSeparatedBy(comma);
+            var valueList = value.List(comma);
 
             var objectProperty = (str, colon, value)
                 .Rule((name, _, val) => (name.Value, val));
-            var objectPropertyList = objectProperty.ListSeparatedBy(comma);
+            var objectPropertyList = objectProperty.List(comma);
 
             var jsonObject = (openCurlyBracket, objectPropertyList, closeCurlyBracket)
                 .Rule((_, v, _) => new JsonObject(v))
