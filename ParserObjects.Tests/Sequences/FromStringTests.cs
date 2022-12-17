@@ -4,68 +4,76 @@ namespace ParserObjects.Tests.Sequences
 {
     public class FromStringTests
     {
-        [Test]
-        public void GetNext_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetNext_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void Peek_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Peek_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
             target.Peek().Should().Be('a');
         }
 
-        [Test]
-        public void Peek_End()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Peek_End(bool normalize)
         {
-            var target = FromString("");
+            var target = FromString("", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void GetRemainder_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetRemainder_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext().Should().Be('a');
             target.GetRemainder().Should().Be("bc");
         }
 
-        [Test]
-        public void GetRemainder_Full()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetRemainder_Full(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetRemainder().Should().Be("abc");
         }
 
-        [Test]
-        public void GetRemainder_Empty()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetRemainder_Empty(bool normalize)
         {
-            var target = FromString("");
+            var target = FromString("", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetRemainder().Should().Be("");
         }
 
-        [Test]
-        public void GetRemainder_End()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetRemainder_End(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext();
             target.GetNext();
             target.GetNext();
             target.GetRemainder().Should().Be("");
         }
 
-        [Test]
-        public void GetNext_Empty()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetNext_Empty(bool normalize)
         {
-            var target = FromString("");
+            var target = FromString("", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             // Every get attempt past the end of the string will return '\0'
             target.GetNext().Should().Be('\0');
             target.GetNext().Should().Be('\0');
@@ -73,12 +81,14 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void GetNext_Empty_CustomEndSentinel()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GetNext_Empty_CustomEndSentinel(bool normalize)
         {
             var target = FromString("", new SequenceOptions<char>
             {
-                EndSentinel = 'X'
+                EndSentinel = 'X',
+                MaintainLineEndings = !normalize
             });
             // Every get attempt past the end of the string will return '\0'
             target.GetNext().Should().Be('X');
@@ -184,10 +194,11 @@ namespace ParserObjects.Tests.Sequences
             target.Peek().Should().Be('\0');
         }
 
-        [Test]
-        public void Location_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Location_Test(bool normalize)
         {
-            var target = FromString("a\nbc");
+            var target = FromString("a\nbc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext().Should().Be('a');
             target.CurrentLocation.Line.Should().Be(1);
             target.CurrentLocation.Column.Should().Be(1);
@@ -205,10 +216,11 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void Location_Rewind()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Location_Rewind(bool normalize)
         {
-            var target = FromString("abc\nde");
+            var target = FromString("abc\nde", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext();
             target.GetNext();
             target.GetNext();
@@ -225,10 +237,11 @@ namespace ParserObjects.Tests.Sequences
             target.CurrentLocation.Column.Should().Be(3);
         }
 
-        [Test]
-        public void Reset_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Reset_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
@@ -239,10 +252,11 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('\0');
         }
 
-        [Test]
-        public void IsAtEnd_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void IsAtEnd_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             target.IsAtEnd.Should().BeFalse();
             target.GetNext();
             target.IsAtEnd.Should().BeFalse();
@@ -252,10 +266,11 @@ namespace ParserObjects.Tests.Sequences
             target.IsAtEnd.Should().BeTrue();
         }
 
-        [Test]
-        public void Checkpoint_Test()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Checkpoint_Test(bool normalize)
         {
-            var target = FromString("abc");
+            var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');

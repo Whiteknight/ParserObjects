@@ -65,7 +65,7 @@ public static class Sequences
         {
             using var tempReader = new StreamReader(stream, options.Encoding!);
             var s = tempReader.ReadToEnd();
-            return new StringCharacterSequence(s, options);
+            return FromString(s, options);
         }
 
         if (options.Encoding!.IsSingleByte)
@@ -89,7 +89,7 @@ public static class Sequences
         {
             using var reader = new StreamReader(stream);
             var s = reader.ReadToEnd();
-            return new StringCharacterSequence(s, options);
+            return FromString(s, options);
         }
 
         if (options.Encoding!.IsSingleByte)
@@ -147,5 +147,9 @@ public static class Sequences
     /// <param name="options"></param>
     /// <returns></returns>
     public static ICharSequenceWithRemainder FromString(string s, SequenceOptions<char> options = default)
-        => new StringCharacterSequence(s, options);
+    {
+        if (options.NormalizeLineEndings)
+            return new PrenormalizedStringCharacterSequence(s, options);
+        return new NonnormalizedStringCharacterSequence(s, options);
+    }
 }

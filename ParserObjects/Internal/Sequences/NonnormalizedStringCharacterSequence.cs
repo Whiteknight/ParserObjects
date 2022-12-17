@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
 /// <summary>
-/// A sequence of characters read from a string. Legacy reference implementation.
+/// A sequence of characters read from a string. Does not do any normalization of line endings.
 /// </summary>
-public sealed class StringCharacterSequence : ICharSequenceWithRemainder
+public sealed class NonnormalizedStringCharacterSequence : ICharSequenceWithRemainder
 {
     private readonly string _s;
     private readonly SequenceOptions<char> _options;
@@ -15,21 +16,20 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
     private int _index;
     private int _line;
     private int _column;
-    private int _consumed;
 
-    public StringCharacterSequence(string s, SequenceOptions<char> options)
+    public NonnormalizedStringCharacterSequence(string s, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(s, nameof(s));
+        _options = options;
+        _options.Validate();
+        Debug.Assert(_options.MaintainLineEndings, "Only used when line-ending normalization is off");
         _stats = default;
         _s = s;
         _line = 1;
         _column = 0;
-        _options = options;
-        _options.Validate();
-        _consumed = 0;
     }
 
-    public StringCharacterSequence(string s)
+    public NonnormalizedStringCharacterSequence(string s)
         : this(s, default)
     {
     }
@@ -40,14 +40,6 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
         if (next == _options.EndSentinel)
             return next;
 
-        // If line endings are normalized, we replace \r -> \n and \r\n -> \n
-        if (_options.NormalizeLineEndings && next == '\r')
-        {
-            if (GetNextInternal(false) == '\n')
-                GetNextInternal(true);
-            next = '\n';
-        }
-
         _stats.ItemsRead++;
 
         // If we have a newline, update the line-tracking.
@@ -55,13 +47,11 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
         {
             _line++;
             _column = 0;
-            _consumed++;
             return next;
         }
 
         // Bump counts and return
         _column++;
-        _consumed++;
         return next;
     }
 
@@ -78,8 +68,6 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
     public char Peek()
     {
         var next = GetNextInternal(false);
-        if (_options.NormalizeLineEndings && next == '\r')
-            next = '\n';
         _stats.ItemsPeeked++;
         return next;
     }
@@ -88,7 +76,7 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
 
     public bool IsAtEnd => _index >= _s.Length;
 
-    public int Consumed => _consumed;
+    public int Consumed => _index;
 
     public string GetRemainder()
     {
@@ -104,13 +92,12 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
         _index = 0;
         _line = 0;
         _column = 0;
-        _consumed = 0;
     }
 
     public SequenceCheckpoint Checkpoint()
     {
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _consumed, _index, 0L, new Location(_options.FileName, _line, _column));
+        return new SequenceCheckpoint(this, _index, _index, 0L, new Location(_options.FileName, _line, _column));
     }
 
     public void Rewind(SequenceCheckpoint checkpoint)
@@ -120,7 +107,6 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
         _index = checkpoint.Index;
         _line = checkpoint.Location.Line;
         _column = checkpoint.Location.Column;
-        _consumed = checkpoint.Consumed;
     }
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
@@ -133,13 +119,7 @@ public sealed class StringCharacterSequence : ICharSequenceWithRemainder
         if (start.CompareTo(end) >= 0)
             return Array.Empty<char>();
 
-        var currentPosition = Checkpoint();
-        start.Rewind();
-        var buffer = new char[end.Consumed - start.Consumed];
-        for (int i = 0; i < end.Consumed - start.Consumed; i++)
-            buffer[i] = GetNext();
-        currentPosition.Rewind();
-        return buffer;
+        return _s.Substring(start.Consumed, end.Consumed - start.Consumed).ToCharArray();
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;

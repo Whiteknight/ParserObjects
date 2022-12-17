@@ -1,6 +1,6 @@
 ﻿using System;
-using ParserObjects.Internal.Sequences;
 using ParserObjects.Internal.Utility;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -54,7 +54,7 @@ public static class ParserMatchParseExtensions
     {
         // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
         // reuse it
-        var sequence = new StringCharacterSequence(input, options);
+        var sequence = FromString(input, options);
         var state = new ParseState<char>(sequence, Defaults.LogMethod);
         var result = parser.Parse(state);
         return result.Success;
@@ -72,7 +72,7 @@ public static class ParserMatchParseExtensions
     {
         // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
         // reuse it
-        var sequence = new StringCharacterSequence(input, options);
+        var sequence = FromString(input, options);
         var state = new ParseState<char>(sequence, Defaults.LogMethod);
         var result = parser.Parse(state);
         return result.Success;
@@ -90,7 +90,7 @@ public static class ParserMatchParseExtensions
     /// <param name="log"></param>
     /// <returns></returns>
     public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
-        => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, options), log ?? Defaults.LogMethod));
+        => parser.Parse(new ParseState<char>(FromString(s, options), log ?? Defaults.LogMethod));
 
     /// <summary>
     /// Convenience method for parsers which act on character sequences. Parse the given input
@@ -103,7 +103,7 @@ public static class ParserMatchParseExtensions
     /// <param name="log"></param>
     /// <returns></returns>
     public static IResult Parse(this IParser<char> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
-        => parser.Parse(new ParseState<char>(new StringCharacterSequence(s, options), log ?? Defaults.LogMethod));
+        => parser.Parse(new ParseState<char>(FromString(s, options), log ?? Defaults.LogMethod));
 
     /// <summary>
     /// Convenience method to invoke a parser which acts on an input sequence. Creates the

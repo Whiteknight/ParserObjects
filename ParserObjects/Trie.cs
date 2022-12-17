@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Internal.Sequences;
 using ParserObjects.Internal.Utility;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -90,7 +90,11 @@ public static class TrieExtensions
     /// <returns></returns>
     public static Option<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
     {
-        var input = new StringCharacterSequence(keys, default);
+        var input = FromString(keys, new SequenceOptions<char>
+        {
+            MaintainLineEndings = true,
+            Encoding = System.Text.Encoding.ASCII
+        });
         var result = trie.Get(input);
         return result.Match(default, value => new Option<TResult>(true, value));
     }
