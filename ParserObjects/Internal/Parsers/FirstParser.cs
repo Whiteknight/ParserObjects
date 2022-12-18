@@ -44,8 +44,8 @@ public sealed record FirstParser<TInput, TOutput>(
         for (int i = 0; i < Parsers.Count; i++)
         {
             var parser = Parsers[i];
-            var result = parser.Parse(state);
-            if (result.Success)
+            var result = parser.Match(state);
+            if (result)
                 return true;
         }
 

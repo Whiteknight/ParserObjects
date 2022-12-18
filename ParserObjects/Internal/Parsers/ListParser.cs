@@ -80,7 +80,47 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
 
     // TODO: We can optimize this method, but if parser.Match() consumes 0 items we could get into
     // an infinite loop. So we have to be very careful about how we handle that situation.
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+
+        var startCheckpoint = state.Input.Checkpoint();
+        var currentFailureCheckpoint = startCheckpoint;
+
+        int count = 0;
+        while (Maximum == null || count < Maximum)
+        {
+            var loopStartCheckpoint = state.Input.Checkpoint();
+            var result = _parser.Match(state);
+            if (!result)
+            {
+                currentFailureCheckpoint.Rewind();
+                break;
+            }
+
+            count++;
+            if (count >= Minimum && (state.Input.Consumed - loopStartCheckpoint.Consumed) == 0)
+                break;
+
+            // If we Succeed the separator but fail the subsequent item, we need to roll back to
+            // the point directly before the separator. Notice that this probably doesn't imply
+            // the failure of the entire List parse
+            currentFailureCheckpoint = state.Input.Checkpoint();
+            var separatorResult = _separator.Match(state);
+            if (!separatorResult)
+                break;
+        }
+
+        // If we don't have at least Minimum items, we need to roll all the way back to the
+        // beginning of the attempt
+        if (Minimum > 0 && count < Minimum)
+        {
+            startCheckpoint.Rewind();
+            return false;
+        }
+
+        return true;
+    }
 
     // TODO: Need to update BNF output to account for separator
     public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };

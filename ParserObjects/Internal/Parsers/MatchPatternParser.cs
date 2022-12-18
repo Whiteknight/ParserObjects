@@ -63,7 +63,23 @@ public sealed record MatchPatternParser<T>(
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
-    public bool Match(IParseState<T> state) => Parse(state).Success;
+    public bool Match(IParseState<T> state)
+    {
+        if (Pattern.Count == 0)
+            return true;
+
+        var checkpoint = state.Input.Checkpoint();
+        for (int i = 0; i < Pattern.Count; i++)
+        {
+            if (!Equals(Pattern[i], state.Input.GetNext()))
+            {
+                checkpoint.Rewind();
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

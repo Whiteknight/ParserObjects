@@ -23,7 +23,7 @@ public class CaptureBenchmarks
         var parser = (start, bodyChars, end)
             .Rule((s, b, e) => s + b + e);
 
-        var result = parser.Parse(_text);
+        var result = parser.Parse(_text, new SequenceOptions<char> { MaintainLineEndings = true });
     }
 
     [Benchmark]
@@ -39,7 +39,7 @@ public class CaptureBenchmarks
             Match("*/")
         ).Transform(c => new string(c));
 
-        var result = parser.Parse(_text);
+        var result = parser.Parse(_text, new SequenceOptions<char> { MaintainLineEndings = true });
     }
 
     [Benchmark]
@@ -51,11 +51,11 @@ public class CaptureBenchmarks
 
         var parser = Combine(
             Match("/*"),
-            bodyChar.List(),
+            bodyChar.ListCharToString(),
             Match("*/")
-        ).Transform(o => "/*" + new string(((IReadOnlyList<char>)o[1]).ToArray()) + "*/");
+        ).Transform(o => "/*" + ((string)o[1]) + "*/");
 
-        var result = parser.Parse(_text);
+        var result = parser.Parse(_text, new SequenceOptions<char> { MaintainLineEndings = true });
     }
 
     [Benchmark]
@@ -66,7 +66,8 @@ public class CaptureBenchmarks
             s.Parse(MatchChar('/'));
             s.Parse(MatchChar('*'));
 
-            var chars = new List<char> {
+            var chars = new List<char>
+            {
                 '/',
                 '*'
             };
@@ -92,6 +93,6 @@ public class CaptureBenchmarks
             return "";
         });
 
-        var result = parser.Parse(_text);
+        var result = parser.Parse(_text, new SequenceOptions<char> { MaintainLineEndings = true });
     }
 }

@@ -20,7 +20,7 @@ public record CaptureParser<TInput>(
             if (!result)
             {
                 startCp.Rewind();
-                return state.Fail(this, "Inner parser failed", new object[] { result });
+                return state.Fail(this, "Inner parser failed");
             }
         }
 
