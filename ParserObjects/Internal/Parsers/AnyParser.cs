@@ -28,7 +28,13 @@ public sealed record AnyParser<T>(
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
-    public bool Match(IParseState<T> state) => Parse(state).Success;
+    public bool Match(IParseState<T> state)
+    {
+        if (state.Input.IsAtEnd)
+            return false;
+        state.Input.GetNext();
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

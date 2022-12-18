@@ -29,7 +29,17 @@ public sealed record PositiveLookaheadParser<TInput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+        var startCheckpoint = state.Input.Checkpoint();
+        var result = Inner.Match(state);
+        if (!result)
+            return false;
+
+        startCheckpoint.Rewind();
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
 

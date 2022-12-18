@@ -19,8 +19,9 @@ public sealed record AndParser<TInput>(
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCheckpoint = state.Input.Checkpoint();
-        foreach (var parser in Parsers)
+        for (int i = 0; i < Parsers.Count; i++)
         {
+            var parser = Parsers[i];
             var result = parser.Parse(state);
             if (!result.Success)
             {
@@ -33,7 +34,22 @@ public sealed record AndParser<TInput>(
         return state.Success(this, Defaults.ObjectInstance, consumed, startCheckpoint.Location);
     }
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        var startCheckpoint = state.Input.Checkpoint();
+        for (int i = 0; i < Parsers.Count; i++)
+        {
+            var parser = Parsers[i];
+            var result = parser.Match(state);
+            if (!result)
+            {
+                startCheckpoint.Rewind();
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 

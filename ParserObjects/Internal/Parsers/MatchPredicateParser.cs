@@ -34,7 +34,17 @@ public sealed record MatchPredicateParser<T>(
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
-    public bool Match(IParseState<T> state) => Parse(state).Success;
+    public bool Match(IParseState<T> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+
+        var next = state.Input.Peek();
+        if (next == null || !Predicate(next))
+            return false;
+
+        state.Input.GetNext();
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

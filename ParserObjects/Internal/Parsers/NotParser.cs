@@ -27,7 +27,17 @@ public sealed record NotParser<TInput>(
         return state.Fail(this, "Parser matched but was not supposed to");
     }
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+        var startCheckpoint = state.Input.Checkpoint();
+        var result = Inner.Match(state);
+        if (!result)
+            return true;
+
+        startCheckpoint.Rewind();
+        return false;
+    }
 
     public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

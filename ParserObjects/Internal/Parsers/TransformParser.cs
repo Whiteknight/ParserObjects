@@ -67,7 +67,9 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        // NOTE: It is possible that Transform() would have thrown an exception, but for the
+        // purposes here, we return true if the Inner.Match() succeeds.
+        public bool Match(IParseState<TInput> state) => Inner.Match(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

@@ -18,8 +18,9 @@ public sealed record OrParser<TInput>(
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        foreach (var parser in Parsers)
+        for (int i = 0; i < Parsers.Count; i++)
         {
+            var parser = Parsers[i];
             var result = parser.Parse(state);
             if (result.Success)
                 return result;
@@ -28,7 +29,19 @@ public sealed record OrParser<TInput>(
         return state.Fail(this, "None of the given parsers match");
     }
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+        for (int i = 0; i < Parsers.Count; i++)
+        {
+            var parser = Parsers[i];
+            var result = parser.Match(state);
+            if (result)
+                return true;
+        }
+
+        return false;
+    }
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 

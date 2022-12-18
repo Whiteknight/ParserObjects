@@ -48,7 +48,29 @@ public sealed record RuleParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+
+        var startCheckpoint = state.Input.Checkpoint();
+
+        for (int i = 0; i < Parsers.Count; i++)
+        {
+            var result = Parsers[i].Match(state);
+            if (result)
+                continue;
+
+            startCheckpoint.Rewind();
+            return false;
+        }
+
+        // NOTE: It is possible that Produce() would have thrown an exception, in which case
+        // we technically should return false. But we can't call Produce without calling .Parse()
+        // on all children, which has a bunch of allocations, which goes against what Match() is
+        // trying to do. So we return true.
+
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 

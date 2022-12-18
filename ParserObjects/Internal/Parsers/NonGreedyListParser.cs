@@ -55,7 +55,6 @@ public static class NonGreedyList<TInput, TItem, TOutput>
             }
 
             int count = 0;
-            int consumed = 0;
             while (true)
             {
                 // 1. Parse an item. This must succeed or the list fails
@@ -66,8 +65,11 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                     return state.Fail(this, "Could not match");
                 }
 
+                // TODO: If nextItemResult.Consumed == 0 and there is no separator, we run the
+                // risk of getting into an infinite loop. Detect that and break out of the loop
+                // if necessary.
+
                 _leftValue.Value.Add(nextItemResult.Value);
-                consumed += nextItemResult.Consumed;
 
                 var beforeContinuationCp = state.Input.Checkpoint();
 
@@ -76,7 +78,11 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 if (finalResult.Success)
                 {
                     if (count >= Minimum)
-                        return state.Success(this, finalResult.Value, consumed + finalResult.Consumed, startCp.Location);
+                    {
+                        var endConsumed = state.Input.Consumed;
+                        var consumed = endConsumed - startCp.Consumed;
+                        return state.Success(this, finalResult.Value, consumed, startCp.Location);
+                    }
 
                     // Rewind to the space before the continuation was attempted, so we can continue
                     // parsing. The separator might have a shared prefix.
@@ -92,16 +98,14 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 }
 
                 // Try the separator and, if we have one, continue the loop.
-                var separatorResult = _separator.Parse(state);
-                if (!separatorResult.Success)
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
                 {
                     // At this point the continuation and separator have both failed, so return
                     // failure
                     startCp.Rewind();
                     return state.Fail(this, "Could not match");
                 }
-
-                consumed += separatorResult.Consumed;
             }
         }
 
@@ -109,6 +113,8 @@ public static class NonGreedyList<TInput, TItem, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        // TODO: We can optimize this, but we have to sort out the issues where item.Consumed == 0
+        // to avoid getting into an infinite loop.
         public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);

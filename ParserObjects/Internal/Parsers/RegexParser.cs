@@ -49,7 +49,19 @@ public sealed class RegexParser : IParser<char, string>
 
     IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);
 
-    public bool Match(IParseState<char> state) => Parse(state).Success;
+    public bool Match(IParseState<char> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+        var startCp = state.Input.Checkpoint();
+        var result = Engine.GetMatch(state.Input, Regex);
+        if (!result.Success)
+        {
+            startCp.Rewind();
+            return false;
+        }
+
+        return true;
+    }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

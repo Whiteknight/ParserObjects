@@ -35,7 +35,22 @@ public sealed record FirstParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+        if (Parsers.Count == 0)
+            return false;
+
+        for (int i = 0; i < Parsers.Count; i++)
+        {
+            var parser = Parsers[i];
+            var result = parser.Parse(state);
+            if (result.Success)
+                return true;
+        }
+
+        return false;
+    }
 
     public IEnumerable<IParser> GetChildren() => Parsers;
 

@@ -41,8 +41,6 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
         var currentFailureCheckpoint = startCheckpoint;
         var items = new List<TOutput>();
 
-        int consumed = 0;
-        int separatorConsumed = 0;
         while (Maximum == null || items.Count < Maximum)
         {
             var result = _parser.Parse(state);
@@ -52,7 +50,6 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
                 break;
             }
 
-            consumed += result.Consumed + separatorConsumed;
             items.Add(result.Value);
             if (items.Count >= Minimum && result.Consumed == 0)
                 break;
@@ -61,11 +58,9 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
             // the point directly before the separator. Notice that this probably doesn't imply
             // the failure of the entire List parse
             currentFailureCheckpoint = state.Input.Checkpoint();
-            var separatorResult = _separator.Parse(state);
-            if (!separatorResult.Success)
+            var separatorResult = _separator.Match(state);
+            if (!separatorResult)
                 break;
-
-            separatorConsumed = separatorResult.Consumed;
         }
 
         // If we don't have at least Minimum items, we need to roll all the way back to the
@@ -76,11 +71,15 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
             return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
         }
 
-        return state.Success(this, items, consumed, startCheckpoint.Location);
+        var endConsumed = state.Input.Consumed;
+
+        return state.Success(this, items, endConsumed - startCheckpoint.Consumed, startCheckpoint.Location);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    // TODO: We can optimize this method, but if parser.Match() consumes 0 items we could get into
+    // an infinite loop. So we have to be very careful about how we handle that situation.
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
     // TODO: Need to update BNF output to account for separator
