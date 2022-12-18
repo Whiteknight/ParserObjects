@@ -23,6 +23,8 @@ public sealed record EndParser<TInput>(
             : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!.ToString());
     }
 
+    public bool Match(IParseState<TInput> state) => state.Input.IsAtEnd;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("End", Name, Id);

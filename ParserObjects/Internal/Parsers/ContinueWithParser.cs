@@ -154,6 +154,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
+        public bool Match(IParseState<TInput> state) => true;
+
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString(this);

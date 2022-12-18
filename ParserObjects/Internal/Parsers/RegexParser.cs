@@ -49,6 +49,8 @@ public sealed class RegexParser : IParser<char, string>
 
     IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);
 
+    public bool Match(IParseState<char> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);

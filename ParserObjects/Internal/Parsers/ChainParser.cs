@@ -110,6 +110,8 @@ public static class Chain<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 
         public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
@@ -216,6 +218,8 @@ public static class Chain<TInput, TOutput>
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
 

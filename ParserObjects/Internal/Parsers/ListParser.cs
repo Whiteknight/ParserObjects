@@ -81,6 +81,8 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     // TODO: Need to update BNF output to account for separator
     public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 

@@ -22,6 +22,8 @@ public sealed record TrieParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Trie.Get(state.Input).Success;
+
     IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();

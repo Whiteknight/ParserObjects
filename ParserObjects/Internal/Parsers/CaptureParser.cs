@@ -36,6 +36,8 @@ public record CaptureParser<TInput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Parsers;
 
     public INamed SetName(string name) => this with { Name = name };

@@ -28,6 +28,8 @@ public sealed record OrParser<TInput>(
         return state.Fail(this, "None of the given parsers match");
     }
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Parsers;
 
     public override string ToString() => DefaultStringifier.ToString("Or", Name, Id);

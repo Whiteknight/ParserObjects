@@ -378,6 +378,11 @@ namespace ParserObjects.Tests.Visitors
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
+            public bool Match(IParseState<char> state)
+            {
+                throw new NotImplementedException();
+            }
+
             public IResult<string> Parse(IParseState<char> state)
             {
                 throw new NotImplementedException();

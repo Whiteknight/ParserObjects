@@ -81,4 +81,6 @@ public sealed record SynchronizeParser<TInput, TOutput>(
     public INamed SetName(string name) => this with { Name = name };
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
 }

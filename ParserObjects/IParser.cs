@@ -34,6 +34,8 @@ public interface IParser<in TInput> : IParser
     /// <param name="state"></param>
     /// <returns></returns>
     IResult Parse(IParseState<TInput> state);
+
+    bool Match(IParseState<TInput> state);
 }
 
 /// <summary>

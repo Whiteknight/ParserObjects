@@ -76,6 +76,8 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
 
+    public bool Match(IParseState<TInput> state) => ((IParser<TInput>)this).Parse(state).Success;
+
     public bool Match(IParser<TInput> parser)
     {
         Assert.ArgumentNotNull(parser, nameof(parser));

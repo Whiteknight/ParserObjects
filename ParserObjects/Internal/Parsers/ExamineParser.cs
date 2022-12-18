@@ -48,6 +48,8 @@ public static class Examine<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
         public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
@@ -166,6 +168,8 @@ public static class Examine<TInput>
             _after?.Invoke(new Context(_parser, state, result));
             return result;
         }
+
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
 

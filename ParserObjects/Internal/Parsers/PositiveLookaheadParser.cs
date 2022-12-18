@@ -29,6 +29,8 @@ public sealed record PositiveLookaheadParser<TInput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
 
     public override string ToString() => DefaultStringifier.ToString("PositiveLookahead", Name, Id);

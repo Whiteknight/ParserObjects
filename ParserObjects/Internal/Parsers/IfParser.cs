@@ -36,6 +36,8 @@ public sealed record IfParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
 
     public override string ToString() => DefaultStringifier.ToString("If", Name, Id);

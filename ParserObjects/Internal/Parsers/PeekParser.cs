@@ -26,6 +26,8 @@ public sealed record PeekParser<T>(
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
+    public bool Match(IParseState<T> state) => !state.Input.IsAtEnd;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("Peek", Name, Id);

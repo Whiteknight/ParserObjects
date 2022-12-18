@@ -56,6 +56,8 @@ public static class Function<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => Children ?? Array.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString("Function (Single)", Name, Id);
@@ -178,6 +180,8 @@ public static class Function<TInput>
             var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
             return result.AdjustConsumed(totalConsumed);
         }
+
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public override string ToString() => DefaultStringifier.ToString("Function", Name, Id);
 

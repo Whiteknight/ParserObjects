@@ -27,6 +27,8 @@ public sealed record NotParser<TInput>(
         return state.Fail(this, "Parser matched but was not supposed to");
     }
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
     public override string ToString() => DefaultStringifier.ToString("Not", Name, Id);

@@ -33,6 +33,8 @@ public static class Replaceable<TInput>
 
         public IResult Parse(IParseState<TInput> state) => _value.Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 
         public SingleReplaceResult SetParser(IParser parser)
@@ -78,6 +80,8 @@ public static class Replaceable<TInput, TOutput>
         public IResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 

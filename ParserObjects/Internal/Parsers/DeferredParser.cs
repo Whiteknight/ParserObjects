@@ -38,6 +38,8 @@ public static class Deferred<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 
         public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);

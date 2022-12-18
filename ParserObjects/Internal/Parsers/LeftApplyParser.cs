@@ -116,6 +116,8 @@ public static class LeftApply<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
 
         public override string ToString() => DefaultStringifier.ToString("LeftApply", Name, Id);
@@ -141,6 +143,8 @@ public static class LeftApply<TInput, TOutput>
         public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+
+        public bool Match(IParseState<TInput> state) => true;
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

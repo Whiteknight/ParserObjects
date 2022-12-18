@@ -28,6 +28,8 @@ public sealed record AnyParser<T>(
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
+    public bool Match(IParseState<T> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("Any", Name, Id);

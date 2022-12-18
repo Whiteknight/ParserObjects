@@ -62,6 +62,8 @@ public sealed record PrattParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Config.GetParsers();
 
     public override string ToString() => DefaultStringifier.ToString("Pratt", Name, Id);

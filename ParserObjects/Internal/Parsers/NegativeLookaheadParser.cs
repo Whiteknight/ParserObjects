@@ -28,6 +28,8 @@ public sealed record NegativeLookaheadParser<TInput>(
         return state.Fail(this, "Lookahead pattern existed but was not supposed to");
     }
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
 
     public override string ToString() => DefaultStringifier.ToString("NegativeLookahead", Name, Id);

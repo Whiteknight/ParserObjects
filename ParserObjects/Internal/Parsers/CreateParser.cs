@@ -50,6 +50,8 @@ public static class Create<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString("Create", Name, Id);

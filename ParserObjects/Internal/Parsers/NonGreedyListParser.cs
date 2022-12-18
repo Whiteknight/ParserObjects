@@ -109,6 +109,8 @@ public static class NonGreedyList<TInput, TItem, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
         public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
 
         private class LeftValue : IParser<TInput, IReadOnlyList<TItem>>, IHiddenInternalParser
@@ -130,6 +132,8 @@ public static class NonGreedyList<TInput, TItem, TOutput>
             public IResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state) => state.Success(this, Value, 0, Location);
 
             IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location);
+
+            public bool Match(IParseState<TInput> state) => true;
 
             public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

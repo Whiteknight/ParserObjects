@@ -38,6 +38,8 @@ public sealed record FailParser<TInput, TOutput>(
     IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
         => ((IMultiParser<TInput, TOutput>)this).Parse(state);
 
+    public bool Match(IParseState<TInput> state) => false;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("Fail", Name, Id);

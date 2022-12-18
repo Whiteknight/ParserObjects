@@ -20,6 +20,8 @@ public sealed record EmptyParser<TInput>(
         return state.Success(this, Defaults.ObjectInstance, 0);
     }
 
+    public bool Match(IParseState<TInput> state) => true;
+
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString("Empty", Name, Id);

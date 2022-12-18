@@ -48,6 +48,8 @@ public sealed record RuleParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
     public IEnumerable<IParser> GetChildren() => Parsers;
 
     public override string ToString() => DefaultStringifier.ToString("Rule", Name, Id);
