@@ -60,7 +60,7 @@ public static partial class Parsers
         if (_matchByChar.ContainsKey(c))
             return _matchByChar[c];
 
-        var p = Match(c);
+        var p = new MatchItemParser<char>(c);
         _matchByChar.Add(c, p);
         return p;
     }
