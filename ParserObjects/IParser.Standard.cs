@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -152,7 +152,7 @@ public static class ParserCombinatorExtensions
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne)
-        => p.List(atLeastOne).Transform(c => new string(c.ToArray()));
+        => ListCharToString(p, atLeastOne ? 1 : 0);
 
     /// <summary>
     /// Given a parser which parsers characters, parse a list of characters and return
@@ -164,7 +164,10 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<char, string> ListCharToString(this IParser<char, char> p, int minimum = 0, int? maximum = null)
-        => List(p, Parsers<char>.Empty(), minimum, maximum).Transform(c => new string(c.ToArray()));
+        => Transform(
+            List(p, Parsers<char>.Empty(), minimum, maximum),
+            CharMethods.ConvertToString
+        );
 
     /// <summary>
     /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
@@ -174,7 +177,10 @@ public static class ParserCombinatorExtensions
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<char, string> ListStringsToString(this IParser<char, string> p, bool atLeastOne = false)
-        => p.List(atLeastOne).Transform(s => string.Join(string.Empty, s));
+        => Transform(
+            List(p, atLeastOne),
+            s => string.Concat(s)
+        );
 
     /// <summary>
     /// Transform the output of the given parser. Synonym for Transform.
