@@ -27,12 +27,29 @@ public static class Sequential
             _consumed = 0;
         }
 
+        /// <summary>
+        /// Gets the contextual state data.
+        /// </summary>
         public IDataStore Data => _state.Data;
 
+        /// <summary>
+        /// Gets the input sequence.
+        /// </summary>
         public ISequence<TInput> Input => _state.Input;
 
+        /// <summary>
+        /// Gets the number of input values consumed so far.
+        /// </summary>
         public int Consumed => _consumed;
 
+        /// <summary>
+        /// Invoke the parser. Exit the Sequential if the parse fails.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        /// <exception cref="ParseFailedException">Exits the Sequential if the parse fails.</exception>
         public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
         {
             var result = p.Parse(_state);
@@ -42,6 +59,12 @@ public static class Sequential
             return result.Value;
         }
 
+        /// <summary>
+        /// Attempt to invoke the parser. Return a result indicating success or failure.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
         {
             var result = p.Parse(_state);
@@ -50,6 +73,12 @@ public static class Sequential
             return result;
         }
 
+        /// <summary>
+        /// Attempt to invoke the parser but consume no input. Returns the result of the parser.
+        /// </summary>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
         {
             var checkpoint = _state.Input.Checkpoint();
@@ -58,6 +87,11 @@ public static class Sequential
             return result;
         }
 
+        /// <summary>
+        /// Unconditional failure. Exit the Sequential.
+        /// </summary>
+        /// <param name="error"></param>
+        /// <exception cref="ParseFailedException">Immediately exits the Sequential.</exception>
         public void Fail(string error = "Fail") => throw new ParseFailedException(error);
     }
 

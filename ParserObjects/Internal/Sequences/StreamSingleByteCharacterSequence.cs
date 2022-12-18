@@ -142,7 +142,7 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
     {
         _totalCharsInBuffer = _stream.Read(_byteBuffer, 0, _options.BufferSize);
         if (_totalCharsInBuffer > 0)
-            _options.Encoding.GetChars(_byteBuffer, 0, _totalCharsInBuffer, _buffer, 0);
+            _options.Encoding!.GetChars(_byteBuffer, 0, _totalCharsInBuffer, _buffer, 0);
         return _totalCharsInBuffer;
     }
 

@@ -51,6 +51,17 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private bool Accept<TInput>(CaptureParser<TInput> p, BnfStringifyVisitor state)
+    {
+        var children = p.GetChildren().ToArray();
+        state.Append("(", children[0]);
+        foreach (var child in children.Skip(1))
+            state.Append(" ", child);
+
+        state.Append(')');
+        return true;
+    }
+
     private bool Accept<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, BnfStringifyVisitor state)
     {
         var child = p.GetChildren().Single();

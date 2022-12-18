@@ -9,7 +9,7 @@ public class CaptureBenchmarks
 {
     private const string _text = "/* TEST */";
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void RuleBasedParser()
     {
         var start = Match("/*").Transform(c => "/*");
@@ -34,13 +34,64 @@ public class CaptureBenchmarks
         var bodyChar = (standaloneAsterisk, notAsterisk).First();
 
         var parser = Capture(
-            And(
-                Match("/*"),
-                bodyChar.List(),
-                Match("*/")
-            )
-        );
+            Match("/*"),
+            bodyChar.List(),
+            Match("*/")
+        ).Transform(c => new string(c));
 
-        var result = parser.Parse(_text).Transform(c => new string(c));
+        var result = parser.Parse(_text);
+    }
+
+    [Benchmark]
+    public void CombineBasedParser()
+    {
+        var standaloneAsterisk = MatchChar('*').NotFollowedBy(MatchChar('/'));
+        var notAsterisk = Match(c => c != '*');
+        var bodyChar = (standaloneAsterisk, notAsterisk).First();
+
+        var parser = Combine(
+            Match("/*"),
+            bodyChar.List(),
+            Match("*/")
+        ).Transform(o => "/*" + new string(((IReadOnlyList<char>)o[1]).ToArray()) + "*/");
+
+        var result = parser.Parse(_text);
+    }
+
+    [Benchmark]
+    public void SequenceBasedParser()
+    {
+        var parser = Sequential(s =>
+        {
+            s.Parse(MatchChar('/'));
+            s.Parse(MatchChar('*'));
+
+            var chars = new List<char> {
+                '/',
+                '*'
+            };
+
+            while (!s.Input.IsAtEnd)
+            {
+                var c = s.Input.GetNext();
+                chars.Add(c);
+                if (c == '*')
+                {
+                    var lookahead = s.Input.Peek();
+                    if (lookahead == '/')
+                    {
+                        s.Input.GetNext();
+                        chars.Add(lookahead);
+
+                        return new string(chars.ToArray());
+                    }
+                }
+            }
+
+            s.Fail("Could not find */");
+            return "";
+        });
+
+        var result = parser.Parse(_text);
     }
 }

@@ -41,8 +41,8 @@ public static partial class Parsers<TInput>
             return args.Success(result.Success);
         }, "IF {child}", new[] { p });
 
-    public static IParser<TInput, TInput[]> Capture(IParser<TInput> p)
-        => new CaptureParser<TInput>(p);
+    public static IParser<TInput, TInput[]> Capture(params IParser<TInput>[] parsers)
+        => new CaptureParser<TInput>(parsers);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
