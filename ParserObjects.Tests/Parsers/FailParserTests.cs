@@ -17,7 +17,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test(string test)
         {
             var parser = SingleInstance();
-            parser.CanMatch(test).Should().BeFalse();
+            parser.Match(test).Should().BeFalse();
         }
 
         [TestCase("")]
@@ -28,7 +28,7 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Multi(string test)
         {
             var parser = MultiInstance();
-            parser.CanMatch(test).Should().BeFalse();
+            parser.Match(test).Should().BeFalse();
         }
 
         [Test]

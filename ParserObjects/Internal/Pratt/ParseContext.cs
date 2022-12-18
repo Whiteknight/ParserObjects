@@ -82,8 +82,7 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
         EnsureIsNotComplete();
-        var result = parser.Parse(_state);
-        return result.Success;
+        return parser.Match(_state);
     }
 
     public void Expect(IParser<TInput> parser)

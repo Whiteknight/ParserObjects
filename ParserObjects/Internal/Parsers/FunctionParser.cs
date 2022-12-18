@@ -56,6 +56,8 @@ public static class Function<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+        // TODO: Consider taking a second Func() delegate to implement an optimized Match(),
+        // where necessary.
         public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public IEnumerable<IParser> GetChildren() => Children ?? Array.Empty<IParser>();

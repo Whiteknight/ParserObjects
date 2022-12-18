@@ -28,8 +28,8 @@ namespace ParserObjects.Tests.Parsers
         public void AnyEnd_Test()
         {
             var parser = Any().FollowedBy(End());
-            parser.CanMatch("a").Should().BeTrue();
-            parser.CanMatch("ab").Should().BeFalse();
+            parser.Match("a").Should().BeTrue();
+            parser.Match("ab").Should().BeFalse();
         }
     }
 }

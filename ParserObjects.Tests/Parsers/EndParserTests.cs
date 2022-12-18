@@ -9,8 +9,8 @@ namespace ParserObjects.Tests.Parsers
         public void Parse_Test()
         {
             var parser = End();
-            parser.CanMatch("").Should().BeTrue();
-            parser.CanMatch("x").Should().BeFalse();
+            parser.Match("").Should().BeTrue();
+            parser.Match("x").Should().BeFalse();
         }
 
         [Test]

@@ -488,6 +488,9 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> TransformResultMulti<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
         => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
+    // TODO: We probably want to convert Try() into regular IParser class implementations so we can
+    // optimize .Match() methods for them.
+
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
     /// receiving an exception, the input sequence is rewound to the location where Try started

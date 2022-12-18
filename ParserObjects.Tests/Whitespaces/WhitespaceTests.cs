@@ -12,7 +12,7 @@ internal class WhitespaceTests
     public void Parse_Test(string test)
     {
         var parser = Whitespace();
-        parser.CanMatch(test).Should().BeTrue();
+        parser.Match(test).Should().BeTrue();
     }
 
     [TestCase("")]
@@ -20,6 +20,6 @@ internal class WhitespaceTests
     public void Parse_Fail(string test)
     {
         var parser = Whitespace();
-        parser.CanMatch(test).Should().BeFalse();
+        parser.Match(test).Should().BeFalse();
     }
 }

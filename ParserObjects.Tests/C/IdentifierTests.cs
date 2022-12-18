@@ -17,6 +17,6 @@ internal class IdentifierTests
     public void Parse_Test(string test, bool shouldMatch)
     {
         var parser = Identifier();
-        parser.CanMatch(test).Should().Be(shouldMatch);
+        parser.Match(test).Should().Be(shouldMatch);
     }
 }
