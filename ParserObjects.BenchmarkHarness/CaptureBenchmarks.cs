@@ -63,28 +63,22 @@ public class CaptureBenchmarks
     {
         var parser = Sequential(s =>
         {
-            s.Parse(MatchChar('/'));
-            s.Parse(MatchChar('*'));
-
-            var chars = new List<char>
-            {
-                '/',
-                '*'
-            };
+            if (s.Input.GetNext() != '/')
+                s.Fail();
+            if (s.Input.GetNext() != '*')
+                s.Fail();
 
             while (!s.Input.IsAtEnd)
             {
                 var c = s.Input.GetNext();
-                chars.Add(c);
                 if (c == '*')
                 {
                     var lookahead = s.Input.Peek();
                     if (lookahead == '/')
                     {
                         s.Input.GetNext();
-                        chars.Add(lookahead);
 
-                        return new string(chars.ToArray());
+                        return new string(s.GetCapturedInputs());
                     }
                 }
             }

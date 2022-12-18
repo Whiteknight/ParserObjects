@@ -18,12 +18,14 @@ public static class Sequential
     public sealed class State<TInput>
     {
         private readonly IParseState<TInput> _state;
+        private readonly SequenceCheckpoint _startCheckpoint;
 
         private int _consumed;
 
-        public State(IParseState<TInput> state)
+        public State(IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
         {
             _state = state;
+            _startCheckpoint = startCheckpoint;
             _consumed = 0;
         }
 
@@ -74,12 +76,32 @@ public static class Sequential
         }
 
         /// <summary>
+        /// Invoke the parser to match. Returns true, and consumes input, if the match succeeds.
+        /// Returns false and consumes no input otherwise.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public bool Match(IParser<TInput> p) => p.Match(_state);
+
+        /// <summary>
+        /// Invoke the parser to match. Fails the entire Sequential if the match fails.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <exception cref="ParseFailedException">Immediately exits the Sequential.</exception>
+        public void Expect(IParser<TInput> p)
+        {
+            var ok = p.Match(_state);
+            if (!ok)
+                throw new ParseFailedException("Expect failed");
+        }
+
+        /// <summary>
         /// Attempt to invoke the parser but consume no input. Returns the result of the parser.
         /// </summary>
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="p"></param>
         /// <returns></returns>
-        public IResult<TOutput> TryMatch<TOutput>(IParser<TInput, TOutput> p)
+        public IResult<TOutput> TestParse<TOutput>(IParser<TInput, TOutput> p)
         {
             var checkpoint = _state.Input.Checkpoint();
             var result = p.Parse(_state);
@@ -93,6 +115,16 @@ public static class Sequential
         /// <param name="error"></param>
         /// <exception cref="ParseFailedException">Immediately exits the Sequential.</exception>
         public void Fail(string error = "Fail") => throw new ParseFailedException(error);
+
+        /// <summary>
+        /// Get an array of all inputs consumed by the Sequential so far.
+        /// </summary>
+        /// <returns></returns>
+        public TInput[] GetCapturedInputs()
+        {
+            var currentCp = _state.Input.Checkpoint();
+            return _state.Input.GetBetween(_startCheckpoint, currentCp);
+        }
     }
 
     /// <summary>
@@ -115,7 +147,7 @@ public static class Sequential
             var startCheckpoint = state.Input.Checkpoint();
             try
             {
-                var seqState = new State<TInput>(state);
+                var seqState = new State<TInput>(state, startCheckpoint);
                 var result = Function(seqState);
                 return state.Success(this, result, seqState.Consumed, startCheckpoint.Location);
             }

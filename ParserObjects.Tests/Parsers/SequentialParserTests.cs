@@ -58,18 +58,78 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_TryMatch()
+        public void Parse_TestParse()
         {
             var parser = Sequential(s =>
             {
-                var first = s.TryMatch(Any());
-                var second = s.TryMatch(Fail<bool>());
+                var first = s.TestParse(Any());
+                var second = s.TestParse(Fail<bool>());
                 return $"{first.Success}{second.Success}";
             });
 
             var result = parser.Parse("abc");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("TrueFalse");
+        }
+
+        [Test]
+        public void Parse_Match()
+        {
+            var parser = Sequential(s =>
+            {
+                var first = s.Match(Any());
+                var second = s.Match(Fail());
+                return $"{first}{second}";
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("TrueFalse");
+        }
+
+        [Test]
+        public void Parse_Expect()
+        {
+            var parser = Sequential(s =>
+            {
+                s.Expect(Any());
+                s.Expect(Any());
+                return new string(s.GetCapturedInputs());
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("ab");
+        }
+
+        [Test]
+        public void Parse_Expect_Fail()
+        {
+            var parser = Sequential(s =>
+            {
+                s.Expect(Any());
+                s.Expect(Fail());
+                return new string(s.GetCapturedInputs());
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_GetCapturedInputs()
+        {
+            var parser = Sequential(s =>
+            {
+                s.Input.GetNext();
+                s.Input.GetNext();
+                s.Input.GetNext();
+                return new string(s.GetCapturedInputs());
+            });
+
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
         }
 
         [Test]
