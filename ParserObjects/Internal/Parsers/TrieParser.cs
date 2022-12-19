@@ -22,7 +22,7 @@ public sealed record TrieParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    public bool Match(IParseState<TInput> state) => Trie.Get(state.Input).Success;
+    public bool Match(IParseState<TInput> state) => Trie.CanGet(state.Input);
 
     IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {

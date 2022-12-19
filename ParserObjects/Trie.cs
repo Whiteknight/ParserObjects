@@ -20,6 +20,8 @@ public interface IReadOnlyTrie<TKey, TResult>
     /// <returns></returns>
     PartialResult<TResult> Get(ISequence<TKey> keys);
 
+    bool CanGet(ISequence<TKey> keys);
+
     /// <summary>
     /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
     /// list of values from the trie which successfully consume values from the composite key.

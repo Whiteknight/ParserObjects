@@ -41,6 +41,12 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
         return Node.Get(_root, keys);
     }
 
+    public bool CanGet(ISequence<TKey> keys)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        return Node.CanGet(_root, keys);
+    }
+
     public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
     {
         Assert.ArgumentNotNull(keys, nameof(keys));
@@ -90,6 +96,58 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
                 // No node matched, so return failure
                 startCont.Rewind();
                 return new PartialResult<TResult>("Trie does not contain matching item", startLocation);
+            }
+
+            while (true)
+            {
+                // Check degenerate cases first. If we're at the end of input or we're at a
+                // leaf node in the trie, we're done digging and can start looking for a value
+                // to return.
+                if (keys.IsAtEnd || current._children.Count == 0)
+                    return FindBestResult();
+
+                // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
+                // null.
+                var key = keys.GetNext();
+                var cont = keys.Checkpoint();
+                var wrappedKey = new ValueTuple<TKey>(key);
+
+                // If there's no matching child, find the best value
+                if (!current._children.ContainsKey(wrappedKey))
+                    return FindBestResult();
+
+                // Otherwise push the current node and the checkpoint from which we can continue
+                // parsing from onto the stack, and prepare for the next loop iteration.
+                current = current._children[wrappedKey];
+                previous.Push((current, cont));
+            }
+        }
+
+        public static bool CanGet(Node thisNode, ISequence<TKey> keys)
+        {
+            var current = thisNode;
+
+            // The node, and the continuation checkpoint that allows parsing to continue
+            // immediately afterwards.
+            var previous = new Stack<(Node node, SequenceCheckpoint cont)>();
+            var startCont = keys.Checkpoint();
+            previous.Push((current, startCont));
+
+            bool FindBestResult()
+            {
+                while (previous.Count > 0)
+                {
+                    var (node, cont) = previous.Pop();
+                    if (node.HasResult)
+                    {
+                        cont.Rewind();
+                        return true;
+                    }
+                }
+
+                // No node matched, so return failure
+                startCont.Rewind();
+                return false;
             }
 
             while (true)
