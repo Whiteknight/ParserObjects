@@ -13,6 +13,10 @@ The ParserObjects project intends to be an easy, usable and flexible parsing sol
 
 This library also intends to showcase the Combinators approach to parsing, and the underlying ethos of being able to compose parsers together from reusable components. 
 
+The developers of this library believe very strongly in the compositional approach. Large solutions are made by composing together smaller solutions. We also believe that all abstractions leak. For this reason a design decision has been made which runs counter to how many other large library projects organize things: Almost every class in this library is explicitly marked `public`, even the ones that we recommend users do not access directly.
+
+The `ParserObjects.Internal` namespace contains many classes and methods which are available to you, but are **explicitly not supported in any way**. Significant "breaking" changes may be made to the contents of this namespace without increasing the major version number of the library, and without offering any explanation or assistance in migrating to the new implementations. We provide this access so that you have the power to compose your own solutions using the same building blocks that we use. If you find yourself using and relying upon a bit of functionality from the `ParserObjects.Internal` namespace, and would like to have it added to the supported interface of the library, please contact the development team and we will be happy to help.
+
 ## Key Concepts and Abstractions
 
 ParserObjects defines a few important abstractions.

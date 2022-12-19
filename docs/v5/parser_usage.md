@@ -1,8 +1,14 @@
 # Parser Usage
 
-A **Parser** is an object which takes an input sequence, and attempts to match some kind of rule or pattern in the input sequence starting from the current location. Parsers in the ParserObjects library are all denoted with the `IParser`, `IParser<TInput>`, `IParser<TInput, TOutput>`, `IMultiParser<TInput>` or `IMultiParser<TInput, TOutput>` interfaces, depending on use.
+A **Parser** is an object which takes an input sequence, and attempts to match some kind of rule or pattern starting from the current location. Parsers in the ParserObjects library are all denoted with the `IParser`, `IParser<TInput>`, `IParser<TInput, TOutput>`, `IMultiParser<TInput>` or `IMultiParser<TInput, TOutput>` interfaces, depending on use.
 
-Generally speaking there are two types of parsers. A **Single Parser** and a **Multi Parser**. A Single Parser parses the input sequence and returns a single result with pass/fail status and a value or error message. A multi parser may return many results from the current position, if the grammar is ambiguous. It is up to the user to decide which results, if any, should be used to continue the parse.
+Generally speaking there are two types of parsers. A **Single Parser** and a **Multi Parser**. A Single Parser parses the input sequence and returns a single result with pass/fail status and a value or error message. A multi parser may return many results from the current position. It is up to the user to decide which results, if any, should be used to continue the parse.
+
+## Creating Parsers
+
+Parsers can be created from static factory methods in the `ParserObjects.Parsers` class, or from extension methods in the `ParserObjects` namespace. Once you have created the base parsers from these places, you can compose them together to form parsers for larger and more complicated grammars.
+
+**Note**: You should only use the static factory methods and extension methods when creating new parsers. You should not be directly accessing the parser classes, or calling constructors yourself. The library technically allows this for advanced use cases, but it is *explicitly not supported*. Subsequent releases of the library may change class names or constructor parameters on a whim, while the factory methods and extension methods described will stay the same.
 
 ## Parser Interfaces
 
@@ -14,16 +20,16 @@ The `IParser` interface is the parent interface that all parsers must inherit.
 
 The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to return an `IMultiResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
 
-`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IMultiResult<TOutput>`. This is more common than the `IMultiParser<TInput>` type and should be preferred where possible.
+`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IMultiResult<TOutput>` of several possible parse results from the current position.
 
 ## Parser Invariants
 
-`IParser` implementations in the ParserObjects library all follow these rules and invariants. 
+`IParser` implementations in the ParserObjects library all follow these rules and invariants:
 
 1. On failure, the parser consumes no data from the input sequence, and the input sequence is returned to the state it was in before the parse was attempted.
 2. On success, the parser consumes only the data it needed to match a pattern and construct the result value. All other data including buffers and lookaheads, are returned to the input sequence. 
 3. All parsers are built to be composed. They only read input data starting from the current position of the input sequence, and the parser does not necessarily expect to read until the end of input. 
-4. Parsers will generally try to communicate failure through a failure `IResult` value and will try not to throw exceptions unless some major invariant has been violated. However, many parsers take user callback delegates. Exceptions thrown from user code will be allowed to bubble up to a user handler, and may leave the input sequence in an invalid or incomplete state.
+4. Parsers will generally try to communicate failure through a result value and will try not to throw exceptions unless some major invariant has been violated. However, many parsers take user callback delegates, which may throw exceptions. Exceptions thrown from user code will be allowed to bubble up to a user handler, and may leave the input sequence in an invalid or incomplete state.
 5. Parsers should not return `null` but should always return a valid `IResult` or `IResult<TOutput>` with a valid non-null result value.
 
 `IMultiParser<>` types have two caveats to these rules, because the multiple results may have consumed different amounts of input:
@@ -44,7 +50,25 @@ Result values may be transformed from one type to another without losing metadat
 
 ## Matching and Parsing
 
-Parsing requires a `ParseState<T>` object, which can be built from an `ISequence<T>`. Sequences, likewise can come from streams, strings or enumerables or other sources. See the page on [Sequences for more information](sequences.md).
+Matching and Parsing require a `ParseState<T>` object, which can be built from an `ISequence<T>`. Sequences, likewise can come from streams, strings or enumerables or other sources. See the page on [Sequences for more information](sequences.md).
+
+### Matching
+
+All `IParser<TInput>` types define a `.Match()` method which takes a `ParseState<TInput>` and returns a boolean. If `true`, the match has succeeded and the input sequence has been advanced, but no result value has been constructed or returned. If `false`, the match was not successful and the input sequence was returned to it's original position.
+
+```csharp
+var ok = parser.Match(parseState);
+var ok = parser.Match(sequence);
+var ok = parser.Match("abcdef");
+```
+
+`.Match()`, when it can be used, is a performance optimization over `.Parse()`. Matching does fewer memory allocations overall, and does less computation. If you need a result value or a descriptive error message from the parser, the `.Parse()` method must be used instead.
+
+**Note**: The `.Match()` method is designed to consume input and return true or false. It cannot account for situations where a user callback function may have thrown an exception in a `.Parse()` method call. For this reason, when a parser uses a user callback function delegate, the `.Match()` call is not strictly equivalent to `.Parse().Success`.
+
+### Parsing
+
+Parsing is where input tokens are consumed from the input sequence and result value is generated. A parse result contains a lot of information including a `.Success` flag, a value or an error message, a `Location` where the result (or error) came from, and possibly some custom data as well.
 
 ```csharp
 var result = parser.Parse(parseState);
@@ -69,14 +93,16 @@ var result = unTypedParser.Parse(state);
 var result = ((IParser<TInput>)typedParser).Parse(state);
 ```
 
-Some parsers such as `End()` do not return a meaningful value, only success or failure.
+Some parsers such as `End()` do not return a meaningful value, only success or failure. Notice that, because an `object` result is returned, untyped parse is not equivalent to `.Match()`. If you truely do not need the result value, it is an optimization to use `.Match()` instead.
 
 ## Composing
 
 The strength of the Combinators approach to parsing is that you can compose large parsers from many small parsers. For example, if you have a parser to match a single letter, you can combine that with the `List` parser to get a list of all letters in a row. Then you can combine that with a parser to transform a list of characters to a string.
 
 ```csharp
-var parser = Letter().List().Transform(l => new string(l.ToArray()));
+var parser = Letter()
+    .List()
+    .Transform(l => new string(l.ToArray()));
 ```
 
 To match something more complicated, like a parameterless C# method declaration for example, we can combine many parsers together:
@@ -110,7 +136,8 @@ var methodDeclareParser = Rule(
         (open, close) => new MethodBody();
     ),
 
-    (visibility, _, returnType, _, name, _, parameters, _, body) => new MethodDeclaration(visibility, returnType, name, parameters, body)
+    (visibility, _, returnType, _, name, _, parameters, _, body) 
+        => new MethodDeclaration(visibility, returnType, name, parameters, body)
 )
 ```
 
@@ -148,7 +175,8 @@ var methodDeclareParser = Rule(
     parameterList,
     ows,
     methodBody,
-    (visibility, _, returnType, _, name, _, parameters, _, body) => new MethodDeclaration(visibility, returnType, name, parameters, body)
+    (visibility, _, returnType, _, name, _, parameters, _, body) 
+        => new MethodDeclaration(visibility, returnType, name, parameters, body)
 )
 ```
 
@@ -224,7 +252,7 @@ var parser = Function(sequence => {
     return Result.Fail<string>();
 
     // Option 3: Look explicitly for the end sentinel value
-    if (sequence.Peek() == null)
+    if (sequence.Peek() == '\0')
         return Result.Fail<string>();
     return Result.Success<string>("ok");
 })
@@ -248,7 +276,7 @@ if (!sequence.IsAtEnd)
     throw new MyParseIncompleteException("Parser did not reach the end!");
 ```
 
-Some sequences, such as the `StringCharacterSequence` include non-standard methods to get remaining unparsed characters:
+Some sequences, such as `FromString()` include non-standard methods to get remaining unparsed characters:
 
 ```csharp
 var sequence = FromString("a+b-c*d");
@@ -257,4 +285,4 @@ if (!sequence.IsAtEnd)
     throw new MyParseIncompleteException("Parser did not parse the end of string: " + sequence.GetRemainder());
 ```
 
-Not all parsers support this method. It may be prohibitively expensive to `.GetRemainder()` on a file stream of arbitrary length, for example. In some small cases or in debugging situations you can use a `StringCharacterSequence` for testing and use `.GetRemainder()` to help figure out why your parser is not reaching end of input as you expect.
+Not all parsers support this method. It may be prohibitively expensive to `.GetRemainder()` on a file stream of arbitrary length, for example. In some small cases or in debugging situations you can use a `FromString()` sequence for testing and use `.GetRemainder()` to help figure out why your parser is not reaching end of input as you expect.

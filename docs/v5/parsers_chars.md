@@ -12,13 +12,13 @@ using static ParserObjects.Parsers;
 
 ### Character Matcher
 
-The `MatchChar` parser matches a given character. It operates the same as `Match(char)` except it caches instances for characters that have previously been requested.
+The `MatchChar` parser matches a given character. It is semantically the same as `Match(char)` though it is optimized for matching single characters. Instances of this parser are cached by the library, for example.
 
 ```csharp
 var parser = MatchChar('x');
 ```
 
-This is functionally equivalent to the following, but caches the instance to reduce memory consumption if parsers are being re-requested multiple times:
+This is functionally equivalent to, but slower, than `MatchChar()`:
 
 ```csharp
 var parser = Match('x');
@@ -38,7 +38,7 @@ var parser = MatchAny(possibilities);
 There is also a `NotMatchAny` which returns success if the character is *not* in the collection:
 
 ```csharp
-var forbidden = new HashSet<char>() { 'a', 'b', c' };
+var forbidden = new HashSet<char>() { 'a', 'b', 'c' };
 var parser = NotMatchAny(forbidden);
 ```
 
@@ -50,7 +50,7 @@ The `CharacterString` parser matches a literal string of characters against a `c
 var parser = CharacterString("abc");
 ```
 
-This is functionally equivalent to a combination of the `MatchSequence` and `Transform` parsers:
+This is functionally equivalent to (though faster than) a combination of the `MatchSequence` and `Transform` parsers:
 
 ```csharp
 var parser = Match("abc").Transform(x => new string(x.ToArray()));
@@ -61,8 +61,12 @@ var parser = Match("abc").Transform(x => new string(x.ToArray()));
 The `Letter` parser matches any uppercase or lowercase letter character. `Word` matches a sequence of one or more letters and returns them as a string. `UpperCase` matches any one uppercase character, and `LowerCase` matches any one lowercase character. The `Symbol` parser matches any non-letter, non-number symbol or punctuation character. You can convert any of those to a string like `Word` does by using the `.ListCharToString()` extension method:
 
 ```csharp
-var allUpperCase = UpperCase().ListCharToString();
-var allLowerCase = LowerCase().ListCharToString();
+var letter = Letter();
+var word = Word();
+var alsoWord = Letter().ListCharToString();
+var allUpperCase = UpperCase();
+var allLowerCase = LowerCase();
+var symbols = Symbol();
 ```
 
 ## Digit Parsers
@@ -118,7 +122,7 @@ var parser = OptionalWhitespace();
 ## Quoted String Parsers
 
 ```csharp
-using static ParserObjects.QuotedParserMethods;
+using static ParserObjects.Parsers;
 ```
 
 ParserObjects provides several methods for parsing quoted strings with escape characters. By default, the backslash (`'\'`) is used as an escape character, which is a common idiom in modern programming and data serialization languages. These methods all have two variants, one to return the literal match including quotes and escape sequences, and a "stripped" version to return the string contents without quotes or escapes.
@@ -189,7 +193,7 @@ var parts = ScreamingSpinalCase().Parse('SCREAMING-SPINAL-CASE");
 
 ### Snake Case
 
-Snake case consists of workds separated by an underscore and can be parsed with the `SnakeCase` parser, and an all-uppercase version can be parsed with the `ScreamingSnakeCase` parser:
+Snake case consists of words separated by an underscore and can be parsed with the `SnakeCase` parser, and an all-uppercase version can be parsed with the `ScreamingSnakeCase` parser:
 
 ```csharp
 var parts = SpinalCase().Parse("snake_case_identifier");
