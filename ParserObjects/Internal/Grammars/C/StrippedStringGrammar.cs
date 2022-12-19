@@ -33,7 +33,7 @@ public static class StrippedStringGrammar
                     continue;
                 }
 
-                ParseStrippedStringEscapeSequence(s, sb, c);
+                ParseStrippedStringEscapeSequence(s, sb);
             }
 
             s.Fail("No end quote");
@@ -99,9 +99,9 @@ public static class StrippedStringGrammar
         return ParseStrippedHexChar(s, c);
     }
 
-    private static void ParseStrippedStringEscapeSequence(Sequential.State<char> s, StringBuilder sb, char c)
+    private static void ParseStrippedStringEscapeSequence(Sequential.State<char> s, StringBuilder sb)
     {
-        c = s.Input.GetNext();
+        var c = s.Input.GetNext();
         if (c >= '0' && c <= '7')
         {
             var value = ParseStrippedOctalChar(s, c);

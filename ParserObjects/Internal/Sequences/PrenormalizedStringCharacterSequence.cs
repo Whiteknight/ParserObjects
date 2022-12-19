@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
@@ -81,17 +80,6 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequenceWithRema
         }
 
         return (chars, destIdx);
-    }
-
-    private class StringNormalizeContext
-    {
-        public StringNormalizeContext(string source)
-        {
-            Source = source;
-        }
-
-        public string Source { get; }
-        public int Length { get; set; }
     }
 
     public char GetNext()
@@ -180,7 +168,14 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequenceWithRema
             return Array.Empty<char>();
 
         var size = end.Consumed - start.Consumed;
+#if NET5_0_OR_GREATER
         return new ArraySegment<char>(_s, start.Consumed, size).ToArray();
+#else
+        var c = new char[size];
+        for (int i = 0; i < size; i++)
+            c[i] = _s[start.Consumed + i];
+        return c;
+#endif
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
