@@ -2,4 +2,4 @@
 
 using ParserObjects.BenchmarkHarness;
 
-var output = BenchmarkDotNet.Running.BenchmarkRunner.Run<CaptureBenchmarks>();
+var output = BenchmarkDotNet.Running.BenchmarkRunner.Run<CIntegerBenchmarks>();

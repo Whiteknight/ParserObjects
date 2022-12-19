@@ -15,22 +15,8 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, string> Comment() => _comment.Value;
 
-        private static readonly Lazy<IParser<char, string>> _comment = new Lazy<IParser<char, string>>(
-            () =>
-            {
-                var start = Match("/*").Transform(c => "/*");
-                var end = Match("*/").Transform(c => "*/");
-                var standaloneAsterisk = MatchChar('*').NotFollowedBy(MatchChar('/'));
-                var notAsterisk = Match(c => c != '*');
-
-                var bodyChar = (standaloneAsterisk, notAsterisk).First();
-                var bodyChars = bodyChar.ListCharToString();
-
-                return (start, bodyChars, end)
-                    .Rule((s, b, e) => s + b + e)
-                    .Named("C-Style Comment");
-            }
-        );
+        private static readonly Lazy<IParser<char, string>> _comment
+            = new Lazy<IParser<char, string>>(Internal.Grammars.C.CommentGrammar.CreateParser);
 
         /// <summary>
         /// C-style hexadecimal literal returned as a string.
@@ -52,7 +38,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, int>> _hexInteger = new Lazy<IParser<char, int>>(
             () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
-                .Rule((prefix, value) => int.Parse(value, NumberStyles.HexNumber))
+                .Rule((_, value) => int.Parse(value, NumberStyles.HexNumber))
                 .Named("C-Style Hex Literal")
         );
 
@@ -65,15 +51,17 @@ public static partial class Parsers
         private static readonly Lazy<IParser<char, string>> _integerString = new Lazy<IParser<char, string>>(
             () =>
             {
-                var maybeMinus = MatchChar('-').Transform(c => "-").Optional(() => string.Empty);
                 var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
-                var digits = Digit().ListCharToString();
-                var zero = MatchChar('0').Transform(c => "0");
-                var nonZeroNumber = (maybeMinus, nonZeroDigit, digits)
-                    .Rule((sign, start, body) => sign + start + body);
-                return (nonZeroNumber, zero)
-                    .First()
-                    .Named("C-Style Integer String");
+                var digits = Digit().List();
+                var parser = First(
+                    Capture(
+                        MatchChar('-').Optional(),
+                        nonZeroDigit,
+                        digits
+                    ).Stringify(),
+                    MatchChar('0').Transform(_ => "0")
+                );
+                return parser.Named("C-Style Integer String");
             }
         );
 
@@ -99,12 +87,16 @@ public static partial class Parsers
             () =>
             {
                 var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
-                var digits = Digit().ListCharToString();
-                var zero = MatchChar('0').Transform(c => "0");
-                var nonZeroNumber = (nonZeroDigit, digits).Rule((start, body) => start + body);
-                return (nonZeroNumber, zero)
-                    .First()
-                    .Named("C-Style Unsigned Integer String");
+                var digits = Digit().List();
+                var parser = First(
+                    Capture(
+                        MatchChar('-').Optional(),
+                        nonZeroDigit,
+                        digits
+                    ).Stringify(),
+                    MatchChar('0').Transform(_ => "0")
+                );
+                return parser.Named("C-Style Unsigned Integer String");
             }
         );
 
@@ -127,8 +119,8 @@ public static partial class Parsers
         public static IParser<char, string> DoubleString() => _doubleString.Value;
 
         private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
-            () => (IntegerString(), MatchChar('.'), DigitString())
-                .Rule((whole, dot, fract) => whole + dot + fract)
+            () => Capture(IntegerString(), MatchChar('.'), DigitString())
+                .Stringify()
                 .Named("C-Style Double String")
         );
 
@@ -155,9 +147,12 @@ public static partial class Parsers
             {
                 var startChar = Match(c => c == '_' || char.IsLetter(c));
                 var bodyChar = Match(c => c == '_' || char.IsLetterOrDigit(c));
-                var bodyChars = bodyChar.ListCharToString();
-                return (startChar, bodyChars)
-                    .Rule((start, rest) => start + rest)
+                var parser = Capture(
+                    startChar,
+                    bodyChar.List()
+                );
+                return parser
+                    .Stringify()
                     .Named("C-Style Identifier");
             }
         );

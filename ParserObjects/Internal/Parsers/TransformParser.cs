@@ -67,9 +67,12 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        // NOTE: It is possible that Transform() would have thrown an exception, but for the
-        // purposes here, we return true if the Inner.Match() succeeds.
-        public bool Match(IParseState<TInput> state) => Inner.Match(state);
+        // NOTE: It is not possible to optimize this. The user callback function can make any
+        // arbitrary transformation to a result, including turning a success into a failure or
+        // vice-versa, or consuming input. That means just calling Inner.Match() might return the
+        // wrong value, and might consume the wrong number of inputs. Therefore we must do a complete
+        // parse here (because the transform callback requires the Inner.Parse() result)
+        public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

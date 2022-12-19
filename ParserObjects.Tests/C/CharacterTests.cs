@@ -21,7 +21,6 @@ internal class CharacterTests
         result.Value.Should().Be(expected);
     }
 
-    [TestCase("'\\a'", '\a')]
     [TestCase("'\\b'", '\b')]
     [TestCase("'\\f'", '\f')]
     [TestCase("'\\n'", '\n')]
@@ -34,6 +33,16 @@ internal class CharacterTests
     [TestCase("'\\0'", '\0')]
     public void Parse_Escapes(string test, char value)
     {
+        var parser = Character();
+        var result = parser.Parse(test);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(test);
+    }
+
+    public void Parse_Escapes_a()
+    {
+        // For whatever reason, the test runner doesn't like it when this one is in TestCase()
+        var test = "'\\a'";
         var parser = Character();
         var result = parser.Parse(test);
         result.Success.Should().BeTrue();

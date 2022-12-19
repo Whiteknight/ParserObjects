@@ -479,6 +479,8 @@ The `TransformResult` parser has an opportunity to transform the entire result, 
 var parser = TransformResult(inner, (state, result) => { ... });
 ```
 
+**Note**: The callback for `TransformResult` can perform any arbitrary operation on the result or on the current parse state. For this reason, `.Match()` cannot be optimized in any meaningful way, and other analysis and meta operations may not provide meaningful results. It is best to avoid the use of `TransformResult` unless absolutely necessary.
+
 ### Transform Error Parser
 
 The `TransformError` parser is implemented by the `TransformResult` parser, but the callback only executes when the result is a failure. This is used to transform the result to, for example, provide a better error message.
@@ -486,6 +488,8 @@ The `TransformError` parser is implemented by the `TransformResult` parser, but 
 ```csharp
 var parser = TransformError(parser, (state, errorResult) => { ... });
 ```
+
+**Note**: The callback for `TransformError` can perform any arbitrary operation on the result or on the current parse state. For this reason, `.Match()` cannot be optimized in any meaningful way, and other analysis and meta operations may not provide meaningful results. It is best to avoid the use of `TransformError` unless absolutely necessary.
 
 ## Recursive Parsers
 

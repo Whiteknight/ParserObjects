@@ -95,6 +95,9 @@ public static partial class Parsers
         () => Match(char.IsLower).Named("lowerCase")
     );
 
+    public static IParser<char, string> Stringify(IParser<char, char[]> p)
+        => Transform(p, c => new string(c));
+
     /// <summary>
     /// Matches a symbol or punctuation character.
     /// </summary>

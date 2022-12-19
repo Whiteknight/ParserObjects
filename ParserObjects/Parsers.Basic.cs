@@ -278,11 +278,7 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <returns></returns>
     public static IParser<TInput, Option<TOutput>> Optional<TOutput>(IParser<TInput, TOutput> p)
-        => TransformResult<TOutput, Option<TOutput>>(p, args =>
-        {
-            var option = args.Result.Success ? new Option<TOutput>(true, args.Result.Value) : default;
-            return args.Success(option);
-        });
+        => new Optional<TInput, TOutput>.NoDefaultParser(p);
 
     /// <summary>
     /// Attempt to parse a parser and return a default value if the parser fails.
@@ -294,21 +290,13 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
     {
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-        return TransformResult<TOutput, TOutput>(p, args =>
-        {
-            var option = args.Result.Success ? args.Result.Value : getDefault();
-            return args.Success(option);
-        });
+        return new Optional<TInput, TOutput>.DefaultValueParser(p, _ => getDefault());
     }
 
     public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
     {
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
-        return TransformResult<TOutput, TOutput>(p, args =>
-        {
-            var option = args.Result.Success ? args.Result.Value : getDefault(args.State);
-            return args.Success(option);
-        });
+        return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
 
     /// <summary>
