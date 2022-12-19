@@ -25,6 +25,20 @@ public static class Deferred<TInput, TOutput>
             return parser.Parse(state);
         }
 
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public bool Match(IParseState<TInput> state)
+        {
+            var parser = GetParserFromCacheOrCallback(state);
+            return parser.Match(state);
+        }
+
+        public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
+
+        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
+
+        public INamed SetName(string name) => this with { Name = name };
+
         private IParser<TInput, TOutput> GetParserFromCacheOrCallback(IParseState<TInput> state)
         {
             var existing = state.Cache.Get<IParser<TInput, TOutput>>(this, default);
@@ -35,16 +49,6 @@ public static class Deferred<TInput, TOutput>
             state.Cache.Add(this, default, parser);
             return parser;
         }
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
-
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
-
-        public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
-
-        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
-
-        public INamed SetName(string name) => this with { Name = name };
     }
 
     public sealed record MultiParser(

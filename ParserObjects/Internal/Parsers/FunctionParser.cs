@@ -58,7 +58,24 @@ public static class Function<TInput, TOutput>
 
         // TODO: Consider taking a second Func() delegate to implement an optimized Match(),
         // where necessary.
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        public bool Match(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+            var startCheckpoint = state.Input.Checkpoint();
+
+            var args = new SingleArguments(this, state, startCheckpoint);
+            var result = Function(args);
+            if (result == null)
+                return false;
+
+            if (!result.Success)
+            {
+                startCheckpoint.Rewind();
+                return false;
+            }
+
+            return true;
+        }
 
         public IEnumerable<IParser> GetChildren() => Children ?? Array.Empty<IParser>();
 
@@ -183,7 +200,18 @@ public static class Function<TInput>
             return result.AdjustConsumed(totalConsumed);
         }
 
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        public bool Match(IParseState<TInput> state)
+        {
+            var startCheckpoint = state.Input.Checkpoint();
+            var result = _func(state);
+            if (!result.Success)
+            {
+                startCheckpoint.Rewind();
+                return false;
+            }
+
+            return true;
+        }
 
         public override string ToString() => DefaultStringifier.ToString("Function", Name, Id);
 

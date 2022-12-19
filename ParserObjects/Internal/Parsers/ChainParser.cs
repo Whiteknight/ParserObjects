@@ -94,6 +94,30 @@ public static class Chain<TInput, TMiddle, TOutput>
             return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
         }
 
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public bool Match(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+
+            var checkpoint = state.Input.Checkpoint();
+            var initial = Inner.Parse(state);
+
+            var nextParser = GetNextParser(checkpoint, initial);
+            var nextResult = nextParser.Match(state);
+            if (nextResult)
+                return true;
+
+            checkpoint.Rewind();
+            return false;
+        }
+
+        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
+
+        public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
+
+        public INamed SetName(string name) => this with { Name = name };
+
         private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, IResult<TMiddle> initial)
         {
             try
@@ -107,16 +131,6 @@ public static class Chain<TInput, TMiddle, TOutput>
                 throw;
             }
         }
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
-
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
-
-        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
-
-        public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
-
-        public INamed SetName(string name) => this with { Name = name };
     }
 }
 
@@ -203,6 +217,30 @@ public static class Chain<TInput, TOutput>
             return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
         }
 
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public bool Match(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+
+            var checkpoint = state.Input.Checkpoint();
+            var initial = Inner.Parse(state);
+
+            var nextParser = GetNextParser(checkpoint, initial);
+            var nextResult = nextParser.Match(state);
+            if (nextResult)
+                return true;
+
+            checkpoint.Rewind();
+            return false;
+        }
+
+        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
+
+        public override string ToString() => DefaultStringifier.ToString("Chain (Multi)", Name, Id);
+
+        public INamed SetName(string name) => this with { Name = name };
+
         private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, IResult initial)
         {
             try
@@ -216,15 +254,5 @@ public static class Chain<TInput, TOutput>
                 throw;
             }
         }
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
-
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
-
-        public IEnumerable<IParser> GetChildren() => new[] { Inner }.Concat(Mentions);
-
-        public override string ToString() => DefaultStringifier.ToString("Chain (Multi)", Name, Id);
-
-        public INamed SetName(string name) => this with { Name = name };
     }
 }

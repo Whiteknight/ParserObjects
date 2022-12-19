@@ -22,11 +22,11 @@ public sealed record AndParser<TInput>(
         for (int i = 0; i < Parsers.Count; i++)
         {
             var parser = Parsers[i];
-            var result = parser.Parse(state);
-            if (!result.Success)
+            var result = parser.Match(state);
+            if (!result)
             {
                 startCheckpoint.Rewind();
-                return result;
+                return state.Fail(this, $"Failure in parser {i}");
             }
         }
 

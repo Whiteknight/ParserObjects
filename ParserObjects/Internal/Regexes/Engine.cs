@@ -11,7 +11,7 @@ public static class Engine
 {
     /// <summary>
     /// Attempts to match the given regex pattern on the given input starting at it's current
-    /// location.
+    /// location. Returns the matched text and any captures and metadata.
     /// </summary>
     /// <param name="input"></param>
     /// <param name="regex"></param>
@@ -33,6 +33,15 @@ public static class Engine
         }
 
         return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);
+    }
+
+    public static bool TestMatch(ISequence<char> input, Regex regex)
+    {
+        Assert.ArgumentNotNull(input, nameof(input));
+        Assert.ArgumentNotNull(regex, nameof(regex));
+
+        var captures = new CaptureCollection();
+        return Test(captures, regex.States, input);
     }
 
     private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input)

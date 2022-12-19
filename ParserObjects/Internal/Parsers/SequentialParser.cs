@@ -15,18 +15,15 @@ public static class Sequential
     /// management.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public sealed class State<TInput>
+    public readonly struct State<TInput>
     {
         private readonly IParseState<TInput> _state;
         private readonly SequenceCheckpoint _startCheckpoint;
-
-        private int _consumed;
 
         public State(IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
         {
             _state = state;
             _startCheckpoint = startCheckpoint;
-            _consumed = 0;
         }
 
         /// <summary>
@@ -38,11 +35,6 @@ public static class Sequential
         /// Gets the input sequence.
         /// </summary>
         public ISequence<TInput> Input => _state.Input;
-
-        /// <summary>
-        /// Gets the number of input values consumed so far.
-        /// </summary>
-        public int Consumed => _consumed;
 
         /// <summary>
         /// Invoke the parser. Exit the Sequential if the parse fails.
@@ -57,7 +49,6 @@ public static class Sequential
             var result = p.Parse(_state);
             if (!result.Success)
                 throw new ParseFailedException(result, errorMessage);
-            _consumed += result.Consumed;
             return result.Value;
         }
 
@@ -68,12 +59,7 @@ public static class Sequential
         /// <param name="p"></param>
         /// <returns></returns>
         public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
-        {
-            var result = p.Parse(_state);
-            if (result.Success)
-                _consumed += result.Consumed;
-            return result;
-        }
+            => p.Parse(_state);
 
         /// <summary>
         /// Invoke the parser to match. Returns true, and consumes input, if the match succeeds.
@@ -149,7 +135,8 @@ public static class Sequential
             {
                 var seqState = new State<TInput>(state, startCheckpoint);
                 var result = Function(seqState);
-                return state.Success(this, result, seqState.Consumed, startCheckpoint.Location);
+                var endConsumed = state.Input.Consumed;
+                return state.Success(this, result, endConsumed - startCheckpoint.Consumed, startCheckpoint.Location);
             }
             catch (ParseFailedException spe)
             {
@@ -176,7 +163,28 @@ public static class Sequential
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        public bool Match(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+            var startCheckpoint = state.Input.Checkpoint();
+            try
+            {
+                var seqState = new State<TInput>(state, startCheckpoint);
+                Function(seqState);
+                return true;
+            }
+            catch (ParseFailedException)
+            {
+                // This exception is part of normal flow-control for this parser
+                // Other exceptions bubble up like normal.
+                return false;
+            }
+            catch
+            {
+                startCheckpoint.Rewind();
+                throw;
+            }
+        }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

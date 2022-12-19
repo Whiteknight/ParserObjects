@@ -50,7 +50,24 @@ public static class Create<TInput, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        public bool Match(IParseState<TInput> state)
+        {
+            // Get the parser. The callback has access to the input, so it may consume items.
+            // If so, we have to properly report that.
+            var startCheckpoint = state.Input.Checkpoint();
+            var parser = GetParser(state) ?? throw new InvalidOperationException("Create parser value must not be null");
+
+            var result = parser.Match(state);
+
+            // If it's a failure result, make sure we are rewound to the beginning and return
+            if (!result)
+            {
+                startCheckpoint.Rewind();
+                return false;
+            }
+
+            return true;
+        }
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

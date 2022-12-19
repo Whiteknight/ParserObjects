@@ -53,8 +53,8 @@ public sealed class RegexParser : IParser<char, string>
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCp = state.Input.Checkpoint();
-        var result = Engine.GetMatch(state.Input, Regex);
-        if (!result.Success)
+        var result = Engine.TestMatch(state.Input, Regex);
+        if (!result)
         {
             startCp.Rewind();
             return false;
