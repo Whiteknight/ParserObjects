@@ -44,10 +44,8 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
 
-        private static readonly HashSet<char> _hexDigits = new HashSet<char>("abcdefABCDEF0123456789");
-
         private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
-            () => Match(c => _hexDigits.Contains(c)).Named("hexDigit")
+            () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
         );
 
         /// <summary>
