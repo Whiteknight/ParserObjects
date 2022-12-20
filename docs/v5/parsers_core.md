@@ -197,22 +197,6 @@ var parser = (parser1, parser2, parser3).First();
 
 The tuple variant of this parser is limited up to 9 child parsers. The other variants can take any number of child parsers.
 
-### Function Parser
-
-The `Function` parser takes a callback function to perform the parse. The callback takes `success` and `fail` arguments, which are functions to generate the correct result object with filled-in metadata. It will automatically rewind the input sequence on failure, so you do not need to cleanup manually. It will also automatically report the correct number of consumed input tokens so you do not need to track it yourself.
-
-```csharp
-var parser = Function((t, success, fail) => {
-    // for success
-    return success("ok");
-
-    // for failure
-    return fail("parse failed");
-});
-```
-
-The Function parser is very similar to the `Sequential` parser. Both use a callback to execute the parse. The Function parser is almost completely free from structure and does not assume that the parse internally is performed using `IParser` instances. The Sequential parser, on the other hand provides a state object which should be used to perform parses, and expects that the parsing internally will be done using `IParser` instances. The `Function` parser is used internally to implement several of the other parser types in this list.
-
 ### List Parser
 
 The `List` parser attempts to parse the **item** parser repeatedly until it fails, and returns an enumeration of the results. Optionally the items may have a **separator** between them. The List parser takes optional `minimum` and `maximum` values, to control the number of items matched. If you specify a minimum, the list will fail unless at least that number of items has been matched. If you do not specify a minimum, the list may return success if no items are matched, and return an empty list as a result. If a maximum number is specified, the list will continue matching only until that maximum number is reached then it will stop even if more matches are possible.
@@ -358,32 +342,6 @@ var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
 
 The `Rule()` method and tuple variants are both limited to 9 parsers at most. If you need to combine the results of more than 9 parsers, use the `Combine` parser instead. 
 
-### Sequential Parser
-
-The `Sequential` parser allows turning a parser graph into a block of sequential code. This allows you to use procedural logic to aid in parsing and to set breakpoints between parsers to get maximum debuggability. Some grammars are best parsed using a stack or other mechanism, instead of the recursive descent algorithm used by ParserObjects, so the Sequential parser allows you to use those algorithms instead. The downside is that the Sequential Parser does not work with some features like BNF stringification or `.Replace()`/`.ReplaceChild()` operations.
-
-```csharp
-var parser = Sequential(t => 
-{
-    var type = t.Parse(Word());
-    if (type == 'decimal')
-    {
-        var colon = t.Parse(Match(':'));
-        var value = t.Parse(Integer());
-        return value;
-    }
-    if (type == 'hex')
-    {
-        var colon = t.Parse(Match(':'));
-        var value = t.Parse(HexadecimalInteger());
-        return value;
-    }
-    return 0;
-});
-```
-
-The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
-
 ### Synchronize Parser
 
 The `Synchronize` parser allows entering **panic mode** when a parse fails. In panic mode, the parser will discard tokens to get back to a known "good" state, before attempting the parse again. This is useful for cases where you want to report all syntax errors to the user, not just the first error.
@@ -419,6 +377,55 @@ You can get information about the exception thrown from the result, if you set `
 var result = parser.Parse(...);
 var exception = result.TryGetData<Exception>();
 ```
+
+## Code Callback Parsers
+
+Some parsing tasks can better be handled manually with a user-provided callback delegate. This can be for specific algorithms (stack-based, for example) or cases where debugging tasks require setting breakpoints in the middle of a parse. The `Function` and `Sequential` parsers both allow you to write your own parser code in a callback delegate, though the features they offer are a little different.
+
+Because these functions take arbitrary user callback delegates which may operate on the `IParseState<TInput>` and the `ISequence<TInput>`, many optimizations (`=.Match()`, etc) are not available and several other features  do not work as might be expected (`.ToBnf()`, etc). What you get instead is more flexibility and an opportunity to do some of your own optimizations.
+
+### Function Parser
+
+The `Function` parser takes a callback function to perform the parse and expects you to create your own `IResult<TOutput>` return value. The callback takes `success` and `fail` arguments, which are factory methods to generate the correct result object with filled-in metadata. It is suggested you use these callbacks, but it is not required. The `Function` parser will automatically rewind the input sequence on failure, so you do not need to cleanup manually. It will also automatically report the correct number of consumed input tokens so you do not need to track it yourself.
+
+```csharp
+var parser = Function((t, success, fail) => {
+    if (t.Input.GetNext() == 'A')
+        // for success
+        return success("ok");
+
+    // for failure
+    return fail("parse failed");
+});
+```
+
+The `Function` parser callback is a largely unstructured environment where you have access to the input sequence, and are expected to do the parsing yourself.
+
+### Sequential Parser
+
+The `Sequential` parser is a more structured version of the `Function` parser, that expects you to be delegating parsing work to other `IParser` instances. This allows you to use procedural logic to aid in parsing and to set breakpoints between parsers to get maximum debuggability. The downside is that the Sequential Parser does not work with some features like BNF stringification or `.Replace()`/`.ReplaceChild()` operations, and `.Match()` cannot be optimized with arbitrary user callbacks.
+
+```csharp
+var parser = Sequential(t => 
+{
+    var type = t.Parse(Word());
+    if (type == 'decimal')
+    {
+        var colon = t.Parse(Match(':'));
+        var value = t.Parse(Integer());
+        return value;
+    }
+    if (type == 'hex')
+    {
+        var colon = t.Parse(Match(':'));
+        var value = t.Parse(HexadecimalInteger());
+        return value;
+    }
+    return 0;
+});
+```
+
+The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
 
 ## Matching Parsers
 
@@ -470,26 +477,6 @@ The `Transform` parser transforms the output of an inner parser. If the inner pa
 var parser = Transform(innerParser, r => ...);
 var parser = innerParser.Transform(r => ...);
 ```
-
-### Transform Result Parser
-
-The `TransformResult` parser has an opportunity to transform the entire result, including all metadata, and it operates even when the result is a failure result. 
-
-```csharp
-var parser = TransformResult(inner, (state, result) => { ... });
-```
-
-**Note**: The callback for `TransformResult` can perform any arbitrary operation on the result or on the current parse state. For this reason, `.Match()` cannot be optimized in any meaningful way, and other analysis and meta operations may not provide meaningful results. It is best to avoid the use of `TransformResult` unless absolutely necessary.
-
-### Transform Error Parser
-
-The `TransformError` parser is implemented by the `TransformResult` parser, but the callback only executes when the result is a failure. This is used to transform the result to, for example, provide a better error message.
-
-```csharp
-var parser = TransformError(parser, (state, errorResult) => { ... });
-```
-
-**Note**: The callback for `TransformError` can perform any arbitrary operation on the result or on the current parse state. For this reason, `.Match()` cannot be optimized in any meaningful way, and other analysis and meta operations may not provide meaningful results. It is best to avoid the use of `TransformError` unless absolutely necessary.
 
 ## Recursive Parsers
 
