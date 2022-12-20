@@ -122,5 +122,72 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(3);
             target.GetNext().Should().Be(9);
         }
+
+        [Test]
+        public void GetBetween_SameBuffer()
+        {
+            var memoryStream = new MemoryStream();
+            memoryStream.Write(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 10);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var target = FromByteStream(memoryStream, new SequenceOptions<byte>
+            {
+                BufferSize = 20,
+                EndSentinel = 9
+            });
+
+            target.GetNext(); // 1
+            target.GetNext(); // 2
+
+            var cp1 = target.Checkpoint();
+
+            target.GetNext(); // 3
+            target.GetNext(); // 4
+            target.GetNext(); // 5
+            target.GetNext(); // 6
+            target.GetNext(); // 7
+
+            var cp2 = target.Checkpoint();
+
+            target.GetNext(); // 8
+            target.GetNext(); // 9
+            target.GetNext(); // 10
+
+            var result = target.GetBetween(cp1, cp2);
+            result.Length.Should().Be(5);
+            result.Should().ContainInOrder(3, 4, 5, 6, 7);
+        }
+
+        public void GetBetween_SeparateBuffers()
+        {
+            var memoryStream = new MemoryStream();
+            memoryStream.Write(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 10);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var target = FromByteStream(memoryStream, new SequenceOptions<byte>
+            {
+                BufferSize = 3,
+                EndSentinel = 9
+            });
+
+            target.GetNext(); // 1
+            target.GetNext(); // 2
+
+            var cp1 = target.Checkpoint();
+
+            target.GetNext(); // 3
+            target.GetNext(); // 4
+            target.GetNext(); // 5
+            target.GetNext(); // 6
+            target.GetNext(); // 7
+
+            var cp2 = target.Checkpoint();
+
+            target.GetNext(); // 8
+            target.GetNext(); // 9
+            target.GetNext(); // 10
+
+            var result = target.GetBetween(cp1, cp2);
+            result.Length.Should().Be(5);
+            result.Should().ContainInOrder(3, 4, 5, 6, 7);
+        }
     }
 }

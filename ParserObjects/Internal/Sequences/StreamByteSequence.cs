@@ -168,9 +168,29 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         if (start.CompareTo(end) >= 0)
             return Array.Empty<byte>();
 
-        // TODO: If the start and end positions are entirely within the current buffer, we should
-        // be able to optimize this with an ArraySegment.ToArray() or something similar.
+        var currentConsumed = Consumed;
+        int startOfCurrentBuffer = currentConsumed - _bufferIndex;
+        int endOfCurrentBuffer = Consumed + _remainingBytes;
+        if (startOfCurrentBuffer <= start.Consumed && end.Consumed <= endOfCurrentBuffer)
+        {
+            // The requested range is entirely within the current buffer. So we can convert the
+            // .Consumed values to indices and do a simple array copy.
+            int startIndex = start.Consumed - startOfCurrentBuffer;
+            int endIndex = end.Consumed - startOfCurrentBuffer;
+            int size = endIndex - startIndex;
+#if NET5_0_OR_GREATER
+            return new ArraySegment<byte>(_buffer, startIndex, size).ToArray();
+#else
 
+            var array = new byte[size];
+            for (int i = 0; i < size; i++)
+                array[i] = _buffer[startIndex + i];
+            return array;
+#endif
+        }
+
+        // Otherwise the requested range is partially or wholly outside of the current buffer. So
+        // we need to brute-force this by rewinding and calling .GetNext() in a loop
         var currentPosition = Checkpoint();
         start.Rewind();
         var buffer = new byte[end.Consumed - start.Consumed];
