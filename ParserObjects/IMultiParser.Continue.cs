@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -53,16 +52,4 @@ public static partial class MultiParserExtensions
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<TMiddle, TOutput> transform)
         => Parsers<TInput>.Transform(multiParser, transform);
-
-    /// <summary>
-    /// Transform the values of all result alternatives.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="multiParser"></param>
-    /// <param name="transform"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
-        => Parsers<TInput>.TransformResultMulti(multiParser, transform);
 }

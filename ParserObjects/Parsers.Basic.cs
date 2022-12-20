@@ -430,16 +430,7 @@ public static partial class Parsers<TInput>
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => TransformResult<TMiddle, TOutput>(parser, args =>
-        {
-            // If the inner parser fails, run IResult.Transform to change the type and return it
-            if (!args.Result.Success)
-                return args.Result.Transform(transform);
-
-            // Otherwise transform the value and produce a new result with that value
-            var newValue = transform(args.Result.Value);
-            return args.State.Success(args.Parser, newValue, args.Result.Consumed, args.Result.Location);
-        });
+        => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
 
     /// <summary>
     /// Transforms the output value of the parser.
@@ -450,30 +441,6 @@ public static partial class Parsers<TInput>
     /// <param name="transform"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => TransformResultMulti<TMiddle, TOutput>(parser, args => args.Result.Transform(transform));
-
-    /// <summary>
-    /// Transform one result into another result. Allows modifying the result value and all
-    /// result metadata.
-    /// </summary>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="parser"></param>
-    /// <param name="transform"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> TransformResult<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.SingleArguments, IResult<TOutput>> transform)
-        => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
-
-    /// <summary>
-    /// Transform one multi result into another multi result. Allows modifying the result
-    /// values and all result metadata.
-    /// </summary>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="parser"></param>
-    /// <param name="transform"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> TransformResultMulti<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<Transform<TInput, TMiddle, TOutput>.MultiArguments, IMultiResult<TOutput>> transform)
         => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
     // TODO: We probably want to convert Try() into regular IParser class implementations so we can

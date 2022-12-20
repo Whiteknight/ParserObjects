@@ -119,16 +119,17 @@ public static partial class Parsers<TInput>
     /// <param name="getValue"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-        => TransformResult<TOutput, TOutput>(p, args =>
+        => new Function<TInput, TOutput>.Parser(args =>
         {
-            if (args.Result.Success)
+            var result = p.Parse(args.State);
+            if (result.Success)
             {
-                var value = getValue(args.Result.Value);
+                var value = getValue(result.Value);
                 args.Data.Set(name, value);
             }
 
-            return args.Result;
-        });
+            return result;
+        }, "SetResultData", new[] { p });
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
