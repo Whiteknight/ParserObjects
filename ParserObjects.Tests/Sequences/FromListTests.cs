@@ -102,5 +102,23 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be(3);
             target.GetNext().Should().Be(0);
         }
+
+        [Test]
+        public void GetBetween_Test()
+        {
+            var target = FromList(new[] { 1, 2, 3, 4, 5 }, 0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(4);
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be(5);
+
+            var result = target.GetBetween(cp1, cp2);
+            result.Length.Should().Be(2);
+            result[0].Should().Be(3);
+            result[1].Should().Be(4);
+        }
     }
 }
