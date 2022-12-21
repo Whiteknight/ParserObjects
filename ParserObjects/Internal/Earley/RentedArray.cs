@@ -2,18 +2,11 @@
 
 namespace ParserObjects.Internal.Earley;
 
+// Represents an array which has been borrowed from the ArrayPool<T>.Shared
 public struct RentedArray<T>
 {
     private readonly T[] _values;
 
-    public static RentedArray<T> Rent(int i)
-    {
-        var array = ArrayPool<T>.Shared.Rent(i);
-        return new RentedArray<T>(array, i);
-    }
-
-    // TODO: Should we take the reference to the ArrayPool<T> here, or can we always assume
-    // it is ArrayPool<T>.Shared?
     public RentedArray(T[] values, int count)
     {
         _values = values;

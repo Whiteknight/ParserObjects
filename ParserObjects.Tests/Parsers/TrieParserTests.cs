@@ -197,6 +197,48 @@ namespace ParserObjects.Tests.Parsers
             result.Consumed.Should().Be(0);
         }
 
+        [TestCase("=")]
+        [TestCase("==")]
+        [TestCase(">=")]
+        [TestCase("<=")]
+        [TestCase("<")]
+        [TestCase(">")]
+        public void Match_Operators(string oper)
+        {
+            var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
+
+            var input = FromString(oper);
+
+            target.Match(input).Should().BeTrue();
+            input.Consumed.Should().Be(oper.Length);
+        }
+
+        [Test]
+        public void Match_Operators_Fail()
+        {
+            var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
+
+            var input = FromString("X");
+            target.Match(input).Should().BeFalse();
+            input.Consumed.Should().Be(0);
+        }
+
         [Test]
         public void GetChildren_Test()
         {
