@@ -78,5 +78,26 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Value.Should().Be('e');
             target.IsAtEnd.Should().BeTrue();
         }
+
+        [Test]
+        public void GetBetween_Test()
+        {
+            var parser = Any();
+            var target = FromParseResult("abcdef".ToCharacterSequence(), parser);
+            target.GetNext().Value.Should().Be('a');
+            target.GetNext().Value.Should().Be('b');
+            var cp1 = target.Checkpoint();
+            target.GetNext().Value.Should().Be('c');
+            target.GetNext().Value.Should().Be('d');
+            target.GetNext().Value.Should().Be('e');
+            var cp2 = target.Checkpoint();
+            target.GetNext().Value.Should().Be('f');
+
+            var result = target.GetBetween(cp1, cp2);
+            result.Length.Should().Be(3);
+            result[0].Value.Should().Be('c');
+            result[1].Value.Should().Be('d');
+            result[2].Value.Should().Be('e');
+        }
     }
 }
