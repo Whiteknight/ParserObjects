@@ -78,6 +78,7 @@ public sealed class ListSequence<T> : ISequence<T?>
     public void Rewind(SequenceCheckpoint checkpoint)
     {
         _stats.Rewinds++;
+        _stats.RewindsToCurrentBuffer++;
         _index = checkpoint.Index;
     }
 
