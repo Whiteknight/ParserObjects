@@ -350,6 +350,11 @@ namespace ParserObjects.Tests.Parsers
         [TestCase("(..)\\1", "abab", "abab", "ab")]
         [TestCase("(..)(\\1|ad)", "abad", "abad", "ab")] // partial backref match should rewind successfully
         [TestCase("(?:..)(..)\\1", "abcdcd", "abcdcd", "cd")] // non-capturing cloister isn't used
+        [TestCase("(..)\\1*", "ababab", "ababab", "ab")]
+        [TestCase("(..)\\1+", "ababab", "ababab", "ab")]
+        [TestCase("(..)\\1{1}", "ababab", "abab", "ab")]
+        [TestCase("(..)\\1{1,}", "ababab", "ababab", "ab")]
+        [TestCase("(..)\\1{,2}", "ababab", "ababab", "ab")]
         public void Parse_CaptureBackreference(string pattern, string input, string group0, string group1)
         {
             var target = Regex(pattern);
