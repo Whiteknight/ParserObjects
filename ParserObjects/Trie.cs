@@ -69,21 +69,6 @@ public static class TrieExtensions
     }
 
     /// <summary>
-    /// Convenience method to add strings to the trie with char keys.
-    /// </summary>
-    /// <param name="readOnlyTrie"></param>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    public static IInsertableTrie<char, string> AddMany(this IInsertableTrie<char, string> readOnlyTrie, params string[] values)
-    {
-        Assert.ArgumentNotNull(readOnlyTrie, nameof(readOnlyTrie));
-        Assert.ArgumentNotNull(values, nameof(values));
-        foreach (var value in values)
-            readOnlyTrie.Add(value, value);
-        return readOnlyTrie;
-    }
-
-    /// <summary>
     /// Get a value from a char trie. Used mostly for testing purposes.
     /// </summary>
     /// <typeparam name="TResult"></typeparam>
