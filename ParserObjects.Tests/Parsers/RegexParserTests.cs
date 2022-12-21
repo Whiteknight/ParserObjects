@@ -323,6 +323,10 @@ namespace ParserObjects.Tests.Parsers
 
         [TestCase("(?:.)", "a")]
         [TestCase("(?:..)", "ab")]
+        [TestCase("(?:.)*", "abcd")]
+        [TestCase("(?:.)+", "abcd")]
+        [TestCase("(?:.){1,}", "abcd")]
+        [TestCase("(?:.){,4}", "abcd")]
         public void Parse_NonCapturingCloister_NoCaptures(string pattern, string input)
         {
             var target = Regex(pattern);
@@ -333,6 +337,14 @@ namespace ParserObjects.Tests.Parsers
             var matches = matchOption.Value;
             matches.Groups.Count.Should().Be(1);
             matches.Groups[0][0].Should().Be(input);
+        }
+
+        [Test]
+        public void Parse_NonCapturingCloister_FailEndOfInput()
+        {
+            var target = Regex("...(?:.)");
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
         }
 
         [TestCase("(..)\\1", "abab", "abab", "ab")]
