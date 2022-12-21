@@ -119,7 +119,11 @@ public sealed class NonnormalizedStringCharacterSequence : ICharSequenceWithRema
         if (start.CompareTo(end) >= 0)
             return Array.Empty<char>();
 
-        return _s.Substring(start.Consumed, end.Consumed - start.Consumed).ToCharArray();
+        int size = end.Consumed - start.Consumed;
+        var array = new char[size];
+        for (int i = 0; i < size; i++)
+            array[i] = _s[start.Consumed + i];
+        return array;
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;

@@ -54,7 +54,7 @@ Matching and Parsing require a `ParseState<T>` object, which can be built from a
 
 ### Matching
 
-All `IParser<TInput>` types define a `.Match()` method which takes a `ParseState<TInput>` and returns a boolean. If `true`, the match has succeeded and the input sequence has been advanced, but no result value has been constructed or returned. If `false`, the match was not successful and the input sequence was returned to it's original position.
+All `IParser<TInput>` types define a `.Match()` method which takes a `ParseState<TInput>` and returns a boolean. If `true`, the match has succeeded and the input sequence has been advanced but no result value has been constructed or returned. If `false`, the match was not successful and the input sequence was returned to it's original position.
 
 ```csharp
 var ok = parser.Match(parseState);
