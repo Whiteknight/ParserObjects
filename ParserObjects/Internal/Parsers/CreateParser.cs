@@ -93,6 +93,10 @@ public static class Create<TInput, TOutput>
 
             var result = parser.Parse(state);
 
+            // TODO: In theory the multiparser should rewind the the input sequence to the start
+            // point anyway, whether an input was consumed here or not. Double-check the design
+            // on this.
+
             // If it's a failure result, make sure we are rewound to the beginning and return
             if (!result.Success)
             {
