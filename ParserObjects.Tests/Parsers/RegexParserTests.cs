@@ -367,5 +367,25 @@ namespace ParserObjects.Tests.Parsers
             matches.Groups[0][0].Should().Be(group0);
             matches.Groups[1][0].Should().Be(group1);
         }
+
+        [Test]
+        public void Match_Test()
+        {
+            var target = Regex("abc");
+            var input = FromString("abcdef");
+            var result = target.Match(input);
+            result.Should().BeTrue();
+            input.Consumed.Should().Be(3);
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var target = Regex("abX");
+            var input = FromString("abcdef");
+            var result = target.Match(input);
+            result.Should().BeFalse();
+            input.Consumed.Should().Be(0);
+        }
     }
 }
