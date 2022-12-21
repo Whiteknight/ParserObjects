@@ -78,7 +78,7 @@ public static partial class Parsers<TInput>
             var result = args.Data.Get<TValue>(name);
             return result.Success ?
                 args.Success(result.Value, args.Input.CurrentLocation) :
-                args.Failure($"State data '{name}' does not exist", args.Input.CurrentLocation);
+                args.Failure($"State data '{name}' with type does not exist", args.Input.CurrentLocation);
         });
 
     /// <summary>
