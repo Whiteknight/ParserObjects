@@ -323,10 +323,10 @@ namespace ParserObjects.Tests.Parsers
 
         [TestCase("(?:.)", "a")]
         [TestCase("(?:..)", "ab")]
-        [TestCase("(?:.)*", "abcd")]
-        [TestCase("(?:.)+", "abcd")]
-        [TestCase("(?:.){1,}", "abcd")]
-        [TestCase("(?:.){,4}", "abcd")]
+        [TestCase("(?:..)*", "abcd")]
+        [TestCase("(?:..)+", "abcd")]
+        [TestCase("(?:..){1,}", "abcd")]
+        [TestCase("(?:..){,4}", "abcdefgh")]
         public void Parse_NonCapturingCloister_NoCaptures(string pattern, string input)
         {
             var target = Regex(pattern);
