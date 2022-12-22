@@ -307,7 +307,7 @@ namespace ParserObjects.Tests.Visitors
                 .Add(Match('-'))
             ).Named("parser");
             var result = parser.ToBnf();
-            result.Should().StartWith("parser := PRATT(MATCH, MATCH);");
+            result.Should().StartWith("parser := PRATT('+', '-');");
         }
 
         [Test]
