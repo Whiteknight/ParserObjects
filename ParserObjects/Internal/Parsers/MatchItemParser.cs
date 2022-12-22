@@ -9,7 +9,7 @@ public record MatchItemParser<T>(
     string Name = ""
 ) : IParser<T, T>
 {
-    public int Id => UniqueIntegerGenerator.GetNext();
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public bool Match(IParseState<T> state)
     {

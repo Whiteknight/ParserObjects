@@ -11,7 +11,7 @@ public static class Optional<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, Option<TOutput>>
     {
-        public int Id => UniqueIntegerGenerator.GetNext();
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
@@ -41,7 +41,7 @@ public static class Optional<TInput, TOutput>
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
-        public int Id => UniqueIntegerGenerator.GetNext();
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

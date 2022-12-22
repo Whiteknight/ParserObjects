@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Bnf;
+using ParserObjects.Internal.Visitors;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
 public static class ParserExtensions
 {
+    public static IReadOnlyDictionary<int, IParser> GetAllParsers(this IParser p)
+        => new ListParsersVisitor().Visit(p);
+
     /// <summary>
     /// Attempt to describe the parser as a string of pseudo-BNF. This feature depends on parsers having
     /// a .Name value set. If you are using custom IParser implementations you will need to use a custom
