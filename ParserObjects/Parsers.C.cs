@@ -26,7 +26,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
             () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
-                .Rule((prefix, value) => prefix + value)
+                .Rule((prefix, value) => "0x" + value)
                 .Named("C-Style Hex String")
         );
 
