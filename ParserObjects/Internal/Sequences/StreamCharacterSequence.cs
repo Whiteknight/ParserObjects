@@ -37,21 +37,6 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         public long BufferStartStreamPosition { get; set; }
     }
 
-    public StreamCharacterSequence(SequenceOptions<char> options)
-    {
-        Assert.ArgumentNotNullOrEmpty(options.FileName, nameof(options.FileName));
-        _options = options;
-        _options.Validate();
-        _stats = default;
-        _metadata = default;
-        _buffer = new char[_options.BufferSize];
-        var stream = File.OpenRead(_options.FileName);
-        _reader = new StreamReader(stream, _options.Encoding!);
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _metadata.BufferStartStreamPosition = 0;
-        _stats.BufferFills++;
-    }
-
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(reader, nameof(reader));

@@ -32,7 +32,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_Test(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -45,7 +45,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_CustomEndSentinel(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc", endSentinel: 'X', bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -58,7 +58,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_Test(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -70,7 +70,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void IsAtEnd_Test(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -104,7 +104,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Checkpoint_SameLocation(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -213,7 +213,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_WindowsNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -226,7 +226,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_WindowsNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\r\na\r\n", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -241,7 +241,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_UnixNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\na\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -254,7 +254,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_OldMacNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\ra\r", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -267,7 +267,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_OldMacNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\ra\r", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -280,7 +280,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_WindowsNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -296,7 +296,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_WindowsNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\r\na\r\n", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -316,7 +316,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_UnixNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\na\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -332,7 +332,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_OldMacNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\ra\r", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -348,7 +348,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Peek_OldMacNewlines_NonNormalized(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\ra\r", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -364,7 +364,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Location_Test(int bufferSize, bool useAscii)
         {
             var target = GetTarget("a\nbc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -388,7 +388,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(10, true)]
         [TestCase(10, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void Location_Rewind(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abc\nde", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -411,7 +411,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetBetween_Test(int bufferSize, bool useAscii)
         {
             var target = GetTarget("abcdef", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -438,7 +438,7 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, true)]
         [TestCase(5, false)]
         [TestCase(2, true)]
-        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetBetween_OutOfOrder(int bufferSize, bool useAscii)
         {
             // If we .GetBetween() checkpoints which are out-of-order, it should just return us
