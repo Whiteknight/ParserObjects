@@ -165,6 +165,25 @@ public static class ListTests
             result.Count.Should().Be(2);
             result[0].Should().BeSameAs(anyParser);
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = List(Any()).Named("SUT");
+            parser.ToBnf().Should().Contain("SUT := .*");
+        }
+
+        [TestCase(0, 1, ".?")]
+        [TestCase(4, 4, ".{4}")]
+        [TestCase(0, 10, ".{0, 10}")]
+        [TestCase(0, null, ".*")]
+        [TestCase(1, null, ".+")]
+        [TestCase(3, null, ".{3,}")]
+        public void ToBnf_MinMax(int min, int? max, string pattern)
+        {
+            var parser = List(Any(), minimum: min, maximum: max).Named("SUT");
+            parser.ToBnf().Should().Contain($"SUT := {pattern}");
+        }
     }
 
     public class UnseparatedExtension
@@ -300,6 +319,25 @@ public static class ListTests
             value.Count.Should().Be(2);
             value[0].Should().Be(1);
             value[1].Should().Be(2);
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = List(MatchChar('a'), MatchChar('X')).Named("SUT");
+            parser.ToBnf().Should().Contain("SUT := 'a' ('X' 'a')*");
+        }
+
+        [TestCase(0, 1, "'a' ('X' 'a')?")]
+        [TestCase(4, 4, "'a' ('X' 'a'){4}")]
+        [TestCase(0, 10, "'a' ('X' 'a'){0, 10}")]
+        [TestCase(0, null, "'a' ('X' 'a')*")]
+        [TestCase(1, null, "'a' ('X' 'a')+")]
+        [TestCase(3, null, "'a' ('X' 'a'){3,}")]
+        public void ToBnf_MinMax(int min, int? max, string pattern)
+        {
+            var parser = List(MatchChar('a'), MatchChar('X'), minimum: min, maximum: max).Named("SUT");
+            parser.ToBnf().Should().Contain($"SUT := {pattern}");
         }
     }
 

@@ -129,4 +129,35 @@ public class NonGreedyListTests
         children.Count.Should().Be(3);
         children.Should().Contain(p => p.Name == "InnerRule");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = NonGreedyList(MatchChar('a'), _ => MatchChar('Z')).Named("SUT");
+        parser.ToBnf().Should().Contain("SUT := 'a'* 'Z'");
+    }
+
+    [TestCase(0, 1, "'a'?")]
+    [TestCase(4, 4, "'a'{4}")]
+    [TestCase(0, 10, "'a'{0, 10}")]
+    [TestCase(0, null, "'a'*")]
+    [TestCase(1, null, "'a'+")]
+    [TestCase(3, null, "'a'{3,}")]
+    public void ToBnf_MinMax(int min, int? max, string pattern)
+    {
+        var parser = NonGreedyList(MatchChar('a'), _ => MatchChar('Z'), minimum: min, maximum: max).Named("SUT");
+        parser.ToBnf().Should().Contain($"SUT := {pattern} 'Z'");
+    }
+
+    [TestCase(0, 1, "'a' ('b' 'a')?")]
+    [TestCase(4, 4, "'a' ('b' 'a'){4}")]
+    [TestCase(0, 10, "'a' ('b' 'a'){0, 10}")]
+    [TestCase(0, null, "'a' ('b' 'a')*")]
+    [TestCase(1, null, "'a' ('b' 'a')+")]
+    [TestCase(3, null, "'a' ('b' 'a'){3,}")]
+    public void ToBnf_MinMax_Separator(int min, int? max, string pattern)
+    {
+        var parser = NonGreedyList(MatchChar('a'), MatchChar('b'), _ => MatchChar('Z'), minimum: min, maximum: max).Named("SUT");
+        parser.ToBnf().Should().Contain($"SUT := {pattern} 'Z'");
+    }
 }

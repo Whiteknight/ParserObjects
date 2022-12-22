@@ -34,7 +34,7 @@ public static class NonGreedyList<TInput, TItem, TOutput>
         public int Minimum { get; }
         public int? Maximum { get; }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _leftValue, _separator, _rightParser };
+        public IEnumerable<IParser> GetChildren() => new IParser[] { _itemParser, _separator, _rightParser };
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
