@@ -1,4 +1,5 @@
-﻿using static ParserObjects.Parsers<char>;
+﻿using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -9,7 +10,7 @@ public static class OptionalTests
         [Test]
         public void Parse_Test()
         {
-            var target = Optional(Match('a'));
+            var target = Optional(MatchChar('a'));
             var result = target.Parse("abc");
             result.Success.Should().Be(true);
             result.Value.GetValueOrDefault('x').Should().Be('a');
@@ -22,6 +23,30 @@ public static class OptionalTests
             var result = target.Parse("");
             result.Success.Should().Be(true);
             result.Value.GetValueOrDefault('x').Should().Be('x');
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var target = Optional(MatchChar('a'));
+            var result = target.Match("abc");
+            result.Should().Be(true);
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var target = Optional(Fail());
+            var result = target.Match("");
+            result.Should().Be(true);
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Optional(Match('a')).Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := 'a'?");
         }
     }
 

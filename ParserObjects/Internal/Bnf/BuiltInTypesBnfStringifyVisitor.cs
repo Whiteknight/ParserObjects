@@ -296,13 +296,13 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
     private bool Accept<TInput>(MatchItemParser<TInput> p, BnfStringifyVisitor state)
     {
-        state.Append(p.Item);
+        state.Append("'", (object)p.Item ?? ' ', "'");
         return true;
     }
 
     private bool Accept<TInput>(MatchPredicateParser<TInput> _, BnfStringifyVisitor state)
     {
-        state.Append("MATCH");
+        state.Append("MATCH()");
         return true;
     }
 
