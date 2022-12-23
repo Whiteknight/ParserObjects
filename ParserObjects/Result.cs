@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -38,13 +37,6 @@ public sealed record SuccessResult<TValue>(
     public string ErrorMessage => string.Empty;
     object IResult.Value => Value!;
 
-    public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
-    {
-        Assert.ArgumentNotNull(transform, nameof(transform));
-        var newValue = transform(Value);
-        return new SuccessResult<TOutput>(Parser, newValue, Location, Consumed, Data);
-    }
-
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public override string ToString() => $"{Parser} Ok at {Location}";
@@ -76,12 +68,6 @@ public sealed record FailureResult<TValue>(
     public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
     public int Consumed => 0;
     object IResult.Value => Value!;
-
-    public IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform)
-    {
-        Assert.ArgumentNotNull(transform, nameof(transform));
-        return new FailureResult<TOutput>(Parser, Location, ErrorMessage, Data);
-    }
 
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 

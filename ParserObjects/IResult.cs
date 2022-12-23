@@ -45,14 +45,6 @@ public interface IResult<out TValue> : IResult
     new TValue Value { get; }
 
     /// <summary>
-    /// Transforms the Value of the result to a new form.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="transform"></param>
-    /// <returns></returns>
-    IResult<TOutput> Transform<TOutput>(Func<TValue, TOutput> transform);
-
-    /// <summary>
     /// Return a new result with an updated Consumed count.
     /// </summary>
     /// <param name="consumed"></param>
