@@ -105,6 +105,12 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     {
         if (_remainingBytes != 0 && _bufferIndex < _options.BufferSize)
             return;
+        if (_stream.Position >= _stream.Length)
+        {
+            _isComplete = true;
+            return;
+        }
+
         _stats.BufferFills++;
         _remainingBytes = _stream.Read(_buffer, 0, _options.BufferSize);
         if (_remainingBytes == 0)

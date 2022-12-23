@@ -132,25 +132,35 @@ namespace ParserObjects.Tests.Sequences
             var target = FromByteStream(memoryStream, new SequenceOptions<byte>
             {
                 BufferSize = 20,
-                EndSentinel = 9
+                EndSentinel = 0
             });
 
             target.GetNext(); // 1
+            target.Consumed.Should().Be(1);
             target.GetNext(); // 2
+            target.Consumed.Should().Be(2);
 
             var cp1 = target.Checkpoint();
 
             target.GetNext(); // 3
+            target.Consumed.Should().Be(3);
             target.GetNext(); // 4
+            target.Consumed.Should().Be(4);
             target.GetNext(); // 5
+            target.Consumed.Should().Be(5);
             target.GetNext(); // 6
+            target.Consumed.Should().Be(6);
             target.GetNext(); // 7
+            target.Consumed.Should().Be(7);
 
             var cp2 = target.Checkpoint();
 
             target.GetNext(); // 8
+            target.Consumed.Should().Be(8);
             target.GetNext(); // 9
+            target.Consumed.Should().Be(9);
             target.GetNext(); // 10
+            target.Consumed.Should().Be(10);
 
             var result = target.GetBetween(cp1, cp2);
             result.Length.Should().Be(5);
