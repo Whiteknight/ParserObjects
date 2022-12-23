@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Internal.Visitors;
 
@@ -13,7 +14,8 @@ public static class ParserFindReplaceExtensions
     /// <param name="root"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public static Option<IParser> Find(this IParser root, int id) => FindParserVisitor.ById(root, id);
+    public static Option<IParser> Find(this IParser root, int id)
+        => FindParserVisitor.ById(root, id);
 
     /// <summary>
     /// Recurse the tree searching for a parser with the given name. Returns a result with the
@@ -22,7 +24,12 @@ public static class ParserFindReplaceExtensions
     /// <param name="root"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static Option<IParser> FindNamed(this IParser root, string name) => FindParserVisitor.Named(root, name);
+    public static Option<IParser> FindNamed(this IParser root, string name)
+        => FindParserVisitor.Named(root, name);
+
+    public static IReadOnlyList<T> FindOfType<T>(this IParser root)
+        where T : IParser
+        => FindParserVisitor.OfType<T>(root);
 
     /// <summary>
     /// Given a parser tree, replace all children of ReplaceableParsers matching the given
@@ -97,6 +104,6 @@ public static class ParserFindReplaceExtensions
     /// <param name="name"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static MultiReplaceResult Replace<TInput, TOutput>(this IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
+    public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(this IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
         => FindParserVisitor.ReplaceMulti(root, name, transform);
 }
