@@ -55,4 +55,23 @@ public class OptionTests
         var result = opt.SelectMany(s => new Option<int>(true, s.Length));
         result.Success.Should().BeFalse();
     }
+
+    [TestCase(true, "test", true)]
+    [TestCase(false, "test", false)]
+    [TestCase(true, "XXXX", false)]
+    public void Is_Test(bool success, string result, bool expected)
+    {
+        var opt = new Option<string>(success, "test");
+        opt.Is(result).Should().Be(expected);
+    }
+
+    [Test]
+    public void GetHashCode_Test()
+    {
+        var opt = new Option<string>(true, "test");
+        opt.GetHashCode().Should().Be("test".GetHashCode());
+
+        var fail = new Option<string>(false, "test");
+        fail.GetHashCode().Should().Be(0);
+    }
 }
