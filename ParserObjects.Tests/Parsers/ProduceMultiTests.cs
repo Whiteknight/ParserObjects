@@ -1,30 +1,14 @@
-﻿using System.Linq;
-using static ParserObjects.Parsers<char>;
+﻿using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
-namespace ParserObjects.Tests.Parsers
+namespace ParserObjects.Tests.Parsers;
+
+public static class ProduceMultiTests
 {
-    public class ProduceParserTests
+    public class NoArgs
     {
         [Test]
-        public void Parse_Test()
-        {
-            var target = Produce(() => 5);
-            var input = FromString("abc");
-            var result = target.Parse(input);
-            result.Value.Should().Be(5);
-            result.Consumed.Should().Be(0);
-        }
-
-        [Test]
-        public void GetChildren_Test()
-        {
-            var target = Produce(() => 5);
-            target.GetChildren().Count().Should().Be(0);
-        }
-
-        [Test]
-        public void ProduceMulti_NoArgs()
+        public void Parse_NoArgs()
         {
             var target = ProduceMulti(() => new[] { "a", "b", "c" });
             var result = target.Parse(FromString(""));
@@ -36,7 +20,20 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ProduceMulti_Args_GetNextInput()
+        public void Match_Test()
+        {
+            var target = ProduceMulti(() => new[] { "a", "b", "c" });
+            var input = FromString("");
+            var result = target.Match(input);
+            result.Should().BeTrue();
+            input.Consumed.Should().Be(0);
+        }
+    }
+
+    public class Args
+    {
+        [Test]
+        public void Parse_Args_GetNext()
         {
             var target = ProduceMulti(state =>
             {
@@ -55,7 +52,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ProduceMulti_Args_GetData()
+        public void Parse_Args_GetData()
         {
             var target = DataContext(
                 ProduceMulti(state =>

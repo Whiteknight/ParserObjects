@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.Caching.Memory;
 using ParserObjects.Internal.Caching;
 using ParserObjects.Internal.Utility;
 
@@ -21,14 +20,6 @@ public sealed class ParseState<TInput> : IParseState<TInput>
         _store = new CascadingKeyValueStore();
         _logCallback = logCallback;
         Cache = cache ?? new NullResultsCache();
-    }
-
-    public ParseState(ISequence<TInput> input, Action<string> logCallback, IMemoryCache cache)
-    {
-        Input = input;
-        _store = new CascadingKeyValueStore();
-        _logCallback = logCallback;
-        Cache = new MemoryCacheResultsCache(cache);
     }
 
     public ParseState(ISequence<TInput> input, Action<string> logCallback)

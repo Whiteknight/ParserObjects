@@ -18,6 +18,15 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Match_Any()
+        {
+            var target = Deferred(() => Any());
+            var input = FromString("abc");
+            target.Match(input).Should().BeTrue();
+            input.Consumed.Should().Be(1);
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var anyParser = Any();
