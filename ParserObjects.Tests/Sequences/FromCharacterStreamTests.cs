@@ -214,6 +214,34 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(5, false)]
         [TestCase(2, true)]
         [TestCase(2, false)]
+        public void Checkpoint_Rapid(int bufferSize, bool useAscii)
+        {
+            // We're dealing with small buffers for testing purposes, so do a bunch of checkpoint
+            // and rewind to make sure we rewind to the current buffer but not the current position
+            var target = GetTarget("abcdefgh", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            target.GetNext().Should().Be('a');
+            var cp = target.Checkpoint();
+            target.GetNext().Should().Be('b');
+            cp.Rewind();
+            target.GetNext().Should().Be('b');
+            cp = target.Checkpoint();
+            target.GetNext().Should().Be('c');
+            cp.Rewind();
+            target.GetNext().Should().Be('c');
+            cp = target.Checkpoint();
+            target.GetNext().Should().Be('d');
+            cp.Rewind();
+            target.GetNext().Should().Be('d');
+            cp = target.Checkpoint();
+            target.GetNext().Should().Be('e');
+            cp.Rewind();
+            target.GetNext().Should().Be('e');
+        }
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, false)]
         public void GetNext_WindowsNewlines(int bufferSize, bool useAscii)
         {
             var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);

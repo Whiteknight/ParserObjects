@@ -19,27 +19,6 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
     private int _consumed;
     private long _bufferStartStreamPosition;
 
-    public StreamSingleByteCharacterSequence(SequenceOptions<char> options)
-    {
-        Assert.ArgumentNotNullOrEmpty(options.FileName, nameof(options.FileName));
-        _options = options;
-        _options.Validate();
-        if (!_options.Encoding!.IsSingleByte)
-            throw new ArgumentException("This sequence is only for single-byte character encodings");
-
-        _stats = default;
-        _line = 0;
-        _column = 0;
-        _index = 0;
-        _consumed = 0;
-        _byteBuffer = new byte[_options.BufferSize];
-        _buffer = new char[_options.BufferSize];
-        _stream = File.OpenRead(_options.FileName);
-        _totalCharsInBuffer = ReadStream();
-        _bufferStartStreamPosition = 0;
-        _stats.BufferFills++;
-    }
-
     public StreamSingleByteCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(stream, nameof(stream));
