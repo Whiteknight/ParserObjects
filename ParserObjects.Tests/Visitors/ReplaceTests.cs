@@ -5,6 +5,24 @@ namespace ParserObjects.Tests.Visitors
     public class ReplaceTests
     {
         [Test]
+        public void Replace_Fail_NoMatches()
+        {
+            var needle = Fail<char>().Replaceable().Named("needle");
+            var haystack = (Any(), Any(), Any(), needle).First();
+            var result = haystack.Replace(p => false, Fail<char>());
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Replace_Fail_SameParser()
+        {
+            var needle = Fail<char>();
+            var haystack = (Any(), Any(), Any(), needle.Replaceable().Named("needle")).First();
+            var result = haystack.Replace(p => p.Name == "needle", needle);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
         public void Replace_Fail_RootNull()
         {
             var needle = Fail<char>().Replaceable().Named("needle");

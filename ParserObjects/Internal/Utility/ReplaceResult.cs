@@ -17,19 +17,6 @@ public record struct SingleReplaceResult(
     public bool Success => !ReferenceEquals(Previous, Current);
 
     /// <summary>
-    /// Get the previous and current parser value.
-    /// </summary>
-    /// <param name="success"></param>
-    /// <param name="previous"></param>
-    /// <param name="current"></param>
-    public void Deconstruct(out bool success, out IParser previous, out IParser current)
-    {
-        success = Success;
-        previous = Previous;
-        current = Current;
-    }
-
-    /// <summary>
     /// Get the previous parser, current parser, and the ReplaceableParser parent.
     /// </summary>
     /// <param name="success"></param>
