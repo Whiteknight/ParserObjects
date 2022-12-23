@@ -308,7 +308,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
     private bool Accept<TInput>(MatchItemParser<TInput> p, BnfStringifyVisitor state)
     {
-        state.Append("'", (object)p.Item ?? ' ', "'");
+        state.Append("'", (object?)p.Item ?? ' ', "'");
         return true;
     }
 

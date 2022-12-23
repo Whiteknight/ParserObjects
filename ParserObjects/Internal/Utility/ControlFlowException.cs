@@ -9,10 +9,7 @@ namespace ParserObjects.Internal.Utility;
 [Serializable]
 public class ControlFlowException : Exception
 {
-    public ControlFlowException() { }
-    public ControlFlowException(string message) : base(message) { }
-    public ControlFlowException(string message, Exception inner) : base(message, inner) { }
-    protected ControlFlowException(
-      System.Runtime.Serialization.SerializationInfo info,
-      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+    public ControlFlowException(string message) : base(message)
+    {
+    }
 }

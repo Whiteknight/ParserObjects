@@ -10,16 +10,7 @@ namespace ParserObjects.Pratt;
 [Serializable]
 public class ParseException : ControlFlowException
 {
-    public ParseException()
-    {
-    }
-
     public ParseException(string message) : base(message)
-    {
-    }
-
-    public ParseException(string message, Exception inner)
-        : base(message, inner)
     {
     }
 
@@ -29,12 +20,6 @@ public class ParseException : ControlFlowException
         Severity = severity;
         Parser = parser;
         Location = location;
-    }
-
-    protected ParseException(
-      System.Runtime.Serialization.SerializationInfo info,
-      System.Runtime.Serialization.StreamingContext context) : base(info, context)
-    {
     }
 
     public ParseExceptionSeverity Severity { get; }
