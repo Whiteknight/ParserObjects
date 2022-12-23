@@ -165,6 +165,67 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
+        public void Parse_Fail_CallbackThrows()
+        {
+            var parser = Sequential<string>(s =>
+            {
+                throw new Exception("test");
+            });
+
+            var result = Try(parser).Parse("");
+            result.Success.Should().BeFalse();
+            var ex = result.TryGetData<Exception>().Value;
+            ex.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var parser = Sequential(s =>
+            {
+                var first = s.Parse(Any());
+                char second = first == 'a' ? s.Parse(Match('b')) : s.Parse(Match('y'));
+                var third = s.Parse(Match('c'));
+
+                return $"{first}{second}{third}".ToUpper();
+            });
+
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+            input.Consumed.Should().Be(3);
+        }
+
+        [Test]
+        public void Match_Fail_CallbackThrows()
+        {
+            var parser = Sequential<string>(s =>
+            {
+                throw new Exception("test");
+            });
+
+            var input = FromString("abc");
+            var result = Try(parser).Match(input);
+            result.Should().BeFalse();
+            input.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var parser = Sequential(s =>
+            {
+                s.Fail("test");
+                return "";
+            });
+
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            input.Consumed.Should().Be(0);
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var parser = Sequential(s =>

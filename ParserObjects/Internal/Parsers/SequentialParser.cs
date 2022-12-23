@@ -204,11 +204,8 @@ public static class Sequential
         public ParseFailedException(IResult result, string message)
             : base(message)
         {
-            Location = result.Location;
             Result = result;
         }
-
-        public Location? Location { get; }
 
         public IResult? Result { get; }
     }
