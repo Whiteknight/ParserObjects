@@ -5,11 +5,6 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
-// TODO: If Encoding.IsSingleByte==true, we should be able to dramatically simplify the implementation
-// and enable several optimizations throughout.
-// TODO: If the length of the stream is sufficiently small, we should be able to load the whole
-// thing into a string in memory and use StringCharacterSequence instead.
-
 /// <summary>
 /// A sequence of characters read from a Stream or StreamReader, such as from a file.
 /// </summary>
