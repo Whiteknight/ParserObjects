@@ -44,6 +44,23 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Parse_SeparatorMissing()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            MatchChar(','),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Parse("a,aa,ab");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
     public void Parse_NoItems()
     {
         var target = NonGreedyList(
