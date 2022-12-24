@@ -41,71 +41,90 @@ public static class NonGreedyList<TInput, TItem, TOutput>
             var startCp = state.Input.Checkpoint();
             _leftValue.Location = startCp.Location;
 
-            // try to parse the continuation parser first (empty list)
-            var result = _rightParser.Parse(state);
-            if (result.Success)
-            {
-                // If there's no minimum, we can return success
-                if (Minimum <= 1)
-                    return result;
+            // We are parsing <List> := <Right> | <Item> (<Separator> <Item>)*? <Right>
 
-                // Rewind back to the beginning, the item and right parsers might share a prefix
-                // and we might be able to keep going.
-                startCp.Rewind();
+            // try to parse the continuation parser first (empty list)
+            if (Minimum == 0)
+            {
+                var result = _rightParser.Parse(state);
+                if (result.Success)
+                    return result;
             }
 
-            int count = 0;
-            while (true)
+            // Try to match the first item
+            var nextItemResult = _itemParser.Parse(state);
+            if (!nextItemResult.Success)
+                return state.Fail(this, $"Expected at least {Minimum} items in the list but found 0.");
+
+            _leftValue.Value.Add(nextItemResult.Value);
+            int count = 1;
+
+            // First make sure we account for Minimum items. We don't even need to attempt the
+            // Right parser at this time.
+            while (count < Minimum)
             {
-                // 1. Parse an item. This must succeed or the list fails
-                var nextItemResult = _itemParser.Parse(state);
-                if (!nextItemResult.Success)
-                {
-                    startCp.Rewind();
-                    return state.Fail(this, "Could not match");
-                }
-
-                // TODO: If nextItemResult.Consumed == 0 and there is no separator, we run the
-                // risk of getting into an infinite loop. Detect that and break out of the loop
-                // if necessary.
-
-                _leftValue.Value.Add(nextItemResult.Value);
-
-                var beforeContinuationCp = state.Input.Checkpoint();
-
-                // 2. Try to parse the continuation. If this succeeds, we are done.
-                var finalResult = _rightParser.Parse(state);
-                if (finalResult.Success)
-                {
-                    if (count >= Minimum)
-                    {
-                        var endConsumed = state.Input.Consumed;
-                        var consumed = endConsumed - startCp.Consumed;
-                        return state.Success(this, finalResult.Value, consumed, startCp.Location);
-                    }
-
-                    // Rewind to the space before the continuation was attempted, so we can continue
-                    // parsing. The separator might have a shared prefix.
-                    beforeContinuationCp.Rewind();
-                }
-
-                // If we are already at maximum, we cannot continue. Return failure.
-                count++;
-                if (Maximum.HasValue && count >= Maximum.Value)
-                {
-                    startCp.Rewind();
-                    return state.Fail(this, "Matched too many items without a continuation");
-                }
-
                 // Try the separator and, if we have one, continue the loop.
                 var separatorResult = _separator.Match(state);
                 if (!separatorResult)
                 {
-                    // At this point the continuation and separator have both failed, so return
-                    // failure
+                    // If the separator fails, and we're still below the minimum, it's a failure
                     startCp.Rewind();
-                    return state.Fail(this, "Could not match");
+                    return state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}.");
                 }
+
+                // Parse an item. This must succeed or the list fails
+                nextItemResult = _itemParser.Parse(state);
+                if (!nextItemResult.Success)
+                {
+                    startCp.Rewind();
+                    return state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}.");
+                }
+
+                _leftValue.Value.Add(nextItemResult.Value);
+                count++;
+            }
+
+            while (true)
+            {
+                // First, see if we can match the Right parser and bail out
+                var result = _rightParser.Parse(state);
+                if (result.Success)
+                    return state.Success(this, result.Value, state.Input.Consumed - startCp.Consumed, startCp.Location);
+
+                if (Maximum.HasValue && count >= Maximum)
+                    return state.Fail(this, $"Found maximum {Maximum} items but could not complete list.");
+
+                int cycleStartConsumed = state.Input.Consumed;
+
+                // Search for a separator to start the next iteration
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                {
+                    // Right failed and Separator failed, so there's nowhere left to go. Fail.
+                    startCp.Rewind();
+                    return state.Fail(this, "Could not continue or complete the list.");
+                }
+
+                // Parse an item. This must succeed or the list fails
+                nextItemResult = _itemParser.Parse(state);
+                if (!nextItemResult.Success)
+                {
+                    startCp.Rewind();
+                    return state.Fail(this, "Found a separator but could not find the next item.");
+                }
+
+                int cycleEndConsumed = state.Input.Consumed;
+                int consumedThisCycle = cycleEndConsumed - cycleStartConsumed;
+                if (consumedThisCycle == 0)
+                {
+                    // Separator and Item have consumed no inputs. Since we're already above
+                    // Minimum items, we won't keep looping. We also know that Right doesn't match
+                    // at this position, so it's a failure
+                    return state.Fail(this, "Consumed zero inputs but could not complete list. Failing to avoid an infinite loop.");
+                }
+
+                _leftValue.Value.Add(nextItemResult.Value);
+                count++;
             }
         }
 
@@ -113,9 +132,93 @@ public static class NonGreedyList<TInput, TItem, TOutput>
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        // TODO: We can optimize this, but we have to sort out the issues where item.Consumed == 0
-        // to avoid getting into an infinite loop.
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        public bool Match(IParseState<TInput> state)
+        {
+            var startCp = state.Input.Checkpoint();
+
+            // We are matching <List> := <Right> | <Item> (<Separator> <Item>)*? <Right>
+
+            // try to match the continuation parser first (empty list)
+            if (Minimum == 0)
+            {
+                var result = _rightParser.Match(state);
+                if (result)
+                    return true;
+            }
+
+            // Try to match the first item
+            var nextItemResult = _itemParser.Match(state);
+            if (!nextItemResult)
+                return false;
+
+            int count = 1;
+
+            // First make sure we account for Minimum items. We don't even need to attempt the
+            // Right parser at this time.
+            while (count < Minimum)
+            {
+                // Try the separator and, if we have one, continue the loop.
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                {
+                    // If the separator fails, and we're still below the minimum, it's a failure
+                    startCp.Rewind();
+                    return false;
+                }
+
+                // Parse an item. This must succeed or the list fails
+                nextItemResult = _itemParser.Match(state);
+                if (!nextItemResult)
+                {
+                    startCp.Rewind();
+                    return false;
+                }
+
+                count++;
+            }
+
+            while (true)
+            {
+                // First, see if we can match the Right parser and bail out
+                var result = _rightParser.Match(state);
+                if (result)
+                    return true;
+
+                if (Maximum.HasValue && count >= Maximum)
+                    return false;
+
+                int cycleStartConsumed = state.Input.Consumed;
+
+                // Search for a separator to start the next iteration
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                {
+                    // Right failed and Separator failed, so there's nowhere left to go. Fail.
+                    startCp.Rewind();
+                    return false;
+                }
+
+                // Parse an item. This must succeed or the list fails
+                nextItemResult = _itemParser.Match(state);
+                if (!nextItemResult)
+                {
+                    startCp.Rewind();
+                    return false;
+                }
+
+                int cycleEndConsumed = state.Input.Consumed;
+                int consumedThisCycle = cycleEndConsumed - cycleStartConsumed;
+                if (consumedThisCycle == 0)
+                {
+                    // Separator and Item have consumed no inputs. Since we're already above
+                    // Minimum items, we won't keep looping. We also know that Right doesn't match
+                    // at this position, so it's a failure
+                    return false;
+                }
+
+                count++;
+            }
+        }
 
         public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
 

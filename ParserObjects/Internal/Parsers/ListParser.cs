@@ -38,29 +38,48 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
         Assert.ArgumentNotNull(state, nameof(state));
 
         var startCheckpoint = state.Input.Checkpoint();
-        var currentFailureCheckpoint = startCheckpoint;
         var items = new List<TOutput>();
+
+        // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+        var initialItemResult = _parser.Parse(state);
+        if (!initialItemResult.Success)
+        {
+            if (Minimum == 0)
+                return state.Success(this, items, 0, startCheckpoint.Location);
+            return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
+        }
+
+        items.Add(initialItemResult.Value);
+        int currentConsumed = initialItemResult.Consumed;
+        var currentFailureCheckpoint = state.Input.Checkpoint();
 
         while (Maximum == null || items.Count < Maximum)
         {
+            var separatorResult = _separator.Match(state);
+            if (!separatorResult)
+                break;
+            var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+            if (currentConsumed == 0 && separatorConsumed == 0 && items.Count >= Minimum)
+            {
+                // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                // to avoid getting into an infinite loop
+                // We don't need to rewind to before the separator, because it consumed nothing
+                break;
+            }
+
             var result = _parser.Parse(state);
             if (!result.Success)
             {
+                // If we fail the item here, we have to rewind to the position before the
+                // separator.
                 currentFailureCheckpoint.Rewind();
                 break;
             }
 
             items.Add(result.Value);
-            if (items.Count >= Minimum && result.Consumed == 0)
-                break;
-
-            // If we Succeed the separator but fail the subsequent item, we need to roll back to
-            // the point directly before the separator. Notice that this probably doesn't imply
-            // the failure of the entire List parse
+            currentConsumed = result.Consumed;
             currentFailureCheckpoint = state.Input.Checkpoint();
-            var separatorResult = _separator.Match(state);
-            if (!separatorResult)
-                break;
         }
 
         // If we don't have at least Minimum items, we need to roll all the way back to the
@@ -82,31 +101,47 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
     {
         Assert.ArgumentNotNull(state, nameof(state));
 
-        var startCheckpoint = state.Input.Checkpoint();
-        var currentFailureCheckpoint = startCheckpoint;
-
         int count = 0;
+        var startCheckpoint = state.Input.Checkpoint();
+
+        // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+        var initialItemResult = _parser.Match(state);
+        if (!initialItemResult)
+            return Minimum == 0;
+
+        count++;
+        int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
+        var currentFailureCheckpoint = state.Input.Checkpoint();
+
         while (Maximum == null || count < Maximum)
         {
-            var loopStartCheckpoint = state.Input.Checkpoint();
+            var separatorResult = _separator.Match(state);
+            if (!separatorResult)
+                break;
+            var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+            if (currentConsumed == 0 && separatorConsumed == 0 && count >= Minimum)
+            {
+                // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                // to avoid getting into an infinite loop
+                // We don't need to rewind to before the separator, because it consumed nothing
+                break;
+            }
+
+            var beforeAttemptConsumed = state.Input.Consumed;
+
             var result = _parser.Match(state);
             if (!result)
             {
+                // If we fail the item here, we have to rewind to the position before the
+                // separator.
                 currentFailureCheckpoint.Rewind();
                 break;
             }
 
             count++;
-            if (count >= Minimum && (state.Input.Consumed - loopStartCheckpoint.Consumed) == 0)
-                break;
-
-            // If we Succeed the separator but fail the subsequent item, we need to roll back to
-            // the point directly before the separator. Notice that this probably doesn't imply
-            // the failure of the entire List parse
+            currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
             currentFailureCheckpoint = state.Input.Checkpoint();
-            var separatorResult = _separator.Match(state);
-            if (!separatorResult)
-                break;
         }
 
         // If we don't have at least Minimum items, we need to roll all the way back to the
