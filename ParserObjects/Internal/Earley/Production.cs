@@ -24,12 +24,16 @@ public sealed class Production<TValue> : IProduction
 
     public Option<object> Apply(object[] argsList)
     {
-        // TODO: What should happen if the _reduce callback throws an exception? Bubble it up
-        // (which would probably nuke the whole parse) or return default here (possibly with some
-        // kind of logging)?
-        Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
-        var value = _reduce(argsList);
-        return value == null ? default : new Option<object>(true, value);
+        try
+        {
+            Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
+            var value = _reduce(argsList);
+            return value == null ? default : new Option<object>(true, value);
+        }
+        catch
+        {
+            return default;
+        }
     }
 
     public override string ToString()

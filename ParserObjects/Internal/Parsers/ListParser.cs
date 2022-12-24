@@ -78,8 +78,6 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-    // TODO: We can optimize this method, but if parser.Match() consumes 0 items we could get into
-    // an infinite loop. So we have to be very careful about how we handle that situation.
     public bool Match(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
@@ -122,7 +120,6 @@ public sealed class ListParser<TInput, TOutput> : IParser<TInput, IReadOnlyList<
         return true;
     }
 
-    // TODO: Need to update BNF output to account for separator
     public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 
     public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
