@@ -10,27 +10,18 @@ namespace ParserObjects.Internal.Sequences;
 /// </summary>
 public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 {
-    private static readonly char[] _surrogateBuffer = new char[2];
-
+    private readonly char[] _surrogateBuffer = new char[2];
     private readonly StreamReader _reader;
     private readonly char[] _buffer;
     private readonly SequenceOptions<char> _options;
 
     private WorkingSequenceStatistics _stats;
-    private BufferMetadata _metadata;
-
-    // TODO: I don't think we need BufferMetadata struct anymore. We can just put these fields
-    // directly in the class, because we don't copy the entire struct anymore for checkpointing.
-    private struct BufferMetadata
-    {
-        public int TotalCharsInBuffer { get; set; }
-        public int Line { get; set; }
-        public int Column { get; set; }
-        public int Index { get; set; }
-        public int Consumed { get; set; }
-        public long StreamPosition { get; set; }
-        public long BufferStartStreamPosition { get; set; }
-    }
+    private int _totalCharsInBuffer;
+    private int _line;
+    private int _column;
+    private int _index;
+    private long _streamPosition;
+    private long _bufferStartStreamPosition;
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
@@ -39,11 +30,10 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _options.Encoding = reader.CurrentEncoding;
         _options.Validate();
         _stats = default;
-        _metadata = default;
         _buffer = new char[_options.BufferSize];
         _reader = reader;
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _metadata.BufferStartStreamPosition = 0;
+        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
 
@@ -53,11 +43,10 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         _options = options;
         _options.Validate();
         _stats = default;
-        _metadata = default;
         _buffer = new char[_options.BufferSize];
         _reader = new StreamReader(stream, _options.Encoding!);
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _metadata.BufferStartStreamPosition = 0;
+        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
 
@@ -98,12 +87,12 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 
         if (c == '\n')
         {
-            _metadata.Line++;
-            _metadata.Column = 0;
+            _line++;
+            _column = 0;
             return c;
         }
 
-        _metadata.Column++;
+        _column++;
         return c;
     }
 
@@ -116,11 +105,11 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         return next;
     }
 
-    public Location CurrentLocation => new Location(_options.FileName, _metadata.Line + 1, _metadata.Column);
+    public Location CurrentLocation => new Location(_options.FileName, _line + 1, _column);
 
-    public bool IsAtEnd => _metadata.TotalCharsInBuffer == 0;
+    public bool IsAtEnd => _totalCharsInBuffer == 0;
 
-    public int Consumed => _metadata.Consumed;
+    public int Consumed { get; private set; }
 
     public void Dispose()
     {
@@ -131,18 +120,18 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
 
     private char GetLowSurrogateOrThrow()
     {
-        if (_metadata.Index < _metadata.TotalCharsInBuffer)
+        if (_index < _totalCharsInBuffer)
         {
-            var candidate = _buffer[_metadata.Index];
+            var candidate = _buffer[_index];
             if (!char.IsLowSurrogate(candidate))
                 throw new InvalidOperationException("Found high surrogate but could not find corresponding low surrogate. Input is malformed.");
             return candidate;
         }
 
         FillBuffer();
-        if (_metadata.TotalCharsInBuffer == 0)
+        if (_totalCharsInBuffer == 0)
             throw new InvalidOperationException("Found high surrogate but there were no more characters. Input is malformed.");
-        var next = _buffer[_metadata.Index];
+        var next = _buffer[_index];
         if (!char.IsLowSurrogate(next))
             throw new InvalidOperationException("Found high surrogate but could not find corresponding low surrogate. Input is malformed.");
         return next;
@@ -153,16 +142,16 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         // We fill the buffer initially in the constructor, and then again after we get a
         // character. If the buffer doesn't have any data in it at this point, it's because
         // we're at the end of input.
-        if (_metadata.TotalCharsInBuffer == 0)
+        if (_totalCharsInBuffer == 0)
             return _options.EndSentinel;
 
-        var c = _buffer[_metadata.Index];
+        var c = _buffer[_index];
         if (!advance)
             return c;
 
         // Bump the index so we advance forward
-        _metadata.Index++;
-        _metadata.Consumed++;
+        _index++;
+        Consumed++;
 
         if (_expectLowSurrogate)
         {
@@ -185,14 +174,14 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
             _surrogateBuffer[0] = c;
             _surrogateBuffer[1] = low;
             var totalSize = _options.Encoding!.GetByteCount(_surrogateBuffer);
-            _metadata.StreamPosition += totalSize;
+            _streamPosition += totalSize;
             _expectLowSurrogate = true;
             FillBuffer();
             return c;
         }
 
         var size = GetEncodingByteCountForCharacter(c);
-        _metadata.StreamPosition += size;
+        _streamPosition += size;
         FillBuffer();
         return c;
     }
@@ -200,13 +189,13 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     private void FillBuffer()
     {
         // If there are chars remaining in the current buffer, bail. There's nothing to do
-        if (_metadata.Index < _metadata.TotalCharsInBuffer || _metadata.TotalCharsInBuffer == 0)
+        if (_index < _totalCharsInBuffer || _totalCharsInBuffer == 0)
             return;
 
         _stats.BufferFills++;
-        _metadata.BufferStartStreamPosition = _metadata.StreamPosition;
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _metadata.Index = 0;
+        _bufferStartStreamPosition = _streamPosition;
+        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _index = 0;
     }
 
     public SequenceCheckpoint Checkpoint()
@@ -214,7 +203,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         if (_expectLowSurrogate)
             throw new InvalidOperationException("Cannot set a checkpoint between the high and low surrogates of a single codepoint");
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _metadata.Consumed, _metadata.Index, _metadata.StreamPosition, new Location(_options.FileName, _metadata.Line, _metadata.Column));
+        return new SequenceCheckpoint(this, Consumed, _index, _streamPosition, new Location(_options.FileName, _line, _column));
     }
 
     public void Rewind(SequenceCheckpoint checkpoint)
@@ -227,7 +216,7 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         var streamPosition = checkpoint.StreamPosition;
 
         // If we're rewinding to the current position, short-circuit
-        if (_metadata.StreamPosition == streamPosition)
+        if (_streamPosition == streamPosition)
         {
             _stats.RewindsToCurrentBuffer++;
             return;
@@ -240,15 +229,15 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
         // that many other sequences won't use.
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
-        _metadata.BufferStartStreamPosition = streamPosition;
-        _metadata.StreamPosition = streamPosition;
-        _metadata.Index = 0;
-        _metadata.Line = checkpoint.Location.Line;
-        _metadata.Column = checkpoint.Location.Column;
-        _metadata.Consumed = checkpoint.Consumed;
-        _reader.BaseStream.Seek(_metadata.BufferStartStreamPosition, SeekOrigin.Begin);
+        _bufferStartStreamPosition = streamPosition;
+        _streamPosition = streamPosition;
+        _index = 0;
+        _line = checkpoint.Location.Line;
+        _column = checkpoint.Location.Column;
+        Consumed = checkpoint.Consumed;
+        _reader.BaseStream.Seek(_bufferStartStreamPosition, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
-        _metadata.TotalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
