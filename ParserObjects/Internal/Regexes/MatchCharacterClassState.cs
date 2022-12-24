@@ -101,7 +101,6 @@ public sealed class MatchCharacterClassState : IState
             return (_exactChars[index] & flag) > 0;
         }
 
-        // TODO: Need unit tests for these cases. Basically, tests for non-printable ASCII chars
         for (int i = 0; i < _ranges.Count; i++)
         {
             if (_ranges[i].low <= c && c <= _ranges[i].high)

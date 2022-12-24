@@ -143,8 +143,6 @@ public static class RegexPatternGrammar
 
             c = GetUnescapedCharacter(ctx, c);
 
-            // TODO: There is a potential optimization here where, if we have subsequent characters
-            // in a class like [abcde] we could replace with range [a-e]
             var range = ParseCharacterRange(ctx, c);
             ranges.Add(range);
         }
@@ -204,7 +202,6 @@ public static class RegexPatternGrammar
         return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
     }
 
-    // TODO: Move most of this logic into a static factory method on State.
     private static List<IState> ParseAlternation(IPrattParseContext<char, List<IState>> ctx, List<IState> states)
     {
         var options = new List<List<IState>>() { states };
