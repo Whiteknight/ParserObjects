@@ -31,7 +31,6 @@ public interface IParseState<out TInput>
     void Log(IParser parser, string message);
 }
 
-// TODO: Clean this up and remove unnecessary overrides
 public static class ParseStateExtensions
 {
     /// <summary>
@@ -121,41 +120,11 @@ public static class ParseStateExtensions
     /// <param name="location"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Success<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location, IReadOnlyList<object>? data = null)
+    public static IResult<TOutput> Success<TInput, TOutput>(this IParseState<TInput> state, IParser parser, TOutput output, int consumed, Location location, IReadOnlyList<object>? data = null)
     {
         state.Log(parser, "Succeeded");
         return new SuccessResult<TOutput>(parser, output, location, consumed, new ResultData(data));
     }
-
-    /// <summary>
-    /// Create a Success result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="output"></param>
-    /// <param name="consumed"></param>
-    /// <param name="location"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult<object> Success<TInput>(this IParseState<TInput> state, IParser<TInput> parser, object output, int consumed, Location location, IReadOnlyList<object>? data = null)
-    {
-        state.Log(parser, "Succeeded");
-        return new SuccessResult<object>(parser, output, location, consumed, new ResultData(data));
-    }
-
-    /// <summary>
-    /// Create a Success result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="output"></param>
-    /// <param name="consumed"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult<object> Success<TInput>(this IParseState<TInput> state, IParser<TInput> parser, object output, int consumed, IReadOnlyList<object>? data = null)
-        => Success(state, parser, output, consumed, state.Input.CurrentLocation, data);
 
     /// <summary>
     /// Create a result from a partial result.

@@ -2,7 +2,6 @@
 
 namespace ParserObjects.Internal.Visitors;
 
-// TODO: Need to expose this in a static facade method somewhere.
 public sealed class ListParsersVisitor
 {
     public IReadOnlyDictionary<int, IParser> Visit(IParser parser)

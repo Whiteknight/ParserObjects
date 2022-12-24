@@ -17,7 +17,7 @@ public sealed record EmptyParser<TInput>(
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        return state.Success(this, Defaults.ObjectInstance, 0);
+        return state.Success(this, Defaults.ObjectInstance, 0, state.Input.CurrentLocation);
     }
 
     public bool Match(IParseState<TInput> state) => true;
