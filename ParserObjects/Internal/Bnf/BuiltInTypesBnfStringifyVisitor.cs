@@ -540,6 +540,24 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
         return true;
     }
+
+    private bool Accept<TInput>(TryParser<TInput>.Parser p, BnfStringifyVisitor state)
+    {
+        state.Append("TRY ", p.GetChildren().First());
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(TryParser<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append("TRY ", p.GetChildren().First());
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(TryParser<TInput>.MultiParser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append("TRY ", p.GetChildren().First());
+        return true;
+    }
 }
 
 #pragma warning restore IDE0060 // Remove unused parameter

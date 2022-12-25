@@ -443,9 +443,6 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
         => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
-    // TODO: We probably want to convert Try() into regular IParser class implementations so we can
-    // optimize .Match() methods for them.
-
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
     /// receiving an exception, the input sequence is rewound to the location where Try started
@@ -457,28 +454,7 @@ public static partial class Parsers<TInput>
     /// <param name="bubble"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-        => new Function<TInput, TOutput>.Parser(args =>
-        {
-            var cp = args.Input.Checkpoint();
-            try
-            {
-                return parser.Parse(args.State);
-            }
-            catch (ControlFlowException)
-            {
-                // These exceptions are used within the library for non-local control flow, and
-                // should not be caught or modified here.
-                throw;
-            }
-            catch (Exception e)
-            {
-                cp.Rewind();
-                examine?.Invoke(e);
-                if (bubble)
-                    throw;
-                return args.Failure(e.Message ?? "Caught unhandled exception", data: new[] { e });
-            }
-        }, "TRY {child}", new[] { parser });
+        => new TryParser<TInput>.Parser<TOutput>(parser, examine, bubble);
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -490,29 +466,7 @@ public static partial class Parsers<TInput>
     /// <param name="bubble"></param>
     /// <returns></returns>
     public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-        => new Function<TInput>.Parser(state =>
-        {
-            var cp = state.Input.Checkpoint();
-            try
-            {
-                var result = parser.Parse(state);
-                return result;
-            }
-            catch (ControlFlowException)
-            {
-                // These exceptions are used within the library for non-local control flow, and
-                // should not be caught or modified here.
-                throw;
-            }
-            catch (Exception e)
-            {
-                cp.Rewind();
-                examine?.Invoke(e);
-                if (bubble)
-                    throw;
-                return state.Fail(parser, e.Message, data: new[] { e });
-            }
-        }, "TRY {child}", new[] { parser });
+        => new TryParser<TInput>.Parser(parser, examine, bubble);
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -525,26 +479,5 @@ public static partial class Parsers<TInput>
     /// <param name="bubble"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Try<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-       => new Function<TInput, TOutput>.MultiParser(args =>
-       {
-           var cp = args.Input.Checkpoint();
-           try
-           {
-               return parser.Parse(args.State);
-           }
-           catch (ControlFlowException)
-           {
-               // These exceptions are used within the library for non-local control flow, and
-               // should not be caught or modified here.
-               throw;
-           }
-           catch (Exception e)
-           {
-               cp.Rewind();
-               examine?.Invoke(e);
-               if (bubble)
-                   throw;
-               return new MultiResult<TOutput>(parser, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new[] { e });
-           }
-       }, "TRY {child}", new[] { parser });
+       => new TryParser<TInput>.MultiParser<TOutput>(parser, examine, bubble);
 }

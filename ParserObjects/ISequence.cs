@@ -63,7 +63,6 @@ public interface ISequence<out T> : ISequence
     T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
 }
 
-// TODO: Rename this to something better
 public interface ICharSequenceWithRemainder : ISequence<char>
 {
     string GetRemainder();

@@ -50,8 +50,6 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
     public Option<T> TryGetData<T>() => _data.TryGetData<T>();
 }
 
-// TODO: See about adding _data to Success and Failure result alternatives, as well as the parent multi
-
 /// <summary>
 /// Result value which represents a single success, including information necessary to continue
 /// the parse from the point of the success.
