@@ -30,7 +30,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TInput> Any() => _any;
 
     /// <summary>
-    /// Parses a parser, returns true if the parser succeeds, false if it fails.
+    /// Invokes a parser, returns Success(true) if the parser succeeds, Success(false) if it fails.
     /// </summary>
     /// <param name="p"></param>
     /// <returns></returns>
@@ -41,6 +41,12 @@ public static partial class Parsers<TInput>
             return args.Success(result.Success);
         }, "IF {child}", new[] { p });
 
+    /// <summary>
+    /// Invokes the inner parsers using the Match method, in sequence. Returns an array of all
+    /// input items from the input sequence which were consumed during the match.
+    /// </summary>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
     public static IParser<TInput, TInput[]> Capture(params IParser<TInput>[] parsers)
         => new CaptureParser<TInput>(parsers);
 
@@ -234,7 +240,7 @@ public static partial class Parsers<TInput>
         => new Function<TInput, TOutput>.Parser(func, description ?? "", Array.Empty<IParser>());
 
     /// <summary>
-    /// Wraps the parser to guarantee that it consumes no input.
+    /// Invokes the parser but rewinds the input sequence to ensure no input items are consumed.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -254,7 +260,7 @@ public static partial class Parsers<TInput>
         }, "(?={child})", new[] { p });
 
     /// <summary>
-    /// Wraps the parser to guarantee that it consumes no input.
+    /// Invokes the parser but rewinds the input sequence to ensure no input items are consumed.
     /// </summary>
     /// <param name="p"></param>
     /// <returns></returns>
@@ -272,7 +278,7 @@ public static partial class Parsers<TInput>
         }, "(?={child})", new[] { p });
 
     /// <summary>
-    /// Attempt to parse an item and return an object which holds a value on success.
+    /// AAttempt to invoke a parser. Returns an Option with the value on success.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -281,7 +287,7 @@ public static partial class Parsers<TInput>
         => new Optional<TInput, TOutput>.NoDefaultParser(p);
 
     /// <summary>
-    /// Attempt to parse a parser and return a default value if the parser fails.
+    /// Attempt to invoke a parser. Returns the result on success, a default value on failure.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -293,6 +299,13 @@ public static partial class Parsers<TInput>
         return new Optional<TInput, TOutput>.DefaultValueParser(p, _ => getDefault());
     }
 
+    /// <summary>
+    /// Attempt to invoke a parser. Returns the result on success, a default value on failure.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="getDefault"></param>
+    /// <returns></returns>
     public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
     {
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
@@ -329,6 +342,12 @@ public static partial class Parsers<TInput>
             return args.Success(value);
         }, "PRODUCE", Array.Empty<IParser>());
 
+    /// <summary>
+    /// Produce a value, possibly using data or input from the current parse state.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="produce"></param>
+    /// <returns></returns>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
         => new Function<TInput, TOutput>.Parser(args =>
         {
@@ -349,6 +368,13 @@ public static partial class Parsers<TInput>
             builder.AddSuccesses(values);
         }, "PRODUCE", Array.Empty<IParser>());
 
+    /// <summary>
+    /// Produces a multi result with all returned values as alternatives. Uses data or input from
+    /// the current parse state.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="produce"></param>
+    /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IParseState<TInput>, IEnumerable<TOutput>> produce)
         => new Function<TInput, TOutput>.MultiParser(builder =>
         {
