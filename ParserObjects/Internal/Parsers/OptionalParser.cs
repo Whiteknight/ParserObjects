@@ -4,6 +4,12 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Parsers to attempt to invoke the inner parser, but always return success. A default value may
+/// be returned if the inner parser fails.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
 public static class Optional<TInput, TOutput>
 {
     public record NoDefaultParser(

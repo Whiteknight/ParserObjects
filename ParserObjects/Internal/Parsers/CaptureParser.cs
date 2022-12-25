@@ -3,6 +3,13 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Parsers which attempt to match inner parsers, in sequence, and return an array of all items
+/// from the input sequence which have been consumed.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <param name="Parsers"></param>
+/// <param name="Name"></param>
 public record CaptureParser<TInput>(
     IReadOnlyList<IParser<TInput>> Parsers,
     string Name = ""

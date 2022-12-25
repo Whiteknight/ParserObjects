@@ -5,6 +5,14 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// List parser variant which attempts to be non-greedy. Takes a continuation parser which signals
+/// completion of the list, and attempts to invoke that at every position before consuming new
+/// input items.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TItem"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
 public static class NonGreedyList<TInput, TItem, TOutput>
 {
     public class Parser : IParser<TInput, TOutput>

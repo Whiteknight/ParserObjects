@@ -4,6 +4,12 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Parsers which attempt to invoke a parser and catch/handle any exceptions thrown. Built-in
+/// parser types are not generally expected to throw exceptions, so this can be used to protect
+/// against custom-written parser types.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
 public static class TryParser<TInput>
 {
     public record Parser(

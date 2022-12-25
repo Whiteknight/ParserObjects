@@ -5,8 +5,7 @@ using ParserObjects.Internal.Utility;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parsers to transform the raw result object, including the result type, result value,
-/// success flag or error message.
+/// Parsers to transform the result value of an inner parser.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TMiddle"></typeparam>
