@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -16,6 +17,25 @@ public class NonGreedyListTests
                 CharacterString("ab"),
                 (x, y) => $"({new string(x.ToArray())})({y})"
             )
+        );
+
+        var result = target.Parse("aaaab");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be("(aaa)(ab)");
+        result.Consumed.Should().Be(5);
+    }
+
+    [Test]
+    public void Parse_Minimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
         );
 
         var result = target.Parse("aaaab");
@@ -96,6 +116,23 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Parse_Fail_BelowMinimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("B"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var result = target.Parse("aaB");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
     public void Parse_Fail_MoreThanMaximum()
     {
         var target = NonGreedyList(
@@ -128,6 +165,166 @@ public class NonGreedyListTests
 
         var result = target.Parse("aaaaX");
         result.Success.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_Test()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var input = FromString("aaaab");
+        var result = target.Match(input);
+        result.Should().BeTrue();
+        input.Consumed.Should().Be(5);
+    }
+
+    [Test]
+    public void Match_Minimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var input = FromString("aaaab");
+        var result = target.Match(input);
+        result.Should().BeTrue();
+        input.Consumed.Should().Be(5);
+    }
+
+    [Test]
+    public void Match_Separator()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            MatchChar(','),
+            l => Rule(
+                l,
+                CharacterString(",ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var input = FromString("a,a,a,ab");
+        var result = target.Match(input);
+        result.Should().BeTrue();
+        input.Consumed.Should().Be(8);
+    }
+
+    [Test]
+    public void Match_SeparatorMissing()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            MatchChar(','),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Match("a,aa,ab");
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_NoItems()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var input = FromString("ab");
+        var result = target.Match(input);
+        result.Should().BeTrue();
+        input.Consumed.Should().Be(2);
+    }
+
+    [Test]
+    public void Match_Fail_NoItemsMinimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 2
+        );
+
+        var result = target.Match("ab");
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_Fail_BelowMinimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("B"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var result = target.Match("aaB");
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_Fail_MoreThanMaximum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            maximum: 2
+        );
+
+        // Can parse a maximum of 2 "a", but then has "aab" which does not match
+        // the continuation parser
+        var result = target.Match("aaaab");
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_Fail_NoContinuation()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Match("aaaaX");
+        result.Should().BeFalse();
     }
 
     [Test]
