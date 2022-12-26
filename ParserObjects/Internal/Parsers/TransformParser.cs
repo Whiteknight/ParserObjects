@@ -23,7 +23,6 @@ public static class Transform<TInput, TMiddle, TOutput>
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var startCheckpoint = state.Input.Checkpoint();
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
@@ -57,7 +56,6 @@ public static class Transform<TInput, TMiddle, TOutput>
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state, nameof(state));
-            var startCheckpoint = state.Input.Checkpoint();
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);

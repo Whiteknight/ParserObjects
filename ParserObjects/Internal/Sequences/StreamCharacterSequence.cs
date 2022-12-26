@@ -21,7 +21,6 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
     private int _column;
     private int _index;
     private long _streamPosition;
-    private long _bufferStartStreamPosition;
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
@@ -33,7 +32,6 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _buffer = new char[_options.BufferSize];
         _reader = reader;
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
 
@@ -46,7 +44,6 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _buffer = new char[_options.BufferSize];
         _reader = new StreamReader(stream, _options.Encoding!);
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
     }
 
@@ -193,7 +190,6 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
             return;
 
         _stats.BufferFills++;
-        _bufferStartStreamPosition = _streamPosition;
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _index = 0;
     }
@@ -229,13 +225,12 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         // that many other sequences won't use.
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
-        _bufferStartStreamPosition = streamPosition;
         _streamPosition = streamPosition;
         _index = 0;
         _line = checkpoint.Location.Line;
         _column = checkpoint.Location.Column;
         Consumed = checkpoint.Consumed;
-        _reader.BaseStream.Seek(_bufferStartStreamPosition, SeekOrigin.Begin);
+        _reader.BaseStream.Seek(_streamPosition, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
@@ -284,7 +279,6 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _reader.BaseStream.Seek(0, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
-        _bufferStartStreamPosition = 0;
         _index = 0;
         _line = 0;
         _column = 0;
