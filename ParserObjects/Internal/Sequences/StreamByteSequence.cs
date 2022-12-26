@@ -82,10 +82,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     private byte GetNextByteRaw(bool advance)
     {
-        if (_isComplete)
-            return _options.EndSentinel;
-
-        if (_remainingBytes == 0 || _bufferIndex >= _options.BufferSize)
+        if (_isComplete || _remainingBytes == 0 || _bufferIndex >= _options.BufferSize)
             return _options.EndSentinel;
 
         var b = _buffer[_bufferIndex];
@@ -113,8 +110,6 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
         _stats.BufferFills++;
         _remainingBytes = _stream.Read(_buffer, 0, _options.BufferSize);
-        if (_remainingBytes == 0)
-            _isComplete = true;
         _bufferIndex = 0;
     }
 
@@ -168,10 +163,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public byte[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
-        if (!Owns(start) || !Owns(end))
-            return Array.Empty<byte>();
-
-        if (start.CompareTo(end) >= 0)
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return Array.Empty<byte>();
 
         var currentConsumed = Consumed;
