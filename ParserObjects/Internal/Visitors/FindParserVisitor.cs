@@ -29,7 +29,7 @@ public sealed class FindParserVisitor
         }
     }
 
-    public static Option<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
+    private static Option<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
     {
         Assert.ArgumentNotNull(root, nameof(root));
         Assert.ArgumentNotNull(predicate, nameof(predicate));

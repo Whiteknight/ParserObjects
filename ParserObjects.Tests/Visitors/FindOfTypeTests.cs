@@ -14,5 +14,14 @@ namespace ParserObjects.Tests.Visitors
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(needle);
         }
+
+        [Test]
+        public void OfType_None()
+        {
+            var needle = Fail<char>().Named("needle");
+            var haystack = (Any(), Any(), Any(), needle).First();
+            var result = haystack.FindOfType<EmptyParser<char>>();
+            result.Count.Should().Be(0);
+        }
     }
 }
