@@ -67,6 +67,15 @@ public static class NonGreedyList<TInput, TItem, TOutput>
             _leftValue.Value.Add(nextItemResult.Value);
             int count = 1;
 
+            (var earlyResult, count) = ParseUntilMinimum(state, count, startCp);
+            if (earlyResult != null)
+                return earlyResult;
+
+            return ParseUntilComplete(state, count, startCp);
+        }
+
+        private (IResult<TOutput>? result, int count) ParseUntilMinimum(IParseState<TInput> state, int count, SequenceCheckpoint startCp)
+        {
             // First make sure we account for Minimum items. We don't even need to attempt the
             // Right parser at this time.
             while (count < Minimum)
@@ -77,21 +86,26 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 {
                     // If the separator fails, and we're still below the minimum, it's a failure
                     startCp.Rewind();
-                    return state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}.");
+                    return (state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
                 }
 
                 // Parse an item. This must succeed or the list fails
-                nextItemResult = _itemParser.Parse(state);
+                var nextItemResult = _itemParser.Parse(state);
                 if (!nextItemResult.Success)
                 {
                     startCp.Rewind();
-                    return state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}.");
+                    return (state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
                 }
 
                 _leftValue.Value.Add(nextItemResult.Value);
                 count++;
             }
 
+            return (null, count);
+        }
+
+        private IResult<TOutput> ParseUntilComplete(IParseState<TInput> state, int count, SequenceCheckpoint startCp)
+        {
             while (true)
             {
                 // First, see if we can match the Right parser and bail out
@@ -114,7 +128,7 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 }
 
                 // Parse an item. This must succeed or the list fails
-                nextItemResult = _itemParser.Parse(state);
+                var nextItemResult = _itemParser.Parse(state);
                 if (!nextItemResult.Success)
                 {
                     startCp.Rewind();
@@ -161,6 +175,18 @@ public static class NonGreedyList<TInput, TItem, TOutput>
 
             int count = 1;
 
+            (var returnFailure, count) = MatchUntilMinimum(state, count);
+            if (returnFailure)
+            {
+                startCp.Rewind();
+                return false;
+            }
+
+            return MatchUntilComplete(state, count, startCp);
+        }
+
+        private (bool returnFailure, int count) MatchUntilMinimum(IParseState<TInput> state, int count)
+        {
             // First make sure we account for Minimum items. We don't even need to attempt the
             // Right parser at this time.
             while (count < Minimum)
@@ -168,23 +194,21 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 // Try the separator and, if we have one, continue the loop.
                 var separatorResult = _separator.Match(state);
                 if (!separatorResult)
-                {
-                    // If the separator fails, and we're still below the minimum, it's a failure
-                    startCp.Rewind();
-                    return false;
-                }
+                    return (true, count);
 
                 // Parse an item. This must succeed or the list fails
-                nextItemResult = _itemParser.Match(state);
+                var nextItemResult = _itemParser.Match(state);
                 if (!nextItemResult)
-                {
-                    startCp.Rewind();
-                    return false;
-                }
+                    return (true, count);
 
                 count++;
             }
 
+            return (false, count);
+        }
+
+        private bool MatchUntilComplete(IParseState<TInput> state, int count, SequenceCheckpoint startCp)
+        {
             while (true)
             {
                 // First, see if we can match the Right parser and bail out
@@ -207,7 +231,7 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 }
 
                 // Parse an item. This must succeed or the list fails
-                nextItemResult = _itemParser.Match(state);
+                var nextItemResult = _itemParser.Match(state);
                 if (!nextItemResult)
                 {
                     startCp.Rewind();
