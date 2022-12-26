@@ -725,5 +725,43 @@ namespace ParserObjects.Tests.Parsers
             // We cannot get the value (4*5)+6 = 26 because we recurse to inner for the "5 +"
             values.Should().Contain(44); // 4*(5+6) = 44
         }
+
+        [Test]
+        public void TwoSymbolsWithSameName()
+        {
+            var act = () => Earley<string>(symbols =>
+            {
+                var a = symbols.New("test");
+                var b = symbols.New("test");
+                return b;
+            });
+
+            act.Should().Throw<GrammarException>();
+        }
+
+        [Test]
+        public void GetNewName_Search()
+        {
+            Earley<string>(symbols =>
+            {
+                // Get a symbol with an automatically-generated name, so we can see where the
+                // counter is
+                var a = symbols.New();
+
+                var currentInt = int.Parse(a.Name.Substring(2));
+
+                // now allocate a new symbol with what should be the next auto-generated value:
+                var b = symbols.New("_S" + (currentInt + 1));
+
+                // Now try to allocate a third symbol with an auto-generated name. The system will
+                // try the name we created for b, and then search for a better one
+                var c = symbols.New();
+
+                // This whole thing shouldn't throw an exception, so we need to set up a simple
+                // production here just to avoid that check.
+                c.Rule(Produce(() => "X"), x => x);
+                return c;
+            });
+        }
     }
 }
