@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Sequences
 {
     public class FromCharacterStreamTests
     {
-        private static ICharSequenceWithRemainder GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0', Encoding encoding = null)
+        private static ICharSequence GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0', Encoding encoding = null)
         {
             encoding ??= Encoding.UTF8;
             var memoryStream = new MemoryStream();

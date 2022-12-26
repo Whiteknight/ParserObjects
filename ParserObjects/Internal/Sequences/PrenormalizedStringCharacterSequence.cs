@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Sequences;
 /// A sequence of characters read from a string. Pre-normalizes the string to optimize for reads.
 /// Only useful when normalization is requested (MaintainLineEndings == false).
 /// </summary>
-public sealed class PrenormalizedStringCharacterSequence : ICharSequenceWithRemainder
+public sealed class PrenormalizedStringCharacterSequence : ICharSequence
 {
     private readonly char[] _s;
     private readonly int _bufferLength;

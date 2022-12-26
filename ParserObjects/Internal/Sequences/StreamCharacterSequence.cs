@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Sequences;
 /// <summary>
 /// A sequence of characters read from a Stream or StreamReader, such as from a file.
 /// </summary>
-public sealed class StreamCharacterSequence : ICharSequenceWithRemainder, IDisposable
+public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 {
     private readonly char[] _surrogateBuffer = new char[2];
     private readonly StreamReader _reader;

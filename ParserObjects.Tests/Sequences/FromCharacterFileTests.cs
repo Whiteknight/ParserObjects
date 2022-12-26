@@ -6,10 +6,10 @@ namespace ParserObjects.Tests.Sequences;
 
 public class FromCharacterFileTests
 {
-    private void Test(string content, SequenceOptions<char> options, Action<ICharSequenceWithRemainder> act)
+    private void Test(string content, SequenceOptions<char> options, Action<ICharSequence> act)
     {
         var fileName = Guid.NewGuid().ToString() + ".txt";
-        ICharSequenceWithRemainder target = null;
+        ICharSequence target = null;
         try
         {
             File.WriteAllText(fileName, content);

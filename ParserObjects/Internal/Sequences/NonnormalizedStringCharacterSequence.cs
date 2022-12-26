@@ -7,7 +7,7 @@ namespace ParserObjects.Internal.Sequences;
 /// <summary>
 /// A sequence of characters read from a string. Does not do any normalization of line endings.
 /// </summary>
-public sealed class NonnormalizedStringCharacterSequence : ICharSequenceWithRemainder
+public sealed class NonnormalizedStringCharacterSequence : ICharSequence
 {
     private readonly string _s;
     private readonly SequenceOptions<char> _options;

@@ -93,7 +93,7 @@ public interface ISequence<out T> : ISequence
 /// <summary>
 /// Sequence type for character-based sequences which may return a string in some operations.
 /// </summary>
-public interface ICharSequenceWithRemainder : ISequence<char>
+public interface ICharSequence : ISequence<char>
 {
     /// <summary>
     /// Return a string containing all remaining characters from the current string position until

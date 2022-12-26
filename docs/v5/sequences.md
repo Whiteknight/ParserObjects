@@ -173,9 +173,11 @@ If the `start` checkpoint and the `end` checkpoint are for the same location, or
 
 You can reset the sequence back to the beginning with `.Reset()`.  This is a quick operation, similar to `.Rewind()`, and it may involve a buffer refill for sequences which use buffers.
 
-### Working with strings
+### Character-based Sequences
 
-`char`-based sequence types implement the `ICharSequenceWithRemainder` interface, which allows you to read out the entirety of the remaining buffer with the `.GetRemainder()` method:
+`char`-based sequence types implement the `ICharSequence` interface, which is `ISequence<char>` with a few other helpful methods to interact with the data as `string` in some cases. Notice that generic `ISequence<T>` types which may operate on `char` sometimes (such as `FromList<T>()`) will not have these methods.
+
+With an `ICharSequence` you can get the remaining data from the sequence, from the current position until the end of input, as a string:
 
 ```csharp
 var remainder = sequence.GetRemainder();
@@ -183,7 +185,7 @@ var remainder = sequence.GetRemainder();
 
 This can be useful in some cases where you want to tell the user about data which was not successfully parsed, or in testing/debugging scenarios when you want to see where a parse failed.
 
-The sequences which implement this are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have this method. Generic sequence types which may act on `char`, such as `FromList<char>()` will not implement it.
+The sequences which implement this are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have this method. 
 
 ## Sequence Types
 

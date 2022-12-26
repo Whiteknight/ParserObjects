@@ -4,7 +4,7 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
-public sealed class StreamSingleByteCharacterSequence : ICharSequenceWithRemainder, IDisposable
+public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposable
 {
     private readonly byte[] _byteBuffer;
     private readonly char[] _buffer;
