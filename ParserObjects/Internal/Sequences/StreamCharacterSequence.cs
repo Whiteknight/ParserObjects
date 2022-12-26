@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Sequences;
 /// <summary>
 /// A sequence of characters read from a Stream or StreamReader, such as from a file.
 /// </summary>
-public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
+public sealed class StreamCharacterSequence : ICharSequenceWithRemainder, IDisposable
 {
     private readonly char[] _surrogateBuffer = new char[2];
     private readonly StreamReader _reader;
@@ -260,4 +260,37 @@ public sealed class StreamCharacterSequence : ISequence<char>, IDisposable
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
+
+    public string GetRemainder()
+    {
+        if (_expectLowSurrogate)
+            throw new InvalidOperationException("Cannot get remainder from inside a multi-char codepoint");
+
+        var cp = Checkpoint();
+
+        _reader.BaseStream.Seek(_streamPosition, SeekOrigin.Begin);
+        _reader.DiscardBufferedData();
+
+        var s = _reader.ReadToEnd();
+
+        cp.Rewind();
+
+        return s;
+    }
+
+    public void Reset()
+    {
+        // Attempt to reset the stream and reader back to the beginning
+        _reader.BaseStream.Seek(0, SeekOrigin.Begin);
+        _reader.DiscardBufferedData();
+        _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
+        _bufferStartStreamPosition = 0;
+        _index = 0;
+        _line = 0;
+        _column = 0;
+        _streamPosition = 0;
+        _expectLowSurrogate = false;
+        Consumed = 0;
+        _stats.BufferFills++;
+    }
 }

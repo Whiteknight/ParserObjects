@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Sequences
 {
     public class FromCharacterStreamTests
     {
-        private static ISequence<char> GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0', Encoding encoding = null)
+        private static ICharSequenceWithRemainder GetTarget(string sc, int bufferSize = 32, bool normalizeLineEndings = true, char endSentinel = '\0', Encoding encoding = null)
         {
             encoding ??= Encoding.UTF8;
             var memoryStream = new MemoryStream();
@@ -490,6 +490,44 @@ namespace ParserObjects.Tests.Sequences
             new string(target.GetBetween(cp3, cp1)).Should().Be("");
             new string(target.GetBetween(cp4, cp2)).Should().Be("");
             new string(target.GetBetween(cp4, cp1)).Should().Be("");
+        }
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, false)]
+        public void GetRemainder_Test(int bufferSize, bool useAscii)
+        {
+            var target = GetTarget("abcdefghi", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            var result = target.GetRemainder();
+            result.Should().Be("efghi");
+
+            target.GetNext().Should().Be('e');
+        }
+
+        [TestCase(5, true)]
+        [TestCase(5, false)]
+        [TestCase(2, true)]
+        [TestCase(2, false)]
+        public void Reset_Test(int bufferSize, bool useAscii)
+        {
+            var target = GetTarget("abcdefghi", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            target.Reset();
+            target.Consumed.Should().Be(0);
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(0);
+            target.GetNext().Should().Be('a');
         }
     }
 }

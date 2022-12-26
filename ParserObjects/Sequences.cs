@@ -43,7 +43,7 @@ public static class Sequences
     /// <param name="fileName"></param>
     /// <param name="encoding"></param>
     /// <returns></returns>
-    public static ISequence<char> FromCharacterFile(string fileName, Encoding? encoding = null)
+    public static ICharSequenceWithRemainder FromCharacterFile(string fileName, Encoding? encoding = null)
         => FromCharacterFile(new SequenceOptions<char>
         {
             FileName = fileName,
@@ -57,7 +57,7 @@ public static class Sequences
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> FromCharacterFile(SequenceOptions<char> options)
+    public static ICharSequenceWithRemainder FromCharacterFile(SequenceOptions<char> options)
     {
         options.Validate();
         var stream = File.OpenRead(options.FileName);
@@ -82,7 +82,7 @@ public static class Sequences
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
+    public static ICharSequenceWithRemainder FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
     {
         options.Validate();
         if (stream.Length <= options.BufferSize)
@@ -105,7 +105,7 @@ public static class Sequences
     /// <param name="reader"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
+    public static ICharSequenceWithRemainder FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
         => new StreamCharacterSequence(reader, options);
 
     /// <summary>

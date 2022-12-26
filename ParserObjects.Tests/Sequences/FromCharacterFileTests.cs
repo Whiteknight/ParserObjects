@@ -6,10 +6,10 @@ namespace ParserObjects.Tests.Sequences;
 
 public class FromCharacterFileTests
 {
-    private void Test(string content, SequenceOptions<char> options, Action<ISequence<char>> act)
+    private void Test(string content, SequenceOptions<char> options, Action<ICharSequenceWithRemainder> act)
     {
         var fileName = Guid.NewGuid().ToString() + ".txt";
-        ISequence<char> target = null;
+        ICharSequenceWithRemainder target = null;
         try
         {
             File.WriteAllText(fileName, content);
@@ -141,6 +141,59 @@ public class FromCharacterFileTests
             target.Peek().Should().Be('s');
             target.CurrentLocation.Column.Should().Be(2);
             target.Consumed.Should().Be(2);
+        });
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void GetRemainder_Test(int bufferSize, bool isAscii)
+    {
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("abcdefghi", options, target =>
+        {
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            var result = target.GetRemainder();
+            result.Should().Be("efghi");
+
+            target.GetNext().Should().Be('e');
+        });
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void Reset_Test(int bufferSize, bool isAscii)
+    {
+        var options = new SequenceOptions<char>
+        {
+            BufferSize = bufferSize,
+            Encoding = isAscii ? Encoding.ASCII : Encoding.UTF8
+        };
+
+        Test("abcdefghi", options, target =>
+        {
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            target.Reset();
+            target.Consumed.Should().Be(0);
+            target.CurrentLocation.Line.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(0);
+            target.GetNext().Should().Be('a');
         });
     }
 }

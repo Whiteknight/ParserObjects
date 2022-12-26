@@ -4,7 +4,7 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
-public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDisposable
+public sealed class StreamSingleByteCharacterSequence : ICharSequenceWithRemainder, IDisposable
 {
     private readonly byte[] _byteBuffer;
     private readonly char[] _buffer;
@@ -194,4 +194,28 @@ public sealed class StreamSingleByteCharacterSequence : ISequence<char>, IDispos
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
+
+    public string GetRemainder()
+    {
+        var cp = Checkpoint();
+
+        _stream.Seek(_bufferStartStreamPosition + _index, SeekOrigin.Begin);
+        var reader = new StreamReader(_stream, _options.Encoding);
+        var s = reader.ReadToEnd();
+
+        cp.Rewind();
+
+        return s;
+    }
+
+    public void Reset()
+    {
+        _bufferStartStreamPosition = 0;
+        _stream.Seek(0, SeekOrigin.Begin);
+        ReadStream();
+        _index = 0;
+        _line = 0;
+        _column = 0;
+        _consumed = 0;
+    }
 }
