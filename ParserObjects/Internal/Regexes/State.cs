@@ -127,7 +127,7 @@ public static class State
             'W' => CreateMatchState(c => char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsSymbol(c), "not word"),
             's' => CreateMatchState(c => char.IsWhiteSpace(c), "whitespace"),
             'S' => CreateMatchState(c => !char.IsWhiteSpace(c), "not whitespace"),
-            (>= '0') and (<= '9') => new MatchBackreferenceState(type - '0'),
+            >= '0' and <= '9' => new MatchBackreferenceState(type - '0'),
             _ => new MatchCharacterState(type)
         };
         states.Add(matchState);
