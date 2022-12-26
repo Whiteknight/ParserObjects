@@ -60,4 +60,6 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
     public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
 
     public void Rewind(SequenceCheckpoint checkpoint) => _inputs.Rewind(checkpoint);
+
+    public void Reset() => _inputs.Reset();
 }

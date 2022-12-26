@@ -61,13 +61,13 @@ public interface ISequence<out T> : ISequence
     T Peek();
 
     T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
+
+    void Reset();
 }
 
 public interface ICharSequenceWithRemainder : ISequence<char>
 {
     string GetRemainder();
-
-    void Reset();
 }
 
 public static class SequenceExtensions

@@ -81,4 +81,6 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
     public bool Owns(SequenceCheckpoint checkpoint) => _input.Owns(checkpoint);
 
     public void Rewind(SequenceCheckpoint checkpoint) => _input.Rewind(checkpoint);
+
+    public void Reset() => _input.Reset();
 }

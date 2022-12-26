@@ -17,10 +17,16 @@ namespace ParserObjects.Tests.Sequences
         public void GetNext_Test()
         {
             var target = GetTarget(1, 2, 3);
+
+            target.Consumed.Should().Be(0);
             target.GetNext().Should().Be(1);
+            target.Consumed.Should().Be(1);
             target.GetNext().Should().Be(2);
+            target.Consumed.Should().Be(2);
             target.GetNext().Should().Be(3);
+            target.Consumed.Should().Be(3);
             target.GetNext().Should().Be(0);
+            target.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -198,6 +204,22 @@ namespace ParserObjects.Tests.Sequences
             var result = target.GetBetween(cp1, cp2);
             result.Length.Should().Be(5);
             result.Should().ContainInOrder(3, 4, 5, 6, 7);
+        }
+
+        [Test]
+        public void Reset_Test()
+        {
+            var target = GetTarget(1, 2, 3);
+
+            target.Consumed.Should().Be(0);
+            target.GetNext().Should().Be(1);
+            target.Consumed.Should().Be(1);
+            target.GetNext().Should().Be(2);
+            target.Consumed.Should().Be(2);
+
+            target.Reset();
+            target.Consumed.Should().Be(0);
+            target.GetNext().Should().Be(1);
         }
     }
 }

@@ -207,4 +207,14 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
+
+    public void Reset()
+    {
+        _stream.Seek(0, SeekOrigin.Begin);
+        _remainingBytes = _stream.Read(_buffer, 0, _options.BufferSize);
+        if (_remainingBytes == 0)
+            _isComplete = true;
+        _consumed = 0;
+        _bufferIndex = 0;
+    }
 }

@@ -11,10 +11,18 @@ namespace ParserObjects.Tests.Sequences
                 new[] { 1, 2, 3, 4, 5, 6 },
                 0
             ).Where(x => x % 2 == 0);
+
+            // .Consumed is based on the value from the underlying sequence, so we have to acknowledge
+            // that we are skipping values
+            target.Consumed.Should().Be(0);
             target.GetNext().Should().Be(2);
+            target.Consumed.Should().Be(2);
             target.GetNext().Should().Be(4);
+            target.Consumed.Should().Be(4);
             target.GetNext().Should().Be(6);
+            target.Consumed.Should().Be(6);
             target.GetNext().Should().Be(0);
+            target.Consumed.Should().Be(6);
         }
 
         [Test]
@@ -75,6 +83,25 @@ namespace ParserObjects.Tests.Sequences
             target.GetNext().Should().Be('F');
             target.GetNext().Should().Be('H');
             target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void Reset_Test()
+        {
+            var target = FromList(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                0
+            ).Where(x => x % 2 == 0);
+
+            target.Consumed.Should().Be(0);
+            target.GetNext().Should().Be(2);
+            target.Consumed.Should().Be(2);
+            target.GetNext().Should().Be(4);
+            target.Consumed.Should().Be(4);
+
+            target.Reset();
+            target.Consumed.Should().Be(0);
+            target.GetNext().Should().Be(2);
         }
     }
 }

@@ -200,7 +200,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequenceWithRemaind
         var cp = Checkpoint();
 
         _stream.Seek(_bufferStartStreamPosition + _index, SeekOrigin.Begin);
-        var reader = new StreamReader(_stream, _options.Encoding);
+        var reader = new StreamReader(_stream, _options.Encoding!);
         var s = reader.ReadToEnd();
 
         cp.Rewind();

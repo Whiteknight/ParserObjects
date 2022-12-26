@@ -13,15 +13,12 @@ public sealed class FilterSequence<T> : ISequence<T>
     private readonly ISequence<T> _inputs;
     private readonly Func<T, bool> _predicate;
 
-    private int _consumed;
-
     public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
     {
         Assert.ArgumentNotNull(inputs, nameof(inputs));
         Assert.ArgumentNotNull(predicate, nameof(predicate));
         _inputs = inputs;
         _predicate = predicate;
-        _consumed = 0;
     }
 
     public T GetNext()
@@ -33,9 +30,7 @@ public sealed class FilterSequence<T> : ISequence<T>
         if (!hasMore)
             return _inputs.GetNext();
 
-        var result = _inputs.GetNext();
-        _consumed++;
-        return result;
+        return _inputs.GetNext();
     }
 
     public T Peek()
@@ -55,7 +50,7 @@ public sealed class FilterSequence<T> : ISequence<T>
         }
     }
 
-    public int Consumed => _consumed;
+    public int Consumed => _inputs.Consumed;
 
     private bool DiscardNonMatches()
     {
@@ -84,4 +79,6 @@ public sealed class FilterSequence<T> : ISequence<T>
     public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
 
     public void Rewind(SequenceCheckpoint checkpoint) => _inputs.Rewind(checkpoint);
+
+    public void Reset() => _inputs.Reset();
 }

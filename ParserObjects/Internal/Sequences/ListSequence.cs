@@ -100,4 +100,9 @@ public sealed class ListSequence<T> : ISequence<T?>
 
         return buffer;
     }
+
+    public void Reset()
+    {
+        _index = 0;
+    }
 }

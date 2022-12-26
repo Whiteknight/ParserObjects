@@ -10,9 +10,16 @@ namespace ParserObjects.Tests.Sequences
         {
             var parser = Any();
             var target = FromParseResult("abc".ToCharacterSequence(), parser);
+
+            target.Consumed.Should().Be(0);
             target.GetNext().Value.Should().Be('a');
+            target.Consumed.Should().Be(1);
             target.GetNext().Value.Should().Be('b');
+            target.Consumed.Should().Be(2);
             target.GetNext().Value.Should().Be('c');
+            target.Consumed.Should().Be(3);
+            target.GetNext().Success.Should().BeFalse();
+            target.Consumed.Should().Be(3);
         }
 
         [Test]
