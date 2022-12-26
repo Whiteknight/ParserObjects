@@ -171,7 +171,7 @@ If the `start` checkpoint and the `end` checkpoint are for the same location, or
 
 ### Working with strings
 
-`string`-based sequence types implement the `ICharSequenceWithRemainder` interface, which allows you to read out the entirety of the remaining buffer with the `.GetRemainder()` method:
+`char`-based sequence types implement the `ICharSequenceWithRemainder` interface, which allows you to read out the entirety of the remaining buffer with the `.GetRemainder()` method:
 
 ```csharp
 var remainder = sequence.GetRemainder();
@@ -180,6 +180,8 @@ var remainder = sequence.GetRemainder();
 This can be useful in some cases where you want to tell the user about data which was not successfully parsed. 
 
 You can also call `.Reset()` on these sequences, to immediately return the sequence to the beginning without having to create a checkpoint. This may be useful in testing scenarios where you need to parse and re-parse the same data without having to create new sequences each time.
+
+The sequences which implement these behaviors are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have these methods. Generic sequence types which may act on `char`, such as `FromList<char>()` will not implement them.
 
 ## Sequence Types
 
@@ -194,7 +196,7 @@ var sequence = FromString("...");
 var sequence = "...".ToCharSequence();
 ```
 
-This sequence converts line endings to `\n`, it ignores `\r` characters, and uses `\0` as the end sentinel. You can change all those options with the `SequenceOptions<char>` parameter.
+By default this sequence converts line endings to `\n` and uses `\0` as the end sentinel. You can change those options with the `SequenceOptions<char>` parameter.
 
 ### Read Characters from a File or Stream
 
@@ -210,9 +212,9 @@ Once you instantiate the sequence, ParserObjects expects to have exclusive use o
 
 This sequence converts line endings to `\n`, it ignores `\r` characters, and uses `\0` as the end sentinel. These values can be changed with the `SequenceOptions<char>` parameter.
 
-**Notice**: The exact implementation returned from each of these methods may be different depending on the length of the stream and the encoding used. Simpler cases (where the stream length is shorter than the size of the internal buffer, or when a single-byte encoding such as ASCII is used) may be able to return optimized sequence types.
+**Notice**: The exact implementation returned from each of these methods may be different depending on the length of the stream and the encoding used. Simpler cases (where the stream length is shorter than the size of the internal buffer, or when a single-byte encoding such as ASCII is used) may be able to return optimized sequence types. *Code to the `ISequence<char>` abstraction and do not depend on any specific concrete implementation*.
 
-**Notice**: Multi-byte encodings read from a long stream have a limitation that *a checkpoint cannot be created between the low and high characters of a surrogate pair*. This is due to a problem calculating the exact position of the underlying stream when we are between parts of a single codepoint which uses a variable-length encoding. For example, if we have a UTF8 encoded input stream with a 4-byte astral plane codepoint, which C# converts to two `char` values encoded in UTF16, it's not meaningful to ask what the position is of the stream in the middle of that code point. Resetting to the location in the stream somewhere in the middle of the 4-byte codepoint will leave the reader in an undefined situation because subsequent bytes can only be understood in terms of the entire codepoint. 
+**Notice**: Multi-byte encodings read from a long stream have a limitation that *a checkpoint cannot be created between the low and high characters of a surrogate pair*. This is due to a problem calculating the exact position of the underlying stream when we are between parts of a single codepoint which uses a variable-length encoding. For example, if we have a UTF8 encoded input stream with a 4-byte astral plane codepoint, which C# converts to two `char` values encoded in UTF16, it's not meaningful to ask what the position is of the stream in the middle of that code point. The stream reader cannot be reset into the middle of that codepoint, because it cannot understand the last few bytes without having the first byte available. If you are dealing with variable-length encodings such as `UTF8` or `UTF16` and may be parsing characters with surrogate pairs, you cannot call `.Checkpoint()`, `.GetBetween()`, or `.GetRemainder()` in the middle of the surrogate pair. `.Peek()` and `.GetNext()` will work in that situation, however. The underlying sequence will throw an exception for malformed input if there is an unmatched high or low surrogate, so if your code reads a high surrogate you should be able to read the low surrogate with confidence that you will receive it, so do you not need to set a checkpoint between them.
 
 ### Read Bytes from a File or Stream
 
@@ -235,7 +237,7 @@ var sequence = FromList(list);
 var sequence = list.ToSequence();
 ```
 
-You can also convert an `IEnumerable<T>` to a sequence, but ParserObjects will read the entire enumerable into an `IReadOnlyList<T>` first, because there is no other way to provide `.Rewind()` mechanics on an `IEnumerable<T>`:
+You can also convert an `IEnumerable<T>` to a sequence, but ParserObjects will read the entire enumerable into an `IReadOnlyList<T>` first because there is no other way to provide `.Rewind()` mechanics on an `IEnumerable<T>`:
 
 ```csharp
 var sequence = FromEnumerable(enumerable);
@@ -244,7 +246,7 @@ var sequence = enumerable.ToSequence();
 
 This sequence uses a default value (`null` in most cases where objects are used) as the end sentinel, though you can change this with the `SequenceOptions<T>` parameter. Your user-supplied end sentinel value should properly implement `.Equals` so that end values can be detected. End sentinel values will be cached and not recomputed on each call to `.GetNext()`. 
 
-**Notice**: If you use `FromEnumerable()` with a `string` argument, you will not get any of the special character-handling of the character sequences described previously. It will not normalize newlines, for example. 
+**Notice**: If you use `FromEnumerable()` with a `string` argument, you will not get any of the special character-handling of the character sequences described previously. It will not normalize newlines, keep track of `.Line` and `.Column` correctly, or implement the `.GetRemainder()` method. If your data is character-based, you should try to use one of the char-based sequence types instead.
 
 ### Filtering Sequences
 
@@ -256,6 +258,8 @@ var filtered = sequence.Where(i => !char.IsControl(i));
 
 The filter sequence decorator uses the same end sentinel value as the underlying sequence. The end sentinel is not subject to filtering and will be returned whether it matches the predicate or not.
 
+**Notice**: Metadata such as `.Consumed` or `.CurrentLocation` will be based on the values from the underlying sequence only. Therefore the `.Consumed` or `.CurrentLocation` values may update more than one at a time if values are filtered out from the underlying sequence. 
+
 ### Mapping Values
 
 You can map values from a sequence to another type or format:
@@ -265,6 +269,8 @@ var mapped = sequence.Select(i => char.ToUpper(i));
 ```
 
 End sentinel values will be mapped and may be cached, so care should be taken to properly handle that case.
+
+**Notice**: State is maintained by the underlying sequence, so calling `checkpoint.Rewind()` to a previous position will cause data to be re-read and re-mapped. For this reason, your mapping operation should not be expensive, or should try to return cached values for items which are equivalent regardless of position or parse state.
 
 ### Convert a Parser To a Sequence
 
@@ -277,6 +283,8 @@ var newSequence = parser.ToSequence(innerSequence);
 
 The [expression parsing example](expression_example.md) uses the `.ToSequence()` extension to convert a parser into a sequence. The end sentinel for this sequence is whatever value the underlying parser produces at end-of-input. This end sentinel value, when detected, will be cached so that the parser will not continually have to recreate the value. If the underlying parser does not correctly handle end-of-input, it may return a failure result, which should be handled correctly later in the parse.
 
+**Notice**: Metadata such as `.Consumed` or `.CurrentLocation` will be based on the values from the underlying sequence only. Therefore the `.Consumed` or `.CurrentLocation` values may update more than one at a time if values are filtered out from the underlying sequence. 
+
 ## Parsing
 
 To use a sequence for parsing, you can pass the sequence to the `IParser<TInput>.Parse()` method
@@ -287,7 +295,7 @@ var result = parser.Parse(sequence);
 
 In this operation, the parser will read as many input values from the sequence as necessary to make the match, and any additional data will be left in the sequence. Subsequent calls to parse with the same sequence will continue from the point where the previous parse left off. See the ["Parser Invariants" section of the Parser Usage page](parser_usage.md) for more information about how a parser interacts with a sequence.
 
-If your parser has a `char` input and your data comes from a string, you can call this method variant:
+If your parser has a `char` input and your data comes from a string, you can call this method variant, which invokes `FromString()` internally:
 
 ```csharp
 var result = parser.Parse("...");
@@ -301,4 +309,4 @@ All sequences allow accessing statistics, which are useful in some cases to unde
 var stats = sequence.GetStatistics();
 ```
 
-The statistics returned are a read-only snapshot and will not automatically update as the sequence is used.
+The statistics returned are a read-only snapshot. You must call `.GetStatistics()` again to get updated values.
