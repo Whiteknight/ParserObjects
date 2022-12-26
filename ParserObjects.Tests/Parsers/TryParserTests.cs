@@ -1,12 +1,15 @@
-﻿using ParserObjects.Pratt;
+﻿using ParserObjects.Internal.Utility;
+using ParserObjects.Pratt;
 using static ParserObjects.Parsers<char>;
 
-namespace ParserObjects.Tests.Parsers
+namespace ParserObjects.Tests.Parsers;
+
+public static class TryParserTests
 {
-    public class TryParserTests
+    public class Output
     {
         [Test]
-        public void Parse_Output_Test()
+        public void Parse_Test()
         {
             var target = Try(Any());
             var result = target.Parse("abc");
@@ -18,18 +21,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Untyped_Test()
-        {
-            var target = Try(Empty());
-            var result = target.Parse("abc");
-            result.Success.Should().BeTrue();
-            result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
-            ex.Success.Should().BeFalse();
-        }
-
-        [Test]
-        public void Parse_Output_Fail()
+        public void Parse_Fail()
         {
             var target = Try(Fail());
             var result = target.Parse("abc");
@@ -40,18 +32,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Untyped_Fail()
-        {
-            var target = Try(End());
-            var result = target.Parse("abc");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
-            ex.Success.Should().BeFalse();
-        }
-
-        [Test]
-        public void Parse_Output_Throw()
+        public void Parse_Throw()
         {
             var target = Try(Produce<char>(() => throw new Exception("test")));
             var result = target.Parse("abc");
@@ -63,20 +44,19 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Untyped_Throw()
+        public void Parse_Throw_ExamineBubble()
         {
-            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
-            var target = Try(inner);
-            var result = target.Parse("abc");
-            result.Success.Should().BeFalse();
-            result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
-            ex.Success.Should().BeTrue();
-            ex.Value.Message.Should().Be("test");
+            Exception exception = null;
+            var inner = Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner, bubble: true, examine: ex => exception = ex);
+            var act = () => target.Parse("abc");
+            act.Should().Throw<Exception>();
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("test");
         }
 
         [Test]
-        public void Parse_Output_Pratt_ControlFlowException()
+        public void Parse_Pratt_ControlFlowException()
         {
             // Parser parses "a", then recurses self->try->self to parse "b"
             // Callback for "b" throws a control flow exception
@@ -106,7 +86,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Output_Pratt_Exception()
+        public void Parse_Pratt_Exception()
         {
             // Parser parses "a", then recurses self->try->self to parse "b"
             // Callback for "b" throws a regular exception
@@ -134,7 +114,158 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Multi_Output_Test()
+        public void Match_ControlFlowException()
+        {
+            // ControlFlowExceptions are used internally, and it's generally a bad idea to use them
+            // in downstream code, but it's also hard to set up a test to prove that Try() does not
+            // catch or interfere with them otherwise.
+            var target = Try(Produce<char>(() => throw new ControlFlowException("fail")));
+            var act = () => target.Match("ab");
+            act.Should().Throw<ControlFlowException>();
+        }
+
+        [Test]
+        public void Match_Throw_ExamineBubble()
+        {
+            Exception exception = null;
+            var inner = Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner, bubble: true, examine: ex => exception = ex);
+            var act = () => target.Match("abc");
+            act.Should().Throw<Exception>();
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Try(Any());
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := TRY .");
+        }
+    }
+
+    public class NoOutput
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var target = Try(Empty());
+            var result = target.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Fail()
+        {
+            var target = Try(End());
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Throw()
+        {
+            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner);
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+            var ex = result.TryGetData<Exception>();
+            ex.Success.Should().BeTrue();
+            ex.Value.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void Parse_Throw_ExamineBubble()
+        {
+            Exception exception = null;
+            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner, bubble: true, examine: ex => exception = ex);
+            var act = () => target.Parse("abc");
+            act.Should().Throw<Exception>();
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void Parse_ControlFlowException()
+        {
+            // ControlFlowExceptions are used internally, and it's generally a bad idea to use them
+            // in downstream code, but it's also hard to set up a test to prove that Try() does not
+            // catch or interfere with them otherwise.
+            var target = Try((IParser<char>)Produce<char>(() => throw new ControlFlowException("fail")));
+            var act = () => target.Parse("ab");
+            act.Should().Throw<ControlFlowException>();
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var target = Try(Empty());
+            var result = target.Match("abc");
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var target = Try(End());
+            var result = target.Match("abc");
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Throw()
+        {
+            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner);
+            var result = target.Match("abc");
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Throw_ExamineBubble()
+        {
+            Exception exception = null;
+            var inner = (IParser<char>)Produce<char>(() => throw new Exception("test"));
+            var target = Try(inner, bubble: true, examine: ex => exception = ex);
+            var act = () => target.Match("abc");
+            act.Should().Throw<Exception>();
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void Match_ControlFlowException()
+        {
+            // ControlFlowExceptions are used internally, and it's generally a bad idea to use them
+            // in downstream code, but it's also hard to set up a test to prove that Try() does not
+            // catch or interfere with them otherwise.
+            var target = Try((IParser<char>)Produce<char>(() => throw new ControlFlowException("fail")));
+            var act = () => target.Match("ab");
+            act.Should().Throw<ControlFlowException>();
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Try(End());
+            var result = target.ToBnf();
+            result.Should().Contain("(TARGET) := TRY END");
+        }
+    }
+
+    public class Multi
+    {
+        [Test]
+        public void Parse_Test()
         {
             var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
             var result = target.Parse("");
@@ -145,7 +276,7 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void Parse_Multi_Output_Throw()
+        public void Parse_Throw()
         {
             var target = Try(ProduceMulti<char>(() => throw new Exception("test")));
             var result = target.Parse("");
@@ -156,23 +287,19 @@ namespace ParserObjects.Tests.Parsers
         }
 
         [Test]
-        public void ToBnf_SingleOutput()
+        public void Parse_Throw_ExamineBubble()
         {
-            var target = Try(Any());
-            var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := TRY .");
+            Exception exception = null;
+            var inner = ProduceMulti<char>(() => throw new Exception("test"));
+            var target = Try(inner, bubble: true, examine: ex => exception = ex);
+            var act = () => target.Parse("abc");
+            act.Should().Throw<Exception>();
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("test");
         }
 
         [Test]
-        public void ToBnf_SingleNoOutput()
-        {
-            var target = Try(End());
-            var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := TRY END");
-        }
-
-        [Test]
-        public void ToBnf_MultiOutput()
+        public void ToBnf_Test()
         {
             var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
             var result = target.ToBnf();
