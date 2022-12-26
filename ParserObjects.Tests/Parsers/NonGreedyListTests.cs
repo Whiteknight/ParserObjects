@@ -81,6 +81,24 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Parse_SeparatorMissing_BelowMinimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            MatchChar(','),
+            l => Rule(
+                l,
+                MatchChar('a'),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var result = target.Parse("a,aa,ab");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
     public void Parse_NoItems()
     {
         var target = NonGreedyList(

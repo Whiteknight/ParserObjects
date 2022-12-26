@@ -19,14 +19,19 @@ namespace ParserObjects.Tests.Sequences
             var target = GetTarget(1, 2, 3);
 
             target.Consumed.Should().Be(0);
+            target.CurrentLocation.Column.Should().Be(0);
             target.GetNext().Should().Be(1);
             target.Consumed.Should().Be(1);
+            target.CurrentLocation.Column.Should().Be(1);
             target.GetNext().Should().Be(2);
             target.Consumed.Should().Be(2);
+            target.CurrentLocation.Column.Should().Be(2);
             target.GetNext().Should().Be(3);
             target.Consumed.Should().Be(3);
+            target.CurrentLocation.Column.Should().Be(3);
             target.GetNext().Should().Be(0);
             target.Consumed.Should().Be(3);
+            target.CurrentLocation.Column.Should().Be(3);
         }
 
         [Test]
