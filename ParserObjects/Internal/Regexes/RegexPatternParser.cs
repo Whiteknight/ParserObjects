@@ -188,10 +188,10 @@ public static class RegexPatternGrammar
         var comma = ctx.TryParse(MatchChar(','));
         if (!comma.Success)
         {
-            ctx.Expect(MatchChar('}'));
             // No comma, so we must have {X} form
             if (!first.Success)
                 throw new RegexException("Invalid range specifier. Must be one of {X} {X,} {,Y} or {X,Y}");
+            ctx.Expect(MatchChar('}'));
             return State.SetPreviousStateRange(states, min, min);
         }
 

@@ -145,6 +145,10 @@ namespace ParserObjects.Tests.Parsers
         public void Regex_SpecialClasses_Fail(string pattern, string input)
             => RegexTestFail(pattern, input);
 
+        [TestCase("\\")]
+        public void Regex_Escapes_Throw(string pattern)
+            => RegexTestThrow(pattern);
+
         [TestCase(".*", "abcd+=.", "abcd+=.")]
         [TestCase("\\.", ".", ".")]
         [TestCase(".*\\..*", "command.com", "command.com")]
@@ -205,6 +209,7 @@ namespace ParserObjects.Tests.Parsers
         [TestCase("a{3,")]
         [TestCase("a{3,5")]
         [TestCase("{3}")]
+        [TestCase("a{a}")]
         public void Regex_Range_Throw(string pattern)
              => RegexTestThrow(pattern);
 
