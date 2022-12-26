@@ -27,8 +27,18 @@ public interface ISequence
     /// <returns></returns>
     SequenceCheckpoint Checkpoint();
 
+    /// <summary>
+    /// Returns true if this checkpoint was created by this sequence. False otherwise.
+    /// </summary>
+    /// <param name="checkpoint"></param>
+    /// <returns></returns>
     bool Owns(SequenceCheckpoint checkpoint);
 
+    /// <summary>
+    /// Rewinds the sequence to the location pointed to by the checkpoint. If the checkpoint is not
+    /// owned by this sequence, the method will do nothing.
+    /// </summary>
+    /// <param name="checkpoint"></param>
     void Rewind(SequenceCheckpoint checkpoint);
 
     /// <summary>
@@ -37,7 +47,17 @@ public interface ISequence
     /// </summary>
     int Consumed { get; }
 
+    /// <summary>
+    /// Get a snapshot of current statistics for the sequence. Not all sequences implement all
+    /// statistics values.
+    /// </summary>
+    /// <returns></returns>
     SequenceStatistics GetStatistics();
+
+    /// <summary>
+    /// Reset this sequence back to it's initial position. Will not reset statistics.
+    /// </summary>
+    void Reset();
 }
 
 /// <summary>
@@ -60,13 +80,26 @@ public interface ISequence<out T> : ISequence
     /// <returns></returns>
     T Peek();
 
+    /// <summary>
+    /// Get an array of all input values between the two checkpoints. If start is greater than end,
+    /// or if one of these checkpoints is not owned by this sequence, returns an empty array.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
-
-    void Reset();
 }
 
+/// <summary>
+/// Sequence type for character-based sequences which may return a string in some operations.
+/// </summary>
 public interface ICharSequenceWithRemainder : ISequence<char>
 {
+    /// <summary>
+    /// Return a string containing all remaining characters from the current string position until
+    /// the end of input.
+    /// </summary>
+    /// <returns></returns>
     string GetRemainder();
 }
 

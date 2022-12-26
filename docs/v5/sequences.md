@@ -169,6 +169,10 @@ Notice that this is an `O(N)` operation, and may require re-reading data from th
 
 If the `start` checkpoint and the `end` checkpoint are for the same location, or if `start` is after `end`, an empty array will be returned.
 
+### Resetting the Sequence
+
+You can reset the sequence back to the beginning with `.Reset()`.  This is a quick operation, similar to `.Rewind()`, and it may involve a buffer refill for sequences which use buffers.
+
 ### Working with strings
 
 `char`-based sequence types implement the `ICharSequenceWithRemainder` interface, which allows you to read out the entirety of the remaining buffer with the `.GetRemainder()` method:
@@ -177,11 +181,9 @@ If the `start` checkpoint and the `end` checkpoint are for the same location, or
 var remainder = sequence.GetRemainder();
 ```
 
-This can be useful in some cases where you want to tell the user about data which was not successfully parsed. 
+This can be useful in some cases where you want to tell the user about data which was not successfully parsed, or in testing/debugging scenarios when you want to see where a parse failed.
 
-You can also call `.Reset()` on these sequences, to immediately return the sequence to the beginning without having to create a checkpoint. This may be useful in testing scenarios where you need to parse and re-parse the same data without having to create new sequences each time.
-
-The sequences which implement these behaviors are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have these methods. Generic sequence types which may act on `char`, such as `FromList<char>()` will not implement them.
+The sequences which implement this are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have this method. Generic sequence types which may act on `char`, such as `FromList<char>()` will not implement it.
 
 ## Sequence Types
 
