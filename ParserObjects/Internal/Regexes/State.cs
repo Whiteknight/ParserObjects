@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ParserObjects.Regexes;
 
@@ -57,8 +58,7 @@ public static class State
             throw new RegexException("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
 
         var previousState = states.LastOrDefault();
-        if (previousState == null)
-            throw new RegexException("Range quantifier must appear after a valid atom");
+        Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Range quantifier may only follow an unquantified atom");
         if (previousState is EndAnchorState || previousState is FenceState)
@@ -98,13 +98,10 @@ public static class State
 
     public static List<IState> SetPreviousQuantifier(List<IState> states, Quantifier quantifier)
     {
-        if (quantifier == Quantifier.Range)
-            throw new RegexException("Range quantifier must have minimum and maximum values");
+        Debug.Assert(quantifier != Quantifier.Range, "Range quantifier cannot be set with this method");
 
         var previousState = VerifyPreviousStateIsNotEndAnchor(states);
-        if (previousState == null)
-            throw new RegexException("No previous state to set quantifier on");
-
+        Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Quantifier may only follow an unquantified atom");
 
