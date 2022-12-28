@@ -51,6 +51,24 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private bool Accept<TInput>(Cache<TInput>.Parser p, BnfStringifyVisitor state)
+    {
+        state.Append("CACHED(", p.GetChildren().First(), ")");
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(Cache<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append("CACHED(", p.GetChildren().First(), ")");
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(Cache<TInput>.MultiParser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append("CACHED(", p.GetChildren().First(), ")");
+        return true;
+    }
+
     private bool Accept<TInput>(CaptureParser<TInput> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
