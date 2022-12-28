@@ -28,8 +28,8 @@ public static class Engine
         if (matches)
         {
             var endCheckpoint = input.Checkpoint();
-            var charArray = input.GetBetween(startCheckpoint, endCheckpoint);
-            return new MatchResult(new string(charArray), charArray.Length, startLocation, captures.ToList());
+            var captureValue = GetOverallMatchCapture(input, startCheckpoint, endCheckpoint);
+            return new MatchResult(captureValue, captureValue.Length, startLocation, captures.ToList());
         }
 
         return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);
@@ -42,6 +42,15 @@ public static class Engine
 
         var captures = new CaptureCollection();
         return Test(captures, regex.States, input);
+    }
+
+    private static string GetOverallMatchCapture(ISequence<char> input, SequenceCheckpoint startCheckpoint, SequenceCheckpoint endCheckpoint)
+    {
+        if (input is ICharSequence charSequence)
+            return charSequence.GetStringBetween(startCheckpoint, endCheckpoint);
+
+        var charArray = input.GetBetween(startCheckpoint, endCheckpoint);
+        return new string(charArray);
     }
 
     private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input)

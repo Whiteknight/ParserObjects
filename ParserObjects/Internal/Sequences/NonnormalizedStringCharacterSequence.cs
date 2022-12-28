@@ -113,10 +113,7 @@ public sealed class NonnormalizedStringCharacterSequence : ICharSequence
 
     public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
-        if (!Owns(start) || !Owns(end))
-            return Array.Empty<char>();
-
-        if (start.CompareTo(end) >= 0)
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return Array.Empty<char>();
 
         int size = end.Consumed - start.Consumed;
@@ -124,6 +121,15 @@ public sealed class NonnormalizedStringCharacterSequence : ICharSequence
         for (int i = 0; i < size; i++)
             array[i] = _s[start.Consumed + i];
         return array;
+    }
+
+    public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    {
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
+            return string.Empty;
+
+        int size = end.Consumed - start.Consumed;
+        return _s.Substring(start.Consumed, size);
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;

@@ -101,6 +101,14 @@ public interface ICharSequence : ISequence<char>
     /// </summary>
     /// <returns></returns>
     string GetRemainder();
+
+    /// <summary>
+    /// Return the characters between the two checkpoints as a string.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end);
 }
 
 public static class SequenceExtensions

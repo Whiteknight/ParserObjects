@@ -59,8 +59,15 @@ public sealed class CapturingGroupState : IState
             return false;
 
         var afterMatch = context.Input.Checkpoint();
-        var value = new string(context.Input.GetBetween(beforeMatch, afterMatch));
+        var value = GetCaptureString(context.Input, beforeMatch, afterMatch);
         context.Captures.AddCapture(GroupNumber, value);
         return match;
+    }
+
+    private static string GetCaptureString(ISequence<char> input, SequenceCheckpoint beforeMatch, SequenceCheckpoint afterMatch)
+    {
+        if (input is ICharSequence charSequence)
+            return charSequence.GetStringBetween(beforeMatch, afterMatch);
+        return new string(input.GetBetween(beforeMatch, afterMatch));
     }
 }

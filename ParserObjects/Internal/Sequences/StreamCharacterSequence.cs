@@ -239,10 +239,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
-        if (!Owns(start) || !Owns(end))
-            return Array.Empty<char>();
-
-        if (start.CompareTo(end) >= 0)
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return Array.Empty<char>();
 
         var currentPosition = Checkpoint();
@@ -253,6 +250,9 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         currentPosition.Rewind();
         return buffer;
     }
+
+    public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        => new string(GetBetween(start, end));
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 

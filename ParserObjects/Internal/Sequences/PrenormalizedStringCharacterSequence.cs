@@ -161,10 +161,7 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequence
 
     public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
-        if (!Owns(start) || !Owns(end))
-            return Array.Empty<char>();
-
-        if (start.CompareTo(end) >= 0)
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return Array.Empty<char>();
 
         var size = end.Consumed - start.Consumed;
@@ -177,6 +174,9 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequence
         return c;
 #endif
     }
+
+    public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        => new string(GetBetween(start, end));
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 }
