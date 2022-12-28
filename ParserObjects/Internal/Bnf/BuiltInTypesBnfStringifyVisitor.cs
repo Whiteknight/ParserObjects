@@ -76,6 +76,18 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private bool Accept<TInput, TOutput>(Context<TInput>.MultiParser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append(p.Inner);
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(Context<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append(p.Inner);
+        return true;
+    }
+
     private bool Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.MultiParser p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToList();
@@ -99,6 +111,24 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
     private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser _, BnfStringifyVisitor state)
     {
         state.Append("CREATE");
+        return true;
+    }
+
+    private bool Accept<TInput>(DataFrame<TInput>.Parser p, BnfStringifyVisitor state)
+    {
+        state.Append(p.GetChildren().First());
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(DataFrame<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append(p.GetChildren().First());
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(DataFrame<TInput>.MultiParser<TOutput> p, BnfStringifyVisitor state)
+    {
+        state.Append(p.GetChildren().First());
         return true;
     }
 

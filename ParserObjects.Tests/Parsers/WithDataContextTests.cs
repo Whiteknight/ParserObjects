@@ -42,7 +42,7 @@ public class WithDataContextTests
     {
         var target = Rule(
             SetData("test", "value1"),
-            GetData<string>("test").WithDataContext(new Dictionary<string, string>
+            GetData<string>("test").WithDataContext(new Dictionary<string, object>
             {
                 { "test", "value2" }
             }),

@@ -61,11 +61,10 @@ public static class ParserStateExtensions
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
     /// <param name="p"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IParser<TInput, TOutput> p, Dictionary<string, TData> values)
+    public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IParser<TInput, TOutput> p, Dictionary<string, object> values)
         => Parsers<TInput>.DataContext(p, values);
 
     /// <summary>
@@ -100,10 +99,9 @@ public static class ParserStateExtensions
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
     /// <param name="p"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(this IMultiParser<TInput, TOutput> p, Dictionary<string, TData> values)
+    public static IMultiParser<TInput, TOutput> WithDataContext<TInput, TOutput>(this IMultiParser<TInput, TOutput> p, Dictionary<string, object> values)
         => Parsers<TInput>.DataContext(p, values);
 }

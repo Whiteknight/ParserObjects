@@ -117,7 +117,7 @@ public static class Examine<TInput, TOutput>
         IResult<TOutput>? Result
     )
     {
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public ISequence<TInput> Input => State.Input;
     }
 
@@ -127,7 +127,7 @@ public static class Examine<TInput, TOutput>
         IMultiResult<TOutput>? Result
     )
     {
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public ISequence<TInput> Input => State.Input;
     }
 }
@@ -187,7 +187,7 @@ public static class Examine<TInput>
         IResult? Result
     )
     {
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public ISequence<TInput> Input => State.Input;
     }
 }

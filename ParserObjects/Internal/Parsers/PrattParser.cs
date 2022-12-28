@@ -39,25 +39,21 @@ public sealed record PrattParser<TInput, TOutput>(
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-
-        var startCp = state.Input.Checkpoint();
-        var dataStore = state.Data as CascadingKeyValueStore;
-        dataStore?.PushFrame();
-        try
+        return state.WithDataFrame(this, static (s, p) =>
         {
-            Assert.ArgumentNotNull(state, nameof(state));
-            var result = Engine.TryParse(state, 0);
-            return state.Result(this, result);
-        }
-        catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
-        {
-            startCp.Rewind();
-            return state.Fail<TInput, TOutput>(pe.Parser ?? this, pe.Message, pe.Location ?? state.Input.CurrentLocation);
-        }
-        finally
-        {
-            dataStore?.PopFrame();
-        }
+            var startCp = s.Input.Checkpoint();
+            try
+            {
+                Assert.ArgumentNotNull(s, nameof(s));
+                var result = p.Engine.TryParse(s, 0);
+                return s.Result(p, result);
+            }
+            catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
+            {
+                startCp.Rewind();
+                return s.Fail<TInput, TOutput>(pe.Parser ?? p, pe.Message, pe.Location ?? s.Input.CurrentLocation);
+            }
+        });
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

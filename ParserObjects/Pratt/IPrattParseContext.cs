@@ -5,7 +5,7 @@ public interface IPrattParseContext<TInput>
     /// <summary>
     /// Gets the contextual data store for the current parse operation.
     /// </summary>
-    IDataStore Data { get; }
+    DataStore Data { get; }
 
     ISequence<TInput> Input { get; }
 

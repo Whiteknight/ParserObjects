@@ -34,7 +34,7 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
         _canRecurse = canRecurse;
     }
 
-    public IDataStore Data => _state.Data;
+    public DataStore Data => _state.Data;
 
     public int Consumed => _state.Input.Consumed - _startConsumed;
 

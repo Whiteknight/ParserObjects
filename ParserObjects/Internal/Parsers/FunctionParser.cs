@@ -16,7 +16,7 @@ public static class Function<TInput, TOutput>
     public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public IResultsCache Cache => State.Cache;
         public IResult<TOutput> Failure(string errorMessage, Location? location = null, IReadOnlyList<object>? data = null)
             => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation, data);
@@ -87,14 +87,14 @@ public static class Function<TInput, TOutput>
     public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
     {
         public ISequence<TInput> Input => State.Input;
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public IResultsCache Cache => State.Cache;
     }
 
     public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
-        public IDataStore Data => State.Data;
+        public DataStore Data => State.Data;
         public IResultsCache Cache => State.Cache;
 
         public void AddSuccess(TOutput value)

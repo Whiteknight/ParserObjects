@@ -30,7 +30,7 @@ namespace ParserObjects.Tests.Parsers
                     GetData<string>("b"),
                     (a, b) => a + b
                 ),
-                new Dictionary<string, string>
+                new Dictionary<string, object>
                 {
                     { "a", "1" },
                     { "b", "2" }
@@ -79,7 +79,7 @@ namespace ParserObjects.Tests.Parsers
                 {
                     return new[] { state.Data.Get<char>("A").Value, state.Data.Get<char>("B").Value };
                 }),
-                new Dictionary<string, char>
+                new Dictionary<string, object>
                 {
                      { "A", 'X' },
                      { "B", 'Y' }

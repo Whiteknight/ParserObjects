@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -16,34 +15,19 @@ public static partial class Parsers<TInput>
     /// <param name="setup"></param>
     /// <param name="cleanup"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<Function<TInput, TOutput>.SingleArguments> setup, Action<Function<TInput, TOutput>.SingleArguments> cleanup)
-        => new Function<TInput, TOutput>.Parser(args =>
-        {
-            try
-            {
-                setup(args);
-                return parser.Parse(args.State);
-            }
-            finally
-            {
-                cleanup(args);
-            }
-        }, string.Empty, new[] { parser });
+    public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<IParseState<TInput>>? setup, Action<IParseState<TInput>>? cleanup)
+    {
+        if (setup == null && cleanup == null)
+            return parser;
+        return new Context<TInput>.Parser<TOutput>(parser, setup, cleanup);
+    }
 
     public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
-        => new Function<TInput, TOutput>.MultiParser(args =>
-        {
-            var state = args.State;
-            try
-            {
-                setup(state);
-                return parser.Parse(state);
-            }
-            finally
-            {
-                cleanup(state);
-            }
-        }, string.Empty, new[] { parser });
+    {
+        if (setup == null && cleanup == null)
+            return parser;
+        return new Context<TInput>.MultiParser<TOutput>(parser, setup, cleanup);
+    }
 
     /// <summary>
     /// Create a new parser using information from the current parse context. This parser is
@@ -137,20 +121,11 @@ public static partial class Parsers<TInput>
     /// data store.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
     /// <param name="inner"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, Dictionary<string, TData> values)
-        => Context(inner,
-            state =>
-            {
-                (state.Data as CascadingKeyValueStore)?.PushFrame();
-                foreach (var value in values)
-                    state.Data.Set(value.Key, value.Value);
-            },
-            state => (state.Data as CascadingKeyValueStore)?.PopFrame()
-        );
+    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values)
+        => new DataFrame<TInput>.Parser<TOutput>(inner, values);
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -158,20 +133,11 @@ public static partial class Parsers<TInput>
     /// data store.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
     /// <param name="inner"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, Dictionary<string, TData> values)
-        => Context(inner,
-            state =>
-            {
-                (state.Data as CascadingKeyValueStore)?.PushFrame();
-                foreach (var value in values)
-                    state.Data.Set(value.Key, value.Value);
-            },
-            state => (state.Data as CascadingKeyValueStore)?.PopFrame()
-        );
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner, Dictionary<string, object> values)
+        => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
 
     /// <summary>
     /// Creates a new contextual data frame to store data. Execute the inner parser. When the
@@ -181,10 +147,7 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-        => Context(inner,
-            state => (state.Data as CascadingKeyValueStore)?.PushFrame(),
-            state => (state.Data as CascadingKeyValueStore)?.PopFrame()
-        );
+        => new DataFrame<TInput>.Parser<TOutput>(inner);
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -195,10 +158,7 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
-        => Context(inner,
-            state => (state.Data as CascadingKeyValueStore)?.PushFrame(),
-            state => (state.Data as CascadingKeyValueStore)?.PopFrame()
-        );
+        => new DataFrame<TInput>.MultiParser<TOutput>(inner);
 
     /// <summary>
     /// Creates a new contextual data frame to store data, populated initially with the given

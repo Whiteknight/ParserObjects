@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects;
 
@@ -11,7 +12,7 @@ public interface IParseState<out TInput>
     /// <summary>
     /// Gets a contextual data store which parsers may access during the parse.
     /// </summary>
-    IDataStore Data { get; }
+    DataStore Data { get; }
 
     /// <summary>
     /// Gets the current input sequence.
@@ -29,6 +30,8 @@ public interface IParseState<out TInput>
     /// <param name="parser"></param>
     /// <param name="message"></param>
     void Log(IParser parser, string message);
+
+    TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null);
 }
 
 public static class ParseStateExtensions

@@ -29,7 +29,7 @@ public static class Sequential
         /// <summary>
         /// Gets the contextual state data.
         /// </summary>
-        public IDataStore Data => _state.Data;
+        public DataStore Data => _state.Data;
 
         /// <summary>
         /// Gets the input sequence.
