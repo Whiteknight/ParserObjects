@@ -319,7 +319,7 @@ public static partial class Parsers<TInput>
                 var startCheckpoint = state.Input.Checkpoint();
                 var result = p.Parse(state);
 
-                if (!result.Success || result.Consumed == 0)
+                if (!result.Success)
                     return result;
 
                 startCheckpoint.Rewind();
@@ -330,7 +330,7 @@ public static partial class Parsers<TInput>
                 var startCheckpoint = state.Input.Checkpoint();
                 var result = p.Parse(state);
 
-                if (!result.Success || result.Consumed == 0)
+                if (!result.Success)
                     return false;
 
                 startCheckpoint.Rewind();
