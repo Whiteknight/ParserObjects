@@ -95,8 +95,23 @@ public static partial class Parsers
         static () => Match(char.IsLower).Named("lowerCase")
     );
 
+    /// <summary>
+    /// Given a parser which returns an array of characters, change it to a parser which returns
+    /// a string instead.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <returns></returns>
     public static IParser<char, string> Stringify(IParser<char, char[]> p)
         => Transform(p, static c => new string(c));
+
+    /// <summary>
+    /// Given a parser which returns a read-only list of characters, change it to a parser which
+    /// returns a string instead.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    public static IParser<char, string> Stringify(IParser<char, IReadOnlyList<char>> p)
+        => Transform(p, static c => CharMethods.ConvertToString(c));
 
     /// <summary>
     /// Matches a symbol or punctuation character.

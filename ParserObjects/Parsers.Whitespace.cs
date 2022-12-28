@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
@@ -24,8 +23,7 @@ public static partial class Parsers
 
     private static readonly Lazy<IParser<char, string>> _whitespace = new Lazy<IParser<char, string>>(
         static () => WhitespaceCharacter()
-            .List(true)
-            .Transform(w => new string(w.ToArray()))
+            .ListCharToString(true)
             .Named("whitespace")
     );
 
@@ -37,8 +35,7 @@ public static partial class Parsers
 
     private static readonly Lazy<IParser<char, string>> _optionalWhitespace = new Lazy<IParser<char, string>>(
         static () => WhitespaceCharacter()
-            .List()
-            .Transform(w => new string(w.ToArray()))
+            .ListCharToString(false)
             .Named("whitespace?")
     );
 }
