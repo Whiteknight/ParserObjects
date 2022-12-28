@@ -175,8 +175,39 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequence
 #endif
     }
 
+    private readonly struct GetStringBetweenContext
+    {
+        public readonly int Size { get; }
+
+        public readonly char[] Buffer { get; }
+
+        public readonly int StartConsumed { get; }
+
+        public GetStringBetweenContext(int size, char[] buffer, int startConsumed)
+        {
+            Size = size;
+            Buffer = buffer;
+            StartConsumed = startConsumed;
+        }
+    }
+
     public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        => new string(GetBetween(start, end));
+    {
+#if NET5_0_OR_GREATER
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
+            return string.Empty;
+
+        var size = end.Consumed - start.Consumed;
+        var context = new GetStringBetweenContext(size, _s, start.Consumed);
+        return string.Create(size, context, static (chars, state) =>
+        {
+            for (int i = 0; i < state.Size; i++)
+                chars[i] = state.Buffer[state.StartConsumed + i];
+        });
+#else
+        return new string(GetBetween(start, end));
+#endif
+    }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 }

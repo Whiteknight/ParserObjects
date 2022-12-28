@@ -18,6 +18,7 @@ public static partial class Parsers<TInput>
     private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser<object>(
         Defaults.ObjectInstance,
         static (_, args) => args.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
+        static (_, args) => args.Input.IsAtEnd,
         "IF END THEN PRODUCE",
         Array.Empty<IParser>()
     );
@@ -36,11 +37,17 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, bool> Bool(IParser<TInput> parser)
-        => new Function<TInput, bool>.Parser<IParser<TInput>>(parser, static (p, args) =>
-        {
-            var result = p.Parse(args.State);
-            return args.Success(result.Success);
-        }, "IF {child}", new[] { parser });
+        => new Function<TInput, bool>.Parser<IParser<TInput>>(
+            parser,
+            static (p, args) =>
+            {
+                var result = p.Parse(args.State);
+                return args.Success(result.Success);
+            },
+            static (p, args) => p.Match(args.State),
+            "IF {child}",
+            new[] { parser }
+        );
 
     /// <summary>
     /// Invokes the inner parsers using the Match method, in sequence. Returns an array of all
@@ -241,6 +248,7 @@ public static partial class Parsers<TInput>
         => new Function<TInput, TOutput>.Parser<Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>>>(
             func,
             static (f, args) => f(args),
+            null,
             description ?? "",
             Array.Empty<IParser>()
         );
@@ -252,18 +260,35 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> parser)
-        => new Function<TInput, TOutput>.Parser<IParser<TInput, TOutput>>(parser, static (p, args) =>
-        {
-            var cp = args.Input.Checkpoint();
-            var result = p.Parse(args.State);
-            if (result.Success)
+        => new Function<TInput, TOutput>.Parser<IParser<TInput, TOutput>>(
+            parser,
+            static (p, args) =>
             {
-                cp.Rewind();
-                return args.Success(result.Value, result.Location);
-            }
+                var cp = args.Input.Checkpoint();
+                var result = p.Parse(args.State);
+                if (result.Success)
+                {
+                    cp.Rewind();
+                    return args.Success(result.Value, result.Location);
+                }
 
-            return args.Failure(result.ErrorMessage, result.Location);
-        }, "(?={child})", new[] { parser });
+                return args.Failure(result.ErrorMessage, result.Location);
+            },
+            static (p, args) =>
+            {
+                var cp = args.Input.Checkpoint();
+                var result = p.Match(args.State);
+                if (result)
+                {
+                    cp.Rewind();
+                    return true;
+                }
+
+                return false;
+            },
+            "(?={child})",
+            new[] { parser }
+        );
 
     /// <summary>
     /// Invokes the parser but rewinds the input sequence to ensure no input items are consumed.
@@ -271,17 +296,33 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput> None(IParser<TInput> parser)
-        => new Function<TInput>.Parser<IParser<TInput>>(parser, static (p, state) =>
-        {
-            var startCheckpoint = state.Input.Checkpoint();
-            var result = p.Parse(state);
+        => new Function<TInput>.Parser<IParser<TInput>>(
+            parser,
+            static (p, state) =>
+            {
+                var startCheckpoint = state.Input.Checkpoint();
+                var result = p.Parse(state);
 
-            if (!result.Success || result.Consumed == 0)
-                return result;
+                if (!result.Success || result.Consumed == 0)
+                    return result;
 
-            startCheckpoint.Rewind();
-            return state.Success(p, result.Value, 0, result.Location);
-        }, "(?={child})", new[] { parser });
+                startCheckpoint.Rewind();
+                return state.Success(p, result.Value, 0, result.Location);
+            },
+            static (p, state) =>
+            {
+                var startCheckpoint = state.Input.Checkpoint();
+                var result = p.Parse(state);
+
+                if (!result.Success || result.Consumed == 0)
+                    return false;
+
+                startCheckpoint.Rewind();
+                return true;
+            },
+            "(?={child})",
+            new[] { parser }
+        );
 
     /// <summary>
     /// AAttempt to invoke a parser. Returns an Option with the value on success.
@@ -342,11 +383,17 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-        => new Function<TInput, TOutput>.Parser<Func<TOutput>>(produce, static (p, args) =>
-        {
-            var value = p();
-            return args.Success(value);
-        }, "PRODUCE", Array.Empty<IParser>());
+        => new Function<TInput, TOutput>.Parser<Func<TOutput>>(
+            produce,
+            static (p, args) =>
+            {
+                var value = p();
+                return args.Success(value);
+            },
+            static (_, _) => true,
+            "PRODUCE",
+            Array.Empty<IParser>()
+        );
 
     /// <summary>
     /// Produce a value, possibly using data or input from the current parse state.
@@ -355,11 +402,17 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
-        => new Function<TInput, TOutput>.Parser<Func<IParseState<TInput>, TOutput>>(produce, static (p, args) =>
-        {
-            var value = p(args.State);
-            return args.Success(value);
-        }, "PRODUCE", Array.Empty<IParser>());
+        => new Function<TInput, TOutput>.Parser<Func<IParseState<TInput>, TOutput>>(
+            produce,
+            static (p, args) =>
+            {
+                var value = p(args.State);
+                return args.Success(value);
+            },
+            static (_, _) => true,
+            "PRODUCE",
+            Array.Empty<IParser>()
+        );
 
     /// <summary>
     /// Produces a multi result with all returned values as alternatives.

@@ -65,13 +65,19 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <returns></returns>
     public static IParser<TInput, TValue> GetData<TValue>(string name)
-        => new Function<TInput, TValue>.Parser<string>(name, static (n, args) =>
-        {
-            var result = args.Data.Get<TValue>(n);
-            return result.Success ?
-                args.Success(result.Value, args.Input.CurrentLocation) :
-                args.Failure($"State data '{n}' with type does not exist", args.Input.CurrentLocation);
-        }, $"GET '{name}'", Array.Empty<IParser>());
+        => new Function<TInput, TValue>.Parser<string>(
+            name,
+            static (n, args) =>
+            {
+                var result = args.Data.Get<TValue>(n);
+                return result.Success ?
+                    args.Success(result.Value, args.Input.CurrentLocation) :
+                    args.Failure($"State data '{n}' with type does not exist", args.Input.CurrentLocation);
+            },
+            static (_, _) => true,
+            $"GET '{name}'",
+            Array.Empty<IParser>()
+        );
 
     private readonly record struct SetDataArgs<TValue>(string Name, TValue Value);
 
@@ -91,6 +97,7 @@ public static partial class Parsers<TInput>
                 funcArgs.Data.Set(sdArgs.Name, sdArgs.Value);
                 return funcArgs.Success(sdArgs.Value, funcArgs.Input.CurrentLocation);
             },
+            static (_, _) => true,
             $"SET '{name}'",
             Array.Empty<IParser>()
         );
@@ -133,6 +140,7 @@ public static partial class Parsers<TInput>
 
                 return result;
             },
+            static (srdArgs, funcArgs) => srdArgs.Parser.Match(funcArgs.State),
             "SetResultData",
             new[] { p }
         );

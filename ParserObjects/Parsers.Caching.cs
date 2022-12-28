@@ -6,7 +6,7 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
+    /// Cache the result of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
     /// <param name="parser"></param>
@@ -32,7 +32,7 @@ public static partial class Parsers<TInput>
         }, "CACHED({child})", new[] { parser });
 
     /// <summary>
-    /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
+    /// Cache the result of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
@@ -60,7 +60,7 @@ public static partial class Parsers<TInput>
         }, "CACHED({child})", new[] { parser });
 
     /// <summary>
-    /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
+    /// Cache the result of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
