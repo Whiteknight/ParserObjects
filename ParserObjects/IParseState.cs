@@ -31,6 +31,15 @@ public interface IParseState<out TInput>
     /// <param name="message"></param>
     void Log(IParser parser, string message);
 
+    /// <summary>
+    /// Execute the given callback inside a data frame.
+    /// </summary>
+    /// <typeparam name="TArgs"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="args"></param>
+    /// <param name="withContext"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
     TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null);
 }
 

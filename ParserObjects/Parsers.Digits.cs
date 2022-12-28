@@ -15,7 +15,7 @@ public static partial class Parsers
         public static IParser<char, char> Digit() => _digit.Value;
 
         private static readonly Lazy<IParser<char, char>> _digit = new Lazy<IParser<char, char>>(
-            () => Match(char.IsDigit).Named("digit")
+            static () => Match(char.IsDigit).Named("digit")
         );
 
         /// <summary>
@@ -25,7 +25,7 @@ public static partial class Parsers
         public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
 
         private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
-            () => Match(c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
+            static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
         );
 
         /// <summary>
@@ -35,7 +35,7 @@ public static partial class Parsers
         public static IParser<char, string> DigitString() => _digitString.Value;
 
         private static readonly Lazy<IParser<char, string>> _digitString = new Lazy<IParser<char, string>>(
-            () => Digit().ListCharToString(true).Named("digits")
+            static () => Digit().ListCharToString(true).Named("digits")
         );
 
         /// <summary>
@@ -45,7 +45,7 @@ public static partial class Parsers
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
 
         private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
-            () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
+            static () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
         );
 
         /// <summary>
@@ -55,7 +55,7 @@ public static partial class Parsers
         public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
 
         private static readonly Lazy<IParser<char, string>> _hexadecimalString = new Lazy<IParser<char, string>>(
-            () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
+            static () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
         );
     }
 }

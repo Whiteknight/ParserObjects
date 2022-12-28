@@ -9,5 +9,5 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     public static IParser<char, string> CharacterString(string pattern)
-        => Parsers<char>.Match(pattern).Transform(c => pattern);
+        => Parsers<char>.Match(pattern).Transform(_ => pattern);
 }

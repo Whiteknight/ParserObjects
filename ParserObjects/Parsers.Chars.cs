@@ -17,7 +17,7 @@ public static partial class Parsers
     public static IParser<char, char> Letter() => _letter.Value;
 
     private static readonly Lazy<IParser<char, char>> _letter = new Lazy<IParser<char, char>>(
-        () => Match(char.IsLetter).Named("letter")
+        static () => Match(char.IsLetter).Named("letter")
     );
 
     /// <summary>
@@ -72,7 +72,7 @@ public static partial class Parsers
     public static IParser<char, string> Word() => _word.Value;
 
     private static readonly Lazy<IParser<char, string>> _word = new Lazy<IParser<char, string>>(
-        () => Letter().ListCharToString(true).Named("word")
+        static () => Letter().ListCharToString(true).Named("word")
     );
 
     /// <summary>
@@ -82,7 +82,7 @@ public static partial class Parsers
     public static IParser<char, char> UpperCase() => _upperCase.Value;
 
     private static readonly Lazy<IParser<char, char>> _upperCase = new Lazy<IParser<char, char>>(
-        () => Match(char.IsUpper).Named("upperCase")
+        static () => Match(char.IsUpper).Named("upperCase")
     );
 
     /// <summary>
@@ -92,11 +92,11 @@ public static partial class Parsers
     public static IParser<char, char> LowerCase() => _lowerCase.Value;
 
     private static readonly Lazy<IParser<char, char>> _lowerCase = new Lazy<IParser<char, char>>(
-        () => Match(char.IsLower).Named("lowerCase")
+        static () => Match(char.IsLower).Named("lowerCase")
     );
 
     public static IParser<char, string> Stringify(IParser<char, char[]> p)
-        => Transform(p, c => new string(c));
+        => Transform(p, static c => new string(c));
 
     /// <summary>
     /// Matches a symbol or punctuation character.
@@ -105,6 +105,6 @@ public static partial class Parsers
     public static IParser<char, char> Symbol() => _symbol.Value;
 
     private static readonly Lazy<IParser<char, char>> _symbol = new Lazy<IParser<char, char>>(
-        () => Match(c => char.IsPunctuation(c) || char.IsSymbol(c)).Named("lowerCase")
+        static () => Match(static c => char.IsPunctuation(c) || char.IsSymbol(c)).Named("lowerCase")
     );
 }

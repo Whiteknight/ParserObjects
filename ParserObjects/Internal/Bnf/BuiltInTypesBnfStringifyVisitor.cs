@@ -507,7 +507,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(RuleParser<TInput, TOutput> p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput, TData>(RuleParser<TInput, TOutput, TData> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
         state.Append("(", children[0]);

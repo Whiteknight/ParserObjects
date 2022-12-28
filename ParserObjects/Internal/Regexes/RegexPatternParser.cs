@@ -28,57 +28,55 @@ public static class RegexPatternGrammar
 
     public static IParser<char, Regex> CreateParser()
     {
-        var digits = UnsignedInteger();
-
         // Literal match of any non-slash and non-control character
         var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
 
         var regex = Pratt<List<IState>>(config => config
 
             // Alternation
-            .Add(MatchChar('|'), p => p
-                .BindLeft(_bpAlt, (ctx, states, _) => ParseAlternation(ctx, states.Value))
+            .Add(MatchChar('|'), static p => p
+                .BindLeft(_bpAlt, static (ctx, states, _) => ParseAlternation(ctx, states.Value))
             )
 
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
-            .Add(normalChar, p => p
-                .Bind(_bpAtom, (_, c) => State.AddMatch(null, c.Value))
-                .BindLeft(_bpAtom, (_, states, c) => State.AddMatch(states.Value, c.Value))
+            .Add(normalChar, static p => p
+                .Bind(_bpAtom, static (_, c) => State.AddMatch(null, c.Value))
+                .BindLeft(_bpAtom, static (_, states, c) => State.AddMatch(states.Value, c.Value))
             )
-            .Add(MatchChar('('), p => p
-                .Bind(_bpAtom, (ctx, _) =>
+            .Add(MatchChar('('), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddCapturingGroupState(null, group);
                 })
-                .BindLeft(_bpAtom, (ctx, states, _) =>
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddCapturingGroupState(states.Value, group);
                 })
             )
-            .Add(MatchChar('['), p => p
-                .Bind(_bpAtom, (ctx, _) => ParseCharacterClass(ctx, null))
-                .BindLeft(_bpAtom, (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
+            .Add(MatchChar('['), static p => p
+                .Bind(_bpAtom, static (ctx, _) => ParseCharacterClass(ctx, null))
+                .BindLeft(_bpAtom, static (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
             )
-            .Add(MatchChar('.'), p => p
-                .Bind(_bpAtom, (_, _) => State.AddMatch(null, c => c != '\0', "Any"))
-                .BindLeft(_bpAtom, (_, states, _) => State.AddMatch(states.Value, c => c != '\0', "Any"))
+            .Add(MatchChar('.'), static p => p
+                .Bind(_bpAtom, static (_, _) => State.AddMatch(null, static c => c != '\0', "Any"))
+                .BindLeft(_bpAtom, static (_, states, _) => State.AddMatch(states.Value, static c => c != '\0', "Any"))
             )
-            .Add(MatchChar('\\'), p => p
-                .Bind(_bpAtom, (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
+            .Add(MatchChar('\\'), static p => p
+                .Bind(_bpAtom, static (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                 .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
-            .Add(Match("(?:"), p => p
-                .Bind(_bpAtom, (ctx, _) =>
+            .Add(Match("(?:"), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddNonCapturingCloisterState(null, group);
                 })
-                .BindLeft(_bpAtom, (ctx, states, _) =>
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
@@ -87,23 +85,23 @@ public static class RegexPatternGrammar
             )
 
             // Quantifiers
-            .Add(MatchChar('{'), p => p
-                .BindLeft(_bpQuant, (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, digits))
+            .Add(MatchChar('{'), static p => p
+                .BindLeft(_bpQuant, static (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, UnsignedInteger()))
             )
-            .Add(MatchChar('?'), p => p
-                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
+            .Add(MatchChar('?'), static p => p
+                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
             )
-            .Add(MatchChar('+'), p => p
-                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+            .Add(MatchChar('+'), static p => p
+                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
             )
-            .Add(MatchChar('*'), p => p
-                .BindLeft(_bpQuant, (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
+            .Add(MatchChar('*'), static p => p
+                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
             )
 
             // End Anchor
-            .Add(MatchChar('$'), p => p
-                .Bind(_bpAnchor, (_, _) => new List<IState> { State.EndAnchor })
-                .BindLeft(_bpAnchor, (_, states, _) =>
+            .Add(MatchChar('$'), static p => p
+                .Bind(_bpAnchor, static (_, _) => new List<IState> { State.EndAnchor })
+                .BindLeft(_bpAnchor, static (_, states, _) =>
                 {
                     states.Value.Add(State.EndAnchor);
                     return states.Value;
@@ -111,8 +109,8 @@ public static class RegexPatternGrammar
             )
         );
 
-        return (regex, IsEnd()).Rule((r, _) => r)
-            .Transform(r => new Regex(r))
+        return (regex, IsEnd()).Rule(static (r, _) => r)
+            .Transform(static r => new Regex(r))
             .Named("RegexPattern");
     }
 

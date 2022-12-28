@@ -10,9 +10,15 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed record RuleParser<TInput, TOutput>(
+/// <typeparam name="TData"></typeparam>
+/// <param name="Parsers"></param>
+/// <param name="Data"></param>
+/// <param name="Produce"></param>
+/// <param name="Name"></param>
+public sealed record RuleParser<TInput, TOutput, TData>(
     IReadOnlyList<IParser<TInput>> Parsers,
-    Func<IReadOnlyList<object>, TOutput> Produce,
+    TData Data,
+    Func<TData, IReadOnlyList<object>, TOutput> Produce,
     string Name = ""
 
 ) : IParser<TInput, TOutput>
@@ -43,7 +49,7 @@ public sealed record RuleParser<TInput, TOutput>(
         }
 
         var consumed = state.Input.Consumed - startCheckpoint.Consumed;
-        return state.Success(this, Produce(outputs), consumed, startCheckpoint.Location);
+        return state.Success(this, Produce(Data, outputs), consumed, startCheckpoint.Location);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

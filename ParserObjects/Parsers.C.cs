@@ -25,8 +25,8 @@ public static partial class Parsers
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
 
         private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
-            () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
-                .Rule((prefix, value) => "0x" + value)
+            static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
+                .Rule(static (_, value) => "0x" + value)
                 .Named("C-Style Hex String")
         );
 
@@ -37,8 +37,8 @@ public static partial class Parsers
         public static IParser<char, int> HexadecimalInteger() => _hexInteger.Value;
 
         private static readonly Lazy<IParser<char, int>> _hexInteger = new Lazy<IParser<char, int>>(
-            () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
-                .Rule((_, value) => int.Parse(value, NumberStyles.HexNumber))
+            static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
+                .Rule(static (_, value) => int.Parse(value, NumberStyles.HexNumber))
                 .Named("C-Style Hex Literal")
         );
 
@@ -49,9 +49,9 @@ public static partial class Parsers
         public static IParser<char, string> IntegerString() => _integerString.Value;
 
         private static readonly Lazy<IParser<char, string>> _integerString = new Lazy<IParser<char, string>>(
-            () =>
+            static () =>
             {
-                var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
+                var nonZeroDigit = Match(static c => char.IsDigit(c) && c != '0');
                 var digits = Digit().List();
                 var parser = First(
                     Capture(
@@ -72,7 +72,7 @@ public static partial class Parsers
         public static IParser<char, int> Integer() => _integer.Value;
 
         private static readonly Lazy<IParser<char, int>> _integer = new Lazy<IParser<char, int>>(
-            () => IntegerString()
+            static () => IntegerString()
                 .Transform(int.Parse)
                 .Named("C-Style Integer Literal")
         );
@@ -84,9 +84,9 @@ public static partial class Parsers
         public static IParser<char, string> UnsignedIntegerString() => _unsignedIntegerString.Value;
 
         private static readonly Lazy<IParser<char, string>> _unsignedIntegerString = new Lazy<IParser<char, string>>(
-            () =>
+            static () =>
             {
-                var nonZeroDigit = Match(c => char.IsDigit(c) && c != '0');
+                var nonZeroDigit = Match(static c => char.IsDigit(c) && c != '0');
                 var digits = Digit().List();
                 var parser = First(
                     Capture(
@@ -107,7 +107,7 @@ public static partial class Parsers
         public static IParser<char, int> UnsignedInteger() => _unsignedInteger.Value;
 
         private static readonly Lazy<IParser<char, int>> _unsignedInteger = new Lazy<IParser<char, int>>(
-            () => UnsignedIntegerString()
+            static () => UnsignedIntegerString()
                 .Transform(int.Parse)
                 .Named("C-Style Unsigned Integer Literal")
         );
@@ -119,7 +119,7 @@ public static partial class Parsers
         public static IParser<char, string> DoubleString() => _doubleString.Value;
 
         private static readonly Lazy<IParser<char, string>> _doubleString = new Lazy<IParser<char, string>>(
-            () => Capture(IntegerString(), MatchChar('.'), DigitString())
+            static () => Capture(IntegerString(), MatchChar('.'), DigitString())
                 .Stringify()
                 .Named("C-Style Double String")
         );
@@ -131,7 +131,7 @@ public static partial class Parsers
         public static IParser<char, double> Double() => _double.Value;
 
         private static readonly Lazy<IParser<char, double>> _double = new Lazy<IParser<char, double>>(
-            () => DoubleString()
+            static () => DoubleString()
                 .Transform(double.Parse)
                 .Named("C-Style Double Literal")
         );
@@ -143,10 +143,10 @@ public static partial class Parsers
         public static IParser<char, string> Identifier() => _identifier.Value;
 
         private static readonly Lazy<IParser<char, string>> _identifier = new Lazy<IParser<char, string>>(
-            () =>
+            static () =>
             {
-                var startChar = Match(c => c == '_' || char.IsLetter(c));
-                var bodyChar = Match(c => c == '_' || char.IsLetterOrDigit(c));
+                var startChar = Match(static c => c == '_' || char.IsLetter(c));
+                var bodyChar = Match(static c => c == '_' || char.IsLetterOrDigit(c));
                 var parser = Capture(
                     startChar,
                     bodyChar.List()

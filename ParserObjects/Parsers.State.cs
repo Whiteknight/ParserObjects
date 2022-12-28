@@ -7,7 +7,7 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Adjust the current parse context before a parse, and cleanup any changes after the
+    /// Adjust the current parse context before a parse and cleanup any changes after the
     /// parse.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
@@ -22,6 +22,14 @@ public static partial class Parsers<TInput>
         return new Context<TInput>.Parser<TOutput>(parser, setup, cleanup);
     }
 
+    /// <summary>
+    /// Adjust teh current parse context before a parse and cleanup any changes after the parse.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="parser"></param>
+    /// <param name="setup"></param>
+    /// <param name="cleanup"></param>
+    /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
     {
         if (setup == null && cleanup == null)
@@ -96,7 +104,7 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
-        => SetResultData(p, name, value => value);
+        => SetResultData(p, name, static value => value);
 
     private readonly record struct SetResultDataArgs<TOutput, TValue>(IParser<TInput, TOutput> Parser, string Name, Func<TOutput, TValue> GetValue);
 

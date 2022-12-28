@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -13,7 +14,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -24,7 +29,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -35,7 +44,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -46,7 +59,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -57,7 +74,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -68,7 +89,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -79,7 +104,11 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 
     /// <summary>
@@ -90,6 +119,10 @@ public static partial class TupleExtensions
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
     {
-        return new RuleParser<TInput, IReadOnlyList<object>>(new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 }, r => r);
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
     }
 }

@@ -32,7 +32,7 @@ public static partial class Parsers
     public static IParser<char, string> Line() => _line.Value;
 
     private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(
-        () =>
+        static () =>
         {
             var notNewlineChar = Match(c => c != '\n');
             return notNewlineChar.ListCharToString();

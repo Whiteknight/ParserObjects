@@ -13,7 +13,7 @@ public static partial class Parsers
     public static IParser<char, string> DoubleQuotedString() => _doubleQuotedString.Value;
 
     private static readonly Lazy<IParser<char, string>> _doubleQuotedString = new Lazy<IParser<char, string>>(
-        () => DelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Double-Quoted String")
+        static () => DelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Double-Quoted String")
     );
 
     /// <summary>
@@ -24,7 +24,7 @@ public static partial class Parsers
     public static IParser<char, string> SingleQuotedString() => _singleQuotedString.Value;
 
     private static readonly Lazy<IParser<char, string>> _singleQuotedString = new Lazy<IParser<char, string>>(
-        () => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Single-Quoted String")
+        static () => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Single-Quoted String")
     );
 
     /// <summary>
@@ -40,14 +40,14 @@ public static partial class Parsers
         var escapedClose = $"{escapeStr}{closeStr}";
         var escapedEscape = $"{escapeStr}{escapeStr}";
         var bodyChar = First(
-            Match(escapedClose).Transform(c => escapedClose),
-            Match(escapedEscape).Transform(c => escapedEscape),
+            Match(escapedClose).Transform(_ => escapedClose),
+            Match(escapedEscape).Transform(_ => escapedEscape),
             Match(c => c != closeStr).Transform(c => c.ToString())
         );
         return Rule(
-            Match(openStr).Transform(c => openStr.ToString()),
+            Match(openStr).Transform(_ => openStr.ToString()),
             bodyChar.ListStringsToString(),
-            Match(closeStr).Transform(c => closeStr.ToString()),
+            Match(closeStr).Transform(_ => closeStr.ToString()),
             (open, body, close) => open + body + close
         );
     }
@@ -60,7 +60,7 @@ public static partial class Parsers
     public static IParser<char, string> StrippedDoubleQuotedString() => _strippedDoubleQuotedString.Value;
 
     private static readonly Lazy<IParser<char, string>> _strippedDoubleQuotedString = new Lazy<IParser<char, string>>(
-        () => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Stripped Double-Quoted String")
+        static () => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Stripped Double-Quoted String")
     );
 
     /// <summary>
@@ -71,7 +71,7 @@ public static partial class Parsers
     public static IParser<char, string> StrippedSingleQuotedString() => _strippedSingleQuotedString.Value;
 
     private static readonly Lazy<IParser<char, string>> _strippedSingleQuotedString = new Lazy<IParser<char, string>>(
-        () => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Stripped Single-Quoted String")
+        static () => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Stripped Single-Quoted String")
     );
 
     /// <summary>
@@ -87,15 +87,15 @@ public static partial class Parsers
         var escapedClose = $"{escapeStr}{closeStr}";
         var escapedEscape = $"{escapeStr}{escapeStr}";
         var bodyChar = First(
-            Match(escapedClose).Transform(s => closeStr),
-            Match(escapedEscape).Transform(s => escapeStr),
+            Match(escapedClose).Transform(_ => closeStr),
+            Match(escapedEscape).Transform(_ => escapeStr),
             Match(c => c != closeStr)
         );
         return Rule(
             Match(openStr),
             bodyChar.ListCharToString(),
             Match(closeStr),
-            (open, body, close) => body
+            (_, body, _) => body
         );
     }
 }

@@ -17,10 +17,10 @@ public static partial class Parsers
         public static IParser<char, string> NumberString() => _numberString.Value;
 
         private static readonly Lazy<IParser<char, string>> _numberString = new Lazy<IParser<char, string>>(
-            () =>
+            static () =>
             {
-                var maybeMinus = MatchChar('-').Transform(c => "-").Optional(() => "");
-                var zero = MatchChar('0').Transform(c => "0");
+                var maybeMinus = MatchChar('-').Transform(_ => "-").Optional(() => "");
+                var zero = MatchChar('0').Transform(_ => "0");
                 var maybeDigits = Digit().ListCharToString();
                 var empty = Produce(() => "");
 
@@ -37,7 +37,7 @@ public static partial class Parsers
                 // fractPart := '.' <digit>+ | <empty>
                 var fractPart = First(
                         Rule(
-                            MatchChar('.').Transform(c => "."),
+                            MatchChar('.').Transform(_ => "."),
                             DigitString(),
                             (dot, fract) => dot + fract
                         ),
@@ -47,12 +47,12 @@ public static partial class Parsers
                 // expExpr := ('e' | 'E') ('+' | '-' | <empty>) <digit>+
                 var expExpr = Rule(
                         First(
-                            MatchChar('e').Transform(c => "e"),
-                            MatchChar('E').Transform(c => "E")
+                            MatchChar('e').Transform(_ => "e"),
+                            MatchChar('E').Transform(_ => "E")
                         ),
                         First(
-                            MatchChar('+').Transform(c => "+"),
-                            MatchChar('-').Transform(c => "-"),
+                            MatchChar('+').Transform(_ => "+"),
+                            MatchChar('-').Transform(_ => "-"),
                             Produce(() => "+")
                         ),
                         DigitString(),
@@ -67,7 +67,7 @@ public static partial class Parsers
 
                 // number := <minus>? <wholePart> <fractPart> <expPart>
                 return (maybeMinus, wholePart, fractPart, expPart)
-                        .Rule((sign, whole, fract, exp) => sign + whole + fract + exp)
+                        .Rule(static (sign, whole, fract, exp) => sign + whole + fract + exp)
                         .Named("JavaScript-Style Number String");
             }
         );
@@ -80,7 +80,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, double>> _number = new Lazy<IParser<char, double>>(
             () => NumberString()
-                .Transform(s => double.Parse(s, NumberStyles.Float))
+                .Transform(static s => double.Parse(s, NumberStyles.Float))
                 .Named("JavaScript-Style Number Literal")
         );
 
@@ -111,20 +111,20 @@ public static partial class Parsers
                 var hexSequence = Rule(
                     MatchChar('x'),
                     HexadecimalDigit().ListCharToString(2, 2),
-                    (x, hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString()
+                    static (_, hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString()
                 );
 
                 var unicodeEscapeSequence = Rule(
                     MatchChar('u'),
                     HexadecimalDigit().ListCharToString(4, 4),
-                    (u, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
+                    static (_, hex) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
                 );
 
                 var unicodeCodePointEscapeSequence = Rule(
                     Match("u{"),
                     HexadecimalDigit().ListCharToString(1, 8),
                     MatchChar('}'),
-                    (open, hex, close) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
+                    static (_, hex, _) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))
                 );
 
                 var escapeSequenceForSingleQuotedString = Rule(
@@ -137,19 +137,19 @@ public static partial class Parsers
                         unicodeEscapeSequence,
                         unicodeCodePointEscapeSequence
                     ),
-                    (slash, escape) => escape
+                    static (_, escape) => escape
                 );
 
                 var bodyCharForSingleQuotedString = First(
                     escapeSequenceForSingleQuotedString,
-                    Match(c => c != '\\' && c != '\'').Transform(c => c.ToString())
+                    Match(static c => c != '\\' && c != '\'').Transform(c => c.ToString())
                 );
 
                 var singleQuotedString = Rule(
                     MatchChar('\''),
                     bodyCharForSingleQuotedString.ListStringsToString(),
                     MatchChar('\''),
-                    (open, body, close) => body
+                    static (_, body, _) => body
                 ).Named("JavaScript-Style Single-Quoted Stripped String");
 
                 var escapeSequenceForDoubleQuotedString = Rule(
@@ -162,7 +162,7 @@ public static partial class Parsers
                         unicodeEscapeSequence,
                         unicodeCodePointEscapeSequence
                     ),
-                    (slash, escape) => escape
+                    static (_, escape) => escape
                 );
 
                 var bodyCharForDoubleQuotedString = First(
@@ -174,7 +174,7 @@ public static partial class Parsers
                     MatchChar('"'),
                     bodyCharForDoubleQuotedString.ListStringsToString(),
                     MatchChar('"'),
-                    (open, body, close) => body
+                    static (_, body, _) => body
                 ).Named("JavaScript-Style Double-Quoted Stripped String");
 
                 return First(
@@ -194,25 +194,25 @@ public static partial class Parsers
         private static readonly Lazy<IParser<char, string>> _string = new Lazy<IParser<char, string>>(
             () =>
             {
-                var escapeCharacter = Match(c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
+                var escapeCharacter = Match(static c => _escapableStringChars.ContainsKey(c)).Transform(c => c.ToString());
 
                 var hexSequence = Rule(
                     MatchChar('x'),
                     HexadecimalDigit().ListCharToString(2, 2),
-                    (x, hex) => "x" + hex
+                    static (_, hex) => "x" + hex
                 );
 
                 var unicodeEscapeSequence = Rule(
                     MatchChar('u'),
                     HexadecimalDigit().ListCharToString(4, 4),
-                    (u, hex) => "u" + hex
+                    static (_, hex) => "u" + hex
                 );
 
                 var unicodeCodePointEscapeSequence = Rule(
                     Match("u{"),
                     HexadecimalDigit().ListCharToString(1, 8),
                     MatchChar('}'),
-                    (open, hex, close) => "u{" + hex + "}"
+                    static (_, hex, _) => "u{" + hex + "}"
                 );
 
                 var escapeSequenceForSingleQuotedString = Rule(
@@ -225,19 +225,19 @@ public static partial class Parsers
                         unicodeEscapeSequence,
                         unicodeCodePointEscapeSequence
                     ),
-                    (slash, escape) => "\\" + escape
+                    static (_, escape) => "\\" + escape
                 );
 
                 var bodyCharForSingleQuotedString = First(
                     escapeSequenceForSingleQuotedString,
-                    Match(c => c != '\\' && c != '\'').Transform(c => c.ToString())
+                    Match(static c => c != '\\' && c != '\'').Transform(c => c.ToString())
                 );
 
                 var singleQuotedString = Rule(
                     MatchChar('\''),
                     bodyCharForSingleQuotedString.ListStringsToString(),
                     MatchChar('\''),
-                    (open, body, close) => "'" + body + "'"
+                    static (_, body, _) => "'" + body + "'"
                 ).Named("JavaScript-Style Single-Quoted String");
 
                 var escapeSequenceForDoubleQuotedString = Rule(
@@ -250,19 +250,19 @@ public static partial class Parsers
                         unicodeEscapeSequence,
                         unicodeCodePointEscapeSequence
                     ),
-                    (slash, escape) => "\\" + escape
+                    static (_, escape) => "\\" + escape
                 );
 
                 var bodyCharForDoubleQuotedString = First(
                     escapeSequenceForDoubleQuotedString,
-                    Match(c => c != '\\' && c != '"').Transform(c => c.ToString())
+                    Match(static c => c != '\\' && c != '"').Transform(c => c.ToString())
                 );
 
                 var doubleQuotedString = Rule(
                     MatchChar('"'),
                     bodyCharForDoubleQuotedString.ListStringsToString(),
                     MatchChar('"'),
-                    (open, body, close) => "\"" + body + "\""
+                    static (_, body, _) => "\"" + body + "\""
                 ).Named("JavaScript-Style Double-Quoted String");
 
                 return First(

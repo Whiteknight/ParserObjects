@@ -16,7 +16,7 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> CamelCase() => _camelCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _camelCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
             var lowerCase = Match(char.IsLower);
             var upperCase = Match(char.IsUpper);
@@ -31,7 +31,7 @@ public static partial class Parsers
             var camelCaseString = Rule(
                 upperCase,
                 lowerCase.ListCharToString(),
-                (u, l) => u + l
+                static (u, l) => u + l
             );
 
             // A run of all uppercase chars which aren't followed by lower-case chars
@@ -58,7 +58,7 @@ public static partial class Parsers
             return Rule(
                 firstPart,
                 bodyParts.List(),
-                (first, rest) => new[] { first }.Concat(rest)
+                static (first, rest) => new[] { first }.Concat(rest)
             );
         }
     );
@@ -71,7 +71,7 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> LowerCamelCase() => _lowerCamelCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _lowerCamelCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
             var lowerCase = Match(char.IsLower);
             var upperCase = Match(char.IsUpper);
@@ -86,7 +86,7 @@ public static partial class Parsers
             var camelCaseString = Rule(
                 upperCase,
                 lowerCase.ListCharToString(),
-                (u, l) => u + l
+                static (u, l) => u + l
             );
 
             // A run of all uppercase chars which aren't followed by lower-case chars
@@ -105,7 +105,7 @@ public static partial class Parsers
             return Rule(
                 lowerString,
                 bodyParts.List(),
-                (first, rest) => new[] { first }.Concat(rest)
+                static (first, rest) => new[] { first }.Concat(rest)
             );
         }
     );
@@ -118,7 +118,7 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> UpperCamelCase() => _upperCamelCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _upperCamelCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
             var lowerCase = Match(char.IsLower);
             var upperCase = Match(char.IsUpper);
@@ -133,7 +133,7 @@ public static partial class Parsers
             var camelCaseString = Rule(
                 upperCase,
                 lowerCase.ListCharToString(),
-                (u, l) => u + l
+                static (u, l) => u + l
             );
 
             // A run of all uppercase chars which aren't followed by lower-case chars
@@ -157,7 +157,7 @@ public static partial class Parsers
             return Rule(
                 firstPart,
                 bodyParts.List(),
-                (first, rest) => new[] { first }.Concat(rest)
+                static (first, rest) => new[] { first }.Concat(rest)
             );
         }
     );
@@ -170,9 +170,9 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> SpinalCase() => _spinalCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _spinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
-            var idChar = Match(c => char.IsLetterOrDigit(c) && c != '-');
+            var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '-');
             var word = idChar.ListCharToString();
             var separator = Match('-');
             return word.List(separator, atLeastOne: true);
@@ -187,9 +187,9 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSpinalCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
-            var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
+            var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
             var word = idChar.ListCharToString();
             var separator = Match('-');
             return word.List(separator, atLeastOne: true);
@@ -204,9 +204,9 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> SnakeCase() => _snakeCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _snakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
-            var idChar = Match(c => char.IsLetterOrDigit(c) && c != '_');
+            var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '_');
             var word = idChar.ListCharToString();
             var separator = Match('_');
             return word.List(separator, atLeastOne: true);
@@ -221,9 +221,9 @@ public static partial class Parsers
     public static IParser<char, IEnumerable<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
 
     private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSnakeCase = new Lazy<IParser<char, IEnumerable<string>>>(
-        () =>
+        static () =>
         {
-            var idChar = Match(c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');
+            var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');
             var word = idChar.ListCharToString();
             var separator = Match('_');
             return word.List(separator, atLeastOne: true);

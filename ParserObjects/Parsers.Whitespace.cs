@@ -13,7 +13,7 @@ public static partial class Parsers
     public static IParser<char, char> WhitespaceCharacter() => _whitespaceCharacter.Value;
 
     private static readonly Lazy<IParser<char, char>> _whitespaceCharacter = new Lazy<IParser<char, char>>(
-        () => Match(char.IsWhiteSpace).Named("ws")
+        static () => Match(char.IsWhiteSpace).Named("ws")
     );
 
     /// <summary>
@@ -23,7 +23,7 @@ public static partial class Parsers
     public static IParser<char, string> Whitespace() => _whitespace.Value;
 
     private static readonly Lazy<IParser<char, string>> _whitespace = new Lazy<IParser<char, string>>(
-        () => WhitespaceCharacter()
+        static () => WhitespaceCharacter()
             .List(true)
             .Transform(w => new string(w.ToArray()))
             .Named("whitespace")
@@ -36,7 +36,7 @@ public static partial class Parsers
     public static IParser<char, string> OptionalWhitespace() => _optionalWhitespace.Value;
 
     private static readonly Lazy<IParser<char, string>> _optionalWhitespace = new Lazy<IParser<char, string>>(
-        () => WhitespaceCharacter()
+        static () => WhitespaceCharacter()
             .List()
             .Transform(w => new string(w.ToArray()))
             .Named("whitespace?")

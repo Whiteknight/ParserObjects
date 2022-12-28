@@ -28,26 +28,12 @@ public sealed class ParseState<TInput> : IParseState<TInput>
     {
     }
 
-    /// <summary>
-    /// Gets the input sequence being used by the parser.
-    /// </summary>
     public ISequence<TInput> Input { get; }
 
-    /// <summary>
-    /// Gets the current contextual state data used by the parser.
-    /// </summary>
     public DataStore Data => new DataStore(_data);
 
-    /// <summary>
-    /// Gets the current result cache.
-    /// </summary>
     public IResultsCache Cache { get; }
 
-    /// <summary>
-    /// If a log callback is provided, pass a log message to the callback.
-    /// </summary>
-    /// <param name="parser"></param>
-    /// <param name="message"></param>
     public void Log(IParser parser, string message) => _logCallback?.Invoke($"{parser}: {message}");
 
     public TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null)
@@ -71,6 +57,9 @@ public sealed class ParseState<TInput> : IParseState<TInput>
     }
 }
 
+/// <summary>
+/// Access data from the current Parse State.
+/// </summary>
 public struct DataStore
 {
     private readonly LinkedList<Dictionary<string, object>> _store;
@@ -80,6 +69,13 @@ public struct DataStore
         _store = data;
     }
 
+    /// <summary>
+    /// Get a value from the current data context with the given name. If no value exists with that
+    /// name, or if the value is not the correct type, a failure result will be returned.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <returns>The value or failure.</returns>
     public Option<T> Get<T>(string name)
     {
         var node = _store.Last;
@@ -99,6 +95,13 @@ public struct DataStore
         return default;
     }
 
+    /// <summary>
+    /// Sets a value to the current data context with the given name. If a value exists with the
+    /// same name it will be overwritten.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
     public void Set<T>(string name, T value)
     {
         var dict = _store!.Last!.Value!;

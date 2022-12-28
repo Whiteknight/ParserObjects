@@ -115,7 +115,7 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
-        => new RuleParser<TInput, IReadOnlyList<object>>(parsers, r => r);
+        => new RuleParser<TInput, IReadOnlyList<object>, object>(parsers, Defaults.ObjectInstance, static (_, r) => r);
 
     /// <summary>
     /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
@@ -238,7 +238,12 @@ public static partial class Parsers<TInput>
     /// <param name="description"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string description = "")
-        => new Function<TInput, TOutput>.Parser<object>(Defaults.ObjectInstance, (_, args) => func(args), description ?? "", Array.Empty<IParser>());
+        => new Function<TInput, TOutput>.Parser<Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>>>(
+            func,
+            static (f, args) => f(args),
+            description ?? "",
+            Array.Empty<IParser>()
+        );
 
     /// <summary>
     /// Invokes the parser but rewinds the input sequence to ensure no input items are consumed.

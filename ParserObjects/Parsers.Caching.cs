@@ -23,8 +23,7 @@ public static partial class Parsers<TInput>
                 return result;
             }
 
-            var entry = cached.Value;
-            var (cachedResult, continuation) = entry;
+            var (cachedResult, continuation) = cached.Value;
             if (!cachedResult.Success)
                 return cachedResult;
 
@@ -51,8 +50,7 @@ public static partial class Parsers<TInput>
                 return result;
             }
 
-            var entry = cached.Value;
-            var (cachedResult, continuation) = entry;
+            var (cachedResult, continuation) = cached.Value;
             if (!cachedResult.Success)
                 return cachedResult;
 

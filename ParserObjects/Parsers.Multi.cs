@@ -76,7 +76,7 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> LongestResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => multiParser.Select(args =>
+        => multiParser.Select(static args =>
         {
             var longest = args.Result.Results
                 .Where(r => r.Success)
@@ -104,7 +104,7 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SingleResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => SelectResult(multiParser, args =>
+        => SelectResult(multiParser, static args =>
         {
             if (args.Result.Results.Count == 1)
                 return args.Success(args.Result.Results[0]);
