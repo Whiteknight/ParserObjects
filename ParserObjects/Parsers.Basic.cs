@@ -236,19 +236,35 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
         => new FirstParser<TInput, TOutput>(parsers);
 
+    public readonly record struct FunctionArgs<TOutput>(
+        Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> ParseFunction,
+        Func<Function<TInput, TOutput>.SingleArguments, bool>? MatchFunction
+    );
+
     /// <summary>
     /// Invoke a function callback to perform the parse at the current location in the input
     /// stream.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="func"></param>
+    /// <param name="parseFunction"></param>
+    /// <param name="matchFunction"></param>
     /// <param name="description"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Function<TOutput>(Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> func, string description = "")
-        => new Function<TInput, TOutput>.Parser<Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>>>(
-            func,
-            static (f, args) => f(args),
-            null,
+    public static IParser<TInput, TOutput> Function<TOutput>(
+        Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> parseFunction,
+        Func<Function<TInput, TOutput>.SingleArguments, bool>? matchFunction = null,
+        string description = ""
+    )
+        => new Function<TInput, TOutput>.Parser<FunctionArgs<TOutput>>(
+            new FunctionArgs<TOutput>(parseFunction, matchFunction),
+            static (f, args) => f.ParseFunction(args),
+            static (f, args) =>
+            {
+                if (f.MatchFunction != null)
+                    return f.MatchFunction(args);
+                var result = f.ParseFunction(args);
+                return result?.Success == true;
+            },
             description ?? "",
             Array.Empty<IParser>()
         );

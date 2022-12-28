@@ -146,14 +146,6 @@ public class ToBnfTests
     }
 
     [Test]
-    public void ToBnf_Func()
-    {
-        var parser = Function<string>(args => args.Success("")).Named("parser");
-        var result = parser.ToBnf();
-        result.Should().Contain("parser := User Function");
-    }
-
-    [Test]
     public void ToBnf_If()
     {
         var parser = If(End(), Any(), Peek()).Named("parser");
