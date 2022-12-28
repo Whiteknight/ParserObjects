@@ -25,8 +25,9 @@ public static class Function<TInput, TOutput>
             => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation, data);
     }
 
-    public sealed record Parser(
-        Func<SingleArguments, IResult<TOutput>> Function,
+    public sealed record Parser<TData>(
+        TData Data,
+        Func<TData, SingleArguments, IResult<TOutput>> Function,
         string Description,
         IReadOnlyList<IParser> Children,
         string Name = ""
@@ -40,7 +41,7 @@ public static class Function<TInput, TOutput>
             var startCheckpoint = state.Input.Checkpoint();
 
             var args = new SingleArguments(this, state, startCheckpoint);
-            var result = Function(args);
+            var result = Function(Data, args);
             if (result == null)
                 return state.Fail(this, "No result returned");
 
@@ -64,7 +65,7 @@ public static class Function<TInput, TOutput>
             var startCheckpoint = state.Input.Checkpoint();
 
             var args = new SingleArguments(this, state, startCheckpoint);
-            var result = Function(args);
+            var result = Function(Data, args);
             if (result == null)
                 return false;
 
@@ -118,27 +119,28 @@ public static class Function<TInput, TOutput>
         }
     }
 
-    public sealed record MultiParser(
-        Func<MultiArguments, IMultiResult<TOutput>> Function,
+    public sealed record MultiParser<TData>(
+        TData Data,
+        Func<TData, MultiArguments, IMultiResult<TOutput>> Function,
         string Description,
         IReadOnlyList<IParser> Children,
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
-        public MultiParser(Action<MultiBuilder> builder, string description, IReadOnlyList<IParser> children, string name = "")
-            : this((args) => AdaptMultiParserBuilderToFunction(args, builder), description, children, name)
+        public MultiParser(TData data, Action<TData, MultiBuilder> builder, string description, IReadOnlyList<IParser> children, string name = "")
+            : this(data, (d, args) => AdaptMultiParserBuilderToFunction(d, args, builder), description, children, name)
         {
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(MultiArguments args, Action<MultiBuilder> build)
+        private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)
         {
             Assert.ArgumentNotNull(build, nameof(build));
             var startCheckpoint = args.Input.Checkpoint();
 
             var buildArgs = new MultiBuilder(args.Parser, args.State, new List<IResultAlternative<TOutput>>(), startCheckpoint);
-            build(buildArgs);
+            build(data, buildArgs);
 
             startCheckpoint.Rewind();
             return new MultiResult<TOutput>(args.Parser, startCheckpoint.Location, startCheckpoint, buildArgs.Results);
@@ -150,7 +152,7 @@ public static class Function<TInput, TOutput>
         {
             Assert.ArgumentNotNull(state, nameof(state));
             var args = new MultiArguments(this, state);
-            return Function(args);
+            return Function(Data, args);
         }
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -163,14 +165,16 @@ public static class Function<TInput, TOutput>
 
 public static class Function<TInput>
 {
-    public sealed class Parser : IParser<TInput>
+    public sealed class Parser<TData> : IParser<TInput>
     {
-        private readonly Func<IParseState<TInput>, IResult> _func;
+        private readonly TData _data;
+        private readonly Func<TData, IParseState<TInput>, IResult> _func;
         private readonly IReadOnlyList<IParser> _children;
 
-        public Parser(Func<IParseState<TInput>, IResult> func, string? description, IEnumerable<IParser>? children, string name = "")
+        public Parser(TData data, Func<TData, IParseState<TInput>, IResult> func, string? description, IEnumerable<IParser>? children, string name = "")
         {
             Assert.ArgumentNotNull(func, nameof(func));
+            _data = data;
             _func = func;
             Name = name;
             Description = description;
@@ -189,7 +193,7 @@ public static class Function<TInput>
         public IResult Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var result = _func(state);
+            var result = _func(_data, state);
             if (!result.Success)
             {
                 startCheckpoint.Rewind();
@@ -203,7 +207,7 @@ public static class Function<TInput>
         public bool Match(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var result = _func(state);
+            var result = _func(_data, state);
             if (!result.Success)
             {
                 startCheckpoint.Rewind();
@@ -215,6 +219,6 @@ public static class Function<TInput>
 
         public override string ToString() => DefaultStringifier.ToString("Function", Name, Id);
 
-        public INamed SetName(string name) => new Parser(_func, Description, _children, name);
+        public INamed SetName(string name) => new Parser<TData>(_data, _func, Description, _children, name);
     }
 }

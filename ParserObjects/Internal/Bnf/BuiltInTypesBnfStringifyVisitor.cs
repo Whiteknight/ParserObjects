@@ -258,17 +258,17 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(Function<TInput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TData>(Function<TInput>.Parser<TData> p, BnfStringifyVisitor state)
     {
         return AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
     }
 
-    private bool Accept<TInput, TOutput>(Function<TInput, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, BnfStringifyVisitor state)
     {
         return AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
     }
 
-    private bool Accept<TInput, TOutput>(Function<TInput, TOutput>.MultiParser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.MultiParser<TData> p, BnfStringifyVisitor state)
     {
         return AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
     }

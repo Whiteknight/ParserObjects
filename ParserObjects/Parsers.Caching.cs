@@ -9,10 +9,10 @@ public static partial class Parsers<TInput>
     /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
-    /// <param name="p"></param>
+    /// <param name="parser"></param>
     /// <returns></returns>
-    public static IParser<TInput> Cache(IParser<TInput> p)
-        => new Function<TInput>.Parser(state =>
+    public static IParser<TInput> Cache(IParser<TInput> parser)
+        => new Function<TInput>.Parser<IParser<TInput>>(parser, static (p, state) =>
         {
             var location = state.Input.CurrentLocation;
             var cached = state.Cache.Get<Tuple<IResult, SequenceCheckpoint>>(p, location);
@@ -30,17 +30,17 @@ public static partial class Parsers<TInput>
 
             continuation.Rewind();
             return cachedResult;
-        }, "CACHED({child})", new[] { p });
+        }, "CACHED({child})", new[] { parser });
 
     /// <summary>
     /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
+    /// <param name="parser"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Cache<TOutput>(IParser<TInput, TOutput> p)
-        => new Function<TInput, TOutput>.Parser(args =>
+    public static IParser<TInput, TOutput> Cache<TOutput>(IParser<TInput, TOutput> parser)
+        => new Function<TInput, TOutput>.Parser<IParser<TInput, TOutput>>(parser, static (p, args) =>
         {
             var location = args.Input.CurrentLocation;
             var cached = args.Cache.Get<Tuple<IResult<TOutput>, SequenceCheckpoint>>(p, location);
@@ -59,17 +59,17 @@ public static partial class Parsers<TInput>
             continuation.Rewind();
 
             return cachedResult;
-        }, "CACHED({child})", new[] { p });
+        }, "CACHED({child})", new[] { parser });
 
     /// <summary>
     /// Cache the eresult of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
+    /// <param name="parser"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Cache<TOutput>(IMultiParser<TInput, TOutput> p)
-        => new Function<TInput, TOutput>.MultiParser(args =>
+    public static IMultiParser<TInput, TOutput> Cache<TOutput>(IMultiParser<TInput, TOutput> parser)
+        => new Function<TInput, TOutput>.MultiParser<IMultiParser<TInput, TOutput>>(parser, static (p, args) =>
         {
             var location = args.Input.CurrentLocation;
             var cached = args.Cache.Get<IMultiResult<TOutput>>(p, location);
@@ -79,5 +79,5 @@ public static partial class Parsers<TInput>
             var result = p.Parse(args.State);
             args.Cache.Add(p, location, result);
             return result;
-        }, "CACHED({child})", new[] { p });
+        }, "CACHED({child})", new[] { parser });
 }

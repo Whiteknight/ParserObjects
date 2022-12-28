@@ -57,13 +57,15 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <returns></returns>
     public static IParser<TInput, TValue> GetData<TValue>(string name)
-        => Function<TValue>(args =>
+        => new Function<TInput, TValue>.Parser<string>(name, static (n, args) =>
         {
-            var result = args.Data.Get<TValue>(name);
+            var result = args.Data.Get<TValue>(n);
             return result.Success ?
                 args.Success(result.Value, args.Input.CurrentLocation) :
-                args.Failure($"State data '{name}' with type does not exist", args.Input.CurrentLocation);
-        });
+                args.Failure($"State data '{n}' with type does not exist", args.Input.CurrentLocation);
+        }, $"GET '{name}'", Array.Empty<IParser>());
+
+    private readonly record struct SetDataArgs<TValue>(string Name, TValue Value);
 
     /// <summary>
     /// A parser which sets a value into the current context data and returns that same value
@@ -74,11 +76,16 @@ public static partial class Parsers<TInput>
     /// <param name="value"></param>
     /// <returns></returns>
     public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-        => Function<TValue>(args =>
-        {
-            args.Data.Set(name, value);
-            return args.Success(value, args.Input.CurrentLocation);
-        });
+        => new Function<TInput, TValue>.Parser<SetDataArgs<TValue>>(
+            new SetDataArgs<TValue>(name, value),
+            static (sdArgs, funcArgs) =>
+            {
+                funcArgs.Data.Set(sdArgs.Name, sdArgs.Value);
+                return funcArgs.Success(sdArgs.Value, funcArgs.Input.CurrentLocation);
+            },
+            $"SET '{name}'",
+            Array.Empty<IParser>()
+        );
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value to the current context
@@ -90,6 +97,8 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
         => SetResultData(p, name, value => value);
+
+    private readonly record struct SetResultDataArgs<TOutput, TValue>(IParser<TInput, TOutput> Parser, string Name, Func<TOutput, TValue> GetValue);
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value (possibly transformed
@@ -103,17 +112,22 @@ public static partial class Parsers<TInput>
     /// <param name="getValue"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-        => new Function<TInput, TOutput>.Parser(args =>
-        {
-            var result = p.Parse(args.State);
-            if (result.Success)
+        => new Function<TInput, TOutput>.Parser<SetResultDataArgs<TOutput, TValue>>(
+            new SetResultDataArgs<TOutput, TValue>(p, name, getValue),
+            static (srdArgs, funcArgs) =>
             {
-                var value = getValue(result.Value);
-                args.Data.Set(name, value);
-            }
+                var result = srdArgs.Parser.Parse(funcArgs.State);
+                if (result.Success)
+                {
+                    var value = srdArgs.GetValue(result.Value);
+                    funcArgs.Data.Set(srdArgs.Name, value);
+                }
 
-            return result;
-        }, "SetResultData", new[] { p });
+                return result;
+            },
+            "SetResultData",
+            new[] { p }
+        );
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
