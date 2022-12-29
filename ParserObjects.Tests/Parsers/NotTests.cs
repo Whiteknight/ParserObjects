@@ -3,7 +3,7 @@ using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
 
-public static class NotParserTests
+public static class NotTests
 {
     private static readonly IParser<char, char> _anyParser = Any();
     private static readonly IParser<char, bool> _failParser = Fail<bool>();

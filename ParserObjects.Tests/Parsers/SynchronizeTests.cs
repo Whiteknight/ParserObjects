@@ -3,7 +3,7 @@ using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
 
-public class SynchronizeParserTests
+public class SynchronizeTests
 {
     [Test]
     public void Parse_Success()
