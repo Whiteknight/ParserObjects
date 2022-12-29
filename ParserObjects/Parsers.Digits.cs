@@ -19,16 +19,6 @@ public static partial class Parsers
         );
 
         /// <summary>
-        /// Parses a single non-zero digit 1-9.
-        /// </summary>
-        /// <returns></returns>
-        public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
-
-        private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
-            static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
-        );
-
-        /// <summary>
         /// Parses digits in series and returns them as a string.
         /// </summary>
         /// <returns></returns>
@@ -36,6 +26,16 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _digitString = new Lazy<IParser<char, string>>(
             static () => Digit().ListCharToString(true).Named("digits")
+        );
+
+        /// <summary>
+        /// Parses a single non-zero digit 1-9.
+        /// </summary>
+        /// <returns></returns>
+        public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
+
+        private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
+            static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
         );
 
         /// <summary>

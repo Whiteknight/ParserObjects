@@ -115,6 +115,12 @@ public static class ParserCombinatorExtensions
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
         => Parsers<TInput>.List(p, separator, atLeastOne);
 
+    public static IParser<TInput> List<TInput>(this IParser<TInput> p, bool atLeastOne)
+        => Parsers<TInput>.List(p, atLeastOne);
+
+    public static IParser<TInput> List<TInput>(this IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
+        => Parsers<TInput>.List(p, separator, atLeastOne);
+
     /// <summary>
     /// Returns a list of results from the given parser, with limits. Continues to
     /// parse until the parser returns failure or the maximum number of results is
@@ -127,6 +133,9 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum, int? maximum = null)
+        => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
+
+    public static IParser<TInput> List<TInput>(this IParser<TInput> p, int minimum, int? maximum = null)
         => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
 
     /// <summary>
@@ -142,6 +151,9 @@ public static class ParserCombinatorExtensions
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
+        => Parsers<TInput>.List(p, separator, minimum, maximum);
+
+    public static IParser<TInput> List<TInput>(this IParser<TInput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
         => Parsers<TInput>.List(p, separator, minimum, maximum);
 
     /// <summary>

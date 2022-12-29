@@ -39,17 +39,17 @@ public static partial class Parsers
     {
         var escapedClose = $"{escapeStr}{closeStr}";
         var escapedEscape = $"{escapeStr}{escapeStr}";
-        var bodyChar = First(
-            Match(escapedClose).Transform(_ => escapedClose),
-            Match(escapedEscape).Transform(_ => escapedEscape),
-            Match(c => c != closeStr).Transform(c => c.ToString())
+        var bodyChar = Or(
+            Match(escapedClose),
+            Match(escapedEscape),
+            Match(c => c != closeStr)
         );
-        return Rule(
-            Match(openStr).Transform(_ => openStr.ToString()),
-            bodyChar.ListStringsToString(),
-            Match(closeStr).Transform(_ => closeStr.ToString()),
-            (open, body, close) => open + body + close
-        );
+        return Capture(
+                Match(openStr),
+                bodyChar.List(),
+                Match(closeStr)
+            )
+            .Stringify();
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public static partial class Parsers
             Match(openStr),
             bodyChar.ListCharToString(),
             Match(closeStr),
-            (_, body, _) => body
+            static (_, body, _) => body
         );
     }
 }

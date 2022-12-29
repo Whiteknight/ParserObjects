@@ -59,7 +59,7 @@ public static partial class Parsers
                         nonZeroDigit,
                         digits
                     ).Stringify(),
-                    MatchChar('0').Transform(_ => "0")
+                    MatchChar('0').Transform(static _ => "0")
                 );
                 return parser.Named("C-Style Integer String");
             }
@@ -94,7 +94,7 @@ public static partial class Parsers
                         nonZeroDigit,
                         digits
                     ).Stringify(),
-                    MatchChar('0').Transform(_ => "0")
+                    MatchChar('0').Transform(static _ => "0")
                 );
                 return parser.Named("C-Style Unsigned Integer String");
             }

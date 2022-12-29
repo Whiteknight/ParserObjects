@@ -18,6 +18,9 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
         => List(p, Empty(), atLeastOne);
 
+    public static IParser<TInput> List(IParser<TInput> p, bool atLeastOne)
+        => List(p, Empty(), atLeastOne);
+
     /// <summary>
     /// Parse a list of items with a separator between them.
     /// </summary>
@@ -27,6 +30,9 @@ public static partial class Parsers<TInput>
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
+        => List(p, separator, minimum: atLeastOne ? 1 : 0);
+
+    public static IParser<TInput> List(IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
         => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
     /// <summary>
@@ -40,6 +46,9 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, int minimum, int? maximum = null)
         => List(p, Empty(), minimum, maximum);
 
+    public static IParser<TInput> List(IParser<TInput> p, int minimum, int? maximum = null)
+        => List(p, Empty(), minimum, maximum);
+
     /// <summary>
     /// Parse a list of items with defined minimum and maximum quantities.
     /// </summary>
@@ -50,7 +59,10 @@ public static partial class Parsers<TInput>
     /// <param name="maximum"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
-        => new ListParser<TInput, TOutput>(p, separator ?? Empty(), minimum, maximum);
+        => new Repetition<TInput>.Parser<TOutput>(p, separator ?? Empty(), minimum, maximum);
+
+    public static IParser<TInput> List(IParser<TInput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
+        => new Repetition<TInput>.Parser(p, separator ?? Empty(), minimum, maximum);
 
     /// <summary>
     /// Parse a list of items non-greedily. Will only attempt to match another item if the

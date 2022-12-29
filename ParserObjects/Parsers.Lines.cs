@@ -13,16 +13,15 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, string> PrefixedLine(string prefix)
     {
-        // We should cache this, in a dictionary by prefix
-        var notNewlineChar = Match(c => c != '\n');
         if (string.IsNullOrEmpty(prefix))
             return Line();
 
-        var prefixParser = Match(prefix).Transform(c => prefix);
-        var charsParser = notNewlineChar.ListCharToString();
-        return (prefixParser, charsParser)
-            .Rule((p, content) => p + content)
-            .Named($"linePrefixed:{prefix}");
+        return Capture(
+                Match(prefix),
+                Match(static c => c != '\n').List()
+            )
+            .Stringify()
+            .Named($"Line Prefixed:{prefix}");
     }
 
     /// <summary>
@@ -34,7 +33,7 @@ public static partial class Parsers
     private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(
         static () =>
         {
-            var notNewlineChar = Match(c => c != '\n');
+            var notNewlineChar = Match(static c => c != '\n');
             return notNewlineChar.ListCharToString();
         }
     );

@@ -307,53 +307,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(ListParser<TInput, TOutput> p, BnfStringifyVisitor state)
-    {
-        var children = p.GetChildren().ToArray();
-        var item = children[0];
-        var separator = children[1];
-
-        state.Append(item);
-
-        if (separator != null && separator is not EmptyParser<TInput>)
-            state.Append(" (", separator, " ", item, ")");
-
-        // If we have a maximum, handle a range with a maximum. We always have a minimum
-        if (p.Maximum.HasValue)
-        {
-            if (p.Maximum == 1 && p.Minimum == 0)
-            {
-                state.Append("?");
-                return true;
-            }
-
-            if (p.Maximum == p.Minimum)
-            {
-                state.Append('{').Append(p.Minimum).Append('}');
-                return true;
-            }
-
-            state.Append('{').Append(p.Minimum).Append(", ").Append(p.Maximum).Append('}');
-            return true;
-        }
-
-        // No maximum, so handle special cases with minimum values first.
-        if (p.Minimum == 0)
-        {
-            state.Append('*');
-            return true;
-        }
-
-        if (p.Minimum == 1)
-        {
-            state.Append('+');
-            return true;
-        }
-
-        state.Append('{').Append(p.Minimum).Append(",}");
-        return true;
-    }
-
     private bool Accept<TInput>(MatchItemParser<TInput> p, BnfStringifyVisitor state)
     {
         state.Append("'", (object?)p.Item ?? ' ', "'");
@@ -497,6 +450,68 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
     private bool Accept(RegexParser p, BnfStringifyVisitor state)
     {
         state.Append("/", p.Pattern, "/");
+        return true;
+    }
+
+    private void AcceptRepetitionParser<TInput>(BnfStringifyVisitor state, IParser item, IParser separator, int minimum, int? maximum)
+    {
+        state.Append(item);
+
+        if (separator != null && separator is not EmptyParser<TInput>)
+            state.Append(" (", separator, " ", item, ")");
+
+        // If we have a maximum, handle a range with a maximum. We always have a minimum
+        if (maximum.HasValue)
+        {
+            if (maximum == 1 && minimum == 0)
+            {
+                state.Append("?");
+                return;
+            }
+
+            if (maximum == minimum)
+            {
+                state.Append('{').Append(minimum).Append('}');
+                return;
+            }
+
+            state.Append('{').Append(minimum).Append(", ").Append(maximum).Append('}');
+            return;
+        }
+
+        // No maximum, so handle special cases with minimum values first.
+        if (minimum == 0)
+        {
+            state.Append('*');
+            return;
+        }
+
+        if (minimum == 1)
+        {
+            state.Append('+');
+            return;
+        }
+
+        state.Append('{').Append(minimum).Append(",}");
+    }
+
+    private bool Accept<TInput>(Repetition<TInput>.Parser p, BnfStringifyVisitor state)
+    {
+        var children = p.GetChildren().ToArray();
+        var item = children[0];
+        var separator = children[1];
+
+        AcceptRepetitionParser<TInput>(state, item, separator, p.Minimum, p.Maximum);
+        return true;
+    }
+
+    private bool Accept<TInput, TOutput>(Repetition<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
+    {
+        var children = p.GetChildren().ToArray();
+        var item = children[0];
+        var separator = children[1];
+
+        AcceptRepetitionParser<TInput>(state, item, separator, p.Minimum, p.Maximum);
         return true;
     }
 
