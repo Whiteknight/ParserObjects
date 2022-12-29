@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ParserObjects.Internal.Sequences;
 
@@ -113,10 +114,13 @@ public static class Sequences
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="source"></param>
-    /// <param name="endSentinel"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<T?> FromEnumerable<T>(IEnumerable<T> source, T? endSentinel = default)
-        => new ListSequence<T>(source, endSentinel);
+    public static ISequence<T?> FromEnumerable<T>(IEnumerable<T> source, SequenceOptions<T?> options = default)
+        => new ListSequence<T>(source, options.EndSentinel);
+
+    public static ICharSequence FromEnumerable(IEnumerable<char> source, SequenceOptions<char> options = default)
+        => new CharArraySequence(source.ToList(), options);
 
     /// <summary>
     /// Wrap the list in a sequence.
@@ -127,6 +131,9 @@ public static class Sequences
     /// <returns></returns>
     public static ISequence<T?> FromList<T>(IReadOnlyList<T> list, T? endSentinel = default)
         => new ListSequence<T>(list, endSentinel);
+
+    public static ICharSequence FromList(IReadOnlyList<char> list, SequenceOptions<char> options = default)
+        => new CharArraySequence(list, options);
 
     /// <summary>
     /// Creates a sequence from the results of repeated invocation of the given parser.
@@ -149,7 +156,7 @@ public static class Sequences
     public static ICharSequence FromString(string s, SequenceOptions<char> options = default)
     {
         if (options.NormalizeLineEndings)
-            return new PrenormalizedStringCharacterSequence(s, options);
+            return new CharArraySequence(s, options);
         return new NonnormalizedStringCharacterSequence(s, options);
     }
 }

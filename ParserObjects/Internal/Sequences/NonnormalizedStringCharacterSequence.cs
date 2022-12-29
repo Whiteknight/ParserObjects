@@ -6,6 +6,8 @@ namespace ParserObjects.Internal.Sequences;
 
 /// <summary>
 /// A sequence of characters read from a string. Does not do any normalization of line endings.
+/// This type is an optimization for cases where we have a string and we explicitly do not need
+/// normalization. We can save a lot of up-front work in that case and store the string as-is.
 /// </summary>
 public sealed class NonnormalizedStringCharacterSequence : ICharSequence
 {

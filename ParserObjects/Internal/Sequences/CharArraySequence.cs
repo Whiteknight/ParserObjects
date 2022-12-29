@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 
 /// <summary>
-/// A sequence of characters read from a string. Pre-normalizes the string to optimize for reads.
-/// Only useful when normalization is requested (MaintainLineEndings == false).
+/// A sequence of characters stored in an in-memory array. May or may not normalize line endings.
 /// </summary>
-public sealed class PrenormalizedStringCharacterSequence : ICharSequence
+public sealed class CharArraySequence : ICharSequence
 {
     private readonly char[] _s;
     private readonly int _bufferLength;
@@ -19,26 +19,40 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequence
     private int _line;
     private int _column;
 
-    public PrenormalizedStringCharacterSequence(string s, SequenceOptions<char> options)
+    public CharArraySequence(string s, SequenceOptions<char> options)
     {
         Assert.ArgumentNotNull(s, nameof(s));
         _options = options;
         _options.Validate();
-        Debug.Assert(_options.NormalizeLineEndings, "This sequence requires strings be normalized");
         _stats = default;
-        (_s, _bufferLength) = Normalize(s);
+        (_s, _bufferLength) = Normalize(s, _options.NormalizeLineEndings);
         _line = 1;
         _column = 0;
         _index = 0;
     }
 
-    public PrenormalizedStringCharacterSequence(string s)
+    public CharArraySequence(string s)
         : this(s, default)
     {
     }
 
-    private static (char[] buffer, int length) Normalize(string s)
+    public CharArraySequence(IReadOnlyList<char> s, SequenceOptions<char> options)
     {
+        Assert.ArgumentNotNull(s, nameof(s));
+        _options = options;
+        _options.Validate();
+        _stats = default;
+        (_s, _bufferLength) = Normalize(s, _options.NormalizeLineEndings);
+        _line = 1;
+        _column = 0;
+        _index = 0;
+    }
+
+    private static (char[] buffer, int length) Normalize(string s, bool normalize)
+    {
+        if (!normalize)
+            return (s.ToCharArray(), s.Length);
+
         if (s.Length == 0)
             return (Array.Empty<char>(), 0);
         if (s.Length == 1)
@@ -71,6 +85,54 @@ public sealed class PrenormalizedStringCharacterSequence : ICharSequence
         }
 
         if (srcIdx < s.Length)
+        {
+            var c = s[srcIdx];
+            if (c == '\r')
+                chars[destIdx++] = '\n';
+            else
+                chars[destIdx++] = c;
+        }
+
+        return (chars, destIdx);
+    }
+
+    private static (char[] buffer, int length) Normalize(IReadOnlyList<char> s, bool normalize)
+    {
+        if (!normalize)
+            return (s.ToArray(), s.Count);
+
+        if (s.Count == 0)
+            return (Array.Empty<char>(), 0);
+        if (s.Count == 1)
+            return (new[] { s[0] == '\r' ? '\n' : s[0] }, 1);
+
+        var chars = new char[s.Count];
+
+        int destIdx = 0;
+        int srcIdx = 0;
+        for (; srcIdx < s.Count - 1; srcIdx++)
+        {
+            // \r -> \n
+            // \r\n -> \n
+            var c = s[srcIdx];
+            if (c != '\r')
+            {
+                chars[destIdx++] = c;
+                continue;
+            }
+
+            var next = s[srcIdx + 1];
+            if (next == '\n')
+            {
+                chars[destIdx++] = '\n';
+                srcIdx++;
+                continue;
+            }
+
+            chars[destIdx++] = '\n';
+        }
+
+        if (srcIdx < s.Count)
         {
             var c = s[srcIdx];
             if (c == '\r')

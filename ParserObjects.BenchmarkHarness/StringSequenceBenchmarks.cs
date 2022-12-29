@@ -11,7 +11,10 @@ public class StringSequenceBenchmarks
     [Benchmark]
     public void Prenormalized()
     {
-        var target = new PrenormalizedStringCharacterSequence("aaaaaaaaaaaaaaaaaaab");
+        var target = new CharArraySequence("aaaaaaaaaaaaaaaaaaab", new SequenceOptions<char>
+        {
+            MaintainLineEndings = false
+        });
         var result = _parser.Parse(target);
     }
 
