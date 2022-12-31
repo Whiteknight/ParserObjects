@@ -81,6 +81,8 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         return peek;
     }
 
+    // TODO: This sequence should maintain it's own statistics, because we may be buffering or
+    // generating and rewinding here.
     public SequenceStatistics GetStatistics() => _input.GetStatistics();
 
     public IResult<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)

@@ -135,6 +135,12 @@ public static class Sequences
     public static ICharSequence FromList(IReadOnlyList<char> list, SequenceOptions<char> options = default)
         => new CharArraySequence(list, options);
 
+    public static ICharSequence FromMethod(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options = default)
+        => new DelegateCharSequence(function, options);
+
+    public static ISequence<T> FromMethod<T>(Func<int, (T next, bool atEnd)> function, SequenceOptions<T> options = default)
+        => new DelegateSequence<T>(function, options);
+
     /// <summary>
     /// Creates a sequence from the results of repeated invocation of the given parser.
     /// </summary>

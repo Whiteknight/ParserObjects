@@ -250,7 +250,23 @@ var sequence = enumerable.ToSequence();
 
 This sequence uses a default value (`null` in most cases where objects are used) as the end sentinel, though you can change this with the `SequenceOptions<T>` parameter. Your user-supplied end sentinel value should properly implement `.Equals` so that end values can be detected. End sentinel values will be cached and not recomputed on each call to `.GetNext()`. 
 
-**Notice**: If you use `FromEnumerable()` with a `string` argument, you will not get any of the special character-handling of the character sequences described previously. It will not normalize newlines, keep track of `.Line` and `.Column` correctly, or implement the `.GetRemainder()` method. If your data is character-based, you should try to use one of the char-based sequence types instead.
+**Notice**: If you use `FromList()` with a list of `char`, or if you use `FromEnumerable()` with an enumerable of `char` (including with a `string`) it will implement `ICharSequence` and you will get proper handling of newlines. Notice that, where possible, performance will be a little better if you use `FromString()` instead.
+
+### Invoke a Delegate
+
+It is possible to create a sequence from your own custom delegate method. The delegate will take the index of the item to read, and must return a `ValueTuple` of `(T value, bool isAtEnd)`. The first item is the value read at that index, and the second value is a bool saying whether or not the sequence is at or past the end of the data *after the read*. For example, if you have three items in your sequence, `(1, 2, 3)` then the first call `index = 0` will return `(1, false)`, the second call `index = 1` will return `(2, false)`, the third call `index = 2` will return `(3, true)` because 3 is the last value read and so the sequence is now at the end, and all subsequent reads where `index > 2` should return your end sentinel value (with `isAtEnd = true`).
+
+```csharp
+var sequence = FromMethod(index => {
+    if (index > 2)
+        return (0, true);
+    return (index + 1, index >= 2);
+});
+```
+
+**Note**: The sequence may be optimized to avoid calling your delegate after the point when the `isAtEnd` value has been signaled. Make sure that the desired end sentinel value is set up correctly in the delegate itself and in the `SequenceOptions<T>`.
+
+If your delegate returns type `char`, the `FromMethod()` sequence will implement `ICharSequence`, giving you access to line ending normalization, `.Line` and `.Column` tracking, and methods from `ICharSequence`.
 
 ### Filtering Sequences
 
@@ -314,3 +330,13 @@ var stats = sequence.GetStatistics();
 ```
 
 The statistics returned are a read-only snapshot. You must call `.GetStatistics()` again to get updated values.
+
+* `.ItemsRead` The number of items read with the `.GetNext()` call, `.GetRemainder()`, `.GetBetween()` and any other method or mechanism that reads values.
+* `.ItemsPeeked` The number of times `.Peek()` is called.
+* `.ItemsGenerated` For sequences which read values from an external source, the number of times an item has been requested from that source.
+* `.Rewinds` The number of times a checkpoint has been rewinded, or `.Reset()` has been called.
+* `.RewindsToCurrentBuffer` For sequences which use multiple buffers, the number of times a `.Rewind()` has been able to rewind to the current buffer without refilling.
+* `.BufferFills` For sequences which use buffers, the number of times a buffer has been filled.
+* `.CheckpointsCreated` The number of checkpoints which have been created.
+
+If you are trying to optimize your parser, tune your `SequenceOptions<T>`, or trying to implement your own sequence type, it may be a good idea to try and minimize the values for `.ItemsRead`, `.ItemsGenerated` and `.BufferFills`, and to try and maximize the ratio of `.RewindsToCurrentBuffer`/`.Rewinds`.
