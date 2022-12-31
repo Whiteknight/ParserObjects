@@ -171,7 +171,7 @@ namespace ParserObjects.Tests.Sequences
                     return args.Failure("Count too high");
                 return args.Success(values[count++]);
             });
-            var target = FromParseResult(FromString(""), parser);
+            var target = FromParseResult(FromString(values), parser);
             target.GetNext().Value.Should().Be('a');
             target.GetNext().Value.Should().Be('b');
             var cp1 = target.Checkpoint();

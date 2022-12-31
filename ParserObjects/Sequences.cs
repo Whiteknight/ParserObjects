@@ -142,10 +142,15 @@ public static class Sequences
     /// <typeparam name="TResult"></typeparam>
     /// <param name="sequence"></param>
     /// <param name="parser"></param>
+    /// <param name="getEndSentinel"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(ISequence<TInput> sequence, IParser<TInput, TResult> parser, Action<string>? log = null)
-        => new ParseResultSequence<TInput, TResult>(sequence, parser, log ?? (_ => { }));
+    public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(
+        ISequence<TInput> sequence,
+        IParser<TInput, TResult> parser,
+        Func<ParseResultSequence<TInput, TResult>.ResultBuilder, IResult<TResult>>? getEndSentinel = null,
+        Action<string>? log = null
+    ) => new ParseResultSequence<TInput, TResult>(sequence, parser, getEndSentinel, log ?? (_ => { }));
 
     /// <summary>
     /// Return a sequence from the given string.

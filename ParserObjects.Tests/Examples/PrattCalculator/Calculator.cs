@@ -12,7 +12,7 @@ namespace ParserObjects.Tests.Examples.PrattCalculator
 
             // Get the lexical grammar, and use it to create a sequence of tokens
             var lexicalParser = LexicalGrammar.CreateParser();
-            var tokenSequence = lexicalParser.ToSequence(characterSequence, s => Debug.WriteLine(s)).Select(r =>
+            var tokenSequence = lexicalParser.ToSequence(characterSequence, log: s => Debug.WriteLine(s)).Select(r =>
             {
                 if (r.Success)
                     return r.Value;

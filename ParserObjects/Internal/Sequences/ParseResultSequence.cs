@@ -11,16 +11,41 @@ namespace ParserObjects.Internal.Sequences;
 public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
 {
     private readonly ISequence<TInput> _input;
-    private readonly ParseState<TInput> _state;
+    private readonly IParseState<TInput> _state;
     private readonly IParser<TInput, TOutput> _parser;
+    private readonly Func<ResultBuilder, IResult<TOutput>>? _getEndSentinel;
 
-    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Action<string> log)
+    private IResult<TOutput>? _endSentinel;
+
+    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultBuilder, IResult<TOutput>>? getEndSentinel, Action<string> log)
     {
         Assert.ArgumentNotNull(input, nameof(input));
         Assert.ArgumentNotNull(parser, nameof(parser));
         _state = new ParseState<TInput>(input, log);
         _input = input;
         _parser = parser;
+        _getEndSentinel = getEndSentinel;
+        _endSentinel = null;
+    }
+
+    public struct ResultBuilder
+    {
+        private readonly IParseState<TInput> _state;
+        private readonly IParser<TInput, TOutput> _parser;
+        private readonly Location _location;
+
+        public ResultBuilder(IParseState<TInput> state, IParser<TInput, TOutput> parser, Location location)
+        {
+            _state = state;
+            _parser = parser;
+            _location = location;
+        }
+
+        public IResult<TOutput> Success(TOutput value)
+            => _state.Success(_parser, value, 0, _location);
+
+        public IResult<TOutput> Failure(string message)
+            => _state.Fail(_parser, message);
     }
 
     public IResult<TOutput> GetNext() => GetNext(true);
@@ -37,15 +62,23 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     private IResult<TOutput> GetNext(bool advance)
     {
-        if (!advance)
+        if (_input.IsAtEnd)
         {
-            var cp = _input.Checkpoint();
-            var peek = _parser.Parse(_state);
-            cp.Rewind();
-            return peek;
+            if (_endSentinel != null)
+                return _endSentinel;
+
+            var builder = new ResultBuilder(_state, _parser, _state.Input.CurrentLocation);
+            _endSentinel = _getEndSentinel?.Invoke(builder) ?? _parser.Parse(_state);
+            return _endSentinel;
         }
 
-        return _parser.Parse(_state);
+        if (advance)
+            return _parser.Parse(_state);
+
+        var cp = _input.Checkpoint();
+        var peek = _parser.Parse(_state);
+        cp.Rewind();
+        return peek;
     }
 
     public SequenceStatistics GetStatistics() => _input.GetStatistics();
