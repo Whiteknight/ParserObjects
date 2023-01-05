@@ -225,6 +225,29 @@ var parser = Combine(p1, p2, p3, ...);
 
 For most cases, it is preferred to use the strongly-typed `Rule` parser instead of `Combine`.
 
+### Compose Parser
+
+The `Compose` parser combines two parsers, using the outputs of the inner parser as the inputs to the outer parser. Because it's using two different input types, you access it slightly differently from most other parsers:
+
+```csharp
+using static ParserObjects.Parsers;
+```
+
+```csharp
+var parser = Compose(inner, outer);
+```
+
+Notice that there are several error conditions here that need to be accounted for. If the `inner` parser returns an error result for any reason, the composed parser will likewise return a failure with included error information. If the `inner` parser reaches end of input, the behavior will be determined by how the inner parser reacts:
+
+1. If the inner parser returns a graceful success with some kind of end-of-input value, the outer parser will be invoked with that value and should be able to transform that into it's own end-of-input value.
+2. If the inner parser returns an error, the composed parser will return an error and the outer parser will never be invoked.
+
+If you want to have some kind of graceful handling of end-of-input situations, you need to make sure to account for it in both parsers. There is also an `OnEnd` parameter you can pass to allow you to specify an end-of-input value to use if the inner parser is at end-of-input without having to invoke it:
+
+```csharp
+var parser = Compose(inner, outer, onEnd: b => b.Success(value));
+```
+
 ### Fail Parser
 
 The `Fail` parser returns failure unconditionally. It can be used to explicitly insert failure conditions into your parser graph, to provide error messages which are more helpful than the default error messages, or to serve as a placeholder for replacement operations. The Fail parser has an output type so it can be inserted into places in your parser graph that expect an output type to be specified.
