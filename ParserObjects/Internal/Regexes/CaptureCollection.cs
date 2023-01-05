@@ -19,14 +19,15 @@ public sealed class CaptureCollection
     {
         int currentIndex = CaptureIndex + 1;
         if (_captures.Count > currentIndex)
-            _captures[currentIndex] = (group, value);
-        else
         {
-            _captures.Add((group, value));
-            currentIndex = _captures.Count - 1;
+            CaptureIndex++;
+            _captures[CaptureIndex] = (group, value);
+            return CaptureIndex;
         }
 
-        CaptureIndex = currentIndex;
+        _captures.Add((group, value));
+        CaptureIndex = _captures.Count - 1;
+
         return CaptureIndex;
     }
 

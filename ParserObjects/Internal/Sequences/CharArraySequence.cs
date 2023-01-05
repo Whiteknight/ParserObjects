@@ -87,10 +87,7 @@ public sealed class CharArraySequence : ICharSequence
         if (srcIdx < s.Length)
         {
             var c = s[srcIdx];
-            if (c == '\r')
-                chars[destIdx++] = '\n';
-            else
-                chars[destIdx++] = c;
+            chars[destIdx++] = c == '\r' ? '\n' : c;
         }
 
         return (chars, destIdx);
@@ -135,10 +132,7 @@ public sealed class CharArraySequence : ICharSequence
         if (srcIdx < s.Count)
         {
             var c = s[srcIdx];
-            if (c == '\r')
-                chars[destIdx++] = '\n';
-            else
-                chars[destIdx++] = c;
+            chars[destIdx++] = c == '\r' ? '\n' : c;
         }
 
         return (chars, destIdx);
