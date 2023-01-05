@@ -23,6 +23,40 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetNext_EndSentinel_Callback()
+        {
+            var parser = Any();
+            var target = FromParseResult("a".ToCharacterSequence(), parser,
+                getEndSentinel: b => b.Success('X'));
+
+            target.Consumed.Should().Be(0);
+            target.GetNext().Value.Should().Be('a');
+            target.Consumed.Should().Be(1);
+            target.GetNext().Value.Should().Be('X');
+            target.Consumed.Should().Be(1);
+            target.GetNext().Value.Should().Be('X');
+            target.Consumed.Should().Be(1);
+        }
+
+        [Test]
+        public void GetNext_EndSentinel_ParseResult()
+        {
+            var parser = First(
+                End().Then(Produce(() => 'X')),
+                Any()
+            );
+            var target = FromParseResult("a".ToCharacterSequence(), parser);
+
+            target.Consumed.Should().Be(0);
+            target.GetNext().Value.Should().Be('a');
+            target.Consumed.Should().Be(1);
+            target.GetNext().Value.Should().Be('X');
+            target.Consumed.Should().Be(1);
+            target.GetNext().Value.Should().Be('X');
+            target.Consumed.Should().Be(1);
+        }
+
+        [Test]
         public void Reset_Test()
         {
             var parser = Any();

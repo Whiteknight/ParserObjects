@@ -15,6 +15,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
     private readonly IParser<TInput, TOutput> _parser;
     private readonly Func<ResultBuilder, IResult<TOutput>>? _getEndSentinel;
 
+    private WorkingSequenceStatistics _stats;
     private IResult<TOutput>? _endSentinel;
 
     public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultBuilder, IResult<TOutput>>? getEndSentinel, Action<string> log)
@@ -26,6 +27,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         _parser = parser;
         _getEndSentinel = getEndSentinel;
         _endSentinel = null;
+        _stats = default;
     }
 
     public struct ResultBuilder
@@ -58,7 +60,11 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     public int Consumed => _input.Consumed;
 
-    public SequenceCheckpoint Checkpoint() => _input.Checkpoint();
+    public SequenceCheckpoint Checkpoint()
+    {
+        _stats.CheckpointsCreated++;
+        return _input.Checkpoint();
+    }
 
     private IResult<TOutput> GetNext(bool advance)
     {
@@ -73,17 +79,20 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         }
 
         if (advance)
-            return _parser.Parse(_state);
+        {
+            var result = _parser.Parse(_state);
+            _stats.ItemsRead++;
+            return result;
+        }
 
         var cp = _input.Checkpoint();
         var peek = _parser.Parse(_state);
         cp.Rewind();
+        _stats.ItemsPeeked++;
         return peek;
     }
 
-    // TODO: This sequence should maintain it's own statistics, because we may be buffering or
-    // generating and rewinding here.
-    public SequenceStatistics GetStatistics() => _input.GetStatistics();
+    public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
     public IResult<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
@@ -97,6 +106,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         while (_input.Consumed < end.Consumed && i < buffer.Length)
         {
             var result = _parser.Parse(_state);
+            _stats.ItemsRead++;
             if (!result.Success)
             {
                 currentPosition.Rewind();
@@ -115,7 +125,15 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     public bool Owns(SequenceCheckpoint checkpoint) => _input.Owns(checkpoint);
 
-    public void Rewind(SequenceCheckpoint checkpoint) => _input.Rewind(checkpoint);
+    public void Rewind(SequenceCheckpoint checkpoint)
+    {
+        _stats.Rewinds++;
+        _input.Rewind(checkpoint);
+    }
 
-    public void Reset() => _input.Reset();
+    public void Reset()
+    {
+        _stats.Rewinds++;
+        _input.Reset();
+    }
 }
