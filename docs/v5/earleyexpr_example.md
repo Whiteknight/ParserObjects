@@ -1,6 +1,6 @@
 # Earley Expression Parsing Example
 
-In the first [expression parser example](expression_example.md) we showed an expression parser with basic combinator types, and then we shows the same basic example using the [Pratt parser](pratexpr_example.md). Now we are going to show the same thing with the Earley parser. Using the Lexical Grammar, Token type and helper methods from the previous example, we can create an expression-parser using the Earley parser to see how it works.
+In the first [expression parser example](expression_example.md) we showed an expression parser with basic combinator types, and then we showed the same basic example using the [Pratt parser](pratexpr_example.md). Now we are going to show the same thing with the Earley parser. Using the Lexical Grammar, Token type and helper methods from the previous example, we can create an expression-parser using the Earley parser to see how it works.
 
 First we start by stubbing out our parser:
 
@@ -16,7 +16,8 @@ We would like to define a few parsers to help with getting the tokens we need:
 var plus = Token(TokenType.Addition);
 var star = Token(TokenType.Multiplication);
 
-var number = Token(TokenType.Number).Transform(t => int.Parse(t.Value));
+var number = Token(TokenType.Number)
+    .Transform(t => int.Parse(t.Value));
 ```
 
 Our grammar is going to look like this:
@@ -39,7 +40,7 @@ var parser = Earley<int>(symbols => {
 });
 ```
 
-The `return expr;` line tells the Earley parser which symbol is considered the "Start Symbol". The parser returns a successful result any time the Start Symbol is matched. Now we create a Calculator harness to hold this. The calculator will return a list of results since Earley is a multi parser:
+The `return expr;` line tells the Earley parser which symbol is considered the "Start Symbol", or the top-level symbol for the grammar. The parser returns a successful result any time the Start Symbol is matched. Now we create a Calculator harness to hold this. The calculator will return a list of results since Earley is a multi parser:
 
 ```csharp
 public class Calculator

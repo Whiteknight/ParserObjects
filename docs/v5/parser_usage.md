@@ -12,11 +12,11 @@ Parsers can be created from static factory methods in the `ParserObjects.Parsers
 
 ## Parser Interfaces
 
-The `IParser` interface is the parent interface that all parsers must inherit.
+The `IParser` interface is the parent interface that all parsers must inherit. It offers very little functionality by itself.
 
 `IParser<TInput>` is a parser which can call `.Parse()` on an input to return an `IResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
 
-`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IResult<TOutput>`. This is more common than the `IParser<TInput>` type and should be preferred where possible.
+`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IResult<TOutput>`. This is more common than the `IParser<TInput>` type and should be preferred where possible because of the extra strong-typing.
 
 The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to return an `IMultiResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
 
@@ -62,7 +62,7 @@ var ok = parser.Match(sequence);
 var ok = parser.Match("abcdef");
 ```
 
-`.Match()`, when it can be used, is a performance optimization over `.Parse()`. Matching does fewer memory allocations overall, and does less computation. If you need a result value or a descriptive error message from the parser, the `.Parse()` method must be used instead.
+`.Match()`, when it can be used, is a performance optimization over `.Parse()`. Matching does fewer memory allocations overall, and frequently does less computation. If you need a result value or a descriptive error message from the parser, the `.Parse()` method must be used instead.
 
 **Note**: The `.Match()` method is designed to consume input and return true or false. It cannot account for situations where a user callback function may have thrown an exception in a `.Parse()` method call. For this reason, when a parser uses a user callback function delegate, the `.Match()` call is not strictly equivalent to `.Parse().Success`.
 
@@ -276,7 +276,7 @@ if (!sequence.IsAtEnd)
     throw new MyParseIncompleteException("Parser did not reach the end!");
 ```
 
-Some sequences, such as `FromString()` include non-standard methods to get remaining unparsed characters:
+Some sequences, such as `FromString()` include a `.GetRemainder()` method to get remaining unparsed characters:
 
 ```csharp
 var sequence = FromString("a+b-c*d");
@@ -284,5 +284,3 @@ var result = parser.Parse(sequence);
 if (!sequence.IsAtEnd)
     throw new MyParseIncompleteException("Parser did not parse the end of string: " + sequence.GetRemainder());
 ```
-
-Not all parsers support this method. It may be prohibitively expensive to `.GetRemainder()` on a file stream of arbitrary length, for example. In some small cases or in debugging situations you can use a `FromString()` sequence for testing and use `.GetRemainder()` to help figure out why your parser is not reaching end of input as you expect.

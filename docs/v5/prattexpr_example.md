@@ -12,14 +12,15 @@ var expression = Pratt<int>(config => config
 
 ## The Pratt Algorithm Overview
 
-The Pratt algorithm considers two types of productions: Items which bind to an item immediately to the left, and items which do not bind to an item immediately to the left. For example, the number `'4'` is just a number, and can exist by itself without being preceded by anything immediately to the left of it. However the infix operator `'+'` requires a value on the left side (and the right side also, but that's not important right now). In the literature, the first type of production would be called a "**Null Denominator**" or "NUD", and the second type of production is called a "**Left Denominator**" or "LED". ParserObjects uses this terminology internally, but the methods exposed to the user are named more simply as `.Bind` and `.BindLeft` for NUD and LED, respectively.
+The Pratt algorithm considers two types of productions: Items which bind to an item immediately to the left, and items which do not bind to an item immediately to the left. For example, the number `'4'` is just a number, and can exist by itself without being preceded by anything immediately to the left of it. However the infix operator `'+'` requires a value on the left side (and the right side also, but that's not important right now). In the literature, the first type of production would be called a "**Null Denominator**" or "NUD", and the second type of production is called a "**Left Denominator**" or "LED". ParserObjects uses this terminology internally, but the methods exposed to the user are named more simply as `.BindRight` and `.BindLeft` for NUD and LED, respectively.
 
 The Pratt algorithm also has a concept of "binding power". The Binding Power of a production rule tells how strongly one production binds to another production on the left and right sides. This binding power takes the place of both precedence and associativity concepts in other parsers. Items such as numbers, which stand alone and don't bind to other items can have a precedence of `0`. All production rules have a left- and right-binding power value, though in most cases you only need to specify one and the other can be inferred.
 
 The Pratt algorithm works by first looking for a NUD value at the start, because there is nothing to the left of it to bind to, and then loop to find all matching LED values which can attach to that initial NUD value. Any rule may recurse back into the parser if it wants to hunt for a new value. For example, in the mathematical expression `"1 + 2"` The `1` is the NUD. Then the Parser matches the `+` operator as the LED. The callback for the `+` operator then recurses into the parser again to find a new value, which finds `2` as a NUD, no LEDs, and then returns. We will illustrate this concept with some code. First, let's add numbers:
 
 ```csharp
-var number = Token(TokenType.Number).Transform(t => int.Parse(t.Value));
+var number = Token(TokenType.Number)
+    .Transform(t => int.Parse(t.Value));
 
 var expression = Pratt<int>(config => config
     .Add(number, p => p
@@ -67,7 +68,7 @@ Now we will do something a little more complicated. The `-` operator has two rol
 
 ```csharp
 .Add(Token(TokenType.Subtraction), p => p
-    .Bind(9, (ctx, _) =>
+    .BindRight(9, (ctx, _) =>
     {
         var right = ctx.Parse();
         return -right;
@@ -116,7 +117,7 @@ Now we're going to look at another element that the original example did not cov
 
 ```csharp
 .Add(Token(TokenType.OpenParen), p => p
-    .Bind(0, (ctx, _) =>
+    .BindRight(0, (ctx, _) =>
     {
         var contents = ctx.Parse();
         ctx.Expect(Token(TokenType.CloseParen));
@@ -136,7 +137,7 @@ var expression = Pratt<int>(config => config
             return left.Value + right;
         }))
     .Add(Token(TokenType.Subtraction), p => p
-        .Bind(9, (ctx, _) =>
+        .BindRight(9, (ctx, _) =>
         {
             var right = ctx.Parse();
             return -right;
@@ -165,7 +166,7 @@ var expression = Pratt<int>(config => config
             return (int)Math.Pow(left.Value, right);
         }))
     .Add(Token(TokenType.OpenParen), p => p
-        .Bind(0, (ctx, _) =>
+        .BindRight(0, (ctx, _) =>
         {
             var contents = ctx.Parse(0);
             ctx.Expect(Token(TokenType.CloseParen));
