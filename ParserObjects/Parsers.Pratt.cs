@@ -12,6 +12,6 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setup"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Pratt<TOutput>(Action<IConfiguration<TInput, TOutput>> setup)
+    public static IParser<TInput, TOutput> Pratt<TOutput>(Action<Configuration<TInput, TOutput>> setup)
         => PrattParser<TInput, TOutput>.Configure(setup);
 }

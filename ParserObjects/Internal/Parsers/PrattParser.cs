@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Pratt;
@@ -14,24 +15,21 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
 public sealed record PrattParser<TInput, TOutput>(
-    Configuration<TInput, TOutput> Config,
+    IReadOnlyList<IParselet<TInput, TOutput>> Parselets,
+    IReadOnlyList<IParser> References,
     Engine<TInput, TOutput> Engine,
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
-    public static PrattParser<TInput, TOutput> Configure(Action<IConfiguration<TInput, TOutput>> setup, string name = "")
+    public static PrattParser<TInput, TOutput> Configure(Action<Configuration<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(setup, nameof(setup));
-        var config = new Configuration<TInput, TOutput>();
+        var parselets = new List<IParselet<TInput, TOutput>>();
+        var references = new List<IParser>();
+        var config = new Configuration<TInput, TOutput>(parselets, references);
         setup(config);
-        var engine = new Engine<TInput, TOutput>(config.Parselets);
-        return new PrattParser<TInput, TOutput>(config, engine, name);
-    }
-
-    public static PrattParser<TInput, TOutput> Create(Configuration<TInput, TOutput> config, string name = "")
-    {
-        var engine = new Engine<TInput, TOutput>(config.Parselets);
-        return new PrattParser<TInput, TOutput>(config, engine, name);
+        var engine = new Engine<TInput, TOutput>(parselets);
+        return new PrattParser<TInput, TOutput>(parselets, references, engine, name);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
@@ -60,7 +58,7 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
-    public IEnumerable<IParser> GetChildren() => Config.GetParsers();
+    public IEnumerable<IParser> GetChildren() => Parselets.Select(static p => p.Parser).Concat(References);
 
     public override string ToString() => DefaultStringifier.ToString("Pratt", Name, Id);
 
