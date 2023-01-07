@@ -40,7 +40,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public bool CanLed => _led != null;
 
-    public (bool success, IPrattToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
+    public (bool success, IParserResultToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
     {
         var result = _match.Parse(state);
         if (!result.Success)
@@ -48,7 +48,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         return (true, new ParseletToken<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
     }
 
-    public Option<IPrattToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IPrattToken<TValue> sourceToken)
+    public Option<IValueToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IValueToken<TValue> sourceToken)
     {
         if (_nud == null)
             return default;
@@ -56,7 +56,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         {
             var resultValue = _nud(context, sourceToken);
             var token = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new Option<IPrattToken<TOutput>>(true, token);
+            return new Option<IValueToken<TOutput>>(true, token);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
@@ -64,16 +64,16 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         }
     }
 
-    public Option<IPrattToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IPrattToken<TValue> sourceToken)
+    public Option<IValueToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IValueToken<TValue> sourceToken)
     {
-        if (_led == null || left is not IPrattToken<TOutput> leftTyped)
+        if (_led == null || left is not IValueToken<TOutput> leftTyped)
             return default;
 
         try
         {
             var resultValue = _led(context, leftTyped, sourceToken);
             var resultToken = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new Option<IPrattToken<TOutput>>(true, resultToken);
+            return new Option<IValueToken<TOutput>>(true, resultToken);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {

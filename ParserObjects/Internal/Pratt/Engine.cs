@@ -86,7 +86,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
     }
 
-    private PartialResult<IPrattToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, IPrattToken<TOutput> leftToken, ParseControl parseControl)
+    private PartialResult<IValueToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, IValueToken<TOutput> leftToken, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
         for (int i = 0; i < _numLedableParselets; i++)
@@ -108,17 +108,17 @@ public sealed class Engine<TInput, TOutput>
             {
                 cp.Rewind();
                 if (parseControl.IsComplete)
-                    return new PartialResult<IPrattToken<TOutput>>("The parse is complete", state.Input.CurrentLocation);
+                    return new PartialResult<IValueToken<TOutput>>("The parse is complete", state.Input.CurrentLocation);
                 continue;
             }
 
-            return new PartialResult<IPrattToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
+            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
         }
 
-        return new PartialResult<IPrattToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
+        return new PartialResult<IValueToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
     }
 
-    private PartialResult<IPrattToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
+    private PartialResult<IValueToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
     {
         var cp = state.Input.Checkpoint();
         for (int i = 0; i < _numNudableParselets; i++)
@@ -136,15 +136,15 @@ public sealed class Engine<TInput, TOutput>
             {
                 cp.Rewind();
                 if (parseControl.IsComplete)
-                    return new PartialResult<IPrattToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.", state.Input.CurrentLocation);
+                    return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.", state.Input.CurrentLocation);
                 continue;
             }
 
             consumed += leftContext.Consumed;
-            return new PartialResult<IPrattToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
+            return new PartialResult<IValueToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
         }
 
-        return new PartialResult<IPrattToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
+        return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
     }
 }
 

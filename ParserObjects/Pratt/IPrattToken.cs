@@ -32,7 +32,7 @@ public interface IPrattToken
 /// by the engine.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public interface IPrattToken<out TValue> : IPrattToken
+public interface IValueToken<out TValue> : IPrattToken
 {
     /// <summary>
     /// Gets the parse result value of the token.
@@ -47,7 +47,7 @@ public interface IPrattToken<out TValue> : IPrattToken
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IPrattToken<TInput, TOutput> : IPrattToken
+public interface IParserResultToken<TInput, TOutput> : IPrattToken
 {
     /// <summary>
     /// Calculates the null denominator (prefix production) of this token, converting it into
@@ -55,7 +55,7 @@ public interface IPrattToken<TInput, TOutput> : IPrattToken
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    Option<IPrattToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
+    Option<IValueToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
 
     /// <summary>
     /// Calculates the left denominator (suffix production) of this token, converting it into
@@ -64,5 +64,5 @@ public interface IPrattToken<TInput, TOutput> : IPrattToken
     /// <param name="context"></param>
     /// <param name="left"></param>
     /// <returns></returns>
-    Option<IPrattToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
+    Option<IValueToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
 }

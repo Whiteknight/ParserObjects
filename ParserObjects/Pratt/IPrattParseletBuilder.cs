@@ -9,7 +9,7 @@ namespace ParserObjects.Pratt;
 /// <param name="context"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-public delegate TOutput NudFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IPrattToken<TValue> value);
+public delegate TOutput NudFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IValueToken<TValue> value);
 
 /// <summary>
 /// Calculate the Left Denominator for the given token.
@@ -21,7 +21,7 @@ public delegate TOutput NudFunc<TInput, TValue, TOutput>(IPrattParseContext<TInp
 /// <param name="left"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-public delegate TOutput LedFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IPrattToken<TOutput> left, IPrattToken<TValue> value);
+public delegate TOutput LedFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IValueToken<TOutput> left, IValueToken<TValue> value);
 
 /// <summary>
 /// Used to configure a Parselet for the Pratt parser. A parselet is an adaptor over IParser
