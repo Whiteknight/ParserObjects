@@ -28,11 +28,11 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     private int _typeId;
 
     // We need at least one parameter here, because it's a struct
-    public ParseletBuilder(int typeId)
+    public ParseletBuilder(string name)
     {
         _getParselets = new List<GetParseletArguments>();
-        _typeId = typeId;
-        Name = string.Empty;
+        _typeId = 0;
+        Name = name;
     }
 
     public string Name { get; private set; }
