@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ParserObjects;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -14,64 +13,19 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Chain<TInput, TMiddle, TOutput>
 {
-    /// <summary>
-    /// Configures the parsers which may be selected and invoked by the Chain parser.
-    /// </summary>
-    public interface IConfiguration
-    {
-        /// <summary>
-        /// Specify a predicate and the parser to invoke if the predicate is true.
-        /// </summary>
-        /// <param name="equals"></param>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser);
-    }
-
-    private sealed class Configuration : IConfiguration
-    {
-        private readonly List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
-
-        public Configuration()
-        {
-            _parsers = new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>();
-        }
-
-        public IConfiguration When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
-        {
-            Assert.ArgumentNotNull(equals, nameof(equals));
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            _parsers.Add((equals, parser));
-            return this;
-        }
-
-        public IParser<TInput, TOutput> Pick(TMiddle next)
-        {
-            foreach (var (equals, parser) in _parsers)
-            {
-                if (equals(next))
-                    return parser;
-            }
-
-            return new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
-        }
-
-        public IEnumerable<IParser> GetChildren()
-            => _parsers.Select(v => v.parser);
-    }
-
-    public static Parser Configure(IParser<TInput, TMiddle> inner, Action<IConfiguration> setup, string name = "")
+    public static IParser<TInput, TOutput> Configure(IParser<TInput, TMiddle> inner, Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(inner, nameof(inner));
         Assert.ArgumentNotNull(setup, nameof(setup));
-        var config = new Configuration();
+        var config = new ParserPredicateSelector<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
-        return new Parser(inner, r => config.Pick(r.Value), config.GetChildren().ToList(), name);
+        return new Parser<ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
     }
 
-    public sealed record Parser(
+    public sealed record Parser<TData>(
         IParser<TInput, TMiddle> Inner,
-        Func<IResult<TMiddle>, IParser<TInput, TOutput>> GetParser,
+        TData Data,
+        Func<TData, IResult<TMiddle>, IParser<TInput, TOutput>> GetParser,
         IReadOnlyList<IParser> Mentions,
         string Name = ""
     ) : IParser<TInput, TOutput>
@@ -122,7 +76,7 @@ public static class Chain<TInput, TMiddle, TOutput>
         {
             try
             {
-                var nextParser = GetParser(initial);
+                var nextParser = GetParser(Data, initial);
                 return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
             }
             catch
@@ -136,65 +90,20 @@ public static class Chain<TInput, TMiddle, TOutput>
 
 public static class Chain<TInput, TOutput>
 {
-    /// <summary>
-    /// Configures the parsers to be invoked by the Chain parser.
-    /// </summary>
-    public interface IConfiguration
-    {
-        /// <summary>
-        /// Specify a predicate and the parser to invoke if the predicate returns true.
-        /// </summary>
-        /// <param name="equals"></param>
-        /// <param name="parser"></param>
-        /// <returns></returns>
-        IConfiguration When(Func<object, bool> equals, IParser<TInput, TOutput> parser);
-    }
-
-    private sealed class Configuration : IConfiguration
-    {
-        private readonly List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)> _parsers;
-
-        public Configuration()
-        {
-            _parsers = new List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)>();
-        }
-
-        public IConfiguration When(Func<object, bool> equals, IParser<TInput, TOutput> parser)
-        {
-            Assert.ArgumentNotNull(equals, nameof(equals));
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            _parsers.Add((equals, parser));
-            return this;
-        }
-
-        public IParser<TInput, TOutput> Pick(object next)
-        {
-            foreach (var (equals, parser) in _parsers)
-            {
-                if (equals(next))
-                    return parser;
-            }
-
-            return new FailParser<TInput, TOutput>($"No configured parsers handle {next}");
-        }
-
-        public IEnumerable<IParser> GetChildren()
-            => _parsers.Select(v => v.parser);
-    }
-
-    public static Parser Configure(IParser<TInput> inner, Action<IConfiguration> setup, string name = "")
+    public static IParser<TInput, TOutput> Configure(IParser<TInput> inner, Action<ParserPredicateSelector<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(inner, nameof(inner));
         Assert.ArgumentNotNull(setup, nameof(setup));
 
-        var config = new Configuration();
+        var config = new ParserPredicateSelector<TInput, TOutput>(new List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
-        return new Parser(inner, r => config.Pick(r.Value), config.GetChildren().ToList(), name);
+        return new Parser<ParserPredicateSelector<TInput, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
     }
 
-    public sealed record Parser(
+    public sealed record Parser<TData>(
         IParser<TInput> Inner,
-        Func<IResult, IParser<TInput, TOutput>> GetParser,
+        TData Data,
+        Func<TData, IResult, IParser<TInput, TOutput>> GetParser,
         IReadOnlyList<IParser> Mentions,
         string Name = ""
     ) : IParser<TInput, TOutput>
@@ -245,7 +154,7 @@ public static class Chain<TInput, TOutput>
         {
             try
             {
-                var nextParser = GetParser(initial);
+                var nextParser = GetParser(Data, initial);
                 return nextParser ?? new FailParser<TInput, TOutput>("Get parser callback returned null");
             }
             catch

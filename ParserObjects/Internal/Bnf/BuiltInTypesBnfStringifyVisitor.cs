@@ -79,14 +79,14 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TMiddle, TOutput>(Chain<TInput, TMiddle, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TMiddle, TOutput, TData>(Chain<TInput, TMiddle, TOutput>.Parser<TData> p, BnfStringifyVisitor state)
     {
         var child = p.GetChildren().Single();
         state.Append(child, "->Chain");
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(Chain<TInput, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput, TData>(Chain<TInput, TOutput>.Parser<TData> p, BnfStringifyVisitor state)
     {
         var child = p.GetChildren().Single();
         state.Append(child, "->Chain");

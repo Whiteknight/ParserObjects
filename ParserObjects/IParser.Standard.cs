@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
@@ -48,8 +47,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="setup"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> ChainWith<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Action<Chain<TInput, TMiddle, TOutput>.IConfiguration> setup)
-        => Parsers<TInput>.ChainWith(p, setup);
+    public static IParser<TInput, TOutput> ChainWith<TInput, TMiddle, TOutput>(
+        this IParser<TInput, TMiddle> p,
+        Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup
+    ) => Parsers<TInput>.ChainWith(p, setup);
 
     /// <summary>
     /// Execute a parser but consume no input. Use the result to select the next parser to
