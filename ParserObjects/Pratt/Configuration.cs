@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Pratt;
 
-// Configuration object for the Pratt parser. Not intended for direct use, use the abstraction
-// instead.
 public struct Configuration<TInput, TOutput>
 {
     private readonly List<IParser> _references;
@@ -19,14 +16,14 @@ public struct Configuration<TInput, TOutput>
 
     public List<IParselet<TInput, TOutput>> Parselets { get; }
 
-    public Configuration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IPrattParseletBuilder<TInput, TValue, TOutput>> setup)
+    public Configuration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Func<ParseletBuilder<TInput, TValue, TOutput>, ParseletBuilder<TInput, TValue, TOutput>> setup)
     {
         Assert.ArgumentNotNull(matcher, nameof(matcher));
         Assert.ArgumentNotNull(setup, nameof(setup));
 
-        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher);
-        setup(parseletConfig);
-        var parselets = parseletConfig.Build();
+        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>();
+        parseletConfig = setup(parseletConfig);
+        var parselets = parseletConfig.Build(matcher);
         Parselets.AddRange(parselets);
         return this;
     }
