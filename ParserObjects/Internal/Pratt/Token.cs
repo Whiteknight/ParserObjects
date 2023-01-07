@@ -37,7 +37,7 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }
 
-public sealed class ValueToken<TInput, TValue, TOutput> : IValueToken<TValue>, IParserResultToken<TInput, TOutput>
+public sealed class ValueToken<TInput, TValue, TOutput> : IValueToken<TValue>
 {
     public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
     {
@@ -56,12 +56,6 @@ public sealed class ValueToken<TInput, TValue, TOutput> : IValueToken<TValue>, I
     public int RightBindingPower { get; }
     public bool IsValid { get; }
     public string Name { get; }
-
-    public Option<IValueToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
-        => default;
-
-    public Option<IValueToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
-        => default;
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }

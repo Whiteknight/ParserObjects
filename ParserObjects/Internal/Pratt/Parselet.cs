@@ -30,6 +30,18 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         Name = name ?? _match.Name ?? (TokenTypeId > 0 ? TokenTypeId.ToString() : match.ToString()) ?? string.Empty;
     }
 
+    /* At each iteration of the engine, it is going to invoke all available Parselets. The Parselets
+     * invoke their Parsers to return an IResult<TValue>, which in turn is converted to an
+     * IParserResultToken<TInput, TOutput> (notice that the token's TValue result is "hidden" here
+     * by the interface). This is because the Token can "get" a TOutput by passing the TValue to
+     * the user callback Nud or Led function. IParserResultToken<TInput, TOutput> returns a TOutput
+     * by transforming it's hidden TValue value to TOutput.
+     *
+     * IParserResultToken<TInput, TOutput>.NullDenominator or .LeftDenominator call Parselet.Nud
+     * or Parselet.Led, respectively to do the transformation, and return an IValueToken<TOutput>.
+     * That IValueToken<TOutput> is then used in the next Engine iteration as the "left" value.
+     */
+
     public int TokenTypeId { get; }
     public int Lbp { get; }
     public int Rbp { get; }
