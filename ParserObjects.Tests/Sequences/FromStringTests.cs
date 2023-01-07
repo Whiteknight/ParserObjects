@@ -156,6 +156,60 @@ namespace ParserObjects.Tests.Sequences
         }
 
         [Test]
+        public void GetNext_N()
+        {
+            var target = FromString("abcdef");
+            var result = target.GetNext(4);
+            result.Length.Should().Be(4);
+            result.Should().ContainInOrder('a', 'b', 'c', 'd');
+            target.Consumed.Should().Be(4);
+        }
+
+        [Test]
+        public void GetNext_N_Negative()
+        {
+            var target = FromString("abcdef");
+            var act = () => target.GetNext(-4);
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Test]
+        public void GetString_Test()
+        {
+            var target = FromString("abcdef");
+            var result = target.GetString(4);
+            result.Should().Be("abcd");
+            target.Consumed.Should().Be(4);
+        }
+
+        [Test]
+        public void Peek_N()
+        {
+            var target = FromString("abcdef");
+            var result = target.Peek(4);
+            result.Length.Should().Be(4);
+            result.Should().ContainInOrder('a', 'b', 'c', 'd');
+            target.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Peek_N_Negative()
+        {
+            var target = FromString("abcdef");
+            var act = () => target.Peek(-4);
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Test]
+        public void PeekString_Test()
+        {
+            var target = FromString("abcdef");
+            var result = target.PeekString(4);
+            result.Should().Be("abcd");
+            target.Consumed.Should().Be(0);
+        }
+
+        [Test]
         public void Peek_WindowsNewlines()
         {
             var target = FromString("\r\na\r\n");

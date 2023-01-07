@@ -1,5 +1,6 @@
 ﻿using System;
 using ParserObjects.Internal.Sequences;
+using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -134,4 +135,50 @@ public static class SequenceExtensions
     /// <returns></returns>
     public static ISequence<T> Where<T>(this ISequence<T> input, Func<T, bool> predicate)
         => new FilterSequence<T>(input, predicate);
+
+    public static T[] GetNext<T>(this ISequence<T> input, int count)
+    {
+        Assert.ArgumentNotNull(input, nameof(input));
+        Assert.ArgumentNotLessThanOrEqualToZero(count, nameof(count));
+        var result = new T[count];
+        for (int i = 0; i < count; i++)
+            result[i] = input.GetNext();
+        return result;
+    }
+
+    public static string GetString(this ICharSequence input, int count)
+    {
+        Assert.ArgumentNotNull(input, nameof(input));
+        Assert.ArgumentNotLessThanOrEqualToZero(count, nameof(count));
+        var result = new char[count];
+        int i = 0;
+        for (; !input.IsAtEnd && i < count; i++)
+            result[i] = input.GetNext();
+        return new string(result, 0, i);
+    }
+
+    public static T[] Peek<T>(this ISequence<T> input, int count)
+    {
+        Assert.ArgumentNotNull(input, nameof(input));
+        Assert.ArgumentNotLessThanOrEqualToZero(count, nameof(count));
+        var result = new T[count];
+        var cp = input.Checkpoint();
+        for (int i = 0; i < count; i++)
+            result[i] = input.GetNext();
+        cp.Rewind();
+        return result;
+    }
+
+    public static string PeekString(this ICharSequence input, int count)
+    {
+        Assert.ArgumentNotNull(input, nameof(input));
+        Assert.ArgumentNotLessThanOrEqualToZero(count, nameof(count));
+        var result = new char[count];
+        var cp = input.Checkpoint();
+        int i = 0;
+        for (; !input.IsAtEnd && i < count; i++)
+            result[i] = input.GetNext();
+        cp.Rewind();
+        return new string(result, 0, i);
+    }
 }

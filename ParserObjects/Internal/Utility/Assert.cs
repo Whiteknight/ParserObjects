@@ -30,4 +30,10 @@ public static class Assert
         if (string.IsNullOrEmpty(value))
             throw new ArgumentException("string value may not be null or empty", parameterName);
     }
+
+    public static void ArgumentNotLessThanOrEqualToZero(int value, string parameterName)
+    {
+        if (value <= 0)
+            throw new ArgumentOutOfRangeException(parameterName, "Value must be positive integer");
+    }
 }
