@@ -533,7 +533,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TMiddle, TOutput>(RightApply<TInput, TMiddle, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TMiddle, TOutput>(RightApplyParser<TInput, TMiddle, TOutput> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
         state.Append(children[0], " (", children[1], string.IsNullOrEmpty(p.Name) ? " SELF" : $" <{p.Name}>)*");
