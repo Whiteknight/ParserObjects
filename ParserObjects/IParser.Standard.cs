@@ -74,8 +74,11 @@ public static class ParserCombinatorExtensions
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Examine<TInput, TOutput>(this IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
-        => Parsers<TInput>.Examine(parser, before, after);
+    public static IParser<TInput, TOutput> Examine<TInput, TOutput>(
+        this IParser<TInput, TOutput> parser,
+        Action<ParseContext<TInput, TOutput>>? before = null,
+        Action<ParseContext<TInput, TOutput>>? after = null
+    ) => Parsers<TInput>.Examine(parser, before, after);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -85,8 +88,11 @@ public static class ParserCombinatorExtensions
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IParser<TInput> Examine<TInput>(this IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
-        => Parsers<TInput>.Examine(parser, before, after);
+    public static IParser<TInput> Examine<TInput>(
+        this IParser<TInput> parser,
+        Action<ParseContext<TInput>>? before = null,
+        Action<ParseContext<TInput>>? after = null
+    ) => Parsers<TInput>.Examine(parser, before, after);
 
     /// <summary>
     /// Zero-length assertion that the given parser's result is followed by another sequence.

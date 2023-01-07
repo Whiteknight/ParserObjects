@@ -178,8 +178,11 @@ public static partial class Parsers<TInput>
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Examine<TOutput>(IParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.Context>? before = null, Action<Examine<TInput, TOutput>.Context>? after = null)
-        => new Examine<TInput, TOutput>.Parser(parser, before, after);
+    public static IParser<TInput, TOutput> Examine<TOutput>(
+        IParser<TInput, TOutput> parser,
+        Action<ParseContext<TInput, TOutput>>? before = null,
+        Action<ParseContext<TInput, TOutput>>? after = null
+    ) => new Examine<TInput, TOutput>.Parser(parser, before, after);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -189,8 +192,11 @@ public static partial class Parsers<TInput>
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Examine<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Examine<TInput, TOutput>.MultiContext>? before = null, Action<Examine<TInput, TOutput>.MultiContext>? after = null)
-        => new Examine<TInput, TOutput>.MultiParser(parser, before, after);
+    public static IMultiParser<TInput, TOutput> Examine<TOutput>(
+        IMultiParser<TInput, TOutput> parser,
+        Action<MultiParseContext<TInput, TOutput>>? before = null,
+        Action<MultiParseContext<TInput, TOutput>>? after = null
+    ) => new Examine<TInput, TOutput>.MultiParser(parser, before, after);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -199,8 +205,11 @@ public static partial class Parsers<TInput>
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IParser<TInput> Examine(IParser<TInput> parser, Action<Examine<TInput>.Context>? before = null, Action<Examine<TInput>.Context>? after = null)
-        => new Examine<TInput>.Parser(parser, before, after);
+    public static IParser<TInput> Examine(
+        IParser<TInput> parser,
+        Action<ParseContext<TInput>>? before = null,
+        Action<ParseContext<TInput>>? after = null
+    ) => new ExamineParser<TInput>(parser, before, after);
 
     /// <summary>
     /// Unconditionally returns failure.
@@ -236,6 +245,8 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
         => new FirstParser<TInput, TOutput>(parsers);
 
+    // This one has to be public or Bnf stringification can't find the type to bind it to the
+    // appropriate Accept() method variant.
     public readonly record struct FunctionArgs<TOutput>(
         Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> ParseFunction,
         Func<IParseState<TInput>, bool>? MatchFunction
@@ -258,7 +269,7 @@ public static partial class Parsers<TInput>
         => new Function<TInput, TOutput>.Parser<FunctionArgs<TOutput>>(
             new FunctionArgs<TOutput>(parseFunction, matchFunction),
             static (state, f, args) => f.ParseFunction(state, args),
-            matchFunction == null ? null : static (state, f) => f.MatchFunction(state),
+            matchFunction == null ? null : static (state, f) => f.MatchFunction!.Invoke(state),
             description ?? "",
             Array.Empty<IParser>()
         );

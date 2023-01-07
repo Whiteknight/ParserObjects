@@ -18,8 +18,8 @@ public static class Examine<TInput, TOutput>
     /// </summary>
     public sealed record Parser(
         IParser<TInput, TOutput> Inner,
-        Action<Context>? Before,
-        Action<Context>? After,
+        Action<ParseContext<TInput, TOutput>>? Before,
+        Action<ParseContext<TInput, TOutput>>? After,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -30,9 +30,9 @@ public static class Examine<TInput, TOutput>
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
             var startConsumed = state.Input.Consumed;
-            Before?.Invoke(new Context(Inner, state, null));
+            Before?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, null));
             var result = Inner.Parse(state);
-            After?.Invoke(new Context(Inner, state, result));
+            After?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, result));
             var totalConsumed = state.Input.Consumed - startConsumed;
 
             // The callbacks have access to Input, so the user might consume data. Make sure
@@ -59,8 +59,8 @@ public static class Examine<TInput, TOutput>
 
     public sealed record MultiParser(
         IMultiParser<TInput, TOutput> Inner,
-        Action<MultiContext>? Before,
-        Action<MultiContext>? After,
+        Action<MultiParseContext<TInput, TOutput>>? Before,
+        Action<MultiParseContext<TInput, TOutput>>? After,
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
@@ -73,13 +73,13 @@ public static class Examine<TInput, TOutput>
             var startCheckpoint = state.Input.Checkpoint();
 
             var beforeFirstConsumed = state.Input.Consumed;
-            Before?.Invoke(new MultiContext(Inner, state, null));
+            Before?.Invoke(new MultiParseContext<TInput, TOutput>(Inner, state, null));
             var afterFirstConsumed = state.Input.Consumed;
 
             var result = Inner.Parse(state);
 
             var beforeSecondConsumed = state.Input.Consumed;
-            After?.Invoke(new MultiContext(Inner, state, result));
+            After?.Invoke(new MultiParseContext<TInput, TOutput>(Inner, state, result));
             var afterSecondConsumed = state.Input.Consumed;
 
             var totalConsumedInCallbacks = afterFirstConsumed - beforeFirstConsumed + (afterSecondConsumed - beforeSecondConsumed);
@@ -107,87 +107,44 @@ public static class Examine<TInput, TOutput>
 
         public INamed SetName(string name) => this with { Name = name };
     }
-
-    /// <summary>
-    /// Context information available during an examination.
-    /// </summary>
-    public record struct Context(
-        IParser<TInput, TOutput> Parser,
-        IParseState<TInput> State,
-        IResult<TOutput>? Result
-    )
-    {
-        public DataStore Data => State.Data;
-        public ISequence<TInput> Input => State.Input;
-    }
-
-    public record struct MultiContext(
-        IMultiParser<TInput, TOutput> Parser,
-        IParseState<TInput> State,
-        IMultiResult<TOutput>? Result
-    )
-    {
-        public DataStore Data => State.Data;
-        public ISequence<TInput> Input => State.Input;
-    }
 }
 
 /// <summary>
 /// Inserts a callback before and after parser execution. Used for parsers with untyped output.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public static class Examine<TInput>
+public sealed class ExamineParser<TInput> : IParser<TInput>
 {
-    /// <summary>
-    /// The examine parser. Executes callbacks before and after the parser. Does not return
-    /// typed output.
-    /// </summary>
-    public sealed class Parser : IParser<TInput>
+    private readonly IParser<TInput> _parser;
+    private readonly Action<ParseContext<TInput>>? _before;
+    private readonly Action<ParseContext<TInput>>? _after;
+
+    public ExamineParser(IParser<TInput> parser, Action<ParseContext<TInput>>? before, Action<ParseContext<TInput>>? after, string name = "")
     {
-        private readonly IParser<TInput> _parser;
-        private readonly Action<Context>? _before;
-        private readonly Action<Context>? _after;
-
-        public Parser(IParser<TInput> parser, Action<Context>? before, Action<Context>? after, string name = "")
-        {
-            _parser = parser;
-            _before = before;
-            _after = after;
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public IResult Parse(IParseState<TInput> state)
-        {
-            Assert.ArgumentNotNull(state, nameof(state));
-            _before?.Invoke(new Context(_parser, state, null));
-            var result = _parser.Parse(state);
-            _after?.Invoke(new Context(_parser, state, result));
-            return result;
-        }
-
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
-
-        public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
-
-        public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
-
-        public INamed SetName(string name) => new Parser(_parser, _before, _after, name);
+        _parser = parser;
+        _before = before;
+        _after = after;
+        Name = name;
     }
 
-    /// <summary>
-    /// The context object which holds information able to be examined.
-    /// </summary>
-    public record struct Context(
-        IParser<TInput> Parser,
-        IParseState<TInput> State,
-        IResult? Result
-    )
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
+
+    public IResult Parse(IParseState<TInput> state)
     {
-        public DataStore Data => State.Data;
-        public ISequence<TInput> Input => State.Input;
+        Assert.ArgumentNotNull(state, nameof(state));
+        _before?.Invoke(new ParseContext<TInput>(_parser, state, null));
+        var result = _parser.Parse(state);
+        _after?.Invoke(new ParseContext<TInput>(_parser, state, result));
+        return result;
     }
+
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
+    public IEnumerable<IParser> GetChildren() => new List<IParser> { _parser };
+
+    public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
+
+    public INamed SetName(string name) => new ExamineParser<TInput>(_parser, _before, _after, name);
 }

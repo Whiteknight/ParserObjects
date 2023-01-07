@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Internal.Parsers;
-using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Bnf;
@@ -198,7 +197,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput>(Examine<TInput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput>(ExamineParser<TInput> p, BnfStringifyVisitor state)
     {
         state.Append(p.GetChildren().First());
         return true;
@@ -435,7 +434,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(ParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(ParserObjects.Internal.Pratt.ParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
     {
         state.Append("PRATT RECURSE");
         return true;
