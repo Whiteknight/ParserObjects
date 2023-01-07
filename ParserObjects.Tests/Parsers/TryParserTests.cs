@@ -119,7 +119,7 @@ public static class TryParserTests
             // ControlFlowExceptions are used internally, and it's generally a bad idea to use them
             // in downstream code, but it's also hard to set up a test to prove that Try() does not
             // catch or interfere with them otherwise.
-            var target = Try(Function<char>(_ => throw new ControlFlowException("test"), _ => throw new ControlFlowException("test")));
+            var target = Try(Function<char>((_, _) => throw new ControlFlowException("test"), _ => throw new ControlFlowException("test")));
             var act = () => target.Match("ab");
             act.Should().Throw<ControlFlowException>();
         }
@@ -128,7 +128,7 @@ public static class TryParserTests
         public void Match_Throw_ExamineBubble()
         {
             Exception exception = null;
-            var inner = Function<char>(_ => throw new Exception("test"), _ => throw new Exception("test"));
+            var inner = Function<char>((_, _) => throw new Exception("test"), _ => throw new Exception("test"));
             var target = Try(inner, bubble: true, examine: ex => exception = ex);
             var act = () => target.Match("abc");
             act.Should().Throw<Exception>();
@@ -224,7 +224,7 @@ public static class TryParserTests
         [Test]
         public void Match_Throw()
         {
-            var inner = (IParser<char>)Function<char>(_ => throw new Exception("test"), _ => throw new Exception("test"));
+            var inner = (IParser<char>)Function<char>((_, _) => throw new Exception("test"), _ => throw new Exception("test"));
             var target = Try(inner);
             var result = target.Match("abc");
             result.Should().BeFalse();
@@ -234,7 +234,7 @@ public static class TryParserTests
         public void Match_Throw_ExamineBubble()
         {
             Exception exception = null;
-            var inner = (IParser<char>)Function<char>(_ => throw new Exception("test"), _ => throw new Exception("test"));
+            var inner = (IParser<char>)Function<char>((_, _) => throw new Exception("test"), _ => throw new Exception("test"));
             var target = Try(inner, bubble: true, examine: ex => exception = ex);
             var act = () => target.Match("abc");
             act.Should().Throw<Exception>();
@@ -248,7 +248,7 @@ public static class TryParserTests
             // ControlFlowExceptions are used internally, and it's generally a bad idea to use them
             // in downstream code, but it's also hard to set up a test to prove that Try() does not
             // catch or interfere with them otherwise.
-            var target = Try((IParser<char>)Function<char>(_ => throw new ControlFlowException("test"), _ => throw new ControlFlowException("test")));
+            var target = Try((IParser<char>)Function<char>((_, _) => throw new ControlFlowException("test"), _ => throw new ControlFlowException("test")));
             var act = () => target.Match("ab");
             act.Should().Throw<ControlFlowException>();
         }

@@ -67,12 +67,12 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TValue> GetData<TValue>(string name)
         => new Function<TInput, TValue>.Parser<string>(
             name,
-            static (n, args) =>
+            static (state, n, args) =>
             {
-                var result = args.Data.Get<TValue>(n);
+                var result = state.Data.Get<TValue>(n);
                 return result.Success ?
-                    args.Success(result.Value, args.Input.CurrentLocation) :
-                    args.Failure($"State data '{n}' with type does not exist", args.Input.CurrentLocation);
+                    args.Success(result.Value, state.Input.CurrentLocation) :
+                    args.Failure($"State data '{n}' with type does not exist", state.Input.CurrentLocation);
             },
             static (_, _) => true,
             $"GET '{name}'",
@@ -92,10 +92,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
         => new Function<TInput, TValue>.Parser<SetDataArgs<TValue>>(
             new SetDataArgs<TValue>(name, value),
-            static (sdArgs, funcArgs) =>
+            static (state, sdArgs, funcArgs) =>
             {
-                funcArgs.Data.Set(sdArgs.Name, sdArgs.Value);
-                return funcArgs.Success(sdArgs.Value, funcArgs.Input.CurrentLocation);
+                state.Data.Set(sdArgs.Name, sdArgs.Value);
+                return funcArgs.Success(sdArgs.Value, state.Input.CurrentLocation);
             },
             static (_, _) => true,
             $"SET '{name}'",
@@ -129,18 +129,18 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
         => new Function<TInput, TOutput>.Parser<SetResultDataArgs<TOutput, TValue>>(
             new SetResultDataArgs<TOutput, TValue>(p, name, getValue),
-            static (srdArgs, funcArgs) =>
+            static (state, srdArgs, _) =>
             {
-                var result = srdArgs.Parser.Parse(funcArgs.State);
+                var result = srdArgs.Parser.Parse(state);
                 if (result.Success)
                 {
                     var value = srdArgs.GetValue(result.Value);
-                    funcArgs.Data.Set(srdArgs.Name, value);
+                    state.Data.Set(srdArgs.Name, value);
                 }
 
                 return result;
             },
-            static (srdArgs, funcArgs) => srdArgs.Parser.Match(funcArgs.State),
+            static (state, srdArgs) => srdArgs.Parser.Match(state),
             "SetResultData",
             new[] { p }
         );

@@ -199,11 +199,11 @@ namespace ParserObjects.Tests.Sequences
         {
             int count = 0;
             var values = "abcd";
-            var parser = Function<char>(args =>
+            var parser = Function<char>((state, resultFactory) =>
             {
                 if (count > 4)
-                    return args.Failure("Count too high");
-                return args.Success(values[count++]);
+                    return resultFactory.Failure("Count too high");
+                return resultFactory.Success(values[count++]);
             });
             var target = FromParseResult(FromString(values), parser);
             target.GetNext().Value.Should().Be('a');

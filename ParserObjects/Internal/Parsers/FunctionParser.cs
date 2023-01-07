@@ -13,29 +13,17 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Function<TInput, TOutput>
 {
-    public record struct SingleArguments(IParser<TInput, TOutput> Parser, IParseState<TInput> State, SequenceCheckpoint StartCheckpoint)
-    {
-        public ISequence<TInput> Input => State.Input;
-        public DataStore Data => State.Data;
-        public IResultsCache Cache => State.Cache;
-        public IResult<TOutput> Failure(string errorMessage, Location? location = null, IReadOnlyList<object>? data = null)
-            => State.Fail(Parser, errorMessage, location ?? State.Input.CurrentLocation, data);
-
-        public IResult<TOutput> Success(TOutput value, Location? location = null, IReadOnlyList<object>? data = null)
-            => State.Success(Parser, value, State.Input.Consumed - StartCheckpoint.Consumed, location ?? State.Input.CurrentLocation, data);
-    }
-
     public sealed class Parser<TData> : IParser<TInput, TOutput>
     {
         private readonly TData _data;
-        private readonly Func<TData, Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> _parseFunction;
-        private readonly Func<TData, Function<TInput, TOutput>.SingleArguments, bool> _matchFunction;
+        private readonly Func<IParseState<TInput>, TData, ResultFactory<TInput, TOutput>, IResult<TOutput>> _parseFunction;
+        private readonly Func<IParseState<TInput>, TData, bool> _matchFunction;
         private readonly IReadOnlyList<IParser> _children;
 
         public Parser(
             TData data,
-            Func<TData, SingleArguments, IResult<TOutput>> parseFunction,
-            Func<TData, SingleArguments, bool>? matchFunction,
+            Func<IParseState<TInput>, TData, ResultFactory<TInput, TOutput>, IResult<TOutput>> parseFunction,
+            Func<IParseState<TInput>, TData, bool>? matchFunction,
             string description,
             IReadOnlyList<IParser>? children,
             string name = ""
@@ -43,7 +31,7 @@ public static class Function<TInput, TOutput>
         {
             _data = data;
             _parseFunction = parseFunction;
-            _matchFunction = matchFunction ?? ((_, args) => Parse(args.State)?.Success ?? false);
+            _matchFunction = matchFunction ?? ((state, _) => Parse(state)?.Success ?? false);
             _children = children ?? Array.Empty<IParser>();
             Description = description;
             Name = name;
@@ -59,8 +47,8 @@ public static class Function<TInput, TOutput>
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
 
-            var args = new SingleArguments(this, state, startCheckpoint);
-            var result = _parseFunction(_data, args);
+            var args = new ResultFactory<TInput, TOutput>(this, state, startCheckpoint);
+            var result = _parseFunction(state, _data, args);
             if (result == null)
                 return state.Fail(this, "No result returned");
 
@@ -81,8 +69,7 @@ public static class Function<TInput, TOutput>
             Assert.ArgumentNotNull(state, nameof(state));
             var startCheckpoint = state.Input.Checkpoint();
 
-            var args = new SingleArguments(this, state, startCheckpoint);
-            var result = _matchFunction(_data, args);
+            var result = _matchFunction(state, _data);
 
             if (!result)
             {

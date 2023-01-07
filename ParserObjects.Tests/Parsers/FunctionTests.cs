@@ -9,7 +9,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Test()
         {
-            var parser = Function<object>(args => args.Success($"ok:{args.Input.GetNext()}", args.Input.CurrentLocation));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}"));
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
@@ -19,7 +19,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Fail()
         {
-            var parser = Function<object>(args => args.Failure(""));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Failure(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -28,7 +28,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Null()
         {
-            var parser = Function<object>(args => null);
+            var parser = Function<object>((state, resultFactory) => null);
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -37,7 +37,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Exception()
         {
-            var parser = Function<object>(args => throw new System.Exception("fail"));
+            var parser = Function<object>((state, resultFactory) => throw new System.Exception("fail"));
             Action act = () => parser.Parse("X");
             act.Should().Throw<Exception>();
         }
@@ -45,7 +45,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Full_Success()
         {
-            var parser = Function<object>(args => args.Success($"ok:{args.Input.GetNext()}"));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}"));
             var result = parser.Parse("X");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("ok:X");
@@ -55,7 +55,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Parse_Full_Fail()
         {
-            var parser = Function<object>(args => args.Failure(""));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Failure(""));
             var result = parser.Parse("X");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -68,9 +68,9 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Test()
         {
-            var parser = Function<object>(args => args.Success($"ok:{args.Input.GetNext()}", args.Input.CurrentLocation), args =>
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation), resultFactory =>
             {
-                args.Input.GetNext();
+                resultFactory.Input.GetNext();
                 return true;
             });
             var input = FromString("X");
@@ -82,7 +82,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Test_Fallback()
         {
-            var parser = Function<object>(args => args.Success($"ok:{args.Input.GetNext()}", args.Input.CurrentLocation));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation));
             var input = FromString("X");
             var result = parser.Match(input);
             result.Should().BeTrue();
@@ -92,7 +92,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Fail()
         {
-            var parser = Function<object>(args => args.Failure(""), _ => false);
+            var parser = Function<object>((state, resultFactory) => resultFactory.Failure(""), _ => false);
             var input = FromString("X");
             var result = parser.Match(input);
             result.Should().BeFalse();
@@ -102,7 +102,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Fail_Fallback()
         {
-            var parser = Function<object>(args => args.Failure(""));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Failure(""));
             var input = FromString("X");
             var result = parser.Match(input);
             result.Should().BeFalse();
@@ -112,7 +112,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Null_Fallback()
         {
-            var parser = Function<object>(args => null);
+            var parser = Function<object>((state, resultFactory) => null);
             var input = FromString("X");
             var result = parser.Match(input);
             result.Should().BeFalse();
@@ -122,7 +122,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren()
         {
-            var parser = Function<object>(args => args.Success($"ok:{args.Input.GetNext()}", args.Input.CurrentLocation));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation));
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }
@@ -130,7 +130,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ToBnf_Test()
         {
-            var parser = Function<string>(args => args.Success("")).Named("parser");
+            var parser = Function<string>((state, resultFactory) => resultFactory.Success("")).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := User Function");
         }
@@ -138,7 +138,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void ToBnf_SimpleDescription()
         {
-            var parser = Function<string>(args => args.Success(""), description: "TEST").Named("parser");
+            var parser = Function<string>((state, resultFactory) => resultFactory.Success(""), description: "TEST").Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := TEST");
         }

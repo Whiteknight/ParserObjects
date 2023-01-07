@@ -17,8 +17,8 @@ public static partial class Parsers<TInput>
 
     private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser<object>(
         Defaults.ObjectInstance,
-        static (_, args) => args.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
-        static (_, args) => args.Input.IsAtEnd,
+        static (state, _, args) => state.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
+        static (state, _) => state.Input.IsAtEnd,
         "IF END THEN PRODUCE",
         Array.Empty<IParser>()
     );
@@ -39,12 +39,12 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, bool> Bool(IParser<TInput> parser)
         => new Function<TInput, bool>.Parser<IParser<TInput>>(
             parser,
-            static (p, args) =>
+            static (state, p, args) =>
             {
-                var result = p.Parse(args.State);
+                var result = p.Parse(state);
                 return args.Success(result.Success);
             },
-            static (p, args) => p.Match(args.State),
+            static (state, p) => p.Match(state),
             "IF {child}",
             new[] { parser }
         );
@@ -237,8 +237,8 @@ public static partial class Parsers<TInput>
         => new FirstParser<TInput, TOutput>(parsers);
 
     public readonly record struct FunctionArgs<TOutput>(
-        Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> ParseFunction,
-        Func<Function<TInput, TOutput>.SingleArguments, bool>? MatchFunction
+        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> ParseFunction,
+        Func<IParseState<TInput>, bool>? MatchFunction
     );
 
     /// <summary>
@@ -251,20 +251,14 @@ public static partial class Parsers<TInput>
     /// <param name="description"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Function<TOutput>(
-        Func<Function<TInput, TOutput>.SingleArguments, IResult<TOutput>> parseFunction,
-        Func<Function<TInput, TOutput>.SingleArguments, bool>? matchFunction = null,
+        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> parseFunction,
+        Func<IParseState<TInput>, bool>? matchFunction = null,
         string description = ""
     )
         => new Function<TInput, TOutput>.Parser<FunctionArgs<TOutput>>(
             new FunctionArgs<TOutput>(parseFunction, matchFunction),
-            static (f, args) => f.ParseFunction(args),
-            static (f, args) =>
-            {
-                if (f.MatchFunction != null)
-                    return f.MatchFunction(args);
-                var result = f.ParseFunction(args);
-                return result?.Success == true;
-            },
+            static (state, f, args) => f.ParseFunction(state, args),
+            matchFunction == null ? null : static (state, f) => f.MatchFunction(state),
             description ?? "",
             Array.Empty<IParser>()
         );
@@ -278,10 +272,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> parser)
         => new Function<TInput, TOutput>.Parser<IParser<TInput, TOutput>>(
             parser,
-            static (p, args) =>
+            static (state, p, args) =>
             {
-                var cp = args.Input.Checkpoint();
-                var result = p.Parse(args.State);
+                var cp = state.Input.Checkpoint();
+                var result = p.Parse(state);
                 if (result.Success)
                 {
                     cp.Rewind();
@@ -290,10 +284,10 @@ public static partial class Parsers<TInput>
 
                 return args.Failure(result.ErrorMessage, result.Location);
             },
-            static (p, args) =>
+            static (state, p) =>
             {
-                var cp = args.Input.Checkpoint();
-                var result = p.Match(args.State);
+                var cp = state.Input.Checkpoint();
+                var result = p.Match(state);
                 if (result)
                 {
                     cp.Rewind();
@@ -401,7 +395,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
         => new Function<TInput, TOutput>.Parser<Func<TOutput>>(
             produce,
-            static (p, args) =>
+            static (_, p, args) =>
             {
                 var value = p();
                 return args.Success(value);
@@ -420,9 +414,9 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
         => new Function<TInput, TOutput>.Parser<Func<IParseState<TInput>, TOutput>>(
             produce,
-            static (p, args) =>
+            static (state, p, args) =>
             {
-                var value = p(args.State);
+                var value = p(state);
                 return args.Success(value);
             },
             static (_, _) => true,
