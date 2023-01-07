@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
@@ -11,19 +10,28 @@ namespace ParserObjects.Pratt;
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class ParseletBuilder<TInput, TValue, TOutput>
+public struct ParseletBuilder<TInput, TValue, TOutput>
 {
+    private readonly record struct GetParseletArguments(
+        NudFunc<TInput, TValue, TOutput>? GetNud,
+        LedFunc<TInput, TValue, TOutput>? GetLed,
+        int Lbp,
+        int Rbp
+    );
+
     // TODO: It is technically possible for a single ParseletBuilder to have multiple
     // .BindLeft() or .BindRight() calls, and for this list of _getParselets to have more than 2
     // entries in it. Do we want to allow this? Is there a real use-case for multiple BindRight
     // or BindLeft calls on a single matcher?
-    private readonly List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>> _getParselets;
+    private readonly List<GetParseletArguments> _getParselets;
 
     private int _typeId;
 
-    public ParseletBuilder()
+    // We need at least one parameter here, because it's a struct
+    public ParseletBuilder(int typeId)
     {
-        _getParselets = new List<Func<IParser<TInput, TValue>, int, string, IParselet<TInput, TOutput>>>();
+        _getParselets = new List<GetParseletArguments>();
+        _typeId = typeId;
         Name = string.Empty;
     }
 
@@ -33,7 +41,11 @@ public sealed class ParseletBuilder<TInput, TValue, TOutput>
     {
         var parselets = new IParselet<TInput, TOutput>[_getParselets.Count];
         for (int i = 0; i < _getParselets.Count; i++)
-            parselets[i] = _getParselets[i](matcher, _typeId, Name);
+        {
+            var args = _getParselets[i];
+            parselets[i] = BuildParselet(args, matcher, _typeId, Name);
+        }
+
         _getParselets.Clear();
         return parselets;
     }
@@ -47,32 +59,19 @@ public sealed class ParseletBuilder<TInput, TValue, TOutput>
     public ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
         Assert.ArgumentNotNull(getNud, nameof(getNud));
-        _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
-            tid,
-            m,
-            getNud,
-            null,
-            rbp,
-            rbp,
-            n
-        ));
+        _getParselets.Add(new GetParseletArguments(getNud, null, rbp, rbp));
         return this;
     }
 
     public ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
         Assert.ArgumentNotNull(getLed, nameof(getLed));
-        _getParselets.Add((m, tid, n) => new Parselet<TInput, TValue, TOutput>(
-            tid,
-            m,
-            null,
-            getLed,
-            lbp,
-            rbp,
-            n
-        ));
+        _getParselets.Add(new GetParseletArguments(null, getLed, lbp, rbp));
         return this;
     }
+
+    private static Parselet<TInput, TValue, TOutput> BuildParselet(GetParseletArguments args, IParser<TInput, TValue> parser, int typeId, string name)
+        => new Parselet<TInput, TValue, TOutput>(typeId, parser, args.GetNud, args.GetLed, args.Lbp, args.Rbp, name);
 
     public ParseletBuilder<TInput, TValue, TOutput> Named(string name)
     {

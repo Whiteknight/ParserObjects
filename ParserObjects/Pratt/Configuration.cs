@@ -21,7 +21,7 @@ public struct Configuration<TInput, TOutput>
         Assert.ArgumentNotNull(matcher, nameof(matcher));
         Assert.ArgumentNotNull(setup, nameof(setup));
 
-        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>();
+        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(0);
         parseletConfig = setup(parseletConfig);
         var parselets = parseletConfig.Build(matcher);
         Parselets.AddRange(parselets);
