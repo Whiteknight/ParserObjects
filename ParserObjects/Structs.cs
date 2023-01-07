@@ -46,3 +46,106 @@ public readonly struct ResultFactory<TInput, TOutput>
 }
 
 public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
+
+/// <summary>
+/// State object for a sequential parse. Handles control flow and input sequence
+/// management.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+public readonly struct SequentialState<TInput>
+{
+    private readonly IParseState<TInput> _state;
+    private readonly SequenceCheckpoint _startCheckpoint;
+
+    public SequentialState(IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
+    {
+        _state = state;
+        _startCheckpoint = startCheckpoint;
+    }
+
+    /// <summary>
+    /// Gets the contextual state data.
+    /// </summary>
+    public DataStore Data => _state.Data;
+
+    /// <summary>
+    /// Gets the input sequence.
+    /// </summary>
+    public ISequence<TInput> Input => _state.Input;
+
+    /// <summary>
+    /// Invoke the parser. Exit the Sequential if the parse fails.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="errorMessage"></param>
+    /// <returns></returns>
+    /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Exits the Sequential if the parse fails.</exception>
+    public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
+    {
+        var result = p.Parse(_state);
+        if (!result.Success)
+            throw new Internal.Parsers.Sequential.ParseFailedException(result, errorMessage);
+        return result.Value;
+    }
+
+    /// <summary>
+    /// Attempt to invoke the parser. Return a result indicating success or failure.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
+        => p.Parse(_state);
+
+    /// <summary>
+    /// Invoke the parser to match. Returns true, and consumes input, if the match succeeds.
+    /// Returns false and consumes no input otherwise.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    public bool Match(IParser<TInput> p) => p.Match(_state);
+
+    /// <summary>
+    /// Invoke the parser to match. Fails the entire Sequential if the match fails.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    public void Expect(IParser<TInput> p)
+    {
+        var ok = p.Match(_state);
+        if (!ok)
+            throw new Internal.Parsers.Sequential.ParseFailedException("Expect failed");
+    }
+
+    /// <summary>
+    /// Attempt to invoke the parser but consume no input. Returns the result of the parser.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    public IResult<TOutput> TestParse<TOutput>(IParser<TInput, TOutput> p)
+    {
+        var checkpoint = _state.Input.Checkpoint();
+        var result = p.Parse(_state);
+        checkpoint.Rewind();
+        return result;
+    }
+
+    /// <summary>
+    /// Unconditional failure. Exit the Sequential.
+    /// </summary>
+    /// <param name="error"></param>
+    /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    public void Fail(string error = "Fail") => throw new Internal.Parsers.Sequential.ParseFailedException(error);
+
+    /// <summary>
+    /// Get an array of all inputs consumed by the Sequential so far.
+    /// </summary>
+    /// <returns></returns>
+    public TInput[] GetCapturedInputs()
+    {
+        var currentCp = _state.Input.Checkpoint();
+        return _state.Input.GetBetween(_startCheckpoint, currentCp);
+    }
+}

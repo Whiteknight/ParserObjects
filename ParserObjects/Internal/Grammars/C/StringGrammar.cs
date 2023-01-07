@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using ParserObjects.Internal.Parsers;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Internal.Grammars.C;
@@ -74,7 +73,7 @@ public static class StringGrammar
         return parser.Named("C-Style Character");
     }
 
-    private static char CheckForUnexpectedCharEnd(Sequential.State<char> s)
+    private static char CheckForUnexpectedCharEnd(SequentialState<char> s)
     {
         if (s.Input.IsAtEnd)
             s.Fail("Unexpected end of input");
@@ -85,7 +84,7 @@ public static class StringGrammar
         return c;
     }
 
-    private static void ExpectEndQuote(Sequential.State<char> s, StringBuilder sb)
+    private static void ExpectEndQuote(SequentialState<char> s, StringBuilder sb)
     {
         var endQuote = s.Input.GetNext();
         if (endQuote != '\'')
@@ -93,7 +92,7 @@ public static class StringGrammar
         sb.Append(endQuote);
     }
 
-    private static void ParseEscapeSequence(Sequential.State<char> s, StringBuilder sb, bool isChar)
+    private static void ParseEscapeSequence(SequentialState<char> s, StringBuilder sb, bool isChar)
     {
         sb.Append('\\');
         var c = s.Input.GetNext();
@@ -119,7 +118,7 @@ public static class StringGrammar
         ParseHexSequence(s, sb, c);
     }
 
-    private static void ParseHexSequence(Sequential.State<char> s, StringBuilder sb, char typeChar)
+    private static void ParseHexSequence(SequentialState<char> s, StringBuilder sb, char typeChar)
     {
         switch (typeChar)
         {
@@ -148,7 +147,7 @@ public static class StringGrammar
         s.Fail($"Unknown escape sequence '{typeChar}'");
     }
 
-    private static void ParseOctalSequence(Sequential.State<char> s, StringBuilder sb, char startChar)
+    private static void ParseOctalSequence(SequentialState<char> s, StringBuilder sb, char startChar)
     {
         int value = startChar - '0';
         sb.Append(startChar);

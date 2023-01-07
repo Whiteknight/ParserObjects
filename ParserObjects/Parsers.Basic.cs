@@ -523,7 +523,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="func"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Sequential<TOutput>(Func<Sequential.State<TInput>, TOutput> func)
+    public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
         => new Sequential.Parser<TInput, TOutput>(func);
 
     /// <summary>

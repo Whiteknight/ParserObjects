@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Text;
-using ParserObjects.Internal.Parsers;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Internal.Grammars.C;
@@ -66,7 +65,7 @@ public static class StrippedStringGrammar
         return parser.Named("C-Style Stripped Character");
     }
 
-    private static void CheckForCharPreamble(Sequential.State<char> s)
+    private static void CheckForCharPreamble(SequentialState<char> s)
     {
         var startQuote = s.Input.Peek();
         if (startQuote != '\'')
@@ -77,14 +76,14 @@ public static class StrippedStringGrammar
             s.Fail("Unexpected end of input");
     }
 
-    private static void ExpectEndQuote(Sequential.State<char> s)
+    private static void ExpectEndQuote(SequentialState<char> s)
     {
         var endQuote = s.Input.GetNext();
         if (endQuote != '\'')
             s.Fail($"Expected close quote but found '{endQuote}'");
     }
 
-    private static char ParseStrippedCharacterEscapeSequence(Sequential.State<char> s)
+    private static char ParseStrippedCharacterEscapeSequence(SequentialState<char> s)
     {
         var c = s.Input.GetNext();
         if (c >= '0' && c <= '7')
@@ -99,7 +98,7 @@ public static class StrippedStringGrammar
         return ParseStrippedHexChar(s, c);
     }
 
-    private static void ParseStrippedStringEscapeSequence(Sequential.State<char> s, StringBuilder sb)
+    private static void ParseStrippedStringEscapeSequence(SequentialState<char> s, StringBuilder sb)
     {
         var c = s.Input.GetNext();
         if (c >= '0' && c <= '7')
@@ -119,7 +118,7 @@ public static class StrippedStringGrammar
         sb.Append(hex);
     }
 
-    private static char ParseStrippedHexChar(Sequential.State<char> s, char typeChar)
+    private static char ParseStrippedHexChar(SequentialState<char> s, char typeChar)
     {
         switch (typeChar)
         {
@@ -140,7 +139,7 @@ public static class StrippedStringGrammar
         return default;
     }
 
-    private static char ParseStrippedOctalChar(Sequential.State<char> s, char startChar)
+    private static char ParseStrippedOctalChar(SequentialState<char> s, char startChar)
     {
         int value = startChar - '0';
 
