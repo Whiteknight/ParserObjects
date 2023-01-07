@@ -113,7 +113,8 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
         => SetResultData(p, name, static value => value);
 
-    private readonly record struct SetResultDataArgs<TOutput, TValue>(IParser<TInput, TOutput> Parser, string Name, Func<TOutput, TValue> GetValue);
+    // This one has to stay public so Bnf stringifier .Accept() method can bind to it.
+    public readonly record struct SetResultDataArgs<TOutput, TValue>(IParser<TInput, TOutput> Parser, string Name, Func<TOutput, TValue> GetValue);
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value (possibly transformed

@@ -10,56 +10,47 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public static class Select<TInput, TOutput>
+public sealed record SelectParser<TInput, TOutput>(
+    IMultiParser<TInput, TOutput> Initial,
+    Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> Selector,
+    string Name = ""
+) : IParser<TInput, TOutput>
 {
-    public record struct Arguments(
-        IMultiResult<TOutput> Result,
-        Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,
-        Func<Option<IResultAlternative<TOutput>>> Failure
-    );
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public sealed record Parser(
-        IMultiParser<TInput, TOutput> Initial,
-        Func<Arguments, Option<IResultAlternative<TOutput>>> Selector,
-        string Name = ""
-    ) : IParser<TInput, TOutput>
+    public IEnumerable<IParser> GetChildren() => new[] { Initial };
+
+    public IResult<TOutput> Parse(IParseState<TInput> state)
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+        var multi = Initial.Parse(state);
+        if (!multi.Success)
+            return state.Fail(this, "Parser returned no valid results");
 
-        public IEnumerable<IParser> GetChildren() => new[] { Initial };
-
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        static Option<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
         {
-            var multi = Initial.Parse(state);
-            if (!multi.Success)
-                return state.Fail(this, "Parser returned no valid results");
-
-            static Option<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
-            {
-                if (alt == null)
-                    return default;
-                return new Option<IResultAlternative<TOutput>>(true, alt);
-            }
-
-            static Option<IResultAlternative<TOutput>> Fail()
-                => default;
-
-            var args = new Arguments(multi, Success, Fail);
-            var selected = Selector(args);
-            if (!selected.Success || !selected.Value.Success)
-                return state.Fail(this, "No alternative selected, or no matching value could be found");
-
-            var alt = selected.Value;
-            alt.Continuation.Rewind();
-            return multi.ToResult(alt);
+            if (alt == null)
+                return default;
+            return new Option<IResultAlternative<TOutput>>(true, alt);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        static Option<IResultAlternative<TOutput>> Fail()
+            => default;
 
-        public bool Match(IParseState<TInput> state) => Parse(state).Success;
+        var args = new SelectArguments<TOutput>(multi, Success, Fail);
+        var selected = Selector(args);
+        if (!selected.Success || !selected.Value.Success)
+            return state.Fail(this, "No alternative selected, or no matching value could be found");
 
-        public override string ToString() => DefaultStringifier.ToString("Select", Name, Id);
-
-        public INamed SetName(string name) => this with { Name = name };
+        var alt = selected.Value;
+        alt.Continuation.Rewind();
+        return multi.ToResult(alt);
     }
+
+    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+    public bool Match(IParseState<TInput> state) => Parse(state).Success;
+
+    public override string ToString() => DefaultStringifier.ToString("Select", Name, Id);
+
+    public INamed SetName(string name) => this with { Name = name };
 }

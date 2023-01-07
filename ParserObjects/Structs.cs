@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects;
 
@@ -46,6 +47,12 @@ public readonly struct ResultFactory<TInput, TOutput>
 }
 
 public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
+
+public readonly record struct SelectArguments<TOutput>(
+    IMultiResult<TOutput> Result,
+    Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,
+    Func<Option<IResultAlternative<TOutput>>> Failure
+);
 
 /// <summary>
 /// State object for a sequential parse. Handles control flow and input sequence

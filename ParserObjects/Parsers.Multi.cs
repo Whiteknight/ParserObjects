@@ -76,14 +76,17 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> LongestResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => multiParser.Select(static args =>
-        {
-            var longest = args.Result.Results
-                .Where(r => r.Success)
-                .OrderByDescending(r => r.Consumed)
-                .FirstOrDefault();
-            return longest != null ? args.Success(longest) : args.Failure();
-        });
+        => SelectResult(
+            multiParser,
+            static args =>
+            {
+                var longest = args.Result.Results
+                    .Where(r => r.Success)
+                    .OrderByDescending(r => r.Consumed)
+                    .FirstOrDefault();
+                return longest != null ? args.Success(longest) : args.Failure();
+            }
+        );
 
     /// <summary>
     /// Invoke a special callback to attempt to select a single alternative result
@@ -93,8 +96,10 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="select"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> SelectResult<TOutput>(IMultiParser<TInput, TOutput> p, Func<Select<TInput, TOutput>.Arguments, Option<IResultAlternative<TOutput>>> select)
-        => new Select<TInput, TOutput>.Parser(p, select);
+    public static IParser<TInput, TOutput> SelectResult<TOutput>(
+        IMultiParser<TInput, TOutput> p,
+        Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> select
+    ) => new SelectParser<TInput, TOutput>(p, select);
 
     /// <summary>
     /// Expect the parser to only return a single result alternative, and use

@@ -550,7 +550,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(Select<TInput, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(SelectParser<TInput, TOutput> p, BnfStringifyVisitor state)
     {
         state.Append("SELECT ", p.GetChildren().Single());
         return true;

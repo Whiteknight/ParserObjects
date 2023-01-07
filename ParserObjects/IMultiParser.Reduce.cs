@@ -1,5 +1,4 @@
 ﻿using System;
-using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -58,6 +57,8 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <param name="select"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<Select<TInput, TOutput>.Arguments, Option<IResultAlternative<TOutput>>> select)
-        => Parsers<TInput>.SelectResult(multiParser, select);
+    public static IParser<TInput, TOutput> Select<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> multiParser,
+        Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> select
+    ) => Parsers<TInput>.SelectResult(multiParser, select);
 }
