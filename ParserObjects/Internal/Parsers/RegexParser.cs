@@ -11,15 +11,12 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>
 {
-    private readonly int _maxItems;
-
-    public RegexParser(Regex regex, string describe, int maxItems = 0, string? name = null)
+    public RegexParser(Regex regex, string describe, string? name = null)
     {
         Assert.ArgumentNotNull(regex, nameof(regex));
         Regex = regex;
         Name = name ?? $"/{describe}/";
         Pattern = describe;
-        _maxItems = maxItems;
     }
 
     public Regex Regex { get; }
@@ -67,5 +64,5 @@ public sealed class RegexParser : IParser<char, string>
 
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);
 
-    public INamed SetName(string name) => new RegexParser(Regex, Pattern, _maxItems, name);
+    public INamed SetName(string name) => new RegexParser(Regex, Pattern, name);
 }

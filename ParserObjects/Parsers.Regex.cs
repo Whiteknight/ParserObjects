@@ -12,9 +12,8 @@ public static partial class Parsers
     /// position of the input stream.
     /// </summary>
     /// <param name="pattern"></param>
-    /// <param name="maxItems">Maximum number of items to keep in the buffer.</param>
     /// <returns></returns>
-    public static IParser<char, string> Regex(string pattern, int maxItems = 0)
+    public static IParser<char, string> Regex(string pattern)
     {
         var regexParser = RegexPattern();
         var result = regexParser.Parse(pattern, new SequenceOptions<char>
@@ -25,7 +24,7 @@ public static partial class Parsers
         if (!result.Success)
             throw new RegexException("Could not parse pattern " + pattern);
 
-        return new RegexParser(result.Value, pattern, maxItems);
+        return new RegexParser(result.Value, pattern);
     }
 
     /// <summary>
