@@ -46,7 +46,6 @@ public static class Earley<TInput, TOutput>
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var startLocation = state.Input.CurrentLocation;
 
             var results = _engine.Parse(state);
 

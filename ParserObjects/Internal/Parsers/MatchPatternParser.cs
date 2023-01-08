@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ParserObjects.Internal.Utility;
 
@@ -20,13 +20,7 @@ public sealed record MatchPatternParser<T>(
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-
-        // If the pattern is empty, return success.
-        if (Pattern.Count == 0)
-        {
-            state.Log(this, "Pattern has 0 items in it, this is functionally equivalent to Empty() ");
-            return state.Success(this, Array.Empty<T>(), 0);
-        }
+        Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
 
         // If the pattern has exactly one item in it, check for equality without a loop
         // or allocating a buffer

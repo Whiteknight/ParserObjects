@@ -9,21 +9,27 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed record FailParser<TInput, TOutput>(
-    string ErrorMessage = "Fail",
-    string Name = ""
-) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
+public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
-    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+    private readonly IResult<TOutput> _result;
 
-    IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    public FailParser(string errorMessage = "Fail", string name = "")
     {
-        Assert.ArgumentNotNull(state, nameof(state));
-        return state.Fail(this, ErrorMessage);
+        Name = name;
+        _result = new FailureResult<TOutput>(this, errorMessage);
     }
 
+    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
+
+    public string ErrorMessage => _result.ErrorMessage;
+
+    IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+        => _result;
+
     IResult IParser<TInput>.Parse(IParseState<TInput> state)
-        => ((IParser<TInput, TOutput>)this).Parse(state);
+        => _result;
 
     IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
@@ -44,5 +50,5 @@ public sealed record FailParser<TInput, TOutput>(
 
     public override string ToString() => DefaultStringifier.ToString("Fail", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new FailParser<TInput, TOutput>(ErrorMessage, name);
 }

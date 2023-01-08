@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -19,8 +20,7 @@ public sealed record FirstParser<TInput, TOutput>(
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        if (Parsers.Count == 0)
-            return state.Fail(this, "No parsers given");
+        Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < Parsers.Count - 1; i++)
         {
@@ -38,8 +38,7 @@ public sealed record FirstParser<TInput, TOutput>(
     public bool Match(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        if (Parsers.Count == 0)
-            return false;
+        Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < Parsers.Count; i++)
         {

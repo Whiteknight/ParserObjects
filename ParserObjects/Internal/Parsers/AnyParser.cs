@@ -9,17 +9,25 @@ namespace ParserObjects.Internal.Parsers;
 /// returns it.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed record AnyParser<T>(
-    string Name = ""
-) : IParser<T, T>
+public sealed class AnyParser<T> : IParser<T, T>
 {
+    private readonly IResult<T> _eofResult;
+
+    public AnyParser(string name = "")
+    {
+        Name = name;
+        _eofResult = new FailureResult<T>(this, "Expected any by found End.", default);
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
 
     public IResult<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         if (state.Input.IsAtEnd)
-            return state.Fail(this, "Expected any but found End");
+            return _eofResult;
 
         var next = state.Input.GetNext();
         return state.Success(this, next, 1);
@@ -39,5 +47,5 @@ public sealed record AnyParser<T>(
 
     public override string ToString() => DefaultStringifier.ToString("Any", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new AnyParser<T>(name);
 }

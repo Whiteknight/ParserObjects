@@ -29,7 +29,7 @@ public sealed record SuccessResult<TValue>(
     IParser Parser,
     TValue Value,
     int Consumed,
-    ResultData Data
+    ResultData Data = default
 ) : IResult<TValue>
 {
     public bool Success => true;
@@ -59,7 +59,7 @@ public sealed record SuccessResult<TValue>(
 public sealed record FailureResult<TValue>(
     IParser Parser,
     string ErrorMessage,
-    ResultData Data
+    ResultData Data = default
 ) : IResult<TValue>
 {
     public bool Success => false;

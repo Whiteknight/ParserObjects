@@ -4,12 +4,23 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
-public record MatchItemParser<T>(
-    T? Item,
-    string Name = ""
-) : IParser<T, T>
+public sealed class MatchItemParser<T> : IParser<T, T>
 {
+    private readonly IResult<T> _eofResult;
+    private readonly IResult<T> _noMatchResult;
+
+    public MatchItemParser(T? item, string name = "")
+    {
+        Item = item;
+        Name = name;
+        _eofResult = new FailureResult<T>(this, "Input sequence is at end.", default);
+        _noMatchResult = new FailureResult<T>(this, "Items do not match", default);
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
+    public T? Item { get; }
 
     public bool Match(IParseState<T> state)
     {
@@ -24,16 +35,18 @@ public record MatchItemParser<T>(
     public IResult<T> Parse(IParseState<T> state)
     {
         if (state.Input.IsAtEnd)
-            return state.Fail(this, "Input sequence is at end");
+            return _eofResult;
         if (!Equals(Item, state.Input.Peek()))
-            return state.Fail(this, "Items do not match");
+            return _noMatchResult;
         var value = state.Input.GetNext();
         return state.Success(this, value, 1);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new MatchItemParser<T>(Item, name);
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+
+    public override string ToString() => DefaultStringifier.ToString(this);
 }

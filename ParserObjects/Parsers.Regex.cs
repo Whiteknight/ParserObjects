@@ -15,6 +15,9 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, string> Regex(string pattern)
     {
+        if (string.IsNullOrEmpty(pattern))
+            return Parsers<char>.Produce(static () => string.Empty);
+
         var regexParser = RegexPattern();
         var result = regexParser.Parse(pattern, new SequenceOptions<char>
         {

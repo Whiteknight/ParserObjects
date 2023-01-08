@@ -8,16 +8,24 @@ namespace ParserObjects.Internal.Parsers;
 /// The empty parser, consumes no input and always returns success.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed record EmptyParser<TInput>(
-    string Name = ""
-) : IParser<TInput>
+public sealed class EmptyParser<TInput> : IParser<TInput>
 {
+    private readonly IResult _result;
+
+    public EmptyParser(string name = "")
+    {
+        _result = new SuccessResult<object>(this, Defaults.ObjectInstance, 0);
+        Name = name;
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
 
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        return state.Success(this, Defaults.ObjectInstance, 0);
+        return _result;
     }
 
     public bool Match(IParseState<TInput> state) => true;
@@ -26,5 +34,5 @@ public sealed record EmptyParser<TInput>(
 
     public override string ToString() => DefaultStringifier.ToString("Empty", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new EmptyParser<TInput>(name);
 }

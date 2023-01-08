@@ -10,12 +10,21 @@ namespace ParserObjects.Internal.Parsers;
 /// the end sentinel will be made available to the predicate and may match.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed record MatchPredicateParser<T>(
-    Func<T, bool> Predicate,
-    string Name = ""
-) : IParser<T, T>
+public sealed class MatchPredicateParser<T> : IParser<T, T>
 {
+    private readonly Func<T, bool> _predicate;
+    private readonly IResult<T> _failure;
+
+    public MatchPredicateParser(Func<T, bool> predicate, string name = "")
+    {
+        _predicate = predicate;
+        Name = name;
+        _failure = new FailureResult<T>(this, "Next item does not match the predicate");
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
 
     public IResult<T> Parse(IParseState<T> state)
     {
@@ -24,8 +33,8 @@ public sealed record MatchPredicateParser<T>(
         var startConsumed = state.Input.Consumed;
 
         var next = state.Input.Peek();
-        if (next == null || !Predicate(next))
-            return state.Fail(this, "Next item does not match the predicate");
+        if (next == null || !_predicate(next))
+            return _failure;
 
         state.Input.GetNext();
         return state.Success(this, next, state.Input.Consumed - startConsumed);
@@ -38,7 +47,7 @@ public sealed record MatchPredicateParser<T>(
         Assert.ArgumentNotNull(state, nameof(state));
 
         var next = state.Input.Peek();
-        if (next == null || !Predicate(next))
+        if (next == null || !_predicate(next))
             return false;
 
         state.Input.GetNext();
@@ -49,5 +58,5 @@ public sealed record MatchPredicateParser<T>(
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
 }

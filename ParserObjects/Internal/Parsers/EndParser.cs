@@ -9,17 +9,25 @@ namespace ParserObjects.Internal.Parsers;
 /// besides the end.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed record EndParser<TInput>(
-    string Name = ""
-) : IParser<TInput>
+public sealed class EndParser<TInput> : IParser<TInput>
 {
+    private readonly IResult _success;
+
+    public EndParser(string name = "")
+    {
+        Name = name;
+        _success = new SuccessResult<object>(this, Defaults.ObjectInstance, 0);
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+    public string Name { get; }
 
     public IResult Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         return state.Input.IsAtEnd
-            ? state.Success(this, Defaults.ObjectInstance, 0)
+            ? _success
             : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!.ToString());
     }
 
@@ -29,5 +37,5 @@ public sealed record EndParser<TInput>(
 
     public override string ToString() => DefaultStringifier.ToString("End", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
+    public INamed SetName(string name) => new EndParser<TInput>(name);
 }

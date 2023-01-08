@@ -30,5 +30,10 @@ public static partial class Parsers<TInput>
     /// <param name="pattern"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
-        => new MatchPatternParser<TInput>(pattern.ToList());
+    {
+        var asList = pattern.ToList();
+        if (asList.Count == 0)
+            return Produce(() => Array.Empty<TInput>());
+        return new MatchPatternParser<TInput>(asList);
+    }
 }

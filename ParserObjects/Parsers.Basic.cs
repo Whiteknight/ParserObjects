@@ -56,7 +56,11 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, TInput[]> Capture(params IParser<TInput>[] parsers)
-        => new CaptureParser<TInput>(parsers);
+    {
+        if (parsers == null || parsers.Length == 0)
+            return Produce(static () => Array.Empty<TInput>());
+        return new CaptureParser<TInput>(parsers);
+    }
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -135,7 +139,15 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
-        => new RuleParser<TInput, IReadOnlyList<object>, object>(parsers, Defaults.ObjectInstance, static (_, r) => r);
+    {
+        if (parsers == null || parsers.Length == 0)
+            return Produce(static () => Array.Empty<object>());
+        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+            parsers,
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
+    }
 
     /// <summary>
     /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
@@ -195,7 +207,12 @@ public static partial class Parsers<TInput>
         IParser<TInput, TOutput> parser,
         Action<ParseContext<TInput, TOutput>>? before = null,
         Action<ParseContext<TInput, TOutput>>? after = null
-    ) => new Examine<TInput, TOutput>.Parser(parser, before, after);
+    )
+    {
+        if (before == null && after == null)
+            return parser;
+        return new Examine<TInput, TOutput>.Parser(parser, before, after);
+    }
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -209,7 +226,12 @@ public static partial class Parsers<TInput>
         IMultiParser<TInput, TOutput> parser,
         Action<MultiParseContext<TInput, TOutput>>? before = null,
         Action<MultiParseContext<TInput, TOutput>>? after = null
-    ) => new Examine<TInput, TOutput>.MultiParser(parser, before, after);
+    )
+    {
+        if (before == null && after == null)
+            return parser;
+        return new Examine<TInput, TOutput>.MultiParser(parser, before, after);
+    }
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -222,7 +244,12 @@ public static partial class Parsers<TInput>
         IParser<TInput> parser,
         Action<ParseContext<TInput>>? before = null,
         Action<ParseContext<TInput>>? after = null
-    ) => new ExamineParser<TInput>(parser, before, after);
+    )
+    {
+        if (before == null && after == null)
+            return parser;
+        return new ExamineParser<TInput>(parser, before, after);
+    }
 
     /// <summary>
     /// Unconditionally returns failure.
@@ -256,7 +283,13 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
-        => new FirstParser<TInput, TOutput>(parsers);
+    {
+        if (parsers == null || parsers.Length == 0)
+            return Fail<TOutput>("No parsers given");
+        if (parsers.Length == 1)
+            return parsers[0];
+        return new FirstParser<TInput, TOutput>(parsers);
+    }
 
     // This one has to be public or Bnf stringification can't find the type to bind it to the
     // appropriate Accept() method variant.
