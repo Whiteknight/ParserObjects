@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
-using ParserObjects.Pratt;
 
-namespace ParserObjects.Internal.Pratt;
+namespace ParserObjects.Pratt;
 
 // Simple contextual wrapper, so that private Engine methods can be
 // exposed to user callbacks. This class is for internal use only. Users should interact with
 // the provided abstractions.
-public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, TOutput>
+public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOutput>
 {
     private readonly IParseState<TInput> _state;
     private readonly Engine<TInput, TOutput> _engine;
@@ -19,7 +19,7 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
     private readonly ParseControl _parseControl;
     private readonly int _startConsumed;
 
-    public ParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name, ParseControl parseControl)
+    public PrattParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name, ParseControl parseControl)
     {
         Assert.ArgumentNotNull(state, nameof(state));
         Assert.ArgumentNotNull(engine, nameof(engine));
@@ -76,7 +76,13 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
 
-    public bool Match(IParseState<TInput> state) => ((IParser<TInput>)this).Parse(state).Success;
+    public bool Match(IParseState<TInput> state)
+    {
+        EnsureIsNotComplete();
+        EnsureRecursionIsPermitted();
+        var result = _engine.TryParse(_state, _rbp, _parseControl);
+        return result.Success;
+    }
 
     public bool Match(IParser<TInput> parser)
     {
@@ -89,9 +95,9 @@ public sealed class ParseContext<TInput, TOutput> : IPrattParseContext<TInput, T
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
         EnsureIsNotComplete();
-        var result = parser.Parse(_state);
-        if (!result.Success)
-            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
+        var result = parser.Match(_state);
+        if (!result)
+            throw new ParseException(ParseExceptionSeverity.Rule, $"Could not match parser {parser} at position {_state.Input.Consumed}", parser, _state.Input.CurrentLocation);
     }
 
     public void FailRule(string message = "")

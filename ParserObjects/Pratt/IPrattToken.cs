@@ -39,30 +39,3 @@ public interface IValueToken<out TValue> : IPrattToken
     /// </summary>
     TValue Value { get; }
 }
-
-/// <summary>
-/// An IToken variant which is used by the Engine to get a value of the correct type. This
-/// type may have a hidden internal Value, which will be exposed to user callbacks but not to
-/// the Engine. This interface is not intended for external use.
-/// </summary>
-/// <typeparam name="TInput"></typeparam>
-/// <typeparam name="TOutput"></typeparam>
-public interface IParserResultToken<TInput, TOutput> : IPrattToken
-{
-    /// <summary>
-    /// Calculates the null denominator (prefix production) of this token, converting it into
-    /// a token of the correct output type.
-    /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    Option<IValueToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context);
-
-    /// <summary>
-    /// Calculates the left denominator (suffix production) of this token, converting it into
-    /// a token of the correct output type.
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="left"></param>
-    /// <returns></returns>
-    Option<IValueToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left);
-}

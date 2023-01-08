@@ -114,7 +114,7 @@ public static class RegexPatternGrammar
             .Named("RegexPattern");
     }
 
-    private static char GetUnescapedCharacter(IPrattParseContext<char> ctx, char c)
+    private static char GetUnescapedCharacter(PrattParseContext<char, List<IState>> ctx, char c)
     {
         if (c != '\\')
             return c;
@@ -125,7 +125,7 @@ public static class RegexPatternGrammar
         return ctx.Input.GetNext();
     }
 
-    private static List<IState> ParseCharacterClass(IPrattParseContext<char> ctx, List<IState>? states)
+    private static List<IState> ParseCharacterClass(PrattParseContext<char, List<IState>> ctx, List<IState>? states)
     {
         var invertResult = ctx.TryParse(MatchChar('^'));
         var ranges = new List<(char low, char high)>();
@@ -151,7 +151,7 @@ public static class RegexPatternGrammar
         return State.AddMatch(states, invertResult.Success, ranges);
     }
 
-    private static (char low, char high) ParseCharacterRange(IPrattParseContext<char> ctx, char c)
+    private static (char low, char high) ParseCharacterRange(PrattParseContext<char, List<IState>> ctx, char c)
     {
         var low = c;
         var next = ctx.Input.Peek();
@@ -173,7 +173,7 @@ public static class RegexPatternGrammar
         return (low, high);
     }
 
-    private static List<IState> ParseRepetitionRange(IPrattParseContext<char> ctx, List<IState> states, IParser<char, int> digits)
+    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, int> digits)
     {
         if (states.Last() is EndAnchorState)
             throw new RegexException("Cannot quantify the end anchor $");
@@ -200,7 +200,7 @@ public static class RegexPatternGrammar
         return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
     }
 
-    private static List<IState> ParseAlternation(IPrattParseContext<char, List<IState>> ctx, List<IState> states)
+    private static List<IState> ParseAlternation(PrattParseContext<char, List<IState>> ctx, List<IState> states)
     {
         var options = new List<List<IState>>() { states };
         do

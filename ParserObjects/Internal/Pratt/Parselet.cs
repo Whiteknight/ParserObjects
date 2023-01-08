@@ -60,7 +60,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         return (true, new ParseletToken<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
     }
 
-    public Option<IValueToken<TOutput>> Nud(IPrattParseContext<TInput, TOutput> context, IValueToken<TValue> sourceToken)
+    public Option<IValueToken<TOutput>> Nud(PrattParseContext<TInput, TOutput> context, IValueToken<TValue> sourceToken)
     {
         if (_nud == null)
             return default;
@@ -76,7 +76,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         }
     }
 
-    public Option<IValueToken<TOutput>> Led(IPrattParseContext<TInput, TOutput> context, IPrattToken left, IValueToken<TValue> sourceToken)
+    public Option<IValueToken<TOutput>> Led(PrattParseContext<TInput, TOutput> context, IPrattToken left, IValueToken<TValue> sourceToken)
     {
         if (_led == null || left is not IValueToken<TOutput> leftTyped)
             return default;

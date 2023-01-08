@@ -1,5 +1,3 @@
-using ParserObjects.Pratt;
-
 namespace ParserObjects.Internal.Pratt;
 
 /// <summary>
@@ -51,6 +49,6 @@ public interface IParselet<TInput, TOutput> : INamed
 
     /* Note: We need this interface as an adaptor because Parselet<TInput, TValue, TOutput> has a
      * "hidden" TValue type parameter, which is different for each parselet and cannot be handled
-     * by the Engine.
+     * by the Engine. Engine works in terms of TInput and TOutput only.
      */
 }

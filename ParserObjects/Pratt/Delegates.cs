@@ -9,7 +9,7 @@ namespace ParserObjects.Pratt;
 /// <param name="context"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-public delegate TOutput NudFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IValueToken<TValue> value);
+public delegate TOutput NudFunc<TInput, TValue, TOutput>(PrattParseContext<TInput, TOutput> context, IValueToken<TValue> value);
 
 /// <summary>
 /// Calculate the Left Denominator for the given token.
@@ -21,4 +21,4 @@ public delegate TOutput NudFunc<TInput, TValue, TOutput>(IPrattParseContext<TInp
 /// <param name="left"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-public delegate TOutput LedFunc<TInput, TValue, TOutput>(IPrattParseContext<TInput, TOutput> context, IValueToken<TOutput> left, IValueToken<TValue> value);
+public delegate TOutput LedFunc<TInput, TValue, TOutput>(PrattParseContext<TInput, TOutput> context, IValueToken<TOutput> left, IValueToken<TValue> value);

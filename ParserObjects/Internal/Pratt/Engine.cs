@@ -99,11 +99,11 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var rightContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, true, parselet.Name, parseControl);
+            int startConsumed = state.Input.Consumed;
 
             // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
             // the current left value
-            var rightResult = token.LeftDenominator(rightContext, leftToken);
+            var rightResult = token.LeftDenominator(state, this, true, parseControl, leftToken);
             if (!rightResult.Success)
             {
                 cp.Rewind();
@@ -112,7 +112,8 @@ public sealed class Engine<TInput, TOutput>
                 continue;
             }
 
-            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed + rightContext.Consumed, state.Input.CurrentLocation);
+            consumed += state.Input.Consumed - startConsumed;
+            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed, state.Input.CurrentLocation);
         }
 
         return new PartialResult<IValueToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
@@ -128,10 +129,10 @@ public sealed class Engine<TInput, TOutput>
             if (!success)
                 continue;
 
-            var leftContext = new ParseContext<TInput, TOutput>(state, this, parselet.Rbp, consumed > 0, parselet.Name, parseControl);
+            int startConsumed = state.Input.Consumed;
 
-            // Transform the IToken into IToken<TInput> using the NullDenominator rule
-            var leftResult = token.NullDenominator(leftContext);
+            // Transform the IParserResultToken into IValueToken<TInput> using the NullDenominator rule
+            var leftResult = token.NullDenominator(state, this, consumed > 0, parseControl);
             if (!leftResult.Success)
             {
                 cp.Rewind();
@@ -140,7 +141,7 @@ public sealed class Engine<TInput, TOutput>
                 continue;
             }
 
-            consumed += leftContext.Consumed;
+            consumed += state.Input.Consumed - startConsumed;
             return new PartialResult<IValueToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
         }
 

@@ -16,7 +16,6 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
         TokenTypeId = _parselet.TokenTypeId;
         LeftBindingPower = _parselet.Lbp;
         RightBindingPower = _parselet.Rbp;
-        Name = _parselet.Name ?? string.Empty;
         IsValid = true;
     }
 
@@ -26,13 +25,19 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
     public int LeftBindingPower { get; }
     public int RightBindingPower { get; }
     public bool IsValid { get; }
-    public string Name { get; }
+    public string Name => _parselet.Name;
 
-    public Option<IValueToken<TOutput>> NullDenominator(IPrattParseContext<TInput, TOutput> context)
-        => _parselet.Nud(context, this);
+    public Option<IValueToken<TOutput>> NullDenominator(IParseState<TInput> state, Engine<TInput, TOutput> engine, bool canRecurse, ParseControl parseControl)
+    {
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, _parselet.Rbp, canRecurse, Name, parseControl);
+        return _parselet.Nud(context, this);
+    }
 
-    public Option<IValueToken<TOutput>> LeftDenominator(IPrattParseContext<TInput, TOutput> context, IPrattToken left)
-        => _parselet.Led(context, left, this);
+    public Option<IValueToken<TOutput>> LeftDenominator(IParseState<TInput> state, Engine<TInput, TOutput> engine, bool canRecurse, ParseControl parseControl, IPrattToken left)
+    {
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, _parselet.Rbp, canRecurse, Name, parseControl);
+        return _parselet.Led(context, left, this);
+    }
 
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }

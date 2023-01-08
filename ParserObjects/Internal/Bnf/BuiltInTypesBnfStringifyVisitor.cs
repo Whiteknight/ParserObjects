@@ -434,7 +434,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(ParserObjects.Internal.Pratt.ParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(ParserObjects.Pratt.PrattParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
     {
         state.Append("PRATT RECURSE");
         return true;
