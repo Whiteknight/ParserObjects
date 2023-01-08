@@ -21,10 +21,10 @@ public sealed record PositiveLookaheadParser<TInput>(
         var startCheckpoint = state.Input.Checkpoint();
         var result = Inner.Parse(state);
         if (!result.Success)
-            return state.Fail(Inner, result.ErrorMessage, result.Location);
+            return state.Fail(Inner, result.ErrorMessage);
 
         startCheckpoint.Rewind();
-        return state.Success(Inner, result.Value, 0, startCheckpoint.Location);
+        return state.Success(Inner, result.Value, 0);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

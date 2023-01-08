@@ -29,7 +29,7 @@ public sealed record FailParser<TInput, TOutput>(
     {
         Assert.ArgumentNotNull(state, nameof(state));
         var startCheckpoint = state.Input.Checkpoint();
-        return new MultiResult<TOutput>(this, state.Input.CurrentLocation, startCheckpoint, new[]
+        return new MultiResult<TOutput>(this, startCheckpoint, new[]
         {
             new FailureResultAlternative<TOutput>(ErrorMessage, startCheckpoint)
         });

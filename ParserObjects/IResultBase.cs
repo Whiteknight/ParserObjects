@@ -20,12 +20,5 @@ public interface IResultBase
     /// </summary>
     bool Success { get; }
 
-    /// <summary>
-    /// Gets the approximate location of the successful parse in the input sequence. On failure, this
-    /// value is undefined and may show the location of the start of the attempt, the location at
-    /// which failure occured, null, or some other value.
-    /// </summary>
-    Location Location { get; }
-
     Option<T> TryGetData<T>();
 }

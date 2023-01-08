@@ -68,7 +68,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Test()
         {
-            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation), resultFactory =>
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}"), resultFactory =>
             {
                 resultFactory.Input.GetNext();
                 return true;
@@ -82,7 +82,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void Match_Test_Fallback()
         {
-            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}"));
             var input = FromString("X");
             var result = parser.Match(input);
             result.Should().BeTrue();
@@ -122,7 +122,7 @@ namespace ParserObjects.Tests.Parsers
         [Test]
         public void GetChildren()
         {
-            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}", state.Input.CurrentLocation));
+            var parser = Function<object>((state, resultFactory) => resultFactory.Success($"ok:{state.Input.GetNext()}"));
             var children = parser.GetChildren().ToList();
             children.Count.Should().Be(0);
         }

@@ -9,12 +9,11 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
     private readonly ResultData _data;
 
-    public MultiResult(IParser parser, Location location, SequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
+    public MultiResult(IParser parser, SequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
     {
         Parser = parser;
         Results = results.ToList();
         Success = Results.Any(r => r.Success);
-        Location = location;
         StartCheckpoint = startCheckpoint;
         _data = new ResultData(data);
     }
@@ -22,8 +21,6 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
     public IParser Parser { get; }
 
     public bool Success { get; }
-
-    public Location Location { get; }
 
     public IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
 
@@ -36,15 +33,14 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         Assert.ArgumentNotNull(recreate, nameof(recreate));
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
         var newCheckpoint = startCheckpoint ?? StartCheckpoint;
-        var newLocation = location ?? Location;
-        return new MultiResult<TOutput>(Parser, newLocation, newCheckpoint, newAlternatives);
+        return new MultiResult<TOutput>(Parser, newCheckpoint, newAlternatives);
     }
 
     public IMultiResult<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
     {
         Assert.ArgumentNotNull(transform, nameof(transform));
         var newAlternatives = Results.Select(alt => alt.Transform(transform));
-        return new MultiResult<TValue>(Parser, Location, StartCheckpoint, newAlternatives);
+        return new MultiResult<TValue>(Parser, StartCheckpoint, newAlternatives);
     }
 
     public Option<T> TryGetData<T>() => _data.TryGetData<T>();

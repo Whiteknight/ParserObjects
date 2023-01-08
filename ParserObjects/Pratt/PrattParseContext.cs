@@ -52,7 +52,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         EnsureRecursionIsPermitted();
         var result = _engine.TryParse(_state, rbp, _parseControl);
         if (!result.Success)
-            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage!, this, result.Location);
+            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage!, this, _state.Input.CurrentLocation);
         return result.Value!;
     }
 
@@ -62,7 +62,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         EnsureIsNotComplete();
         var result = parser.Parse(_state);
         if (!result.Success)
-            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, result.Location);
+            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, _state.Input.CurrentLocation);
         return result.Value;
     }
 

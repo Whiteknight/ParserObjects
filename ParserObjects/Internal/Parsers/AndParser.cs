@@ -31,7 +31,7 @@ public sealed record AndParser<TInput>(
         }
 
         var consumed = state.Input.Consumed - startCheckpoint.Consumed;
-        return state.Success(this, Defaults.ObjectInstance, consumed, startCheckpoint.Location);
+        return state.Success(this, Defaults.ObjectInstance, consumed);
     }
 
     public bool Match(IParseState<TInput> state)

@@ -117,7 +117,7 @@ public static class Context<TInput>
             }
             catch (Exception setupException)
             {
-                return new MultiResult<TOutput>(this, startCp.Location, startCp, Array.Empty<IResultAlternative<TOutput>>(), new[] { setupException });
+                return new MultiResult<TOutput>(this, startCp, Array.Empty<IResultAlternative<TOutput>>(), new[] { setupException });
             }
 
             // Invoke inner parser and then Cleanup().

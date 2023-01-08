@@ -302,10 +302,10 @@ public static partial class Parsers<TInput>
                 if (result.Success)
                 {
                     cp.Rewind();
-                    return args.Success(result.Value, result.Location);
+                    return args.Success(result.Value);
                 }
 
-                return args.Failure(result.ErrorMessage, result.Location);
+                return args.Failure(result.ErrorMessage);
             },
             static (state, p) =>
             {
@@ -340,7 +340,7 @@ public static partial class Parsers<TInput>
                     return result;
 
                 startCheckpoint.Rewind();
-                return state.Success(p, result.Value, 0, result.Location);
+                return state.Success(p, result.Value, 0);
             },
             static (p, state) =>
             {

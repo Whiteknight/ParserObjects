@@ -49,18 +49,19 @@ public static class Sequential
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
                 var result = Function(seqState);
                 var endConsumed = state.Input.Consumed;
-                return state.Success(this, result, endConsumed - startCheckpoint.Consumed, startCheckpoint.Location);
+                return state.Success(this, result, endConsumed - startCheckpoint.Consumed);
             }
             catch (ParseFailedException spe)
             {
                 // This exception is part of normal flow-control for this parser
                 // Other exceptions bubble up like normal.
+                var location = state.Input.CurrentLocation;
                 startCheckpoint.Rewind();
                 if (spe.Result != null)
                 {
                     var result = spe.Result;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
-                    return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {result.Location}");
+                    return state.Fail(this, $"Error during parsing: {result.Parser} {result.ErrorMessage} at {location}");
                 }
 
                 state.Log(this, $"Failure triggered during sequential callback: {spe.Message}");

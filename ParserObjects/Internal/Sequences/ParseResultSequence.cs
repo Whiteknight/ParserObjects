@@ -44,7 +44,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         }
 
         public IResult<TOutput> Success(TOutput value)
-            => _state.Success(_parser, value, 0, _location);
+            => _state.Success(_parser, value, 0);
 
         public IResult<TOutput> Failure(string message)
             => _state.Fail(_parser, message);

@@ -38,7 +38,7 @@ public sealed class RegexParser : IParser<char, string>
             return state.Fail(this, result.ErrorMessage!);
         }
 
-        return state.Success(this, result.Value!, result.Consumed, result.Location, new[]
+        return state.Success(this, result.Value!, result.Consumed, new[]
         {
             new RegexMatch(result.Value!, result.Captures!)
         });

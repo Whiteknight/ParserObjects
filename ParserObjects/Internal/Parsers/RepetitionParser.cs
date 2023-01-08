@@ -47,8 +47,8 @@ public static class Repetition<TInput>
             if (!initialItemResult.Success)
             {
                 if (Minimum == 0)
-                    return state.Success(this, items, 0, startCheckpoint.Location);
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
+                    return state.Success(this, items, 0);
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
             }
 
             items.Add(initialItemResult.Value);
@@ -88,12 +88,12 @@ public static class Repetition<TInput>
             if (Minimum > 0 && items.Count < Minimum)
             {
                 startCheckpoint.Rewind();
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
             }
 
             var endConsumed = state.Input.Consumed;
 
-            return state.Success(this, items, endConsumed - startCheckpoint.Consumed, startCheckpoint.Location);
+            return state.Success(this, items, endConsumed - startCheckpoint.Consumed);
         }
 
         public bool Match(IParseState<TInput> state)
@@ -198,8 +198,8 @@ public static class Repetition<TInput>
             if (!initialItemResult.Success)
             {
                 if (Minimum == 0)
-                    return state.Success(this, items, 0, startCheckpoint.Location);
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
+                    return state.Success(this, items, 0);
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
             }
 
             items.Add(initialItemResult.Value);
@@ -239,12 +239,12 @@ public static class Repetition<TInput>
             if (Minimum > 0 && items.Count < Minimum)
             {
                 startCheckpoint.Rewind();
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}", startCheckpoint.Location);
+                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
             }
 
             var endConsumed = state.Input.Consumed;
 
-            return state.Success(this, items, endConsumed - startCheckpoint.Consumed, startCheckpoint.Location);
+            return state.Success(this, items, endConsumed - startCheckpoint.Consumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

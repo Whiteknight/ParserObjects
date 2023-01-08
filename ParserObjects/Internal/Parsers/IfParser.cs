@@ -29,9 +29,9 @@ public sealed record IfParser<TInput, TOutput>(
     {
         var thenResult = parser.Parse(state);
         if (thenResult.Success)
-            return state.Success(parser, thenResult.Value, predicateConsumed + thenResult.Consumed, thenResult.Location);
+            return state.Success(parser, thenResult.Value, predicateConsumed + thenResult.Consumed);
         cp.Rewind();
-        return state.Fail(parser, thenResult.ErrorMessage, thenResult.Location);
+        return state.Fail(parser, thenResult.ErrorMessage);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

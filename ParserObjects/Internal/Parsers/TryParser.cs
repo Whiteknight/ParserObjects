@@ -169,7 +169,7 @@ public static class TryParser<TInput>
                 if (Bubble)
                     throw;
 
-                return new MultiResult<TOutput>(this, cp.Location, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new[] { ex });
+                return new MultiResult<TOutput>(this, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new[] { ex });
             }
         }
 

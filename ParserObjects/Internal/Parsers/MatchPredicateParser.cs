@@ -21,7 +21,6 @@ public sealed record MatchPredicateParser<T>(
     {
         Assert.ArgumentNotNull(state, nameof(state));
 
-        var location = state.Input.CurrentLocation;
         var startConsumed = state.Input.Consumed;
 
         var next = state.Input.Peek();
@@ -29,7 +28,7 @@ public sealed record MatchPredicateParser<T>(
             return state.Fail(this, "Next item does not match the predicate");
 
         state.Input.GetNext();
-        return state.Success(this, next, state.Input.Consumed - startConsumed, location);
+        return state.Success(this, next, state.Input.Consumed - startConsumed);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

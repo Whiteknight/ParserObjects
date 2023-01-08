@@ -51,7 +51,7 @@ public static class Earley<TInput, TOutput>
             var results = _engine.Parse(state);
 
             startCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, startLocation, startCheckpoint, results.Alternatives, new[] { results.Statistics });
+            return new MultiResult<TOutput>(this, startCheckpoint, results.Alternatives, new[] { results.Statistics });
         }
 
         public override string ToString() => DefaultStringifier.ToString("Earley", Name, Id);

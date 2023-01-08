@@ -27,9 +27,8 @@ public record MatchItemParser<T>(
             return state.Fail(this, "Input sequence is at end");
         if (!Equals(Item, state.Input.Peek()))
             return state.Fail(this, "Items do not match");
-        var location = state.Input.CurrentLocation;
         var value = state.Input.GetNext();
-        return state.Success(this, value, 1, location);
+        return state.Success(this, value, 1);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

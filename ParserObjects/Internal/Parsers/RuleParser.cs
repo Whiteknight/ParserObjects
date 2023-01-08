@@ -45,11 +45,11 @@ public sealed record RuleParser<TInput, TOutput, TData>(
             var name = Parsers[i].Name;
             if (string.IsNullOrEmpty(name))
                 name = "(Unnamed)";
-            return state.Fail(this, $"Parser {i} {name} failed", result.Location);
+            return state.Fail(this, $"Parser {i} {name} failed");
         }
 
         var consumed = state.Input.Consumed - startCheckpoint.Consumed;
-        return state.Success(this, Produce(Data, outputs), consumed, startCheckpoint.Location);
+        return state.Success(this, Produce(Data, outputs), consumed);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

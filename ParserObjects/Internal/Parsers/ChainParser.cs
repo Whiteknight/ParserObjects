@@ -42,10 +42,10 @@ public static class Chain<TInput, TMiddle, TOutput>
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
             if (nextResult.Success)
-                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed, nextResult.Location);
+                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed);
 
             checkpoint.Rewind();
-            return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
+            return state.Fail(nextParser, nextResult.ErrorMessage);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -120,10 +120,10 @@ public static class Chain<TInput, TOutput>
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
             if (nextResult.Success)
-                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed, nextResult.Location);
+                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed);
 
             checkpoint.Rewind();
-            return state.Fail(nextParser, nextResult.ErrorMessage, nextResult.Location);
+            return state.Fail(nextParser, nextResult.ErrorMessage);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

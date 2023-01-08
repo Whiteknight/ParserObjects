@@ -64,14 +64,13 @@ public static class LeftApply<TInput, TOutput>
                 return leftResult;
 
             _left.Value = leftResult.Value;
-            _left.Location = leftResult.Location;
 
             var rightResult = _right.Parse(state);
             if (rightResult.Success)
-                return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
+                return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
 
             checkpoint.Rewind();
-            return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage, rightResult.Location);
+            return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage);
         }
 
         private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state)
@@ -84,13 +83,12 @@ public static class LeftApply<TInput, TOutput>
 
             var current = result.Value;
             _left.Value = result.Value;
-            _left.Location = result.Location;
             int consumed = result.Consumed;
             while (true)
             {
                 var rhsResult = _right.Parse(state);
                 if (!rhsResult.Success)
-                    return state.Success(this, current, consumed, result.Location);
+                    return state.Success(this, current, consumed);
 
                 consumed += rhsResult.Consumed;
                 current = rhsResult.Value;
@@ -106,12 +104,11 @@ public static class LeftApply<TInput, TOutput>
                 return leftResult;
 
             _left.Value = leftResult.Value;
-            _left.Location = leftResult.Location;
 
             var rightResult = _right.Parse(state);
             if (!rightResult.Success)
                 return leftResult;
-            return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed, leftResult.Location);
+            return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -134,15 +131,13 @@ public static class LeftApply<TInput, TOutput>
 
         public TOutput? Value { get; set; }
 
-        public Location Location { get; set; }
-
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+        public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
 
         public bool Match(IParseState<TInput> state) => true;
 

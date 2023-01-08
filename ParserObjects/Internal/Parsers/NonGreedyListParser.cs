@@ -47,7 +47,6 @@ public static class NonGreedyList<TInput, TItem, TOutput>
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             var startCp = state.Input.Checkpoint();
-            _leftValue.Location = startCp.Location;
 
             // We are parsing <List> := <Right> | <Item> (<Separator> <Item>)*? <Right>
 
@@ -111,7 +110,7 @@ public static class NonGreedyList<TInput, TItem, TOutput>
                 // First, see if we can match the Right parser and bail out
                 var result = _rightParser.Parse(state);
                 if (result.Success)
-                    return state.Success(this, result.Value, state.Input.Consumed - startCp.Consumed, startCp.Location);
+                    return state.Success(this, result.Value, state.Input.Consumed - startCp.Consumed);
 
                 if (Maximum.HasValue && count >= Maximum)
                     return state.Fail(this, $"Found maximum {Maximum} items but could not complete list.");
@@ -264,15 +263,13 @@ public static class NonGreedyList<TInput, TItem, TOutput>
 
             public List<TItem> Value { get; }
 
-            public Location Location { get; set; }
-
             public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
             public string Name { get; }
 
-            public IResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state) => state.Success(this, Value, 0, Location);
+            public IResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state) => state.Success(this, Value, 0);
 
-            IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location);
+            IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
 
             public bool Match(IParseState<TInput> state) => true;
 

@@ -21,7 +21,7 @@ public sealed record PeekParser<T>(
             return state.Fail(this, "Expected any but found End");
 
         var peek = state.Input.Peek();
-        return state.Success(this, peek, 0, state.Input.CurrentLocation);
+        return state.Success(this, peek, 0);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

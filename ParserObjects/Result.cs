@@ -28,7 +28,6 @@ public readonly record struct ResultData(IReadOnlyList<object>? Data)
 public sealed record SuccessResult<TValue>(
     IParser Parser,
     TValue Value,
-    Location Location,
     int Consumed,
     ResultData Data
 ) : IResult<TValue>
@@ -39,7 +38,7 @@ public sealed record SuccessResult<TValue>(
 
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
-    public override string ToString() => $"{Parser} Ok at {Location}";
+    public override string ToString() => $"{Parser} Ok";
 
     public IResult<TValue> AdjustConsumed(int consumed)
     {
@@ -59,7 +58,6 @@ public sealed record SuccessResult<TValue>(
 /// <typeparam name="TValue"></typeparam>
 public sealed record FailureResult<TValue>(
     IParser Parser,
-    Location Location,
     string ErrorMessage,
     ResultData Data
 ) : IResult<TValue>
@@ -71,7 +69,7 @@ public sealed record FailureResult<TValue>(
 
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
-    public override string ToString() => $"{Parser} FAIL at {Location}: {ErrorMessage}";
+    public override string ToString() => $"{Parser} FAIL: {ErrorMessage}";
 
     public IResult<TValue> AdjustConsumed(int consumed) => this;
 

@@ -71,7 +71,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
                 right = _produce(args);
             }
 
-            return state.Success(this, right, consumed, leftResult.Location);
+            return state.Success(this, right, consumed);
         }
 
         var left = leftResult.Value;
@@ -133,7 +133,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         {
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, rightResult.Value);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
+            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
         }
 
         checkpoint.Rewind();
@@ -147,7 +147,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
+            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed);
         }
 
         return leftResult;
@@ -165,7 +165,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         {
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, rightResult.Value);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed, leftResult.Location);
+            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
         }
 
         // We have <left> <middle> but no <right>. See if we can make a synthetic one
@@ -178,7 +178,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed, leftResult.Location);
+            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed);
         }
 
         startCp.Rewind();

@@ -20,13 +20,12 @@ public sealed record MatchPatternParser<T>(
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state, nameof(state));
-        var location = state.Input.CurrentLocation;
 
         // If the pattern is empty, return success.
         if (Pattern.Count == 0)
         {
             state.Log(this, "Pattern has 0 items in it, this is functionally equivalent to Empty() ");
-            return state.Success(this, Array.Empty<T>(), 0, location);
+            return state.Success(this, Array.Empty<T>(), 0);
         }
 
         // If the pattern has exactly one item in it, check for equality without a loop
@@ -36,7 +35,7 @@ public sealed record MatchPatternParser<T>(
             var next = state.Input.Peek();
             if (next == null || !next.Equals(Pattern[0]))
                 return state.Fail(this, "Item does not match");
-            return state.Success(this, new[] { state.Input.GetNext() }, 1, location);
+            return state.Success(this, new[] { state.Input.GetNext() }, 1);
         }
 
         var checkpoint = state.Input.Checkpoint();
@@ -58,7 +57,7 @@ public sealed record MatchPatternParser<T>(
             return state.Fail(this, $"Item does not match at position {i}");
         }
 
-        return state.Success(this, buffer, Pattern.Count, location);
+        return state.Success(this, buffer, Pattern.Count);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

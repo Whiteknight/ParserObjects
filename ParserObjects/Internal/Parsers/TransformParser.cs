@@ -27,11 +27,11 @@ public static class Transform<TInput, TMiddle, TOutput>
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
             if (!result.Success)
-                return new FailureResult<TOutput>(result.Parser, result.Location, result.ErrorMessage, default);
+                return new FailureResult<TOutput>(result.Parser, result.ErrorMessage, default);
 
             var transformedValue = Transform(result.Value);
 
-            return state.Success(this, transformedValue, result.Consumed, result.Location);
+            return state.Success(this, transformedValue, result.Consumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

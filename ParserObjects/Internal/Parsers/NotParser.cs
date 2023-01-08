@@ -21,7 +21,7 @@ public sealed record NotParser<TInput>(
         var startCheckpoint = state.Input.Checkpoint();
         var result = Inner.Parse(state);
         if (!result.Success)
-            return state.Success(this, Defaults.ObjectInstance, 0, result.Location);
+            return state.Success(this, Defaults.ObjectInstance, 0);
 
         startCheckpoint.Rewind();
         return state.Fail(this, "Parser matched but was not supposed to");

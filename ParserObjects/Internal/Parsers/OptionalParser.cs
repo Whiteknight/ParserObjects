@@ -31,7 +31,7 @@ public static class Optional<TInput, TOutput>
         {
             var result = Inner.Parse(state);
             var option = result.Success ? new Option<TOutput>(true, result.Value) : default;
-            return state.Success(this, option, result.Consumed, result.Location);
+            return state.Success(this, option, result.Consumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -63,7 +63,7 @@ public static class Optional<TInput, TOutput>
             var result = Inner.Parse(state);
             var value = result.Success ? result.Value : GetDefault(state);
             var endConsumed = state.Input.Consumed;
-            return state.Success(this, value, endConsumed - startConsumed, result.Location);
+            return state.Success(this, value, endConsumed - startConsumed);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

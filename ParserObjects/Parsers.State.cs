@@ -71,8 +71,8 @@ public static partial class Parsers<TInput>
             {
                 var result = state.Data.Get<TValue>(n);
                 return result.Success ?
-                    args.Success(result.Value, state.Input.CurrentLocation) :
-                    args.Failure($"State data '{n}' with type does not exist", state.Input.CurrentLocation);
+                    args.Success(result.Value) :
+                    args.Failure($"State data '{n}' with type does not exist");
             },
             static (_, _) => true,
             $"GET '{name}'",
@@ -95,7 +95,7 @@ public static partial class Parsers<TInput>
             static (state, sdArgs, funcArgs) =>
             {
                 state.Data.Set(sdArgs.Name, sdArgs.Value);
-                return funcArgs.Success(sdArgs.Value, state.Input.CurrentLocation);
+                return funcArgs.Success(sdArgs.Value);
             },
             static (_, _) => true,
             $"SET '{name}'",

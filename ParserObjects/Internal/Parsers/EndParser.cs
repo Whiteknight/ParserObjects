@@ -19,7 +19,7 @@ public sealed record EndParser<TInput>(
     {
         Assert.ArgumentNotNull(state, nameof(state));
         return state.Input.IsAtEnd
-            ? state.Success(this, Defaults.ObjectInstance, 0, state.Input.CurrentLocation)
+            ? state.Success(this, Defaults.ObjectInstance, 0)
             : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!.ToString());
     }
 

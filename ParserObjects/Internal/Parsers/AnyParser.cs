@@ -21,9 +21,8 @@ public sealed record AnyParser<T>(
         if (state.Input.IsAtEnd)
             return state.Fail(this, "Expected any but found End");
 
-        var location = state.Input.CurrentLocation;
         var next = state.Input.GetNext();
-        return state.Success(this, next, 1, location);
+        return state.Success(this, next, 1);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

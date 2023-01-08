@@ -50,7 +50,6 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                     continue;
 
                 alt.Continuation.Rewind();
-                _left.Location = alt.Continuation.Location;
                 _left.Value = alt.Value;
                 var result = _right.Parse(state);
                 if (!result.Success)
@@ -63,7 +62,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             }
 
             multiResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, multiResult.Location, multiResult.StartCheckpoint, results);
+            return new MultiResult<TOutput>(this, multiResult.StartCheckpoint, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
@@ -110,7 +109,6 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                     continue;
 
                 alt.Continuation.Rewind();
-                _left.Location = multiResult.Location;
                 _left.Value = alt.Value;
                 var result = _right.Parse(state);
                 if (!result.Success)
@@ -124,7 +122,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             }
 
             multiResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, multiResult.Location, multiResult.StartCheckpoint, results);
+            return new MultiResult<TOutput>(this, multiResult.StartCheckpoint, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
@@ -144,15 +142,13 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public TMiddle? Value { get; set; }
 
-        public Location Location { get; set; }
-
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Name { get; }
 
-        public IResult<TMiddle> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+        public IResult<TMiddle> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0, Location!);
+        IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
 
         public bool Match(IParseState<TInput> state) => true;
 

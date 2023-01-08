@@ -33,7 +33,7 @@ public record CaptureParser<TInput>(
 
         var endCp = state.Input.Checkpoint();
         var contents = state.Input.GetBetween(startCp, endCp);
-        return state.Success(this, contents, endCp.Consumed - startCp.Consumed, startCp.Location);
+        return state.Success(this, contents, endCp.Consumed - startCp.Consumed);
     }
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
