@@ -1,4 +1,6 @@
-namespace ParserObjects.Pratt;
+using ParserObjects.Pratt;
+
+namespace ParserObjects.Internal.Pratt;
 
 /// <summary>
 /// A parselet is an adaptor over IParser, with additional metadata used internally by the
@@ -46,4 +48,9 @@ public interface IParselet<TInput, TOutput> : INamed
     /// Gets a value indicating whether this parselet can be used as a left denominator.
     /// </summary>
     public bool CanLed { get; }
+
+    /* Note: We need this interface as an adaptor because Parselet<TInput, TValue, TOutput> has a
+     * "hidden" TValue type parameter, which is different for each parselet and cannot be handled
+     * by the Engine.
+     */
 }

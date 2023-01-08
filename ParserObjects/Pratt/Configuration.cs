@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Pratt;
