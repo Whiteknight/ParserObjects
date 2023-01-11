@@ -23,7 +23,7 @@ public static partial class Parsers<TInput>
     }
 
     /// <summary>
-    /// Adjust teh current parse context before a parse and cleanup any changes after the parse.
+    /// Adjust the current parse context before a parse and cleanup any changes after the parse.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
@@ -56,6 +56,81 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> create)
         => new Create<TInput, TOutput>.MultiParser(create);
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data if the data store supports frames.
+    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+    /// data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="inner"></param>
+    /// <param name="values"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values)
+        => new DataFrame<TInput>.Parser<TOutput>(inner, values);
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data if the data store supports frames.
+    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+    /// data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="inner"></param>
+    /// <param name="values"></param>
+    /// <returns></returns>
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner, Dictionary<string, object> values)
+        => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data. Execute the inner parser. When the
+    /// inner parser concludes, pop the data frame off the data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="inner"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
+        => new DataFrame<TInput>.Parser<TOutput>(inner);
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data if the data store supports frames.
+    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+    /// data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="inner"></param>
+    /// <returns></returns>
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
+        => new DataFrame<TInput>.MultiParser<TOutput>(inner);
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data, populated initially with the given
+    /// data value. Execute the inner parser. when the inner parser concludes, pop the data
+    /// frame off the data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="inner"></param>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, string name, TData value)
+        where TData : notnull
+        => DataContext(inner, new Dictionary<string, object> { { name, value } });
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data if the data store supports frames.
+    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
+    /// data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="inner"></param>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, string name, TData value)
+        where TData : notnull
+        => DataContext(inner, new Dictionary<string, object> { { name, value! } });
 
     /// <summary>
     /// A parser which tries to get a value from current contextual data and return it as the
@@ -145,79 +220,4 @@ public static partial class Parsers<TInput>
             "SetResultData",
             new[] { p }
         );
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data if the data store supports frames.
-    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
-    /// data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="inner"></param>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values)
-        => new DataFrame<TInput>.Parser<TOutput>(inner, values);
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data if the data store supports frames.
-    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
-    /// data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="inner"></param>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner, Dictionary<string, object> values)
-        => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data. Execute the inner parser. When the
-    /// inner parser concludes, pop the data frame off the data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="inner"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-        => new DataFrame<TInput>.Parser<TOutput>(inner);
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data if the data store supports frames.
-    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
-    /// data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="inner"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
-        => new DataFrame<TInput>.MultiParser<TOutput>(inner);
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data, populated initially with the given
-    /// data value. Execute the inner parser. when the inner parser concludes, pop the data
-    /// frame off the data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
-    /// <param name="inner"></param>
-    /// <param name="name"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, string name, TData value)
-        where TData : notnull
-        => DataContext(inner, new Dictionary<string, object> { { name, value } });
-
-    /// <summary>
-    /// Creates a new contextual data frame to store data if the data store supports frames.
-    /// Execute the inner parser. When the inner parser concludes, pop the data frame off the
-    /// data store.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
-    /// <param name="inner"></param>
-    /// <param name="name"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, string name, TData value)
-        where TData : notnull
-        => DataContext(inner, new Dictionary<string, object> { { name, value! } });
 }
