@@ -13,17 +13,21 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Function<TInput, TOutput>
 {
+    public delegate IResult<TOutput> ParseFunc<TData>(IParseState<TInput> state, TData data, ResultFactory<TInput, TOutput> resultFactory);
+
+    public delegate bool MatchFunc<TData>(IParseState<TInput> state, TData data);
+
     public sealed class Parser<TData> : IParser<TInput, TOutput>
     {
         private readonly TData _data;
-        private readonly Func<IParseState<TInput>, TData, ResultFactory<TInput, TOutput>, IResult<TOutput>> _parseFunction;
-        private readonly Func<IParseState<TInput>, TData, bool> _matchFunction;
+        private readonly ParseFunc<TData> _parseFunction;
+        private readonly MatchFunc<TData> _matchFunction;
         private readonly IReadOnlyList<IParser> _children;
 
         public Parser(
             TData data,
-            Func<IParseState<TInput>, TData, ResultFactory<TInput, TOutput>, IResult<TOutput>> parseFunction,
-            Func<IParseState<TInput>, TData, bool>? matchFunction,
+            ParseFunc<TData> parseFunction,
+            MatchFunc<TData>? matchFunction,
             string description,
             IReadOnlyList<IParser>? children,
             string name = ""
@@ -38,6 +42,7 @@ public static class Function<TInput, TOutput>
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Name { get; }
 
         public string Description { get; }
