@@ -136,10 +136,10 @@ public static class Sequences
         => new CharArraySequence(list, options);
 
     public static ICharSequence FromMethod(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options = default)
-        => new DelegateCharSequence(function, options);
+        => new UserDelegate.CharSequence(function, options);
 
     public static ISequence<T> FromMethod<T>(Func<int, (T next, bool atEnd)> function, SequenceOptions<T> options = default)
-        => new DelegateSequence<T>(function, options);
+        => new UserDelegate.Sequence<T>(function, options);
 
     /// <summary>
     /// Creates a sequence from the results of repeated invocation of the given parser.
