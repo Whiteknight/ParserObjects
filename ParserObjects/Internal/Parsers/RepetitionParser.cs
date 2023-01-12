@@ -10,6 +10,64 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Repetition<TInput>
 {
+    private static bool MatchList(IParser<TInput> parser, IParser<TInput> separator, IParseState<TInput> state, int minimum, int? maximum)
+    {
+        Assert.ArgumentNotNull(state, nameof(state));
+
+        int count = 0;
+        var startCheckpoint = state.Input.Checkpoint();
+
+        // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+        var initialItemResult = parser.Match(state);
+        if (!initialItemResult)
+            return minimum == 0;
+
+        count++;
+        int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
+        var currentFailureCheckpoint = state.Input.Checkpoint();
+
+        while (maximum == null || count < maximum)
+        {
+            var separatorResult = separator.Match(state);
+            if (!separatorResult)
+                break;
+            var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+            if (currentConsumed == 0 && separatorConsumed == 0 && count >= minimum)
+            {
+                // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                // to avoid getting into an infinite loop
+                // We don't need to rewind to before the separator, because it consumed nothing
+                break;
+            }
+
+            var beforeAttemptConsumed = state.Input.Consumed;
+
+            var result = parser.Match(state);
+            if (!result)
+            {
+                // If we fail the item here, we have to rewind to the position before the
+                // separator.
+                currentFailureCheckpoint.Rewind();
+                break;
+            }
+
+            count++;
+            currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
+            currentFailureCheckpoint = state.Input.Checkpoint();
+        }
+
+        // If we don't have at least Minimum items, we need to roll all the way back to the
+        // beginning of the attempt
+        if (minimum > 0 && count < minimum)
+        {
+            startCheckpoint.Rewind();
+            return false;
+        }
+
+        return true;
+    }
+
     public sealed class Parser : IParser<TInput>
     {
         private readonly IParser<TInput> _parser;
@@ -97,62 +155,7 @@ public static class Repetition<TInput>
         }
 
         public bool Match(IParseState<TInput> state)
-        {
-            Assert.ArgumentNotNull(state, nameof(state));
-
-            int count = 0;
-            var startCheckpoint = state.Input.Checkpoint();
-
-            // We are parsing <List> := <Item> (<Separator> <Item>)*
-
-            var initialItemResult = _parser.Match(state);
-            if (!initialItemResult)
-                return Minimum == 0;
-
-            count++;
-            int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            var currentFailureCheckpoint = state.Input.Checkpoint();
-
-            while (Maximum == null || count < Maximum)
-            {
-                var separatorResult = _separator.Match(state);
-                if (!separatorResult)
-                    break;
-                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
-                if (currentConsumed == 0 && separatorConsumed == 0 && count >= Minimum)
-                {
-                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
-                    // to avoid getting into an infinite loop
-                    // We don't need to rewind to before the separator, because it consumed nothing
-                    break;
-                }
-
-                var beforeAttemptConsumed = state.Input.Consumed;
-
-                var result = _parser.Match(state);
-                if (!result)
-                {
-                    // If we fail the item here, we have to rewind to the position before the
-                    // separator.
-                    currentFailureCheckpoint.Rewind();
-                    break;
-                }
-
-                count++;
-                currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
-                currentFailureCheckpoint = state.Input.Checkpoint();
-            }
-
-            // If we don't have at least Minimum items, we need to roll all the way back to the
-            // beginning of the attempt
-            if (Minimum > 0 && count < Minimum)
-            {
-                startCheckpoint.Rewind();
-                return false;
-            }
-
-            return true;
-        }
+            => MatchList(_parser, _separator, state, Minimum, Maximum);
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 
@@ -190,7 +193,7 @@ public static class Repetition<TInput>
             Assert.ArgumentNotNull(state, nameof(state));
 
             var startCheckpoint = state.Input.Checkpoint();
-            var items = new System.Collections.Generic.List<TOutput>();
+            var items = new List<TOutput>();
 
             // We are parsing <List> := <Item> (<Separator> <Item>)*
 
@@ -250,62 +253,7 @@ public static class Repetition<TInput>
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public bool Match(IParseState<TInput> state)
-        {
-            Assert.ArgumentNotNull(state, nameof(state));
-
-            int count = 0;
-            var startCheckpoint = state.Input.Checkpoint();
-
-            // We are parsing <List> := <Item> (<Separator> <Item>)*
-
-            var initialItemResult = _parser.Match(state);
-            if (!initialItemResult)
-                return Minimum == 0;
-
-            count++;
-            int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            var currentFailureCheckpoint = state.Input.Checkpoint();
-
-            while (Maximum == null || count < Maximum)
-            {
-                var separatorResult = _separator.Match(state);
-                if (!separatorResult)
-                    break;
-                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
-                if (currentConsumed == 0 && separatorConsumed == 0 && count >= Minimum)
-                {
-                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
-                    // to avoid getting into an infinite loop
-                    // We don't need to rewind to before the separator, because it consumed nothing
-                    break;
-                }
-
-                var beforeAttemptConsumed = state.Input.Consumed;
-
-                var result = _parser.Match(state);
-                if (!result)
-                {
-                    // If we fail the item here, we have to rewind to the position before the
-                    // separator.
-                    currentFailureCheckpoint.Rewind();
-                    break;
-                }
-
-                count++;
-                currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
-                currentFailureCheckpoint = state.Input.Checkpoint();
-            }
-
-            // If we don't have at least Minimum items, we need to roll all the way back to the
-            // beginning of the attempt
-            if (Minimum > 0 && count < Minimum)
-            {
-                startCheckpoint.Rewind();
-                return false;
-            }
-
-            return true;
-        }
+            => MatchList(_parser, _separator, state, Minimum, Maximum);
 
         public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
 
