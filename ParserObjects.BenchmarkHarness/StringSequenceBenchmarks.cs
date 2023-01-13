@@ -11,7 +11,7 @@ public class StringSequenceBenchmarks
     [Benchmark]
     public void Prenormalized()
     {
-        var target = new CharArraySequence("aaaaaaaaaaaaaaaaaaab", new SequenceOptions<char>
+        var target = new CharBufferSequence.FromCharArray("aaaaaaaaaaaaaaaaaaab", new SequenceOptions<char>
         {
             MaintainLineEndings = false
         });
@@ -21,7 +21,7 @@ public class StringSequenceBenchmarks
     [Benchmark]
     public void Nonnormalized()
     {
-        var target = new NonnormalizedStringCharacterSequence("aaaaaaaaaaaaaaaaaaab");
+        var target = new CharBufferSequence.FromNonnormalizedString("aaaaaaaaaaaaaaaaaaab");
         var result = _parser.Parse(target);
     }
 }

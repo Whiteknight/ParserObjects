@@ -120,7 +120,7 @@ public static class Sequences
         => new ListSequence<T>(source, options.EndSentinel);
 
     public static ICharSequence FromEnumerable(IEnumerable<char> source, SequenceOptions<char> options = default)
-        => new CharArraySequence(source.ToList(), options);
+        => new CharBufferSequence.FromCharArray(source.ToList(), options);
 
     /// <summary>
     /// Wrap the list in a sequence.
@@ -133,7 +133,7 @@ public static class Sequences
         => new ListSequence<T>(list, endSentinel);
 
     public static ICharSequence FromList(IReadOnlyList<char> list, SequenceOptions<char> options = default)
-        => new CharArraySequence(list, options);
+        => new CharBufferSequence.FromCharArray(list, options);
 
     public static ICharSequence FromMethod(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options = default)
         => new UserDelegate.CharSequence(function, options);
@@ -167,7 +167,7 @@ public static class Sequences
     public static ICharSequence FromString(string s, SequenceOptions<char> options = default)
     {
         if (options.NormalizeLineEndings)
-            return new CharArraySequence(s, options);
-        return new NonnormalizedStringCharacterSequence(s, options);
+            return new CharBufferSequence.FromCharArray(s, options);
+        return new CharBufferSequence.FromNonnormalizedString(s, options);
     }
 }
