@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
@@ -33,8 +32,13 @@ public readonly struct ParserPredicateSelector<TInput, TMiddle, TOutput>
         return Parsers<TInput>.Fail<TOutput>($"No configured parsers handle {next}");
     }
 
-    public IEnumerable<IParser> GetChildren()
-        => _parsers.Select(v => v.parser);
+    public IReadOnlyList<IParser> GetChildren()
+    {
+        var children = new IParser[_parsers.Count];
+        for (int i = 0; i < _parsers.Count; i++)
+            children[i] = _parsers[i].parser;
+        return children;
+    }
 }
 
 public readonly struct ParserPredicateSelector<TInput, TOutput>
@@ -65,6 +69,11 @@ public readonly struct ParserPredicateSelector<TInput, TOutput>
         return Parsers<TInput>.Fail<TOutput>($"No configured parsers handle {next}");
     }
 
-    public IEnumerable<IParser> GetChildren()
-        => _parsers.Select(v => v.parser);
+    public IReadOnlyList<IParser> GetChildren()
+    {
+        var children = new IParser[_parsers.Count];
+        for (int i = 0; i < _parsers.Count; i++)
+            children[i] = _parsers[i].parser;
+        return children;
+    }
 }

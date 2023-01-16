@@ -75,7 +75,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> p,
         Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TMiddle, TOutput>.Parser<Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(p, getNext, static (gn, r) => gn(r), mentions);
+    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(p, getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -102,7 +102,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(
         IParser<TInput, TMiddle> p,
         Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup
-    ) => Chain<TInput, TMiddle, TOutput>.Configure(p, setup);
+    ) => Internal.Parsers.Chain<TInput, TOutput>.Configure<TMiddle>(p, setup);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -130,7 +130,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> p,
         Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TMiddle, TOutput>.Parser<Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(None(p), getNext, static (gn, r) => gn(r), mentions);
+    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(None(p), getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Given a list of parsers, parse each in sequence and return a list of object
@@ -440,7 +440,7 @@ public static partial class Parsers<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Predict<TOutput>(Action<ParserPredicateSelector<TInput, TInput, TOutput>> setup)
-         => Chain<TInput, TInput, TOutput>.Configure(Peek(), setup);
+         => Internal.Parsers.Chain<TInput, TOutput>.Configure<TInput>(Peek(), setup);
 
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.
