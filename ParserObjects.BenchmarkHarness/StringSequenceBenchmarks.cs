@@ -21,7 +21,10 @@ public class StringSequenceBenchmarks
     [Benchmark]
     public void Nonnormalized()
     {
-        var target = new CharBufferSequence.FromNonnormalizedString("aaaaaaaaaaaaaaaaaaab");
+        var target = new CharBufferSequence.FromNonnormalizedString("aaaaaaaaaaaaaaaaaaab", new SequenceOptions<char>
+        {
+            MaintainLineEndings = true
+        });
         var result = _parser.Parse(target);
     }
 }

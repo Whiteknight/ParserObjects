@@ -136,11 +136,6 @@ public static class CharBufferSequence
             _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
         }
 
-        public FromNonnormalizedString(string s)
-            : this(s, default)
-        {
-        }
-
         public char GetNext() => _internal.GetNext();
 
         public char Peek() => _internal.Peek();
@@ -200,11 +195,6 @@ public static class CharBufferSequence
             Assert.ArgumentNotNull(s, nameof(s));
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
-        }
-
-        public FromCharArray(string s)
-            : this(s, default)
-        {
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)

@@ -165,6 +165,53 @@ public static class FromListTests
         }
 
         [Test]
+        public void GetNext_NormalizeLineEndings()
+        {
+            var target = FromList(new[] { 'a', '\r', '\n', 'b' });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_NonNormalizedLineEndings()
+        {
+            var target = FromList(new[] { 'a', '\r', '\n', 'b' }, new SequenceOptions<char>
+            {
+                MaintainLineEndings = true
+            });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\r');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_Empty()
+        {
+            var target = FromList(new char[0]);
+
+            target.IsAtEnd.Should().BeTrue();
+            target.GetNext().Should().Be('\0');
+        }
+
+        [TestCase('a', 'a')]
+        [TestCase('\r', '\n')]
+        [TestCase('\n', '\n')]
+        public void GetNext_SingleChar(char input, char output)
+        {
+            var target = FromList(new[] { input });
+
+            target.IsAtEnd.Should().BeFalse();
+            target.GetNext().Should().Be(output);
+            target.IsAtEnd.Should().BeTrue();
+        }
+
+        [Test]
         public void Peek_Test()
         {
             var target = FromList(new[] { 'a', 'b', 'c' });
