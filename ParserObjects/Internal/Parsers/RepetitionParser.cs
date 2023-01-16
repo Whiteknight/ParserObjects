@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -10,255 +12,247 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Repetition<TInput>
 {
-    private static bool MatchList(IParser<TInput> parser, IParser<TInput> separator, IParseState<TInput> state, int minimum, int? maximum)
+    private struct InternalParser<TParser, TResult, TItem>
+        where TParser : IParser<TInput>
+        where TResult : IResult
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        private readonly TParser _parser;
+        private readonly IParser<TInput> _separator;
+        private readonly Func<TParser, IParseState<TInput>, TResult> _getResult;
+        private readonly Func<TResult, TItem> _getItem;
 
-        int count = 0;
-        var startCheckpoint = state.Input.Checkpoint();
-
-        // We are parsing <List> := <Item> (<Separator> <Item>)*
-
-        var initialItemResult = parser.Match(state);
-        if (!initialItemResult)
-            return minimum == 0;
-
-        count++;
-        int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-        var currentFailureCheckpoint = state.Input.Checkpoint();
-
-        while (maximum == null || count < maximum)
+        public InternalParser(TParser parser, IParser<TInput> separator, Func<TParser, IParseState<TInput>, TResult> getResult, Func<TResult, TItem> getItem, int minimum, int? maximum)
         {
-            var separatorResult = separator.Match(state);
-            if (!separatorResult)
-                break;
-            var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
-            if (currentConsumed == 0 && separatorConsumed == 0 && count >= minimum)
+            _parser = parser;
+            _separator = separator;
+            _getResult = getResult;
+            _getItem = getItem;
+            Minimum = minimum < 0 ? 0 : minimum;
+            Maximum = maximum;
+            if (Maximum.HasValue && Maximum < Minimum)
+                Maximum = Minimum;
+        }
+
+        public int Minimum { get; }
+        public int? Maximum { get; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PartialResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+
+            var startCheckpoint = state.Input.Checkpoint();
+            var items = new List<TItem>();
+
+            // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+            var initialItemResult = _getResult(_parser, state);
+            if (!initialItemResult.Success)
             {
-                // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
-                // to avoid getting into an infinite loop
-                // We don't need to rewind to before the separator, because it consumed nothing
-                break;
+                if (Minimum == 0)
+                    return new PartialResult<IReadOnlyList<TItem>>(items, 0);
+                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}");
             }
 
-            var beforeAttemptConsumed = state.Input.Consumed;
+            var item = _getItem(initialItemResult);
+            items.Add(item);
+            int currentConsumed = initialItemResult.Consumed;
+            var currentFailureCheckpoint = state.Input.Checkpoint();
 
-            var result = parser.Match(state);
-            if (!result)
+            while (Maximum == null || items.Count < Maximum)
             {
-                // If we fail the item here, we have to rewind to the position before the
-                // separator.
-                currentFailureCheckpoint.Rewind();
-                break;
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                    break;
+                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+                if (currentConsumed == 0 && separatorConsumed == 0 && items.Count >= Minimum)
+                {
+                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                    // to avoid getting into an infinite loop
+                    // We don't need to rewind to before the separator, because it consumed nothing
+                    break;
+                }
+
+                var result = _getResult(_parser, state);
+                if (!result.Success)
+                {
+                    // If we fail the item here, we have to rewind to the position before the
+                    // separator.
+                    currentFailureCheckpoint.Rewind();
+                    break;
+                }
+
+                item = _getItem(result);
+                items.Add(item);
+                currentConsumed = result.Consumed;
+                currentFailureCheckpoint = state.Input.Checkpoint();
             }
+
+            // If we don't have at least Minimum items, we need to roll all the way back to the
+            // beginning of the attempt
+            if (Minimum > 0 && items.Count < Minimum)
+            {
+                startCheckpoint.Rewind();
+                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}");
+            }
+
+            var endConsumed = state.Input.Consumed;
+
+            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startCheckpoint.Consumed);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Match(IParseState<TInput> state)
+        {
+            Assert.ArgumentNotNull(state, nameof(state));
+
+            int count = 0;
+            var startCheckpoint = state.Input.Checkpoint();
+
+            // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+            var initialItemResult = _parser.Match(state);
+            if (!initialItemResult)
+                return Minimum == 0;
 
             count++;
-            currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
-            currentFailureCheckpoint = state.Input.Checkpoint();
+            int currentConsumed = state.Input.Consumed - startCheckpoint.Consumed;
+            var currentFailureCheckpoint = state.Input.Checkpoint();
+
+            while (Maximum == null || count < Maximum)
+            {
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                    break;
+                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+                if (currentConsumed == 0 && separatorConsumed == 0 && count >= Minimum)
+                {
+                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                    // to avoid getting into an infinite loop
+                    // We don't need to rewind to before the separator, because it consumed nothing
+                    break;
+                }
+
+                var beforeAttemptConsumed = state.Input.Consumed;
+
+                var result = _parser.Match(state);
+                if (!result)
+                {
+                    // If we fail the item here, we have to rewind to the position before the
+                    // separator.
+                    currentFailureCheckpoint.Rewind();
+                    break;
+                }
+
+                count++;
+                currentConsumed = state.Input.Consumed - beforeAttemptConsumed;
+                currentFailureCheckpoint = state.Input.Checkpoint();
+            }
+
+            // If we don't have at least Minimum items, we need to roll all the way back to the
+            // beginning of the attempt
+            if (Minimum > 0 && count < Minimum)
+            {
+                startCheckpoint.Rewind();
+                return false;
+            }
+
+            return true;
         }
 
-        // If we don't have at least Minimum items, we need to roll all the way back to the
-        // beginning of the attempt
-        if (minimum > 0 && count < minimum)
-        {
-            startCheckpoint.Rewind();
-            return false;
-        }
-
-        return true;
+        public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
     }
 
     public sealed class Parser : IParser<TInput>
     {
-        private readonly IParser<TInput> _parser;
-        private readonly IParser<TInput> _separator;
+        private readonly InternalParser<IParser<TInput>, IResult, object> _internal;
 
         public Parser(IParser<TInput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
+            Assert.ArgumentNotNull(separator, nameof(separator));
 
-            Minimum = minimum < 0 ? 0 : minimum;
-            Maximum = maximum;
-            if (Maximum.HasValue && Maximum < Minimum)
-                Maximum = Minimum;
+            _internal = new InternalParser<IParser<TInput>, IResult, object>(parser, separator, static (p, s) => p.Parse(s), static r => r.Value, minimum, maximum);
 
-            _parser = parser;
-            _separator = separator;
+            Name = name;
+        }
+
+        private Parser(InternalParser<IParser<TInput>, IResult, object> internalData, string name)
+        {
+            _internal = internalData;
             Name = name;
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
         public string Name { get; }
-        public int Minimum { get; }
-        public int? Maximum { get; }
+        public int Minimum => _internal.Minimum;
+        public int? Maximum => _internal.Maximum;
 
         public IResult Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
-
-            var startCheckpoint = state.Input.Checkpoint();
-            var items = new List<object>();
-
-            // We are parsing <List> := <Item> (<Separator> <Item>)*
-
-            var initialItemResult = _parser.Parse(state);
-            if (!initialItemResult.Success)
-            {
-                if (Minimum == 0)
-                    return state.Success(this, items, 0);
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
-            }
-
-            items.Add(initialItemResult.Value);
-            int currentConsumed = initialItemResult.Consumed;
-            var currentFailureCheckpoint = state.Input.Checkpoint();
-
-            while (Maximum == null || items.Count < Maximum)
-            {
-                var separatorResult = _separator.Match(state);
-                if (!separatorResult)
-                    break;
-                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
-                if (currentConsumed == 0 && separatorConsumed == 0 && items.Count >= Minimum)
-                {
-                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
-                    // to avoid getting into an infinite loop
-                    // We don't need to rewind to before the separator, because it consumed nothing
-                    break;
-                }
-
-                var result = _parser.Parse(state);
-                if (!result.Success)
-                {
-                    // If we fail the item here, we have to rewind to the position before the
-                    // separator.
-                    currentFailureCheckpoint.Rewind();
-                    break;
-                }
-
-                items.Add(result.Value);
-                currentConsumed = result.Consumed;
-                currentFailureCheckpoint = state.Input.Checkpoint();
-            }
-
-            // If we don't have at least Minimum items, we need to roll all the way back to the
-            // beginning of the attempt
-            if (Minimum > 0 && items.Count < Minimum)
-            {
-                startCheckpoint.Rewind();
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
-            }
-
-            var endConsumed = state.Input.Consumed;
-
-            return state.Success(this, items, endConsumed - startCheckpoint.Consumed);
+            var partialResult = _internal.Parse(state);
+            if (partialResult.Success)
+                return state.Success(this, partialResult.Value, partialResult.Consumed);
+            return state.Fail(this, partialResult.ErrorMessage);
         }
 
-        public bool Match(IParseState<TInput> state)
-            => MatchList(_parser, _separator, state, Minimum, Maximum);
+        public bool Match(IParseState<TInput> state) => _internal.Match(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
+        public IEnumerable<IParser> GetChildren() => _internal.GetChildren();
 
         public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
 
-        public INamed SetName(string name) => new Parser(_parser, _separator, Minimum, Maximum, name);
+        public INamed SetName(string name) => new Parser(_internal, name);
     }
 
     public sealed class Parser<TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
     {
-        private readonly IParser<TInput, TOutput> _parser;
-        private readonly IParser<TInput> _separator;
+        private readonly InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput> _internal;
 
         public Parser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
             Assert.ArgumentNotNull(parser, nameof(parser));
+            Assert.ArgumentNotNull(separator, nameof(separator));
 
-            Minimum = minimum < 0 ? 0 : minimum;
-            Maximum = maximum;
-            if (Maximum.HasValue && Maximum < Minimum)
-                Maximum = Minimum;
+            _internal = new InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput>(
+                parser,
+                separator,
+                static (p, s) => p.Parse(s),
+                static r => r.Value,
+                minimum,
+                maximum
+            );
 
-            _parser = parser;
-            _separator = separator;
+            Name = name;
+        }
+
+        private Parser(InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput> internalData, string name)
+        {
+            _internal = internalData;
             Name = name;
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
         public string Name { get; }
-        public int Minimum { get; }
-        public int? Maximum { get; }
+        public int Minimum => _internal.Minimum;
+        public int? Maximum => _internal.Maximum;
 
         public IResult<IReadOnlyList<TOutput>> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
-
-            var startCheckpoint = state.Input.Checkpoint();
-            var items = new List<TOutput>();
-
-            // We are parsing <List> := <Item> (<Separator> <Item>)*
-
-            var initialItemResult = _parser.Parse(state);
-            if (!initialItemResult.Success)
-            {
-                if (Minimum == 0)
-                    return state.Success(this, items, 0);
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
-            }
-
-            items.Add(initialItemResult.Value);
-            int currentConsumed = initialItemResult.Consumed;
-            var currentFailureCheckpoint = state.Input.Checkpoint();
-
-            while (Maximum == null || items.Count < Maximum)
-            {
-                var separatorResult = _separator.Match(state);
-                if (!separatorResult)
-                    break;
-                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
-                if (currentConsumed == 0 && separatorConsumed == 0 && items.Count >= Minimum)
-                {
-                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
-                    // to avoid getting into an infinite loop
-                    // We don't need to rewind to before the separator, because it consumed nothing
-                    break;
-                }
-
-                var result = _parser.Parse(state);
-                if (!result.Success)
-                {
-                    // If we fail the item here, we have to rewind to the position before the
-                    // separator.
-                    currentFailureCheckpoint.Rewind();
-                    break;
-                }
-
-                items.Add(result.Value);
-                currentConsumed = result.Consumed;
-                currentFailureCheckpoint = state.Input.Checkpoint();
-            }
-
-            // If we don't have at least Minimum items, we need to roll all the way back to the
-            // beginning of the attempt
-            if (Minimum > 0 && items.Count < Minimum)
-            {
-                startCheckpoint.Rewind();
-                return state.Fail(this, $"Expected at least {Minimum} items but only found {items.Count}");
-            }
-
-            var endConsumed = state.Input.Consumed;
-
-            return state.Success(this, items, endConsumed - startCheckpoint.Consumed);
+            var partialResult = _internal.Parse(state);
+            if (partialResult.Success)
+                return state.Success(this, partialResult.Value!, partialResult.Consumed);
+            return state.Fail(this, partialResult.ErrorMessage);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public bool Match(IParseState<TInput> state)
-            => MatchList(_parser, _separator, state, Minimum, Maximum);
+        public bool Match(IParseState<TInput> state) => _internal.Match(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
+        public IEnumerable<IParser> GetChildren() => _internal.GetChildren();
 
         public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
 
-        public INamed SetName(string name) => new Parser<TOutput>(_parser, _separator, Minimum, Maximum, name);
+        public INamed SetName(string name) => new Parser<TOutput>(_internal, name);
     }
 }
