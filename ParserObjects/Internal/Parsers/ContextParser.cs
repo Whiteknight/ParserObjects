@@ -10,139 +10,166 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Context<TInput>
 {
-    public sealed record Parser<TOutput>(
-        IParser<TInput, TOutput> Inner,
-        Action<IParseState<TInput>>? Setup,
-        Action<IParseState<TInput>>? Cleanup,
-        string Name = ""
-    ) : IParser<TInput, TOutput>
+    private struct InternalParser<TParser>
+        where TParser : IParser
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+        private readonly Action<IParseState<TInput>> _setup;
+        private readonly Action<IParseState<TInput>> _cleanup;
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
-
-        public bool Match(IParseState<TInput> state)
+        public InternalParser(
+            TParser parser,
+            Action<IParseState<TInput>> setup,
+            Action<IParseState<TInput>> cleanup
+        )
         {
-            var startCp = state.Input.Checkpoint();
-
-            try
-            {
-                Setup?.Invoke(state);
-            }
-            catch
-            {
-                return false;
-            }
-
-            bool result = false;
-            try
-            {
-                result = Inner.Match(state);
-            }
-            finally
-            {
-                Cleanup?.Invoke(state);
-            }
-
-            if (!result)
-                startCp.Rewind();
-            return result;
+            Parser = parser;
+            _setup = setup;
+            _cleanup = cleanup;
         }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public TParser Parser { get; }
+
+        public TResult Execute<TResult>(
+            IParser parent,
+            IParseState<TInput> state,
+            Func<IParser, TParser, IParseState<TInput>, (bool success, TResult result)> execute,
+            Func<IParser, IParseState<TInput>, SequenceCheckpoint, Exception, TResult> onSetupFail
+        )
         {
-            // If setup fails, we return failure
-            // If the Inner parser throws an exception we need to attempt to invoke Cleanup, then bubble
+            // If setup fails, we catch it and return a nice failure message.
+            // If the Inner parser throws we attempt to invoke Cleanup, then allow the exception to bubble up.
+            // The user might use a Try() or something and deal with it elsewhere.
             // If the cleanup throws an exception, we allow it to bubble up (without cleanup, the parse
             // may be in an invalid state).
 
             var startCp = state.Input.Checkpoint();
 
-            // If Setup() throws, return a failure
             try
             {
-                Setup?.Invoke(state);
+                _setup?.Invoke(state);
             }
             catch (Exception setupException)
             {
-                return state.Fail(this, "Setup code threw an exception", new[] { setupException });
+                return onSetupFail(parent, state, startCp, setupException);
             }
 
-            // Invoke inner parser and then Cleanup().
-            // If either of these throw, we need to bubble the exception upwards so the user can
-            // see it (or deal with it in a Try())
-            IResult<TOutput>? result = null;
+            bool success = false;
+            TResult? result = default;
             try
             {
-                result = Inner.Parse(state);
+                (success, result) = execute(parent, Parser, state);
             }
             finally
             {
-                Cleanup?.Invoke(state);
+                _cleanup?.Invoke(state);
             }
 
-            // At this point we haven't had an exception, so we can deal with normal success/failure
-            // outcomes.
-            if (result?.Success != true)
+            if (!success)
                 startCp.Rewind();
-            return result!;
+            return result;
         }
+    }
+
+    public sealed class Parser<TOutput> : IParser<TInput, TOutput>
+    {
+        private readonly InternalParser<IParser<TInput, TOutput>> _internal;
+
+        public Parser(
+            IParser<TInput, TOutput> inner,
+            Action<IParseState<TInput>>? setup,
+            Action<IParseState<TInput>>? cleanup,
+            string name = ""
+        )
+        {
+            _internal = new InternalParser<IParser<TInput, TOutput>>(inner, setup, cleanup);
+            Name = name;
+        }
+
+        private Parser(InternalParser<IParser<TInput, TOutput>> internalData, string name)
+        {
+            _internal = internalData;
+            Name = name;
+        }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+        public string Name { get; }
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+
+        public bool Match(IParseState<TInput> state)
+            => _internal.Execute(
+                this,
+                state,
+                static (_, p, s) =>
+                {
+                    bool matched = p.Match(s);
+                    return (matched, matched);
+                },
+                static (_, _, _, _) => false
+            );
+
+        public IResult<TOutput> Parse(IParseState<TInput> state)
+            => _internal.Execute(
+                this,
+                state,
+                static (_, p, s) =>
+                {
+                    var result = p.Parse(s);
+                    return (result.Success, result);
+                },
+                static (ctx, s, _, ex) => s.Fail<TInput, TOutput>(ctx, "Setup code threw an exception", new[] { ex })
+            );
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public INamed SetName(string name) => this with { Name = name };
+        public INamed SetName(string name) => new Parser<TOutput>(_internal, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
     }
 
-    public sealed record MultiParser<TOutput>(
-        IMultiParser<TInput, TOutput> Inner,
-        Action<IParseState<TInput>>? Setup,
-        Action<IParseState<TInput>>? Cleanup,
-        string Name = ""
-    ) : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
+        private readonly InternalParser<IMultiParser<TInput, TOutput>> _internal;
+
+        public MultiParser(
+            IMultiParser<TInput, TOutput> inner,
+            Action<IParseState<TInput>>? setup,
+            Action<IParseState<TInput>>? cleanup,
+            string name = ""
+        )
+        {
+            _internal = new InternalParser<IMultiParser<TInput, TOutput>>(inner, setup, cleanup);
+            Name = name;
+        }
+
+        private MultiParser(InternalParser<IMultiParser<TInput, TOutput>> internalData, string name)
+        {
+            _internal = internalData;
+            Name = name;
+        }
+
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
+        public string Name { get; }
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
-        {
-            var startCp = state.Input.Checkpoint();
-
-            // If Setup() throws, return a failure
-            try
-            {
-                Setup?.Invoke(state);
-            }
-            catch (Exception setupException)
-            {
-                return new MultiResult<TOutput>(this, startCp, Array.Empty<IResultAlternative<TOutput>>(), new[] { setupException });
-            }
-
-            // Invoke inner parser and then Cleanup().
-            // If either of these throw, we need to bubble the exception upwards so the user can
-            // see it (or deal with it in a Try())
-            IMultiResult<TOutput>? result = null;
-            try
-            {
-                result = Inner.Parse(state);
-            }
-            finally
-            {
-                Cleanup?.Invoke(state);
-            }
-
-            // At this point we haven't had an exception, so we can deal with normal success/failure
-            // outcomes.
-            if (result?.Success != true)
-                startCp.Rewind();
-            return result!;
-        }
+            => _internal.Execute(
+                this,
+                state,
+                static (_, p, s) =>
+                {
+                    var result = p.Parse(s);
+                    return (result.Success, result);
+                },
+                static (ctx, _, cp, ex) => new MultiResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new[] { ex })
+            );
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public INamed SetName(string name) => this with { Name = name };
+        public INamed SetName(string name) => new MultiParser<TOutput>(_internal, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
     }

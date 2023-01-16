@@ -107,13 +107,13 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
     private bool Accept<TInput, TOutput>(Context<TInput>.MultiParser<TOutput> p, BnfStringifyVisitor state)
     {
-        state.Append(p.Inner);
+        state.Append(p.GetChildren().Single());
         return true;
     }
 
     private bool Accept<TInput, TOutput>(Context<TInput>.Parser<TOutput> p, BnfStringifyVisitor state)
     {
-        state.Append(p.Inner);
+        state.Append(p.GetChildren().Single());
         return true;
     }
 
@@ -140,12 +140,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
     private bool Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser _, BnfStringifyVisitor state)
     {
         state.Append("CREATE");
-        return true;
-    }
-
-    private bool Accept<TInput>(DataFrame<TInput>.Parser p, BnfStringifyVisitor state)
-    {
-        state.Append(p.GetChildren().First());
         return true;
     }
 
