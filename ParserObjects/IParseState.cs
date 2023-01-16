@@ -118,10 +118,10 @@ public static class ParseStateExtensions
     /// <param name="parser"></param>
     /// <param name="part"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Result<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, PartialResult<TOutput> part)
+    public static IResult<TOutput> Result<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput> parser, PartialResult<TOutput> part)
     {
         if (part.Success)
             return Success(state, parser, part.Value!, part.Consumed);
-        return Fail(state, parser, part.ErrorMessage!);
+        return Fail<TInput, TOutput>(state, parser, part.ErrorMessage!);
     }
 }
