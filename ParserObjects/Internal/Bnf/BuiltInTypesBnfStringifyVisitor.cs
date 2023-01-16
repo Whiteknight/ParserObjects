@@ -79,17 +79,29 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyVisitor state)
+    {
+        if (children.Count == 1)
+        {
+            state.Append(children[0], "->CHAIN");
+            return;
+        }
+
+        state.Append(children[0], "->CHAIN(", children[1]);
+        for (int i = 2; i < children.Count; i++)
+            state.Append(" ", children[i]);
+        state.Append(")");
+    }
+
     private bool Accept<TInput, TOutput, TMiddle, TData>(Chain<TInput, TOutput>.Parser<TMiddle, TData> p, BnfStringifyVisitor state)
     {
-        var child = p.GetChildren().Single();
-        state.Append(child, "->Chain");
+        AcceptChain(p.GetChildren().ToList(), state);
         return true;
     }
 
     private bool Accept<TInput, TOutput, TData>(Chain<TInput, TOutput>.Parser<TData> p, BnfStringifyVisitor state)
     {
-        var child = p.GetChildren().Single();
-        state.Append(child, "->Chain");
+        AcceptChain(p.GetChildren().ToList(), state);
         return true;
     }
 
@@ -356,28 +368,28 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
 
                 if (maximum == minimum)
                 {
-                    v.Append('{').Append(minimum).Append('}');
+                    v.Append('{').Append(minimum).Append("}?");
                     return;
                 }
 
-                v.Append('{').Append(minimum).Append(", ").Append(maximum).Append('}');
+                v.Append('{').Append(minimum).Append(", ").Append(maximum).Append("}?");
                 return;
             }
 
             // No maximum, so handle special cases with minimum values first.
             if (minimum == 0)
             {
-                v.Append('*');
+                v.Append("*?");
                 return;
             }
 
             if (minimum == 1)
             {
-                v.Append('+');
+                v.Append("+?");
                 return;
             }
 
-            v.Append('{').Append(minimum).Append(",}");
+            v.Append('{').Append(minimum).Append(",}?");
         }
 
         WriteQuantifier(state, p.Minimum, p.Maximum);
@@ -417,6 +429,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
+    private bool Accept<TInput>(PositiveLookaheadParser<TInput> p, BnfStringifyVisitor state)
+    {
+        state.Append("(?= ", p.GetChildren().First(), " )");
+        return true;
+    }
+
     private bool Accept<TInput, TOutput>(PrattParser<TInput, TOutput> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
@@ -437,12 +455,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
     private bool Accept<TInput, TOutput>(ParserObjects.Pratt.PrattParseContext<TInput, TOutput> _, BnfStringifyVisitor state)
     {
         state.Append("PRATT RECURSE");
-        return true;
-    }
-
-    private bool Accept<TInput>(PositiveLookaheadParser<TInput> p, BnfStringifyVisitor state)
-    {
-        state.Append("(?= ", p.GetChildren().First(), " )");
         return true;
     }
 

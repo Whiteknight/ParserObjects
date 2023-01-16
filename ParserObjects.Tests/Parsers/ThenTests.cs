@@ -30,4 +30,12 @@ internal class ThenTests
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().Then(Any()).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := IF . THEN . ELSE FAIL");
+    }
 }

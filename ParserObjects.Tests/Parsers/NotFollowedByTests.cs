@@ -24,4 +24,12 @@ internal class NotFollowedByTests
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().NotFollowedBy(Match("X")).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := (. (?! 'X' ))");
+    }
 }

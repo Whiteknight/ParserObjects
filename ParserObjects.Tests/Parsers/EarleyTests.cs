@@ -607,7 +607,7 @@ public class EarleyTests
     }
 
     [Test]
-    public void Bnf_Test()
+    public void ToBnf_Test()
     {
         var target = Earley<int>(symbols =>
         {

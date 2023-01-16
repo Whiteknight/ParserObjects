@@ -110,4 +110,12 @@ internal class CombineTests
         var result = target.Parse(input).Value;
         result.Count.Should().Be(9);
     }
+
+    [Test]
+    public void ToBnf_2()
+    {
+        var target = (_any, _any).Combine().Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := (. .)");
+    }
 }

@@ -111,4 +111,12 @@ public class DataContextTests
         result.Results[0].Value.Should().Be('X');
         result.Results[1].Value.Should().Be('Y');
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = DataContext(Any()).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .");
+    }
 }

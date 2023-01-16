@@ -21,4 +21,12 @@ public class BoolTests
         result.Success.Should().BeTrue();
         result.Value.Should().BeFalse();
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Bool(Any()).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := IF .");
+    }
 }

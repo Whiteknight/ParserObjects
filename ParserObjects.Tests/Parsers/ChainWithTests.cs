@@ -80,4 +80,14 @@ internal class ChainWithTests
         result.Should().Contain(y);
         result.Should().Contain(z);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = ChainWith<char, char>(Any(), config => config
+            .When(c => c == 'a', Match('B'))
+        ).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .->CHAIN");
+    }
 }

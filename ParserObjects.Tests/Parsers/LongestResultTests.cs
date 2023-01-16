@@ -19,4 +19,17 @@ public class LongestResultTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("abc");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = LongestResult(
+            Each(
+                CharacterString("A"),
+                CharacterString("B")
+            )
+        ).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := SELECT EACH('A' | 'B')");
+    }
 }

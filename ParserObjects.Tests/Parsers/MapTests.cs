@@ -10,4 +10,12 @@ public class MapTests
         var parser = Any().Map(c => int.Parse(c.ToString()));
         parser.Parse("1").Value.Should().Be(1);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().Map(c => c).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .");
+    }
 }

@@ -28,6 +28,14 @@ public static class ProduceMultiTests
             result.Should().BeTrue();
             input.Consumed.Should().Be(0);
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = ProduceMulti(() => "abc").Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := PRODUCE");
+        }
     }
 
     public class Args

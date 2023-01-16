@@ -18,4 +18,12 @@ public class CaptureTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("abcdefghi");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Capture(Any()).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := (.)");
+    }
 }

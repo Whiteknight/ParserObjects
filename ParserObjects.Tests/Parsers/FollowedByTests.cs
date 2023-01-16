@@ -34,4 +34,12 @@ internal class FollowedByTests
         result.Consumed.Should().Be(1);
         input.Peek().Should().Be('~');
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().FollowedBy(Match('X')).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := (. (?= 'X' ))");
+    }
 }

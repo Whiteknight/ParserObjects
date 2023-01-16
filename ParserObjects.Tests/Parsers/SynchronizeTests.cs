@@ -65,7 +65,7 @@ public class SynchronizeTests
     }
 
     [Test]
-    public void GetChildren()
+    public void GetChildren_Test()
     {
         var inner = Match('X');
         var parser = Synchronize(inner, x => x == ';');
@@ -75,12 +75,20 @@ public class SynchronizeTests
     }
 
     [Test]
-    public void SetName()
+    public void SetName_Test()
     {
         var parser = Synchronize(Match('X'), x => x == ';');
         var result = parser.SetName("test");
         result.Name.Should().Be("test");
         parser.Name.Should().Be("");
         result.Should().NotBeSameAs(parser);
+    }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Synchronize(Any(), x => x == 'X').Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := ");
     }
 }

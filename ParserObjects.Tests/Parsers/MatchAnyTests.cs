@@ -51,4 +51,12 @@ public class MatchAnyTests
 
         target.Parse(input).Success.Should().BeFalse();
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = MatchAny(new[] { 'A', 'B', 'C' }).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := MATCH()");
+    }
 }

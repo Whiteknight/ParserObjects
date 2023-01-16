@@ -18,4 +18,12 @@ internal class CharacterStringTests
         if (shouldMatch)
             result.Value.Should().Be(pattern);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = CharacterString("abc").Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := 'a' 'b' 'c'");
+    }
 }

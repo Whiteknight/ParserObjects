@@ -31,4 +31,12 @@ public class SingleTests
         var result = target.Parse("");
         result.Success.Should().BeFalse();
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = ProduceMulti(() => "abc").Single().Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := SELECT PRODUCE");
+    }
 }

@@ -18,6 +18,15 @@ public static class SetResultDataTests
             result.Success.Should().BeTrue();
             result.Value.Should().Be("valuevalue");
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            // TODO: We want this to be better
+            var target = Any().SetResultData("test").Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := SetResultData");
+        }
     }
 
     public class DerivedValue

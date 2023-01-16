@@ -96,4 +96,12 @@ public class TransformTests
         result.Results[0].Value.Should().Be("AX");
         result.Results[1].Value.Should().Be("BX");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().Transform(x => x).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .");
+    }
 }

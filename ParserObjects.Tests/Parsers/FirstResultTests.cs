@@ -55,4 +55,12 @@ public class FirstResultTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be('a');
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = FirstResult(ProduceMulti(() => "abc")).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := SELECT PRODUCE");
+    }
 }

@@ -55,7 +55,7 @@ public static class ChooseTests
         {
             var parser = Any().Choose(c => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := (?=.)->Chain");
+            result.Should().Contain("parser := (?=.)->CHAIN");
         }
     }
 

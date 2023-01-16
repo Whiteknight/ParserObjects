@@ -53,4 +53,12 @@ public class WithDataContextTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("value1-value2-value1");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Any().WithDataContext().Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .");
+    }
 }

@@ -149,7 +149,7 @@ public static class ChainTests
         {
             var parser = Any().Chain(c => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := .->Chain");
+            result.Should().Contain("parser := .->CHAIN");
         }
     }
 
@@ -295,7 +295,7 @@ public static class ChainTests
         {
             var parser = Empty().Chain(c => Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := ()->Chain");
+            result.Should().Contain("parser := ()->CHAIN");
         }
     }
 }
