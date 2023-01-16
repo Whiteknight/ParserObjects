@@ -49,7 +49,7 @@ public sealed class Engine<TInput, TOutput>
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
         {
             levelCp.Rewind();
-            return new PartialResult<TOutput>(pe.Message, pe.Location ?? state.Input.CurrentLocation);
+            return new PartialResult<TOutput>(pe.Message);
         }
     }
 
@@ -58,10 +58,10 @@ public sealed class Engine<TInput, TOutput>
         var startLocation = state.Input.CurrentLocation;
         var leftResult = GetLeft(state, parseControl);
         if (!leftResult.Success)
-            return new PartialResult<TOutput>(string.Empty, startLocation);
+            return new PartialResult<TOutput>(string.Empty);
 
         if (parseControl.IsComplete)
-            return new PartialResult<TOutput>(leftResult.Value!.Value, leftResult.Consumed, startLocation);
+            return new PartialResult<TOutput>(leftResult.Value!.Value, leftResult.Consumed);
 
         var leftToken = leftResult.Value!;
         int consumed = leftResult.Consumed;
@@ -83,7 +83,7 @@ public sealed class Engine<TInput, TOutput>
                 break;
         }
 
-        return new PartialResult<TOutput>(leftToken.Value, consumed, startLocation);
+        return new PartialResult<TOutput>(leftToken.Value, consumed);
     }
 
     private PartialResult<IValueToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, IValueToken<TOutput> leftToken, ParseControl parseControl)
@@ -108,15 +108,15 @@ public sealed class Engine<TInput, TOutput>
             {
                 cp.Rewind();
                 if (parseControl.IsComplete)
-                    return new PartialResult<IValueToken<TOutput>>("The parse is complete", state.Input.CurrentLocation);
+                    return new PartialResult<IValueToken<TOutput>>("The parse is complete");
                 continue;
             }
 
             consumed += state.Input.Consumed - startConsumed;
-            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed, state.Input.CurrentLocation);
+            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed);
         }
 
-        return new PartialResult<IValueToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
+        return new PartialResult<IValueToken<TOutput>>(string.Empty);
     }
 
     private PartialResult<IValueToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
@@ -137,15 +137,15 @@ public sealed class Engine<TInput, TOutput>
             {
                 cp.Rewind();
                 if (parseControl.IsComplete)
-                    return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.", state.Input.CurrentLocation);
+                    return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.");
                 continue;
             }
 
             consumed += state.Input.Consumed - startConsumed;
-            return new PartialResult<IValueToken<TOutput>>(leftResult.Value, consumed, state.Input.CurrentLocation);
+            return new PartialResult<IValueToken<TOutput>>(leftResult.Value, consumed);
         }
 
-        return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
+        return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position.");
     }
 }
 

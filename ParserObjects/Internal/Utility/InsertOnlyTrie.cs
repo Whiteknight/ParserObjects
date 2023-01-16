@@ -89,13 +89,13 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
                     if (node.HasResult)
                     {
                         cont.Rewind();
-                        return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed, startLocation);
+                        return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed);
                     }
                 }
 
                 // No node matched, so return failure
                 startCont.Rewind();
-                return new PartialResult<TResult>("Trie does not contain matching item", startLocation);
+                return new PartialResult<TResult>("Trie does not contain matching item");
             }
 
             while (true)

@@ -4,21 +4,19 @@ namespace ParserObjects;
 
 public struct PartialResult<TValue>
 {
-    public PartialResult(string error, Location location)
+    public PartialResult(string error)
     {
         Success = false;
-        Location = location;
         ErrorMessage = error;
         Consumed = 0;
         Value = default;
     }
 
-    public PartialResult(TValue value, int consumed, Location location)
+    public PartialResult(TValue value, int consumed)
     {
         Success = true;
         Value = value;
         Consumed = consumed;
-        Location = location;
         ErrorMessage = default;
     }
 
@@ -26,7 +24,6 @@ public struct PartialResult<TValue>
     public TValue? Value { get; }
 
     public int Consumed { get; }
-    public Location Location { get; }
 
     public string? ErrorMessage { get; }
 
