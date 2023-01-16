@@ -373,5 +373,76 @@ public static class FromMethodTests
             result.Length.Should().Be(4);
             result.Should().Be("bcde");
         }
+
+        [Test]
+        public void GetRemainder_Test()
+        {
+            var source = "abcdef";
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return ('\0', true);
+                return (source[idx], idx == source.Length - 1);
+            });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+
+            var result = target.GetRemainder();
+            result.Should().Be("cdef");
+        }
+
+        [Test]
+        public void GetRemainder_KnowWhereEndIs()
+        {
+            // There may be a small performance boost if we already know where the end is, so we
+            // can allocate exactly the right size array. This test covers those cases.
+            var source = "abcd";
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return ('\0', true);
+                return (source[idx], idx == source.Length - 1);
+            }, new SequenceOptions<char>
+            {
+                BufferSize = 2
+            });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            var cp1 = target.Checkpoint();
+
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            var result = target.GetRemainder();
+            result.Should().Be("");
+
+            cp1.Rewind();
+            result = target.GetRemainder();
+            result.Should().Be("cd");
+        }
+
+        [Test]
+        public void Reset_Test()
+        {
+            var source = "abc";
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return ('\0', true);
+                return (source[idx], idx == source.Length - 1);
+            });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+
+            target.Reset();
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('c');
+        }
     }
 }

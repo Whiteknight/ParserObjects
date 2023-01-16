@@ -102,15 +102,6 @@ public static class Function<TInput, TOutput>
     public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
-        public DataStore Data => State.Data;
-        public IResultsCache Cache => State.Cache;
-
-        public void AddSuccess(TOutput value)
-        {
-            var checkpoint = Input.Checkpoint();
-            var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
-            Results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
-        }
 
         public void AddSuccesses(IEnumerable<TOutput> values)
         {
@@ -118,11 +109,6 @@ public static class Function<TInput, TOutput>
             var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
             foreach (var value in values)
                 Results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
-        }
-
-        public void AddFailure(string err)
-        {
-            Results.Add(new FailureResultAlternative<TOutput>(err, StartCheckpoint));
         }
     }
 

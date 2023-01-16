@@ -5,10 +5,10 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class NoneTests
 {
-    public class Method
+    public class MethodOutput
     {
         [Test]
-        public void Parse_Output_Test()
+        public void Parse_Test()
         {
             var target = None(Any());
             var input = FromString("abc");
@@ -20,7 +20,7 @@ public static class NoneTests
         }
 
         [Test]
-        public void Parse_Output_Fail()
+        public void Parse_Fail()
         {
             var target = None(Fail<char>());
             var input = FromString("abc");
@@ -30,6 +30,17 @@ public static class NoneTests
             input.Peek().Should().Be('a');
         }
 
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = None(Any()).Named("target");
+            var result = target.ToBnf();
+            result.Should().Contain("target := (?=.)");
+        }
+    }
+
+    public class MethodNoOutput
+    {
         [Test]
         public void Parse_Test()
         {
@@ -53,15 +64,35 @@ public static class NoneTests
         }
 
         [Test]
+        public void Match_Test()
+        {
+            var target = None(And(Any(), Any()));
+            var input = FromString("abc");
+            var result = target.Match(input);
+            result.Should().BeTrue();
+            input.Peek().Should().Be('a');
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var target = None(And(Any(), Fail<char>()));
+            var input = FromString("abc");
+            var result = target.Match(input);
+            result.Should().BeFalse();
+            input.Peek().Should().Be('a');
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
-            var target = None(Any()).Named("target");
+            var target = None((IParser<char>)Any()).Named("target");
             var result = target.ToBnf();
             result.Should().Contain("target := (?=.)");
         }
     }
 
-    public class Extension
+    public class ExtensionOutput
     {
         [Test]
         public void Parse_Output_Test()
@@ -87,6 +118,17 @@ public static class NoneTests
         }
 
         [Test]
+        public void ToBnf_Test()
+        {
+            var target = Any().None().Named("target");
+            var result = target.ToBnf();
+            result.Should().Contain("target := (?=.)");
+        }
+    }
+
+    public class ExtensionNoOutput
+    {
+        [Test]
         public void Parse_Test()
         {
             var target = And(Any(), Any()).None();
@@ -106,22 +148,6 @@ public static class NoneTests
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
             input.Peek().Should().Be('a');
-        }
-
-        [Test]
-        public void ToBnf_Test()
-        {
-            var target = Any().None().Named("target");
-            var result = target.ToBnf();
-            result.Should().Contain("target := (?=.)");
-        }
-
-        [Test]
-        public void ToBnf_Output()
-        {
-            var parser = Any().None().Named("parser");
-            var result = parser.ToBnf();
-            result.Should().Contain("parser := (?=.)");
         }
 
         [Test]
