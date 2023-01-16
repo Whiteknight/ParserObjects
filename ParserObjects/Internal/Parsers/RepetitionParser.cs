@@ -193,7 +193,7 @@ public static class Repetition<TInput>
             var partialResult = _internal.Parse(state);
             if (partialResult.Success)
                 return state.Success(this, partialResult.Value, partialResult.Consumed);
-            return state.Fail(this, partialResult.ErrorMessage);
+            return state.Fail(this, partialResult.ErrorMessage!);
         }
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
@@ -242,7 +242,7 @@ public static class Repetition<TInput>
             var partialResult = _internal.Parse(state);
             if (partialResult.Success)
                 return state.Success(this, partialResult.Value!, partialResult.Consumed);
-            return state.Fail(this, partialResult.ErrorMessage);
+            return state.Fail(this, partialResult.ErrorMessage!);
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

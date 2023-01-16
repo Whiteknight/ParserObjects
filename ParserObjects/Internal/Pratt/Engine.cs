@@ -55,7 +55,6 @@ public sealed class Engine<TInput, TOutput>
 
     private PartialResult<TOutput> Parse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
-        var startLocation = state.Input.CurrentLocation;
         var leftResult = GetLeft(state, parseControl);
         if (!leftResult.Success)
             return new PartialResult<TOutput>(string.Empty);

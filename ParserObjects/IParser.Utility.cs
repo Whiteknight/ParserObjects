@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Bnf;
-using ParserObjects.Internal.Sequences;
 using ParserObjects.Internal.Visitors;
 using static ParserObjects.Sequences;
 
@@ -37,6 +36,10 @@ public static class ParserExtensions
     /// <param name="getEndSentinel"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Func<ParseResultSequence<TInput, TOutput>.ResultBuilder, IResult<TOutput>>? getEndSentinel = null, Action<string>? log = null)
-        => FromParseResult(input, parser, getEndSentinel, log);
+    public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(
+        this IParser<TInput, TOutput> parser,
+        ISequence<TInput> input,
+        Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? getEndSentinel = null,
+        Action<string>? log = null
+    ) => FromParseResult(input, parser, getEndSentinel, log);
 }

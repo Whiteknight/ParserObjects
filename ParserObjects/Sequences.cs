@@ -154,7 +154,7 @@ public static class Sequences
     public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(
         ISequence<TInput> sequence,
         IParser<TInput, TResult> parser,
-        Func<ParseResultSequence<TInput, TResult>.ResultBuilder, IResult<TResult>>? getEndSentinel = null,
+        Func<ResultFactory<TInput, TResult>, IResult<TResult>>? getEndSentinel = null,
         Action<string>? log = null
     ) => new ParseResultSequence<TInput, TResult>(sequence, parser, getEndSentinel, log ?? (_ => { }));
 

@@ -13,12 +13,12 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
     private readonly ISequence<TInput> _input;
     private readonly IParseState<TInput> _state;
     private readonly IParser<TInput, TOutput> _parser;
-    private readonly Func<ResultBuilder, IResult<TOutput>>? _getEndSentinel;
+    private readonly Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? _getEndSentinel;
 
     private WorkingSequenceStatistics _stats;
     private IResult<TOutput>? _endSentinel;
 
-    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultBuilder, IResult<TOutput>>? getEndSentinel, Action<string> log)
+    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? getEndSentinel, Action<string> log)
     {
         Assert.ArgumentNotNull(input, nameof(input));
         Assert.ArgumentNotNull(parser, nameof(parser));
@@ -28,26 +28,6 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         _getEndSentinel = getEndSentinel;
         _endSentinel = null;
         _stats = default;
-    }
-
-    public struct ResultBuilder
-    {
-        private readonly IParseState<TInput> _state;
-        private readonly IParser<TInput, TOutput> _parser;
-        private readonly Location _location;
-
-        public ResultBuilder(IParseState<TInput> state, IParser<TInput, TOutput> parser, Location location)
-        {
-            _state = state;
-            _parser = parser;
-            _location = location;
-        }
-
-        public IResult<TOutput> Success(TOutput value)
-            => _state.Success(_parser, value, 0);
-
-        public IResult<TOutput> Failure(string message)
-            => _state.Fail(_parser, message);
     }
 
     public IResult<TOutput> GetNext() => GetNext(true);
@@ -73,7 +53,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
             if (_endSentinel != null)
                 return _endSentinel;
 
-            var builder = new ResultBuilder(_state, _parser, _state.Input.CurrentLocation);
+            var builder = new ResultFactory<TInput, TOutput>(_parser, _state, default);
             _endSentinel = _getEndSentinel?.Invoke(builder) ?? _parser.Parse(_state);
             return _endSentinel;
         }
