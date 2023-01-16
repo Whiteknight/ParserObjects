@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
 
@@ -12,6 +13,13 @@ public sealed record TrieParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    public static TrieParser<TInput, TOutput> Configure(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    {
+        var trie = new InsertOnlyTrie<TInput, TOutput>();
+        setupTrie?.Invoke(trie);
+        return new TrieParser<TInput, TOutput>(trie);
+    }
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public IResult<TOutput> Parse(IParseState<TInput> state)

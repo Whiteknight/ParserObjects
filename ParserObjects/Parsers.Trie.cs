@@ -1,6 +1,5 @@
 ﻿using System;
 using ParserObjects.Internal.Parsers;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
@@ -25,11 +24,7 @@ public static partial class Parsers<TInput>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Trie<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
-    {
-        var trie = new InsertOnlyTrie<TInput, TOutput>();
-        setupTrie?.Invoke(trie);
-        return new TrieParser<TInput, TOutput>(trie);
-    }
+        => TrieParser<TInput, TOutput>.Configure(setupTrie);
 
     /// <summary>
     /// Lookup a sequences of inputs in an IReadOnlyTrie and return all matches from the current
@@ -50,9 +45,5 @@ public static partial class Parsers<TInput>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
-    {
-        var trie = new InsertOnlyTrie<TInput, TOutput>();
-        setupTrie?.Invoke(trie);
-        return new TrieParser<TInput, TOutput>(trie);
-    }
+        => TrieParser<TInput, TOutput>.Configure(setupTrie);
 }

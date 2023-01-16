@@ -71,7 +71,6 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
 
         public static PartialResult<TResult> Get(Node thisNode, ISequence<TKey> keys)
         {
-            var startLocation = keys.CurrentLocation;
             var current = thisNode;
 
             // The node, and the continuation checkpoint that allows parsing to continue
