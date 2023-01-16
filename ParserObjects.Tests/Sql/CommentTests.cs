@@ -1,4 +1,4 @@
-﻿using static ParserObjects.Parsers.SQL;
+﻿using static ParserObjects.Parsers.Sql;
 
 namespace ParserObjects.Tests.Sql;
 

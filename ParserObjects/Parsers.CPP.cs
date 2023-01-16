@@ -4,7 +4,7 @@ namespace ParserObjects;
 
 public static partial class Parsers
 {
-    public static class CPP
+    public static class Cpp
     {
         /// <summary>
         /// C++-style comment '//' ...

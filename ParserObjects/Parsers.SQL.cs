@@ -4,7 +4,7 @@ namespace ParserObjects;
 
 public static partial class Parsers
 {
-    public static class SQL
+    public static class Sql
     {
         /// <summary>
         /// SQL-style comment which starts with '--' and includes all characters until the end
