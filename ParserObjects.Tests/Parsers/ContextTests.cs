@@ -13,8 +13,8 @@ public static class ContextTests
             var after = "";
             var target = Context(
                 Produce(() => "OK"),
-                state => before = "OK1",
-                state => after = "OK2"
+                _ => before = "OK1",
+                _ => after = "OK2"
             );
             var result = target.Parse("");
             result.Success.Should().BeTrue();
@@ -26,15 +26,16 @@ public static class ContextTests
         [Test]
         public void Parse_SetupThrows()
         {
-            var before = "";
             var after = "";
             var target = Context(
                 Produce<string>(() => "OK"),
-                state => throw new Exception("test"),
-                state => after = "OK2"
+                _ => throw new Exception("test"),
+                _ => after = "OK2"
             );
             var result = target.Parse("");
             result.Success.Should().BeFalse();
+
+            after.Should().Be("");
 
             var exData = result.TryGetData<Exception>();
             exData.Success.Should().BeTrue();
@@ -48,8 +49,8 @@ public static class ContextTests
             var after = "";
             var target = Context(
                 Produce<string>(() => throw new System.Exception("test")),
-                state => before = "OK1",
-                state => after = "OK2"
+                _ => before = "OK1",
+                _ => after = "OK2"
             );
             Action act = () => target.Parse("");
             act.Should().Throw<Exception>();
@@ -64,11 +65,14 @@ public static class ContextTests
             var after = "";
             var target = Context(
                 Produce<string>(() => "OK"),
-                state => before = "OK1",
-                state => throw new Exception("test")
+                _ => before = "OK1",
+                _ => throw new Exception("test")
             );
             Action act = () => target.Parse("");
             act.Should().Throw<Exception>();
+
+            before.Should().Be("OK1");
+            after.Should().Be("");
         }
 
         [Test]
@@ -78,8 +82,8 @@ public static class ContextTests
             var after = "";
             var target = Context(
                 Produce(() => "OK"),
-                state => before = "OK1",
-                state => after = "OK2"
+                _ => before = "OK1",
+                _ => after = "OK2"
             );
             var result = target.Match("");
             result.Should().BeTrue();
@@ -98,8 +102,8 @@ public static class ContextTests
                     {
                         throw new System.Exception();
                     }),
-                    state => before = "OK1",
-                    state => after = "OK2"
+                    _ => before = "OK1",
+                    _ => after = "OK2"
                 )
             );
             var result = target.Match("");
@@ -113,8 +117,8 @@ public static class ContextTests
         {
             var target = Context(
                 Produce(() => "OK"),
-                state => { },
-                state => { }
+                _ => { },
+                _ => { }
             ).Named("target");
             var result = target.ToBnf();
             result.Should().Contain("target := PRODUCE");
@@ -130,8 +134,8 @@ public static class ContextTests
             var after = "";
             var target = Context(
                 ProduceMulti(() => new[] { "OK" }),
-                state => before = "OK1",
-                state => after = "OK2"
+                _ => before = "OK1",
+                _ => after = "OK2"
             );
             var result = target.Parse("");
             result.Success.Should().BeTrue();
@@ -148,8 +152,8 @@ public static class ContextTests
             var target = Try(
                 Context(
                     ProduceMulti<string>(() => throw new System.Exception()),
-                    state => before = "OK1",
-                    state => after = "OK2"
+                    _ => before = "OK1",
+                    _ => after = "OK2"
                 )
             );
             var result = target.Parse("");
@@ -163,8 +167,8 @@ public static class ContextTests
         {
             var target = Context(
                 ProduceMulti(() => new[] { "OK" }),
-                state => { },
-                state => { }
+                _ => { },
+                _ => { }
             ).Named("target");
             var result = target.ToBnf();
             result.Should().Contain("target := PRODUCE");
