@@ -67,7 +67,7 @@ public static class CreateTests
         [Test]
         public void ToBnf_Test()
         {
-            var parser = Create(state => Any()).Named("parser");
+            var parser = Create(_ => Any()).Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := CREATE");
         }
@@ -88,7 +88,7 @@ public static class CreateTests
         [Test]
         public void Parse_Test()
         {
-            var target = CreateMulti(state => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var target = CreateMulti(_ => ProduceMulti(() => new[] { "a", "b", "c" }));
             var result = target.Parse(FromString(""));
             result.Success.Should().BeTrue();
             result.Results.Count.Should().Be(3);
@@ -122,7 +122,7 @@ public static class CreateTests
         [Test]
         public void ToBnf_Test()
         {
-            var target = CreateMulti(state => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var target = CreateMulti(_ => ProduceMulti(() => new[] { "a", "b", "c" }));
             var result = target.ToBnf();
             result.Should().Contain("(TARGET) := CREATE");
         }
