@@ -12,6 +12,14 @@ namespace ParserObjects.Pratt;
 /// <typeparam name="TOutput"></typeparam>
 public struct ParseletBuilder<TInput, TValue, TOutput>
 {
+    /* Notice that we can have more than one NUD and LED per parselet.
+     * The way the engine works, it gets a list of all available parselets for the current situation
+     * and attempts them all. If the matcher matches the NUD or LED function is invoked to convert
+     * the parse result into the TOutput type. If that function fails, the Engine will continue on
+     * to find another parselet that Matches AND succeeds in the conversion. It's a kind of rare
+     * use-case to have multiple NUD or LED funcs per matcher, but it is supported (and tested)
+     */
+
     private readonly record struct GetParseletArguments(
         NudFunc<TInput, TValue, TOutput>? GetNud,
         LedFunc<TInput, TValue, TOutput>? GetLed,
@@ -19,10 +27,6 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
         int Rbp
     );
 
-    // TODO: It is technically possible for a single ParseletBuilder to have multiple
-    // .BindLeft() or .BindRight() calls, and for this list of _getParselets to have more than 2
-    // entries in it. Do we want to allow this? Is there a real use-case for multiple BindRight
-    // or BindLeft calls on a single matcher?
     private readonly List<GetParseletArguments> _getParselets;
 
     private int _typeId;

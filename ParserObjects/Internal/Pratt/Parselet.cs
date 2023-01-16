@@ -67,7 +67,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         try
         {
             var resultValue = _nud(context, sourceToken);
-            var token = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
+            var token = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
             return new Option<IValueToken<TOutput>>(true, token);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
@@ -84,7 +84,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         try
         {
             var resultValue = _led(context, leftTyped, sourceToken);
-            var resultToken = new ValueToken<TInput, TOutput, TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
+            var resultToken = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
             return new Option<IValueToken<TOutput>>(true, resultToken);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)

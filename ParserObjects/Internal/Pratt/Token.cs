@@ -42,7 +42,7 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }
 
-public sealed class ValueToken<TInput, TValue, TOutput> : IValueToken<TValue>
+public sealed class ValueToken<TValue> : IValueToken<TValue>
 {
     public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
     {
