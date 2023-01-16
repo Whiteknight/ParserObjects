@@ -53,6 +53,14 @@ public static class NotTests
             result.Should().BeFalse();
             input.Consumed.Should().Be(0);
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = Not(Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := !.");
+        }
     }
 
     public class Extension

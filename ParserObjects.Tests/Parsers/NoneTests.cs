@@ -115,5 +115,21 @@ public static class NoneTests
             var result = target.ToBnf();
             result.Should().Contain("target := (?=.)");
         }
+
+        [Test]
+        public void ToBnf_Output()
+        {
+            var parser = Any().None().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=.)");
+        }
+
+        [Test]
+        public void ToBnf_NoOutput()
+        {
+            var parser = Empty().None().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=())");
+        }
     }
 }

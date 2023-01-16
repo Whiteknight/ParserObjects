@@ -115,6 +115,51 @@ namespace ParserObjects.Tests.Parsers
                 results[1].Should().Be(xParser);
                 results[2].Should().Be(oneParser);
             }
+
+            [Test]
+            public void ToBnf_1()
+            {
+                var parser = First(
+                    Any()
+                ).Named("parser");
+                var result = parser.ToBnf();
+                result.Should().Contain("parser := .");
+            }
+
+            [Test]
+            public void ToBnf_2()
+            {
+                var parser = First(
+                    Any(),
+                    Any()
+                ).Named("parser");
+                var result = parser.ToBnf();
+                result.Should().Contain("parser := (. | .)");
+            }
+
+            [Test]
+            public void ToBnf_4()
+            {
+                var parser = First(
+                    Any(),
+                    Any(),
+                    Any(),
+                    Any()
+                ).Named("parser");
+                var result = parser.ToBnf();
+                result.Should().Contain("parser := (. | . | . | .)");
+            }
+
+            [Test]
+            public void ToBnf_2_Optional()
+            {
+                var parser = First(
+                    Any(),
+                    Produce(() => '\0')
+                ).Named("parser");
+                var result = parser.ToBnf();
+                result.Should().Contain("parser := (. | PRODUCE)");
+            }
         }
 
         public class OnValueTuple

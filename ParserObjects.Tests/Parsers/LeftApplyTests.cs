@@ -221,4 +221,46 @@ public class LeftApplyTests
         result[0].Should().BeSameAs(numberParser);
         result[1].Should().BeSameAs(letterParser);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var number = Match(char.IsNumber)
+            .Transform(c => c.ToString())
+            .Named("number");
+        var multiply = Match("*")
+            .Transform(c => c[0].ToString())
+            .Named("asterisk");
+        var multiplicative = LeftApply(
+                number,
+                left => Rule(
+                    left,
+                    multiply,
+                    number,
+                    (l, op, r) => l + op + r
+                )
+            )
+            .Named("multiplicative");
+        var add = Match("+")
+            .Transform(c => c[0].ToString())
+            .Named("plus");
+        var additive = LeftApply(
+                multiplicative,
+                left => Rule(
+                    left,
+                    add,
+                    multiplicative,
+                    (l, op, r) => l + op + r
+                )
+            )
+            .Named("additive");
+
+        var result = additive.ToBnf();
+
+        // I don't like to over-specify the exact format of the string, but we need something
+        result.Should().Contain("plus := '+'");
+        result.Should().Contain("asterisk := '*'");
+        result.Should().Contain("multiplicative := (<multiplicative> <asterisk> <number>) | <number>");
+        result.Should().Contain("additive := (<additive> <plus> <multiplicative>) | <multiplicative>");
+    }
 }

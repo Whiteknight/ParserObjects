@@ -19,4 +19,12 @@ public class EndTests
         var parser = End();
         parser.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = End().Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := END");
+    }
 }

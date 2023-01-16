@@ -392,4 +392,12 @@ public class RegexTests
         result.Should().BeFalse();
         input.Consumed.Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Regex("(a|b)c*d").Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := /(a|b)c*d/");
+    }
 }

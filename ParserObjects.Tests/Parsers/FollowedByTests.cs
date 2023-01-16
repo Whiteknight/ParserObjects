@@ -17,6 +17,14 @@ internal class FollowedByTests
     }
 
     [Test]
+    public void Parse_Untyped()
+    {
+        var parser = Any().FollowedBy(End());
+        parser.Match("a").Should().BeTrue();
+        parser.Match("ab").Should().BeFalse();
+    }
+
+    [Test]
     public void Parse_Success()
     {
         var parser = Match('[').FollowedBy(Match('~'));

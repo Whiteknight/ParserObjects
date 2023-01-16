@@ -49,6 +49,14 @@ public static class ChooseTests
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = Any().Choose(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := (?=.)->Chain");
+        }
     }
 
     public class Method

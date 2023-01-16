@@ -34,4 +34,12 @@ public class PeekTests
         var target = Peek();
         target.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Peek().Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := (?=.)");
+    }
 }

@@ -36,4 +36,12 @@ public class OrTests
         result.Should().Be(firstSuccess | secondSuccess);
         sequence.Consumed.Should().Be(firstSuccess | secondSuccess ? 1 : 0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Or(Any(), Any()).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := . || .");
+    }
 }

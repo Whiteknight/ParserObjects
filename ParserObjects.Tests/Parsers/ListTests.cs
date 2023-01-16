@@ -168,10 +168,34 @@ public static class ListTests
         }
 
         [Test]
-        public void ToBnf_Test()
+        public void ToBnf_NoBounds()
         {
             var parser = List(Any()).Named("SUT");
             parser.ToBnf().Should().Contain("SUT := .*");
+        }
+
+        [Test]
+        public void ToBnf_AtLeastOne()
+        {
+            var parser = Any().List(true).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .+");
+        }
+
+        [Test]
+        public void ToBnf_Max()
+        {
+            var parser = Any().List(maximum: 5).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .{0, 5}");
+        }
+
+        [Test]
+        public void ToBnf_Min()
+        {
+            var parser = Any().List(5).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .{5,}");
         }
 
         [TestCase(0, 1, ".?")]

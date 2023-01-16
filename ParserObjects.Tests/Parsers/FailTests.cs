@@ -37,4 +37,12 @@ public class FailTests
         var parser = Fail<object>();
         parser.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Fail<object>().Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := FAIL");
+    }
 }

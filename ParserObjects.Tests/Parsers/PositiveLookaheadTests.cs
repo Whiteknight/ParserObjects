@@ -63,4 +63,12 @@ public class PositiveLookaheadTests
         result.Count.Should().Be(1);
         result[0].Should().BeSameAs(failParser);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = PositiveLookahead(Any()).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := (?= . )");
+    }
 }

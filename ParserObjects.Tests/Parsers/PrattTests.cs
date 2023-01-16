@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using ParserObjects.Pratt;
 using static ParserObjects.Parsers.C;
 using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
@@ -582,5 +581,16 @@ public class PrattTests
         results.Count.Should().Be(2);
         results.Should().Contain(a);
         results.Should().Contain(b);
+    }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Pratt<char>(c => c
+            .Add(Match('+'))
+            .Add(Match('-'))
+        ).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().StartWith("parser := PRATT('+', '-');");
     }
 }

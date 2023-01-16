@@ -245,4 +245,17 @@ public class TrieTests
         var target = Trie<char>(_ => { });
         target.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Trie<string>(trie => trie
+                .Add("abc")
+                .Add("abd")
+                .Add("xyz")
+            )
+            .Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
+    }
 }

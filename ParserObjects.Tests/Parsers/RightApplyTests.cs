@@ -373,4 +373,27 @@ public class RightApplyTests
         result.Value.Should().Be(null);
         result.Consumed.Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        // In C#, assignment ("=") is right-associative
+        // 1=2=3 should parse as 1=(2=3)
+        var number = Match(char.IsNumber)
+            .Transform(c => c.ToString())
+            .Named("number");
+        var equals = Match("=")
+            .Transform(c => c[0].ToString())
+            .Named("equals");
+        var equality = RightApply(
+                number,
+                equals,
+                args => args.Left + args.Middle + args.Right
+            )
+            .Named("equality");
+
+        var result = equality.ToBnf();
+        result.Should().Contain("equals := '='");
+        result.Should().Contain("equality := <number> (<equals> <equality>)*");
+    }
 }

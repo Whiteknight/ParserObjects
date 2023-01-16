@@ -143,6 +143,14 @@ public static class ChainTests
             result.Should().Contain(y);
             result.Should().Contain(z);
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = Any().Chain(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := .->Chain");
+        }
     }
 
     public class NoOutput
@@ -280,6 +288,14 @@ public static class ChainTests
             result.Should().Contain(x);
             result.Should().Contain(y);
             result.Should().Contain(z);
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = Empty().Chain(c => Any()).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := ()->Chain");
         }
     }
 }

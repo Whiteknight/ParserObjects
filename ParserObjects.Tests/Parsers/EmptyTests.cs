@@ -32,4 +32,12 @@ public class EmptyTests
         var parser = Empty();
         parser.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Empty().Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := ()");
+    }
 }

@@ -70,6 +70,14 @@ namespace ParserObjects.Tests.Parsers
                 var input = FromString("abcd");
                 parser.GetChildren().Count().Should().Be(0);
             }
+
+            [Test]
+            public void ToBnf_Test()
+            {
+                var parser = Match("test").Named("match");
+                var result = parser.ToBnf();
+                result.Should().Contain("match := 't' 'e' 's' 't'");
+            }
         }
 
         public class ByPredicate

@@ -297,4 +297,12 @@ public class RuleTests
         result.Success.Should().BeFalse();
         input.Peek().Should().Be('a');
     }
+
+    [Test]
+    public void ToBnf_2()
+    {
+        var parser = (Any(), Any()).Rule((a, b) => "").Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := (. .)");
+    }
 }

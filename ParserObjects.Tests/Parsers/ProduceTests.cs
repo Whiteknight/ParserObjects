@@ -22,4 +22,12 @@ public class ProduceTests
         var target = Produce(() => 5);
         target.GetChildren().Count().Should().Be(0);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = Produce(() => 'a').Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := PRODUCE");
+    }
 }

@@ -109,4 +109,12 @@ public class IfParserTests
         result[2].Should().Be("[c]");
         result[3].Should().Be("d");
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var parser = If(End(), Any(), Peek()).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := IF END THEN . ELSE (?=.)");
+    }
 }
