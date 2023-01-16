@@ -13,13 +13,13 @@ public static class Context<TInput>
     private struct InternalParser<TParser>
         where TParser : IParser
     {
-        private readonly Action<IParseState<TInput>> _setup;
-        private readonly Action<IParseState<TInput>> _cleanup;
+        private readonly Action<IParseState<TInput>>? _setup;
+        private readonly Action<IParseState<TInput>>? _cleanup;
 
         public InternalParser(
             TParser parser,
-            Action<IParseState<TInput>> setup,
-            Action<IParseState<TInput>> cleanup
+            Action<IParseState<TInput>>? setup,
+            Action<IParseState<TInput>>? cleanup
         )
         {
             Parser = parser;

@@ -24,6 +24,22 @@ public static class ContextTests
         }
 
         [Test]
+        public void Parse_Fail()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                Fail<string>(),
+                _ => before = "OK1",
+                _ => after = "OK2"
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeFalse();
+            before.Should().Be("OK1");
+            after.Should().Be("OK2");
+        }
+
+        [Test]
         public void Parse_SetupThrows()
         {
             var after = "";
@@ -145,7 +161,23 @@ public static class ContextTests
         }
 
         [Test]
-        public void Parse_Throws()
+        public void Parse_SetupThrows()
+        {
+            var after = "";
+            var target = Try(
+                Context(
+                    ProduceMulti<string>(() => new[] { "abc" }),
+                    _ => throw new System.Exception(),
+                    _ => after = "OK2"
+                )
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeFalse();
+            after.Should().Be("");
+        }
+
+        [Test]
+        public void Parse_InnerThrows()
         {
             var before = "";
             var after = "";
