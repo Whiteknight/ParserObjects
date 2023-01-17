@@ -24,9 +24,9 @@ public static class LeftApply<TInput, TOutput>
         private readonly Quantifier _quantifier;
         private readonly IParser<TInput, TOutput> _right;
         private readonly LeftValue _left;
-        private readonly Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> _getRight;
+        private readonly GetParserFromParser<TInput, TOutput> _getRight;
 
-        public Parser(IParser<TInput, TOutput> initial, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight, Quantifier arity, string name = "")
+        public Parser(IParser<TInput, TOutput> initial, GetParserFromParser<TInput, TOutput> getRight, Quantifier arity, string name = "")
         {
             Assert.ArgumentNotNull(initial, nameof(initial));
             Assert.ArgumentNotNull(getRight, nameof(getRight));

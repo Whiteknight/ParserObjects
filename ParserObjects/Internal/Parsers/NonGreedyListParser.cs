@@ -19,11 +19,18 @@ public static class NonGreedyList<TInput, TItem, TOutput>
     {
         private readonly IParser<TInput, TItem> _itemParser;
         private readonly IParser<TInput> _separator;
-        private readonly Func<IParser<TInput, IReadOnlyList<TItem>>, IParser<TInput, TOutput>> _getContinuation;
+        private readonly GetParserFromParser<TInput, IReadOnlyList<TItem>, TOutput> _getContinuation;
         private readonly LeftValue _leftValue;
         private readonly IParser<TInput, TOutput> _rightParser;
 
-        public Parser(IParser<TInput, TItem> itemParser, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TItem>>, IParser<TInput, TOutput>> getContinuation, int minimum, int? maximum, string name = "")
+        public Parser(
+            IParser<TInput, TItem> itemParser,
+            IParser<TInput> separator,
+            GetParserFromParser<TInput, IReadOnlyList<TItem>, TOutput> getContinuation,
+            int minimum,
+            int? maximum,
+            string name = ""
+        )
         {
             _itemParser = itemParser;
             _separator = separator;

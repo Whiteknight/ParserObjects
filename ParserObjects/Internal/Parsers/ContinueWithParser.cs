@@ -19,9 +19,9 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;
         private readonly IParser<TInput, TOutput> _right;
-        private readonly Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> _getParser;
+        private readonly GetParserFromParser<TInput, TMiddle, TOutput> _getParser;
 
-        public SingleParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IParser<TInput, TOutput>> getParser, string name = "")
+        public SingleParser(IMultiParser<TInput, TMiddle> inner, GetParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
@@ -78,9 +78,9 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
         private readonly IMultiParser<TInput, TMiddle> _inner;
         private readonly LeftValue _left;
         private readonly IMultiParser<TInput, TOutput> _right;
-        private readonly Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> _getParser;
+        private readonly GetMultiParserFromParser<TInput, TMiddle, TOutput> _getParser;
 
-        public MultiParser(IMultiParser<TInput, TMiddle> inner, Func<IParser<TInput, TMiddle>, IMultiParser<TInput, TOutput>> getParser, string name = "")
+        public MultiParser(IMultiParser<TInput, TMiddle> inner, GetMultiParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));

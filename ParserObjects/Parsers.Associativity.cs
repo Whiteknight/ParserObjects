@@ -18,7 +18,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> LeftApply<TOutput>(
         IParser<TInput, TOutput> left,
-        Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> getRight,
+        GetParserFromParser<TInput, TOutput> getRight,
         Quantifier quantifier = Quantifier.ZeroOrMore
     ) => new LeftApply<TInput, TOutput>.Parser(left, getRight, quantifier);
 

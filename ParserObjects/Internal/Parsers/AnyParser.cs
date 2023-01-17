@@ -16,7 +16,7 @@ public sealed class AnyParser<T> : IParser<T, T>
     public AnyParser(string name = "")
     {
         Name = name;
-        _eofResult = new FailureResult<T>(this, "Expected any by found End.", default);
+        _eofResult = new FailureResult<T>(this, "Expected any but found End.", default);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();

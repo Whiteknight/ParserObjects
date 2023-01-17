@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
@@ -76,8 +75,13 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, IParser<TInput> separator, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, int minimum = 0, int? maximum = null)
-        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
+    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(
+        IParser<TInput, TMiddle> item,
+        IParser<TInput> separator,
+        GetParserFromParser<TInput, IReadOnlyList<TMiddle>, TOutput> getContinuation,
+        int minimum = 0,
+        int? maximum = null
+    ) => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
 
     /// <summary>
     /// Parse a list of items non-greedily. Will only attempt to match another item if the
@@ -91,6 +95,11 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(IParser<TInput, TMiddle> item, Func<IParser<TInput, IReadOnlyList<TMiddle>>, IParser<TInput, TOutput>> getContinuation, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
-        => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator ?? Empty(), getContinuation, minimum, maximum);
+    public static IParser<TInput, TOutput> NonGreedyList<TMiddle, TOutput>(
+        IParser<TInput, TMiddle> item,
+        GetParserFromParser<TInput, IReadOnlyList<TMiddle>, TOutput> getContinuation,
+        IParser<TInput>? separator = null,
+        int minimum = 0,
+        int? maximum = null
+    ) => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator ?? Empty(), getContinuation, minimum, maximum);
 }
