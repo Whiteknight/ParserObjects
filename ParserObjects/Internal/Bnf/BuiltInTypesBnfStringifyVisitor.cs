@@ -303,7 +303,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TOutput>(LeftApply<TInput, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TOutput>(LeftApplyParser<TInput, TOutput> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
         var initial = children[0];
@@ -337,7 +337,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IPartialVisitor<BnfStringi
         return true;
     }
 
-    private bool Accept<TInput, TItem, TOutput>(NonGreedyList<TInput, TItem, TOutput>.Parser p, BnfStringifyVisitor state)
+    private bool Accept<TInput, TItem, TOutput>(NonGreedyListParser<TInput, TItem, TOutput> p, BnfStringifyVisitor state)
     {
         var children = p.GetChildren().ToArray();
         var item = children[0];

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
@@ -17,7 +15,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
     public sealed class SingleParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;
-        private readonly LeftValue _left;
+        private readonly LeftValue<TInput, TMiddle> _left;
         private readonly IParser<TInput, TOutput> _right;
         private readonly GetParserFromParser<TInput, TMiddle, TOutput> _getParser;
 
@@ -26,7 +24,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _inner = inner;
-            _left = new LeftValue(name);
+            _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);
             _getParser = getParser;
             Name = name;
@@ -76,7 +74,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;
-        private readonly LeftValue _left;
+        private readonly LeftValue<TInput, TMiddle> _left;
         private readonly IMultiParser<TInput, TOutput> _right;
         private readonly GetMultiParserFromParser<TInput, TMiddle, TOutput> _getParser;
 
@@ -85,7 +83,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             Assert.ArgumentNotNull(inner, nameof(inner));
             Assert.ArgumentNotNull(getParser, nameof(getParser));
             _inner = inner;
-            _left = new LeftValue(name);
+            _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);
             _getParser = getParser;
             Name = name;
@@ -131,31 +129,5 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             => Parse(state);
 
         public INamed SetName(string name) => new MultiParser(_inner, _getParser, name);
-    }
-
-    private class LeftValue : IParser<TInput, TMiddle>, IHiddenInternalParser
-    {
-        public LeftValue(string name)
-        {
-            Name = name;
-        }
-
-        public TMiddle? Value { get; set; }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public IResult<TMiddle> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
-
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
-
-        public bool Match(IParseState<TInput> state) => true;
-
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-        public override string ToString() => DefaultStringifier.ToString(this);
-
-        public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename inner value parser");
     }
 }

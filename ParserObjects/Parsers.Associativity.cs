@@ -20,7 +20,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TOutput> left,
         GetParserFromParser<TInput, TOutput> getRight,
         Quantifier quantifier = Quantifier.ZeroOrMore
-    ) => new LeftApply<TInput, TOutput>.Parser(left, getRight, quantifier);
+    ) => new LeftApplyParser<TInput, TOutput>(left, getRight, quantifier);
 
     /// <summary>
     /// A right-associative parser which attempts to parse a sequence of items separated by middles

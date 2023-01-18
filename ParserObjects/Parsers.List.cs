@@ -81,7 +81,7 @@ public static partial class Parsers<TInput>
         GetParserFromParser<TInput, IReadOnlyList<TMiddle>, TOutput> getContinuation,
         int minimum = 0,
         int? maximum = null
-    ) => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator, getContinuation, minimum, maximum);
+    ) => new NonGreedyListParser<TInput, TMiddle, TOutput>(item, separator, getContinuation, minimum, maximum);
 
     /// <summary>
     /// Parse a list of items non-greedily. Will only attempt to match another item if the
@@ -101,5 +101,5 @@ public static partial class Parsers<TInput>
         IParser<TInput>? separator = null,
         int minimum = 0,
         int? maximum = null
-    ) => new NonGreedyList<TInput, TMiddle, TOutput>.Parser(item, separator ?? Empty(), getContinuation, minimum, maximum);
+    ) => new NonGreedyListParser<TInput, TMiddle, TOutput>(item, separator ?? Empty(), getContinuation, minimum, maximum);
 }
