@@ -24,9 +24,10 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, string> DigitString() => _digitString.Value;
 
-        private static readonly Lazy<IParser<char, string>> _digitString = new Lazy<IParser<char, string>>(
-            static () => Digit().ListCharToString(true).Named("digits")
-        );
+        private static readonly Lazy<IParser<char, string>> _digitString
+            = new Lazy<IParser<char, string>>(
+                static () => Digit().ListCharToString(true).Named("digits")
+            );
 
         /// <summary>
         /// Parses a single non-zero digit 1-9.
@@ -34,9 +35,10 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
 
-        private static readonly Lazy<IParser<char, char>> _nonZeroDigit = new Lazy<IParser<char, char>>(
-            static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
-        );
+        private static readonly Lazy<IParser<char, char>> _nonZeroDigit
+            = new Lazy<IParser<char, char>>(
+                static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
+            );
 
         /// <summary>
         /// Returns a single hexadecimal digit: 0-9, a-f, A-F.
@@ -44,9 +46,10 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
 
-        private static readonly Lazy<IParser<char, char>> _hexadecimalDigit = new Lazy<IParser<char, char>>(
-            static () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
-        );
+        private static readonly Lazy<IParser<char, char>> _hexadecimalDigit
+            = new Lazy<IParser<char, char>>(
+                static () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
+            );
 
         /// <summary>
         /// Returns a sequence of at least one hexadecimal digits and returns them as a string.
@@ -54,8 +57,9 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
 
-        private static readonly Lazy<IParser<char, string>> _hexadecimalString = new Lazy<IParser<char, string>>(
-            static () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
-        );
+        private static readonly Lazy<IParser<char, string>> _hexadecimalString
+            = new Lazy<IParser<char, string>>(
+                static () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
+            );
     }
 }

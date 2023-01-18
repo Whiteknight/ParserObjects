@@ -15,7 +15,11 @@ public static partial class Parsers<TInput>
     /// <param name="setup"></param>
     /// <param name="cleanup"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Context<TOutput>(IParser<TInput, TOutput> parser, Action<IParseState<TInput>>? setup, Action<IParseState<TInput>>? cleanup)
+    public static IParser<TInput, TOutput> Context<TOutput>(
+        IParser<TInput, TOutput> parser,
+        Action<IParseState<TInput>>? setup,
+        Action<IParseState<TInput>>? cleanup
+    )
     {
         if (setup == null && cleanup == null)
             return parser;
@@ -30,7 +34,11 @@ public static partial class Parsers<TInput>
     /// <param name="setup"></param>
     /// <param name="cleanup"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Context<TOutput>(IMultiParser<TInput, TOutput> parser, Action<IParseState<TInput>> setup, Action<IParseState<TInput>> cleanup)
+    public static IMultiParser<TInput, TOutput> Context<TOutput>(
+        IMultiParser<TInput, TOutput> parser,
+        Action<IParseState<TInput>> setup,
+        Action<IParseState<TInput>> cleanup
+    )
     {
         if (setup == null && cleanup == null)
             return parser;
@@ -66,8 +74,10 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner, Dictionary<string, object> values)
-        => new DataFrame<TInput>.Parser<TOutput>(inner, values);
+    public static IParser<TInput, TOutput> DataContext<TOutput>(
+        IParser<TInput, TOutput> inner,
+        Dictionary<string, object> values
+    ) => new DataFrame<TInput>.Parser<TOutput>(inner, values);
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -78,8 +88,10 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner, Dictionary<string, object> values)
-        => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput>(
+        IMultiParser<TInput, TOutput> inner,
+        Dictionary<string, object> values
+    ) => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
 
     /// <summary>
     /// Creates a new contextual data frame to store data. Execute the inner parser. When the
@@ -113,7 +125,11 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(IParser<TInput, TOutput> inner, string name, TData value)
+    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(
+        IParser<TInput, TOutput> inner,
+        string name,
+        TData value
+    )
         where TData : notnull
         => DataContext(inner, new Dictionary<string, object> { { name, value } });
 
@@ -128,7 +144,11 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(IMultiParser<TInput, TOutput> inner, string name, TData value)
+    public static IMultiParser<TInput, TOutput> DataContext<TOutput, TData>(
+        IMultiParser<TInput, TOutput> inner,
+        string name,
+        TData value
+    )
         where TData : notnull
         => DataContext(inner, new Dictionary<string, object> { { name, value! } });
 
@@ -178,7 +198,11 @@ public static partial class Parsers<TInput>
         );
 
     // This one has to stay public so Bnf stringifier .Accept() method can bind to it.
-    public readonly record struct SetResultDataArgs<TOutput, TValue>(IParser<TInput, TOutput> Parser, string Name, Func<TOutput, TValue> GetValue);
+    public readonly record struct SetResultDataArgs<TOutput, TValue>(
+        IParser<TInput, TOutput> Parser,
+        string Name,
+        Func<TOutput, TValue> GetValue
+    );
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value to the current context
@@ -188,8 +212,10 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> SetResultData<TOutput>(IParser<TInput, TOutput> p, string name)
-        => SetResultData(p, name, static value => value);
+    public static IParser<TInput, TOutput> SetResultData<TOutput>(
+        IParser<TInput, TOutput> p,
+        string name
+    ) => SetResultData(p, name, static value => value);
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value (possibly transformed
@@ -202,22 +228,25 @@ public static partial class Parsers<TInput>
     /// <param name="name"></param>
     /// <param name="getValue"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(IParser<TInput, TOutput> p, string name, Func<TOutput, TValue> getValue)
-        => new Function<TInput, TOutput>.Parser<SetResultDataArgs<TOutput, TValue>>(
-            new SetResultDataArgs<TOutput, TValue>(p, name, getValue),
-            static (state, srdArgs, _) =>
+    public static IParser<TInput, TOutput> SetResultData<TOutput, TValue>(
+        IParser<TInput, TOutput> p,
+        string name,
+        Func<TOutput, TValue> getValue
+    ) => new Function<TInput, TOutput>.Parser<SetResultDataArgs<TOutput, TValue>>(
+        new SetResultDataArgs<TOutput, TValue>(p, name, getValue),
+        static (state, srdArgs, _) =>
+        {
+            var result = srdArgs.Parser.Parse(state);
+            if (result.Success)
             {
-                var result = srdArgs.Parser.Parse(state);
-                if (result.Success)
-                {
-                    var value = srdArgs.GetValue(result.Value);
-                    state.Data.Set(srdArgs.Name, value);
-                }
+                var value = srdArgs.GetValue(result.Value);
+                state.Data.Set(srdArgs.Name, value);
+            }
 
-                return result;
-            },
-            static (state, srdArgs) => srdArgs.Parser.Match(state),
-            "SetResultData",
-            new[] { p }
-        );
+            return result;
+        },
+        static (state, srdArgs) => srdArgs.Parser.Match(state),
+        "SetResultData",
+        new[] { p }
+    );
 }

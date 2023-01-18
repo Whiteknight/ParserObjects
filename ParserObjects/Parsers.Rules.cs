@@ -112,7 +112,15 @@ public static partial class Parsers<TInput>
     /// <param name="p6"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, Func<T1, T2, T3, T4, T5, T6, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, TOutput>(
+        IParser<TInput, T1> p1,
+        IParser<TInput, T2> p2,
+        IParser<TInput, T3> p3,
+        IParser<TInput, T4> p4,
+        IParser<TInput, T5> p5,
+        IParser<TInput, T6> p6,
+        Func<T1, T2, T3, T4, T5, T6, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, TOutput>>(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6 },
@@ -141,7 +149,16 @@ public static partial class Parsers<TInput>
     /// <param name="p7"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, TOutput>(
+        IParser<TInput, T1> p1,
+        IParser<TInput, T2> p2,
+        IParser<TInput, T3> p3,
+        IParser<TInput, T4> p4,
+        IParser<TInput, T5> p5,
+        IParser<TInput, T6> p6,
+        IParser<TInput, T7> p7,
+        Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, TOutput>>(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7 },
@@ -172,7 +189,17 @@ public static partial class Parsers<TInput>
     /// <param name="p8"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(
+        IParser<TInput, T1> p1,
+        IParser<TInput, T2> p2,
+        IParser<TInput, T3> p3,
+        IParser<TInput, T4> p4,
+        IParser<TInput, T5> p5,
+        IParser<TInput, T6> p6,
+        IParser<TInput, T7> p7,
+        IParser<TInput, T8> p8,
+        Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>>(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8 },
@@ -205,7 +232,18 @@ public static partial class Parsers<TInput>
     /// <param name="p9"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(IParser<TInput, T1> p1, IParser<TInput, T2> p2, IParser<TInput, T3> p3, IParser<TInput, T4> p4, IParser<TInput, T5> p5, IParser<TInput, T6> p6, IParser<TInput, T7> p7, IParser<TInput, T8> p8, IParser<TInput, T9> p9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(
+        IParser<TInput, T1> p1,
+        IParser<TInput, T2> p2,
+        IParser<TInput, T3> p3,
+        IParser<TInput, T4> p4,
+        IParser<TInput, T5> p5,
+        IParser<TInput, T6> p6,
+        IParser<TInput, T7> p7,
+        IParser<TInput, T8> p8,
+        IParser<TInput, T9> p9,
+        Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>>(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },

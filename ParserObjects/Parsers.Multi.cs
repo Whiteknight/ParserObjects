@@ -43,8 +43,10 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="getParsers"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> ContinueWithEach<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> p, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
-        => ContinueWith(p, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray(), string.Empty));
+    public static IMultiParser<TInput, TOutput> ContinueWithEach<TMiddle, TOutput>(
+        IMultiParser<TInput, TMiddle> p,
+        Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers
+    ) => ContinueWith(p, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray(), string.Empty));
 
     /// <summary>
     /// Continue the parse with only the first successful result alternative
@@ -54,7 +56,10 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> FirstResult<TOutput>(IMultiParser<TInput, TOutput> multiParser, Func<IResultAlternative<TOutput>, bool> predicate)
+    public static IParser<TInput, TOutput> FirstResult<TOutput>(
+        IMultiParser<TInput, TOutput> multiParser,
+        Func<IResultAlternative<TOutput>, bool> predicate
+    )
     {
         Assert.ArgumentNotNull(predicate, nameof(predicate));
         return SelectResult(multiParser, args =>

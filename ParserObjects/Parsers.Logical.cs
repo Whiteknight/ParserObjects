@@ -33,8 +33,11 @@ public static partial class Parsers<TInput>
     /// <param name="onSuccess"></param>
     /// <param name="onFail"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> If<TOutput>(IParser<TInput> predicate, IParser<TInput, TOutput> onSuccess, IParser<TInput, TOutput> onFail)
-        => new IfParser<TInput, TOutput>(predicate, onSuccess, onFail);
+    public static IParser<TInput, TOutput> If<TOutput>(
+        IParser<TInput> predicate,
+        IParser<TInput, TOutput> onSuccess,
+        IParser<TInput, TOutput> onFail
+    ) => new IfParser<TInput, TOutput>(predicate, onSuccess, onFail);
 
     /// <summary>
     /// Invoke the given parser and invert the result. On Success return Failure, on Failure return

@@ -406,7 +406,10 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="getDefault"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<TOutput> getDefault)
+    public static IParser<TInput, TOutput> Optional<TOutput>(
+        IParser<TInput, TOutput> p,
+        Func<TOutput> getDefault
+    )
     {
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
         return new Optional<TInput, TOutput>.DefaultValueParser(p, _ => getDefault());
@@ -419,7 +422,10 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="getDefault"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Optional<TOutput>(IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
+    public static IParser<TInput, TOutput> Optional<TOutput>(
+        IParser<TInput, TOutput> p,
+        Func<IParseState<TInput>, TOutput> getDefault
+    )
     {
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
@@ -569,8 +575,10 @@ public static partial class Parsers<TInput>
     /// <param name="attempt"></param>
     /// <param name="discardUntil"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Synchronize<TOutput>(IParser<TInput, TOutput> attempt, Func<TInput, bool> discardUntil)
-        => new SynchronizeParser<TInput, TOutput>(attempt, discardUntil);
+    public static IParser<TInput, TOutput> Synchronize<TOutput>(
+        IParser<TInput, TOutput> attempt,
+        Func<TInput, bool> discardUntil
+    ) => new SynchronizeParser<TInput, TOutput>(attempt, discardUntil);
 
     /// <summary>
     /// Transform the output value of the parser.
@@ -580,8 +588,10 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
+    public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(
+        IParser<TInput, TMiddle> parser,
+        Func<TMiddle, TOutput> transform
+    ) => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
 
     /// <summary>
     /// Transforms the output value of the parser.
@@ -591,8 +601,10 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(IMultiParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
+    public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(
+        IMultiParser<TInput, TMiddle> parser,
+        Func<TMiddle, TOutput> transform
+    ) => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -604,8 +616,11 @@ public static partial class Parsers<TInput>
     /// <param name="examine"></param>
     /// <param name="bubble"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Try<TOutput>(IParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-        => new TryParser<TInput>.Parser<TOutput>(parser, examine, bubble);
+    public static IParser<TInput, TOutput> Try<TOutput>(
+        IParser<TInput, TOutput> parser,
+        Action<Exception>? examine = null,
+        bool bubble = false
+    ) => new TryParser<TInput>.Parser<TOutput>(parser, examine, bubble);
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -616,8 +631,11 @@ public static partial class Parsers<TInput>
     /// <param name="examine"></param>
     /// <param name="bubble"></param>
     /// <returns></returns>
-    public static IParser<TInput> Try(IParser<TInput> parser, Action<Exception>? examine = null, bool bubble = false)
-        => new TryParser<TInput>.Parser(parser, examine, bubble);
+    public static IParser<TInput> Try(
+        IParser<TInput> parser,
+        Action<Exception>? examine = null,
+        bool bubble = false
+    ) => new TryParser<TInput>.Parser(parser, examine, bubble);
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
@@ -629,6 +647,9 @@ public static partial class Parsers<TInput>
     /// <param name="examine"></param>
     /// <param name="bubble"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Try<TOutput>(IMultiParser<TInput, TOutput> parser, Action<Exception>? examine = null, bool bubble = false)
-       => new TryParser<TInput>.MultiParser<TOutput>(parser, examine, bubble);
+    public static IMultiParser<TInput, TOutput> Try<TOutput>(
+        IMultiParser<TInput, TOutput> parser,
+        Action<Exception>? examine = null,
+        bool bubble = false
+    ) => new TryParser<TInput>.MultiParser<TOutput>(parser, examine, bubble);
 }
