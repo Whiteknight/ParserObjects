@@ -528,6 +528,8 @@ parserCore = First(
 );
 ```
 
+This type of parser is also referred to as "recursive ascent" because of how it parses a list of items and then starts combining them together from the right to the left.
+
 ### Pratt Parser
 
 The `Pratt` parser is an implementation of the Pratt parsing algorithm, which may be particularly helpful with parsing mathematical expressions.
