@@ -5,6 +5,11 @@ using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// A constant left value for places where a left value is used to start a parse.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
 public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>, IHiddenInternalParser
 {
     public LeftValue(string name)

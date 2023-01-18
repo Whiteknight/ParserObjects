@@ -95,8 +95,6 @@ public static class Context<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
         public bool Match(IParseState<TInput> state)
             => _internal.Execute(
                 this,
@@ -122,6 +120,8 @@ public static class Context<TInput>
             );
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 
         public INamed SetName(string name) => new Parser<TOutput>(_internal, name);
 
@@ -153,8 +153,6 @@ public static class Context<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
             => _internal.Execute(
                 this,
@@ -168,6 +166,8 @@ public static class Context<TInput>
             );
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_internal, name);
 

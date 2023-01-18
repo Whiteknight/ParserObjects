@@ -18,8 +18,6 @@ public sealed record SelectParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IEnumerable<IParser> GetChildren() => new[] { Initial };
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var multi = Initial.Parse(state);
@@ -51,6 +49,8 @@ public sealed record SelectParser<TInput, TOutput>(
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
     public override string ToString() => DefaultStringifier.ToString("Select", Name, Id);
+
+    public IEnumerable<IParser> GetChildren() => new[] { Initial };
 
     public INamed SetName(string name) => this with { Name = name };
 }

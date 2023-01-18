@@ -34,6 +34,7 @@ public static class Repetition<TInput>
         }
 
         public int Minimum { get; }
+
         public int? Maximum { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

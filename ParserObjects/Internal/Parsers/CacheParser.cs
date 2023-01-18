@@ -69,8 +69,6 @@ public static class Cache<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
         public bool Match(IParseState<TInput> state) => _internal.Parse(state).Success;
 
         public IResult Parse(IParseState<TInput> state) => _internal.Parse(state);
@@ -78,6 +76,8 @@ public static class Cache<TInput>
         public INamed SetName(string name) => new Parser(_internal.Parser, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
     }
 
     public sealed record Parser<TOutput> : IParser<TInput, TOutput>
@@ -99,8 +99,6 @@ public static class Cache<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
         public bool Match(IParseState<TInput> state) => _internal.Parse(state).Success;
 
         public IResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
@@ -110,6 +108,8 @@ public static class Cache<TInput>
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
     }
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
@@ -131,8 +131,6 @@ public static class Cache<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_internal.Parser, name);
@@ -140,5 +138,7 @@ public static class Cache<TInput>
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
     }
 }

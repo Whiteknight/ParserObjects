@@ -45,8 +45,6 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
     public int Minimum { get; }
     public int? Maximum { get; }
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _itemParser, _separator, _rightParser };
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCp = state.Input.Checkpoint();
@@ -154,9 +152,6 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         }
     }
 
-    public INamed SetName(string name)
-        => new NonGreedyListParser<TInput, TItem, TOutput>(_itemParser, _separator, _getContinuation, Minimum, Maximum, name);
-
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
     public bool Match(IParseState<TInput> state)
@@ -257,5 +252,10 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         }
     }
 
+    public IEnumerable<IParser> GetChildren() => new IParser[] { _itemParser, _separator, _rightParser };
+
     public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
+
+    public INamed SetName(string name)
+     => new NonGreedyListParser<TInput, TItem, TOutput>(_itemParser, _separator, _getContinuation, Minimum, Maximum, name);
 }

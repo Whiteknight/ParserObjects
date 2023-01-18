@@ -24,8 +24,6 @@ public sealed record SynchronizeParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IEnumerable<IParser> GetChildren() => new[] { Attempt };
-
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Attempt.Parse(state);
@@ -81,6 +79,8 @@ public sealed record SynchronizeParser<TInput, TOutput>(
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
     public bool Match(IParseState<TInput> state) => Attempt.Match(state);
+
+    public IEnumerable<IParser> GetChildren() => new[] { Attempt };
 
     public INamed SetName(string name) => this with { Name = name };
 }

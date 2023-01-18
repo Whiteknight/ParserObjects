@@ -37,12 +37,6 @@ public static class Earley<TInput, TOutput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren()
-        {
-            var visitor = new ChildParserListVisitor();
-            return visitor.Visit(_startSymbol);
-        }
-
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
@@ -53,6 +47,15 @@ public static class Earley<TInput, TOutput>
             return new MultiResult<TOutput>(this, startCheckpoint, results.Alternatives, new[] { results.Statistics });
         }
 
+        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+            => Parse(state);
+
+        public IEnumerable<IParser> GetChildren()
+        {
+            var visitor = new ChildParserListVisitor();
+            return visitor.Visit(_startSymbol);
+        }
+
         public override string ToString() => DefaultStringifier.ToString("Earley", Name, Id);
 
         public string GetBnf(BnfStringifyVisitor state)
@@ -61,9 +64,6 @@ public static class Earley<TInput, TOutput>
             var bnf = grammarVisitor.Visit(_startSymbol, state);
             return $"EARLEY(\n{bnf}\n)";
         }
-
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
-            => Parse(state);
 
         public INamed SetName(string name) => new Parser(_startSymbol, name);
     }

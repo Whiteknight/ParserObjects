@@ -17,8 +17,6 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 
     public string Name { get; set; }
 
-    public IEnumerable<IParser> GetChildren() => _parsers;
-
     public IMultiResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
@@ -47,6 +45,8 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
     }
 
     IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+
+    public IEnumerable<IParser> GetChildren() => _parsers;
 
     public override string ToString() => DefaultStringifier.ToString("Each", Name, Id);
 
