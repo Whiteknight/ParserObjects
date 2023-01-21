@@ -1,5 +1,8 @@
 ﻿namespace ParserObjects.Earley;
 
+/// <summary>
+/// Parse statistics for the Early parser. Used to check complexity and assist with optimizations.
+/// </summary>
 public interface IParseStatistics
 {
     int NumberOfStates { get; }
