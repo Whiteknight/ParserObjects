@@ -13,7 +13,11 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => Parsers<TInput>.And(new[] { p1 }.Concat(parsers).ToArray());
+        => Parsers<TInput>.And(
+            new[] { p1 }
+                .Concat(parsers)
+                .ToArray()
+        );
 
     /// <summary>
     /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
@@ -24,8 +28,10 @@ public static class ParserLogicalExtensions
     /// <param name="parser"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> If<TInput, TOutput>(this IParser<TInput, TOutput> parser, IParser<TInput> predicate)
-        => Parsers<TInput>.If(predicate, parser, Parsers<TInput>.Fail<TOutput>());
+    public static IParser<TInput, TOutput> If<TInput, TOutput>(
+        this IParser<TInput, TOutput> parser,
+        IParser<TInput> predicate
+    ) => Parsers<TInput>.If(predicate, parser, Parsers<TInput>.Fail<TOutput>());
 
     /// <summary>
     /// Parses with the given parser, inverting the result so Success becomes Failure and Failure becomes
@@ -48,7 +54,11 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => Parsers<TInput>.Or(new[] { p1 }.Concat(parsers).ToArray());
+        => Parsers<TInput>.Or(
+            new[] { p1 }
+                .Concat(parsers)
+                .ToArray()
+        );
 
     /// <summary>
     /// Attempt to parse with a predicate parser. If the predicate parser succeeds,

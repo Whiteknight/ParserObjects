@@ -85,8 +85,17 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Parse<TOutput>(this IParser<char, TOutput> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
-        => parser.Parse(new ParseState<char>(FromString(s, options), log ?? Defaults.LogMethod));
+    public static IResult<TOutput> Parse<TOutput>(
+        this IParser<char, TOutput> parser,
+        string s,
+        SequenceOptions<char> options = default,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<char>(
+            FromString(s, options),
+            log ?? Defaults.LogMethod
+        )
+    );
 
     /// <summary>
     /// Convenience method for parsers which act on character sequences. Parse the given input
@@ -98,8 +107,17 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult Parse(this IParser<char> parser, string s, SequenceOptions<char> options = default, Action<string>? log = null)
-        => parser.Parse(new ParseState<char>(FromString(s, options), log ?? Defaults.LogMethod));
+    public static IResult Parse(
+        this IParser<char> parser,
+        string s,
+        SequenceOptions<char> options = default,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<char>(
+            FromString(s, options),
+            log ?? Defaults.LogMethod
+        )
+    );
 
     /// <summary>
     /// Convenience method to invoke a parser which acts on an input sequence. Creates the
@@ -111,8 +129,13 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Parse<TInput, TOutput>(this IParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
-        => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+    public static IResult<TOutput> Parse<TInput, TOutput>(
+        this IParser<TInput, TOutput> parser,
+        ISequence<TInput> input,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<TInput>(input, log ?? Defaults.LogMethod)
+    );
 
     /// <summary>
     /// Convenience method to invoke a parser which acts on an input sequence. Creates the
@@ -124,8 +147,13 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultiResult<TOutput> Parse<TInput, TOutput>(this IMultiParser<TInput, TOutput> parser, ISequence<TInput> input, Action<string>? log = null)
-        => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+    public static IMultiResult<TOutput> Parse<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> parser,
+        ISequence<TInput> input,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<TInput>(input, log ?? Defaults.LogMethod)
+    );
 
     /// <summary>
     /// Covenience method to invoke a parser which does not return a value. Creates the
@@ -136,8 +164,13 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult Parse<TInput>(this IParser<TInput> parser, ISequence<TInput> input, Action<string>? log = null)
-        => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+    public static IResult Parse<TInput>(
+        this IParser<TInput> parser,
+        ISequence<TInput> input,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<TInput>(input, log ?? Defaults.LogMethod)
+    );
 
     /// <summary>
     /// Convenience method to invoke a parser which does not return a value. Creates the
@@ -148,6 +181,11 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultiResult Parse<TInput>(this IMultiParser<TInput> parser, ISequence<TInput> input, Action<string>? log = null)
-        => parser.Parse(new ParseState<TInput>(input, log ?? Defaults.LogMethod));
+    public static IMultiResult Parse<TInput>(
+        this IMultiParser<TInput> parser,
+        ISequence<TInput> input,
+        Action<string>? log = null
+    ) => parser.Parse(
+        new ParseState<TInput>(input, log ?? Defaults.LogMethod)
+    );
 }

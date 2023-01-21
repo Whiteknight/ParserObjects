@@ -20,8 +20,11 @@ public static class ParserCombinatorExtensions
     /// <param name="getNext"></param>
     /// <param name="mentions"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => Parsers<TInput>.Chain(p, getNext, mentions);
+    public static IParser<TInput, TOutput> Chain<TInput, TMiddle, TOutput>(
+        this IParser<TInput, TMiddle> p,
+        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
+        params IParser[] mentions
+    ) => Parsers<TInput>.Chain(p, getNext, mentions);
 
     /// <summary>
     /// Execute a parser and use the result value to select the next parser to invoke. Uses
@@ -33,8 +36,11 @@ public static class ParserCombinatorExtensions
     /// <param name="getNext"></param>
     /// <param name="mentions"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Chain<TInput, TOutput>(this IParser<TInput> p, Func<IResult, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => Parsers<TInput>.Chain(p, getNext, mentions);
+    public static IParser<TInput, TOutput> Chain<TInput, TOutput>(
+        this IParser<TInput> p,
+        GetParserFromResult<TInput, TOutput> getNext,
+        params IParser[] mentions
+    ) => Parsers<TInput>.Chain(p, getNext, mentions);
 
     /// <summary>
     /// Execute a parser and use the result to select the nex parser to invoke. Uses a
@@ -63,8 +69,11 @@ public static class ParserCombinatorExtensions
     /// <param name="getNext"></param>
     /// <param name="mentions"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> p, Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext, params IParser[] mentions)
-        => Parsers<TInput>.Chain(None(p), getNext, mentions);
+    public static IParser<TInput, TOutput> Choose<TInput, TMiddle, TOutput>(
+        this IParser<TInput, TMiddle> p,
+        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
+        params IParser[] mentions
+    ) => Parsers<TInput>.Chain(None(p), getNext, mentions);
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -104,71 +113,145 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="lookahead"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-        => Parsers<TInput>.Combine(p, Parsers<TInput>.PositiveLookahead(lookahead)).Transform(r => (TOutput)r[0]);
+    public static IParser<TInput, TOutput> FollowedBy<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        IParser<TInput> lookahead
+    ) => Parsers<TInput>.Transform(
+        Parsers<TInput>.Combine(
+            p,
+            Parsers<TInput>.PositiveLookahead(lookahead)
+        ),
+        r => (TOutput)r[0]
+    );
 
     /// <summary>
-    /// Returns a list of results from the given parser. Continues to parse until the parser returns
-    /// failure. Returns an enumerable of results.
+    /// Invokes the given parser repeatedly until it does not match any more. Returns a list of all
+    /// the results.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
-    /// <param name="atLeastOne"></param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, bool atLeastOne)
-        => Parsers<TInput>.List(p, atLeastOne);
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        bool atLeastOne
+    ) => Parsers<TInput>.List(p, atLeastOne);
 
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> separator, bool atLeastOne)
-        => Parsers<TInput>.List(p, separator, atLeastOne);
+    /// <summary>
+    /// Invokes the given parser, with separators in between, until it does not match any more.
+    /// Returns a list of all the results.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="separator">The separator to expect between items.</param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
+    /// <returns></returns>
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        IParser<TInput> separator,
+        bool atLeastOne
+    ) => Parsers<TInput>.List(p, separator, atLeastOne);
 
+    /// <summary>
+    /// Invokes the given parser repeatedly until it does not match any more. Returns a list of all
+    /// the results.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
+    /// <returns></returns>
     public static IParser<TInput> List<TInput>(this IParser<TInput> p, bool atLeastOne)
         => Parsers<TInput>.List(p, atLeastOne);
 
-    public static IParser<TInput> List<TInput>(this IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
-        => Parsers<TInput>.List(p, separator, atLeastOne);
+    /// <summary>
+    /// Invokes the given parser, with separators in between, repeatedly until it does not match
+    /// any more. Returns a list of all the results.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="separator">The separator to expect between items.</param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
+    /// <returns></returns>
+    public static IParser<TInput> List<TInput>(
+        this IParser<TInput> p,
+        IParser<TInput> separator, bool atLeastOne
+    ) => Parsers<TInput>.List(p, separator, atLeastOne);
 
     /// <summary>
-    /// Returns a list of results from the given parser, with limits. Continues to
-    /// parse until the parser returns failure or the maximum number of results is
-    /// reached.
+    /// Invokes the given parser repeatedly until it does not match any more or the limit has been
+    /// exceeded. Expects at least a minimum number of items. Returns a list of all the results.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
-    /// <param name="minimum"></param>
-    /// <param name="maximum"></param>
+    /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
+    /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, int minimum, int? maximum = null)
-        => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        int minimum,
+        int? maximum = null
+    ) => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
 
+    /// <summary>
+    /// Invokes the given parser repeatedly until it does not match any more or the limit has been
+    /// reached. Expects at least a minimum number of items. Returns a list of all the results.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
+    /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
+    /// <returns></returns>
     public static IParser<TInput> List<TInput>(this IParser<TInput> p, int minimum, int? maximum = null)
         => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
 
     /// <summary>
-    /// Returns a list of results from the given parser, with limits. Continues to
-    /// parse until the parser returns failure or the maximum number of results is
+    /// Invokes the given parser, with separators in between, repeatedly until it does not match
+    /// any more or the limit has been reached. Expects at least a minimum number of items. Returns
+    /// a list of all the results.
     /// reached.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
-    /// <param name="separator"></param>
-    /// <param name="minimum"></param>
-    /// <param name="maximum"></param>
+    /// <param name="separator">The separator to expect between items.</param>
+    /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
+    /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
-        => Parsers<TInput>.List(p, separator, minimum, maximum);
+    public static IParser<TInput, IReadOnlyList<TOutput>> List<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        IParser<TInput>? separator = null,
+        int minimum = 0,
+        int? maximum = null
+    ) => Parsers<TInput>.List(p, separator, minimum, maximum);
 
-    public static IParser<TInput> List<TInput>(this IParser<TInput> p, IParser<TInput>? separator = null, int minimum = 0, int? maximum = null)
-        => Parsers<TInput>.List(p, separator, minimum, maximum);
+    /// <summary>
+    /// Invokes the given parser, with separators in between, repeatedly until it does not match
+    /// any more or the limit has been reached. Expects at least a minimum number of items. Returns
+    /// a list of all the results.
+    /// reached.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="separator">The separator to expect between items.</param>
+    /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
+    /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
+    /// <returns></returns>
+    public static IParser<TInput> List<TInput>(
+        this IParser<TInput> p,
+        IParser<TInput>? separator = null,
+        int minimum = 0,
+        int? maximum = null
+    ) => Parsers<TInput>.List(p, separator, minimum, maximum);
 
     /// <summary>
     /// Given a parser which parses characters, parse a list of characters and return the sequence as a
     /// string.
     /// </summary>
     /// <param name="p"></param>
-    /// <param name="atLeastOne"></param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
     /// <returns></returns>
     public static IParser<char, string> ListCharToString(this IParser<char, char> p, bool atLeastOne)
         => ListCharToString(p, atLeastOne ? 1 : 0);
@@ -179,27 +262,32 @@ public static class ParserCombinatorExtensions
     /// characters to parse.
     /// </summary>
     /// <param name="p"></param>
-    /// <param name="minimum"></param>
-    /// <param name="maximum"></param>
+    /// <param name="minimum">The minimum number of characters to match.</param>
+    /// <param name="maximum">The maximum number of characters to match.</param>
     /// <returns></returns>
-    public static IParser<char, string> ListCharToString(this IParser<char, char> p, int minimum = 0, int? maximum = null)
-        => Transform(
-            List(p, Parsers<char>.Empty(), minimum, maximum),
-            CharMethods.ConvertToString
-        );
+    public static IParser<char, string> ListCharToString(
+        this IParser<char, char> p,
+        int minimum = 0,
+        int? maximum = null
+    ) => Transform(
+        List(p, Parsers<char>.Empty(), minimum, maximum),
+        CharMethods.ConvertToString
+    );
 
     /// <summary>
     /// Given a parser which parses strings, parse a list of strings and return the sequence as a joined
     /// string.
     /// </summary>
     /// <param name="p"></param>
-    /// <param name="atLeastOne"></param>
+    /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
     /// <returns></returns>
-    public static IParser<char, string> ListStringsToString(this IParser<char, string> p, bool atLeastOne = false)
-        => Transform(
-            List(p, atLeastOne),
-            s => string.Concat(s)
-        );
+    public static IParser<char, string> ListStringsToString(
+        this IParser<char, string> p,
+        bool atLeastOne = false
+    ) => Transform(
+        List(p, atLeastOne),
+        s => string.Concat(s)
+    );
 
     /// <summary>
     /// Transform the output of the given parser. Synonym for Transform.
@@ -210,8 +298,10 @@ public static class ParserCombinatorExtensions
     /// <param name="parser"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => Parsers<TInput>.Transform(parser, transform);
+    public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(
+        this IParser<TInput, TMiddle> parser,
+        Func<TMiddle, TOutput> transform
+    ) => Parsers<TInput>.Transform(parser, transform);
 
     /// <summary>
     /// Wraps the given parser to guarantee that it consumes no input.
@@ -241,8 +331,16 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="lookahead"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput>(this IParser<TInput, TOutput> p, IParser<TInput> lookahead)
-        => Parsers<TInput>.Combine(p, Parsers<TInput>.NegativeLookahead(lookahead)).Transform(r => (TOutput)r[0]);
+    public static IParser<TInput, TOutput> NotFollowedBy<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        IParser<TInput> lookahead
+    ) => Parsers<TInput>.Transform(
+        Parsers<TInput>.Combine(
+            p,
+            Parsers<TInput>.NegativeLookahead(lookahead)
+        ),
+        r => (TOutput)r[0]
+    );
 
     /// <summary>
     /// The results of the given parser are optional. Returns success with an Option value
@@ -264,8 +362,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="getDefault"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TOutput> getDefault)
-        => Parsers<TInput>.Optional(p, getDefault);
+    public static IParser<TInput, TOutput> Optional<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        Func<TOutput> getDefault
+    ) => Parsers<TInput>.Optional(p, getDefault);
 
     /// <summary>
     /// The results of the given parser are optional. If the given parser fails, a default value
@@ -276,8 +376,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="getDefault"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Optional<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<IParseState<TInput>, TOutput> getDefault)
-        => Parsers<TInput>.Optional(p, getDefault);
+    public static IParser<TInput, TOutput> Optional<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        Func<IParseState<TInput>, TOutput> getDefault
+    ) => Parsers<TInput>.Optional(p, getDefault);
 
     /// <summary>
     /// Make this parser replaceable.
@@ -317,8 +419,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IParser<TInput, TOutput> p, string name)
-        => Parsers<TInput>.Replaceable(p).Named(name);
+    public static IParser<TInput, TOutput> Replaceable<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        string name
+    ) => Parsers<TInput>.Replaceable(p).Named(name);
 
     /// <summary>
     /// Make this parser replaceable. Gives the parser a name so that it can be easily found
@@ -329,8 +433,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(this IMultiParser<TInput, TOutput> p, string name)
-        => Parsers<TInput>.Replaceable(p).Named(name);
+    public static IMultiParser<TInput, TOutput> Replaceable<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> p,
+        string name
+    ) => Parsers<TInput>.Replaceable(p).Named(name);
 
     /// <summary>
     /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
@@ -343,8 +449,10 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="discardUntil"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Synchronize<TInput, TOutput>(this IParser<TInput, TOutput> p, Func<TInput, bool> discardUntil)
-        => Parsers<TInput>.Synchronize<TOutput>(p, discardUntil);
+    public static IParser<TInput, TOutput> Synchronize<TInput, TOutput>(
+        this IParser<TInput, TOutput> p,
+        Func<TInput, bool> discardUntil
+    ) => Parsers<TInput>.Synchronize(p, discardUntil);
 
     /// <summary>
     /// Transform the output of the given parser to a new value.
@@ -355,6 +463,8 @@ public static class ParserCombinatorExtensions
     /// <param name="parser"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IParser<TInput, TMiddle> parser, Func<TMiddle, TOutput> transform)
-        => Parsers<TInput>.Transform(parser, transform);
+    public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(
+        this IParser<TInput, TMiddle> parser,
+        Func<TMiddle, TOutput> transform
+    ) => Parsers<TInput>.Transform(parser, transform);
 }

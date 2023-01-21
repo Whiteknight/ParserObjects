@@ -35,6 +35,13 @@ public interface IParser<in TInput> : IParser
     /// <returns></returns>
     IResult Parse(IParseState<TInput> state);
 
+    /// <summary>
+    /// Attempt to match the input sequence and return a boolean. If the match fails, it is
+    /// expected that this method will return the input sequence to the state it was at before the
+    /// match was attempted.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
     bool Match(IParseState<TInput> state);
 }
 

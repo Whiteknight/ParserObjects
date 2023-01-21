@@ -88,7 +88,11 @@ public sealed class FindParserVisitor
     /// <param name="predicate"></param>
     /// <param name="replacement"></param>
     /// <returns></returns>
-    public static MultiReplaceResult Replace(IParser root, Func<IReplaceableParserUntyped, bool> predicate, IParser replacement)
+    public static MultiReplaceResult Replace(
+        IParser root,
+        Func<IReplaceableParserUntyped, bool> predicate,
+        IParser replacement
+    )
     {
         if (root == null || predicate == null || replacement == null)
             return MultiReplaceResult.Failure();
@@ -128,7 +132,11 @@ public sealed class FindParserVisitor
     /// <param name="predicate"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, Func<IReplaceableParserUntyped, bool> predicate, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
+    public static MultiReplaceResult Replace<TInput, TOutput>(
+        IParser root,
+        Func<IReplaceableParserUntyped, bool> predicate,
+        GetParserFromParser<TInput, TOutput> transform
+    )
     {
         if (root == null || predicate == null || transform == null)
             return MultiReplaceResult.Failure();
@@ -161,8 +169,11 @@ public sealed class FindParserVisitor
     /// <param name="name"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static MultiReplaceResult Replace<TInput, TOutput>(IParser root, string name, Func<IParser<TInput, TOutput>, IParser<TInput, TOutput>> transform)
-        => Replace(root, p => p.Name == name, transform);
+    public static MultiReplaceResult Replace<TInput, TOutput>(
+        IParser root,
+        string name,
+        GetParserFromParser<TInput, TOutput> transform
+    ) => Replace(root, p => p.Name == name, transform);
 
     /// <summary>
     /// Search for ReplaceableParsers with the given name and attempt to transform the contents
@@ -175,7 +186,11 @@ public sealed class FindParserVisitor
     /// <param name="predicate"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, Func<IReplaceableParserUntyped, bool> predicate, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
+    public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(
+        IParser root,
+        Func<IReplaceableParserUntyped, bool> predicate,
+        GetMultiParserFromMultiParser<TInput, TOutput> transform
+    )
     {
         if (root == null || predicate == null || transform == null)
             return MultiReplaceResult.Failure();
@@ -208,8 +223,11 @@ public sealed class FindParserVisitor
     /// <param name="name"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(IParser root, string name, Func<IMultiParser<TInput, TOutput>, IMultiParser<TInput, TOutput>> transform)
-        => ReplaceMulti(root, p => p.Name == name, transform);
+    public static MultiReplaceResult ReplaceMulti<TInput, TOutput>(
+        IParser root,
+        string name,
+        GetMultiParserFromMultiParser<TInput, TOutput> transform
+    ) => ReplaceMulti(root, p => p.Name == name, transform);
 
     private void Visit(IParser parser, State state)
     {

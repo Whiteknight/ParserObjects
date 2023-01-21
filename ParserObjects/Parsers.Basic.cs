@@ -73,9 +73,9 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(
         IParser<TInput, TMiddle> p,
-        Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext,
+        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(p, getNext, static (gn, r) => gn(r), mentions);
+    ) => new Chain<TInput, TOutput>.Parser<TMiddle, GetParserFromResult<TInput, TMiddle, TOutput>>(p, getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -87,9 +87,9 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Chain<TOutput>(
         IParser<TInput> p,
-        Func<IResult, IParser<TInput, TOutput>> getNext,
+        GetParserFromResult<TInput, TOutput> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<Func<IResult, IParser<TInput, TOutput>>>(p, getNext, static (gn, r) => gn(r), mentions);
+    ) => new Chain<TInput, TOutput>.Parser<GetParserFromResult<TInput, TOutput>>(p, getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
