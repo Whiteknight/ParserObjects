@@ -41,6 +41,11 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
 
     public string Name { get; private set; }
 
+    /// <summary>
+    /// Build a parselet with the given matcher and the registered callbacks.
+    /// </summary>
+    /// <param name="matcher"></param>
+    /// <returns></returns>
     public IEnumerable<IParselet<TInput, TOutput>> Build(IParser<TInput, TValue> matcher)
     {
         var parselets = new IParselet<TInput, TOutput>[_getParselets.Count];
@@ -54,12 +59,28 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
         return parselets;
     }
 
+    private static Parselet<TInput, TValue, TOutput> BuildParselet(GetParseletArguments args, IParser<TInput, TValue> parser, int typeId, string name)
+        => new Parselet<TInput, TValue, TOutput>(typeId, parser, args.GetNud, args.GetLed, args.Lbp, args.Rbp, name);
+
+    /// <summary>
+    /// Set a Type ID value for this matcher. All tokens matched by this matcher will have the
+    /// type ID specified here.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public ParseletBuilder<TInput, TValue, TOutput> TypeId(int id)
     {
         _typeId = id;
         return this;
     }
 
+    /// <summary>
+    /// Register this matcher as a Null Denominator (NUD). It is preferred that you use
+    /// ".Bind()" instead.
+    /// </summary>
+    /// <param name="rbp"></param>
+    /// <param name="getNud"></param>
+    /// <returns></returns>
     public ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
         Assert.ArgumentNotNull(getNud, nameof(getNud));
@@ -67,15 +88,20 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
         return this;
     }
 
+    /// <summary>
+    /// Register this matcher as a Left Denominator (LED). It is preferred that you use
+    /// ".BindLeft()" instead.
+    /// </summary>
+    /// <param name="lbp"></param>
+    /// <param name="rbp"></param>
+    /// <param name="getLed"></param>
+    /// <returns></returns>
     public ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
         Assert.ArgumentNotNull(getLed, nameof(getLed));
         _getParselets.Add(new GetParseletArguments(null, getLed, lbp, rbp));
         return this;
     }
-
-    private static Parselet<TInput, TValue, TOutput> BuildParselet(GetParseletArguments args, IParser<TInput, TValue> parser, int typeId, string name)
-        => new Parselet<TInput, TValue, TOutput>(typeId, parser, args.GetNud, args.GetLed, args.Lbp, args.Rbp, name);
 
     public ParseletBuilder<TInput, TValue, TOutput> Named(string name)
     {

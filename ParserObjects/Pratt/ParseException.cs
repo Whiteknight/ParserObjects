@@ -3,8 +3,9 @@
 namespace ParserObjects.Pratt;
 
 /// <summary>
-/// Internal control-flow exception type used to direct errors in the Pratt parser. Not for
-/// external use.
+/// Control-flow exception used to control the parse in the Pratt parser. In certain failure
+/// scenarios a ParseException is used to immediately abandon the current user callback function
+/// and return to the engine. This type SHOULD NOT be caught by user code.
 /// </summary>
 public class ParseException : ControlFlowException
 {
