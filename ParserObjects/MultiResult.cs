@@ -9,7 +9,12 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 {
     private readonly ResultData _data;
 
-    public MultiResult(IParser parser, SequenceCheckpoint startCheckpoint, IEnumerable<IResultAlternative<TOutput>> results, IReadOnlyList<object>? data = null)
+    public MultiResult(
+        IParser parser,
+        SequenceCheckpoint startCheckpoint,
+        IEnumerable<IResultAlternative<TOutput>> results,
+        IReadOnlyList<object>? data = null
+    )
     {
         Parser = parser;
         Results = results.ToList();
@@ -28,7 +33,12 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 
     IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
 
-    public IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, SequenceCheckpoint? startCheckpoint = null, Location? location = null)
+    public IMultiResult<TOutput> Recreate(
+        CreateNewResultAlternative<TOutput> recreate,
+        IParser? parser = null,
+        SequenceCheckpoint? startCheckpoint = null,
+        Location? location = null
+    )
     {
         Assert.ArgumentNotNull(recreate, nameof(recreate));
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));

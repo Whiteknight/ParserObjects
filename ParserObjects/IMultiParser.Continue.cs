@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ParserObjects;
 
@@ -42,8 +41,10 @@ public static partial class MultiParserExtensions
     /// <param name="parser"></param>
     /// <param name="getParsers"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> parser, Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers)
-        => Parsers<TInput>.ContinueWithEach(parser, getParsers);
+    public static IMultiParser<TInput, TOutput> ContinueWithEach<TInput, TMiddle, TOutput>(
+        this IMultiParser<TInput, TMiddle> parser,
+        GetParsersFromParser<TInput, TMiddle, TOutput> getParsers
+    ) => Parsers<TInput>.ContinueWithEach(parser, getParsers);
 
     /// <summary>
     /// Transform the values of all result alternatives.
@@ -54,6 +55,8 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(this IMultiParser<TInput, TMiddle> multiParser, Func<TMiddle, TOutput> transform)
-        => Parsers<TInput>.Transform(multiParser, transform);
+    public static IMultiParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput>(
+        this IMultiParser<TInput, TMiddle> multiParser,
+        Func<TMiddle, TOutput> transform
+    ) => Parsers<TInput>.Transform(multiParser, transform);
 }

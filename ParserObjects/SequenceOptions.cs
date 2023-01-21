@@ -4,6 +4,11 @@ namespace ParserObjects;
 
 public static class SequenceOptions
 {
+    /// <summary>
+    /// The default size to use for buffering data inside a sequence. Notice that some sequences
+    /// may maintain multiple separate buffers of this size. The amount of memory used therefore
+    /// will be proportional to this value.
+    /// </summary>
     public const int DefaultBufferSize = 1024;
 }
 
@@ -40,6 +45,9 @@ public struct SequenceOptions<T>
     /// </summary>
     public bool NormalizeLineEndings => !MaintainLineEndings;
 
+    /// <summary>
+    /// Validate the values and set defaults where values are omitted.
+    /// </summary>
     public void Validate()
     {
         if (BufferSize <= 0)

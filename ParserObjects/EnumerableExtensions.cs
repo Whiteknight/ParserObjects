@@ -14,7 +14,7 @@ public static class EnumerableExtensions
     /// <param name="endSentinel">An end value to return when the sequence is exhausted.</param>
     /// <returns></returns>
     public static ISequence<T?> ToSequence<T>(this IEnumerable<T> enumerable, T? endSentinel = default)
-        => FromList<T>(enumerable.ToList(), endSentinel);
+        => FromList(enumerable.ToList(), endSentinel);
 
     /// <summary>
     /// Wrap the list in a sequence.
@@ -24,5 +24,5 @@ public static class EnumerableExtensions
     /// <param name="endValue"></param>
     /// <returns></returns>
     public static ISequence<T?> ToSequence<T>(this IReadOnlyList<T> list, T? endValue = default)
-        => FromList<T>(list, endValue);
+        => FromList(list, endValue);
 }

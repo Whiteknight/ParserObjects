@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Utility;
@@ -45,8 +44,13 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ContinueWithEach<TMiddle, TOutput>(
         IMultiParser<TInput, TMiddle> p,
-        Func<IParser<TInput, TMiddle>, IEnumerable<IParser<TInput, TOutput>>> getParsers
-    ) => ContinueWith(p, left => new EachParser<TInput, TOutput>(getParsers(left).ToArray(), string.Empty));
+        GetParsersFromParser<TInput, TMiddle, TOutput> getParsers
+    ) => ContinueWith(p,
+        left => new EachParser<TInput, TOutput>(
+            getParsers(left).ToArray(),
+            string.Empty
+        )
+    );
 
     /// <summary>
     /// Continue the parse with only the first successful result alternative

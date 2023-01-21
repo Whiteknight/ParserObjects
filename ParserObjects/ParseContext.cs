@@ -13,7 +13,14 @@ public readonly record struct ParseContext<TInput>(
     IResult? Result
 )
 {
+    /// <summary>
+    /// Gets the parse state data.
+    /// </summary>
     public DataStore Data => State.Data;
+
+    /// <summary>
+    /// Gets the current input sequence.
+    /// </summary>
     public ISequence<TInput> Input => State.Input;
 }
 
@@ -26,7 +33,14 @@ public readonly record struct ParseContext<TInput, TOutput>(
     IResult<TOutput>? Result
 )
 {
+    /// <summary>
+    /// Gets the parse state data.
+    /// </summary>
     public DataStore Data => State.Data;
+
+    /// <summary>
+    /// Gets the current input sequence.
+    /// </summary>
     public ISequence<TInput> Input => State.Input;
 }
 
@@ -44,6 +58,13 @@ public readonly record struct MultiParseContext<TInput, TOutput>(
     IMultiResult<TOutput>? Result
 )
 {
+    /// <summary>
+    /// Gets the parse state data.
+    /// </summary>
     public DataStore Data => State.Data;
+
+    /// <summary>
+    /// Gets the current input sequence.
+    /// </summary>
     public ISequence<TInput> Input => State.Input;
 }

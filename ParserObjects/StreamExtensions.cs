@@ -12,8 +12,10 @@ public static class StreamExtensions
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<byte> ToByteSequence(this Stream stream, SequenceOptions<byte> options = default)
-        => FromByteStream(stream, options);
+    public static ISequence<byte> ToByteSequence(
+        this Stream stream,
+        SequenceOptions<byte> options = default
+    ) => FromByteStream(stream, options);
 
     /// <summary>
     /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
@@ -22,8 +24,10 @@ public static class StreamExtensions
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharacterSequence(this Stream stream, SequenceOptions<char> options = default)
-        => FromCharacterStream(stream, options);
+    public static ISequence<char> ToCharacterSequence(
+        this Stream stream,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(stream, options);
 
     /// <summary>
     /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
@@ -32,6 +36,8 @@ public static class StreamExtensions
     /// <param name="streamReader"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharacterSequence(this StreamReader streamReader, SequenceOptions<char> options = default)
-        => FromCharacterStream(streamReader, options);
+    public static ISequence<char> ToCharacterSequence(
+        this StreamReader streamReader,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(streamReader, options);
 }

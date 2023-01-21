@@ -20,6 +20,12 @@ public interface IReadOnlyTrie<TKey, TResult>
     /// <returns></returns>
     PartialResult<TResult> Get(ISequence<TKey> keys);
 
+    /// <summary>
+    /// Returns true if the trie can get an object with the given key. False otherwise. Consumes
+    /// input from the sequence on success.
+    /// </summary>
+    /// <param name="keys"></param>
+    /// <returns></returns>
     bool CanGet(ISequence<TKey> keys);
 
     /// <summary>
@@ -62,7 +68,10 @@ public static class TrieExtensions
     /// <param name="readOnlyTrie"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static IInsertableTrie<char, string> Add(this IInsertableTrie<char, string> readOnlyTrie, string value)
+    public static IInsertableTrie<char, string> Add(
+        this IInsertableTrie<char, string> readOnlyTrie,
+        string value
+    )
     {
         Assert.ArgumentNotNull(readOnlyTrie, nameof(readOnlyTrie));
         return readOnlyTrie.Add(value, value);

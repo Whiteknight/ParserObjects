@@ -36,16 +36,6 @@ public interface IResultAlternative
 }
 
 /// <summary>
-/// Factory method for creating a new result alternative of the same type.
-/// </summary>
-/// <typeparam name="TOutput"></typeparam>
-/// <param name="value"></param>
-/// <param name="consumed"></param>
-/// <param name="continuation"></param>
-/// <returns></returns>
-public delegate IResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, SequenceCheckpoint continuation);
-
-/// <summary>
 /// A result alternative with typed output.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
@@ -106,7 +96,12 @@ public interface IMultiResult<TOutput> : IMultiResult
     /// <param name="startCheckpoint"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    IMultiResult<TOutput> Recreate(Func<IResultAlternative<TOutput>, ResultAlternativeFactoryMethod<TOutput>, IResultAlternative<TOutput>> recreate, IParser? parser = null, SequenceCheckpoint? startCheckpoint = null, Location? location = null);
+    IMultiResult<TOutput> Recreate(
+        CreateNewResultAlternative<TOutput> recreate,
+        IParser? parser = null,
+        SequenceCheckpoint? startCheckpoint = null,
+        Location? location = null
+    );
 
     /// <summary>
     /// Create a new IMultiResult by applying a transformation to every alternative value.

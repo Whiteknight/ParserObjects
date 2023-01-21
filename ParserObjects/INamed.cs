@@ -12,6 +12,11 @@ public interface INamed
     /// </summary>
     string Name { get; }
 
+    /// <summary>
+    /// Create a new instance with the given name.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     INamed SetName(string name);
 }
 

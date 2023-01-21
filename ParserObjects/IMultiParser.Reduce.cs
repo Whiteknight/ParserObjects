@@ -35,8 +35,10 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IResultAlternative<TOutput>, bool> predicate)
-        => Parsers<TInput>.FirstResult(multiParser, predicate);
+    public static IParser<TInput, TOutput> First<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> multiParser,
+        Func<IResultAlternative<TOutput>, bool> predicate
+    ) => Parsers<TInput>.FirstResult(multiParser, predicate);
 
     /// <summary>
     /// Selects the first successful alternative to continue the parse with.

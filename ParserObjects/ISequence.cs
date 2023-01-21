@@ -123,8 +123,10 @@ public static class SequenceExtensions
     /// <param name="input"></param>
     /// <param name="map"></param>
     /// <returns></returns>
-    public static ISequence<TOutput> Select<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map)
-        => new MapSequence<TInput, TOutput>(input, map);
+    public static ISequence<TOutput> Select<TInput, TOutput>(
+        this ISequence<TInput> input,
+        Func<TInput, TOutput> map
+    ) => new MapSequence<TInput, TOutput>(input, map);
 
     /// <summary>
     /// Filter elements in a sequence to only return items which match a predicate.

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace ParserObjects;
 
+/// <summary>
+/// A wrapper struct for a list of objects. Can be used to get an object of a given type from
+/// the list, if it exists.
+/// </summary>
+/// <param name="Data"></param>
 public readonly record struct ResultData(IReadOnlyList<object>? Data)
 {
     public Option<T> TryGetData<T>()

@@ -35,8 +35,10 @@ public static class Sequences
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<byte> FromByteStream(Stream stream, SequenceOptions<byte> options = default)
-        => new StreamByteSequence(stream, options);
+    public static ISequence<byte> FromByteStream(
+        Stream stream,
+        SequenceOptions<byte> options = default
+    ) => new StreamByteSequence(stream, options);
 
     /// <summary>
     /// Return a char sequence from the file with the given name.
@@ -83,7 +85,10 @@ public static class Sequences
     /// <param name="stream"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ICharSequence FromCharacterStream(Stream stream, SequenceOptions<char> options = default)
+    public static ICharSequence FromCharacterStream(
+        Stream stream,
+        SequenceOptions<char> options = default
+    )
     {
         options.Validate();
         if (stream.Length <= options.BufferSize)
@@ -106,24 +111,36 @@ public static class Sequences
     /// <param name="reader"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ICharSequence FromCharacterStream(StreamReader reader, SequenceOptions<char> options = default)
-        => new StreamCharacterSequence(reader, options);
+    public static ICharSequence FromCharacterStream(
+        StreamReader reader,
+        SequenceOptions<char> options = default
+    ) => new StreamCharacterSequence(reader, options);
 
     /// <summary>
-    /// Read the enumerable to an IReadOnlyList and wrap the list in a sequence.
+    /// Read the enumerable to an IReadOnlyList and wrap the list in an ISequence.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="source"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<T?> FromEnumerable<T>(IEnumerable<T> source, SequenceOptions<T?> options = default)
-        => new ListSequence<T>(source, options.EndSentinel);
-
-    public static ICharSequence FromEnumerable(IEnumerable<char> source, SequenceOptions<char> options = default)
-        => new CharBufferSequence.FromCharArray(source.ToList(), options);
+    public static ISequence<T?> FromEnumerable<T>(
+        IEnumerable<T> source,
+        SequenceOptions<T?> options = default
+    ) => new ListSequence<T>(source, options.EndSentinel);
 
     /// <summary>
-    /// Wrap the list in a sequence.
+    /// Read the enumerable into an IReadOnlyList and wrap the list in an ICharSequence.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence FromEnumerable(
+        IEnumerable<char> source,
+        SequenceOptions<char> options = default
+    ) => new CharBufferSequence.FromCharArray(source.ToList(), options);
+
+    /// <summary>
+    /// Wrap the list in an ISequence.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="list"></param>
@@ -132,14 +149,45 @@ public static class Sequences
     public static ISequence<T?> FromList<T>(IReadOnlyList<T> list, T? endSentinel = default)
         => new ListSequence<T>(list, endSentinel);
 
-    public static ICharSequence FromList(IReadOnlyList<char> list, SequenceOptions<char> options = default)
-        => new CharBufferSequence.FromCharArray(list, options);
+    /// <summary>
+    /// Wrap the list of characters in an ICharSequence.
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence FromList(
+        IReadOnlyList<char> list,
+        SequenceOptions<char> options = default
+    ) => new CharBufferSequence.FromCharArray(list, options);
 
-    public static ICharSequence FromMethod(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options = default)
-        => new UserDelegate.CharSequence(function, options);
+    /// <summary>
+    /// Convert a function delegate to an ICharSequence. The function should take an index i, starting
+    /// from 0, and return the input item at that index and a flag whether the input sequence has
+    /// reached the end of input immediately after that item. Indices may be read in any order
+    /// and may be read more than once.
+    /// </summary>
+    /// <param name="function"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence FromMethod(
+        Func<int, (char next, bool atEnd)> function,
+        SequenceOptions<char> options = default
+    ) => new UserDelegate.CharSequence(function, options);
 
-    public static ISequence<T> FromMethod<T>(Func<int, (T next, bool atEnd)> function, SequenceOptions<T> options = default)
-        => new UserDelegate.Sequence<T>(function, options);
+    /// <summary>
+    /// Convert a function delegate to an ISequence. The function should take an index i, starting
+    /// from 0, and return the input item at that index and a flag whether the input sequence has
+    /// reached the end of input immediately after that item. Indices may be read in any order
+    /// and may be read more than once.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="function"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ISequence<T> FromMethod<T>(
+        Func<int, (T next, bool atEnd)> function,
+        SequenceOptions<T> options = default
+    ) => new UserDelegate.Sequence<T>(function, options);
 
     /// <summary>
     /// Creates a sequence from the results of repeated invocation of the given parser.

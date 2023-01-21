@@ -8,7 +8,7 @@ public enum Quantifier
 {
     /// <summary>
     /// The parser should match exactly one item. The parser will return an error if there are
-    /// no matching items, and will ignore additional matches
+    /// no matching items, and will ignore additional matches.
     /// </summary>
     ExactlyOne,
 
@@ -27,7 +27,7 @@ public enum Quantifier
 
     /// <summary>
     /// The parser expects to match a number of items in a given range. The bounds of the range
-    /// are passed separately
+    /// are passed separately.
     /// </summary>
     Range
 }

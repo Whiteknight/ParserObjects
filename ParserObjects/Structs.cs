@@ -44,8 +44,23 @@ public readonly struct ResultFactory<TInput, TOutput>
         => _state.Success(Parser, value, _state.Input.Consumed - _startCheckpoint.Consumed, data);
 }
 
+/// <summary>
+/// Holds arguments for RightApply.
+/// </summary>
+/// <typeparam name="TOutput"></typeparam>
+/// <typeparam name="TMiddle"></typeparam>
+/// <param name="Left"></param>
+/// <param name="Middle"></param>
+/// <param name="Right"></param>
 public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
 
+/// <summary>
+/// Holds arguments for Select.
+/// </summary>
+/// <typeparam name="TOutput"></typeparam>
+/// <param name="Result"></param>
+/// <param name="Success"></param>
+/// <param name="Failure"></param>
 public readonly record struct SelectArguments<TOutput>(
     IMultiResult<TOutput> Result,
     Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,

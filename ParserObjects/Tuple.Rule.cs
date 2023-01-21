@@ -16,7 +16,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>) parsers, Func<T1, T2, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>) parsers,
+        Func<T1, T2, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
@@ -37,7 +40,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>) parsers, Func<T1, T2, T3, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>) parsers,
+        Func<T1, T2, T3, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
@@ -59,7 +65,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>) parsers, Func<T1, T2, T3, T4, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>) parsers,
+        Func<T1, T2, T3, T4, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
@@ -82,7 +91,9 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>) parsers, Func<T1, T2, T3, T4, T5, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>) parsers,
+        Func<T1, T2, T3, T4, T5, TOutput> produce)
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
@@ -106,7 +117,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>) parsers, Func<T1, T2, T3, T4, T5, T6, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>) parsers,
+        Func<T1, T2, T3, T4, T5, T6, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
@@ -131,7 +145,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>) parsers, Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>) parsers,
+        Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
@@ -157,7 +174,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>, IParser<TInput, T8>) parsers, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>, IParser<TInput, T8>) parsers,
+        Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
@@ -184,7 +204,10 @@ public static partial class TupleExtensions
     /// <param name="parsers"></param>
     /// <param name="produce"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>, IParser<TInput, T8>, IParser<TInput, T9>) parsers, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce)
+    public static IParser<TInput, TOutput> Rule<TInput, T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>(
+        this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>, IParser<TInput, T6>, IParser<TInput, T7>, IParser<TInput, T8>, IParser<TInput, T9>) parsers,
+        Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce
+    )
     {
         return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>>(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },

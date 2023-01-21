@@ -20,5 +20,10 @@ public interface IResultBase
     /// </summary>
     bool Success { get; }
 
+    /// <summary>
+    /// Try to get attached data with the given type. If none exists, returns failure.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     Option<T> TryGetData<T>();
 }
