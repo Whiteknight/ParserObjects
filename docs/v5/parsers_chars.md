@@ -18,7 +18,7 @@ The `MatchChar` parser matches a given character. It is semantically the same as
 var parser = MatchChar('x');
 ```
 
-This is functionally equivalent to, but slower, than `MatchChar()`:
+This is functionally equivalent to, but slower than, `MatchChar()`:
 
 ```csharp
 var parser = Match('x');

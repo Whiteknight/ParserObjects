@@ -45,9 +45,44 @@ var cache = InMemoryCache(existingCache);
 
 ## State Management
 
+### Examine Parser
+
+The `Examine` parser allows inserting callbacks before or after any other parser, and is primarily used for debugging. 
+
+```csharp
+var parser = inner.Examine(
+    before: parseContext => { ... }, 
+    after: parseContext => { ... }
+);
+```
+
+The `parseContext` struct contains references to the `inner` parser, the current parse state and the parse result (in the `after` callback only). 
+
+Either the before or after callbacks can be omitted if not required. If both callbacks are ommitted, `parser` will be identical to `innerParser`. 
+
+Exceptions thrown from either callback will not be automatically handled. If you made changes to the parse state in the `before` method and an exception is thrown, those changes will not have a chance to be cleaned up and the parse may be left in an indeterminate state. For this reason it is best not to make modifications to the parse state in the Examine parser (even if it is technically possible to do).
+
 ### Context Parser
 
-The `Context` parser allows executing an arbitrary callback before and after invoking an inner parser. 
+The `Context` parser allows executing an arbitrary callback before and after invoking an inner parser, with access to the parse state. This is used to make changes to the state before, and cleanup those changes after.
+
+```csharp
+var parser = Context(innerParser, 
+    before: state => { ... },
+    after: state => { ... }
+);
+```
+
+Either the before or after callbacks can be omitted if not required. If both callbacks are ommitted, `parser` will be identical to `innerParser`. 
+
+The Context parser handles errors in the following way:
+1. If an exception is thrown in the `before` callback, the exection will bubble up to be caught by the user, but the parse should be in a consistent state.
+2. If an exception is thrown by the `innerParser`, the `after` callback will be executed to clean the parse state, and then the exception will bubble up.
+3. If an exception is thrown by the `after` callback, the exception will bubble up and the parse will be in an inconsistent state.
+
+It is a good idea to try not to throw exceptions from these or any other callback methods, but if one gets thrown anyway a best-effort attempt will be made to cleanup the parse state before going to the exception handler.
+
+**Notice**: The `Context` parser is very similar to the `Examine` parser in structure and functionality. However the Context parser is intended to make actual modifications to the parse and cleanup afterwards, in production environments. The Examine parser is more intended for debugging purposes and doesn't offer the same guarantees as the Context parser. You *can modify the parse state* in the Examine parser callbacks but you shouldn't. Making changes to the parse state and cleaning them up afterwards is the intended purpose of `Context()`. 
 
 ## State Data Management
 

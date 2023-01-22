@@ -36,11 +36,11 @@ var parser = Any().List();
 
 In a few cases there are tuple syntaxes available as well. These will be noted in the appropriate sections. 
 
-Do not use parser class names directly from the `ParserObjects.Internal.Parsers` namespace. These class names are not designed for easy discovery or use, and they may change between releases to better describe what they are and how they operate. The Function and Method names described above will stay the same between releases, even if the ways they are implemented may change.
+Do not use parser class names directly from the `ParserObjects.Internal.Parsers` namespace. These class names are not designed for easy discovery or use, and they may change between releases to better describe what they are and how they operate. The Function and Method names described here will stay the same between releases, even if the ways they are implemented may change.
 
-## Fundamental Parser Types
+## Matching Parser Types
 
-These parsers represent the theoretical core of the parsing library. To use these, import the methods you're using (replace `<char>` with whatever input type you are using):
+Matching parsers match 0 or more input items from the input sequence and return some sort of value.
 
 ```csharp
 using ParserObjects;
@@ -59,6 +59,72 @@ It is functionally equivalent to the match predicate parser, though simpler and 
 
 ```csharp
 var anyParser = Match(_ => true);
+```
+
+### Empty Parser
+
+The `Empty` parser consumes no input and always returns success with a default value, even when the input sequence is at end. It consumes no input and returns no value.
+
+```csharp
+var parser = Empty();
+```
+
+### End Parser
+
+The `End` parser returns success if the stream is at the end, failure otherwise. It consumes no input and returns no value.
+
+```csharp
+var parser = End();
+```
+
+There is also an `IsEnd` parser which returns a success result with a boolean value to indicate end:
+
+```csharp
+var parser = IsEnd();
+```
+
+### Match  Parser
+
+The `MatchParser` examines the next input item or next several items and returns the matched values if they match a pattern or predicate:
+
+```csharp
+// Match a single item, using C# .Equals()
+var parser = Match('A');
+
+// Match a single item which satisfies a predicate
+var parser = Match(c => IsMatch(c));
+
+// Match a series of items, using C# .Equals()
+var parser = Match(new [] { 'A', 'B', 'C' });
+
+// Same as above, but uses the fact that a string is an IEnumerable<char>
+var parser = Match("ABC");
+```
+
+**Note**: If you are matching single characters the [MatchChar() parser](parsers_chars.md) is optimized to cache values and perform fewer allocations. 
+
+### Peek Parser
+
+The `Peek` parser peeks at the next value of input, but does not consume it. It returns failure when the input sequence is at end, success otherwise.
+
+```csharp
+var parser = new PeekParser<char>();
+var parser = Peek();
+```
+
+This parser is functionally equivalent to the `Any` and `None` parsers:
+
+```csharp
+var parser = Any().None();
+```
+
+## Basic Combinator Parser Types
+
+These parsers are used to combine and compose smaller parsers to form larger parsers. This is the heart of the ParserObjects combinators approach. To use these, import the methods you're using (replace `<char>` with whatever input type you are using):
+
+```csharp
+using ParserObjects;
+using static ParserObjects.Parsers<char>;
 ```
 
 ### Bool Parser
@@ -144,33 +210,6 @@ The `Combine` parser takes a list of parsers, parses each in sequence, and retur
 var parser = Combine(p1, p2, p3, ...);
 ```
 
-### Empty Parser
-
-The `Empty` parser consumes no input and always returns success with a default value, even when the input sequence is at end. It consumes no input and returns no value.
-
-```csharp
-var parser = Empty();
-```
-
-### End Parser
-
-The `End` parser returns success if the stream is at the end, failure otherwise. It consumes no input and returns no value.
-
-```csharp
-var parser = End();
-```
-
-### Examine Parser
-
-The `Examine` parser allows inserting callbacks before or after any other parser, and is primarily used for debugging. You can also use the Examine parser to make adjustments to the input stream or state data before the parse, and augment the result after a parse.
-
-```csharp
-var parser = inner.Examine(
-    before: c => { ... }, 
-    after: c => { ... }
-);
-```
-
 ### Fail Parser
 
 The `Fail` parser returns failure unconditionally. It can be used to explicitly insert failure conditions into your parser graph, to provide error messages which are more helpful than the default error messages, or to serve as a placeholder for replacement operations. The Fail parser has an output type so it can be inserted into places in your parser graph that expect an output type to be specified.
@@ -222,14 +261,6 @@ var parser = innerParser.List(true);
 
 If the inner parser returns success but consumes zero input, the List parser will break the loop and return only a single item. If a minimum number is set, the List parser will loop only until the minimum value and then break, returning success with a list with the correct number of items. This is a precaution to prevent the list parser from getting into an infinite loop when no input is being consumed.
 
-### Match Predicate Parser
-
-The `MatchPredicateParser` examines the next input item and returns it if it matches a predicate.
-
-```csharp
-var parser = Match(c => ...);
-```
-
 ### None Parser
 
 The `None` parser evaluates an inner parser and the rewinds the input sequence to ensure no data has been consumed. 
@@ -275,21 +306,6 @@ var parser = First(
     innerParser,
     Produce(() => defaultValue)
 );
-```
-
-### Peek Parser
-
-The `Peek` parser peeks at the next value of input, but does not consume it. It returns failure when the input sequence is at end, success otherwise.
-
-```csharp
-var parser = new PeekParser<char>();
-var parser = Peek();
-```
-
-This parser is functionally equivalent to the `Any` and `None` parsers:
-
-```csharp
-var parser = Any().None();
 ```
 
 ### Predict Parser
