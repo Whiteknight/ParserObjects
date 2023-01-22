@@ -193,7 +193,7 @@ public static class RegexPatternGrammar
             return State.SetPreviousStateRange(states, min, min);
         }
 
-        // At this point we might have {X,} {X,Y} or {,Y}
+        // At this point we might have X, X,Y or ,Y
         // In any case, min is filled in now with either a value or 0
         var second = ctx.TryParse(digits);
         ctx.Expect(MatchChar('}'));

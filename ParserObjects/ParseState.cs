@@ -110,10 +110,10 @@ public struct DataStore
 
         if (dict.ContainsKey(name))
         {
-            dict[name] = value;
+            dict[name] = value!;
             return;
         }
 
-        dict.Add(name, value);
+        dict.Add(name, value!);
     }
 }
