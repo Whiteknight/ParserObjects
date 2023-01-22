@@ -79,6 +79,14 @@ namespace ParserObjects.Tests.Parsers
                 result.Consumed.Should().Be(shouldMatch ? 1 : 0);
             }
 
+            public void Parse_Empty()
+            {
+                var parser = First<char>();
+
+                var result = parser.Parse("");
+                result.Success.Should().BeFalse();
+            }
+
             [TestCase("a", true)]
             [TestCase("X", true)]
             [TestCase("1", true)]

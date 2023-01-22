@@ -237,8 +237,8 @@ public static class Function<TInput>
         public bool Match(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var result = _parseFunction(_data, state);
-            if (!result.Success)
+            var result = _matchFunction(_data, state);
+            if (!result)
             {
                 startCheckpoint.Rewind();
                 return false;
