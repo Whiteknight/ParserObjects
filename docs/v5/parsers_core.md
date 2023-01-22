@@ -578,5 +578,7 @@ var parser = Replaceable<TOutput>();
 var parser = Replaceable(Fail<TOutput>());
 ```
 
-It is extremely helpful to name your replaceable parsers so you can quickly find and replace values by name.
+It is extremely helpful to name your replaceable parsers so you can quickly find and replace values by name. 
+
+See the section on Finding and Replacement in the [Parsers Usage Page](parser_usage.md) for more details.
 

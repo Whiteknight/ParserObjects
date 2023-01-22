@@ -209,7 +209,20 @@ var needleParser = haystackParser.FindNamed("myParser").Value;
 The real power of this mechanism is the ability to replace a parser at runtime. This is done by using the special `ReplaceableParser` and the `.Replace()` method:
 
 ```csharp
+// By name
 var result = parser.Replace("myParser", replacement);
+
+// By predicate
+var result = parser.Replace(p => IsWhatWeAreLookingFor(p), replacement);
+
+// By reference
+var result = parser.Replace(oldParser, newParser);
+```
+
+You can also create a replacement in a callback:
+
+```csharp
+var result = parser.Replace("myParser", oldParser => CreateNewParser(oldParser));
 ```
 
 The replacement parser must be assignable to the same `IParser<TInput, TOutput>` as the original, because all parsers are type safe. If the replacement is not the correct type, the replace operation will fail.

@@ -20,7 +20,8 @@ sym.Rule(
     parser1, 
     parser2, 
     symbol3, 
-    (value1, value2, value3) => ...);
+    (value1, value2, value3) => ...
+);
 ```
 
 At the end of the setup callback, you should return the *Start Symbol* that the parser will attempt to match. 
