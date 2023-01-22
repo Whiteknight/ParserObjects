@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -78,6 +79,12 @@ public static class Cache<TInput>
         public override string ToString() => DefaultStringifier.ToString(this);
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed record Parser<TOutput> : IParser<TInput, TOutput>
@@ -110,6 +117,12 @@ public static class Cache<TInput>
         public override string ToString() => DefaultStringifier.ToString(this);
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
@@ -140,5 +153,11 @@ public static class Cache<TInput>
         public override string ToString() => DefaultStringifier.ToString(this);
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

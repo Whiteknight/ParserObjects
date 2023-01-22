@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -114,4 +115,10 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
     public override string ToString() => DefaultStringifier.ToString("LeftApply", Name, Id);
 
     public INamed SetName(string name) => new LeftApplyParser<TInput, TOutput>(_initial, _getRight, _quantifier, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IAssociativePartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

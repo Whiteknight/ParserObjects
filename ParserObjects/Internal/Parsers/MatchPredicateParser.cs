@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -59,4 +60,10 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
     public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -43,6 +44,12 @@ public static class Transform<TInput, TMiddle, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed record MultiParser(
@@ -71,5 +78,11 @@ public static class Transform<TInput, TMiddle, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

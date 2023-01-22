@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -46,4 +47,10 @@ public sealed record PositiveLookaheadParser<TInput>(
     public override string ToString() => DefaultStringifier.ToString("PositiveLookahead", Name, Id);
 
     public INamed SetName(string name) => new PositiveLookaheadParser<TInput>(Inner, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<ILookaheadPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -118,6 +119,12 @@ public static class TryParser<TInput>
         public INamed SetName(string name) => new Parser(_data, name);
 
         public override string ToString() => DefaultStringifier.ToString("Try", Name, Id);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class Parser<TOutput> : IParser<TInput, TOutput>
@@ -160,6 +167,12 @@ public static class TryParser<TInput>
         public INamed SetName(string name) => new Parser<TOutput>(_data, name);
 
         public override string ToString() => DefaultStringifier.ToString("Try", Name, Id);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
@@ -200,5 +213,11 @@ public static class TryParser<TInput>
         public INamed SetName(string name) => new MultiParser<TOutput>(_data, name);
 
         public override string ToString() => DefaultStringifier.ToString("Try", Name, Id);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

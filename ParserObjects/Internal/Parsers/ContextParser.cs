@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -126,6 +127,12 @@ public static class Context<TInput>
         public INamed SetName(string name) => new Parser<TOutput>(_internal, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
@@ -172,5 +179,11 @@ public static class Context<TInput>
         public INamed SetName(string name) => new MultiParser<TOutput>(_internal, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

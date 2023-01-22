@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -41,4 +42,10 @@ public sealed class PeekParser<T> : IParser<T, T>
     public override string ToString() => DefaultStringifier.ToString("Peek", Name, Id);
 
     public INamed SetName(string name) => new PeekParser<T>(name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

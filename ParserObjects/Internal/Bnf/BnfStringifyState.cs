@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace ParserObjects.Internal.Bnf;
 
-public sealed class BnfStringifyVisitor
+public sealed class BnfStringifyState
 {
-    private readonly IReadOnlyList<IPartialVisitor<BnfStringifyVisitor>> _partials;
+    private readonly BnfStringifier _visitor;
     private readonly StringBuilder _builder;
     private readonly Stack<StringBuilder> _history;
     private readonly HashSet<IParser> _seen;
 
     private StringBuilder Current => _history.Peek();
 
-    public BnfStringifyVisitor(StringBuilder sb, IReadOnlyList<IPartialVisitor<BnfStringifyVisitor>> partials)
+    public BnfStringifyState(BnfStringifier visitor, StringBuilder sb)
     {
+        _visitor = visitor;
         _builder = sb;
-        _partials = partials;
         _history = new Stack<StringBuilder>();
         _history.Push(new StringBuilder());
         _seen = new HashSet<IParser>();
@@ -31,23 +30,7 @@ public sealed class BnfStringifyVisitor
         // We have already seen this parser. Figure out how to display it without getting into a loop
         if (_seen.Contains(parser))
         {
-            // If it has a name, just write a tag here
-            if (!string.IsNullOrEmpty(parser.Name))
-            {
-                Current.Append('<').Append(parser.Name).Append('>');
-                return;
-            }
-
-            // If it doesn't have children, we can safely recurse without getting into a loop
-            if (!parser.GetChildren().Any())
-            {
-                TryVisit(parser);
-                return;
-            }
-
-            // Recursing would cause an infinite loop. Instead write a warning tag with type/id
-            // You should really give your parsers names.
-            Current.Append($"<ALREADY SEEN {parser}>");
+            VisitAlreadySeenParser(parser);
             return;
         }
 
@@ -56,20 +39,17 @@ public sealed class BnfStringifyVisitor
         // If the parser doesn't have a name, recursively visit it in-place
         if (writeInPlace && string.IsNullOrEmpty(parser.Name))
         {
-            TryVisit(parser);
+            parser.Visit(_visitor, this);
             return;
         }
 
         if (writeInPlace)
             Current.Append(parser.ToString());
 
-        if (parser is IHiddenInternalParser)
-            return;
-
         // Start a new builder, so we can start stringifying this new parser on it's own line.
         var current = new StringBuilder();
         _history.Push(current);
-        TryVisit(parser);
+        parser.Visit(_visitor, this);
         _history.Pop();
 
         // Append the current builder to the overall builder
@@ -83,44 +63,52 @@ public sealed class BnfStringifyVisitor
         }
     }
 
-    private void TryVisit(IParser parser)
+    private void VisitAlreadySeenParser(IParser parser)
     {
-        foreach (var visitor in _partials)
+        // If it has a name, just write a tag here
+        if (!string.IsNullOrEmpty(parser.Name))
         {
-            var visited = visitor.TryAccept(parser, this);
-            if (visited)
-                return;
+            Current.Append('<').Append(parser.Name).Append('>');
+            return;
         }
 
-        Debug.WriteLine($"No override match found for {parser.GetType().FullName}");
-        Current.Append($"<UNVISITABLE PARSER {parser}>");
+        // If it doesn't have children, we can safely recurse without getting into a loop
+        if (!parser.GetChildren().Any())
+        {
+            parser.Visit(_visitor, this);
+            return;
+        }
+
+        // Recursing would cause an infinite loop. Instead write a warning tag with type/id
+        // You should really give your parsers names.
+        Current.Append("<ALREADY SEEN ").Append(parser).Append('>');
     }
 
-    public BnfStringifyVisitor Append(char c)
+    public BnfStringifyState Append(char c)
     {
         Current.Append(c);
         return this;
     }
 
-    public BnfStringifyVisitor Append(int i)
+    public BnfStringifyState Append(int i)
     {
         Current.Append(i);
         return this;
     }
 
-    public BnfStringifyVisitor Append(int? i)
+    public BnfStringifyState Append(int? i)
     {
         Current.Append(i);
         return this;
     }
 
-    public BnfStringifyVisitor Append(string s)
+    public BnfStringifyState Append(string s)
     {
         Current.Append(s);
         return this;
     }
 
-    public BnfStringifyVisitor Append(params object[] args)
+    public BnfStringifyState Append(params object[] args)
     {
         foreach (var arg in args)
         {

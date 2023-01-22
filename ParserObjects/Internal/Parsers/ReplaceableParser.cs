@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 // Replaceable parsers should be the only parser types which have mutable data.
 // Keep it localized to just one place.
@@ -48,6 +49,12 @@ public static class Replaceable<TInput>
         public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new SingleParser(_value, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }
 
@@ -96,6 +103,12 @@ public static class Replaceable<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new SingleParser(_value, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
@@ -132,5 +145,11 @@ public static class Replaceable<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
         public INamed SetName(string name) => new MultiParser(_value, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

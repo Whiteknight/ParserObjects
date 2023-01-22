@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 using ParserObjects.Pratt;
 
 namespace ParserObjects.Internal.Parsers;
@@ -63,4 +64,10 @@ public sealed record PrattParser<TInput, TOutput>(
     public override string ToString() => DefaultStringifier.ToString("Pratt", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IPrattPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

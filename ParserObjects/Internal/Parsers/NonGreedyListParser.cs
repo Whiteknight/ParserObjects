@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -257,5 +258,11 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
     public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
 
     public INamed SetName(string name)
-     => new NonGreedyListParser<TInput, TItem, TOutput>(_itemParser, _separator, _getContinuation, Minimum, Maximum, name);
+        => new NonGreedyListParser<TInput, TItem, TOutput>(_itemParser, _separator, _getContinuation, Minimum, Maximum, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IListPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

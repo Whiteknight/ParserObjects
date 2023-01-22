@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -35,4 +36,10 @@ public sealed class EmptyParser<TInput> : IParser<TInput>
     public override string ToString() => DefaultStringifier.ToString("Empty", Name, Id);
 
     public INamed SetName(string name) => new EmptyParser<TInput>(name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

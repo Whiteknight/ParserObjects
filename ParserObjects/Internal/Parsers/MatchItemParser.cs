@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -49,4 +50,10 @@ public sealed class MatchItemParser<T> : IParser<T, T>
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 
     public override string ToString() => DefaultStringifier.ToString(this);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

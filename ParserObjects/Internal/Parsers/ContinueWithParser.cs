@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -69,6 +70,12 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             => Parse(state);
 
         public INamed SetName(string name) => new SingleParser(_inner, _getParser, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IMultiPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class MultiParser : IMultiParser<TInput, TOutput>
@@ -129,5 +136,11 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             => Parse(state);
 
         public INamed SetName(string name) => new MultiParser(_inner, _getParser, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IMultiPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

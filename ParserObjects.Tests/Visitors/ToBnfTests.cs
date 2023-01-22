@@ -54,19 +54,27 @@ public class ToBnfTests
         {
             throw new NotImplementedException();
         }
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ITestPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
-    private class TestParserBnfVisitor : IPartialVisitor<BnfStringifyVisitor>
+    private interface ITestPartialVisitor<TState> : IPartialVisitor<TState>
     {
-        public bool TryAccept(IParser parser, BnfStringifyVisitor state)
+        void Accept(IParser parser, TState state);
+    }
+
+    private class TestParserBnfVisitor : ITestPartialVisitor<BnfStringifyState>
+    {
+        public void Accept(IParser parser, BnfStringifyState state)
         {
             if (parser is TestParser tp)
             {
                 state.Append("TEST");
-                return true;
             }
-
-            return false;
         }
     }
 

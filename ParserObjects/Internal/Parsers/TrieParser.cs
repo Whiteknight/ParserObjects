@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -46,4 +47,10 @@ public sealed record TrieParser<TInput, TOutput>(
     public override string ToString() => DefaultStringifier.ToString("Trie", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

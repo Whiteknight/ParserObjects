@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -56,4 +57,10 @@ public sealed record FirstParser<TInput, TOutput>(
     public override string ToString() => DefaultStringifier.ToString("First", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

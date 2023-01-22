@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>, IHiddenInternalParser
+public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>
 {
     public LeftValue(string name)
     {
@@ -34,4 +34,9 @@ public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>, IHiddenInter
     public override string ToString() => DefaultStringifier.ToString(this);
 
     public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename inner value parser");
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+    }
 }

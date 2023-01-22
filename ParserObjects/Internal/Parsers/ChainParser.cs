@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -130,6 +131,12 @@ public static class Chain<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
 
         public INamed SetName(string name) => new Parser<TMiddle, TData>(_internal, _mentions, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class Parser<TData> : IParser<TInput, TOutput>
@@ -166,5 +173,11 @@ public static class Chain<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Chain (Multi)", Name, Id);
 
         public INamed SetName(string name) => new Parser<TData>(_internal, _mentions, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

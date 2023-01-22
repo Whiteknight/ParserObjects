@@ -4,6 +4,7 @@ using ParserObjects.Earley;
 using ParserObjects.Internal.Bnf;
 using ParserObjects.Internal.Earley;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -58,7 +59,7 @@ public static class Earley<TInput, TOutput>
 
         public override string ToString() => DefaultStringifier.ToString("Earley", Name, Id);
 
-        public string GetBnf(BnfStringifyVisitor state)
+        public string GetBnf(BnfStringifyState state)
         {
             var grammarVisitor = new BnfGrammarVisitor();
             var bnf = grammarVisitor.Visit(_startSymbol, state);
@@ -66,5 +67,11 @@ public static class Earley<TInput, TOutput>
         }
 
         public INamed SetName(string name) => new Parser(_startSymbol, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IEarleyPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

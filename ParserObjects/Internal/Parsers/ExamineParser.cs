@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -55,6 +56,12 @@ public static class Examine<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed record MultiParser(
@@ -106,6 +113,12 @@ public static class Examine<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
         public INamed SetName(string name) => this with { Name = name };
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }
 
@@ -147,4 +160,10 @@ public sealed class ExamineParser<TInput> : IParser<TInput>
     public override string ToString() => DefaultStringifier.ToString("Examine", Name, Id);
 
     public INamed SetName(string name) => new ExamineParser<TInput>(_parser, _before, _after, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

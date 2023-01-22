@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -51,4 +52,10 @@ public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMul
     public override string ToString() => DefaultStringifier.ToString("Fail", Name, Id);
 
     public INamed SetName(string name) => new FailParser<TInput, TOutput>(ErrorMessage, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

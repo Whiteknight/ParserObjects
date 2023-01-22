@@ -2,6 +2,7 @@
 using System.Linq;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Parsers;
@@ -65,4 +66,10 @@ public sealed class RegexParser : IParser<char, string>
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);
 
     public INamed SetName(string name) => new RegexParser(Regex, Pattern, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IRegexPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

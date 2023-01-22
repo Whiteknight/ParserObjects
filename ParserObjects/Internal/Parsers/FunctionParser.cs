@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -90,6 +91,12 @@ public static class Function<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Function (Single)", Name, Id);
 
         public INamed SetName(string name) => new Parser<TData>(_data, _parseFunction, _matchFunction, Description, _children, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IFunctionPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
@@ -168,6 +175,12 @@ public static class Function<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Function (Multi)", Name, Id);
 
         public INamed SetName(string name) => new MultiParser<TData>(_data, _parseFunction, Description, _children, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IFunctionPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }
 
@@ -237,5 +250,11 @@ public static class Function<TInput>
         public override string ToString() => DefaultStringifier.ToString("Function", Name, Id);
 
         public INamed SetName(string name) => new Parser<TData>(_data, _parseFunction, _matchFunction, Description, _children, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IFunctionPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

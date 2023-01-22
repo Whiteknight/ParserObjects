@@ -11,17 +11,13 @@ namespace ParserObjects.Internal.Bnf;
 /// the .Name value set. If you have custom parser types you can implement
 /// IPartialVisitor(BnfStringifyVisitor) and call .Add() to include it in the visit.
 /// </summary>
-public sealed class BnfStringifier
+public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 {
-    // Uses a syntax inspired by W3C EBNF (https://www.w3.org/TR/REC-xml/#sec-notation) and Regex
-    // (for extensions beyond what EBNF normally handles). This NOT intended for round-trip operations
-    // or formal analysis purposes.
-
-    private readonly List<IPartialVisitor<BnfStringifyVisitor>> _partials;
+    private readonly List<IPartialVisitor<BnfStringifyState>> _partials;
 
     public BnfStringifier()
     {
-        _partials = new List<IPartialVisitor<BnfStringifyVisitor>>
+        _partials = new List<IPartialVisitor<BnfStringifyState>>
         {
             new BuiltInTypesBnfStringifyVisitor()
         };
@@ -29,7 +25,13 @@ public sealed class BnfStringifier
 
     public static BnfStringifier Instance { get; } = new BnfStringifier();
 
-    public void Add(IPartialVisitor<BnfStringifyVisitor> partial)
+    public TPartial? Get<TPartial>()
+        where TPartial : IPartialVisitor<BnfStringifyState>
+    {
+        return _partials.OfType<TPartial>().FirstOrDefault();
+    }
+
+    public void Add(IPartialVisitor<BnfStringifyState> partial)
     {
         Assert.ArgumentNotNull(partial, nameof(partial));
         if (partial == null || _partials.Contains(partial))
@@ -38,7 +40,7 @@ public sealed class BnfStringifier
     }
 
     public void Add<T>()
-        where T : IPartialVisitor<BnfStringifyVisitor>, new()
+        where T : IPartialVisitor<BnfStringifyState>, new()
     {
         if (_partials.Any(p => p is T))
             return;
@@ -49,7 +51,7 @@ public sealed class BnfStringifier
     {
         Assert.ArgumentNotNull(parser, nameof(parser));
         var sb = new StringBuilder();
-        var state = new BnfStringifyVisitor(sb, _partials);
+        var state = new BnfStringifyState(this, sb);
         state.Visit(parser);
         return sb.ToString();
     }

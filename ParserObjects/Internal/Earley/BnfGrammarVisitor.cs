@@ -12,12 +12,12 @@ namespace ParserObjects.Internal.Earley;
 public sealed class BnfGrammarVisitor
 {
     private record struct State(
-        BnfStringifyVisitor OuterState,
+        BnfStringifyState OuterState,
         HashSet<object> SeenItems,
         List<string> Lines
     );
 
-    public string Visit(INonterminal rootRule, BnfStringifyVisitor outerState)
+    public string Visit(INonterminal rootRule, BnfStringifyState outerState)
     {
         var state = new State(outerState, new HashSet<object>(), new List<string>());
         Visit(rootRule, state);

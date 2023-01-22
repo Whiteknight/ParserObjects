@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -50,6 +51,12 @@ public static class Optional<TInput, TOutput>
         public INamed SetName(string name) => new NoDefaultParser(Inner, name);
 
         public override string ToString() => DefaultStringifier.ToString("Optional", Name, Id);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public record DefaultValueParser(
@@ -82,5 +89,11 @@ public static class Optional<TInput, TOutput>
         public INamed SetName(string name) => this with { Name = name };
 
         public override string ToString() => DefaultStringifier.ToString("Optional", Name, Id);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }

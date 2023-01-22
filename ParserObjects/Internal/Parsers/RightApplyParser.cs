@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -195,4 +196,10 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public INamed SetName(string name)
         => new RightApplyParser<TInput, TMiddle, TOutput>(_item, _middle, _produce, _quantifier, _getMissingRight, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IAssociativePartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -51,4 +52,10 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
     public override string ToString() => DefaultStringifier.ToString("Each", Name, Id);
 
     public INamed SetName(string name) => new EachParser<TInput, TOutput>(_parsers, name);
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<IMultiPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

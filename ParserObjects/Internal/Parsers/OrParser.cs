@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -48,4 +49,10 @@ public sealed record OrParser<TInput>(
     public override string ToString() => DefaultStringifier.ToString("Or", Name, Id);
 
     public INamed SetName(string name) => this with { Name = name };
+
+    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>
+    {
+        visitor.Get<ILogicalPartialVisitor<TState>>()?.Accept(this, state);
+    }
 }

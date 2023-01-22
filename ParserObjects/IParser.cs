@@ -18,6 +18,9 @@ public interface IParser : ISymbol
     /// </summary>
     /// <returns></returns>
     IEnumerable<IParser> GetChildren();
+
+    void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>;
 }
 
 /// <summary>
@@ -78,12 +81,4 @@ public interface IReplaceableParserUntyped : IParser
     /// </summary>
     /// <param name="parser"></param>
     SingleReplaceResult SetParser(IParser parser);
-}
-
-/// <summary>
-/// Tag type to mark parsers which are hidden, internal implementation details and not
-/// first-class parser types.
-/// </summary>
-public interface IHiddenInternalParser
-{
 }

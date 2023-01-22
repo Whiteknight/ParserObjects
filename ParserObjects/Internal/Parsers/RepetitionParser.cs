@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -202,6 +203,12 @@ public static class Repetition<TInput>
         public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
 
         public INamed SetName(string name) => new Parser(_internal, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IListPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 
     public sealed class Parser<TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
@@ -251,5 +258,11 @@ public static class Repetition<TInput>
         public override string ToString() => DefaultStringifier.ToString("List", Name, Id);
 
         public INamed SetName(string name) => new Parser<TOutput>(_internal, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<IListPartialVisitor<TState>>()?.Accept(this, state);
+        }
     }
 }
