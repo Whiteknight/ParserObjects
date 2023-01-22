@@ -15,7 +15,7 @@ public interface IBuiltInPartialVisitor<TState> :
 {
 }
 
-public interface IRegexPartialVisitor<TState> : IPartialVisitor<TState>
+public interface IRegexPartialVisitor<in TState> : IPartialVisitor<TState>
 {
     void Accept(RegexParser p, TState state);
 }

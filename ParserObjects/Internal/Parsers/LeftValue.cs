@@ -38,5 +38,6 @@ public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>
     {
+        // At the moment LeftValue does not participate in visiting operations.
     }
 }

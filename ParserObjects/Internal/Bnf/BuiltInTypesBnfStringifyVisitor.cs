@@ -52,7 +52,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(')');
     }
 
-    private void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyState state)
+    private static void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyState state)
     {
         if (children.Count == 1)
         {
@@ -198,7 +198,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     }
 
     // Includes all variants of Function<T>.Parser, Function<TIn, TOut>.Parser, .MultiParser, etc
-    private void AcceptFunctionVariant(string? description, IReadOnlyList<IParser> children, BnfStringifyState state)
+    private static void AcceptFunctionVariant(string? description, IReadOnlyList<IParser> children, BnfStringifyState state)
     {
         if (string.IsNullOrEmpty(description))
         {
@@ -290,7 +290,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
 
         state.Append(item);
 
-        if (separator != null && separator is not EmptyParser<TInput>)
+        if (separator is not EmptyParser<TInput>)
             state.Append(" (", separator, " ", item, ")");
 
         static void WriteQuantifier(BnfStringifyState v, int minimum, int? maximum)
@@ -392,11 +392,11 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("/", p.Pattern, "/");
     }
 
-    private void AcceptRepetitionParser<TInput>(BnfStringifyState state, IParser item, IParser separator, int minimum, int? maximum)
+    private static void AcceptRepetitionParser<TInput>(BnfStringifyState state, IParser item, IParser separator, int minimum, int? maximum)
     {
         state.Append(item);
 
-        if (separator != null && separator is not EmptyParser<TInput>)
+        if (separator is not EmptyParser<TInput>)
             state.Append(" (", separator, " ", item, ")");
 
         // If we have a maximum, handle a range with a maximum. We always have a minimum
