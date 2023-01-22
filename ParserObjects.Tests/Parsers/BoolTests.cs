@@ -23,6 +23,22 @@ public class BoolTests
     }
 
     [Test]
+    public void Match_True()
+    {
+        var target = Bool(End());
+        var result = target.Match("");
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void Match_False()
+    {
+        var target = Bool(End());
+        var result = target.Match("xxx");
+        result.Should().BeFalse();
+    }
+
+    [Test]
     public void ToBnf_Test()
     {
         var target = Bool(Any()).Named("SUT");

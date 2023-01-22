@@ -22,6 +22,16 @@ public static class ExamineTests
         }
 
         [Test]
+        public void Parse_NoCallbacks()
+        {
+            var parser = Examine(Any());
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be('a');
+        }
+
+        [Test]
         public void Parse_Consume()
         {
             char before = '\0';
@@ -120,6 +130,16 @@ public static class ExamineTests
         }
 
         [Test]
+        public void Parse_NoCallbacks()
+        {
+            var parser = Examine(ProduceMulti(() => new[] { 'b' }));
+            var input = FromString("ac");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be('b');
+        }
+
+        [Test]
         public void Parse_Consume_Fail()
         {
             char before = '\0';
@@ -157,6 +177,15 @@ public static class ExamineTests
             result.Success.Should().BeTrue();
             before.Should().Be('a');
             after.Should().Be("ab");
+        }
+
+        [Test]
+        public void Parse_NoCallbacks()
+        {
+            var parser = Examine((IParser<char>)Any());
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
         }
 
         [Test]

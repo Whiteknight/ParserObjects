@@ -9,7 +9,7 @@ namespace ParserObjects.Tests.Parsers;
 public class PrattTests
 {
     [Test]
-    public void SingleNumber()
+    public void Parse_SingleNumber()
     {
         var target = Pratt<string>(c => c
             .Add(DigitString())
@@ -21,7 +21,7 @@ public class PrattTests
     }
 
     [Test]
-    public void GracefulFail()
+    public void Parse_NoMatch()
     {
         var target = Pratt<string>(c => c
             .Add(DigitString())
@@ -34,7 +34,7 @@ public class PrattTests
     }
 
     [Test]
-    public void SingleNumber_Remainder()
+    public void Parse_SingleNumber_Remainder()
     {
         var target = Pratt<string>(c => c
             .Add(DigitString())
@@ -531,6 +531,30 @@ public class PrattTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("abc");
         input.GetRemainder().Should().Be("defg");
+    }
+
+    [Test]
+    public void Parse_Complete_AttemptMore()
+    {
+        // If we attempt to call ctx.Parse() to get more data AFTER marking the parse complete,
+        // the whole parse fails.
+        var target = Pratt<string>(c => c
+            .Add(Any(), p => p
+                .Bind(1, (ctx, x) => x.Value.ToString())
+                .BindLeft(1, (ctx, str, x) =>
+                {
+                    var r = str.Value + x.ToString();
+                    if (r.Length >= 3)
+                        ctx.Complete();
+                    ctx.Parse(Capture(ctx));
+                    return r;
+                })
+            )
+        );
+
+        var input = FromString("abcdefg");
+        var result = target.Parse(input);
+        result.Success.Should().BeFalse();
     }
 
     [Test]

@@ -153,6 +153,9 @@ public static class FromListTests
         {
             var target = FromList(new[] { 'a', 'b', 'c' });
 
+            var stats = target.GetStatistics();
+            stats.ItemsRead.Should().Be(0);
+
             target.Consumed.Should().Be(0);
             target.GetNext().Should().Be('a');
             target.Consumed.Should().Be(1);
@@ -162,16 +165,42 @@ public static class FromListTests
             target.Consumed.Should().Be(3);
             target.GetNext().Should().Be('\0');
             target.Consumed.Should().Be(3);
+
+            stats = target.GetStatistics();
+            stats.ItemsRead.Should().Be(3);
         }
 
         [Test]
-        public void GetNext_NormalizeLineEndings()
+        public void GetNext_NormalizeLineEndings_Windows()
         {
             var target = FromList(new[] { 'a', '\r', '\n', 'b' });
 
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_NormalizeLineEndings_Linux()
+        {
+            var target = FromList(new[] { 'a', '\n', 'b' });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\0');
+        }
+
+        [Test]
+        public void GetNext_NormalizeLineEndings_OldMac()
+        {
+            var target = FromList(new[] { 'a', '\r', 'b', '\r' });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('\n');
+            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('\n');
             target.GetNext().Should().Be('\0');
         }
 

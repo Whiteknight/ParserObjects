@@ -206,8 +206,7 @@ public static class CharBufferSequence
 
         private static (char[] buffer, int length) Normalize(string s, bool normalize)
         {
-            if (!normalize)
-                return (s.ToCharArray(), s.Length);
+            Debug.Assert(normalize, "Factory method should create a different class for non-normalized strings");
 
             if (s.Length == 0)
                 return (Array.Empty<char>(), 0);

@@ -31,6 +31,24 @@ public static class NoneTests
         }
 
         [Test]
+        public void Match_Test()
+        {
+            var target = None(Any());
+            var input = FromString("abc");
+            var result = target.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var target = None(Fail<char>());
+            var input = FromString("abc");
+            var result = target.Match(input);
+            result.Should().BeFalse();
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var target = None(Any()).Named("target");

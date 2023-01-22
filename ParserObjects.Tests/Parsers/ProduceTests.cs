@@ -17,6 +17,15 @@ public class ProduceTests
     }
 
     [Test]
+    public void Match_Test()
+    {
+        var target = Produce(() => 5);
+        var input = FromString("abc");
+        var result = target.Match(input);
+        result.Should().BeTrue();
+    }
+
+    [Test]
     public void GetChildren_Test()
     {
         var target = Produce(() => 5);
