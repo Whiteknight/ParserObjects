@@ -12,6 +12,24 @@ namespace ParserObjects;
 public delegate IResultAlternative<TOutput> CreateNewResultAlternative<TOutput>(IResultAlternative<TOutput> existing, ResultAlternativeFactoryMethod<TOutput> factory);
 
 /// <summary>
+/// Get or create a parser given the current parse state.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+/// <param name="state"></param>
+/// <returns></returns>
+public delegate IParser<TInput, TOutput> CreateParserFromState<TInput, TOutput>(IParseState<TInput> state);
+
+/// <summary>
+/// Get or create a parser given the current parse state.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+/// <param name="state"></param>
+/// <returns></returns>
+public delegate IMultiParser<TInput, TOutput> CreateMultiParserFromState<TInput, TOutput>(IParseState<TInput> state);
+
+/// <summary>
 /// Create a new parser, given an existing parser.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>

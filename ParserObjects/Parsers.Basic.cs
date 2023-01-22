@@ -11,26 +11,6 @@ namespace ParserObjects;
 /// <typeparam name="TInput"></typeparam>
 public static partial class Parsers<TInput>
 {
-    private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
-    private static readonly IParser<TInput> _empty = new EmptyParser<TInput>();
-    private static readonly IParser<TInput> _end = new EndParser<TInput>();
-
-    private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser<object>(
-        Defaults.ObjectInstance,
-        static (state, _, args) => state.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
-        static (state, _) => state.Input.IsAtEnd,
-        "IF END THEN PRODUCE",
-        Array.Empty<IParser>()
-    );
-
-    private static readonly IParser<TInput, TInput> _peek = new PeekParser<TInput>();
-
-    /// <summary>
-    /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
-    /// </summary>
-    /// <returns></returns>
-    public static IParser<TInput, TInput> Any() => _any;
-
     /// <summary>
     /// Invokes a parser, returns Success(true) if the parser succeeds, Success(false) if it fails.
     /// </summary>
@@ -176,24 +156,6 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Each<TOutput>(params IParser<TInput, TOutput>[] parsers)
         => new EachParser<TInput, TOutput>(parsers, string.Empty);
-
-    /// <summary>
-    /// The empty parser, consumers no input and always returns success at any point.
-    /// </summary>
-    /// <returns></returns>
-    public static IParser<TInput> Empty() => _empty;
-
-    /// <summary>
-    /// Matches affirmatively at the end of the input, fails everywhere else. Returns no value.
-    /// </summary>
-    /// <returns></returns>
-    public static IParser<TInput> End() => _end;
-
-    /// <summary>
-    /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
-    /// </summary>
-    /// <returns></returns>
-    public static IParser<TInput, bool> IsEnd() => _isEnd;
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
@@ -430,13 +392,6 @@ public static partial class Parsers<TInput>
         Assert.ArgumentNotNull(getDefault, nameof(getDefault));
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
-
-    /// <summary>
-    /// Return the next item of input without consuming any input. Returns failure at end of
-    /// input, success otherwise.
-    /// </summary>
-    /// <returns></returns>
-    public static IParser<TInput, TInput> Peek() => _peek;
 
     /// <summary>
     /// Given the next input lookahead value, select the appropriate parser to use to continue

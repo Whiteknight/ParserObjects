@@ -7,7 +7,7 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Creates a Pratt parser, which is especially useful for mathematical expression parsing.
+    /// Creates a Pratt parser, which is a precidence-climbing parser.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setup"></param>

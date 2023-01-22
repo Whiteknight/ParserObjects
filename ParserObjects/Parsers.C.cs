@@ -24,11 +24,12 @@ public static partial class Parsers
         /// <returns></returns>
         public static IParser<char, string> HexadecimalString() => _hexString.Value;
 
-        private static readonly Lazy<IParser<char, string>> _hexString = new Lazy<IParser<char, string>>(
-            static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
-                .Rule(static (_, value) => "0x" + value)
-                .Named("C-Style Hex String")
-        );
+        private static readonly Lazy<IParser<char, string>> _hexString
+            = new Lazy<IParser<char, string>>(
+                static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
+                    .Rule(static (_, value) => "0x" + value)
+                    .Named("C-Style Hex String")
+            );
 
         /// <summary>
         /// C-style hexadecimal literal returned as a parsed integer.

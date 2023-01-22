@@ -52,7 +52,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="create"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Create<TOutput>(Func<IParseState<TInput>, IParser<TInput, TOutput>> create)
+    public static IParser<TInput, TOutput> Create<TOutput>(CreateParserFromState<TInput, TOutput> create)
         => new Create<TInput, TOutput>.Parser(create);
 
     /// <summary>
@@ -62,7 +62,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="create"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> create)
+    public static IMultiParser<TInput, TOutput> CreateMulti<TOutput>(CreateMultiParserFromState<TInput, TOutput> create)
         => new Create<TInput, TOutput>.MultiParser(create);
 
     /// <summary>

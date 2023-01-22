@@ -17,11 +17,19 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TOutput>> List<TOutput>(IParser<TInput, TOutput> p, bool atLeastOne)
         => List(p, Empty(), atLeastOne);
 
+    /// <summary>
+    /// Parse a list of items. Specify whether at least one item must match, or if the list may be
+    /// empty.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="atLeastOne"></param>
+    /// <returns></returns>
     public static IParser<TInput> List(IParser<TInput> p, bool atLeastOne)
         => List(p, Empty(), atLeastOne);
 
     /// <summary>
-    /// Parse a list of items with a separator between them.
+    /// Parse a list of items with a separator between them. Specify whether at least one item must
+    /// match, or if the list may be empty.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -34,6 +42,14 @@ public static partial class Parsers<TInput>
         bool atLeastOne
     ) => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
+    /// <summary>
+    /// Parse a list of items with a separator in between. Specify whether at least one item must
+    /// match, or if the list may be empty.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="separator"></param>
+    /// <param name="atLeastOne"></param>
+    /// <returns></returns>
     public static IParser<TInput> List(IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
         => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
@@ -51,11 +67,18 @@ public static partial class Parsers<TInput>
         int? maximum = null
     ) => List(p, Empty(), minimum, maximum);
 
+    /// <summary>
+    /// Parse a list of items with defined minimum and maximum quantities.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="minimum"></param>
+    /// <param name="maximum"></param>
+    /// <returns></returns>
     public static IParser<TInput> List(IParser<TInput> p, int minimum, int? maximum = null)
         => List(p, Empty(), minimum, maximum);
 
     /// <summary>
-    /// Parse a list of items with defined minimum and maximum quantities.
+    /// Parse a list of items with separator in between and defined minimum and maximum quantities.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -70,6 +93,14 @@ public static partial class Parsers<TInput>
         int? maximum = null
     ) => new Repetition<TInput>.Parser<TOutput>(p, separator ?? Empty(), minimum, maximum);
 
+    /// <summary>
+    /// Parse a list of items with separator in between and defined minimum and maximum quantities.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="separator"></param>
+    /// <param name="minimum"></param>
+    /// <param name="maximum"></param>
+    /// <returns></returns>
     public static IParser<TInput> List(
         IParser<TInput> p,
         IParser<TInput>? separator = null,

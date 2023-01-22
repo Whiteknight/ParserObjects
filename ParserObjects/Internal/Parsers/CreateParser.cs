@@ -19,7 +19,7 @@ public static class Create<TInput, TOutput>
     /// not expected to be constant and will not be cached.
     /// </summary>
     public sealed record Parser(
-        Func<IParseState<TInput>, IParser<TInput, TOutput>> GetParser,
+        CreateParserFromState<TInput, TOutput> GetParser,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -84,7 +84,7 @@ public static class Create<TInput, TOutput>
     }
 
     public sealed record MultiParser(
-        Func<IParseState<TInput>, IMultiParser<TInput, TOutput>> GetParser,
+        CreateMultiParserFromState<TInput, TOutput> GetParser,
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
