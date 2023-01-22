@@ -1,5 +1,4 @@
 ﻿using ParserObjects.Internal.Parsers;
-using ParserObjects.Pratt;
 
 namespace ParserObjects.Internal.Visitors;
 
@@ -141,8 +140,6 @@ public interface IEarleyPartialVisitor<TState> : IPartialVisitor<TState>
 
 public interface IPrattPartialVisitor<TState> : IPartialVisitor<TState>
 {
-    void Accept<TInput, TOutput>(PrattParseContext<TInput, TOutput> _, TState state);
-
     void Accept<TInput, TOutput>(PrattParser<TInput, TOutput> p, TState state);
 }
 

@@ -593,4 +593,12 @@ public class PrattTests
         var result = parser.ToBnf();
         result.Should().StartWith("parser := PRATT('+', '-');");
     }
+
+    [Test]
+    public void ToBnf_Empty()
+    {
+        var parser = Pratt<char>(c => { }).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().StartWith("parser := PRATT();");
+    }
 }

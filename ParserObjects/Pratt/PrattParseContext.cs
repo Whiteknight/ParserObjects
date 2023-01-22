@@ -242,6 +242,6 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>
     {
-        visitor.Get<ParserObjects.Internal.Visitors.IBuiltInPartialVisitor<TState>>()?.Accept(this, state);
+        throw new NotImplementedException();
     }
 }

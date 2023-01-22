@@ -258,4 +258,12 @@ public class TrieTests
         var result = parser.ToBnf();
         result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
     }
+
+    [Test]
+    public void ToBnf_Empty()
+    {
+        var parser = Trie<string>(trie => { }).Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := ()");
+    }
 }

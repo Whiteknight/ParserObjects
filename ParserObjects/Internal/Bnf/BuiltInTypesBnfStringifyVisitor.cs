@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Internal.Parsers;
@@ -183,11 +184,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(FirstParser<TInput, TOutput> p, BnfStringifyState state)
     {
         var children = p.GetChildren().ToList();
-        if (children.Count == 1)
-        {
-            state.Append(children[0]);
-            return;
-        }
+        Debug.Assert(children.Count >= 2, "We should not have a First with 0 or 1 children");
 
         state.Append("(", children[0]);
 
@@ -202,25 +199,11 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     {
         if (string.IsNullOrEmpty(description))
         {
-            if (children.Count == 0)
-            {
-                state.Append("User Function");
-                return;
-            }
-
-            if (children.Count == 1)
-            {
-                state.Append(children[0]);
-                return;
-            }
-
-            state.Append("User Function of");
-            foreach (var child in children)
-            {
-                state.Append(" ");
-                state.Append(child);
-            }
-
+            // There is not currently a way to have children but no description. The Function()
+            // method doesn't take children, and all internal uses of Function always fill in
+            // description. In the future if we have other combinations we can expand this method.
+            Debug.Assert(children.Count == 0, "There is not currently any supported way to have children but no description");
+            state.Append("User Function");
             return;
         }
 
@@ -382,11 +365,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(')');
     }
 
-    public void Accept<TInput, TOutput>(ParserObjects.Pratt.PrattParseContext<TInput, TOutput> _, BnfStringifyState state)
-    {
-        state.Append("PRATT RECURSE");
-    }
-
     public void Accept(RegexParser p, BnfStringifyState state)
     {
         state.Append("/", p.Pattern, "/");
@@ -512,7 +490,10 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     {
         var allPatterns = p.Trie.GetAllPatterns().ToList();
         if (allPatterns.Count == 0)
+        {
+            state.Append("()");
             return;
+        }
 
         static void PrintPattern(IEnumerable<TInput> pattern, BnfStringifyState s)
         {

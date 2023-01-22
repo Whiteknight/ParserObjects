@@ -82,12 +82,28 @@ internal class ChainWithTests
     }
 
     [Test]
-    public void ToBnf_Test()
+    public void ToBnf_1Child()
     {
         var target = ChainWith<char, char>(Any(), config => config
             .When(c => c == 'a', Match('B'))
         ).Named("SUT");
         var result = target.ToBnf();
-        result.Should().Contain("SUT := .->CHAIN");
+        result.Should().Contain("SUT := .->CHAIN('B')");
+    }
+
+    [Test]
+    public void ToBnf_3Children()
+    {
+        var first = (IParser<char>)Any();
+        var x = Match('X');
+        var y = Match('Y');
+        var z = Match('Z');
+        var target = ChainWith<char>(first, config => config
+            .When(c => (char)c == 'a', x)
+            .When(c => (char)c == 'b', y)
+            .When(c => (char)c == 'c', z)
+        ).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := .->CHAIN('X' 'Y' 'Z')");
     }
 }

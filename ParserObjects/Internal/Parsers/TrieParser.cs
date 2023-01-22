@@ -16,6 +16,7 @@ public sealed record TrieParser<TInput, TOutput>(
 {
     public static TrieParser<TInput, TOutput> Configure(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
     {
+        // TODO: If the trie is empty, we should return an Empty() parser instead of a Trie parser
         var trie = new InsertOnlyTrie<TInput, TOutput>();
         setupTrie?.Invoke(trie);
         return new TrieParser<TInput, TOutput>(trie);

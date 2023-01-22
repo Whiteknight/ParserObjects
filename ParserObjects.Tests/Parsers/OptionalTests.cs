@@ -69,6 +69,14 @@ public static class OptionalTests
             result.Success.Should().Be(true);
             result.Value.Should().Be('x');
         }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Optional(Match('a'), () => 'x').Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := 'a'?");
+        }
     }
 
     public class MethodGetDefaultFunction
