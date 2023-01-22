@@ -92,6 +92,70 @@ public static class ContextTests
         }
 
         [Test]
+        public void Parse_StateData()
+        {
+            var after = "";
+            var target = Context(
+                Produce(() => "OK"),
+                state => state.Data.Set<string>("key", "value"),
+                state => after = state.Data.Get<string>("key").GetValueOrDefault("FAIL")
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("OK");
+            after.Should().Be("value");
+        }
+
+        [Test]
+        public void Parse_StateData_UpdateData()
+        {
+            var after = "";
+            var target = Context(
+                Produce(() => "OK"),
+                state =>
+                {
+                    state.Data.Set<string>("key", "value");
+                    state.Data.Set<string>("key", "value2");
+                },
+                state => after = state.Data.Get<string>("key").GetValueOrDefault("FAIL")
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("OK");
+            after.Should().Be("value2");
+        }
+
+        [Test]
+        public void Parse_StateData_GetWrongType()
+        {
+            int after = 0;
+            var target = Context(
+                Produce(() => "OK"),
+                state => state.Data.Set<string>("key", "value"),
+                state => after = state.Data.Get<int>("key").GetValueOrDefault(5)
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("OK");
+            after.Should().Be(5);
+        }
+
+        [Test]
+        public void Parse_StateData_GetWrongKey()
+        {
+            string after = "";
+            var target = Context(
+                Produce(() => "OK"),
+                state => state.Data.Set<string>("key", "FAIL"),
+                state => after = state.Data.Get<string>("WRONG").GetValueOrDefault("OK")
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("OK");
+            after.Should().Be("OK");
+        }
+
+        [Test]
         public void Match_Test()
         {
             var before = "";

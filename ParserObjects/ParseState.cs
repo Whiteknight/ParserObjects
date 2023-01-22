@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ParserObjects.Internal.Caching;
 
 namespace ParserObjects;
@@ -105,8 +106,7 @@ public struct DataStore
     public void Set<T>(string name, T value)
     {
         var dict = _store!.Last!.Value!;
-        if (value == null)
-            return;
+        Debug.Assert(dict != null, "Shouldn't be null");
 
         if (dict.ContainsKey(name))
         {
