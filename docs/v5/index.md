@@ -50,6 +50,7 @@ using static ParserObjects.Parsers<char>;
 
 * [Core Parsers Reference](parsers_core.md)
 * [Logical Parsers Reference](parsers_logical.md)
+* [State-Management and Caching Parsers Reference](parsers_state.md)
 * [String/Character Parser Reference](parsers_chars.md)
 * [Programming Parser Reference](parsers_programming.md)
 * [Pratt Parser Reference](parsers_pratt.md)
