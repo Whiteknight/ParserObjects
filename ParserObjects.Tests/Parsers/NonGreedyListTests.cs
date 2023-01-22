@@ -26,6 +26,22 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Parse_Fail_NoConsumed()
+    {
+        var target = NonGreedyList(
+            Produce(() => 'X'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Parse("aaaab");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
     public void Parse_Minimum()
     {
         var target = NonGreedyList(
@@ -42,6 +58,23 @@ public class NonGreedyListTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("(aaa)(ab)");
         result.Consumed.Should().Be(5);
+    }
+
+    [Test]
+    public void Parse_Minimum_Fail0()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var result = target.Parse("Xab");
+        result.Success.Should().BeFalse();
     }
 
     [Test]
