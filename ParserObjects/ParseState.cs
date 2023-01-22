@@ -20,11 +20,11 @@ public sealed class ParseState<TInput> : IParseState<TInput>
         _data = new LinkedList<Dictionary<string, object>>();
         _data.AddLast(new Dictionary<string, object>());
         _logCallback = logCallback;
-        Cache = cache ?? new NullResultsCache();
+        Cache = cache ?? NullResultsCache.Instance;
     }
 
     public ParseState(ISequence<TInput> input, Action<string> logCallback)
-        : this(input, logCallback, new NullResultsCache())
+        : this(input, logCallback, NullResultsCache.Instance)
     {
     }
 

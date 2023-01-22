@@ -4,6 +4,12 @@ public sealed class NullResultsCache : IResultsCache
 {
     private CacheStatistics _stats;
 
+    public static NullResultsCache Instance { get; } = new NullResultsCache();
+
+    private NullResultsCache()
+    {
+    }
+
     public void Add<TValue>(ISymbol symbol, Location location, TValue value)
     {
         // No cache, so we do nothing here

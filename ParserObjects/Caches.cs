@@ -28,5 +28,5 @@ public static class Caches
     /// </summary>
     /// <returns></returns>
     public static IResultsCache NullCache()
-        => new NullResultsCache();
+        => NullResultsCache.Instance;
 }
