@@ -19,9 +19,6 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     private int _bufferIndex;
     private int _consumed;
 
-    // TODO: Keep track of the current buffer start position and the total numbers of bytes in the
-    // buffer, so we can optimize .GetBetween() with that info.
-
     public StreamByteSequence(SequenceOptions<byte> options)
     {
         _options = options;
