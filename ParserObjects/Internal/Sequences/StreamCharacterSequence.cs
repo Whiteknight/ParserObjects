@@ -218,11 +218,16 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
             return;
         }
 
-        // TODO: It would be nice to be able to rewind to the current buffer. But we would need
-        // three pieces of information: The BufferStartStreamPosition to line us up to the correct
-        // buffer, the character Index in the buffer, and the Stream Position associated with that
-        // index, so we can resume the count. This is a lot of extra data to add to SequenceCheckpoint
-        // that many other sequences won't use.
+        /* At the moment we cannot optimize rewinds to the current buffer. We would need three
+         * pieces of information:
+         *      1)The BufferStartStreamPosition to line us up to the correct buffer,
+         *      2) the characer Index in the buffer, and
+         *      3) the Stream Position associated with that Index
+         *  Right now we don't have enough space in the SequenceCheckpoint to hold all that, and
+         *  I do not want to grow the size of SequenceCheckpoint by an additional long just for this
+         *  one optimization. If we could find a way to squeeze the info into the existing struct
+         *  without losing anything else important, we would do that.
+         */
 
         // Otherwise we reset the buffer starting at bufferStartStreamPosition
         _streamPosition = streamPosition;
