@@ -21,6 +21,8 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
         _patterns = new List<IReadOnlyList<TKey>>();
     }
 
+    public int Count => _patterns.Count;
+
     public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
     {
         Assert.ArgumentNotNull(keys, nameof(keys));

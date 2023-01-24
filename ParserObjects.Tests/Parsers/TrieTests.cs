@@ -264,6 +264,6 @@ public class TrieTests
     {
         var parser = Trie<string>(trie => { }).Named("parser");
         var result = parser.ToBnf();
-        result.Should().Contain("parser := ()");
+        result.Should().Contain("parser := FAIL");
     }
 }

@@ -42,6 +42,11 @@ public interface IReadOnlyTrie<TKey, TResult>
     /// </summary>
     /// <returns></returns>
     IEnumerable<IReadOnlyList<TKey>> GetAllPatterns();
+
+    /// <summary>
+    /// Gets a count of items in the trie.
+    /// </summary>
+    int Count { get; }
 }
 
 /// <summary>
