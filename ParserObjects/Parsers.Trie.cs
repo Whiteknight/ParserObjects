@@ -45,5 +45,5 @@ public static partial class Parsers<TInput>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
-        => TrieParser<TInput, TOutput>.Configure(setupTrie);
+        => TrieParser<TInput, TOutput>.ConfigureMulti(setupTrie);
 }

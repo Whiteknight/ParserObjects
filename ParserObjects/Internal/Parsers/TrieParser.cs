@@ -12,14 +12,21 @@ namespace ParserObjects.Internal.Parsers;
 public sealed record TrieParser<TInput, TOutput>(
     IReadOnlyTrie<TInput, TOutput> Trie,
     string Name = ""
-) : ISingleOrMultiParser<TInput, TOutput>
+) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
-    public static ISingleOrMultiParser<TInput, TOutput> Configure(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    public static IParser<TInput, TOutput> Configure(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
     {
-        var trie = new InsertOnlyTrie<TInput, TOutput>();
-        setupTrie?.Invoke(trie);
+        var trie = InsertOnlyTrie<TInput, TOutput>.Setup(setupTrie);
         if (trie.Count == 0)
-            return new FailParser<TInput, TOutput>("There were no items in the trie");
+            return Parsers<TInput>.Fail<TOutput>("There were no items in the trie");
+        return new TrieParser<TInput, TOutput>(trie);
+    }
+
+    public static IMultiParser<TInput, TOutput> ConfigureMulti(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    {
+        var trie = InsertOnlyTrie<TInput, TOutput>.Setup(setupTrie);
+        if (trie.Count == 0)
+            return Parsers<TInput>.FailMulti<TOutput>("There were no items in the trie");
         return new TrieParser<TInput, TOutput>(trie);
     }
 

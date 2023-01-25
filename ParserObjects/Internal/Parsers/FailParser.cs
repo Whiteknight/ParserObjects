@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class FailParser<TInput, TOutput> : ISingleOrMultiParser<TInput, TOutput>
+public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
     private readonly IResult<TOutput> _result;
 

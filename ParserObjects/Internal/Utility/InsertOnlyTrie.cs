@@ -21,6 +21,13 @@ public sealed class InsertOnlyTrie<TKey, TResult> : IInsertableTrie<TKey, TResul
         _patterns = new List<IReadOnlyList<TKey>>();
     }
 
+    public static InsertOnlyTrie<TKey, TResult> Setup(Action<InsertOnlyTrie<TKey, TResult>> setup)
+    {
+        var trie = new InsertOnlyTrie<TKey, TResult>();
+        setup?.Invoke(trie);
+        return trie;
+    }
+
     public int Count => _patterns.Count;
 
     public IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
