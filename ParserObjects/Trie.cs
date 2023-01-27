@@ -45,10 +45,14 @@ public struct InsertableTrie<TKey, TResult>
         var current = _root;
         var keyList = keys.ToArray();
         foreach (var key in keyList)
-            current = current.GetOrAdd(key);
+            current = current.GetOrAddChild(key);
 
         if (current.TryAddResult(result))
+        {
             _patterns.Add(keyList);
+            _root.SetPatternDepth(keyList.Length);
+        }
+
         return this;
     }
 }

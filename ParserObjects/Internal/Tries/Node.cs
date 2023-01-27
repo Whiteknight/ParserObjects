@@ -1,48 +1,66 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Tries;
 
-public class Node<TKey, TResult>
+public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResult>>
 {
-    private readonly Dictionary<ValueTuple<TKey>, Node<TKey, TResult>> _children;
+    /* I generally don't like concrete inheritance, but in this case it's an optimization to
+     * make the node be a class IS-A Dictionary. If we made it a struct there would be the same
+     * number of allocations except we wouldn't be able to have reference behavior for setting
+     * HasResult, Result and MaxDepth.
+     */
 
     public Node()
     {
-        _children = new Dictionary<ValueTuple<TKey>, Node<TKey, TResult>>();
         HasResult = false;
+        Result = default;
+        MaxDepth = 0;
     }
 
     public bool HasResult { get; private set; }
 
     public TResult? Result { get; private set; }
 
-    public static PartialResult<TResult> Get(Node<TKey, TResult> thisNode, ISequence<TKey> keys)
+    // Maximum depth of the longest pattern in the Trie. This value is only set on the root node
+    public int MaxDepth { get; private set; }
+
+    /* We call these static Get method variants instead of calling Get instance methods on the nodes
+     * because it saves us a lot of recursion and we can use a rented array buffer for the stack.
+     * Overall it makes things a bit nicer.
+     */
+
+    public static PartialResult<TResult> Get(Node<TKey, TResult> root, ISequence<TKey> keys)
     {
-        var current = thisNode;
+        var current = root;
+        int maxDepth = root.MaxDepth;
 
         // The node, and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = new Stack<(Node<TKey, TResult> node, SequenceCheckpoint cont)>();
+        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(maxDepth);
+        var index = 0;
         var startCont = keys.Checkpoint();
         var startConsumed = keys.Consumed;
-        previous.Push((current, startCont));
+        previous[index++] = (current, startCont);
 
         PartialResult<TResult> FindBestResult()
         {
-            while (previous.Count > 0)
+            while (index > 0)
             {
-                var (node, cont) = previous.Pop();
+                var (node, cont) = previous[--index];
                 if (node.HasResult)
                 {
                     cont.Rewind();
+                    ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
                     return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed);
                 }
             }
 
             // No node matched, so return failure
             startCont.Rewind();
+            ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
             return new PartialResult<TResult>("Trie does not contain matching item");
         }
 
@@ -51,7 +69,7 @@ public class Node<TKey, TResult>
             // Check degenerate cases first. If we're at the end of input or we're at a
             // leaf node in the trie, we're done digging and can start looking for a value
             // to return.
-            if (keys.IsAtEnd || current._children.Count == 0)
+            if (keys.IsAtEnd || current.Count == 0)
                 return FindBestResult();
 
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
@@ -61,40 +79,44 @@ public class Node<TKey, TResult>
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child, find the best value
-            if (!current._children.ContainsKey(wrappedKey))
+            if (!current.ContainsKey(wrappedKey))
                 return FindBestResult();
 
             // Otherwise push the current node and the checkpoint from which we can continue
             // parsing from onto the stack, and prepare for the next loop iteration.
-            current = current._children[wrappedKey];
-            previous.Push((current, cont));
+            current = current[wrappedKey];
+            previous[index++] = (current, cont);
         }
     }
 
-    public static bool CanGet(Node<TKey, TResult> thisNode, ISequence<TKey> keys)
+    public static bool CanGet(Node<TKey, TResult> root, ISequence<TKey> keys)
     {
-        var current = thisNode;
+        var current = root;
+        int maxDepth = root.MaxDepth;
 
         // The node, and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = new Stack<(Node<TKey, TResult> node, SequenceCheckpoint cont)>();
+        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(maxDepth);
+        var index = 0;
         var startCont = keys.Checkpoint();
-        previous.Push((current, startCont));
+        previous[index++] = (current, startCont);
 
         bool FindBestResult()
         {
-            while (previous.Count > 0)
+            while (index > 0)
             {
-                var (node, cont) = previous.Pop();
+                var (node, cont) = previous[--index];
                 if (node.HasResult)
                 {
                     cont.Rewind();
+                    ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
                     return true;
                 }
             }
 
             // No node matched, so return failure
             startCont.Rewind();
+            ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
             return false;
         }
 
@@ -103,7 +125,7 @@ public class Node<TKey, TResult>
             // Check degenerate cases first. If we're at the end of input or we're at a
             // leaf node in the trie, we're done digging and can start looking for a value
             // to return.
-            if (keys.IsAtEnd || current._children.Count == 0)
+            if (keys.IsAtEnd || current.Count == 0)
                 return FindBestResult();
 
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
@@ -113,32 +135,26 @@ public class Node<TKey, TResult>
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child, find the best value
-            if (!current._children.ContainsKey(wrappedKey))
+            if (!current.ContainsKey(wrappedKey))
                 return FindBestResult();
 
             // Otherwise push the current node and the checkpoint from which we can continue
             // parsing from onto the stack, and prepare for the next loop iteration.
-            current = current._children[wrappedKey];
-            previous.Push((current, cont));
+            current = current[wrappedKey];
+            previous[index++] = (current, cont);
         }
     }
 
-    public static IReadOnlyList<IResultAlternative<TResult>> GetMany(Node<TKey, TResult> thisNode, ISequence<TKey> keys)
+    public static IReadOnlyList<IResultAlternative<TResult>> GetMany(Node<TKey, TResult> root, ISequence<TKey> keys)
     {
-        var current = thisNode;
+        var current = root;
         var results = new List<IResultAlternative<TResult>>();
-
-        // The node, and the continuation checkpoint that allows parsing to continue
-        // immediately afterwards.
-        var previous = new Stack<(Node<TKey, TResult> node, SequenceCheckpoint cont)>();
-        var startCont = keys.Checkpoint();
-        previous.Push((current, startCont));
 
         while (true)
         {
             // Check degenerate cases first. If we're at the end of input or we're at a
             // leaf node in the trie, we're done digging so return any values we have
-            if (keys.IsAtEnd || current._children.Count == 0)
+            if (keys.IsAtEnd || current.Count == 0)
                 return results;
 
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
@@ -148,25 +164,25 @@ public class Node<TKey, TResult>
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child in this node, return the results we have
-            if (!current._children.ContainsKey(wrappedKey))
+            if (!current.ContainsKey(wrappedKey))
                 return results;
 
             // Otherwise push the current node and the checkpoint from which we can continue
             // parsing from onto the stack, and prepare for the next loop iteration.
-            current = current._children[wrappedKey];
+            current = current[wrappedKey];
             if (current.HasResult && current.Result != null)
                 results.Add(new SuccessResultAlternative<TResult>(current.Result, cont.Consumed, cont));
         }
     }
 
-    public Node<TKey, TResult> GetOrAdd(TKey key)
+    public Node<TKey, TResult> GetOrAddChild(TKey key)
     {
         Assert.ArgumentNotNull(key, nameof(key));
         var wrappedKey = new ValueTuple<TKey>(key);
-        if (_children.ContainsKey(wrappedKey))
-            return _children[wrappedKey];
+        if (ContainsKey(wrappedKey))
+            return this[wrappedKey];
         var newNode = new Node<TKey, TResult>();
-        _children.Add(wrappedKey, newNode);
+        Add(wrappedKey, newNode);
         return newNode;
     }
 
@@ -183,5 +199,11 @@ public class Node<TKey, TResult>
             return false;
 
         throw new TrieInsertException("The result value has already been set for this input sequence");
+    }
+
+    public void SetPatternDepth(int depth)
+    {
+        if (depth > MaxDepth)
+            MaxDepth = depth;
     }
 }
