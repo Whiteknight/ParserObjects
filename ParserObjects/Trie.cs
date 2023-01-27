@@ -24,9 +24,18 @@ public struct InsertableTrie<TKey, TResult>
         _patterns = patterns;
     }
 
+    /// <summary>
+    /// Create a new instance.
+    /// </summary>
+    /// <returns></returns>
     public static InsertableTrie<TKey, TResult> Create()
         => new InsertableTrie<TKey, TResult>(new Node<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
 
+    /// <summary>
+    /// Create and initialize a new trie instance from a user callback.
+    /// </summary>
+    /// <param name="setup"></param>
+    /// <returns></returns>
     public static InsertableTrie<TKey, TResult> Setup(Action<InsertableTrie<TKey, TResult>> setup)
     {
         var trie = Create();
@@ -34,10 +43,25 @@ public struct InsertableTrie<TKey, TResult>
         return trie;
     }
 
+    /// <summary>
+    /// Gets the count of items added to the trie.
+    /// </summary>
     public int Count => _patterns.Count;
 
+    // TODO: Find a way to actually lock the node so it cannot be modified anymore.
+    // I would prefer not to add a flag to all nodes which would only affect the root node.
+    /// <summary>
+    /// Freezes the Trie and returns a read-only variant.
+    /// </summary>
+    /// <returns></returns>
     public ReadableTrie<TKey, TResult> Freeze() => new ReadableTrie<TKey, TResult>(_root, _patterns);
 
+    /// <summary>
+    /// Adds a new item to the Trie with the given key pattern.
+    /// </summary>
+    /// <param name="keys"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
     public InsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
     {
         Assert.ArgumentNotNull(keys, nameof(keys));
@@ -57,6 +81,9 @@ public struct InsertableTrie<TKey, TResult>
     }
 }
 
+// TODO: Want to move this into Internal, including the Get extension method below.
+// All tests which use InsertableTrie and ReadableTrie directly should be converted to tests
+// on the publicly-supported Trie parser.
 public struct ReadableTrie<TKey, TResult>
 {
     private readonly Node<TKey, TResult> _root;
