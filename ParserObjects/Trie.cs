@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Tries;
 using ParserObjects.Internal.Utility;
-using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -50,11 +49,6 @@ public struct InsertableTrie<TKey, TResult>
 
     // TODO: Find a way to actually lock the node so it cannot be modified anymore.
     // I would prefer not to add a flag to all nodes which would only affect the root node.
-    /// <summary>
-    /// Freezes the Trie and returns a read-only variant.
-    /// </summary>
-    /// <returns></returns>
-    public ReadableTrie<TKey, TResult> Freeze() => new ReadableTrie<TKey, TResult>(_root, _patterns);
 
     /// <summary>
     /// Adds a new item to the Trie with the given key pattern.
@@ -79,41 +73,19 @@ public struct InsertableTrie<TKey, TResult>
 
         return this;
     }
+
+    public void Deconstruct(out Node<TKey, TResult> root, out List<IReadOnlyList<TKey>> patterns)
+    {
+        root = _root;
+        patterns = _patterns;
+    }
 }
 
-// TODO: Want to move this into Internal, including the Get extension method below.
-// All tests which use InsertableTrie and ReadableTrie directly should be converted to tests
-// on the publicly-supported Trie parser.
-public struct ReadableTrie<TKey, TResult>
+public class TrieInsertException : Exception
 {
-    private readonly Node<TKey, TResult> _root;
-    private readonly IReadOnlyList<IReadOnlyList<TKey>> _patterns;
-
-    public ReadableTrie(Node<TKey, TResult> root, IReadOnlyList<IReadOnlyList<TKey>> patterns)
+    public TrieInsertException(string message) : base(message)
     {
-        _root = root;
-        _patterns = patterns;
     }
-
-    public PartialResult<TResult> Get(ISequence<TKey> keys)
-    {
-        Assert.ArgumentNotNull(keys, nameof(keys));
-        return Node<TKey, TResult>.Get(_root, keys);
-    }
-
-    public bool CanGet(ISequence<TKey> keys)
-    {
-        Assert.ArgumentNotNull(keys, nameof(keys));
-        return Node<TKey, TResult>.CanGet(_root, keys);
-    }
-
-    public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
-    {
-        Assert.ArgumentNotNull(keys, nameof(keys));
-        return Node<TKey, TResult>.GetMany(_root, keys);
-    }
-
-    public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 }
 
 public static class TrieExtensions
@@ -139,14 +111,14 @@ public static class TrieExtensions
     /// <param name="trie"></param>
     /// <param name="keys"></param>
     /// <returns></returns>
-    public static Option<TResult> Get<TResult>(this ReadableTrie<char, TResult> trie, string keys)
-    {
-        var input = FromString(keys, new SequenceOptions<char>
-        {
-            MaintainLineEndings = true,
-            Encoding = System.Text.Encoding.ASCII
-        });
-        var result = trie.Get(input);
-        return result.Match(default, value => new Option<TResult>(true, value));
-    }
+    //public static Option<TResult> Get<TResult>(this ReadableTrie<char, TResult> trie, string keys)
+    //{
+    //    var input = FromString(keys, new SequenceOptions<char>
+    //    {
+    //        MaintainLineEndings = true,
+    //        Encoding = System.Text.Encoding.ASCII
+    //    });
+    //    var result = trie.Get(input);
+    //    return result.Match(default, value => new Option<TResult>(true, value));
+    //}
 }

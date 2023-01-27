@@ -197,6 +197,76 @@ public class TrieTests
         result.Consumed.Should().Be(0);
     }
 
+    [Test]
+    public void Parse_StringInt()
+    {
+        var trie = InsertableTrie<char, int>.Create();
+        trie.Add("abc", 1);
+        trie.Add("abd", 2);
+        trie.Add("aef", 3);
+        trie.Add("aeg", 4);
+        trie.Add("hij", 5);
+        var target = Trie(trie);
+
+        var input = FromString("abcabdaefaeghij");
+        target.Parse(input).Value.Should().Be(1);
+        target.Parse(input).Value.Should().Be(2);
+        target.Parse(input).Value.Should().Be(3);
+        target.Parse(input).Value.Should().Be(4);
+        target.Parse(input).Value.Should().Be(5);
+    }
+
+    [Test]
+    public void Parse_StringInt_AddGetBacktrack()
+    {
+        var trie = InsertableTrie<char, int>.Create();
+        trie.Add("abc", 1);
+        trie.Add("abcde", 2);
+        var target = Trie(trie);
+
+        // looks for "abcd", has a node but no value. Then backtracks to "abc" and finds the value
+        var input = FromString("abcd");
+
+        target.Parse(input).Value.Should().Be(1);
+    }
+
+    [TestCase("a", 1)]
+    [TestCase("ab", 2)]
+    [TestCase("abc", 3)]
+    [TestCase("abcd", 4)]
+    public void Parse_StringInt_AddGetPrefixes(string input, int result)
+    {
+        var trie = InsertableTrie<char, int>.Create();
+        trie.Add("a", 1);
+        trie.Add("ab", 2);
+        trie.Add("abc", 3);
+        trie.Add("abcd", 4);
+
+        var target = Trie(trie);
+        target.Parse(input).Value.Should().Be(result);
+    }
+
+    [Test]
+    public void Parse_StringInt_Duplicate_WrongValue()
+    {
+        var trie = InsertableTrie<char, int>.Create();
+        trie.Add("abc", 1);
+
+        Action act = () => trie.Add("abc", 2);
+        act.Should().Throw<TrieInsertException>();
+    }
+
+    [Test]
+    public void Parse_StringInt_Duplicate_SameValue()
+    {
+        var trie = InsertableTrie<char, int>.Create();
+        trie.Add("abc", 1);
+        trie.Add("abc", 1);
+
+        var target = Trie(trie);
+        target.Parse("abc").Value.Should().Be(1);
+    }
+
     [TestCase("=")]
     [TestCase("==")]
     [TestCase(">=")]
@@ -257,6 +327,30 @@ public class TrieTests
             .Named("parser");
         var result = parser.ToBnf();
         result.Should().Contain("parser := ('a' 'b' 'c') | ('a' 'b' 'd') | ('x' 'y' 'z')");
+    }
+
+    [Test]
+    public void ToBnf_Single()
+    {
+        var parser = Trie<string>(trie => trie
+                .Add("abc")
+            )
+            .Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := ('a' 'b' 'c')");
+    }
+
+    [Test]
+    public void ToBnf_Duplicate()
+    {
+        var parser = Trie<string>(trie => trie
+                .Add("abc")
+                .Add("abc")
+                .Add("abc")
+            )
+            .Named("parser");
+        var result = parser.ToBnf();
+        result.Should().Contain("parser := ('a' 'b' 'c')");
     }
 
     [Test]

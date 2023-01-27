@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Internal.Tries;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Internal.Visitors;
 
@@ -19,7 +20,8 @@ public sealed record TrieParser<TInput, TOutput>(
         var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
         if (trie.Count == 0)
             return Parsers<TInput>.Fail<TOutput>("There were no items in the trie");
-        return new TrieParser<TInput, TOutput>(trie.Freeze());
+        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
+        return new TrieParser<TInput, TOutput>(readable);
     }
 
     public static IMultiParser<TInput, TOutput> ConfigureMulti(Action<InsertableTrie<TInput, TOutput>> setupTrie)
@@ -27,7 +29,8 @@ public sealed record TrieParser<TInput, TOutput>(
         var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
         if (trie.Count == 0)
             return Parsers<TInput>.FailMulti<TOutput>("There were no items in the trie");
-        return new TrieParser<TInput, TOutput>(trie.Freeze());
+        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
+        return new TrieParser<TInput, TOutput>(readable);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();

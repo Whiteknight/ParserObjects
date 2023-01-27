@@ -1,5 +1,6 @@
 ﻿using System;
 using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Tries;
 
 namespace ParserObjects;
 
@@ -10,11 +11,14 @@ public static partial class Parsers<TInput>
     /// sequence.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="readOnlyTrie"></param>
+    /// <param name="trie"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Trie<TOutput>(ReadableTrie<TInput, TOutput> readOnlyTrie)
+    public static IParser<TInput, TOutput> Trie<TOutput>(InsertableTrie<TInput, TOutput> trie)
         where TOutput : notnull
-        => new TrieParser<TInput, TOutput>(readOnlyTrie);
+    {
+        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
+        return new TrieParser<TInput, TOutput>(readable);
+    }
 
     /// <summary>
     /// Lookup sequences of inputs in an trie to greedily find the longest matching sequence.
@@ -31,11 +35,14 @@ public static partial class Parsers<TInput>
     /// position.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="readOnlyTrie"></param>
+    /// <param name="trie"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(ReadableTrie<TInput, TOutput> readOnlyTrie)
+    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(InsertableTrie<TInput, TOutput> trie)
         where TOutput : notnull
-        => new TrieParser<TInput, TOutput>(readOnlyTrie);
+    {
+        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
+        return new TrieParser<TInput, TOutput>(readable);
+    }
 
     /// <summary>
     /// Lookup sequences of inputs in a trie and return all matches from the current position.

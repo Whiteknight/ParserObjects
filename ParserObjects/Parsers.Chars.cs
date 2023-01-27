@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
+using ParserObjects.Internal.Tries;
 using ParserObjects.Internal.Utility;
 using static ParserObjects.Parsers<char>;
 
@@ -31,7 +32,9 @@ public static partial class Parsers
         var trie = InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
-        return new TrieParser<char, string>(trie.Freeze());
+
+        var readable = ReadableTrie<char, string>.Create(trie);
+        return new TrieParser<char, string>(readable);
     }
 
     /// <summary>
