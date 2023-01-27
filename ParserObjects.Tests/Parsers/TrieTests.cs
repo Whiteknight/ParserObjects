@@ -102,7 +102,7 @@ public class TrieTests
     [Test]
     public void Multi_Action_Continue()
     {
-        void Populate(IInsertableTrie<char, string> trie)
+        void Populate(InsertableTrie<char, string> trie)
         {
             trie.Add("=", "=");
             trie.Add("==", "==");

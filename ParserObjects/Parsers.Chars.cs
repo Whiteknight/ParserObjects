@@ -28,10 +28,10 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, string> MatchAny(IEnumerable<string> patterns)
     {
-        var trie = new InsertOnlyTrie<char, string>();
+        var trie = InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
-        return new TrieParser<char, string>(trie);
+        return new TrieParser<char, string>(trie.Freeze());
     }
 
     /// <summary>

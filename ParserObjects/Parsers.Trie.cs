@@ -12,7 +12,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="readOnlyTrie"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Trie<TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
+    public static IParser<TInput, TOutput> Trie<TOutput>(ReadableTrie<TInput, TOutput> readOnlyTrie)
         where TOutput : notnull
         => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
@@ -23,7 +23,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Trie<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    public static IParser<TInput, TOutput> Trie<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
         => TrieParser<TInput, TOutput>.Configure(setupTrie);
 
     /// <summary>
@@ -33,7 +33,7 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="readOnlyTrie"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(IReadOnlyTrie<TInput, TOutput> readOnlyTrie)
+    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(ReadableTrie<TInput, TOutput> readOnlyTrie)
         where TOutput : notnull
         => new TrieParser<TInput, TOutput>(readOnlyTrie);
 
@@ -44,6 +44,6 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
         => TrieParser<TInput, TOutput>.ConfigureMulti(setupTrie);
 }

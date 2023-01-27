@@ -1,86 +1,90 @@
 ﻿using System.Linq;
-using ParserObjects.Internal;
-using ParserObjects.Internal.Utility;
+using ParserObjects.Internal.Tries;
 using static ParserObjects.Sequences;
 
-namespace ParserObjects.Tests.Utility
+namespace ParserObjects.Tests
 {
-    public class InsertOnlyTrieTests
+    public class TrieTests
     {
         [Test]
         public void Char_Int_AddGet()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abd", 2);
             target.Add("aef", 3);
             target.Add("aeg", 4);
             target.Add("hij", 5);
 
-            target.Get("abc").Value.Should().Be(1);
-            target.Get("abd").Value.Should().Be(2);
-            target.Get("aef").Value.Should().Be(3);
-            target.Get("aeg").Value.Should().Be(4);
-            target.Get("hij").Value.Should().Be(5);
+            var readable = target.Freeze();
+            readable.Get("abc").Value.Should().Be(1);
+            readable.Get("abd").Value.Should().Be(2);
+            readable.Get("aef").Value.Should().Be(3);
+            readable.Get("aeg").Value.Should().Be(4);
+            readable.Get("hij").Value.Should().Be(5);
         }
 
         [Test]
         public void Char_Int_AddGetBacktrack()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abcde", 2);
 
             // looks for "abcd", has a node but no value. Then backtracks to "abc" and finds the value
             var input = FromString("abcd");
 
-            target.Get(input).Value.Should().Be(1);
+            var readable = target.Freeze();
+            readable.Get(input).Value.Should().Be(1);
         }
 
         [Test]
         public void Char_Int_DoesntExist()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abd", 2);
             target.Add("aef", 3);
             target.Add("aeg", 4);
             target.Add("hij", 5);
 
-            target.Get("XYZ").Success.Should().BeFalse();
+            var readable = target.Freeze();
+            readable.Get("XYZ").Success.Should().BeFalse();
         }
 
         [Test]
         public void Char_Int_AddGetPrefixes()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("a", 1);
             target.Add("ab", 2);
             target.Add("abc", 3);
             target.Add("abcd", 4);
 
-            target.Get("a").Value.Should().Be(1);
-            target.Get("ab").Value.Should().Be(2);
-            target.Get("abc").Value.Should().Be(3);
-            target.Get("abcd").Value.Should().Be(4);
+            var readable = target.Freeze();
+            readable.Get("a").Value.Should().Be(1);
+            readable.Get("ab").Value.Should().Be(2);
+            readable.Get("abc").Value.Should().Be(3);
+            readable.Get("abcd").Value.Should().Be(4);
         }
 
         [Test]
         public void Char_Int_DuplicateAddGet()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abc", 1);
             target.Add("abc", 1);
             target.Add("abc", 1);
 
-            target.Get("abc").Value.Should().Be(1);
+            var readable = target.Freeze();
+            readable.Get("abc").Value.Should().Be(1);
         }
 
         [Test]
         public void Char_Int_AddConflict()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             Action act = () => target.Add("abc", 2);
             act.Should().Throw<TrieInsertException>();
@@ -89,35 +93,37 @@ namespace ParserObjects.Tests.Utility
         [Test]
         public void Char_Int_AddGetSequence()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abd", 2);
             target.Add("aef", 3);
             target.Add("aeg", 4);
             target.Add("hij", 5);
 
-            target.Get(FromString("abc")).Value.Should().Be(1);
-            target.Get(FromString("abd")).Value.Should().Be(2);
-            target.Get(FromString("aef")).Value.Should().Be(3);
-            target.Get(FromString("aeg")).Value.Should().Be(4);
-            target.Get(FromString("hij")).Value.Should().Be(5);
+            var readable = target.Freeze();
+            readable.Get(FromString("abc")).Value.Should().Be(1);
+            readable.Get(FromString("abd")).Value.Should().Be(2);
+            readable.Get(FromString("aef")).Value.Should().Be(3);
+            readable.Get(FromString("aeg")).Value.Should().Be(4);
+            readable.Get(FromString("hij")).Value.Should().Be(5);
 
-            target.Get(FromString("abX")).Success.Should().BeFalse();
-            target.Get(FromString("aXc")).Success.Should().BeFalse();
-            target.Get(FromString("Xbc")).Success.Should().BeFalse();
+            readable.Get(FromString("abX")).Success.Should().BeFalse();
+            readable.Get(FromString("aXc")).Success.Should().BeFalse();
+            readable.Get(FromString("Xbc")).Success.Should().BeFalse();
         }
 
         [Test]
         public void Char_Int_GetAllPatterns()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abd", 2);
             target.Add("aef", 3);
             target.Add("aeg", 4);
             target.Add("hij", 5);
 
-            var result = target.GetAllPatterns().ToList();
+            var readable = target.Freeze();
+            var result = readable.GetAllPatterns().ToList();
             result.Count.Should().Be(5);
             result[0].Should().BeEquivalentTo(new[] { 'a', 'b', 'c' });
             result[1].Should().BeEquivalentTo(new[] { 'a', 'b', 'd' });
@@ -129,12 +135,13 @@ namespace ParserObjects.Tests.Utility
         [Test]
         public void Char_Int_GetAllPatterns_Duplicate()
         {
-            var target = new InsertOnlyTrie<char, int>();
+            var target = InsertableTrie<char, int>.Create();
             target.Add("abc", 1);
             target.Add("abc", 1);
             target.Add("abc", 1);
 
-            var result = target.GetAllPatterns().ToList();
+            var readable = target.Freeze();
+            var result = readable.GetAllPatterns().ToList();
             result.Count.Should().Be(1);
             result[0].Should().BeEquivalentTo(new[] { 'a', 'b', 'c' });
         }

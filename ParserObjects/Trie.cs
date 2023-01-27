@@ -1,95 +1,114 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ParserObjects.Internal.Tries;
 using ParserObjects.Internal.Utility;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
 /// <summary>
-/// A trie type which allows using a composite key to search for values. This trie cannot be
-/// modified once created.
+/// Trie implementation which allows inserts of values but not updates of values. Once a value is
+/// inserted into the trie, it cannot be removed or modified.
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 /// <typeparam name="TResult"></typeparam>
-public interface IReadOnlyTrie<TKey, TResult>
+public struct InsertableTrie<TKey, TResult>
 {
-    /// <summary>
-    /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
-    /// value from the trie which successfully consumes the most amount of input items.
-    /// </summary>
-    /// <param name="keys"></param>
-    /// <returns></returns>
-    PartialResult<TResult> Get(ISequence<TKey> keys);
+    private readonly Node<TKey, TResult> _root;
+    private readonly List<IReadOnlyList<TKey>> _patterns;
 
-    /// <summary>
-    /// Returns true if the trie can get an object with the given key. False otherwise. Consumes
-    /// input from the sequence on success.
-    /// </summary>
-    /// <param name="keys"></param>
-    /// <returns></returns>
-    bool CanGet(ISequence<TKey> keys);
+    private InsertableTrie(Node<TKey, TResult> root, List<IReadOnlyList<TKey>> patterns)
+    {
+        _root = root;
+        _patterns = patterns;
+    }
 
-    /// <summary>
-    /// Given a sequence, treat the items in that sequence as elements of a composite key. Return a
-    /// list of values from the trie which successfully consume values from the composite key.
-    /// </summary>
-    /// <param name="keys"></param>
-    /// <returns></returns>
-    IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys);
+    public static InsertableTrie<TKey, TResult> Create()
+        => new InsertableTrie<TKey, TResult>(new Node<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
 
-    /// <summary>
-    /// Get all the pattern sequences in the trie. This operation may iterate over the entire trie so
-    /// the results should be cached if possible.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerable<IReadOnlyList<TKey>> GetAllPatterns();
+    public static InsertableTrie<TKey, TResult> Setup(Action<InsertableTrie<TKey, TResult>> setup)
+    {
+        var trie = Create();
+        setup?.Invoke(trie);
+        return trie;
+    }
 
-    /// <summary>
-    /// Gets a count of items in the trie.
-    /// </summary>
-    int Count { get; }
+    public int Count => _patterns.Count;
+
+    public ReadableTrie<TKey, TResult> Freeze() => new ReadableTrie<TKey, TResult>(_root, _patterns);
+
+    public InsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        Assert.ArgumentNotNull(result, nameof(result));
+        var current = _root;
+        var keyList = keys.ToArray();
+        foreach (var key in keyList)
+            current = current.GetOrAdd(key);
+
+        if (current.TryAddResult(result))
+            _patterns.Add(keyList);
+        return this;
+    }
 }
 
-/// <summary>
-/// A trie to which items can be added.
-/// </summary>
-/// <typeparam name="TKey"></typeparam>
-/// <typeparam name="TResult"></typeparam>
-public interface IInsertableTrie<TKey, TResult> : IReadOnlyTrie<TKey, TResult>
+public struct ReadableTrie<TKey, TResult>
 {
-    /// <summary>
-    /// Given a composite key and a value, insert the value at the location described by the key.
-    /// </summary>
-    /// <param name="keys"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
-    IInsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result);
+    private readonly Node<TKey, TResult> _root;
+    private readonly IReadOnlyList<IReadOnlyList<TKey>> _patterns;
+
+    public ReadableTrie(Node<TKey, TResult> root, IReadOnlyList<IReadOnlyList<TKey>> patterns)
+    {
+        _root = root;
+        _patterns = patterns;
+    }
+
+    public PartialResult<TResult> Get(ISequence<TKey> keys)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        return Node<TKey, TResult>.Get(_root, keys);
+    }
+
+    public bool CanGet(ISequence<TKey> keys)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        return Node<TKey, TResult>.CanGet(_root, keys);
+    }
+
+    public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
+    {
+        Assert.ArgumentNotNull(keys, nameof(keys));
+        return Node<TKey, TResult>.GetMany(_root, keys);
+    }
+
+    public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 }
 
 public static class TrieExtensions
 {
     /// <summary>
-    /// Convenience method to add a string value with char keys.
+    /// Add a string value to a char trie as it's own key.
     /// </summary>
     /// <param name="readOnlyTrie"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static IInsertableTrie<char, string> Add(
-        this IInsertableTrie<char, string> readOnlyTrie,
+    public static InsertableTrie<char, string> Add(
+        this InsertableTrie<char, string> readOnlyTrie,
         string value
     )
     {
-        Assert.ArgumentNotNull(readOnlyTrie, nameof(readOnlyTrie));
         return readOnlyTrie.Add(value, value);
     }
 
     /// <summary>
-    /// Get a value from a char trie. Used mostly for testing purposes.
+    /// Get a string value from a char trie.
     /// </summary>
     /// <typeparam name="TResult"></typeparam>
     /// <param name="trie"></param>
     /// <param name="keys"></param>
     /// <returns></returns>
-    public static Option<TResult> Get<TResult>(this IReadOnlyTrie<char, TResult> trie, string keys)
+    public static Option<TResult> Get<TResult>(this ReadableTrie<char, TResult> trie, string keys)
     {
         var input = FromString(keys, new SequenceOptions<char>
         {

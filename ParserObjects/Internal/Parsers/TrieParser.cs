@@ -10,24 +10,24 @@ namespace ParserObjects.Internal.Parsers;
 /// Uses a Trie to match the longest pattern from among available options.
 /// </summary>
 public sealed record TrieParser<TInput, TOutput>(
-    IReadOnlyTrie<TInput, TOutput> Trie,
+    ReadableTrie<TInput, TOutput> Trie,
     string Name = ""
 ) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
-    public static IParser<TInput, TOutput> Configure(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    public static IParser<TInput, TOutput> Configure(Action<InsertableTrie<TInput, TOutput>> setupTrie)
     {
-        var trie = InsertOnlyTrie<TInput, TOutput>.Setup(setupTrie);
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
         if (trie.Count == 0)
             return Parsers<TInput>.Fail<TOutput>("There were no items in the trie");
-        return new TrieParser<TInput, TOutput>(trie);
+        return new TrieParser<TInput, TOutput>(trie.Freeze());
     }
 
-    public static IMultiParser<TInput, TOutput> ConfigureMulti(Action<IInsertableTrie<TInput, TOutput>> setupTrie)
+    public static IMultiParser<TInput, TOutput> ConfigureMulti(Action<InsertableTrie<TInput, TOutput>> setupTrie)
     {
-        var trie = InsertOnlyTrie<TInput, TOutput>.Setup(setupTrie);
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
         if (trie.Count == 0)
             return Parsers<TInput>.FailMulti<TOutput>("There were no items in the trie");
-        return new TrieParser<TInput, TOutput>(trie);
+        return new TrieParser<TInput, TOutput>(trie.Freeze());
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
