@@ -14,10 +14,10 @@ namespace ParserObjects;
 /// <typeparam name="TResult"></typeparam>
 public struct InsertableTrie<TKey, TResult>
 {
-    private readonly Node<TKey, TResult> _root;
+    private readonly RootNode<TKey, TResult> _root;
     private readonly List<IReadOnlyList<TKey>> _patterns;
 
-    private InsertableTrie(Node<TKey, TResult> root, List<IReadOnlyList<TKey>> patterns)
+    private InsertableTrie(RootNode<TKey, TResult> root, List<IReadOnlyList<TKey>> patterns)
     {
         _root = root;
         _patterns = patterns;
@@ -28,7 +28,7 @@ public struct InsertableTrie<TKey, TResult>
     /// </summary>
     /// <returns></returns>
     public static InsertableTrie<TKey, TResult> Create()
-        => new InsertableTrie<TKey, TResult>(new Node<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
+        => new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
 
     /// <summary>
     /// Create and initialize a new trie instance from a user callback.
@@ -60,21 +60,14 @@ public struct InsertableTrie<TKey, TResult>
     {
         Assert.ArgumentNotNull(keys, nameof(keys));
         Assert.ArgumentNotNull(result, nameof(result));
-        var current = _root;
         var keyList = keys.ToArray();
-        foreach (var key in keyList)
-            current = current.GetOrAddChild(key);
-
-        if (current.TryAddResult(result))
-        {
+        if (_root.TryAdd(keyList, result))
             _patterns.Add(keyList);
-            _root.SetPatternDepth(keyList.Length);
-        }
 
         return this;
     }
 
-    public void Deconstruct(out Node<TKey, TResult> root, out List<IReadOnlyList<TKey>> patterns)
+    public void Deconstruct(out RootNode<TKey, TResult> root, out List<IReadOnlyList<TKey>> patterns)
     {
         root = _root;
         patterns = _patterns;

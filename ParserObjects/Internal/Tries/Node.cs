@@ -17,29 +17,70 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
     {
         HasResult = false;
         Result = default;
-        MaxDepth = 0;
     }
 
     public bool HasResult { get; private set; }
 
     public TResult? Result { get; private set; }
 
+    public Node<TKey, TResult> GetOrAddChild(TKey key)
+    {
+        Assert.ArgumentNotNull(key, nameof(key));
+        var wrappedKey = new ValueTuple<TKey>(key);
+        if (ContainsKey(wrappedKey))
+            return this[wrappedKey];
+        var newNode = new Node<TKey, TResult>();
+        Add(wrappedKey, newNode);
+        return newNode;
+    }
+
+    public bool TryAddResult(TResult result)
+    {
+        if (!HasResult || Result == null)
+        {
+            HasResult = true;
+            Result = result;
+            return true;
+        }
+
+        if (Result.Equals(result))
+            return false;
+
+        throw new TrieInsertException("The result value has already been set for this input sequence");
+    }
+}
+
+public class RootNode<TKey, TResult> : Node<TKey, TResult>
+{
+    public RootNode()
+    {
+        Editable = true;
+        MaxDepth = 0;
+    }
+
+    public bool Editable { get; private set; }
+
     // Maximum depth of the longest pattern in the Trie. This value is only set on the root node
     public int MaxDepth { get; private set; }
 
-    /* We call these static Get method variants instead of calling Get instance methods on the nodes
-     * because it saves us a lot of recursion and we can use a rented array buffer for the stack.
-     * Overall it makes things a bit nicer.
-     */
-
-    public static PartialResult<TResult> Get(Node<TKey, TResult> root, ISequence<TKey> keys)
+    private void SetPatternDepth(int depth)
     {
-        var current = root;
-        int maxDepth = root.MaxDepth;
+        if (depth > MaxDepth)
+            MaxDepth = depth;
+    }
+
+    public void Lock()
+    {
+        Editable = false;
+    }
+
+    public PartialResult<TResult> Get(ISequence<TKey> keys)
+    {
+        Node<TKey, TResult> current = this;
 
         // The node, and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(maxDepth);
+        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(MaxDepth);
         var index = 0;
         var startCont = keys.Checkpoint();
         var startConsumed = keys.Consumed;
@@ -89,14 +130,13 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         }
     }
 
-    public static bool CanGet(Node<TKey, TResult> root, ISequence<TKey> keys)
+    public bool CanGet(ISequence<TKey> keys)
     {
-        var current = root;
-        int maxDepth = root.MaxDepth;
+        Node<TKey, TResult> current = this;
 
         // The node, and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(maxDepth);
+        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(MaxDepth);
         var index = 0;
         var startCont = keys.Checkpoint();
         previous[index++] = (current, startCont);
@@ -145,9 +185,9 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         }
     }
 
-    public static IReadOnlyList<IResultAlternative<TResult>> GetMany(Node<TKey, TResult> root, ISequence<TKey> keys)
+    public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
     {
-        var current = root;
+        Node<TKey, TResult> current = this;
         var results = new List<IResultAlternative<TResult>>();
 
         while (true)
@@ -175,35 +215,21 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         }
     }
 
-    public Node<TKey, TResult> GetOrAddChild(TKey key)
+    public bool TryAdd(IReadOnlyList<TKey> keyList, TResult value)
     {
-        Assert.ArgumentNotNull(key, nameof(key));
-        var wrappedKey = new ValueTuple<TKey>(key);
-        if (ContainsKey(wrappedKey))
-            return this[wrappedKey];
-        var newNode = new Node<TKey, TResult>();
-        Add(wrappedKey, newNode);
-        return newNode;
-    }
+        if (!Editable)
+            throw new TrieInsertException("Cannot insert new items into a Trie which has been locked");
 
-    public bool TryAddResult(TResult result)
-    {
-        if (!HasResult || Result == null)
+        Node<TKey, TResult> current = this;
+        foreach (var key in keyList)
+            current = current.GetOrAddChild(key);
+
+        if (current.TryAddResult(value))
         {
-            HasResult = true;
-            Result = result;
+            SetPatternDepth(keyList.Count);
             return true;
         }
 
-        if (Result.Equals(result))
-            return false;
-
-        throw new TrieInsertException("The result value has already been set for this input sequence");
-    }
-
-    public void SetPatternDepth(int depth)
-    {
-        if (depth > MaxDepth)
-            MaxDepth = depth;
+        return false;
     }
 }
