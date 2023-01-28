@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
 
@@ -7,6 +8,16 @@ public sealed class CaptureCollection : List<(int group, string value)>
 {
     /* CaptureCollection IS-A List to avoid a second allocation. We cannot make it a struct because
      * we need reference behavior on the CaptureIndex value.
+     *
+     * CaptureIndex points to the most recently added item. The Regex Engine will include that
+     * value in snapshots so that it can rewind to a previous index during backtracking.
+     */
+
+    /* Notice: We allocate the CaptureCollection. Then on successful match we allocate the array
+     * of captures. Then in the RegexParser we allocate an array of objects to hold data, allocate
+     * a new RegexMatch object, which in the constructor allocates two dictionaries. I recognize
+     * this as a problem, but cannot think of any obvious, meaningful solution which doesn't involve
+     * all sorts of ugly unsafe pointer nonsense.
      */
 
     public CaptureCollection()
@@ -37,15 +48,31 @@ public sealed class CaptureCollection : List<(int group, string value)>
         CaptureIndex = captureIndex >= Count ? Count - 1 : captureIndex;
     }
 
-    public IReadOnlyList<(int group, string value)> ToList()
+    public RegexMatch ToRegexMatch(string overallMatch)
     {
-        // CaptureCollection IS-A list, but we cannot use it as the list itself because it may
-        // contain more items than required. So we have to slice the list and only return up to
-        // CaptureIndex items.
         if (CaptureIndex < 0)
-            return Array.Empty<(int, string)>();
+        {
+            return new RegexMatch
+            {
+                { 0, new[] { overallMatch } }
+            };
+        }
 
-        return GetRange(0, CaptureIndex + 1);
+        var groups = new RegexMatch
+        {
+            { 0, new[] { overallMatch } }
+        };
+
+        for (int i = 0; i <= CaptureIndex; i++)
+        {
+            var (group, value) = this[i];
+            Debug.Assert(group > 0, "We cannot add to group 0");
+            if (!groups.ContainsKey(group))
+                groups.Add(group, new List<string>());
+            (groups[group] as List<string>)!.Add(value);
+        }
+
+        return groups;
     }
 
     public string? GetLatestValueForGroup(int groupNumber)

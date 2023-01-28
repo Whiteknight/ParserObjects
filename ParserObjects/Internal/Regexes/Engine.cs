@@ -29,7 +29,8 @@ public static class Engine
         {
             var endCheckpoint = input.Checkpoint();
             var captureValue = GetOverallMatchCapture(input, startCheckpoint, endCheckpoint);
-            return new MatchResult(captureValue, captureValue.Length, startLocation, captures.ToList());
+            var match = captures.ToRegexMatch(captureValue);
+            return new MatchResult(captureValue, captureValue.Length, startLocation, match);
         }
 
         return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);

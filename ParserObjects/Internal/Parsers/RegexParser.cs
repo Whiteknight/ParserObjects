@@ -3,7 +3,6 @@ using System.Linq;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Internal.Visitors;
-using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -41,7 +40,7 @@ public sealed class RegexParser : IParser<char, string>
 
         return state.Success(this, result.Value!, result.Consumed, new[]
         {
-            new RegexMatch(result.Value!, result.Captures!)
+            result.Match!
         });
     }
 

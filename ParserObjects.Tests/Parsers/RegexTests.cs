@@ -270,9 +270,9 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups[1][0].Should().Be("abc");
-        matches.Groups[2][0].Should().Be("abc");
-        matches.Groups[3][0].Should().Be("abc");
+        matches[1][0].Should().Be("abc");
+        matches[2][0].Should().Be("abc");
+        matches[3][0].Should().Be("abc");
     }
 
     [TestCase("(.)(.)(.)", "abc", "a", "b", "c")]
@@ -287,10 +287,10 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups[0][0].Should().Be(input);
-        matches.Groups[1][0].Should().Be(group1);
-        matches.Groups[2][0].Should().Be(group2);
-        matches.Groups[3][0].Should().Be(group3);
+        matches[0][0].Should().Be(input);
+        matches[1][0].Should().Be(group1);
+        matches[2][0].Should().Be(group2);
+        matches[3][0].Should().Be(group3);
     }
 
     [TestCase("(..)+", "abcdef", "ab", "cd", "ef")]
@@ -304,10 +304,10 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups[0][0].Should().Be(input);
-        matches.Groups[1][0].Should().Be(capture1);
-        matches.Groups[1][1].Should().Be(capture2);
-        matches.Groups[1][2].Should().Be(capture3);
+        matches[0][0].Should().Be(input);
+        matches[1][0].Should().Be(capture1);
+        matches[1][1].Should().Be(capture2);
+        matches[1][2].Should().Be(capture3);
     }
 
     [Test]
@@ -322,10 +322,10 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups[0][0].Should().Be("ad");
-        matches.Groups.Count.Should().Be(2);
-        matches.Groups[1].Count.Should().Be(1);
-        matches.Groups[1][0].Should().Be("a");
+        matches[0][0].Should().Be("ad");
+        matches.Count.Should().Be(2);
+        matches[1].Count.Should().Be(1);
+        matches[1][0].Should().Be("a");
     }
 
     [TestCase("(?:.)", "a")]
@@ -342,8 +342,8 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups.Count.Should().Be(1);
-        matches.Groups[0][0].Should().Be(input);
+        matches.Count.Should().Be(1);
+        matches[0][0].Should().Be(input);
     }
 
     [Test]
@@ -371,8 +371,8 @@ public class RegexTests
         var matchOption = result.TryGetData<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches.Groups[0][0].Should().Be(group0);
-        matches.Groups[1][0].Should().Be(group1);
+        matches[0][0].Should().Be(group0);
+        matches[1][0].Should().Be(group1);
     }
 
     [Test]

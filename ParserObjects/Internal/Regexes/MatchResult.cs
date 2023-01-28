@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
 
@@ -11,17 +11,17 @@ public struct MatchResult
         ErrorMessage = error;
         Consumed = 0;
         Value = default;
-        Captures = null;
+        Match = null;
     }
 
-    public MatchResult(string value, int consumed, Location location, IReadOnlyList<(int, string)> captures)
+    public MatchResult(string value, int consumed, Location location, RegexMatch match)
     {
         Success = true;
         Value = value;
         Consumed = consumed;
         Location = location;
         ErrorMessage = default;
-        Captures = captures;
+        Match = match;
     }
 
     public bool Success { get; }
@@ -32,5 +32,5 @@ public struct MatchResult
 
     public string? ErrorMessage { get; }
 
-    public IReadOnlyList<(int group, string value)>? Captures { get; }
+    public RegexMatch? Match { get; }
 }
