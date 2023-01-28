@@ -7,15 +7,16 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Look up sequences of inputs in an IReadOnlyTrie to greedily find the longest matching
+    /// Look up sequences of inputs in a trie to greedily find the longest matching
     /// sequence.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="trie"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Trie<TOutput>(InsertableTrie<TInput, TOutput> trie)
-        where TOutput : notnull
     {
+        if (trie.Count == 0)
+            return Fail<TOutput>("The Trie contains no elements");
         var readable = ReadableTrie<TInput, TOutput>.Create(trie);
         return new TrieParser<TInput, TOutput>(readable);
     }
@@ -28,18 +29,22 @@ public static partial class Parsers<TInput>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Trie<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
-        => TrieParser<TInput, TOutput>.Configure(setupTrie);
+    {
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
+        return Trie(trie);
+    }
 
     /// <summary>
-    /// Lookup a sequences of inputs in an IReadOnlyTrie and return all matches from the current
+    /// Lookup a sequences of inputs in a trie and return all matches from the current
     /// position.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="trie"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(InsertableTrie<TInput, TOutput> trie)
-        where TOutput : notnull
     {
+        if (trie.Count == 0)
+            return FailMulti<TOutput>("The Trie contains no elements");
         var readable = ReadableTrie<TInput, TOutput>.Create(trie);
         return new TrieParser<TInput, TOutput>(readable);
     }
@@ -52,5 +57,8 @@ public static partial class Parsers<TInput>
     /// <param name="setupTrie"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
-        => TrieParser<TInput, TOutput>.ConfigureMulti(setupTrie);
+    {
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
+        return TrieMulti(trie);
+    }
 }

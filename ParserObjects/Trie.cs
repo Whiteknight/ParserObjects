@@ -47,9 +47,6 @@ public struct InsertableTrie<TKey, TResult>
     /// </summary>
     public int Count => _patterns.Count;
 
-    // TODO: Find a way to actually lock the node so it cannot be modified anymore.
-    // I would prefer not to add a flag to all nodes which would only affect the root node.
-
     /// <summary>
     /// Adds a new item to the Trie with the given key pattern.
     /// </summary>
@@ -96,22 +93,4 @@ public static class TrieExtensions
     {
         return readOnlyTrie.Add(value, value);
     }
-
-    /// <summary>
-    /// Get a string value from a char trie.
-    /// </summary>
-    /// <typeparam name="TResult"></typeparam>
-    /// <param name="trie"></param>
-    /// <param name="keys"></param>
-    /// <returns></returns>
-    //public static Option<TResult> Get<TResult>(this ReadableTrie<char, TResult> trie, string keys)
-    //{
-    //    var input = FromString(keys, new SequenceOptions<char>
-    //    {
-    //        MaintainLineEndings = true,
-    //        Encoding = System.Text.Encoding.ASCII
-    //    });
-    //    var result = trie.Get(input);
-    //    return result.Match(default, value => new Option<TResult>(true, value));
-    //}
 }
