@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using ParserObjects.Internal.Utility;
 using ParserObjects.Pratt;
 
@@ -30,16 +31,13 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         Name = name ?? _match.Name ?? (TokenTypeId > 0 ? TokenTypeId.ToString() : match.ToString()) ?? string.Empty;
     }
 
-    /* At each iteration of the engine, it is going to invoke all available Parselets. The Parselets
-     * invoke their Parsers to return an IResult<TValue>, which in turn is converted to an
-     * IParserResultToken<TInput, TOutput> (notice that the token's TValue result is "hidden" here
-     * by the interface). This is because the Token can "get" a TOutput by passing the TValue to
-     * the user callback Nud or Led function. IParserResultToken<TInput, TOutput> returns a TOutput
-     * by transforming it's hidden TValue value to TOutput.
+    /* At each iteration of the engine, it is going to attempt to invoke all available Parselets,
+     * in order by how they were defined by the user. The Parselets invoke their Parsers to return
+     * an IResult<TValue>, which is fed into the NED or LED delegate callbacks to produce a
+     * ValueToken<TOutput>.
      *
-     * IParserResultToken<TInput, TOutput>.NullDenominator or .LeftDenominator call Parselet.Nud
-     * or Parselet.Led, respectively to do the transformation, and return an IValueToken<TOutput>.
-     * That IValueToken<TOutput> is then used in the next Engine iteration as the "left" value.
+     * TValue is the return value of the parser, but the Engine only works in terms of TInput and
+     * TOutput. So we do not return raw TValue values from here.
      */
 
     public int TokenTypeId { get; }
@@ -52,43 +50,48 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public bool CanLed => _led != null;
 
-    public (bool success, IParserResultToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state)
+    public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl)
     {
+        Debug.Assert(CanNud, "Must be a NUDable parselet");
+
+        var startCp = state.Input.Checkpoint();
         var result = _match.Parse(state);
         if (!result.Success)
             return default;
-        return (true, new ParseletToken<TInput, TValue, TOutput>(this, result.Value), result.Consumed);
-    }
 
-    public Option<IValueToken<TOutput>> Nud(PrattParseContext<TInput, TOutput> context, IValueToken<TValue> sourceToken)
-    {
-        if (_nud == null)
-            return default;
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, true, Name, parseControl);
         try
         {
-            var resultValue = _nud(context, sourceToken);
+            var resultValue = _nud(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
             var token = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new Option<IValueToken<TOutput>>(true, token);
+            return (true, token, state.Input.Consumed - startCp.Consumed);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
+            startCp.Rewind();
             return default;
         }
     }
 
-    public Option<IValueToken<TOutput>> Led(PrattParseContext<TInput, TOutput> context, IPrattToken left, IValueToken<TValue> sourceToken)
+    public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left)
     {
-        if (_led == null || left is not IValueToken<TOutput> leftTyped)
+        Debug.Assert(CanLed, "Must be a LEDable parselet");
+
+        var startCp = state.Input.Checkpoint();
+        var result = _match.Parse(state);
+        if (!result.Success)
             return default;
 
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, result.Consumed > 0, Name, parseControl);
         try
         {
-            var resultValue = _led(context, leftTyped, sourceToken);
+            var resultValue = _led(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
             var resultToken = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
-            return new Option<IValueToken<TOutput>>(true, resultToken);
+            return (true, resultToken, state.Input.Consumed - startCp.Consumed);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
         {
+            startCp.Rewind();
             return default;
         }
     }

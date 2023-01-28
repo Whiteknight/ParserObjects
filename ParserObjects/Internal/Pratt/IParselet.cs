@@ -1,3 +1,5 @@
+using ParserObjects.Pratt;
+
 namespace ParserObjects.Internal.Pratt;
 
 /// <summary>
@@ -31,11 +33,23 @@ public interface IParselet<TInput, TOutput> : INamed
     IParser Parser { get; }
 
     /// <summary>
-    /// Attempts to get the next token from the input sequence.
+    /// Attempts to get the next NUD token from the input sequence.
     /// </summary>
     /// <param name="state"></param>
+    /// <param name="engine"></param>
+    /// <param name="parseControl"></param>
     /// <returns></returns>
-    (bool success, IParserResultToken<TInput, TOutput> token, int consumed) TryGetNext(IParseState<TInput> state);
+    (bool success, ValueToken<TOutput> token, int consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl);
+
+    /// <summary>
+    /// Attepts to get the next LED token from the input sequence.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <param name="engine"></param>
+    /// <param name="parseControl"></param>
+    /// <param name="left"></param>
+    /// <returns></returns>
+    (bool success, ValueToken<TOutput> token, int consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left);
 
     /// <summary>
     /// Gets a value indicating whether this parselet can be used as a null denominator.

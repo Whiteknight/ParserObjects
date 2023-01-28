@@ -68,7 +68,7 @@ public sealed class Engine<TInput, TOutput>
         while (!parseControl.IsComplete)
         {
             var rightResult = GetRight(state, rbp, leftToken, parseControl);
-            if (!rightResult.Success || rightResult.Value == null)
+            if (!rightResult.Success || rightResult.Value.Value == null)
                 break;
 
             // Set the next left value to be the current combined right value and continue
@@ -85,66 +85,46 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed);
     }
 
-    private PartialResult<IValueToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, IValueToken<TOutput> leftToken, ParseControl parseControl)
+    private PartialResult<ValueToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, ValueToken<TOutput> leftToken, ParseControl parseControl)
     {
-        var cp = state.Input.Checkpoint();
         for (int i = 0; i < _numLedableParselets; i++)
         {
             var parselet = _ledableParselets[i];
             if (minBp >= parselet.Lbp)
                 continue;
 
-            var (success, token, consumed) = parselet.TryGetNext(state);
+            var (success, token, consumed) = parselet.TryGetNextLed(state, this, parseControl, leftToken);
+
+            if (parseControl.IsComplete)
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
+
             if (!success)
                 continue;
 
-            int startConsumed = state.Input.Consumed;
-
-            // Transform the IToken into IToken<TOutput> using the LeftDenominator rule and
-            // the current left value
-            var rightResult = token.LeftDenominator(state, this, true, parseControl, leftToken);
-            if (!rightResult.Success)
-            {
-                cp.Rewind();
-                if (parseControl.IsComplete)
-                    return new PartialResult<IValueToken<TOutput>>("The parse is complete");
-                continue;
-            }
-
-            consumed += state.Input.Consumed - startConsumed;
-            return new PartialResult<IValueToken<TOutput>>(rightResult.Value, consumed);
+            return new PartialResult<ValueToken<TOutput>>(token, consumed);
         }
 
-        return new PartialResult<IValueToken<TOutput>>(string.Empty);
+        return new PartialResult<ValueToken<TOutput>>(string.Empty);
     }
 
-    private PartialResult<IValueToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
+    private PartialResult<ValueToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
     {
-        var cp = state.Input.Checkpoint();
         for (int i = 0; i < _numNudableParselets; i++)
         {
             var parselet = _nudableParselets[i];
-            var (success, token, consumed) = parselet.TryGetNext(state);
+
+            var (success, token, consumed) = parselet.TryGetNextNud(state, this, parseControl);
+
+            if (parseControl.IsComplete)
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
+
             if (!success)
                 continue;
 
-            int startConsumed = state.Input.Consumed;
-
-            // Transform the IParserResultToken into IValueToken<TInput> using the NullDenominator rule
-            var leftResult = token.NullDenominator(state, this, consumed > 0, parseControl);
-            if (!leftResult.Success)
-            {
-                cp.Rewind();
-                if (parseControl.IsComplete)
-                    return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position and the parse is complete.");
-                continue;
-            }
-
-            consumed += state.Input.Consumed - startConsumed;
-            return new PartialResult<IValueToken<TOutput>>(leftResult.Value, consumed);
+            return new PartialResult<ValueToken<TOutput>>(token, consumed);
         }
 
-        return new PartialResult<IValueToken<TOutput>>("No parselets matched and transformed at the current position.");
+        return new PartialResult<ValueToken<TOutput>>("No parselets matched and transformed at the current position.");
     }
 }
 
