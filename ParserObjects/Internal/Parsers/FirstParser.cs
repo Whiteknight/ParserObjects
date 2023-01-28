@@ -10,6 +10,7 @@ namespace ParserObjects.Internal.Parsers;
 /// Takes a list of parsers and attempts each one in order. Returns as soon as the first parser
 /// succeeds.
 /// </summary>
+/// <typeparam name="TInput"></typeparam>
 public static class FirstParser<TInput>
 {
     private static TResult ParseInternal<TParser, TResult>(IParseState<TInput> state, IReadOnlyList<TParser> parsers, Func<IParseState<TInput>, TParser, TResult> getResult)

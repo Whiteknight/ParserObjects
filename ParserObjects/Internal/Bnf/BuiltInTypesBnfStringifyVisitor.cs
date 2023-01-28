@@ -181,7 +181,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("FAIL");
     }
 
-    private void AcceptFirstVariant(IReadOnlyList<IParser> children, BnfStringifyState state)
+    private static void AcceptFirstVariant(IReadOnlyList<IParser> children, BnfStringifyState state)
     {
         Debug.Assert(children.Count >= 2, "We should not have a First with 0 or 1 children");
 
