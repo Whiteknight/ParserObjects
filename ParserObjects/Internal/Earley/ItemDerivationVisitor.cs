@@ -2,12 +2,11 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using ParserObjects.Earley;
 
 namespace ParserObjects.Internal.Earley;
 
-public class ItemDerivationVisitor
+public struct ItemDerivationVisitor
 {
     private readonly Dictionary<(IProduction, int, int), IReadOnlyList<object>> _cache;
     private readonly ParseStatistics _statistics;
@@ -196,7 +195,19 @@ public class ItemDerivationVisitor
         // alternations. For each alternation option, we want to reduce to the appropriate
         // value and add that to the list of values.
         if (item.ValueSymbol is INonterminal)
-            return item.Derivations!.OfType<Item>().SelectMany(d => Visit(d)).ToList();
+        {
+            var results = new List<object>();
+            for (int i = 0; i < item.Derivations!.Count; i++)
+            {
+                var derivation = item.Derivations[i];
+                if (derivation is not Item derivedItem)
+                    continue;
+                var possibleValues = Visit(derivedItem);
+                results.AddRange(possibleValues);
+            }
+
+            return results;
+        }
 
         return Array.Empty<object>();
     }
