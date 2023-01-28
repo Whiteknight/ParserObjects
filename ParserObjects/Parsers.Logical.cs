@@ -46,7 +46,7 @@ public static partial class Parsers<TInput>
     /// <param name="p1"></param>
     /// <returns></returns>
     public static IParser<TInput> Not(IParser<TInput> p1)
-        => new NotParser<TInput>(p1);
+        => new NegativeLookaheadParser<TInput>(p1);
 
     /// <summary>
     /// Tests several parsers sequentially. Returns Success if any parser succeeds, returns

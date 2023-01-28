@@ -59,7 +59,7 @@ public static class NotTests
         {
             var parser = Not(Any()).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := !.");
+            result.Should().Contain("parser := (?! . )");
         }
     }
 

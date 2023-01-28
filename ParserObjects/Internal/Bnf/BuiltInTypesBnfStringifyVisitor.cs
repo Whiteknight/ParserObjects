@@ -322,12 +322,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(" ", continuation);
     }
 
-    public void Accept<TInput>(NotParser<TInput> p, BnfStringifyState state)
-    {
-        var child = p.GetChildren().First();
-        state.Append("!", child);
-    }
-
     public void Accept<TInput, TOutput>(Optional<TInput, TOutput>.DefaultValueParser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First(), "?");

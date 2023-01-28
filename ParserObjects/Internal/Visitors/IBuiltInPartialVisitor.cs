@@ -129,8 +129,6 @@ public interface ILogicalPartialVisitor<TState> : IPartialVisitor<TState>
     void Accept<TInput>(AndParser<TInput> p, TState state);
 
     void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, TState state);
-
-    void Accept<TInput>(NotParser<TInput> p, TState state);
 }
 
 public interface IEarleyPartialVisitor<TState> : IPartialVisitor<TState>
