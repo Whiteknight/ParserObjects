@@ -181,9 +181,8 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("FAIL");
     }
 
-    public void Accept<TInput, TOutput>(FirstParser<TInput, TOutput> p, BnfStringifyState state)
+    private void AcceptFirstVariant(IReadOnlyList<IParser> children, BnfStringifyState state)
     {
-        var children = p.GetChildren().ToList();
         Debug.Assert(children.Count >= 2, "We should not have a First with 0 or 1 children");
 
         state.Append("(", children[0]);
@@ -193,6 +192,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
 
         state.Append(')');
     }
+
+    public void Accept<TInput>(FirstParser<TInput>.WithoutOutput p, BnfStringifyState state)
+        => AcceptFirstVariant(p.GetChildren().ToList(), state);
+
+    public void Accept<TInput, TOutput>(FirstParser<TInput>.WithOutput<TOutput> p, BnfStringifyState state)
+        => AcceptFirstVariant(p.GetChildren().ToList(), state);
 
     // Includes all variants of Function<T>.Parser, Function<TIn, TOut>.Parser, .MultiParser, etc
     private static void AcceptFunctionVariant(string? description, IReadOnlyList<IParser> children, BnfStringifyState state)
@@ -331,12 +336,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(Optional<TInput, TOutput>.NoDefaultParser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First(), "?");
-    }
-
-    public void Accept<TInput>(OrParser<TInput> p, BnfStringifyState state)
-    {
-        var children = p.GetChildren().ToArray();
-        state.Append(children[0], " || ", children[1]);
     }
 
     public void Accept<TInput>(PeekParser<TInput> _, BnfStringifyState state)

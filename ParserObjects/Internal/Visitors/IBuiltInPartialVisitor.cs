@@ -77,7 +77,9 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput>(FailParser<TInput, TOutput> p, TState state);
 
-    void Accept<TInput, TOutput>(FirstParser<TInput, TOutput> p, TState state);
+    void Accept<TInput, TOutput>(FirstParser<TInput>.WithOutput<TOutput> p, TState state);
+
+    void Accept<TInput>(FirstParser<TInput>.WithoutOutput p, TState state);
 
     void Accept<TInput, TOutput>(Optional<TInput, TOutput>.DefaultValueParser p, TState state);
 
@@ -129,8 +131,6 @@ public interface ILogicalPartialVisitor<TState> : IPartialVisitor<TState>
     void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, TState state);
 
     void Accept<TInput>(NotParser<TInput> p, TState state);
-
-    void Accept<TInput>(OrParser<TInput> p, TState state);
 }
 
 public interface IEarleyPartialVisitor<TState> : IPartialVisitor<TState>

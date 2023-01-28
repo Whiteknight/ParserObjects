@@ -250,7 +250,16 @@ public static partial class Parsers<TInput>
             return Fail<TOutput>("No parsers given");
         if (parsers.Length == 1)
             return parsers[0];
-        return new FirstParser<TInput, TOutput>(parsers);
+        return new FirstParser<TInput>.WithOutput<TOutput>(parsers);
+    }
+
+    public static IParser<TInput> First(params IParser<TInput>[] parsers)
+    {
+        if (parsers == null || parsers.Length == 0)
+            return Fail("No parsers given");
+        if (parsers.Length == 1)
+            return parsers[0];
+        return new FirstParser<TInput>.WithoutOutput(parsers);
     }
 
     // This one has to be public or Bnf stringification can't find the type to bind it to the

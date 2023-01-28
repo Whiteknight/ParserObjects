@@ -50,10 +50,10 @@ public static partial class Parsers<TInput>
 
     /// <summary>
     /// Tests several parsers sequentially. Returns Success if any parser succeeds, returns
-    /// Failure otherwise. Consumes input but returns no explicit output.
+    /// Failure otherwise. Consumes input but returns no explicit output. Synonym for First().
     /// </summary>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> Or(params IParser<TInput>[] parsers)
-        => new OrParser<TInput>(parsers);
+        => First(parsers);
 }
