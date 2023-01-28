@@ -92,7 +92,7 @@ public static class Engine
                     }
 
                 default:
-                    throw new RegexException("Unrecognized quantifier");
+                    throw new RegexException($"Unrecognized quantifier {context.CurrentState.Quantifier}");
             }
 
             currentCheckpoint = input.Checkpoint();

@@ -16,7 +16,7 @@ public sealed class EndSentinelState : IState
     public int Maximum
     {
         get => 0;
-        set => throw new RegexException("Cannot quantify the End Anchor $ state");
+        set => throw new RegexException("Cannot quantify the End Sentinel state");
     }
 
     public string Name => "End Sentinel";

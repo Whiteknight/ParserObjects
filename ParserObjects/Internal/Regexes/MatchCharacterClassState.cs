@@ -8,7 +8,7 @@ public sealed class MatchCharacterClassState : IState
     // where each character in that range corresponds to a bit in a 12-byte array.
     private readonly byte[] _exactChars;
 
-    private readonly IReadOnlyList<(char low, char high)> _ranges;
+    private readonly IReadOnlyList<(char low, char high)>? _ranges;
     private readonly bool _invert;
 
     public MatchCharacterClassState(string name, bool invert, IReadOnlyList<(char low, char high)> ranges)
@@ -17,7 +17,7 @@ public sealed class MatchCharacterClassState : IState
         _invert = invert;
         var chars = new byte[12];
 
-        var rangeList = new List<(char low, char high)>();
+        List<(char low, char high)>? rangeList = null;
         for (int i = 0; i < ranges.Count; i++)
         {
             var (low, high) = ranges[i];
@@ -28,6 +28,8 @@ public sealed class MatchCharacterClassState : IState
                 continue;
             }
 
+            if (rangeList == null)
+                rangeList = new List<(char low, char high)>();
             rangeList.Add((low, high));
         }
 
@@ -35,7 +37,7 @@ public sealed class MatchCharacterClassState : IState
         _ranges = rangeList;
     }
 
-    private MatchCharacterClassState(string name, bool invert, byte[] exactChars, IReadOnlyList<(char, char)> ranges)
+    private MatchCharacterClassState(string name, bool invert, byte[] exactChars, IReadOnlyList<(char, char)>? ranges)
     {
         Name = name;
         _invert = invert;
@@ -100,6 +102,9 @@ public sealed class MatchCharacterClassState : IState
             var flag = (byte)(1 << position);
             return (_exactChars[index] & flag) > 0;
         }
+
+        if (_ranges == null)
+            return false;
 
         for (int i = 0; i < _ranges.Count; i++)
         {
