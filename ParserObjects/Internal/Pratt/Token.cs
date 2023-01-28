@@ -16,7 +16,6 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
         TokenTypeId = _parselet.TokenTypeId;
         LeftBindingPower = _parselet.Lbp;
         RightBindingPower = _parselet.Rbp;
-        IsValid = true;
     }
 
     public int TokenTypeId { get; }
@@ -24,7 +23,6 @@ public sealed class ParseletToken<TInput, TValue, TOutput> : IValueToken<TValue>
 
     public int LeftBindingPower { get; }
     public int RightBindingPower { get; }
-    public bool IsValid { get; }
     public string Name => _parselet.Name;
 
     public Option<IValueToken<TOutput>> NullDenominator(IParseState<TInput> state, Engine<TInput, TOutput> engine, bool canRecurse, ParseControl parseControl)
@@ -51,7 +49,6 @@ public sealed class ValueToken<TValue> : IValueToken<TValue>
         LeftBindingPower = lbp;
         RightBindingPower = rbp;
         Name = name;
-        IsValid = true;
     }
 
     public int TokenTypeId { get; }
@@ -59,7 +56,6 @@ public sealed class ValueToken<TValue> : IValueToken<TValue>
 
     public int LeftBindingPower { get; }
     public int RightBindingPower { get; }
-    public bool IsValid { get; }
     public string Name { get; }
 
     public override string ToString() => Value?.ToString() ?? string.Empty;

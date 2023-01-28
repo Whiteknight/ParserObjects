@@ -77,7 +77,6 @@ public class PrattTests
                     l.RightBindingPower.Should().Be(0);
                     l.Value.Should().Be(1);
                     l.TokenTypeId.Should().Be(7);
-                    l.IsValid.Should().BeTrue();
                     return l.Value + ctx.Parse();
                 })
             )

@@ -19,12 +19,6 @@ public interface IPrattToken
     /// Gets the strength with which this token binds to the production on the right.
     /// </summary>
     int RightBindingPower { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether this token was obtained successfully and contains
-    /// all necessary data.
-    /// </summary>
-    bool IsValid { get; }
 }
 
 /// <summary>
