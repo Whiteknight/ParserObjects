@@ -3,13 +3,14 @@ using System.Collections.Generic;
 
 namespace ParserObjects.Internal.Regexes;
 
-public sealed class CaptureCollection
+public sealed class CaptureCollection : List<(int group, string value)>
 {
-    private readonly List<(int group, string value)> _captures;
+    /* CaptureCollection IS-A List to avoid a second allocation. We cannot make it a struct because
+     * we need reference behavior on the CaptureIndex value.
+     */
 
     public CaptureCollection()
     {
-        _captures = new List<(int, string)>();
         CaptureIndex = -1;
     }
 
@@ -18,40 +19,41 @@ public sealed class CaptureCollection
     public int AddCapture(int group, string value)
     {
         int currentIndex = CaptureIndex + 1;
-        if (_captures.Count > currentIndex)
+        if (Count > currentIndex)
         {
             CaptureIndex++;
-            _captures[CaptureIndex] = (group, value);
+            this[CaptureIndex] = (group, value);
             return CaptureIndex;
         }
 
-        _captures.Add((group, value));
-        CaptureIndex = _captures.Count - 1;
+        Add((group, value));
+        CaptureIndex = Count - 1;
 
         return CaptureIndex;
     }
 
     public void ResetCaptureIndex(int captureIndex)
     {
-        CaptureIndex = captureIndex >= _captures.Count ? _captures.Count - 1 : captureIndex;
+        CaptureIndex = captureIndex >= Count ? Count - 1 : captureIndex;
     }
 
     public IReadOnlyList<(int group, string value)> ToList()
     {
+        // CaptureCollection IS-A list, but we cannot use it as the list itself because it may
+        // contain more items than required. So we have to slice the list and only return up to
+        // CaptureIndex items.
         if (CaptureIndex < 0)
             return Array.Empty<(int, string)>();
-        var result = new (int, string)[CaptureIndex + 1];
-        for (int i = 0; i <= CaptureIndex; i++)
-            result[i] = _captures[i];
-        return result;
+
+        return GetRange(0, CaptureIndex + 1);
     }
 
     public string? GetLatestValueForGroup(int groupNumber)
     {
         for (int i = CaptureIndex; i >= 0; i--)
         {
-            if (_captures[i].group == groupNumber)
-                return _captures[i].value;
+            if (this[i].group == groupNumber)
+                return this[i].value;
         }
 
         return null;
