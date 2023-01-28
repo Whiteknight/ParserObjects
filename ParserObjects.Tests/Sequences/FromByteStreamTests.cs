@@ -178,6 +178,7 @@ namespace ParserObjects.Tests.Sequences
             result.Should().ContainInOrder(3, 4, 5, 6, 7);
         }
 
+        [Test]
         public void GetBetween_SeparateBuffers()
         {
             var memoryStream = new MemoryStream();
