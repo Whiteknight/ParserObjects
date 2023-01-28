@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Internal.Regexes;
 
-public sealed class BacktrackState
+public struct BacktrackState
 {
     // Keeps track of places in the parse history where backtracking may be possible.
 

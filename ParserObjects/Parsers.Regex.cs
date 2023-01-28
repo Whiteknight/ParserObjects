@@ -18,8 +18,8 @@ public static partial class Parsers
         if (string.IsNullOrEmpty(pattern))
             return Parsers<char>.Produce(static () => string.Empty);
 
-        var regexParser = RegexPattern();
-        var result = regexParser.Parse(pattern, new SequenceOptions<char>
+        var regexPatternParser = RegexPattern();
+        var result = regexPatternParser.Parse(pattern, new SequenceOptions<char>
         {
             FileName = pattern,
             MaintainLineEndings = true
