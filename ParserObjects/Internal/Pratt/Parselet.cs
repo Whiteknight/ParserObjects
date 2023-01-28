@@ -50,9 +50,16 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public bool CanLed => _led != null;
 
+    /*
+     * It is possible for _nud and _led callbacks to throw exceptions which are not ParseException
+     * in those cases we do not catch it, but instead allow the exceptions to bubble up to a Try()
+     * parser or to another place for the user to catch and examine it.
+     */
+
     public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl)
     {
         Debug.Assert(CanNud, "Must be a NUDable parselet");
+        Debug.Assert(_nud != null, "Must be a NUDable parselet");
 
         var startCp = state.Input.Checkpoint();
         var result = _match.Parse(state);
@@ -62,7 +69,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, result.Consumed > 0, Name, parseControl);
         try
         {
-            var resultValue = _nud(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
+            var resultValue = _nud!(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
             var token = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
             return (true, token, state.Input.Consumed - startCp.Consumed);
         }
@@ -76,6 +83,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
     public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left)
     {
         Debug.Assert(CanLed, "Must be a LEDable parselet");
+        Debug.Assert(_led != null, "Must be a LEDable parselet");
 
         var startCp = state.Input.Checkpoint();
         var result = _match.Parse(state);
@@ -85,7 +93,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, true, Name, parseControl);
         try
         {
-            var resultValue = _led(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
+            var resultValue = _led!(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
             var resultToken = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
             return (true, resultToken, state.Input.Consumed - startCp.Consumed);
         }
