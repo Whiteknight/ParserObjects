@@ -35,6 +35,8 @@ public sealed class Engine<TInput, TOutput>
         _numNudableParselets = numNudable;
     }
 
+    // TryParse is the main entry point and recursive re-entry point, and also the jump destination
+    // for ParseException when the Severity==Level
     public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp)
         => TryParse(state, rbp, new ParseControl());
 
@@ -53,6 +55,8 @@ public sealed class Engine<TInput, TOutput>
         }
     }
 
+    // Main function for performing the parse. Gets a left value and then gets right values until
+    // there are no more matches or completion is signalled.
     private PartialResult<TOutput> Parse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
         var leftResult = GetLeft(state, parseControl);
@@ -85,6 +89,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<TOutput>(leftToken.Value, consumed);
     }
 
+    // Get the next "LED" right value by testing all available parselets in definition order
     private PartialResult<ValueToken<TOutput>> GetRight(IParseState<TInput> state, int minBp, ValueToken<TOutput> leftToken, ParseControl parseControl)
     {
         for (int i = 0; i < _numLedableParselets; i++)
@@ -107,6 +112,7 @@ public sealed class Engine<TInput, TOutput>
         return new PartialResult<ValueToken<TOutput>>(string.Empty);
     }
 
+    // Get the next "NUD" left value by testing all available parselets in definition order
     private PartialResult<ValueToken<TOutput>> GetLeft(IParseState<TInput> state, ParseControl parseControl)
     {
         for (int i = 0; i < _numNudableParselets; i++)
@@ -128,6 +134,8 @@ public sealed class Engine<TInput, TOutput>
     }
 }
 
+// This class exists because we need reference semantics on a flag for marking the parse complete,
+// but we do not want the Engine to have mutable data.
 public class ParseControl
 {
     public bool IsComplete { get; set; }

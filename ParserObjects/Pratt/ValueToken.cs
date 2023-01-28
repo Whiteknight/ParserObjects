@@ -1,5 +1,6 @@
 ﻿namespace ParserObjects.Pratt;
 
+// A token which includes a parsed value and some metadata about it's context.
 public readonly struct ValueToken<TValue>
 {
     public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
