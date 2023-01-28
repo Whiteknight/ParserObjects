@@ -16,11 +16,9 @@ public static class State
 
     public static string QuantifierToString(Quantifier quantifier, int maximum)
     {
-        return quantifier switch
-        {
-            Quantifier.Range => $"0-{maximum}",
-            _ => quantifier.ToString()
-        };
+        if (quantifier == Quantifier.Range)
+            return $"0-{maximum}";
+        return quantifier.ToString();
     }
 
     public static List<IState> AddMatch(List<IState>? states, Func<char, bool> predicate, string description)

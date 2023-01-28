@@ -35,8 +35,9 @@ public struct Regex
     private int NumberGroups(IReadOnlyList<IState> states, int destGroupNumber)
     {
         int lastSrcGroupNumber = -1;
-        foreach (var state in states)
+        for (int i = 0; i < states.Count; i++)
         {
+            var state = states[i];
             if (state is not CapturingGroupState groupState)
                 continue;
 

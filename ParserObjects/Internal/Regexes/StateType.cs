@@ -11,12 +11,19 @@ public enum StateType
     EndOfInput,
 
     /// <summary>
-    /// The state is a nested, parenthesized grouping of one or more substates
+    /// The state is a nested, parenthesized grouping of one or more substates whose value will
+    /// be captured.
     /// </summary>
     CapturingGroup,
 
+    /// <summary>
+    /// The state is a nested parenthesized grouping of one or more substates.
+    /// </summary>
     NonCapturingCloister,
 
+    /// <summary>
+    /// The state is a reference to a previous captured group value.
+    /// </summary>
     MatchBackreference,
 
     /// <summary>
