@@ -59,7 +59,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         if (!result.Success)
             return default;
 
-        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, true, Name, parseControl);
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, result.Consumed > 0, Name, parseControl);
         try
         {
             var resultValue = _nud(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
@@ -82,7 +82,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         if (!result.Success)
             return default;
 
-        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, result.Consumed > 0, Name, parseControl);
+        var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, true, Name, parseControl);
         try
         {
             var resultValue = _led(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
