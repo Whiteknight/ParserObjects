@@ -13,14 +13,14 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         IParser parser,
         SequenceCheckpoint startCheckpoint,
         IEnumerable<IResultAlternative<TOutput>> results,
-        IReadOnlyList<object>? data = null
+        ResultData data = default
     )
     {
         Parser = parser;
         Results = results.ToList();
         Success = Results.Any(r => r.Success);
         StartCheckpoint = startCheckpoint;
-        _data = new ResultData(data);
+        _data = data;
     }
 
     public IParser Parser { get; }

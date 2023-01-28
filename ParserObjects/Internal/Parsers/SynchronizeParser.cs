@@ -62,7 +62,7 @@ public sealed record SynchronizeParser<TInput, TOutput>(
         if (result.Success)
             data.Add(result);
 
-        return state.Fail(this, "One or more errors occured. Call IResult<T>.TryGetData<ErrorList>() for more details", data);
+        return state.Fail(this, "One or more errors occured. Call IResult<T>.TryGetData<ErrorList>() for more details", new ResultData(data));
     }
 
     private void DiscardUntilConditionMet(IParseState<TInput> state)

@@ -63,11 +63,11 @@ public static class ParseStateExtensions
         this IParseState<TInput> state,
         IParser parser,
         string error,
-        IReadOnlyList<object>? data = null
+        ResultData data = default
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, error, new ResultData(data));
+        return new FailureResult<TOutput>(parser, error, data);
     }
 
     /// <summary>
@@ -84,11 +84,11 @@ public static class ParseStateExtensions
         this IParseState<TInput> state,
         IParser<TInput, TOutput> parser,
         string error,
-        IReadOnlyList<object>? data = null
+        ResultData data = default
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, error, new ResultData(data));
+        return new FailureResult<TOutput>(parser, error, data);
     }
 
     /// <summary>
@@ -104,11 +104,11 @@ public static class ParseStateExtensions
         this IParseState<TInput> state,
         IParser<TInput> parser,
         string error,
-        IReadOnlyList<object>? data = null
+        ResultData data = default
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<object>(parser, error, new ResultData(data));
+        return new FailureResult<object>(parser, error, data);
     }
 
     /// <summary>
@@ -127,11 +127,11 @@ public static class ParseStateExtensions
         IParser parser,
         TOutput output,
         int consumed,
-        IReadOnlyList<object>? data = null
+        ResultData data = default
     )
     {
         state.Log(parser, "Succeeded");
-        return new SuccessResult<TOutput>(parser, output, consumed, new ResultData(data));
+        return new SuccessResult<TOutput>(parser, output, consumed, data);
     }
 
     /// <summary>

@@ -112,7 +112,7 @@ public static class TryParser<TInput>
         public IResult Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => new FailureResult<object>(p, ex.Message, new ResultData(new[] { ex })),
+            static (p, ex, _) => new FailureResult<object>(p, ex.Message, new ResultData(ex)),
             state
         );
 
@@ -158,7 +158,7 @@ public static class TryParser<TInput>
         public IResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => new FailureResult<TOutput>(p, ex.Message, new ResultData(new[] { ex })),
+            static (p, ex, _) => new FailureResult<TOutput>(p, ex.Message, new ResultData(ex)),
             state
         );
 
@@ -204,7 +204,7 @@ public static class TryParser<TInput>
         public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, cp) => new MultiResult<TOutput>(p, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new[] { ex }),
+            static (p, ex, cp) => new MultiResult<TOutput>(p, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new ResultData(ex)),
             state
         );
 

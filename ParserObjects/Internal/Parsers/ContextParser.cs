@@ -117,7 +117,7 @@ public static class Context<TInput>
                     var result = p.Parse(s);
                     return (result.Success, result);
                 },
-                static (ctx, s, _, ex) => s.Fail<TInput, TOutput>(ctx, "Setup code threw an exception", new[] { ex })
+                static (ctx, s, _, ex) => s.Fail<TInput, TOutput>(ctx, "Setup code threw an exception", new ResultData(ex))
             );
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -169,7 +169,7 @@ public static class Context<TInput>
                     var result = p.Parse(s);
                     return (result.Success, result);
                 },
-                static (ctx, _, cp, ex) => new MultiResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new[] { ex })
+                static (ctx, _, cp, ex) => new MultiResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new ResultData(ex))
             );
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

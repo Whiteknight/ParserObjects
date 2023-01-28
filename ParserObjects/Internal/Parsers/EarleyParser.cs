@@ -45,7 +45,7 @@ public static class Earley<TInput, TOutput>
             var results = _engine.Parse(state);
 
             startCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, startCheckpoint, results.Alternatives, new[] { results.Statistics });
+            return new MultiResult<TOutput>(this, startCheckpoint, results.Alternatives, new ResultData(results.Statistics));
         }
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)

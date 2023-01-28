@@ -13,13 +13,6 @@ public sealed class CaptureCollection : List<(int group, string value)>
      * value in snapshots so that it can rewind to a previous index during backtracking.
      */
 
-    /* Notice: We allocate the CaptureCollection. Then on successful match we allocate the array
-     * of captures. Then in the RegexParser we allocate an array of objects to hold data, allocate
-     * a new RegexMatch object, which in the constructor allocates two dictionaries. I recognize
-     * this as a problem, but cannot think of any obvious, meaningful solution which doesn't involve
-     * all sorts of ugly unsafe pointer nonsense.
-     */
-
     public CaptureCollection()
     {
         CaptureIndex = -1;
@@ -69,7 +62,7 @@ public sealed class CaptureCollection : List<(int group, string value)>
             Debug.Assert(group > 0, "We cannot add to group 0");
             if (!groups.ContainsKey(group))
                 groups.Add(group, new List<string>());
-            (groups[group] as List<string>)!.Add(value);
+            ((List<string>)groups[group]).Add(value);
         }
 
         return groups;

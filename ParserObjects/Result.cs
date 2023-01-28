@@ -8,7 +8,7 @@ namespace ParserObjects;
 /// the list, if it exists.
 /// </summary>
 /// <param name="Data"></param>
-public readonly record struct ResultData(IReadOnlyList<object>? Data)
+public readonly record struct ResultData(object Data)
 {
     /* These lists are usually allocated with the result, and are often discarded immediately
      * without ever being accessed. TryGetData is nice, but it's not often used. It would be nice
@@ -21,10 +21,16 @@ public readonly record struct ResultData(IReadOnlyList<object>? Data)
         if (Data == null)
             return default;
 
-        foreach (var item in Data)
+        if (Data is T dataTyped)
+            return new Option<T>(true, dataTyped);
+
+        if (Data is not IReadOnlyList<object> list)
+            return default;
+
+        foreach (var item in list)
         {
-            if (item is T typed)
-                return new Option<T>(true, typed);
+            if (item is T itemTyped)
+                return new Option<T>(true, itemTyped);
         }
 
         return default;
