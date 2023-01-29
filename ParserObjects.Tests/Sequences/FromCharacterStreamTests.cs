@@ -83,6 +83,14 @@ namespace ParserObjects.Tests.Sequences
             target.IsAtEnd.Should().BeTrue();
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void IsAtEnd_Empty(bool useAscii)
+        {
+            var target = GetTarget("", encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+            target.IsAtEnd.Should().BeTrue();
+        }
+
         [Test]
         public void Checkpoint_SameBuffer()
         {
