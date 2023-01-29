@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Tries;
 

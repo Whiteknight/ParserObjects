@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Internal.Utility;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;

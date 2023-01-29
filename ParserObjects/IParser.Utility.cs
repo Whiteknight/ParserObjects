@@ -8,6 +8,11 @@ namespace ParserObjects;
 
 public static class ParserExtensions
 {
+    /// <summary>
+    /// Get a list of all referenced parsers from the given parser and it's children.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <returns></returns>
     public static IReadOnlyDictionary<int, IParser> GetAllParsers(this IParser p)
         => new ListParsersVisitor().Visit(p);
 

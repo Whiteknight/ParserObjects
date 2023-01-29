@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Earley;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Earley;
 

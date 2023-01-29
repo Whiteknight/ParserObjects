@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Visitors;
 

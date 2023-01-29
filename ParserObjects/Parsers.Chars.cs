@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Tries;
-using ParserObjects.Internal.Utility;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;

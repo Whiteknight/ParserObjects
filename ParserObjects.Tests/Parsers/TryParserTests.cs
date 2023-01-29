@@ -1,4 +1,4 @@
-﻿using ParserObjects.Internal.Utility;
+﻿using ParserObjects.Internal;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;

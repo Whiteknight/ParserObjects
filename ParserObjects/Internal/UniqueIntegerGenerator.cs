@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace ParserObjects.Internal.Utility;
+namespace ParserObjects.Internal;
 
 public static class UniqueIntegerGenerator
 {

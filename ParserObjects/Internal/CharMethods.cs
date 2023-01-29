@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ParserObjects.Internal.Utility;
+namespace ParserObjects.Internal;
 
 public static class CharMethods
 {
@@ -13,11 +13,11 @@ public static class CharMethods
         // costly.
 
 #if NET5_0_OR_GREATER
-            return string.Create(c.Count, c, static (buffer, src) =>
-            {
-                for (int i = 0; i < src.Count; i++)
-                    buffer[i] = src[i];
-            });
+        return string.Create(c.Count, c, static (buffer, src) =>
+        {
+            for (int i = 0; i < src.Count; i++)
+                buffer[i] = src[i];
+        });
 #else
         return new string(System.Linq.Enumerable.ToArray(c));
 #endif

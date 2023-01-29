@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using ParserObjects.Earley;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Earley;
 

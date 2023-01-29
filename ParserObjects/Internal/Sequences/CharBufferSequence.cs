@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 

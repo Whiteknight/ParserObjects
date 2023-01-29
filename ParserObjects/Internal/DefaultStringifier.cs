@@ -1,4 +1,4 @@
-﻿namespace ParserObjects.Internal.Utility;
+﻿namespace ParserObjects.Internal;
 
 /// <summary>
 /// Default logic for implementing INamed.ToString().

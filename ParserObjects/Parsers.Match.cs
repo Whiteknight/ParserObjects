@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 

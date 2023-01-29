@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ParserObjects.Earley;
 using ParserObjects.Internal.Bnf;
 using ParserObjects.Internal.Earley;
-using ParserObjects.Internal.Utility;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;

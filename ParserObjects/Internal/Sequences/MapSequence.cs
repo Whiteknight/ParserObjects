@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Sequences;
 

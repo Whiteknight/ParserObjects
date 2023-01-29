@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Bnf;
-using ParserObjects.Internal.Utility;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Visitors;

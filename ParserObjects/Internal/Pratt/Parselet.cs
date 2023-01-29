@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using ParserObjects.Internal.Utility;
 using ParserObjects.Pratt;
 
 namespace ParserObjects.Internal.Pratt;

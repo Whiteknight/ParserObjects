@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ParserObjects.Internal.Utility;
+namespace ParserObjects.Internal;
 
 /// <summary>
 /// Base class for several internal exception types which are used to handle non-local

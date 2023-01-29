@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Regexes;
 

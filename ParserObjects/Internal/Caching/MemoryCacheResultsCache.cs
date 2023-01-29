@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Caching;
 

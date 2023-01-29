@@ -1,4 +1,4 @@
-﻿namespace ParserObjects.Internal.Utility;
+﻿namespace ParserObjects.Internal;
 
 public static class Defaults
 {

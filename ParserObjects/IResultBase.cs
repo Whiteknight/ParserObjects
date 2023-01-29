@@ -2,9 +2,8 @@
 
 /// <summary>
 /// Base interface for results returned from a parse operation. The result should include
-/// reference to the Parser which generated the reuslt, an indicator of success or failure, and
-/// the location where the result occured. Subclasses of this type will include more detailed
-/// information about the result.
+/// reference to the Parser which generated the reuslt and an indicator of success or failure.
+/// Subclasses of this type will include more detailed information about the result.
 /// </summary>
 public interface IResultBase
 {

@@ -1,6 +1,6 @@
 ﻿using System;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Sequences;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects;
 
