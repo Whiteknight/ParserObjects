@@ -35,22 +35,24 @@ public struct Engine<TInput, TOutput>
 
         var startCheckpoint = parseState.Input.Checkpoint();
         var states = new StateCollection(startCheckpoint);
-        var initialState = GetInitialState(states, stats);
-        var currentState = initialState;
+        var currentState = GetInitialState(states, stats);
         var resultItems = new List<(Item Item, State State)>();
 
         while (currentState?.Items.Count > 0)
         {
             stats.NumberOfStates++;
             currentState.Checkpoint.Rewind();
-            ParseCurrentState(parseState, initialState, states, currentState, resultItems, stats);
+            ParseCurrentState(parseState, states, currentState, resultItems, stats);
             currentState = states.MoveToNext();
         }
 
         return DeriveAllResults(stats, resultItems);
     }
 
-    private static ParseResult<TOutput> DeriveAllResults(ParseStatistics stats, List<(Item Item, State State)> resultItems)
+    private static ParseResult<TOutput> DeriveAllResults(
+        ParseStatistics stats,
+        List<(Item Item, State State)> resultItems
+    )
     {
         var derivationVisitor = new ItemDerivationVisitor(stats);
         var results = new List<IResultAlternative<TOutput>>();
@@ -85,7 +87,13 @@ public struct Engine<TInput, TOutput>
         return initialState;
     }
 
-    private void ParseCurrentState(IParseState<TInput> parseState, State initialState, StateCollection states, State currentState, List<(Item Item, State State)> resultItems, ParseStatistics stats)
+    private void ParseCurrentState(
+        IParseState<TInput> parseState,
+        StateCollection states,
+        State currentState,
+        List<(Item Item, State State)> resultItems,
+        ParseStatistics stats
+    )
     {
         // A list of productions which were started in this state and completed in this
         // state ("zero-length", "empty" or "nullable")
@@ -104,7 +112,7 @@ public struct Engine<TInput, TOutput>
 
                 // If the completed item is a start item, add it to the list of possible
                 // results.
-                if (item.ParentState == initialState && _startSymbol.Contains(item.Production))
+                if (item.ParentState == states.InitialState && _startSymbol.Contains(item.Production))
                     resultItems.Add((item, currentState));
                 continue;
             }
@@ -129,7 +137,13 @@ public struct Engine<TInput, TOutput>
         Debug.WriteLine(currentState.GetCompleteListing());
     }
 
-    private static void Predict(State state, Item item, INonterminal nonterminal, IDictionary<IProduction, IList<Item>> completedNullables, ParseStatistics stats)
+    private static void Predict(
+        State state,
+        Item item,
+        INonterminal nonterminal,
+        IDictionary<IProduction, IList<Item>> completedNullables,
+        ParseStatistics stats
+    )
     {
         // Add prediction states
         var relevantCompletedNullableProductions = new List<IProduction>();
@@ -172,7 +186,11 @@ public struct Engine<TInput, TOutput>
         }
     }
 
-    private static (IResult result, SequenceCheckpoint continuation) TryParse(IParser<TInput> terminal, IParseState<TInput> parseState, SequenceCheckpoint stateCheckpoint)
+    private static (IResult result, SequenceCheckpoint continuation) TryParse(
+        IParser<TInput> terminal,
+        IParseState<TInput> parseState,
+        SequenceCheckpoint stateCheckpoint
+    )
     {
         var location = parseState.Input.CurrentLocation;
         var cached = parseState.Cache.Get<CachedParseResult>(terminal, location);
@@ -197,7 +215,14 @@ public struct Engine<TInput, TOutput>
         return result;
     }
 
-    private static void Scan(State currentState, Item item, IParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
+    private static void Scan(
+        State currentState,
+        Item item,
+        IParser<TInput> terminal,
+        StateCollection states,
+        IParseState<TInput> parseState,
+        ParseStatistics stats
+    )
     {
         var (result, continuation) = TryParse(terminal, parseState, currentState.Checkpoint);
         if (!result.Success)
@@ -218,7 +243,14 @@ public struct Engine<TInput, TOutput>
             currentState.Checkpoint.Rewind();
     }
 
-    private static void Scan(State currentState, Item item, IMultiParser<TInput> terminal, StateCollection states, IParseState<TInput> parseState, ParseStatistics stats)
+    private static void Scan(
+        State currentState,
+        Item item,
+        IMultiParser<TInput> terminal,
+        StateCollection states,
+        IParseState<TInput> parseState,
+        ParseStatistics stats
+    )
     {
         var result = TryParse(terminal, parseState);
         for (int i = 0; i < result.Results.Count; i++)
@@ -242,7 +274,12 @@ public struct Engine<TInput, TOutput>
         currentState.Checkpoint.Rewind();
     }
 
-    private static void AddCompletedNullable(IDictionary<IProduction, IList<Item>> completedNullables, Item item, IProduction production, ParseStatistics stats)
+    private static void AddCompletedNullable(
+        IDictionary<IProduction, IList<Item>> completedNullables,
+        Item item,
+        IProduction production,
+        ParseStatistics stats
+    )
     {
         if (!completedNullables.ContainsKey(production))
             completedNullables[production] = new List<Item>();
@@ -250,7 +287,12 @@ public struct Engine<TInput, TOutput>
         stats.CompletedNullables++;
     }
 
-    private static void Complete(State state, Item item, IDictionary<IProduction, IList<Item>> completedNullables, ParseStatistics stats)
+    private static void Complete(
+        State state,
+        Item item,
+        IDictionary<IProduction, IList<Item>> completedNullables,
+        ParseStatistics stats
+    )
     {
         // item is complete. Go through Items in the parent state which were waiting for item
         // and advance them.

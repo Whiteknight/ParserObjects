@@ -140,8 +140,7 @@ public struct ItemDerivationVisitor
 
         for (int i = 0; i < endItem.Derivations!.Count; i++)
         {
-            var d = endItem.Derivations[i];
-            argBuffer[0] = d;
+            argBuffer[0] = endItem.Derivations[i];
             _statistics.ProductionRuleAttempts++;
             var produced = production.Apply(argBuffer);
             if (!produced.Success)

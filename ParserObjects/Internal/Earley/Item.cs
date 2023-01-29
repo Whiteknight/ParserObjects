@@ -45,9 +45,8 @@ public sealed class Item : IEquatable<Item>
     public IProduction Production { get; }
     public int Index { get; }
 
-    // Items
-
     // Matched values from the symbol directly to the LEFT of the fat dot
+    // Notice that these values might be parsed values or they may be other Items.
     public IReadOnlyList<object>? Derivations => _derivations;
 
     public Item? Previous { get; }
