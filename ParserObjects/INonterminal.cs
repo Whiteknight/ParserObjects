@@ -16,12 +16,6 @@ public interface INonterminal : ISymbol
     IReadOnlyCollection<IProduction> Productions { get; }
 
     /// <summary>
-    /// Add a new production rule to this symbol.
-    /// </summary>
-    /// <param name="p"></param>
-    void Add(IProduction p);
-
-    /// <summary>
     /// Returns true if this nonterminal already contains the given production rule.
     /// </summary>
     /// <param name="p"></param>
@@ -35,8 +29,13 @@ public interface INonterminal : ISymbol
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface INonterminal<TInput, out TOutput> : ISymbol<TOutput>, INonterminal
+public interface INonterminal<TInput, TOutput> : ISymbol<TOutput>, INonterminal
 {
+    /// <summary>
+    /// Add a new production rule to this symbol.
+    /// </summary>
+    /// <param name="p"></param>
+    void Add(IProduction<TOutput> p);
 }
 
 public static class NonterminalExtensions
@@ -70,7 +69,7 @@ public static class NonterminalExtensions
         Func<T1, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0]), s1);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0]), s1);
         lhs.Add(p);
         return lhs;
     }
@@ -94,7 +93,7 @@ public static class NonterminalExtensions
         Func<T1, T2, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1]), s1, s2);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1]), s1, s2);
         lhs.Add(p);
         return lhs;
     }
@@ -121,7 +120,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2]), s1, s2, s3);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2]), s1, s2, s3);
         lhs.Add(p);
         return lhs;
     }
@@ -151,7 +150,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3]), s1, s2, s3, s4);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3]), s1, s2, s3, s4);
         lhs.Add(p);
         return lhs;
     }
@@ -184,7 +183,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, T5, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4]), s1, s2, s3, s4, s5);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4]), s1, s2, s3, s4, s5);
         lhs.Add(p);
         return lhs;
     }
@@ -220,7 +219,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, T5, T6, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5]), s1, s2, s3, s4, s5, s6);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5]), s1, s2, s3, s4, s5, s6);
         lhs.Add(p);
         return lhs;
     }
@@ -259,7 +258,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6]), s1, s2, s3, s4, s5, s6, s7);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6]), s1, s2, s3, s4, s5, s6, s7);
         lhs.Add(p);
         return lhs;
     }
@@ -301,7 +300,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6], (T8)args[7]), s1, s2, s3, s4, s5, s6, s7, s8);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6], (T8)args[7]), s1, s2, s3, s4, s5, s6, s7, s8);
         lhs.Add(p);
         return lhs;
     }
@@ -346,7 +345,7 @@ public static class NonterminalExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> func
     )
     {
-        var p = new Production<TOutput>(lhs, args => func((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6], (T8)args[7], (T9)args[8]), s1, s2, s3, s4, s5, s6, s7, s8, s9);
+        var p = Production.Create(lhs, func, static (f, args) => f((T1)args[0], (T2)args[1], (T3)args[2], (T4)args[3], (T5)args[4], (T6)args[5], (T7)args[6], (T8)args[7], (T9)args[8]), s1, s2, s3, s4, s5, s6, s7, s8, s9);
         lhs.Add(p);
         return lhs;
     }

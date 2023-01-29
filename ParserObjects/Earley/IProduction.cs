@@ -25,3 +25,7 @@ public interface IProduction
     /// <returns></returns>
     Option<object> Apply(object[] argsList);
 }
+
+public interface IProduction<TOutput> : IProduction
+{
+}

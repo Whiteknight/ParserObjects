@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
-using ParserObjects.Internal.Utility;
 
 namespace ParserObjects.Internal.Earley;
 
@@ -13,31 +11,30 @@ namespace ParserObjects.Internal.Earley;
 // derivation callback. Production is the Earley-world equivalent of Rule()
 public sealed class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
 {
-    private readonly HashSet<Production<TOutput>> _productions;
+    private readonly HashSet<IProduction<TOutput>> _productions;
 
     public Nonterminal(string name)
     {
-        _productions = new HashSet<Production<TOutput>>();
+        _productions = new HashSet<IProduction<TOutput>>();
         Name = string.IsNullOrEmpty(name) ? $"N{UniqueIntegerGenerator.GetNext()}" : name;
     }
 
-    private Nonterminal(IEnumerable<Production<TOutput>> productions, string name)
+    private Nonterminal(IEnumerable<IProduction<TOutput>> productions, string name)
     {
-        _productions = new HashSet<Production<TOutput>>(productions);
+        _productions = new HashSet<IProduction<TOutput>>(productions);
         Name = name;
     }
 
     public IReadOnlyCollection<IProduction> Productions => _productions;
 
-    public void Add(IProduction p)
+    public void Add(IProduction<TOutput> p)
     {
-        var typed = p as Production<TOutput> ?? throw new InvalidOperationException("Production must have a matching output type");
-        if (!_productions.Contains(typed))
-            _productions.Add(typed);
+        if (!_productions.Contains(p))
+            _productions.Add(p);
     }
 
     public bool Contains(IProduction p)
-        => p is Production<TOutput> typed && _productions.Contains(typed);
+        => p is IProduction<TOutput> typed && _productions.Contains(typed);
 
     public string Name { get; }
 

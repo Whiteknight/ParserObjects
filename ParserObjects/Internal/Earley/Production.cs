@@ -7,15 +7,36 @@ using ParserObjects.Earley;
 
 namespace ParserObjects.Internal.Earley;
 
-public sealed class Production<TValue> : IProduction
+public static class Production
 {
-    private readonly Func<object[], TValue> _reduce;
+    /// <summary>
+    /// Create a new Production
+    /// </summary>
+    /// <typeparam name="TData"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="lhs"></param>
+    /// <param name="data"></param>
+    /// <param name="reduce"></param>
+    /// <param name="symbols"></param>
+    /// <returns></returns>
+    public static IProduction<TOutput> Create<TData, TOutput>(INonterminal lhs, TData data, Func<TData, object[], TOutput> reduce, params ISymbol[] symbols)
+        => new Production<TData, TOutput>(lhs, data, reduce, symbols);
+}
 
-    public Production(INonterminal lhs, Func<object[], TValue> reduce, params ISymbol[] symbols)
+public sealed class Production<TData, TOutput> : IProduction<TOutput>
+{
+    private readonly TData _data;
+    private readonly Func<TData, object[], TOutput> _reduce;
+
+    public Production(INonterminal lhs, TData data, Func<TData, object[], TOutput> reduce, IReadOnlyList<ISymbol> symbols)
     {
-        Symbols = symbols.ToArray();
+        Assert.ArgumentNotNull(lhs, nameof(lhs));
+        Assert.ArgumentNotNull(reduce, nameof(reduce));
+        Assert.ArrayNotNullAndContainsNoNulls(symbols, nameof(symbols));
+        Symbols = symbols;
         _reduce = reduce;
         LeftHandSide = lhs;
+        _data = data;
     }
 
     public IReadOnlyList<ISymbol> Symbols { get; }
@@ -24,10 +45,11 @@ public sealed class Production<TValue> : IProduction
 
     public Option<object> Apply(object[] argsList)
     {
+        Assert.ArgumentNotNull(argsList, nameof(argsList));
         try
         {
             Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
-            var value = _reduce(argsList);
+            var value = _reduce(_data, argsList);
             return value == null ? default : new Option<object>(true, value);
         }
         catch
