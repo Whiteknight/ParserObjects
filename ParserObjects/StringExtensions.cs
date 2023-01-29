@@ -10,7 +10,7 @@ public static class StringExtensions
     /// <param name="str"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharacterSequence(
+    public static ICharSequence ToCharacterSequence(
         this string str,
         SequenceOptions<char> options = default
     ) => FromString(str, options);

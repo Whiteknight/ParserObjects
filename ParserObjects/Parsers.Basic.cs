@@ -262,9 +262,7 @@ public static partial class Parsers<TInput>
         return new FirstParser<TInput>.WithoutOutput(parsers);
     }
 
-    // This one has to be public or Bnf stringification can't find the type to bind it to the
-    // appropriate Accept() method variant.
-    public readonly record struct FunctionArgs<TOutput>(
+    private readonly record struct FunctionArgs<TOutput>(
         Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> ParseFunction,
         Func<IParseState<TInput>, bool>? MatchFunction
     );

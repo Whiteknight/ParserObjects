@@ -12,6 +12,15 @@ public static partial class Parsers
     private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
 
     /// <summary>
+    /// Convenience method to match a literal sequence of characters and return the
+    /// result as a string.
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <returns></returns>
+    public static IParser<char, string> CharacterString(string pattern)
+        => Match(pattern).Transform(_ => pattern);
+
+    /// <summary>
     /// Matches a Letter character.
     /// </summary>
     /// <returns></returns>

@@ -197,8 +197,7 @@ public static partial class Parsers<TInput>
             Array.Empty<IParser>()
         );
 
-    // This one has to stay public so Bnf stringifier .Accept() method can bind to it.
-    public readonly record struct SetResultDataArgs<TOutput, TValue>(
+    private readonly record struct SetResultDataArgs<TOutput, TValue>(
         IParser<TInput, TOutput> Parser,
         string Name,
         Func<TOutput, TValue> GetValue
