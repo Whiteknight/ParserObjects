@@ -3,33 +3,53 @@ using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
 
-public class LongestResultTests
+public static class LongestResultTests
 {
-    [Test]
-    public void Parse_Test()
+    public class Method
     {
-        var parser = LongestResult(
-            Each(
+        [Test]
+        public void Parse_Test()
+        {
+            var parser = LongestResult(
+                Each(
+                    CharacterString("a"),
+                    CharacterString("ab"),
+                    CharacterString("abc")
+                )
+            );
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = LongestResult(
+                Each(
+                    CharacterString("A"),
+                    CharacterString("B")
+                )
+            ).Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := SELECT EACH('A' | 'B')");
+        }
+    }
+
+    public class Extension
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var parser = Each(
                 CharacterString("a"),
                 CharacterString("ab"),
                 CharacterString("abc")
-            )
-        );
-        var result = parser.Parse("abc");
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("abc");
-    }
+            ).Longest();
 
-    [Test]
-    public void ToBnf_Test()
-    {
-        var target = LongestResult(
-            Each(
-                CharacterString("A"),
-                CharacterString("B")
-            )
-        ).Named("SUT");
-        var result = target.ToBnf();
-        result.Should().Contain("SUT := SELECT EACH('A' | 'B')");
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+        }
     }
 }
