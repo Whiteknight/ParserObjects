@@ -9,36 +9,33 @@ namespace ParserObjects.Internal.Earley;
 // this sense, Nonterminal is the Earley-world equivalent of First()
 // A Production is an ordered list of symbols which must be matched in order and contain a
 // derivation callback. Production is the Earley-world equivalent of Rule()
-public sealed class Nonterminal<TInput, TOutput> : INonterminal<TInput, TOutput>
+public sealed class Nonterminal<TInput, TOutput> : HashSet<IProduction<TOutput>>, INonterminal<TInput, TOutput>
 {
-    private readonly HashSet<IProduction<TOutput>> _productions;
-
     public Nonterminal(string name)
     {
-        _productions = new HashSet<IProduction<TOutput>>();
         Name = string.IsNullOrEmpty(name) ? $"N{UniqueIntegerGenerator.GetNext()}" : name;
     }
 
     private Nonterminal(IEnumerable<IProduction<TOutput>> productions, string name)
+        : base(productions)
     {
-        _productions = new HashSet<IProduction<TOutput>>(productions);
         Name = name;
     }
 
-    public IReadOnlyCollection<IProduction> Productions => _productions;
+    public IReadOnlyCollection<IProduction> Productions => this;
 
-    public void Add(IProduction<TOutput> p)
+    public new void Add(IProduction<TOutput> p)
     {
-        if (!_productions.Contains(p))
-            _productions.Add(p);
+        if (!base.Contains(p))
+            base.Add(p);
     }
 
     public bool Contains(IProduction p)
-        => p is IProduction<TOutput> typed && _productions.Contains(typed);
+        => p is IProduction<TOutput> typed && base.Contains(typed);
 
     public string Name { get; }
 
-    public override string ToString() => string.Join("\n", _productions.Select(p => p.ToString()));
+    public override string ToString() => string.Join("\n", this.Select(p => p.ToString()));
 
-    public INamed SetName(string name) => new Nonterminal<TInput, TOutput>(_productions, name);
+    public INamed SetName(string name) => new Nonterminal<TInput, TOutput>(this, name);
 }
