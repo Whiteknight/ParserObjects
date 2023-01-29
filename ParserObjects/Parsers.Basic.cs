@@ -122,7 +122,7 @@ public static partial class Parsers<TInput>
     {
         if (parsers == null || parsers.Length == 0)
             return Produce(static () => Array.Empty<object>());
-        return new RuleParser<TInput, IReadOnlyList<object>, object>(
+        return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
             static (_, r) => r

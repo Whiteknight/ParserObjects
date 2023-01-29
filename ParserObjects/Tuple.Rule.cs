@@ -1,5 +1,4 @@
 ﻿using System;
-using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -21,7 +20,7 @@ public static partial class TupleExtensions
         Func<T1, T2, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1])
@@ -45,7 +44,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2])
@@ -70,7 +69,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, T4, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3])
@@ -95,7 +94,7 @@ public static partial class TupleExtensions
         this (IParser<TInput, T1>, IParser<TInput, T2>, IParser<TInput, T3>, IParser<TInput, T4>, IParser<TInput, T5>) parsers,
         Func<T1, T2, T3, T4, T5, TOutput> produce)
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4])
@@ -122,7 +121,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, T4, T5, T6, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5])
@@ -150,7 +149,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6])
@@ -179,7 +178,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7])
@@ -209,7 +208,7 @@ public static partial class TupleExtensions
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8])

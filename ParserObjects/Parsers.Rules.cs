@@ -1,5 +1,4 @@
 ﻿using System;
-using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -22,7 +21,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1]));
@@ -48,7 +47,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2]));
@@ -77,7 +76,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3]));
@@ -109,7 +108,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, T5, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4]));
@@ -144,7 +143,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, T5, T6, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5]));
@@ -182,7 +181,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, T5, T6, T7, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6]));
@@ -223,7 +222,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7]));
@@ -267,7 +266,7 @@ public static partial class Parsers<TInput>
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput> produce
     )
     {
-        return new RuleParser<TInput, TOutput, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TOutput>>(
+        return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },
             produce,
             static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
