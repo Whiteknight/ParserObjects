@@ -26,12 +26,9 @@ public sealed class Nonterminal<TInput, TOutput> : HashSet<IProduction<TOutput>>
 
     public new void Add(IProduction<TOutput> p)
     {
-        if (!base.Contains(p))
+        if (!Contains(p))
             base.Add(p);
     }
-
-    public bool Contains(IProduction p)
-        => p is IProduction<TOutput> typed && base.Contains(typed);
 
     public string Name { get; }
 

@@ -111,7 +111,7 @@ public struct Engine<TInput, TOutput>
 
                 // If the completed item is a start item, add it to the list of possible
                 // results.
-                if (item.ParentState == states.InitialState && _startSymbol.Contains(item.Production))
+                if (item.ParentState == states.InitialState && _startSymbol.Productions.Contains(item.Production))
                     resultItems.Add((item, currentState));
                 continue;
             }

@@ -14,13 +14,6 @@ public interface INonterminal : ISymbol
     /// Gets a list of possible production rules for this symbol.
     /// </summary>
     IReadOnlyCollection<IProduction> Productions { get; }
-
-    /// <summary>
-    /// Returns true if this nonterminal already contains the given production rule.
-    /// </summary>
-    /// <param name="p"></param>
-    /// <returns></returns>
-    bool Contains(IProduction p);
 }
 
 /// <summary>

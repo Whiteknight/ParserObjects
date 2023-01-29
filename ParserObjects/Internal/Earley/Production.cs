@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Earley;
 public static class Production
 {
     /// <summary>
-    /// Create a new Production
+    /// Create a new Production.
     /// </summary>
     /// <typeparam name="TData"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

@@ -109,7 +109,7 @@ public sealed class Item : IEquatable<Item>
         Debug.Assert(!AtStart, "Start items cannot have values");
         var previousNonterminal = ValueSymbol as INonterminal;
         Debug.Assert(previousNonterminal != null, "Only non-terminal symbols may point to Items");
-        Debug.Assert(previousNonterminal.Contains(item.Production), "The item should have the same production");
+        Debug.Assert(previousNonterminal.Productions.Contains(item.Production), "The item should have the same production");
 
         if (_derivations!.Contains(item))
             return;
