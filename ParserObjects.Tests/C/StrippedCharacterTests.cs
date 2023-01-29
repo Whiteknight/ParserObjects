@@ -40,14 +40,10 @@ internal class StrippedCharacterTests
         result.Value.Should().Be(value);
     }
 
-    [TestCase("'\\0'", '\x00')]
-    [TestCase("'\\1'", '\x01')]
-    [TestCase("'\\2'", '\x02')]
-    [TestCase("'\\3'", '\x03')]
-    [TestCase("'\\4'", '\x04')]
-    [TestCase("'\\5'", '\x05')]
-    [TestCase("'\\6'", '\x06')]
-    [TestCase("'\\7'", '\x07')]
+    [TestCase("'\\101'", 'A')]
+    [TestCase("'\\60'", '0')]
+    [TestCase("'\\141'", 'a')]
+    [TestCase("'\\175'", '}')]
     public void Parse_Octal(string test, char value)
     {
         var parser = StrippedCharacter();
