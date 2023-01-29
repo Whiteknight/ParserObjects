@@ -118,33 +118,38 @@ namespace ParserObjects.Tests.Sequences
         [TestCase(2)]
         public void Checkpoint_MultiByteChars(int bufferSize)
         {
-            // a is a single byte. Followed by copyright (c) (2 bytes in UTF8), EMDASH (3 bytes)
-            // Poop emoji from the astral plane (4 bytes), registered (r) (3 bytes) and then b
-            // which is a single byte again.
-            // String is approximately similar to "ac-Prb" if you squint real hard, with the buffer
-            // break happening between the (c) and -, or (r) and b.
-            var target = GetTarget("a\u00A9\u2014\U0001F4A9\u00AEb", bufferSize: bufferSize, encoding: Encoding.UTF8);
+            // a-e are single bytes.
+            // Copyright (c) is 2 bytes in UTF8
+            // EMDASH (3 bytes)
+            // Poop emoji from the astral plane (4 bytes)
+            // registered (r) (2 bytes)
+            // In the 2-byte case the buffer break happens before/after the poop emoji
+            // in the 5-byte case the buffer break happens right in the middle of it.
+            var target = GetTarget("a\u00A9b\u2014c\U0001F4A9d\u00AEe", bufferSize: bufferSize, encoding: Encoding.UTF8);
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
             cp.Rewind();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('\u00A9');
+            target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('\u2014');
+            target.GetNext().Should().Be('c');
 
             // These two are the UTF16 chars for the surrogate pair representing the poop emoji
             target.GetNext().Should().Be('\uD83D');
             target.GetNext().Should().Be('\uDCA9');
+            target.GetNext().Should().Be('d');
 
             cp = target.Checkpoint();
 
             target.GetNext().Should().Be('\u00AE');
-            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('e');
             target.GetNext().Should().Be('\0');
 
             cp.Rewind();
 
             target.GetNext().Should().Be('\u00AE');
-            target.GetNext().Should().Be('b');
+            target.GetNext().Should().Be('e');
             target.GetNext().Should().Be('\0');
         }
 

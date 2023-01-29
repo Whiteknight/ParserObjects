@@ -13,6 +13,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
     private readonly StreamReader _reader;
     private readonly char[] _buffer;
     private readonly SequenceOptions<char> _options;
+    private readonly long[] _bufferStartPositions;
 
     private WorkingSequenceStatistics _stats;
     private int _totalCharsInBuffer;
@@ -32,6 +33,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _reader = reader;
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _stats.BufferFills++;
+        _bufferStartPositions = new long[(_reader.BaseStream.Length / _options.BufferSize) + 1];
+        _bufferStartPositions[0] = 0L;
     }
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
@@ -44,6 +47,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _reader = new StreamReader(stream, _options.Encoding!);
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _stats.BufferFills++;
+        _bufferStartPositions = new long[(_reader.BaseStream.Length / _options.BufferSize) + 1];
+        _bufferStartPositions[0] = 0L;
     }
 
     /*
@@ -182,11 +187,22 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         return c;
     }
 
+    // Called during normal read operations to fill the next buffer when we've read to the end of
+    // the current buffer.
     private void FillBuffer()
     {
         // If there are chars remaining in the current buffer, bail. There's nothing to do
         if (_index < _totalCharsInBuffer || _totalCharsInBuffer == 0)
             return;
+
+        /* There is a real problem here where when we get to end-of-stream (EOS) the
+         * _totalCharsInBuffer is 0 so we try to refill, but we're at the end of the stream
+         * so there's nothing to get and Consumed is not increasing. Without some protection in
+         * place it would happily overwrite the start position for the last buffer.
+         */
+        int buffersStartIndex = Consumed / _options.BufferSize;
+        if (buffersStartIndex != 0 && _bufferStartPositions[buffersStartIndex] == 0)
+            _bufferStartPositions[buffersStartIndex] = _streamPosition;
 
         _stats.BufferFills++;
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
@@ -209,6 +225,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _stats.Rewinds++;
 
         var streamPosition = checkpoint.StreamPosition;
+        int buffersStartIndex = checkpoint.Consumed / _options.BufferSize;
+        var bufferStartPosition = _bufferStartPositions[buffersStartIndex];
 
         // If we're rewinding to the current position, short-circuit
         if (_streamPosition == streamPosition)
@@ -217,24 +235,24 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
             return;
         }
 
-        /* At the moment we cannot optimize rewinds to the current buffer. We would need three
-         * pieces of information:
-         *      1)The BufferStartStreamPosition to line us up to the correct buffer,
-         *      2) the characer Index in the buffer, and
-         *      3) the Stream Position associated with that Index
-         *  Right now we don't have enough space in the SequenceCheckpoint to hold all that, and
-         *  I do not want to grow the size of SequenceCheckpoint by an additional long just for this
-         *  one optimization. If we could find a way to squeeze the info into the existing struct
-         *  without losing anything else important, we would do that.
-         */
+        var currentBuffersStartIndex = Consumed / _options.BufferSize;
+        var currentBufferStartPosition = _bufferStartPositions[currentBuffersStartIndex];
 
-        // Otherwise we reset the buffer starting at bufferStartStreamPosition
         _streamPosition = streamPosition;
-        _index = 0;
         _line = checkpoint.Location.Line;
         _column = checkpoint.Location.Column;
         Consumed = checkpoint.Consumed;
-        _reader.BaseStream.Seek(_streamPosition, SeekOrigin.Begin);
+        _index = checkpoint.Index;
+
+        if (currentBufferStartPosition == bufferStartPosition)
+        {
+            // Rewinding to the current buffer
+            _stats.RewindsToCurrentBuffer++;
+            return;
+        }
+
+        // Otherwise we reset the buffer starting at bufferStartStreamPosition
+        _reader.BaseStream.Seek(bufferStartPosition, SeekOrigin.Begin);
         _reader.DiscardBufferedData();
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
     }
