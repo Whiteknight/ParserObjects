@@ -2,57 +2,63 @@
 
 namespace ParserObjects.Tests.JavaScript;
 
-internal class StrippedStringTests
+public static class StrippedStringTests
 {
-    [Test]
-    public void StrippedString_SingleQuote_Tests()
+    public class SingleQuotes
     {
-        var parser = StrippedString();
-        var result = parser.Parse("'abcd'");
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("abcd");
+        [Test]
+        public void Parse_Tests()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("'abcd'");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abcd");
+        }
+
+        [Test]
+        public void Parse_Escapes()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("'a\\fb\\nc\\rd\\x0A'");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("a\fb\nc\rd\x0A");
+        }
+
+        [Test]
+        public void Parse_InvalidEscapes()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("'\\z'");
+            result.Success.Should().BeFalse();
+        }
     }
 
-    [Test]
-    public void StrippedString_SingleQuote_Escapes()
+    public class DoubleQuotes
     {
-        var parser = StrippedString();
-        var result = parser.Parse("'\\f\\n\\r\\x0A'");
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("\f\n\r\x0A");
-    }
+        [Test]
+        public void Parse_Tests()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("\"abcd\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abcd");
+        }
 
-    [Test]
-    public void StrippedString_SingleQuote_InvalidEscapes()
-    {
-        var parser = StrippedString();
-        var result = parser.Parse("'\\z'");
-        result.Success.Should().BeFalse();
-    }
+        [Test]
+        public void Parse_Escapes()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("\"\\f\\n\\r\\x0A\"");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("\f\n\r\x0A");
+        }
 
-    [Test]
-    public void StrippedString_DoubleQuote_Tests()
-    {
-        var parser = StrippedString();
-        var result = parser.Parse("\"abcd\"");
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("abcd");
-    }
-
-    [Test]
-    public void StrippedString_DoubleQuote_Escapes()
-    {
-        var parser = StrippedString();
-        var result = parser.Parse("\"\\f\\n\\r\\x0A\"");
-        result.Success.Should().BeTrue();
-        result.Value.Should().Be("\f\n\r\x0A");
-    }
-
-    [Test]
-    public void StrippedString_DoubleQuote_InvalidEscapes()
-    {
-        var parser = StrippedString();
-        var result = parser.Parse("\"\\z\"");
-        result.Success.Should().BeFalse();
+        [Test]
+        public void Parse_InvalidEscapes()
+        {
+            var parser = StrippedString();
+            var result = parser.Parse("\"\\z\"");
+            result.Success.Should().BeFalse();
+        }
     }
 }
