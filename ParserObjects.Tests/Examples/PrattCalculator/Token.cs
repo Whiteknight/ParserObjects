@@ -1,16 +1,15 @@
-﻿namespace ParserObjects.Tests.Examples.PrattCalculator
+﻿namespace ParserObjects.Tests.Examples.PrattCalculator;
+
+public class Token
 {
-    public class Token
+    public Token(TokenType type, string value)
     {
-        public Token(TokenType type, string value)
-        {
-            Type = type;
-            Value = value;
-        }
-
-        public TokenType Type { get; }
-        public string Value { get; }
-
-        public override string ToString() => $"{Type}: {Value}";
+        Type = type;
+        Value = value;
     }
+
+    public TokenType Type { get; }
+    public string Value { get; }
+
+    public override string ToString() => $"{Type}: {Value}";
 }

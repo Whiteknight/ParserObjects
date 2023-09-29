@@ -2,45 +2,44 @@
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 
-namespace ParserObjects.Tests.Examples.ExprCalculator
+namespace ParserObjects.Tests.Examples.ExprCalculator;
+
+public static class LexicalGrammar
 {
-    public static class LexicalGrammar
+    public static IParser<char, Token> CreateParser()
     {
-        public static IParser<char, Token> CreateParser()
-        {
-            var addition = Match('+')
-                .Transform(c => new Token(TokenType.Addition, "+"));
+        var addition = Match('+')
+            .Transform(c => new Token(TokenType.Addition, "+"));
 
-            var subtraction = Match('-')
-                .Transform(c => new Token(TokenType.Subtraction, "-"));
+        var subtraction = Match('-')
+            .Transform(c => new Token(TokenType.Subtraction, "-"));
 
-            var multiplication = Match('*')
-                .Transform(c => new Token(TokenType.Multiplication, "*"));
+        var multiplication = Match('*')
+            .Transform(c => new Token(TokenType.Multiplication, "*"));
 
-            var division = Match('*')
-                .Transform(c => new Token(TokenType.Division, "/"));
+        var division = Match('*')
+            .Transform(c => new Token(TokenType.Division, "/"));
 
-            var number = Match(c => char.IsDigit(c))
-                .List(atLeastOne: true)
-                .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
+        var number = Match(c => char.IsDigit(c))
+            .List(atLeastOne: true)
+            .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
 
-            var whitespace = OptionalWhitespace();
+        var whitespace = OptionalWhitespace();
 
-            var anyToken = First(
-                addition,
-                subtraction,
-                multiplication,
-                division,
-                number
-            );
+        var anyToken = First(
+            addition,
+            subtraction,
+            multiplication,
+            division,
+            number
+        );
 
-            var whitespaceAndToken = Rule(
-                whitespace,
-                anyToken,
-                (ws, t) => t
-            );
+        var whitespaceAndToken = Rule(
+            whitespace,
+            anyToken,
+            (ws, t) => t
+        );
 
-            return whitespaceAndToken;
-        }
+        return whitespaceAndToken;
     }
 }

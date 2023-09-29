@@ -1,12 +1,11 @@
-﻿namespace ParserObjects.Tests.Examples.ExprCalculator
+﻿namespace ParserObjects.Tests.Examples.ExprCalculator;
+
+public enum TokenType
 {
-    public enum TokenType
-    {
-        Error,
-        Addition,
-        Division,
-        Multiplication,
-        Subtraction,
-        Number
-    }
+    Error,
+    Addition,
+    Division,
+    Multiplication,
+    Subtraction,
+    Number
 }
