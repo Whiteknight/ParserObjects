@@ -116,6 +116,26 @@ namespace ParserObjects.Tests.Parsers
                 var result = parser.Parse("");
                 result.Success.Should().BeTrue();
                 result.Consumed.Should().Be(0);
+                result.Value.Should().Be('\0');
+            }
+
+            [Test]
+            public void DoesNotIncludeEndSentinel()
+            {
+                var parser = Match(c => char.IsLetterOrDigit(c) || c == '.').ListCharToString();
+                var result = parser.Parse("abc");
+                result.Value.Should().Be("abc");
+            }
+
+            [Test]
+            public void DoesIncludeOneEndSentinel()
+            {
+                // Match(c => ...) will match an end sentinel, but List() will only take one token
+                // without consuming input. So in this case we will see an end sentinel in the
+                // output
+                var parser = Match(c => c != ']').ListCharToString();
+                var result = parser.Parse("abc");
+                result.Value.Should().Be("abc\0");
             }
         }
     }

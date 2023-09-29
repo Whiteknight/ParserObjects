@@ -13,12 +13,14 @@ namespace ParserObjects.Internal.Parsers;
 public sealed class MatchPredicateParser<T> : IParser<T, T>
 {
     private readonly Func<T, bool> _predicate;
+    private readonly bool _readAtEnd;
     private readonly IResult<T> _failure;
 
-    public MatchPredicateParser(Func<T, bool> predicate, string name = "")
+    public MatchPredicateParser(Func<T, bool> predicate, string name = "", bool readAtEnd = true)
     {
         _predicate = predicate;
         Name = name;
+        _readAtEnd = readAtEnd;
         _failure = new FailureResult<T>(this, "Next item does not match the predicate");
     }
 
@@ -31,6 +33,9 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
         Assert.ArgumentNotNull(state, nameof(state));
 
         var startConsumed = state.Input.Consumed;
+
+        if (!_readAtEnd && state.Input.IsAtEnd)
+            return _failure;
 
         var next = state.Input.Peek();
         if (next == null || !_predicate(next))
@@ -58,7 +63,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
-    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
+    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name, _readAtEnd);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>

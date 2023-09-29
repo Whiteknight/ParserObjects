@@ -77,6 +77,9 @@ public static partial class Parsers
         return p;
     }
 
+    public static IParser<char, char> MatchChar(Func<char, bool> predicate)
+        => new MatchPredicateParser<char>(predicate, readAtEnd: false);
+
     /// <summary>
     /// Matches a series of consecutive letter characters.
     /// </summary>
