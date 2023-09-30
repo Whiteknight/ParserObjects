@@ -35,13 +35,15 @@ public static partial class Parsers<TInput>
     public static IParser<TInput> Empty() => _empty;
 
     /// <summary>
-    /// Matches affirmatively at the end of the input, fails everywhere else. Returns no value.
+    /// Returns a success result at end of input, a failure result at any other location. Returns
+    /// no value in either case.
     /// </summary>
     /// <returns></returns>
     public static IParser<TInput> End() => _end;
 
     /// <summary>
-    /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
+    /// Always returns success, with a boolean value indicating whether the input sequence is at
+    /// end of input or not.
     /// </summary>
     /// <returns></returns>
     public static IParser<TInput, bool> IsEnd() => _isEnd;
