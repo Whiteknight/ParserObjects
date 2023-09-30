@@ -80,7 +80,7 @@ public static partial class Parsers<TInput>
     }
 
     /// <summary>
-    /// Test the next input value and retur it, if it matches the predicate. Notice that this
+    /// Test the next input value and return it, if it matches the predicate. Notice that this
     /// parser cannot match the end sentinel, even if the given predicate would allow it. If you
     /// do want to match the end sentinel, use Match(predicate) instead.
     /// </summary>
