@@ -8,11 +8,13 @@ public sealed class MatchItemParser<T> : IParser<T, T>
 {
     private readonly IResult<T> _eofResult;
     private readonly IResult<T> _noMatchResult;
+    private readonly bool _readAtEnd;
 
-    public MatchItemParser(T? item, string name = "")
+    public MatchItemParser(T? item, string name = "", bool readAtEnd = true)
     {
         Item = item;
         Name = name;
+        _readAtEnd = readAtEnd;
         _eofResult = new FailureResult<T>(this, "Input sequence is at end.", default);
         _noMatchResult = new FailureResult<T>(this, "Items do not match", default);
     }
@@ -24,7 +26,7 @@ public sealed class MatchItemParser<T> : IParser<T, T>
 
     public bool Match(IParseState<T> state)
     {
-        if (state.Input.IsAtEnd)
+        if (!_readAtEnd && state.Input.IsAtEnd)
             return false;
         if (!Equals(Item, state.Input.Peek()))
             return false;
@@ -34,12 +36,13 @@ public sealed class MatchItemParser<T> : IParser<T, T>
 
     public IResult<T> Parse(IParseState<T> state)
     {
-        if (state.Input.IsAtEnd)
+        if (!_readAtEnd && state.Input.IsAtEnd)
             return _eofResult;
         if (!Equals(Item, state.Input.Peek()))
             return _noMatchResult;
+        int startConsumed = state.Input.Consumed;
         var value = state.Input.GetNext();
-        return state.Success(this, value, 1);
+        return state.Success(this, value, state.Input.Consumed - startConsumed);
     }
 
     IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);

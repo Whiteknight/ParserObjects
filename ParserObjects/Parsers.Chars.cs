@@ -63,7 +63,9 @@ public static partial class Parsers
         => new MatchPredicateParser<char>(c => !possibilities.Contains(c));
 
     /// <summary>
-    /// Optimized version of Match(char) which caches common instances for reuse.
+    /// Optimized version of Match(char) which caches common instances for reuse. Notice that this
+    /// method cannot match the end sentinel, and will fail if the input is at the end. Use
+    /// Match() instead if you want to match the end sentinel.
     /// </summary>
     /// <param name="c"></param>
     /// <returns></returns>
@@ -72,11 +74,18 @@ public static partial class Parsers
         if (_matchByChar.ContainsKey(c))
             return _matchByChar[c];
 
-        var p = new MatchItemParser<char>(c);
+        var p = new MatchItemParser<char>(c, readAtEnd: false);
         _matchByChar.Add(c, p);
         return p;
     }
 
+    /// <summary>
+    /// Get the next character and return it if it satisfies the given predicate. Notice that
+    /// this parser cannot match the end sentinel, even if the end sentinel would satisfy the
+    /// given predicate. To match the end sentinel, use Match() instead.
+    /// </summary>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
     public static IParser<char, char> MatchChar(Func<char, bool> predicate)
         => new MatchPredicateParser<char>(predicate, readAtEnd: false);
 

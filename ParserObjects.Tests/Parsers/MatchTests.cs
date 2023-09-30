@@ -138,4 +138,63 @@ public static class MatchTests
             result.Value.Should().Be("abc\0");
         }
     }
+
+    public class ByLiteral
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var parser = Match('1');
+            var input = FromString("123");
+            var result = parser.Parse(input);
+            result.Value.Should().Be('1');
+            result.Consumed.Should().Be(1);
+        }
+
+        [Test]
+        public void Parse_Fail()
+        {
+            var parser = Match('A');
+            var input = FromString("123");
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+            result.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void GetChildren_Test()
+        {
+            var parser = Match('1');
+            parser.GetChildren().Count().Should().Be(0);
+        }
+
+        [Test]
+        public void MatchEndConsumesZero()
+        {
+            var parser = Match('\0');
+            var result = parser.Parse("");
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            result.Value.Should().Be('\0');
+        }
+
+        [Test]
+        public void DoesNotIncludeEndSentinel()
+        {
+            var parser = Match('a').ListCharToString();
+            var result = parser.Parse("aaa");
+            result.Value.Should().Be("aaa");
+        }
+
+        [Test]
+        public void DoesIncludeOneEndSentinel()
+        {
+            // Match(c => ...) will match an end sentinel, but List() will only take one token
+            // without consuming input. So in this case we will see an end sentinel in the
+            // output
+            var parser = Match('\0').ListCharToString();
+            var result = parser.Parse("\0\0\0");
+            result.Value.Should().Be("\0\0\0\0");
+        }
+    }
 }

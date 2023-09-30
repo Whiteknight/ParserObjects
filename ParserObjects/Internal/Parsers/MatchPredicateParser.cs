@@ -51,6 +51,9 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
     {
         Assert.ArgumentNotNull(state, nameof(state));
 
+        if (!_readAtEnd && state.Input.IsAtEnd)
+            return false;
+
         var next = state.Input.Peek();
         if (next == null || !_predicate(next))
             return false;
