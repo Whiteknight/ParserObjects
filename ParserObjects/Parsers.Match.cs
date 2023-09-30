@@ -47,7 +47,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, bool> IsEnd() => _isEnd;
 
     /// <summary>
-    /// Test the next input value and return it, if it matches the predicate.
+    /// Test the next input value and return it, if it matches the predicate. Notice that this
+    /// parser can match the end sentinel, if the end sentinel satisfies the given predicate.
+    /// If you do not want to match the end sentinel, update your predicate to exclude it or use
+    /// MatchItem(predicate) instead.
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns></returns>
@@ -75,6 +78,16 @@ public static partial class Parsers<TInput>
             return Produce(() => Array.Empty<TInput>());
         return new MatchPatternParser<TInput>(asList);
     }
+
+    /// <summary>
+    /// Test the next input value and retur it, if it matches the predicate. Notice that this
+    /// parser cannot match the end sentinel, even if the given predicate would allow it. If you
+    /// do want to match the end sentinel, use Match(predicate) instead.
+    /// </summary>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TInput> MatchItem(Func<TInput, bool> predicate)
+        => new MatchPredicateParser<TInput>(predicate, readAtEnd: false);
 
     /// <summary>
     /// Return the next item of input without consuming any input. Returns failure at end of
