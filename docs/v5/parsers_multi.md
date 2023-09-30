@@ -1,8 +1,8 @@
 # Multi Parsers
 
-Multi Parsers, using the `IMultiParser<TInput>` and `IMultiParser<TInput, TOutput>` interfaces handle ambiguous grammars where multiple valid parses might exist starting from the current input location. Often times this is undesirable because we want our grammars to be unambiguous. However there are cases where we might want to consider multiple parses. Either we can show the options to the user with suggestions to select one, or we can provide a selection criteria ourselves.
+Multi Parsers, using the `IMultiParser<TInput>` and `IMultiParser<TInput, TOutput>` interfaces handle ambiguous grammars where multiple valid parses might exist starting from the current input location. Often times this is undesirable because we want our grammars to be unambiguous. However there are cases where we might want to consider multiple possibly parses and be able to select from them. Either we can show the options to the user with suggestions to select one, or we can provide a selection criteria ourselves.
 
-In the literature, multiple return values from such a parser is called a "Parse Forest".
+In the literature, the collection of multiple return values from such a parser is called a "Parse Forest".
 
 ## Multi Results
 
@@ -91,6 +91,8 @@ The `First` parser selects the first matching result from the list of possibilit
 var parser = multiParser.First(r => ...);
 ```
 
+**Notice**: that the order of results from a multi-parser may not necessarily be deterministic. The output results of an `Each` parser will be in the same order as the declaration order of the parsers passed to `Each()`, but for some parsers like `Earley` the order of results may not be able to be determined ahead of time. Using `First` then may not return a result you expect.
+
 ### Longest
 
 The `Longest` parser selects the result which consumed the most input items from the input sequence. 
@@ -99,7 +101,7 @@ The `Longest` parser selects the result which consumed the most input items from
 var parser = multiParser.Longest();
 ```
 
-If there is a tie, the first option is selected.
+If there is a tie, the first option is selected. As per the note above, "first" is problematic because it is not deterministic.
 
 ### Select
 

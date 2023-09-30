@@ -4,7 +4,7 @@ Several parsers are used to combine other parsers in logical ways, and are not u
 
 ## If Parser
 
-The `If` parser checks some kind of predicate and executes one of two parsers depending on the result. The predicate will be allowed to consume data, and that data will not be available to either of the resulting parsers. If the `onFailure` option is omitted, the parser will returns a failure result when the predicate fails.
+The `If` parser checks some kind of predicate and executes one of two parsers depending on the result. The predicate will be allowed to consume data, and that data will not be available to either of the resulting parsers. If the `onFailure` option is omitted, the parser will return a `Fail` result when the predicate fails.
 
 ```csharp
 var parser = new IfParser<TInput, TOutput>(predicate, onSuccess, onFailure);
@@ -29,7 +29,6 @@ Lookahead parsers attempt to match a pattern but consume no input. These are use
 The `NegativeLookaheadParser` invokes a parser, but consumes no input. It returns success if the parser would not match, and returns failure if it would match. It is the opposite of the `PositiveLookaheadParser`. The negative lookahead parser does not return a value, only success or failure (If the inner parser fails, there is no result to return, and if the inner parser succeeds the negative lookahead parser would fail and return no value).
 
 ```csharp
-var parser = new NegativeLookaheadParser<char>(innerParser);
 var parser = NegativeLookahead(innerParser);
 var parser = someParser.NotFollowedBy(innerParser);
 ```
@@ -39,7 +38,6 @@ var parser = someParser.NotFollowedBy(innerParser);
 The `PositiveLookaheadParser` invokes a parser but consumes no input. It returns success and the parsed value if the parser would match, and returns failure if it would not. It is the opposite of the `NegativeLookaheadParser`. The `.FollowedBy()` extension method uses a positive lookahead parser to match a pattern, and only return a successful result if the first pattern is followed by the second pattern (but no input is consumed by the second pattern).
 
 ```csharp
-var parser = new PositiveLookaheadParser<char>(innerParser);
 var parser = PositiveLookahead(innerParser);
 var parser = someParser.FollowedBy(innerParser);
 ```
@@ -60,23 +58,23 @@ var parser = Rule(
 );
 ```
 
-Positive and Negative parsers can be created from one another using the Not parser. These two couples are the same (though the longer versions are less efficient):
+Positive and Negative lookahead parsers can be created from one another using the Not parser. These two couples are the same (though the longer versions are less efficient):
 
 ```csharp
-var parser = PositiveLookahead(predicate);
-var parser = NegativeLookahead(Not(predicate));
+var parser = PositiveLookahead(parser);
+var parser = NegativeLookahead(Not(parser));
 ```
 
 ```csharp
-var parser = NegativeLookahead(predicate);
-var parser = PositiveLookahead(Not(predicate));
+var parser = NegativeLookahead(parser);
+var parser = PositiveLookahead(Not(parser));
 ```
 
 ## Combinatorial Parsers
 
 ### And Parser
 
-The `And` parser is similar to the `Rule` parser except it does not return a value, it only checks if the parsers match, in order. The And parser will consume input when all the parsers succeed.
+The `And` parser is similar to the `Rule` parser except it does not return a value, it only checks if the parsers match, in order. The And parser will consume input when all the parsers succeed, but will consume no input if any of them fail.
 
 ```csharp
 var parser = new AndParser<TInput>(p1, p2, p3,...);
@@ -86,7 +84,7 @@ var parser = p1.And(p2, p3,...);
 
 ### Not Parser
 
-The `Not` parser inverts the success value of the inner parser. When the inner parser succeeds, the Not parser fails. When the inner parser fails, the Not parser succeeds. In either case, the Not parser will not consume any input.
+The `Not` parser inverts the success value of the inner parser. When the inner parser succeeds, the Not parser fails. When the inner parser fails, the Not parser succeeds. In either case, the Not parser will not consume any input and will not return a value.
 
 ```csharp
 var parser = new NotParser<TInput>(predicate);
@@ -96,10 +94,12 @@ var parser = predicate.Not();
 
 ### Or Parser
 
-The `Or` parser is similar to the `First` parser except it does not return a value, it only checks if any parsers match. This parser does consume input data on success.
+The `Or` parser is similar to the `First` parser except it does not return a value, it only checks if any parsers match. This parser does consume input data on success, consumes nothing on failure, and will return an untyped value.
 
 ```csharp
 var parser = new OrParser<TInput>(p1, p2, p3,...)
 var parser = Or(p1, p2, p3,...);
 var parser = p1.Or(p2, p3,...);
 ```
+
+Because the `Or` parser returns an untyped value, it can act as a more flexible, type-unsafe version of the `First` parser. You can mix and match parsers that would return multiple different data types, and then figure out which value was returned from among those when the parser succeeds.

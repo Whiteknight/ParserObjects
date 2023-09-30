@@ -91,16 +91,15 @@ var parser = HexadecimalDigit();
 
 ### A String of Digits
 
-The `DigitString` parser returns a string of consecutive digits. The `HexadecimalString` parser returns a string of hexadecimal digits.
+The `DigitString` parser returns a string of consecutive digits.
 
 ```csharp
 var parser = DigitString();
-var parser = HexadecimalString();
 ```
 
 ## Line Parsers
 
-The `Line` method parses the remainder of the line until the next newline (`'\n'`) character. It does not return the newline character. The `PrefixedLine` method parses the line if it starts with the given prefix. If the prefix is null or empty, it is the same as `Line`.
+The `Line` method parses the remainder of the line until the next newline character. It does not return the newline character. The `PrefixedLine` method parses the line if it starts with the given prefix. If the prefix is null or empty, it is the same as `Line`.
 
 ```csharp
 var parser = Line();

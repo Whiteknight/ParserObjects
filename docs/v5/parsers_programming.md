@@ -7,7 +7,7 @@ ParserObjects contains parsers for some common constructs from modern programmin
 The C-Style parsers are used to parse some common constructs from C and programming languages derived from it.
 
 ```csharp
-using static ParserObjects.CStyleParserMethods;
+using static ParserObjects.Parsers.C;
 ```
 
 ### Comments
@@ -61,7 +61,7 @@ var parser = StrippedString();
 ## C++ Parsers
 
 ```csharp
-using static ParserObjects.CPlusPlusStyleParsersMethods;
+using static ParserObjects.Parsers.Cpp;
 ```
 
 ### Comments
@@ -74,6 +74,10 @@ var parser = Comment();
 
 ## JavaScript Parsers
 
+```csharp
+using static ParserObjects.Parsers.JS;
+```
+
 ### Numbers
 
 A JavaScript number has a complicated set of rules and may be an integer, a floating point value or use scientific notation. The `NumberString` parser returns the literal parsed string while the `Number` parser returns the parsed `double` value.
@@ -83,10 +87,19 @@ var parser = NumberString();
 var parser = Number();
 ```
 
+### Strings
+
+JavaScript-style strings may be single- or double-quoted, they use backslash-escapes including hex escapes and unicode code points. The `String` parser returns the whole literal string, including quotes and escapes. The `StrippedString` parser returns the value of the string, without the quotes and with the backslash escapes converted into their actual byte forms.
+
+```csharp
+var parser = String();
+var parser = StrippedString();
+```
+
 ## SQL Parsers
 
 ```csharp
-using static ParserObjects.SqlStyleParserMethods;
+using static ParserObjects.Parsers.Sql;
 ```
 
 ### Comments
@@ -95,13 +108,4 @@ An SQL comment starts with the prefix "`--`" and continues to the end of the lin
 
 ```csharp
 var parser = Comment();
-```
-
-### Strings
-
-JavaScript-style strings may be single- or double-quoted, they use backslash-escapes including hex escapes and unicode code points. The `String` parser returns the whole literal string, including quotes and escapes. The `StrippedString` parser returns the value of the string, without the quotes and with the backslash escapes converted into their actual byte forms.
-
-```csharp
-var parser = String();
-var parser = StrippedString();
 ```

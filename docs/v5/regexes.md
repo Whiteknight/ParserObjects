@@ -11,7 +11,7 @@ The Regular Expression engine provided by ParserObjects has fewer features than 
 4. Range quantifiers
    1. `{3}` exactly three
    2. `{3,}` at least three
-   3. `{,3}` at most three
+   3. `{,5}` at most five
    4. `{3,5}` between three and five
 5. Capturing Groups `( )`
    1. Backreferences `\1`
@@ -27,4 +27,4 @@ The Regular Expression engine provided by ParserObjects has fewer features than 
    3. `\d` and `\D` digit and non-digit
 10. `$` End anchor
 
-The Regex parser always attempts to match the pattern starting at the current position of the input sequence, and will not look forward to try and match later in the sequence. Because of this, the Regex parser does not support the beginning of input anchor (`^`) in patterns. However, it does support the end of input anchor (`$`).
+The Regex parser always attempts to match the pattern starting at the current position of the input sequence, and will not look forward to try and find a match which begins later. Because of this, the Regex parser does not support the beginning of input anchor (`^`) in patterns. However, it does support the end of input anchor (`$`) to match the end of input of the sequence.
