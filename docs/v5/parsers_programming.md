@@ -109,3 +109,39 @@ An SQL comment starts with the prefix "`--`" and continues to the end of the lin
 ```csharp
 var parser = Comment();
 ```
+
+## Guid Parsers
+
+```csharp
+using static ParserObjects.Parsers.Guids;
+```
+
+Guids come in four formats, based on the C# `Guid.ToString(format)` output:
+
+### Guid N
+
+'N' Guids are 32 hexadecimal digits: `12345678ABCD1234ABCD1234567890AB`
+
+```csharp
+var p = GuidN();
+```
+
+### Guid D
+
+'D' Guids are 32 hexadecimal digits separated by dashes: `12345678-ABCD-1234-ABCD-1234567890AB`
+
+```csharp
+var p = GuidD();
+```
+
+### Guid B and P
+
+'B' Guids are the same as 'D' Guids with curly brackets: `{12345678-ABCD-1234-ABCD-1234567890AB}`.
+
+'P' Guids are the same as 'D' Guids with parenthesis: `(12345678-ABCD-1234-ABCD-1234567890AB})`.
+
+```csharp
+var pb = GuidB();
+
+var pp = GuidP();
+```
