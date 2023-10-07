@@ -1,6 +1,6 @@
 ﻿using static ParserObjects.Parsers.Sql;
 
-namespace ParserObjects.Tests.Sql;
+namespace ParserObjects.Tests.Parsers.Sql;
 
 internal class CommentTests
 {

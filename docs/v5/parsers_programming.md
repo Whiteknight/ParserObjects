@@ -110,6 +110,23 @@ An SQL comment starts with the prefix "`--`" and continues to the end of the lin
 var parser = Comment();
 ```
 
+### Identifiers
+
+There are many different syntaxes for SQL identifiers depending on vendor and version. However the ParserObjects SQL identifier parser attempts to parse several common variations.
+
+```csharp
+var parser = Identifier();
+```
+
+This will parse:
+
+1. Undelimited identifiers which may start with a letter, `'_'`, `'@'` or `'#'` and be followed by any number of these characters, digits, or `'$'`.
+2. T-SQL style `[]` delimited identifiers which may contain most non-bracket characters including whitespace,
+3. Oracle style `''` delimited identifiers which may contain most non-quote characters including whitespace, and
+4. Oracle style `""` delimited identifiers which may contain most non-quite characters including whitespace, and will use `""` for embedded quotes
+
+This parser may not be standards-compliant with any particular database vendor, but it should serve as a good approximation for many common use-cases.
+
 ## Guid Parsers
 
 ```csharp
