@@ -16,11 +16,10 @@ public static partial class Parsers
         if (string.IsNullOrEmpty(prefix))
             return Line();
 
-        return Capture(
+        return CaptureString(
                 Match(prefix),
                 Match(static c => c != '\n').List()
             )
-            .Stringify()
             .Named($"Line Prefixed:{prefix}");
     }
 
