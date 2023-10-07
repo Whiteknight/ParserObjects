@@ -6,7 +6,7 @@
 public static class DefaultStringifier
 {
     /// <summary>
-    /// Attempts to create a string representation of a string which is both sufficiently
+    /// Attempts to create a string representation of a parser which is sufficiently
     /// helpful but not overly verbose. Use the .Name if provided.
     /// </summary>
     /// <param name="named"></param>

@@ -72,11 +72,11 @@ public static class CharBufferSequence
             return next;
         }
 
-        public Location CurrentLocation => new Location(_options.FileName, _line, _column);
+        public readonly Location CurrentLocation => new Location(_options.FileName, _line, _column);
 
-        public bool IsAtEnd => _index >= Length;
+        public readonly bool IsAtEnd => _index >= Length;
 
-        public int Index => _index;
+        public readonly int Index => _index;
 
         public TData Data { get; }
 
@@ -109,7 +109,7 @@ public static class CharBufferSequence
         public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public readonly char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
         {
             int size = end.Consumed - start.Consumed;
             var array = new char[size];
