@@ -12,6 +12,19 @@ public static partial class Parsers
     private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
 
     /// <summary>
+    /// Invokes the inner parsers using the Match method, in sequence. Returns string of all input
+    /// characters which would be part of the match.
+    /// </summary>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
+    public static IParser<char, string> CaptureString(params IParser<char>[] parsers)
+    {
+        if (parsers == null || parsers.Length == 0)
+            return Produce(static () => string.Empty);
+        return new CaptureParser<char, string>(parsers, static (s, start, end) => (s as ICharSequence)?.GetStringBetween(start, end) ?? string.Empty);
+    }
+
+    /// <summary>
     /// Convenience method to match a literal sequence of characters and return the
     /// result as a string.
     /// </summary>

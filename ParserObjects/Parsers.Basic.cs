@@ -39,7 +39,7 @@ public static partial class Parsers<TInput>
     {
         if (parsers == null || parsers.Length == 0)
             return Produce(static () => Array.Empty<TInput>());
-        return new CaptureParser<TInput>(parsers);
+        return new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetBetween(start, end));
     }
 
     /// <summary>
