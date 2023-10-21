@@ -57,7 +57,7 @@ public static partial class Parsers<TInput>
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate)
-        => new MatchPredicateParser<TInput>(predicate);
+        => new MatchPredicateParser<TInput, Func<TInput, bool>>(predicate, static (i, p) => p(i));
 
     /// <summary>
     /// Get the next input value and return it if it .Equals() to the given value.
@@ -77,7 +77,7 @@ public static partial class Parsers<TInput>
     {
         var asList = pattern.ToList();
         if (asList.Count == 0)
-            return Produce(() => Array.Empty<TInput>());
+            return Produce(static () => Array.Empty<TInput>());
         return new MatchPatternParser<TInput>(asList);
     }
 
@@ -89,7 +89,7 @@ public static partial class Parsers<TInput>
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<TInput, TInput> MatchItem(Func<TInput, bool> predicate)
-        => new MatchPredicateParser<TInput>(predicate, readAtEnd: false);
+        => new MatchPredicateParser<TInput, Func<TInput, bool>>(predicate, static (i, p) => p(i), readAtEnd: false);
 
     /// <summary>
     /// Return the next item of input without consuming any input. Returns failure at end of

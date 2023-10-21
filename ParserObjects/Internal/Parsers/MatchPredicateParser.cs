@@ -10,14 +10,17 @@ namespace ParserObjects.Internal.Parsers;
 /// the end sentinel will be made available to the predicate and may match.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class MatchPredicateParser<T> : IParser<T, T>
+/// <typeparam name="TData"></typeparam>
+public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 {
-    private readonly Func<T, bool> _predicate;
+    private readonly TData _data;
+    private readonly Func<T, TData, bool> _predicate;
     private readonly bool _readAtEnd;
     private readonly IResult<T> _failure;
 
-    public MatchPredicateParser(Func<T, bool> predicate, string name = "", bool readAtEnd = true)
+    public MatchPredicateParser(TData data, Func<T, TData, bool> predicate, string name = "", bool readAtEnd = true)
     {
+        _data = data;
         _predicate = predicate;
         Name = name;
         _readAtEnd = readAtEnd;
@@ -38,7 +41,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
             return _failure;
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next))
+        if (next == null || !_predicate(next, _data))
             return _failure;
 
         state.Input.GetNext();
@@ -55,7 +58,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
             return false;
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next))
+        if (next == null || !_predicate(next, _data))
             return false;
 
         state.Input.GetNext();
@@ -66,7 +69,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
-    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name, _readAtEnd);
+    public INamed SetName(string name) => new MatchPredicateParser<T, TData>(_data, _predicate, name, _readAtEnd);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>

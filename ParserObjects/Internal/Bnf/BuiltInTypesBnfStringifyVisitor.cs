@@ -253,7 +253,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("'", (object?)p.Item ?? ' ', "'");
     }
 
-    public void Accept<TInput>(MatchPredicateParser<TInput> _, BnfStringifyState state)
+    public void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, BnfStringifyState state)
     {
         state.Append("MATCH()");
     }

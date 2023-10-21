@@ -67,7 +67,7 @@ public static partial class Parsers
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> MatchAny(ICollection<char> possibilities)
-        => new MatchPredicateParser<char>(c => possibilities.Contains(c));
+        => new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
 
     /// <summary>
     /// Test whether a char is not one of a set of given possibilities.
@@ -75,7 +75,7 @@ public static partial class Parsers
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> NotMatchAny(ICollection<char> possibilities)
-        => new MatchPredicateParser<char>(c => !possibilities.Contains(c));
+        => new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
 
     /// <summary>
     /// Optimized version of Match(char) which caches common instances for reuse. Notice that this
@@ -93,7 +93,7 @@ public static partial class Parsers
             if (_matchByCharInsensitive.ContainsKey(realC))
                 return _matchByCharInsensitive[realC];
 
-            var pi = new MatchPredicateParser<char>(i => char.ToUpper(i) == realC, readAtEnd: false);
+            var pi = new MatchPredicateParser<char, char>(realC, static (i, r) => char.ToUpper(i) == r, readAtEnd: false);
             _matchByCharInsensitive.Add(realC, pi);
             return pi;
         }
@@ -114,7 +114,7 @@ public static partial class Parsers
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<char, char> MatchChar(Func<char, bool> predicate)
-        => new MatchPredicateParser<char>(predicate, readAtEnd: false);
+        => new MatchPredicateParser<char, Func<char, bool>>(predicate, static (i, p) => p(i), readAtEnd: false);
 
     /// <summary>
     /// Matches a series of consecutive letter characters.
