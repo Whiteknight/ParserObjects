@@ -129,6 +129,12 @@ public static partial class Parsers<TInput>
         );
     }
 
+    /// <summary>
+    /// Given a list of parsers, parse each in sequence and return a list of object results on
+    /// success.
+    /// </summary>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
     {
         if (parsers == null || parsers.Count == 0)

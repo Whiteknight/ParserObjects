@@ -29,9 +29,23 @@ public static partial class Parsers
                 static () => Digit().ListCharToString(true).Named("digits")
             );
 
+        /// <summary>
+        /// Parses digits in series and returns them as a string with given minimum and maximum
+        /// sizes.
+        /// </summary>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
         public static IParser<char, string> DigitString(int minimum, int maximum)
             => Digit().ListCharToString(minimum, maximum).Named($"digits({minimum},{maximum})");
 
+        /// <summary>
+        /// Pares digits in series and returns them as an integer with a given minimum and maximum
+        /// number of digits.
+        /// </summary>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
         public static IParser<char, int> DigitsAsInteger(int minimum, int maximum)
             => DigitString(minimum, maximum).Transform(s => string.IsNullOrEmpty(s) ? 0 : int.Parse(s));
 
