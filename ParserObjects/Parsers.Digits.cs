@@ -29,6 +29,12 @@ public static partial class Parsers
                 static () => Digit().ListCharToString(true).Named("digits")
             );
 
+        public static IParser<char, string> DigitString(int minimum, int maximum)
+            => Digit().ListCharToString(minimum, maximum).Named($"digits({minimum},{maximum})");
+
+        public static IParser<char, int> DigitsAsInteger(int minimum, int maximum)
+            => DigitString(minimum, maximum).Transform(s => string.IsNullOrEmpty(s) ? 0 : int.Parse(s));
+
         /// <summary>
         /// Parses a single non-zero digit 1-9.
         /// </summary>

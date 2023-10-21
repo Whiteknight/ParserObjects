@@ -129,6 +129,17 @@ public static partial class Parsers<TInput>
         );
     }
 
+    public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
+    {
+        if (parsers == null || parsers.Count == 0)
+            return Produce(static () => Array.Empty<object>());
+        return Internal.Parsers.Rule.Create(
+            parsers,
+            Defaults.ObjectInstance,
+            static (_, r) => r
+        );
+    }
+
     /// <summary>
     /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
     /// </summary>
