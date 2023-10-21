@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ParserObjects.Internal.Tries;
 
@@ -18,6 +19,13 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         Result = default;
     }
 
+    public Node(IEqualityComparer<ValueTuple<TKey>> comparer)
+        : base(comparer)
+    {
+        HasResult = false;
+        Result = default;
+    }
+
     public bool HasResult { get; private set; }
 
     public TResult? Result { get; private set; }
@@ -28,7 +36,7 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         var wrappedKey = new ValueTuple<TKey>(key);
         if (ContainsKey(wrappedKey))
             return this[wrappedKey];
-        var newNode = new Node<TKey, TResult>();
+        var newNode = new Node<TKey, TResult>(Comparer);
         Add(wrappedKey, newNode);
         return newNode;
     }
@@ -52,6 +60,13 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
 public class RootNode<TKey, TResult> : Node<TKey, TResult>
 {
     public RootNode()
+    {
+        Editable = true;
+        MaxDepth = 0;
+    }
+
+    public RootNode(IEqualityComparer<TKey> comparer)
+        : base(new WrappedEqualityComparer(comparer))
     {
         Editable = true;
         MaxDepth = 0;
@@ -230,5 +245,21 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         }
 
         return false;
+    }
+
+    private class WrappedEqualityComparer : IEqualityComparer<ValueTuple<TKey>>
+    {
+        public IEqualityComparer<TKey> _inner;
+
+        public WrappedEqualityComparer(IEqualityComparer<TKey> inner)
+        {
+            _inner = inner;
+        }
+
+        public bool Equals(ValueTuple<TKey> x, ValueTuple<TKey> y)
+            => _inner.Equals(x.Item1, y.Item1);
+
+        public int GetHashCode([DisallowNull] ValueTuple<TKey> obj)
+            => obj.Item1 == null ? 0 : _inner.GetHashCode(obj.Item1!);
     }
 }

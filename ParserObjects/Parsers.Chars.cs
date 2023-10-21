@@ -10,6 +10,7 @@ namespace ParserObjects;
 public static partial class Parsers
 {
     private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
+    private static readonly Dictionary<char, IParser<char, char>> _matchByCharInsensitive = new Dictionary<char, IParser<char, char>>();
 
     /// <summary>
     /// Invokes the inner parsers using the Match method, in sequence. Returns string of all input
@@ -48,10 +49,11 @@ public static partial class Parsers
     /// strings. Uses a Trie internally to greedily match the longest matching input sequence.
     /// </summary>
     /// <param name="patterns"></param>
+    /// <param name="caseInsensitive"></param>
     /// <returns></returns>
-    public static IParser<char, string> MatchAny(IEnumerable<string> patterns)
+    public static IParser<char, string> MatchAny(IEnumerable<string> patterns, bool caseInsensitive = false)
     {
-        var trie = InsertableTrie<char, string>.Create();
+        var trie = caseInsensitive ? InsertableTrie<char, string>.Create(CaseInsensitiveCharComparer.Instance) : InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
 
@@ -81,9 +83,21 @@ public static partial class Parsers
     /// Match() instead if you want to match the end sentinel.
     /// </summary>
     /// <param name="c"></param>
+    /// <param name="caseInsensitive"></param>
     /// <returns></returns>
-    public static IParser<char, char> MatchChar(char c)
+    public static IParser<char, char> MatchChar(char c, bool caseInsensitive = false)
     {
+        if (caseInsensitive)
+        {
+            var realC = char.ToUpper(c);
+            if (_matchByCharInsensitive.ContainsKey(realC))
+                return _matchByCharInsensitive[realC];
+
+            var pi = new MatchPredicateParser<char>(i => char.ToUpper(i) == realC, readAtEnd: false);
+            _matchByCharInsensitive.Add(realC, pi);
+            return pi;
+        }
+
         if (_matchByChar.ContainsKey(c))
             return _matchByChar[c];
 

@@ -31,6 +31,14 @@ public struct InsertableTrie<TKey, TResult>
         => new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
 
     /// <summary>
+    /// Create a new instance using the given equality comparer.
+    /// </summary>
+    /// <param name="comparer"></param>
+    /// <returns></returns>
+    public static InsertableTrie<TKey, TResult> Create(IEqualityComparer<TKey> comparer)
+        => new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(comparer), new List<IReadOnlyList<TKey>>());
+
+    /// <summary>
     /// Create and initialize a new trie instance from a user callback.
     /// </summary>
     /// <param name="setup"></param>
