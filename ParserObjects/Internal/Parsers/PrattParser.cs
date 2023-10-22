@@ -23,7 +23,7 @@ public sealed record PrattParser<TInput, TOutput>(
 {
     public static PrattParser<TInput, TOutput> Configure(Action<Configuration<TInput, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(setup);
         var parselets = new List<IParselet<TInput, TOutput>>();
         var references = new List<IParser>();
         var config = new Configuration<TInput, TOutput>(parselets, references);
@@ -36,13 +36,13 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         return state.WithDataFrame(this, static (s, p) =>
         {
             var startCp = s.Input.Checkpoint();
             try
             {
-                Assert.ArgumentNotNull(s, nameof(s));
+                Assert.ArgumentNotNull(s);
                 var result = p.Engine.TryParse(s, 0);
                 return s.Result(p, result);
             }

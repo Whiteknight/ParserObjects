@@ -28,7 +28,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
 
     public void Add<TValue>(ISymbol symbol, Location location, TValue value)
     {
-        Assert.ArgumentNotNull(symbol, nameof(symbol));
+        Assert.ArgumentNotNull(symbol);
         var key = new Key(symbol, location);
         _cache.Set(key, value);
     }
@@ -41,7 +41,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
 
     public Option<TValue> Get<TValue>(ISymbol symbol, Location location)
     {
-        Assert.ArgumentNotNull(symbol, nameof(symbol));
+        Assert.ArgumentNotNull(symbol);
         _stats.Attempts++;
         var key = new Key(symbol, location);
         if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)

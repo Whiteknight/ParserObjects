@@ -27,7 +27,7 @@ public static class Examine<TInput, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             var startConsumed = state.Input.Consumed;
             Before?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, null));
@@ -74,7 +74,7 @@ public static class Examine<TInput, TOutput>
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
 
@@ -145,7 +145,7 @@ public sealed class ExamineParser<TInput> : IParser<TInput>
 
     public IResult Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         _before?.Invoke(new ParseContext<TInput>(_parser, state, null));
         var result = _parser.Parse(state);
         _after?.Invoke(new ParseContext<TInput>(_parser, state, result));

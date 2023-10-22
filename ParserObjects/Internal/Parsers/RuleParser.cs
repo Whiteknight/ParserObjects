@@ -38,7 +38,7 @@ public static class Rule
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
 
@@ -67,7 +67,7 @@ public static class Rule
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
 

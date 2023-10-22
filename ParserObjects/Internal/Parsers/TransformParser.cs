@@ -24,7 +24,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
@@ -64,7 +64,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);

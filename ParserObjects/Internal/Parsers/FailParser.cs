@@ -33,7 +33,7 @@ public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMul
 
     IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         return new MultiResult<TOutput>(this, startCheckpoint, new[]
         {

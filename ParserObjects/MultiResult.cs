@@ -40,7 +40,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         Location? location = null
     )
     {
-        Assert.ArgumentNotNull(recreate, nameof(recreate));
+        Assert.ArgumentNotNull(recreate);
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
         var newCheckpoint = startCheckpoint ?? StartCheckpoint;
         return new MultiResult<TOutput>(Parser, newCheckpoint, newAlternatives);
@@ -48,7 +48,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 
     public IMultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
-        Assert.ArgumentNotNull(transform, nameof(transform));
+        Assert.ArgumentNotNull(transform);
         var newAlternatives = new List<IResultAlternative<TValue>>();
         for (int i = 0; i < Results.Count; i++)
         {
@@ -71,7 +71,7 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
 {
     public SuccessResultAlternative(TOutput value, int consumed, SequenceCheckpoint continuation)
     {
-        Assert.ArgumentNotNull(continuation, nameof(continuation));
+        Assert.ArgumentNotNull(continuation);
         Value = value;
         Consumed = consumed;
         Continuation = continuation;

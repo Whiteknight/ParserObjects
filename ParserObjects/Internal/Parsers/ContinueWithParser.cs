@@ -21,8 +21,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public SingleParser(IMultiParser<TInput, TMiddle> inner, GetParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
+            Assert.ArgumentNotNull(inner);
+            Assert.ArgumentNotNull(getParser);
             _inner = inner;
             _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);
@@ -86,8 +86,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public MultiParser(IMultiParser<TInput, TMiddle> inner, GetMultiParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
-            Assert.ArgumentNotNull(inner, nameof(inner));
-            Assert.ArgumentNotNull(getParser, nameof(getParser));
+            Assert.ArgumentNotNull(inner);
+            Assert.ArgumentNotNull(getParser);
             _inner = inner;
             _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);

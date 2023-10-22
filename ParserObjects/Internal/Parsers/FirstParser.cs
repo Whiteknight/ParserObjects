@@ -16,7 +16,7 @@ public static class FirstParser<TInput>
         where TParser : IParser<TInput>
         where TResult : IResult
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < parsers.Count - 1; i++)
@@ -33,7 +33,7 @@ public static class FirstParser<TInput>
     private static bool MatchInternal<TParser>(IParseState<TInput> state, IReadOnlyList<TParser> parsers)
         where TParser : IParser<TInput>
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < parsers.Count - 1; i++)
@@ -88,7 +88,7 @@ public static class FirstParser<TInput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
             for (int i = 0; i < Parsers.Count; i++)

@@ -36,8 +36,8 @@ public struct Configuration<TInput, TOutput>
     /// <returns></returns>
     public Configuration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Func<ParseletBuilder<TInput, TValue, TOutput>, ParseletBuilder<TInput, TValue, TOutput>> setup)
     {
-        Assert.ArgumentNotNull(matcher, nameof(matcher));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(matcher);
+        Assert.ArgumentNotNull(setup);
 
         var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher.Name ?? string.Empty);
         parseletConfig = setup(parseletConfig);

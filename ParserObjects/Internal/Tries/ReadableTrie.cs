@@ -22,19 +22,19 @@ public readonly struct ReadableTrie<TKey, TResult>
 
     public PartialResult<TResult> Get(ISequence<TKey> keys)
     {
-        Assert.ArgumentNotNull(keys, nameof(keys));
+        Assert.ArgumentNotNull(keys);
         return _root.Get(keys);
     }
 
     public bool CanGet(ISequence<TKey> keys)
     {
-        Assert.ArgumentNotNull(keys, nameof(keys));
+        Assert.ArgumentNotNull(keys);
         return _root.CanGet(keys);
     }
 
     public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
     {
-        Assert.ArgumentNotNull(keys, nameof(keys));
+        Assert.ArgumentNotNull(keys);
         return _root.GetMany(keys);
     }
 

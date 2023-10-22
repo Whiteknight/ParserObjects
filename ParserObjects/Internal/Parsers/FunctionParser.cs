@@ -49,7 +49,7 @@ public static class Function<TInput, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
 
             var args = new ResultFactory<TInput, TOutput>(this, state, startCheckpoint);
@@ -71,7 +71,7 @@ public static class Function<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
 
             var result = _matchFunction(state, _data);
@@ -150,7 +150,7 @@ public static class Function<TInput, TOutput>
 
         private static IMultiResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)
         {
-            Assert.ArgumentNotNull(build, nameof(build));
+            Assert.ArgumentNotNull(build);
             var startCheckpoint = args.Input.Checkpoint();
 
             var buildArgs = new MultiBuilder(args.Parser, args.State, new List<IResultAlternative<TOutput>>(), startCheckpoint);
@@ -164,7 +164,7 @@ public static class Function<TInput, TOutput>
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var args = new MultiArguments(this, state);
             return _parseFunction(_data, args);
         }
@@ -201,7 +201,7 @@ public static class Function<TInput>
             string name = ""
         )
         {
-            Assert.ArgumentNotNull(parseFunction, nameof(parseFunction));
+            Assert.ArgumentNotNull(parseFunction);
             _data = data;
             _parseFunction = parseFunction;
             _matchFunction = matchFunction ?? ((_, state) => Parse(state)?.Success ?? false);

@@ -30,8 +30,8 @@ public sealed class FindParserVisitor
 
     private static Option<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
     {
-        Assert.ArgumentNotNull(root, nameof(root));
-        Assert.ArgumentNotNull(predicate, nameof(predicate));
+        Assert.ArgumentNotNull(root);
+        Assert.ArgumentNotNull(predicate);
         var visitor = new FindParserVisitor();
         var state = new State(predicate, true);
         visitor.Visit(root, state);
@@ -49,7 +49,7 @@ public sealed class FindParserVisitor
     /// <returns></returns>
     public static Option<IParser> Named(IParser root, string name)
     {
-        Assert.ArgumentNotNullOrEmpty(name, nameof(name));
+        Assert.ArgumentNotNullOrEmpty(name);
         return FindSingle(root, p => p.Name == name);
     }
 
@@ -71,7 +71,7 @@ public sealed class FindParserVisitor
     public static IReadOnlyList<TParser> OfType<TParser>(IParser root)
         where TParser : IParser
     {
-        Assert.ArgumentNotNull(root, nameof(root));
+        Assert.ArgumentNotNull(root);
         var visitor = new FindParserVisitor();
         var state = new State(p => p is TParser, false);
         visitor.Visit(root, state);

@@ -397,7 +397,7 @@ public static partial class Parsers<TInput>
         Func<TOutput> getDefault
     )
     {
-        Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+        Assert.ArgumentNotNull(getDefault);
         return new Optional<TInput, TOutput>.DefaultValueParser(p, _ => getDefault());
     }
 
@@ -413,7 +413,7 @@ public static partial class Parsers<TInput>
         Func<IParseState<TInput>, TOutput> getDefault
     )
     {
-        Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+        Assert.ArgumentNotNull(getDefault);
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
 

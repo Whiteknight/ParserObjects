@@ -20,7 +20,7 @@ public static class Replaceable<TInput>
 
         public SingleParser(IParser<TInput> defaultValue, string name = "")
         {
-            Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+            Assert.ArgumentNotNull(defaultValue);
             _value = defaultValue;
             Name = name;
         }
@@ -72,7 +72,7 @@ public static class Replaceable<TInput, TOutput>
 
         public SingleParser(IParser<TInput, TOutput> defaultValue, string name = "")
         {
-            Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+            Assert.ArgumentNotNull(defaultValue);
             _value = defaultValue;
             Name = name;
         }
@@ -116,7 +116,7 @@ public static class Replaceable<TInput, TOutput>
 
         public MultiParser(IMultiParser<TInput, TOutput> defaultValue, string name = "")
         {
-            Assert.ArgumentNotNull(defaultValue, nameof(defaultValue));
+            Assert.ArgumentNotNull(defaultValue);
             _value = defaultValue;
             Name = name;
         }

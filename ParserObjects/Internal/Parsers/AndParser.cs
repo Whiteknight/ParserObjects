@@ -17,7 +17,7 @@ public sealed record AndParser<TInput>(
 
     public IResult Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         for (int i = 0; i < Parsers.Count; i++)
         {

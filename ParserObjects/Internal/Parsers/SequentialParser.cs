@@ -42,7 +42,7 @@ public static class Sequential
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             try
             {
@@ -79,7 +79,7 @@ public static class Sequential
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             try
             {

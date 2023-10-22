@@ -83,7 +83,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <returns></returns>
     public ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
-        Assert.ArgumentNotNull(getNud, nameof(getNud));
+        Assert.ArgumentNotNull(getNud);
         _getParselets.Add(new GetParseletArguments(getNud, null, rbp, rbp));
         return this;
     }
@@ -98,7 +98,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <returns></returns>
     public ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
-        Assert.ArgumentNotNull(getLed, nameof(getLed));
+        Assert.ArgumentNotNull(getLed);
         _getParselets.Add(new GetParseletArguments(null, getLed, lbp, rbp));
         return this;
     }

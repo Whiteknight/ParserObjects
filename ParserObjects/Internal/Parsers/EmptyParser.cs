@@ -24,7 +24,7 @@ public sealed class EmptyParser<TInput> : IParser<TInput>
 
     public IResult Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         return _result;
     }
 

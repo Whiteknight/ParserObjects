@@ -61,8 +61,8 @@ public readonly struct InsertableTrie<TKey, TResult>
     /// <returns></returns>
     public InsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
     {
-        Assert.ArgumentNotNull(keys, nameof(keys));
-        Assert.ArgumentNotNull(result, nameof(result));
+        Assert.ArgumentNotNull(keys);
+        Assert.ArgumentNotNull(result);
         var keyList = keys.ToArray();
         if (_root.TryAdd(keyList, result))
             _patterns.Add(keyList);

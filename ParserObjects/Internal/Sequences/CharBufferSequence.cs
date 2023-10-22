@@ -130,7 +130,7 @@ public static class CharBufferSequence
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             Debug.Assert(options.MaintainLineEndings, "Only used when line-ending normalization is off");
             _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
         }
@@ -191,14 +191,14 @@ public static class CharBufferSequence
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }

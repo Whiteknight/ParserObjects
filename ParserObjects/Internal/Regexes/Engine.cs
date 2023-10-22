@@ -17,8 +17,8 @@ public static class Engine
     /// <returns></returns>
     public static MatchResult GetMatch(ISequence<char> input, Regex regex)
     {
-        Assert.ArgumentNotNull(input, nameof(input));
-        Assert.ArgumentNotNull(regex, nameof(regex));
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(regex);
 
         var startLocation = input.CurrentLocation;
         var captures = new CaptureCollection();
@@ -37,8 +37,8 @@ public static class Engine
 
     public static bool TestMatch(ISequence<char> input, Regex regex)
     {
-        Assert.ArgumentNotNull(input, nameof(input));
-        Assert.ArgumentNotNull(regex, nameof(regex));
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(regex);
 
         var captures = new CaptureCollection();
         return Test(captures, regex.States, input);

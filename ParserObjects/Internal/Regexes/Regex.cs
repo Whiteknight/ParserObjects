@@ -13,7 +13,7 @@ public struct Regex
 
     public Regex(IReadOnlyList<IState> states)
     {
-        Assert.ArgumentNotNull(states, nameof(states));
+        Assert.ArgumentNotNull(states);
         States = states;
         Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
         NumberGroups(states);

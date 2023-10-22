@@ -14,8 +14,8 @@ public static class Chain<TInput, TOutput>
 {
     public static IParser<TInput, TOutput> Configure(IParser<TInput> inner, Action<ParserPredicateSelector<TInput, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(inner, nameof(inner));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(inner);
+        Assert.ArgumentNotNull(setup);
 
         var config = new ParserPredicateSelector<TInput, TOutput>(new List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
@@ -24,8 +24,8 @@ public static class Chain<TInput, TOutput>
 
     public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(inner, nameof(inner));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(inner);
+        Assert.ArgumentNotNull(setup);
         var config = new ParserPredicateSelector<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
         return new Parser<TMiddle, ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
@@ -51,7 +51,7 @@ public static class Chain<TInput, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _getResult(Inner, state);
@@ -67,7 +67,7 @@ public static class Chain<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _getResult(Inner, state);
