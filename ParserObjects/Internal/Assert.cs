@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace ParserObjects.Internal;
 
@@ -35,5 +37,18 @@ public static class Assert
     {
         if (value <= 0)
             throw new ArgumentOutOfRangeException(parameterName, "Value must be positive integer");
+    }
+
+    public static void ArgumentInRange(int value, int min, int max, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+    {
+        Debug.Assert(min <= max, "The bounds should not be inverted");
+        if (value < min || value > max)
+            throw new ArgumentOutOfRangeException(parameterName, $"Value must be between {min} and {max}");
+    }
+
+    public static void ArgumentGreaterThanOrEqualTo(int value, int min, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+    {
+        if (value < min)
+            throw new ArgumentOutOfRangeException(parameterName, $"Value must be greater than or equal to {min}");
     }
 }

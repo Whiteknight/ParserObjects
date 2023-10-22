@@ -11,64 +11,216 @@ public static class DateTimeGrammar
     // Takes a DateTime format something like "YYYY/MM/dd HH:mm:ss.ms" and returns a parser
     // to turn strings of that type into a DateTime
     // https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings
-    public static IParser<char, IParser<char, DateTime>> CreateFormatParser()
+
+    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _dateParts = new Lazy<IParser<char, IParser<char, IPart>>>(
+        () =>
+        {
+            var year4Digit = Match("yyyy")
+                .Transform(static _ => DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y)))
+                .Named("yyyy");
+
+            var monthNum = Match("MM")
+                .Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m)))
+                .Named("MM");
+
+            var monthAbbrev = Match("MMM")
+                .Transform(static _ =>
+                    Trie<int>(t =>
+                    {
+                        for (int i = 0; i < 12; i++)
+                            t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
+                    })
+                    .Transform(static m => (IPart)new MonthPart(m))
+                )
+                .Named("MMM");
+
+            var monthName = Match("MMMM")
+                .Transform(static _ =>
+                    Trie<int>(t =>
+                    {
+                        for (int i = 0; i < 12; i++)
+                            t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
+                    })
+                    .Transform(static m => (IPart)new MonthPart(m))
+                )
+                .Named("MMMM");
+
+            var day = Match("dd")
+                .Transform(static _ =>
+                    DigitsAsInteger(2, 2)
+                        .Transform(static m => (IPart)new DayPart(m))
+                )
+                .Named("dd");
+
+            return First(
+                year4Digit,
+                monthName,
+                monthAbbrev,
+                monthNum,
+                day
+            );
+        }
+    );
+
+    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _timeParts = new Lazy<IParser<char, IParser<char, IPart>>>(
+        () =>
+        {
+            var hour24LeadingZero = Match("HH")
+                .Transform(static _ =>
+                    DigitsAsInteger(2, 2)
+                        .Transform(static m => (IPart)new HourPart(m))
+                )
+                .Named("HH");
+
+            var hour24 = Match("H")
+                .Transform(static _ =>
+                    DigitsAsInteger(1, 2)
+                        .Transform(static m => (IPart)new HourPart(m))
+                )
+                .Named("H");
+
+            var hour12LeadingZero = Match("hh")
+                .Transform(static _ =>
+                    DigitsAsInteger(2, 2)
+                        .Transform(static m => (IPart)new HourPart(m))
+                )
+                .Named("hh");
+
+            var hour12 = Match("h")
+                .Transform(static _ =>
+                    DigitsAsInteger(1, 2)
+                        .Transform(static m => (IPart)new HourPart(m))
+                )
+                .Named("h");
+
+            var minuteLeadingZero = Match("mm")
+                .Transform(static _ =>
+                    DigitsAsInteger(2, 2)
+                        .Transform(static m => (IPart)new MinutePart(m))
+                )
+                .Named("mm");
+
+            var minute = Match("m")
+                .Transform(static _ =>
+                    DigitsAsInteger(1, 2)
+                        .Transform(static m => (IPart)new MinutePart(m))
+                )
+                .Named("m");
+
+            var secondLeadingZero = Match("ss")
+                .Transform(static _ =>
+                    DigitsAsInteger(2, 2)
+                        .Transform(static m => (IPart)new SecondPart(m))
+                )
+                .Named("ss");
+
+            var second = Match("s")
+                .Transform(static _ =>
+                    DigitsAsInteger(1, 2)
+                        .Transform(static m => (IPart)new SecondPart(m))
+                )
+                .Named("s");
+
+            var millisecond = Match("f")
+                .List(1, 4)
+                .Transform(static l =>
+                    DigitsAsInteger(l.Count, l.Count)
+                        .Transform(static m => (IPart)new MillisecondPart(m))
+                )
+                .Named("f");
+
+            return First(
+                hour24LeadingZero,
+                hour24,
+                hour12LeadingZero,
+                hour12,
+                minuteLeadingZero,
+                minute,
+                secondLeadingZero,
+                second,
+                millisecond
+            );
+        }
+    );
+
+    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _literal = new Lazy<IParser<char, IParser<char, IPart>>>(
+        () =>
+        {
+            var literal = Any()
+                .Transform(c =>
+                    MatchChar(c)
+                        .Transform(_ => (IPart)LiteralPart.Instance)
+                )
+                .Named("literal");
+            return literal;
+        }
+    );
+
+    public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
     {
-        var year4Digit = Match("YYYY").Transform(static _ => DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y)));
-
-        var monthNum = Match("MM").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m % 12)));
-        var monthAbbrev = Match("MMM").Transform(static _ => Trie<int>(t =>
-        {
-            for (int i = 0; i < 12; i++)
-                t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
-        }).Transform(static m => (IPart)new MonthPart(m)));
-        var monthName = Match("MMMM").Transform(static _ => Trie<int>(t =>
-        {
-            for (int i = 0; i < 12; i++)
-                t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
-        }).Transform(static m => (IPart)new MonthPart(m)));
-
-        var day = Match("dd").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m % 31)));
-
-        var hour24LeadingZero = Match("HH").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m % 24)));
-        var hour24 = Match("H").Transform(static _ => DigitsAsInteger(1, 2).Transform(static m => (IPart)new HourPart(m % 24)));
-        var hour12LeadingZero = Match("hh").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m % 12)));
-        var hour12 = Match("h").Transform(static _ => DigitsAsInteger(1, 2).Transform(static m => (IPart)new HourPart(m % 12)));
-
-        var minuteLeadingZero = Match("mm").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m % 60)));
-        var minute = Match("m").Transform(static _ => DigitsAsInteger(1, 2).Transform(static m => (IPart)new MinutePart(m % 60)));
-
-        var secondLeadingZero = Match("ss").Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new SecondPart(m % 60)));
-        var second = Match("s").Transform(static _ => DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m % 60)));
-
-        var millisecond = Match("f").List(1, 4).Transform(static l => DigitsAsInteger(l.Count, l.Count).Transform(static m => (IPart)new MillisecondPart(m)));
-
-        var literal = Any().Transform(c => MatchChar(c).Transform(_ => (IPart)LiteralPart.Instance));
-
         var part = First(
-            year4Digit,
-            monthName,
-            monthAbbrev,
-            monthNum,
-            day,
-            hour24LeadingZero,
-            hour24,
-            hour12LeadingZero,
-            hour12,
-            minuteLeadingZero,
-            minute,
-            millisecond,
-            secondLeadingZero,
-            second,
-            literal
+            _dateParts.Value,
+            _timeParts.Value,
+            _literal.Value
         );
 
-        return part.List(1).Transform(parsers => Combine(parsers).Transform(results =>
-        {
-            DateTime dateTime = DateTime.MinValue;
-            foreach (var result in results)
-                dateTime = ((IPart)result).AddTo(dateTime);
-            return dateTime;
-        }));
+        return part
+            .List(1)
+            .FollowedBy(End())
+            .Transform(parsers => Combine(parsers)
+                .Transform(results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    foreach (var result in results)
+                        dateTime = ((IPart)result).AddTo(dateTime);
+                    return new DateTimeOffset(dateTime, TimeSpan.Zero);
+                })
+            )
+            .Named("DateAndTime Format");
+    }
+
+    public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
+    {
+        var part = First(
+            _dateParts.Value,
+            _literal.Value
+        );
+
+        return part
+            .List(1)
+            .FollowedBy(End())
+            .Transform(parsers => Combine(parsers)
+                .Transform(results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    foreach (var result in results)
+                        dateTime = ((IPart)result).AddTo(dateTime);
+                    return dateTime;
+                })
+            )
+            .Named("Date Format");
+    }
+
+    public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
+    {
+        var part = First(
+            _timeParts.Value,
+            _literal.Value
+        );
+
+        return part
+            .List(1)
+            .FollowedBy(End())
+            .Transform(parsers => Combine(parsers)
+                .Transform(results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    foreach (var result in results)
+                        dateTime = ((IPart)result).AddTo(dateTime);
+                    return dateTime.TimeOfDay;
+                })
+            )
+            .Named("Time Format");
     }
 
     private interface IPart
@@ -82,6 +234,7 @@ public static class DateTimeGrammar
 
         public YearPart(int value)
         {
+            Assert.ArgumentGreaterThanOrEqualTo(value, 1);
             _value = value;
         }
 
@@ -97,6 +250,7 @@ public static class DateTimeGrammar
 
         public MonthPart(int value)
         {
+            Assert.ArgumentInRange(value, 1, 12);
             _value = value;
         }
 
@@ -112,6 +266,7 @@ public static class DateTimeGrammar
 
         public DayPart(int value)
         {
+            Assert.ArgumentInRange(value, 1, 31);
             _value = value;
         }
 
@@ -127,6 +282,7 @@ public static class DateTimeGrammar
 
         public HourPart(int value)
         {
+            Assert.ArgumentInRange(value, 0, 23);
             _value = value;
         }
 
@@ -142,6 +298,7 @@ public static class DateTimeGrammar
 
         public MinutePart(int value)
         {
+            Assert.ArgumentInRange(value, 0, 59);
             _value = value;
         }
 
@@ -157,6 +314,7 @@ public static class DateTimeGrammar
 
         public SecondPart(int value)
         {
+            Assert.ArgumentInRange(value, 0, 59);
             _value = value;
         }
 
@@ -172,6 +330,7 @@ public static class DateTimeGrammar
 
         public MillisecondPart(int value)
         {
+            Assert.ArgumentInRange(value, 0, 999);
             _value = value;
         }
 
