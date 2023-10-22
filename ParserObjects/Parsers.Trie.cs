@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Tries;
 
@@ -27,10 +28,11 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setupTrie"></param>
+    /// <param name="keyComparer"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Trie<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
+    public static IParser<TInput, TOutput> Trie<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie, IEqualityComparer<TInput>? keyComparer = null)
     {
-        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer);
         return Trie(trie);
     }
 
@@ -55,10 +57,11 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="setupTrie"></param>
+    /// <param name="keyComparer"></param>
     /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie)
+    public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie, IEqualityComparer<TInput>? keyComparer = null)
     {
-        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie);
+        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer);
         return TrieMulti(trie);
     }
 }

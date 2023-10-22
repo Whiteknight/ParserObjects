@@ -7,6 +7,9 @@ public class EnumTests
     [TestCase("First", TestEnum.First)]
     [TestCase("Second", TestEnum.Second)]
     [TestCase("Third", TestEnum.Third)]
+    [TestCase("fIRST", TestEnum.First)]
+    [TestCase("secOND", TestEnum.Second)]
+    [TestCase("THIrd", TestEnum.Third)]
     public void Test(string input, TestEnum expected)
     {
         var target = Enum<TestEnum>();
