@@ -6,50 +6,46 @@ using static ParserObjects.Parsers.Digits;
 
 namespace ParserObjects.Internal.Grammars.Data;
 
+// Takes a format string like "YYYY/MM/dd HH:mm:ss.ms" and returns a parser
+// to turn strings of that type into a DateTimeOffset/DateTime/TimeSpan
 public static class DateTimeGrammar
 {
-    // Takes a DateTime format something like "YYYY/MM/dd HH:mm:ss.ms" and returns a parser
-    // to turn strings of that type into a DateTime
     // https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings
 
     private static readonly Lazy<IParser<char, IParser<char, IPart>>> _dateParts = new Lazy<IParser<char, IParser<char, IPart>>>(
         () =>
         {
+            var year4DigitInternal = DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y));
             var year4Digit = Match("yyyy")
-                .Transform(static _ => DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y)))
+                .Transform(year4DigitInternal, static (p, _) => p)
                 .Named("yyyy");
 
+            var monthNumInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
             var monthNum = Match("MM")
-                .Transform(static _ => DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m)))
+                .Transform(monthNumInternal, static (p, _) => p)
                 .Named("MM");
 
+            var monthAbbrevInternal = Trie<int>(static t =>
+            {
+                for (int i = 0; i < 12; i++)
+                    t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
+            }).Transform(static m => (IPart)new MonthPart(m));
             var monthAbbrev = Match("MMM")
-                .Transform(static _ =>
-                    Trie<int>(t =>
-                    {
-                        for (int i = 0; i < 12; i++)
-                            t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
-                    })
-                    .Transform(static m => (IPart)new MonthPart(m))
-                )
+                .Transform(monthAbbrevInternal, static (p, _) => p)
                 .Named("MMM");
 
+            var monthNameInternal = Trie<int>(static t =>
+            {
+                for (int i = 0; i < 12; i++)
+                    t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
+            }).Transform(static m => (IPart)new MonthPart(m));
             var monthName = Match("MMMM")
-                .Transform(static _ =>
-                    Trie<int>(t =>
-                    {
-                        for (int i = 0; i < 12; i++)
-                            t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
-                    })
-                    .Transform(static m => (IPart)new MonthPart(m))
-                )
+                .Transform(monthNameInternal, static (p, _) => p)
                 .Named("MMMM");
 
+            var dayInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m));
             var day = Match("dd")
-                .Transform(static _ =>
-                    DigitsAsInteger(2, 2)
-                        .Transform(static m => (IPart)new DayPart(m))
-                )
+                .Transform(dayInternal, static (p, _) => p)
                 .Named("dd");
 
             return First(
@@ -65,60 +61,44 @@ public static class DateTimeGrammar
     private static readonly Lazy<IParser<char, IParser<char, IPart>>> _timeParts = new Lazy<IParser<char, IParser<char, IPart>>>(
         () =>
         {
+            // For each format specifier, when we match it, return an instance of an "internal"
+            // parser to handle values of that type.
+            var hour2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
+            var hour1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new HourPart(m));
             var hour24LeadingZero = Match("HH")
-                .Transform(static _ =>
-                    DigitsAsInteger(2, 2)
-                        .Transform(static m => (IPart)new HourPart(m))
-                )
+                .Transform(hour2Internal, static (p, _) => p)
                 .Named("HH");
 
             var hour24 = Match("H")
-                .Transform(static _ =>
-                    DigitsAsInteger(1, 2)
-                        .Transform(static m => (IPart)new HourPart(m))
-                )
+                .Transform(hour1Internal, static (p, _) => p)
                 .Named("H");
 
             var hour12LeadingZero = Match("hh")
-                .Transform(static _ =>
-                    DigitsAsInteger(2, 2)
-                        .Transform(static m => (IPart)new HourPart(m))
-                )
+                .Transform(hour2Internal, static (p, _) => p)
                 .Named("hh");
 
             var hour12 = Match("h")
-                .Transform(static _ =>
-                    DigitsAsInteger(1, 2)
-                        .Transform(static m => (IPart)new HourPart(m))
-                )
+                .Transform(hour1Internal, static (p, _) => p)
                 .Named("h");
 
+            var minute2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m));
             var minuteLeadingZero = Match("mm")
-                .Transform(static _ =>
-                    DigitsAsInteger(2, 2)
-                        .Transform(static m => (IPart)new MinutePart(m))
-                )
+                .Transform(minute2Internal, static (p, _) => p)
                 .Named("mm");
 
+            var minute1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new MinutePart(m));
             var minute = Match("m")
-                .Transform(static _ =>
-                    DigitsAsInteger(1, 2)
-                        .Transform(static m => (IPart)new MinutePart(m))
-                )
+                .Transform(minute1Internal, static (p, _) => p)
                 .Named("m");
 
+            var second2Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
             var secondLeadingZero = Match("ss")
-                .Transform(static _ =>
-                    DigitsAsInteger(2, 2)
-                        .Transform(static m => (IPart)new SecondPart(m))
-                )
+                .Transform(second2Internal, static (p, _) => p)
                 .Named("ss");
 
+            var second1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
             var second = Match("s")
-                .Transform(static _ =>
-                    DigitsAsInteger(1, 2)
-                        .Transform(static m => (IPart)new SecondPart(m))
-                )
+                .Transform(second1Internal, static (p, _) => p)
                 .Named("s");
 
             var millisecond = Match("f")
@@ -146,6 +126,10 @@ public static class DateTimeGrammar
     private static readonly Lazy<IParser<char, IParser<char, IPart>>> _literal = new Lazy<IParser<char, IParser<char, IPart>>>(
         () =>
         {
+            // A literal matches any single character which isn't one of the format specifiers.
+            // It would be nice if this method could consume mulitiple characters into a string
+            // and ignore them all together, but for now this works and isn't too memory-intensive
+            // for simple formats.
             var literal = Any()
                 .Transform(c =>
                     MatchChar(c)
