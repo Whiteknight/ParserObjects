@@ -5,7 +5,7 @@ namespace ParserObjects;
 
 public static partial class Parsers
 {
-    public static IParser<char, DateTime> Date(string format)
+    public static IParser<char, DateTime> DateAndTime(string format)
     {
         var formatParser = DateTimeGrammar.CreateFormatParser();
         return formatParser.Parse(format).Value.Named($"date({format})");

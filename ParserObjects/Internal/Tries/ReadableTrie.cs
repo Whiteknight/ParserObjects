@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Internal.Tries;
 
-public struct ReadableTrie<TKey, TResult>
+public readonly struct ReadableTrie<TKey, TResult>
 {
     private readonly RootNode<TKey, TResult> _root;
     private readonly IReadOnlyList<IReadOnlyList<TKey>> _patterns;

@@ -2,7 +2,8 @@
 
 namespace ParserObjects.Tests.Parsers;
 
-public class DateTests
+public class DateAndTimeTests
+
 {
     [TestCase("YYYYMMddHHmmssfff", "20231021083542123")]
     [TestCase("YYYY-MM-dd HH:mm:ss.fff", "2023-10-21 08:35:42.123")]
@@ -11,7 +12,7 @@ public class DateTests
     [TestCase("dd MMMM YYYY h:m:s.fff", "21 October 2023 8:35:42.123")]
     public void Test(string format, string input)
     {
-        var target = Date(format);
+        var target = DateAndTime(format);
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
         var dt = result.Value;
