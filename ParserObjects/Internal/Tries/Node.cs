@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Tries;
 public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResult>>
 {
     /* I generally don't like concrete inheritance, but in this case it's an optimization to
-     * make the node be a class IS-A Dictionary. If we made it a struct there would be the same
+     * make the RootNode and Node be IS-A Dictionary. If we made it a struct there would be the same
      * number of allocations except we wouldn't be able to have reference behavior for setting
      * HasResult, Result and MaxDepth.
      */
@@ -57,6 +57,9 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
     }
 }
 
+// RootNode is the Trie implementation. InsertableTrie and ReadableTrie are just wrappers around
+// RootNode to provide limited access to a subset of functionality depending on whether we are in
+// build-up or parse phases.
 public class RootNode<TKey, TResult> : Node<TKey, TResult>
 {
     public RootNode()
@@ -72,11 +75,15 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         MaxDepth = 0;
     }
 
+    // A flag that says whether we are in write or read mode. In read mode we should not be
+    // trying add more data.
     public bool Editable { get; private set; }
 
     // Maximum depth of the longest pattern in the Trie. This value is only set on the root node
     public int MaxDepth { get; private set; }
 
+    // Sets a max depth of the trie, recalculated each time a new entry is added. That way we can
+    // do things like rent arrays for temporary traversal and know how much space we need.
     private void SetPatternDepth(int depth)
     {
         if (depth > MaxDepth)
@@ -90,34 +97,24 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
 
     public PartialResult<TResult> Get(ISequence<TKey> keys)
     {
+        /* Trie Get is greedy. We search to the maximum depth where items from keys continue to
+         * match nodes. When we run out of matches, the current node we are pointing at might be
+         * an interior node and not have a value. In that case we have to recurse back up the stack
+         * of previously visited nodes until we do find one with a value.
+         *
+         * As we traverse nodes we also keep the SequenceCheckpoint of the input sequence at that
+         * point. When we recurse to find a node with a value, we can jump back to that checkpoint
+         * and continue the parse from that point.
+         */
         Node<TKey, TResult> current = this;
 
-        // The node, and the continuation checkpoint that allows parsing to continue
+        // The node and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(MaxDepth);
+        var previous = ArrayPool<BacktrackNode>.Shared.Rent(MaxDepth);
         var index = 0;
         var startCont = keys.Checkpoint();
         var startConsumed = keys.Consumed;
-        previous[index++] = (current, startCont);
-
-        PartialResult<TResult> FindBestResult()
-        {
-            while (index > 0)
-            {
-                var (node, cont) = previous[--index];
-                if (node.HasResult)
-                {
-                    cont.Rewind();
-                    ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
-                    return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed);
-                }
-            }
-
-            // No node matched, so return failure
-            startCont.Rewind();
-            ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
-            return new PartialResult<TResult>("Trie does not contain matching item");
-        }
+        previous[index++] = new BacktrackNode(current, startCont);
 
         while (true)
         {
@@ -125,23 +122,46 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // leaf node in the trie, we're done digging and can start looking for a value
             // to return.
             if (keys.IsAtEnd || current.Count == 0)
-                return FindBestResult();
+                return FindBestResult(index, previous, keys, startCont, startConsumed);
 
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
             // null.
             var key = keys.GetNext();
-            var cont = keys.Checkpoint();
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child, find the best value
             if (!current.ContainsKey(wrappedKey))
-                return FindBestResult();
+                return FindBestResult(index, previous, keys, startCont, startConsumed);
 
             // Otherwise push the current node and the checkpoint from which we can continue
-            // parsing from onto the stack, and prepare for the next loop iteration.
+            // parsing from onto the stack, and prepare for the next loop iteration. We only need
+            // to take a Checkpoint if there's a value on this node. .Checkpoint() is cheap but
+            // never free.
             current = current[wrappedKey];
-            previous[index++] = (current, cont);
+            var cont = current.HasResult ? keys.Checkpoint() : default;
+            previous[index++] = new BacktrackNode(current, cont);
         }
+    }
+
+    private record struct BacktrackNode(Node<TKey, TResult> Node, SequenceCheckpoint Checkpoint);
+
+    private static PartialResult<TResult> FindBestResult(int index, BacktrackNode[] previous, ISequence<TKey> keys, SequenceCheckpoint startCont, int startConsumed)
+    {
+        while (index > 0)
+        {
+            var (node, cont) = previous[--index];
+            if (node.HasResult)
+            {
+                cont.Rewind();
+                ArrayPool<BacktrackNode>.Shared.Return(previous);
+                return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed);
+            }
+        }
+
+        // No node matched, so return failure
+        startCont.Rewind();
+        ArrayPool<BacktrackNode>.Shared.Return(previous);
+        return new PartialResult<TResult>("Trie does not contain matching item");
     }
 
     public bool CanGet(ISequence<TKey> keys)
@@ -150,29 +170,10 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
 
         // The node, and the continuation checkpoint that allows parsing to continue
         // immediately afterwards.
-        var previous = ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Rent(MaxDepth);
+        var previous = ArrayPool<BacktrackNode>.Shared.Rent(MaxDepth);
         var index = 0;
         var startCont = keys.Checkpoint();
-        previous[index++] = (current, startCont);
-
-        bool FindBestResult()
-        {
-            while (index > 0)
-            {
-                var (node, cont) = previous[--index];
-                if (node.HasResult)
-                {
-                    cont.Rewind();
-                    ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
-                    return true;
-                }
-            }
-
-            // No node matched, so return failure
-            startCont.Rewind();
-            ArrayPool<(Node<TKey, TResult> node, SequenceCheckpoint cont)>.Shared.Return(previous);
-            return false;
-        }
+        previous[index++] = new BacktrackNode(current, startCont);
 
         while (true)
         {
@@ -180,7 +181,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // leaf node in the trie, we're done digging and can start looking for a value
             // to return.
             if (keys.IsAtEnd || current.Count == 0)
-                return FindBestResult();
+                return FindBestResult(index, previous, keys, startCont, 0).Success;
 
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
             // null.
@@ -190,12 +191,12 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
 
             // If there's no matching child, find the best value
             if (!current.ContainsKey(wrappedKey))
-                return FindBestResult();
+                return FindBestResult(index, previous, keys, startCont, 0).Success;
 
             // Otherwise push the current node and the checkpoint from which we can continue
             // parsing from onto the stack, and prepare for the next loop iteration.
             current = current[wrappedKey];
-            previous[index++] = (current, cont);
+            previous[index++] = new BacktrackNode(current, cont);
         }
     }
 
@@ -247,6 +248,13 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         return false;
     }
 
+    // Node and RootNode IS-A Dictionary, and Dictionary has annotations to prevent nullable types
+    // from being used as Keys. However, due to the generic nature of parsing, we may be parsing
+    // a sequence of nullable types such as Tokens. For that reason, we wrap our key values in
+    // a non-nullable struct ValueTuple<TKey> which should be free to allocate and cannot be null
+    // (although the only internal value is a null pointer, so a by-value comparsion would be
+    // against a null pointer which is treated like untyped memory). We use this equality comparer
+    // to wrap up an IEqualityComparer<TKey> so we can pass it to the dictionary.
     private class WrappedEqualityComparer : IEqualityComparer<ValueTuple<TKey>>
     {
         public IEqualityComparer<TKey> _inner;
