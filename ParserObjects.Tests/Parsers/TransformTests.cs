@@ -71,6 +71,37 @@ public static class TransformTests
         }
     }
 
+    public class SingleFunctionData
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var any = Any();
+            var parser = Transform(
+                any,
+                25,
+                (d, c) => d + int.Parse(c.ToString())
+            );
+            var result = parser.Parse("1");
+            result.Value.Should().Be(26);
+            result.Parser.Should().BeSameAs(parser);
+        }
+
+        [Test]
+        public void Parse_Failure()
+        {
+            var fail = Fail<char>();
+            var parser = Transform(
+                fail,
+                25,
+                (d, c) => d + int.Parse(c.ToString())
+            );
+            var result = parser.Parse("1");
+            result.Success.Should().BeFalse();
+            result.Parser.Should().BeSameAs(fail);
+        }
+    }
+
     public class MultiFunction
     {
         [Test]
@@ -103,6 +134,25 @@ public static class TransformTests
             var parser = Any()
                 .Transform(c => int.Parse(c.ToString()));
             parser.Parse("1").Value.Should().Be(1);
+        }
+
+        [Test]
+        public void ToBnf_Test()
+        {
+            var target = Any().Transform(x => x).Named("SUT");
+            var result = target.ToBnf();
+            result.Should().Contain("SUT := .");
+        }
+    }
+
+    public class SingleExtensionData
+    {
+        [Test]
+        public void Parse_Extension()
+        {
+            var parser = Any()
+                .Transform(25, (d, c) => d + int.Parse(c.ToString()));
+            parser.Parse("1").Value.Should().Be(26);
         }
 
         [Test]

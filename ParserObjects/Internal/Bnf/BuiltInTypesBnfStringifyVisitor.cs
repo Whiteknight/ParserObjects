@@ -469,12 +469,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(p.GetChildren().First());
     }
 
-    public void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, BnfStringifyState state)
+    public void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.Parser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First());
     }
 
-    public void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.MultiParser p, BnfStringifyState state)
+    public void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.MultiParser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First());
     }
