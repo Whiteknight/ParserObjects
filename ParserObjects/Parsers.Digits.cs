@@ -19,6 +19,16 @@ public static partial class Parsers
         );
 
         /// <summary>
+        /// Parses digits in series and returns them as a string with given minimum and maximum
+        /// sizes.
+        /// </summary>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static IParser<char, string> DigitString(int minimum, int maximum)
+            => Digit().ListCharToString(minimum, maximum).Named($"digits({minimum},{maximum})");
+
+        /// <summary>
         /// Parses digits in series and returns them as a string.
         /// </summary>
         /// <returns></returns>
@@ -28,16 +38,6 @@ public static partial class Parsers
             = new Lazy<IParser<char, string>>(
                 static () => Digit().ListCharToString(true).Named("digits")
             );
-
-        /// <summary>
-        /// Parses digits in series and returns them as a string with given minimum and maximum
-        /// sizes.
-        /// </summary>
-        /// <param name="minimum"></param>
-        /// <param name="maximum"></param>
-        /// <returns></returns>
-        public static IParser<char, string> DigitString(int minimum, int maximum)
-            => Digit().ListCharToString(minimum, maximum).Named($"digits({minimum},{maximum})");
 
         /// <summary>
         /// Pares digits in series and returns them as an integer with a given minimum and maximum

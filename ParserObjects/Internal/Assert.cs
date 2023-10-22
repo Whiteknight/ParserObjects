@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
+#pragma warning disable RCS1256 // Invalid argument null check.
+
 namespace ParserObjects.Internal;
 
 /// <summary>
