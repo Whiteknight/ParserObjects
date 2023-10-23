@@ -20,6 +20,8 @@ public static class DateTimeGrammar
                 .Transform(year4DigitInternal, static (p, _) => p)
                 .Named("yyyy");
 
+            // TODO: "M" to match the month without leading zero. We need to be smart about it because we can't match just any 2 consecutive digits. Can only have '1' as the leading character in a 2-digit number
+
             var monthNumInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
             var monthNum = Match("MM")
                 .Transform(monthNumInternal, static (p, _) => p)
@@ -43,6 +45,8 @@ public static class DateTimeGrammar
                 .Transform(monthNameInternal, static (p, _) => p)
                 .Named("MMMM");
 
+            // TODO: 'd' for day without leading zero.
+
             var dayInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m));
             var day = Match("dd")
                 .Transform(dayInternal, static (p, _) => p)
@@ -63,6 +67,8 @@ public static class DateTimeGrammar
         {
             // For each format specifier, when we match it, return an instance of an "internal"
             // parser to handle values of that type.
+
+            // TODO: An hour can have a leading 1 (or a 2, for H/HH) or it can be a 1-digit number. Would be nice to capture that so we don't have weird "56" hours, etc
             var hour2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
             var hour1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new HourPart(m));
             var hour24LeadingZero = Match("HH")
@@ -81,6 +87,7 @@ public static class DateTimeGrammar
                 .Transform(hour1Internal, static (p, _) => p)
                 .Named("h");
 
+            // TODO: A minute can have a leading value 0-5 and an optional second digit of any value
             var minute2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m));
             var minuteLeadingZero = Match("mm")
                 .Transform(minute2Internal, static (p, _) => p)
@@ -91,6 +98,7 @@ public static class DateTimeGrammar
                 .Transform(minute1Internal, static (p, _) => p)
                 .Named("m");
 
+            // TODO: A second can have a leading value 0-5 and an optional second digit of any value
             var second2Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
             var secondLeadingZero = Match("ss")
                 .Transform(second2Internal, static (p, _) => p)
@@ -105,6 +113,8 @@ public static class DateTimeGrammar
                 .List(1, 4)
                 .Transform(static l =>
                     DigitsAsInteger(l.Count, l.Count)
+                        // TODO: If we only match 1 character, we need to make sure to convert to tenths of a second, not thousandths, etc.
+                        // TODO: If we have more than 3 digits, trim to 3. The highest precision we can account for is milliseconds.
                         .Transform(static m => (IPart)new MillisecondPart(m))
                 )
                 .Named("f");
@@ -136,6 +146,8 @@ public static class DateTimeGrammar
                         .Transform(_ => (IPart)LiteralPart.Instance)
                 )
                 .Named("literal");
+            // TODO: Escape sequences. MS uses '\' to escape, so we can have literal Y M d H h m s and f values in the format.
+            // TODO: Technically '/' and ':' should translate to separator values in the current locale. But, since we're not capturing.
             return literal;
         }
     );
