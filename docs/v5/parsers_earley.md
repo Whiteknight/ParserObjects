@@ -1,13 +1,13 @@
 # Earley Parser
 
-The [Earley Parsing Algorithm](https://en.wikipedia.org/wiki/Earley_parser) is a powerful parser which can handle ambiguous grammars, left recursion and right recursion. It does this by maintaining a list of all possibilities in progress as the parse proceeds, and then returns a parse forest of all results. 
+The [Earley Parsing Algorithm](https://en.wikipedia.org/wiki/Earley_parser) is a powerful parser which can handle ambiguous grammars, left recursion and right recursion. It does this by maintaining a list of all possibilities in progress as the parse proceeds, and then returns a parse forest of all results which match the start symbol. 
 
 To create an Earley parser you must be able to specify your grammar in terms of terminals, non-terminals and productions.
 * A `Terminal` in this case is an `IParser<TInput, TOutput>` object, which can parse some input but does not recurse into the Earley engine itself
 * A `Production` is a rule that takes a list of terminals and non-terminals and produces a value, similar to the `Rule()` parser
 * A `Non-Terminal` is a symbol which contains multiple possible productions.
 
-When you create the `Earley()` parser, you are given a `SymbolFactory` object to create symbols with. Symbols are going to need a unique name, and if you don't supply one yourself the system will generate one for you (though the generated names won't be very helpful to you). Symbols also require the type of value they produce. In this case, `<string>`:
+When you create the `Earley()` parser, you are given a `SymbolFactory` object to create symbols with. Symbols are going to need a unique name, and if you don't supply one yourself the system will generate one for you (though the generated names won't be very helpful to you). Symbols also require the type of value they produce. Here is how to create a symbol named `"S"` with data type `string`:
 
 ```csharp
 var sym = symbols.New<string>("S");
@@ -24,7 +24,7 @@ sym.Rule(
 );
 ```
 
-At the end of the setup callback, you should return the *Start Symbol* that the parser will attempt to match. 
+At the end of the setup callback, you should return the *Start Symbol* that the parser will attempt to match. The result value of the Early parser will be all the possible matches of the Start Symbol.
 
 The Earley parser operates at each location by taking three steps:
 

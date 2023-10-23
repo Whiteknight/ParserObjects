@@ -162,3 +162,46 @@ var pb = GuidB();
 
 var pp = GuidP();
 ```
+
+## Formatted Date/Time
+
+You can parse formatted Date and Time strings by specifying a format using mostly the same formatting rules as [Microsoft's Custom Date/Time Format Strings](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings). These parsers take a format string and return a Parser.
+
+The `DateAndTime` parser takes a format string and returns a `DateTimeOffset` which may include both date and time information. 
+
+The `Date` parser takes a format string and returns a `DateTime` value without Time information.
+
+The `Time` parser takes a format string and returns a `TimeSpan` value which represents time of day but does not have date information.
+
+```csharp
+var dateAndTime = DateAndTime("YYYY-MM-dd HH:mm:ss.fff");
+var date = Date("MM/dd/YY");
+var time = Time("HH:mm:ss.fff");
+```
+
+Format specifiers can be in any number or order, can have any values you want or omit any you don't want. The following specifiers are available:
+
+* `YYYY` the 4-digit year
+* `MM` the 2-digit month number (with leading zero, if the value is less than 10)
+* `MMM` The 3-character month abbreviation for the current locale. `"Jan"`, `"Feb"`, `"Mar"`, etc. These values are not case-sensitive.
+* `MMMM` the full month name for the current locale. `"January"`, `"February"`, `"March"`, etc. These values are not case-sensitive.
+* `dd` the 2-digit day of month
+* `HH` and `hh` both are equivalent, the 2-digit hour with leading zero.
+* `H` and `h` both are equivalent, the 2-digit hour without leading zero.
+* `mm` the 2-digit minute with leading zero
+* `m` the 2-digit minute without leading zero
+* `ss` the 2-digit second with leading zero
+* `s` the 2-digit second without leading zero
+* `f` a digit of fractions of a second. `"f"` is 10ths of a second, `"ff"` is hundredths of a second, and `"fff"` is milliseconds. The precision only goes down to milliseconds, additional digits are ignored.
+* Any other character is taken as a literal and that character is skipped during parsing.
+
+Notice that ambiguities can arise when we parse values without separators and without leading zeros. For example:
+
+```csharp
+var parser = Time("Hms");
+var result = parser.Parse("11111");
+```
+
+This result is ambiguous because the source might intend the value to be `11:11:01` or `01:11:11` or `11:01:11`. Because of the greedy nature of the `.List()` parser used in the implementation of the `Time` parser, it will be parsed as `11:11:01`. Likewise the input value `1111` will throw an error here because `H` will greedily match `"11"`, `m` will greedily match `"11"` and there will be no input left to match `s`. 
+
+**Note:** The 2-digit specifiers with leading zeros (`HH`, `mm`, etc) are more efficient to parse than the specifiers which may omit leading zeros (`H`, `m`, etc). Where possible, prefer the variants with leading zeros.

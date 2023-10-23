@@ -24,6 +24,12 @@ This is functionally equivalent to, but slower than, `MatchChar()`:
 var parser = Match('x');
 ```
 
+You can also do case insensitive match by setting the `caseInsensitive` flag:
+
+```csharp
+var parser = MatchChar('x', caseInsensitive: true);
+```
+
 ### Character In Collection
 
 If you want to match a character which is one of a finite set of options, you can use the `MatchAny` parser to check if the character is in a collection. 
@@ -41,6 +47,8 @@ There is also a `NotMatchAny` which returns success if the character is *not* in
 var forbidden = new HashSet<char>() { 'a', 'b', 'c' };
 var parser = NotMatchAny(forbidden);
 ```
+
+Notice that these methods do not have a `caseInsensitive` flag. If you want case-insensitive matching you need to set up your collection with a case-insensitive `IEqualityComparer<T>`.
 
 ### Character String Parser
 
@@ -97,6 +105,22 @@ The `DigitString` parser returns a string of consecutive digits.
 var parser = DigitString();
 ```
 
+### A String of Digits as an Integer
+
+The `DigitsAsInteger` parser reads a string of consecutive digits and parses them as an `int`:
+
+```csharp
+var parser = DigitsAsInteger();
+```
+
+This is the same as:
+
+```csharp
+var parser = DigitString().Transform(int.Parse);
+```
+
+Notice that this parser doesn't do any special behavior with respect to leading zeros, doesn't handle decimal points, fractions, or scientific notation, doesn't parse leading `-` for negatives, etc. For a more structured number parser following existing programming language rules see [The C Parsers](parsers_programming.md) or the [JS Parsers](parsers_programming.md).
+
 ## Line Parsers
 
 The `Line` method parses the remainder of the line until the next newline character. It does not return the newline character. The `PrefixedLine` method parses the line if it starts with the given prefix. If the prefix is null or empty, it is the same as `Line`.
@@ -106,7 +130,7 @@ var parser = Line();
 var parser = PrefixedLine("abc");
 ```
 
-The `PrefixedLine` parser is not cached.
+The `PrefixedLine` parser instance is not cached by the library.
 
 ## Whitespace Parsers
 
