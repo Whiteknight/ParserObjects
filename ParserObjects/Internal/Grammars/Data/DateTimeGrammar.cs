@@ -39,6 +39,7 @@ public static class DateTimeGrammar
         {
             var yearyyyy = DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y));
 
+            // MM expects 2 digits, so take two and do the bounds check in MonthPart
             var monthMM = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
 
             var monthM = Sequential(s =>
@@ -183,8 +184,8 @@ public static class DateTimeGrammar
         return part
             .List(1)
             .FollowedBy(End())
-            .Transform(parsers => Combine(parsers)
-                .Transform(results =>
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
                 {
                     DateTime dateTime = DateTime.MinValue;
                     foreach (var result in results)
@@ -205,8 +206,8 @@ public static class DateTimeGrammar
         return part
             .List(1)
             .FollowedBy(End())
-            .Transform(parsers => Combine(parsers)
-                .Transform(results =>
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
                 {
                     DateTime dateTime = DateTime.MinValue;
                     foreach (var result in results)
@@ -227,8 +228,8 @@ public static class DateTimeGrammar
         return part
             .List(1)
             .FollowedBy(End())
-            .Transform(parsers => Combine(parsers)
-                .Transform(results =>
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
                 {
                     DateTime dateTime = DateTime.MinValue;
                     foreach (var result in results)
