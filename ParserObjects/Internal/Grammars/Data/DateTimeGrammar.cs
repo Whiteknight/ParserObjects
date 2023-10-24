@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers.Digits;
 
 namespace ParserObjects.Internal.Grammars.Data;
@@ -151,13 +151,14 @@ public static class DateTimeGrammar
             // It would be nice if this method could consume mulitiple characters into a string
             // and ignore them all together, but for now this works and isn't too memory-intensive
             // for simple formats.
-            var literal = Any()
-                .Transform(c =>
-                    MatchChar(c)
-                        .Transform(_ => (IPart)LiteralPart.Instance)
-                )
-                .Named("literal");
-            // TODO: Escape sequences. MS uses '\' to escape, so we can have literal Y M d H h m s and f values in the format.
+            var literal = First(
+                Rule(
+                    Match('\\'),
+                    Any(),
+                    (_, c) => MatchChar(c).Transform(_ => (IPart)LiteralPart.Instance)
+                ),
+                Any().Transform(c => MatchChar(c).Transform(_ => (IPart)LiteralPart.Instance))
+            ).Named("literal");
             // TODO: Technically '/' and ':' should translate to separator values in the current locale. But, since we're not capturing.
             return literal;
         }

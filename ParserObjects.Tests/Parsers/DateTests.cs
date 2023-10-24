@@ -5,6 +5,7 @@ namespace ParserObjects.Tests.Parsers;
 public class DateTests
 {
     [TestCase("yyyyMMdd", "20231021")]
+    [TestCase("\\yyyyy\\MMM\\ddd", "y2023M10d21")]
     [TestCase("yyyy-MM-dd", "2023-10-21")]
     [TestCase("yyyy-M-dd", "2023-10-21")]
     [TestCase("MM/dd/yyyy", "10/21/2023")]
