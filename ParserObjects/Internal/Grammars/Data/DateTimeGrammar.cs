@@ -12,52 +12,74 @@ public static class DateTimeGrammar
 {
     // https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings
 
+    private static int ParseBounded2DigitValue(SequentialState<char> s, int maxValue)
+    {
+        var firstDigit = s.Parse(Digit());
+        var value = firstDigit - '0';
+        if (value > (maxValue / 10))
+            return value;
+
+        var cp = s.Checkpoint();
+        var secondDigit = s.TryParse(Digit());
+        if (!secondDigit.Success)
+            return value;
+
+        var newValue = (value * 10) + (secondDigit.Value - '0');
+        if (newValue > maxValue)
+        {
+            cp.Rewind();
+            return value;
+        }
+
+        value = newValue;
+
+        return value;
+    }
+
     private static readonly Lazy<IParser<char, IParser<char, IPart>>> _dateParts = new Lazy<IParser<char, IParser<char, IPart>>>(
         () =>
         {
-            var year4DigitInternal = DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y));
-            var year4Digit = Match("yyyy")
-                .Transform(year4DigitInternal, static (p, _) => p)
-                .Named("yyyy");
+            var yearyyyy = DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y));
 
-            // TODO: "M" to match the month without leading zero. We need to be smart about it because we can't match just any 2 consecutive digits. Can only have '1' as the leading character in a 2-digit number
+            var monthMM = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
 
-            var monthNumInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
-            var monthNum = Match("MM")
-                .Transform(monthNumInternal, static (p, _) => p)
-                .Named("MM");
+            var monthM = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 12);
+                return (IPart)new MonthPart(value);
+            });
 
-            var monthAbbrevInternal = Trie<int>(static t =>
+            var monthMMM = Trie<int>(static t =>
             {
                 for (int i = 0; i < 12; i++)
                     t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
             }).Transform(static m => (IPart)new MonthPart(m));
-            var monthAbbrev = Match("MMM")
-                .Transform(monthAbbrevInternal, static (p, _) => p)
-                .Named("MMM");
 
-            var monthNameInternal = Trie<int>(static t =>
+            var monthMMMM = Trie<int>(static t =>
             {
                 for (int i = 0; i < 12; i++)
                     t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
             }).Transform(static m => (IPart)new MonthPart(m));
-            var monthName = Match("MMMM")
-                .Transform(monthNameInternal, static (p, _) => p)
-                .Named("MMMM");
 
-            // TODO: 'd' for day without leading zero.
+            var dayd = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 31);
+                return (IPart)new DayPart(value);
+            });
 
-            var dayInternal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m));
-            var day = Match("dd")
-                .Transform(dayInternal, static (p, _) => p)
-                .Named("dd");
+            var daydd = DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m));
 
-            return First(
-                year4Digit,
-                monthName,
-                monthAbbrev,
-                monthNum,
-                day
+            // ddd and dddd specifiers are for day-of-week which is useful for .ToString() but
+            // not currently useful for parsing.
+            // yy may be useful for 2-digit year parsing, but it would be limited to current century
+            return Trie<IParser<char, IPart>>(t => t
+                .Add("yyyy", yearyyyy)
+                .Add("MMMM", monthMMMM)
+                .Add("MMM", monthMMM)
+                .Add("MM", monthMM)
+                .Add("M", monthM)
+                .Add("dd", daydd)
+                .Add("d", dayd)
             );
         }
     );
@@ -67,68 +89,57 @@ public static class DateTimeGrammar
         {
             // For each format specifier, when we match it, return an instance of an "internal"
             // parser to handle values of that type.
+            var hourHH = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
+            var hourH = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 24);
+                return (IPart)new HourPart(value);
+            });
 
-            // TODO: An hour can have a leading 1 (or a 2, for H/HH) or it can be a 1-digit number. Would be nice to capture that so we don't have weird "56" hours, etc
-            var hour2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
-            var hour1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new HourPart(m));
-            var hour24LeadingZero = Match("HH")
-                .Transform(hour2Internal, static (p, _) => p)
-                .Named("HH");
+            var hourhh = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
+            var hourh = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 12);
+                return (IPart)new HourPart(value);
+            });
 
-            var hour24 = Match("H")
-                .Transform(hour1Internal, static (p, _) => p)
-                .Named("H");
+            var minutemm = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m));
 
-            var hour12LeadingZero = Match("hh")
-                .Transform(hour2Internal, static (p, _) => p)
-                .Named("hh");
+            var minutem = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 59);
 
-            var hour12 = Match("h")
-                .Transform(hour1Internal, static (p, _) => p)
-                .Named("h");
+                return (IPart)new MinutePart(value);
+            });
 
-            // TODO: A minute can have a leading value 0-5 and an optional second digit of any value
-            var minute2Internal = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m));
-            var minuteLeadingZero = Match("mm")
-                .Transform(minute2Internal, static (p, _) => p)
-                .Named("mm");
+            var secondss = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
 
-            var minute1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new MinutePart(m));
-            var minute = Match("m")
-                .Transform(minute1Internal, static (p, _) => p)
-                .Named("m");
+            var seconds = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 59);
 
-            // TODO: A second can have a leading value 0-5 and an optional second digit of any value
-            var second2Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
-            var secondLeadingZero = Match("ss")
-                .Transform(second2Internal, static (p, _) => p)
-                .Named("ss");
+                return (IPart)new SecondPart(value);
+            });
 
-            var second1Internal = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
-            var second = Match("s")
-                .Transform(second1Internal, static (p, _) => p)
-                .Named("s");
+            var millisecondfff = DigitsAsInteger(3, 3)
+                .Transform(static m => (IPart)new MillisecondPart(m));
+            var millisecondff = DigitsAsInteger(2, 2)
+                .Transform(static m => (IPart)new MillisecondPart(m * 10));
+            var millisecondf = DigitsAsInteger(1, 1)
+                .Transform(static m => (IPart)new MillisecondPart(m * 100));
 
-            var millisecond = Match("f")
-                .List(1, 4)
-                .Transform(static l =>
-                    DigitsAsInteger(l.Count, l.Count)
-                        // TODO: If we only match 1 character, we need to make sure to convert to tenths of a second, not thousandths, etc.
-                        // TODO: If we have more than 3 digits, trim to 3. The highest precision we can account for is milliseconds.
-                        .Transform(static m => (IPart)new MillisecondPart(m))
-                )
-                .Named("f");
-
-            return First(
-                hour24LeadingZero,
-                hour24,
-                hour12LeadingZero,
-                hour12,
-                minuteLeadingZero,
-                minute,
-                secondLeadingZero,
-                second,
-                millisecond
+            return Trie<IParser<char, IPart>>(t => t
+                .Add("HH", hourHH)
+                .Add("H", hourH)
+                .Add("hh", hourhh)
+                .Add("h", hourh)
+                .Add("m", minutem)
+                .Add("mm", minutemm)
+                .Add("s", seconds)
+                .Add("ss", secondss)
+                .Add("f", millisecondf)
+                .Add("ff", millisecondff)
+                .Add("fff", millisecondfff)
             );
         }
     );
