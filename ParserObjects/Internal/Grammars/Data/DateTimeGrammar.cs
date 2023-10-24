@@ -31,9 +31,7 @@ public static class DateTimeGrammar
             return value;
         }
 
-        value = newValue;
-
-        return value;
+        return newValue;
     }
 
     private static readonly Lazy<IParser<char, IParser<char, IPart>>> _dateParts = new Lazy<IParser<char, IParser<char, IPart>>>(
@@ -121,6 +119,10 @@ public static class DateTimeGrammar
                 return (IPart)new SecondPart(value);
             });
 
+            var millisecondfffff = DigitsAsInteger(5, 5)
+                .Transform(static m => (IPart)new MillisecondPart(m / 100));
+            var millisecondffff = DigitsAsInteger(4, 4)
+                .Transform(static m => (IPart)new MillisecondPart(m / 10));
             var millisecondfff = DigitsAsInteger(3, 3)
                 .Transform(static m => (IPart)new MillisecondPart(m));
             var millisecondff = DigitsAsInteger(2, 2)
@@ -140,6 +142,8 @@ public static class DateTimeGrammar
                 .Add("f", millisecondf)
                 .Add("ff", millisecondff)
                 .Add("fff", millisecondfff)
+                .Add("ffff", millisecondffff)
+                .Add("fffff", millisecondfffff)
             );
         }
     );
@@ -151,16 +155,20 @@ public static class DateTimeGrammar
             // It would be nice if this method could consume mulitiple characters into a string
             // and ignore them all together, but for now this works and isn't too memory-intensive
             // for simple formats.
-            var literal = First(
+            var currentTimeSeparator = Match(DateTimeFormatInfo.CurrentInfo.TimeSeparator)
+                .Transform(static _ => (IPart)LiteralPart.Instance);
+            var currentDateSeparator = Match(DateTimeFormatInfo.CurrentInfo.DateSeparator)
+                .Transform(static _ => (IPart)LiteralPart.Instance);
+            return First(
                 Rule(
                     Match('\\'),
                     Any(),
-                    (_, c) => MatchChar(c).Transform(_ => (IPart)LiteralPart.Instance)
+                    static (_, c) => MatchChar(c).Transform(static _ => (IPart)LiteralPart.Instance)
                 ),
-                Any().Transform(c => MatchChar(c).Transform(_ => (IPart)LiteralPart.Instance))
+                Match(':').Transform(currentTimeSeparator, static (p, _) => p),
+                Match('/').Transform(currentDateSeparator, static (p, _) => p),
+                Any().Transform(static c => MatchChar(c).Transform(static _ => (IPart)LiteralPart.Instance))
             ).Named("literal");
-            // TODO: Technically '/' and ':' should translate to separator values in the current locale. But, since we're not capturing.
-            return literal;
         }
     );
 
