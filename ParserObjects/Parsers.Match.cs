@@ -78,6 +78,7 @@ public static partial class Parsers<TInput>
         var asList = pattern.ToList();
         if (asList.Count == 0)
             return Produce(static () => Array.Empty<TInput>());
+        // TODO: If Count==1, we can simplify to a MatchItemParser
         return new MatchPatternParser<TInput>(asList);
     }
 

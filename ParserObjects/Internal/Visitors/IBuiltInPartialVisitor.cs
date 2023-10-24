@@ -27,7 +27,7 @@ public interface IFunctionPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, TState state);
 
-    void Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> _, TState state);
+    void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> _, TState state);
 }
 
 public interface IListPartialVisitor<TState> : IPartialVisitor<TState>

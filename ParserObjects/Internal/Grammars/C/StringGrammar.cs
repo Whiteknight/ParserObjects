@@ -7,7 +7,7 @@ public static class StringGrammar
 {
     public static IParser<char, string> CreateStringParser()
     {
-        var parser = Sequential(s =>
+        var parser = Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '"')
@@ -47,7 +47,7 @@ public static class StringGrammar
 
     public static IParser<char, string> CreateCharacterParser()
     {
-        var parser = Sequential(s =>
+        var parser = Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '\'')

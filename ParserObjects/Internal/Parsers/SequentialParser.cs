@@ -33,8 +33,10 @@ public static class Sequential
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public sealed record Parser<TInput, TOutput>(
-        Func<SequentialState<TInput>, TOutput> Function,
+    /// <typeparam name="TData"></typeparam>
+    public sealed record Parser<TInput, TOutput, TData>(
+        TData Data,
+        Func<SequentialState<TInput>, TData, TOutput> Function,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -47,7 +49,7 @@ public static class Sequential
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
-                var result = Function(seqState);
+                var result = Function(seqState, Data);
                 var endConsumed = state.Input.Consumed;
                 return state.Success(this, result, endConsumed - startCheckpoint.Consumed);
             }
@@ -84,7 +86,7 @@ public static class Sequential
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
-                Function(seqState);
+                Function(seqState, Data);
                 return true;
             }
             catch (ParseFailedException)

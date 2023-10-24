@@ -8,7 +8,7 @@ public static class StrippedStringGrammar
 {
     public static IParser<char, string> CreateStringParser()
     {
-        var parser = Sequential(s =>
+        var parser = Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '"')
@@ -43,7 +43,7 @@ public static class StrippedStringGrammar
 
     public static IParser<char, char> CreateCharacterParser()
     {
-        var parser = Sequential(s =>
+        var parser = Sequential(static s =>
         {
             CheckForCharPreamble(s);
 
