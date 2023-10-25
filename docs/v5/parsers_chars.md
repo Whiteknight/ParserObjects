@@ -12,16 +12,18 @@ using static ParserObjects.Parsers;
 
 ### Character Matcher
 
-The `MatchChar` parser matches a given character. It is semantically the same as `Match(char)` though it is optimized for matching single characters. Instances of this parser are cached by the library, for example.
+The `MatchChar` parser matches a given character. It is similar to the `Match` parser but optimized for character matching workflows. The library will do additional caching of parser instances where possible, and the `MatchChar` parser will never match the *end sentinel* of the input sequence.
 
 ```csharp
 var parser = MatchChar('x');
+var parser = MatchChar(c => char.IsSymbol(c));
 ```
 
-This is functionally equivalent to, but slower than, `MatchChar()`:
+This is functionally similar to, but slower than, `Match()`:
 
 ```csharp
 var parser = Match('x');
+var parser = Match(c => char.IsSymbol(c));
 ```
 
 You can also do case insensitive match by setting the `caseInsensitive` flag:
@@ -29,6 +31,24 @@ You can also do case insensitive match by setting the `caseInsensitive` flag:
 ```csharp
 var parser = MatchChar('x', caseInsensitive: true);
 ```
+
+**Note:** `MatchChar` will not read the end sentinel, where the `Match` parser will. So these two parsers will behave differently at the end of input:
+
+```csharp
+var parser1 = Match(c => !char.IsLetter(c));
+var parser2 = MatchChar(c => !char.IsLetter(c));
+```
+
+The `Match` parser will see that the default end sentinel `'\0'` satisfies the predicate and return it, while the `MatchChar` parser will not read the end sentinel and will return failure.  Also, the `MatchChar` parser will always return failure if you ask it to match the end sentinel, because it will never attempt to read past the end of input:
+
+```csharp
+var parser = MatchChar('\0');
+var result = parser.Parse("");
+result.Success.Should().BeFalse();
+```
+
+If your input string contains nested null characters, those will match the above parser until the sequence reaches end of input.
+
 
 ### Character In Collection
 
@@ -39,7 +59,7 @@ var possibilities = new HashSet<char>() { 'x', 'y', 'z' };
 var parser = MatchAny(possibilities);
 ```
 
-`HashSet<char>` or another collection type optimized for fast `.Contains()` is preferred, but you can use any collection. 
+`HashSet<char>` or another collection type optimized for fast `.Contains()` is preferred, but you can use any collection.
 
 There is also a `NotMatchAny` which returns success if the character is *not* in the collection:
 
@@ -52,9 +72,10 @@ Notice that these methods do not have a `caseInsensitive` flag. If you want case
 
 ### Character String Parser
 
-The `CharacterString` parser matches a literal string of characters against a `char` input and returns the string on success.
+The `MatchChars` parser matches a literal string of characters against a `char` input and returns the string on success. There is also an alias `CharacterString()` which does the same thing:
 
 ```csharp
+var parser = MatchChars("abc");
 var parser = CharacterString("abc");
 ```
 
@@ -62,6 +83,12 @@ This is functionally equivalent to (though faster than) a combination of the `Ma
 
 ```csharp
 var parser = Match("abc").Transform(x => new string(x.ToArray()));
+```
+
+There is also a `MatchAny` parser, similar to the `Trie` parser, which takes several string patterns and will return a string if any of the patterns match. It also has a `caseInsensitive` mode:
+
+```csharp
+var parser = MatchAny(new[] { "pattern1", "pattern2", ...}, caseInsensitive: true);
 ```
 
 ## Character Class Parsers
@@ -224,4 +251,37 @@ var parts = SpinalCase().Parse("snake_case_identifier");
 
 var parts = ScreamingSnakeCase().Parse("SNAKE_CASE_IDENTIFIER");
 // returns ["SNAKE", "CASE", "IDENTIFIER"]
+```
+
+## Stringify Parsers
+
+The `Stringify` parser takes a parser which returns a `IReadOnlyList<char>` result and transforms it to return a `string` result instead. This may be useful in places where you are using a `List` or a `Match(pattern)` parser and need to get a string result without having to concatenate all the substrings together yourself. 
+
+```csharp
+var getWord = Stringify(
+    List(
+        Match(c => char.IsLetter(c))
+    )
+);
+```
+
+## Capturing Parsers
+
+### CaptureString Parser
+
+The `CaptureString` parser takes a list of several parsers, matches each of them in series, and returns the complete match as a `string`. This parser can only be used with an `ISequence<char>` input, is optimized for `ICharSequence` inputs, and represents a significant optimization over alternative parsers for the same behavior:
+
+```csharp
+var parser = CaptureString(p1, p2, p3, ...);
+```
+
+This has equivalent behavior to, but much lower performance than, a `Combine` or `Rule` parser with a `Transform`:
+
+```csharp
+var parser = Combine(
+        p1,
+        p2,
+        p3,
+    )
+    .Transform(l => string.Join("", l));
 ```

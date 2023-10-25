@@ -56,6 +56,7 @@ using static ParserObjects.Parsers<char>;
 * [Pratt Parser Reference](parsers_pratt.md)
 * [Multi Parsers Reference](parsers_multi.md)
 * [Earley Parser Reference](parsers_earley.md)
+* [Index of all Parsers](parsers_index.md)
 
 ## Examples
 

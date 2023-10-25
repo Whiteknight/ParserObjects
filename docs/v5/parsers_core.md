@@ -471,12 +471,28 @@ The `t` object assists in performing the parse and it has ability to handle erro
 
 These parsers help to simplify matching of literal patterns.
 
-### Match Pattern Parser
+### Match Parser
 
-The `MatchPatternParser` takes a literal list of values, and attempts to match these against the input sequence. If all input items match, in order, the values will be returned as a list. (some of the below examples take advantage of the fact that a `string` is an `IEnumerable<char>` to help simplify)
+The `Match` parser has several different forms.
+
+The first form takes a single item to match against, using default `.Equals()` behavior, and returns that item if it matches the next input value:
+
+```csharp
+var parser = Match('c');
+```
+
+The second form takes a predicate callback which takes the next input item and returns a `bool`. If the predicate returns true, the item is considered a match and is returned
+
+```csharp
+var parser = Match(c => c == 'a' || c == 'b' || char.IsSymbol(c));
+```
+
+The third form takes an enumerable of input values as a pattern, and attempts to match all of them. If all input items match, in order, the values will be returned as an `IReadOnlyList`:
 
 ```csharp
 var parser = Match(new char[] { 'a', 'b', 'c', 'd' });
+
+// Notice that a string is an IEnumerable<char>. This is the same as the above.
 var parser = Match("abcd");
 ```
 
@@ -492,18 +508,19 @@ var parser = Rule(
 );
 ```
 
-### Trie Parser
+**Note:** For characters and strings, the `MatchChar` parser is faster than the `Match(char)` parser for matching a single item, and the `MatchChars()` parser is faster than `Match(IEnumerable<char>)` for similar behaviors.
 
-The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, where individual patterns may have overlapping prefixes. The ParserObjects library provides `IReadOnlyTrie<TKey, TResult>` and `IInsertableTrie<TKey, TResult>` abstractions for this purpose.
+### Trie and MatchAny parsers
+
+The `Trie` parser uses a trie to find the longest match in a list of possible literal sequences. This is a useful optimization for keyword and operator literals, especially where individual patterns may have overlapping prefixes. The ParserObjects library provides `IReadOnlyTrie<TKey, TResult>` and `IInsertableTrie<TKey, TResult>` abstractions for this purpose.
 
 ```csharp
 var parser = Trie(trie);
 var parser = trie.ToParser();
 var parser = Trie(trie => trie.Add(...));
-var parser = MatchAny("value", "value2", "value3");
 ```
 
-The `MatchAny` parser is implemented using the `Trie` mechanism internally, and works only on `char` input, `string` output scenarios.
+There is also a `MatchAny` parser which is similar to `Trie` but matches characters into strings.
 
 ## Transforming parsers
 
@@ -517,6 +534,16 @@ The `Transform` parser transforms the output of an inner parser. If the inner pa
 var parser = Transform(innerParser, r => ...);
 var parser = innerParser.Transform(r => ...);
 ```
+
+## Capturing Parsers
+
+The `IParser<TInput>.Match()` can be a significant optimization over the `IParser<TInput>.Parse()` method. The `Capture` parser takes advantage of this fact by calling `.Match()` on a list of parsers in series and then returns a list of input items directly from the input sequence which were spanned by the match as an `IReadOnlyList<TInput>`. The `Capture` parser can be a significant optimization in terms of both runtime performance and memory use if you need to match a complicated pattern and return the input items directly.
+
+```csharp
+var parser = Capture(p1, p2, p3, ...);
+```
+
+There is also a `CaptureString` variant which operates on `char` inputs and returns a `string` output instead of an `IReadOnlyList<char>`.
 
 ## Recursive Parsers
 
