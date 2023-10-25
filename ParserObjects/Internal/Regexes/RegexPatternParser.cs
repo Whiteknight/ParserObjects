@@ -69,7 +69,7 @@ public static class RegexPatternGrammar
                 .Bind(_bpAtom, static (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                 .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
-            .Add(Match("(?:"), static p => p
+            .Add(MatchChars("(?:"), static p => p
                 .Bind(_bpAtom, static (ctx, _) =>
                 {
                     var group = ctx.Parse(_bpAll);

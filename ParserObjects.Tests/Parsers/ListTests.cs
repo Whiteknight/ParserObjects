@@ -390,7 +390,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4");
@@ -409,7 +409,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4,");
@@ -428,7 +428,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("");
@@ -443,7 +443,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1");
@@ -458,7 +458,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1,2,3");
@@ -475,7 +475,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("");
@@ -488,7 +488,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 4
             );
             var input = FromString("1,2,3");
@@ -501,7 +501,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 0,
                 2
             );
@@ -541,7 +541,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4");
@@ -560,7 +560,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4,");
@@ -579,7 +579,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("");
@@ -594,7 +594,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1");
@@ -609,7 +609,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1,2,3");
@@ -626,7 +626,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("");
@@ -639,7 +639,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 4
             );
             var input = FromString("1,2,3");
@@ -652,7 +652,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 0,
                 2
             );
@@ -692,7 +692,7 @@ public static class ListTests
         {
             var parser = Integer()
                 .List(
-                    Match(","),
+                    MatchChar(','),
                     atLeastOne: false
                 );
             var input = FromString("1,2,3,4");
@@ -713,7 +713,7 @@ public static class ListTests
         {
             var parser = ((IParser<char>)Integer())
                 .List(
-                    Match(","),
+                    MatchChar(','),
                     atLeastOne: false
                 );
             var input = FromString("1,2,3,4");

@@ -264,6 +264,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(pattern);
     }
 
+    public void Accept(MatchStringPatternParser p, BnfStringifyState state)
+    {
+        var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i}'"));
+        state.Append(pattern);
+    }
+
     public void Accept<TInput>(NegativeLookaheadParser<TInput> p, BnfStringifyState state)
     {
         state.Append("(?! ", p.GetChildren().First(), " )");

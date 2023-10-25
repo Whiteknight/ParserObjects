@@ -8,4 +8,14 @@ public static class CharMethods
     {
         return string.Concat(c);
     }
+
+    public static bool EqualsCaseSensitive(char a, char b)
+    {
+        return a == b;
+    }
+
+    public static bool EqualsCaseInsensitive(char a, char b)
+    {
+        return char.ToUpper(a) == char.ToUpper(b);
+    }
 }

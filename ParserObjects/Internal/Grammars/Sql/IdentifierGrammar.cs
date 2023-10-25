@@ -34,7 +34,7 @@ public static class IdentifierGrammar
             Rule(
                 MatchChar('"'),
                 First(
-                    Match("\"\"").Transform(static _ => '"'),
+                    MatchChars("\"\"").Transform(static _ => '"'),
                     Match(static c => char.IsLetterOrDigit(c) || c == ' ' || (char.IsSymbol(c) && c != '"'))
                 ).ListCharToString(),
                 MatchChar('"'),

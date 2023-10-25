@@ -17,7 +17,7 @@ public static partial class Parsers
             return Line();
 
         return CaptureString(
-                Match(prefix),
+                MatchChars(prefix),
                 Match(static c => c != '\n').List()
             )
             .Named($"Line Prefixed:{prefix}");

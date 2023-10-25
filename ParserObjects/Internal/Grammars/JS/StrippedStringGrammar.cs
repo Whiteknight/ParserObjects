@@ -25,7 +25,7 @@ public static class StrippedStringGrammar
         );
 
         var unicodeCodePointEscapeSequence = Rule(
-            Match("u{"),
+            MatchChars("u{"),
             HexadecimalDigit().ListCharToString(1, 8),
             MatchChar('}'),
             static (_, hex, _) => char.ConvertFromUtf32(int.Parse(hex, NumberStyles.HexNumber))

@@ -11,11 +11,11 @@ public static class CaptureTests
         public void Parse_Test()
         {
             var target = Capture(
-                Match("abc"),
+                MatchChars("abc"),
                 Any(),
                 Any(),
                 Any(),
-                Match("ghi")
+                MatchChars("ghi")
             ).Transform(c => new string(c));
             var result = target.Parse("abcdefghi");
             result.Success.Should().BeTrue();
@@ -46,11 +46,11 @@ public static class CaptureTests
         public void Parse_Test()
         {
             var target = CaptureString(
-                Match("abc"),
+                MatchChars("abc"),
                 Any(),
                 Any(),
                 Any(),
-                Match("ghi")
+                MatchChars("ghi")
             );
             var result = target.Parse("abcdefghi");
             result.Success.Should().BeTrue();

@@ -32,7 +32,7 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     public static IParser<char, string> CharacterString(string pattern)
-        => Match(pattern).Transform(_ => pattern);
+        => MatchChars(pattern);
 
     /// <summary>
     /// Matches a Letter character.
@@ -115,6 +115,9 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, char> MatchChar(Func<char, bool> predicate)
         => new MatchPredicateParser<char, Func<char, bool>>(predicate, static (i, p) => p(i), readAtEnd: false);
+
+    public static IParser<char, string> MatchChars(string pattern, bool caseInsensitive = false)
+        => new MatchStringPatternParser(pattern, caseInsensitive);
 
     /// <summary>
     /// Matches a series of consecutive letter characters.

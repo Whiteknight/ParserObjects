@@ -26,7 +26,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _hexString
             = new Lazy<IParser<char, string>>(
-                static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
+                static () => (MatchChars("0x"), HexadecimalDigit().ListCharToString(1, 8))
                     .Rule(static (_, value) => "0x" + value)
                     .Named("C-Style Hex String")
             );
@@ -39,7 +39,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, int>> _hexInteger
             = new Lazy<IParser<char, int>>(
-                static () => (Match("0x"), HexadecimalDigit().ListCharToString(1, 8))
+                static () => (MatchChars("0x"), HexadecimalDigit().ListCharToString(1, 8))
                     .Rule(static (_, value) => int.Parse(value, NumberStyles.HexNumber))
                     .Named("C-Style Hex Literal")
             );

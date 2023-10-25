@@ -24,7 +24,7 @@ public static class StringGrammar
         );
 
         var unicodeCodePointEscapeSequence = Rule(
-            Match("u{"),
+            MatchChars("u{"),
             HexadecimalDigit().ListCharToString(1, 8),
             MatchChar('}'),
             static (_, hex, _) => "u{" + hex + "}"
