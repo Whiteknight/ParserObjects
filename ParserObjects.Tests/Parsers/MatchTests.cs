@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
@@ -8,6 +9,24 @@ public static class MatchTests
 {
     public class ByIEnumerable
     {
+        [Test]
+        public void NullPattern()
+        {
+            var parser = Match((IEnumerable<char>)null);
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().NotBeNull().And.HaveCount(0);
+        }
+
+        [Test]
+        public void EmptyPattern()
+        {
+            var parser = Match("");
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+            result.Value.Should().NotBeNull().And.HaveCount(0);
+        }
+
         [Test]
         public void Parse_Test()
         {
