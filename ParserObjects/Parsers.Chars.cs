@@ -60,21 +60,40 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, string> MatchAny(IEnumerable<string> patterns, bool caseInsensitive = false)
     {
+        if (patterns == null)
+            return Fail<string>("No possibilities provide so nothing can match");
+
         var trie = caseInsensitive ? InsertableTrie<char, string>.Create(CaseInsensitiveCharComparer.Instance) : InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
+
+        if (trie.Count == 0)
+            return Fail<string>("No possibilities provide so nothing can match");
 
         var readable = ReadableTrie<char, string>.Create(trie);
         return new TrieParser<char, string>(readable);
     }
 
     /// <summary>
-    /// Test whether a char is one of a set of given possibilities.
+    /// Test whether a char is one of a set of given possibilities. Uses a Contains lookup in your
+    /// collection, so your collection should be optimized for fast Contains.
     /// </summary>
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> MatchAny(ICollection<char> possibilities)
-        => new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
+    {
+        if (possibilities == null || possibilities.Count == 0)
+            return Fail("No possibilities provided so nothing can match");
+        return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
+    }
+
+    public static IParser<char, char> MatchAny(string possibilities, bool caseInsensitive = false)
+    {
+        if (string.IsNullOrEmpty(possibilities))
+            return Fail("No possibilities provided so nothing can match");
+        var collection = new HashSet<char>(possibilities, caseInsensitive ? CaseInsensitiveCharComparer.Instance : CaseSensitiveCharComparer.Instance);
+        return new MatchPredicateParser<char, HashSet<char>>(collection, static (c, s) => s.Contains(c));
+    }
 
     /// <summary>
     /// Test whether a char is not one of a set of given possibilities.
@@ -82,7 +101,19 @@ public static partial class Parsers
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> NotMatchAny(ICollection<char> possibilities)
-        => new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
+    {
+        if (possibilities == null || possibilities.Count == 0)
+            return Any();
+        return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
+    }
+
+    public static IParser<char, char> NotMatchAny(string possibilities, bool caseInsensitive = false)
+    {
+        if (string.IsNullOrEmpty(possibilities))
+            return Any();
+        var collection = new HashSet<char>(possibilities, caseInsensitive ? CaseInsensitiveCharComparer.Instance : CaseSensitiveCharComparer.Instance);
+        return new MatchPredicateParser<char, HashSet<char>>(collection, static (c, s) => !s.Contains(c));
+    }
 
     /// <summary>
     /// Optimized version of Match(char) which caches common instances for reuse. Notice that this

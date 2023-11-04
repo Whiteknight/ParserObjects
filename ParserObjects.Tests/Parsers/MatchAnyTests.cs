@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static ParserObjects.Parsers;
 using static ParserObjects.Sequences;
 
@@ -6,7 +7,7 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class MatchAnyTests
 {
-    public class CaseSensitive
+    public class StringsCaseSensitive
     {
         [Test]
         public void Parse_Operators()
@@ -55,6 +56,22 @@ public static class MatchAnyTests
         }
 
         [Test]
+        public void EmptyPossibilities()
+        {
+            var target = MatchAny(new string[0]);
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void NullPossibilities()
+        {
+            var target = MatchAny((IEnumerable<string>)null);
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var target = MatchAny(new[] { 'A', 'B', 'C' }).Named("SUT");
@@ -63,7 +80,7 @@ public static class MatchAnyTests
         }
     }
 
-    public class CaseInsensitive
+    public class StringsCaseInsensitive
     {
         [TestCase("A", "A")]
         [TestCase("a", "A")]
@@ -81,6 +98,72 @@ public static class MatchAnyTests
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Should().Be(expected);
+        }
+    }
+
+    public class Chars
+    {
+        [Test]
+        public void Success()
+        {
+            var target = MatchAny(new[] { 'a', 'b', 'c' });
+            var result = target.Parse("a");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be('a');
+        }
+
+        [Test]
+        public void Fail()
+        {
+            var target = MatchAny(new[] { 'a', 'b', 'c' });
+            var result = target.Parse("X");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void NoPossibilities()
+        {
+            var target = MatchAny(new char[0]);
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+        }
+    }
+
+    public class StringCaseSensitive
+    {
+        [TestCase("aBc", "a", true)]
+        [TestCase("aBc", "b", false)]
+        [TestCase("aBc", "c", true)]
+        public void Test(string possibilities, string input, bool shouldMatch)
+        {
+            var target = MatchAny(possibilities);
+            var result = target.Parse(input);
+            result.Success.Should().Be(shouldMatch);
+            if (shouldMatch)
+                result.Value.Should().Be(input[0]);
+        }
+
+        [Test]
+        public void NoPossibilities()
+        {
+            var target = MatchAny("");
+            var result = target.Parse("abc");
+            result.Success.Should().BeFalse();
+        }
+    }
+
+    public class StringCaseInsensitive
+    {
+        [TestCase("aBc", "a", true)]
+        [TestCase("aBc", "b", true)]
+        [TestCase("aBc", "C", true)]
+        public void Test(string possibilities, string input, bool shouldMatch)
+        {
+            var target = MatchAny(possibilities, caseInsensitive: true);
+            var result = target.Parse(input);
+            result.Success.Should().Be(shouldMatch);
+            if (shouldMatch)
+                (result.Value.Equals(char.ToLower(input[0])) || result.Value.Equals(char.ToUpper(input[0]))).Should().BeTrue();
         }
     }
 }
