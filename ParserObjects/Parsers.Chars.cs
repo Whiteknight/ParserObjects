@@ -87,6 +87,13 @@ public static partial class Parsers
         return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
     }
 
+    /// <summary>
+    /// Return success if the next character matches any characters from the string of possibilities,
+    /// failure otherwise.
+    /// </summary>
+    /// <param name="possibilities"></param>
+    /// <param name="caseInsensitive"></param>
+    /// <returns></returns>
     public static IParser<char, char> MatchAny(string possibilities, bool caseInsensitive = false)
     {
         if (string.IsNullOrEmpty(possibilities))
@@ -107,6 +114,13 @@ public static partial class Parsers
         return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
     }
 
+    /// <summary>
+    /// Return success if the next character does not match any characters from the string. False
+    /// if any characters match.
+    /// </summary>
+    /// <param name="possibilities"></param>
+    /// <param name="caseInsensitive"></param>
+    /// <returns></returns>
     public static IParser<char, char> NotMatchAny(string possibilities, bool caseInsensitive = false)
     {
         if (string.IsNullOrEmpty(possibilities))
@@ -154,6 +168,13 @@ public static partial class Parsers
     public static IParser<char, char> MatchChar(Func<char, bool> predicate)
         => new MatchPredicateParser<char, Func<char, bool>>(predicate, static (i, p) => p(i), readAtEnd: false);
 
+    /// <summary>
+    /// Match the next several characters in sequence against the given string. Return the string
+    /// if all characters match. Failure otherwise.
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <param name="caseInsensitive"></param>
+    /// <returns></returns>
     public static IParser<char, string> MatchChars(string pattern, bool caseInsensitive = false)
         => new MatchStringPatternParser(pattern, caseInsensitive);
 
