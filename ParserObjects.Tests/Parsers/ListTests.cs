@@ -381,6 +381,33 @@ public static class ListTests
 
     public class UntypedUnseparatedExtension
     {
+        [Test]
+        public void Parse_AtLeastOneTrue()
+        {
+            var parser = ((IParser<char>)Any()).List(true);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
+            var list = result.Value as List<object>;
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+            list[2].Should().Be('c');
+        }
+
+        [Test]
+        public void Parse_Maximum()
+        {
+            var parser = ((IParser<char>)Any()).List(0, 2);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(2);
+            var list = result.Value as List<object>;
+            list.Count.Should().Be(2);
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+        }
     }
 
     public class TypedSeparatedMethod
