@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class ReplaceableTests
 {
-    public class SingleOutput
+    public class SingleOutputFunc
     {
         [Test]
         public void Parse_Test()
@@ -71,7 +71,21 @@ public static class ReplaceableTests
         }
     }
 
-    public class SingleNoOutput
+    public class SingleOutputExtension
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var anyParser = Any();
+            var target = anyParser.Replaceable();
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Value.Should().Be('a');
+            result.Consumed.Should().Be(1);
+        }
+    }
+
+    public class SingleNoOutputFunc
     {
         [Test]
         public void Parse_Test()
@@ -131,12 +145,35 @@ public static class ReplaceableTests
         }
     }
 
-    public class Multi
+    public class SingleNoOutputExtension
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var target = End().Replaceable();
+            var input = FromString("");
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+        }
+    }
+
+    public class MultiFunc
     {
         [Test]
         public void ToBnf_Test()
         {
             var parser = Replaceable(ProduceMulti(() => new char[0])).Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := PRODUCE");
+        }
+    }
+
+    public class MultiExtension
+    {
+        [Test]
+        public void ToBnf_Test()
+        {
+            var parser = ProduceMulti(() => new char[0]).Replaceable().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
         }
