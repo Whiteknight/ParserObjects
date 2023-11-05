@@ -10,7 +10,7 @@ public static class MatchTests
     public class ByIEnumerable
     {
         [Test]
-        public void NullPattern()
+        public void Parse_NullPattern()
         {
             var parser = Match((IEnumerable<char>)null);
             var result = parser.Parse("abc");
@@ -19,7 +19,7 @@ public static class MatchTests
         }
 
         [Test]
-        public void EmptyPattern()
+        public void Parse_EmptyPattern()
         {
             var parser = Match("");
             var result = parser.Parse("abc");
@@ -80,6 +80,28 @@ public static class MatchTests
             result.Success.Should().BeTrue();
             result.Value.Count.Should().Be(0);
             result.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Match_NullPattern()
+        {
+            var parser = Match((IEnumerable<char>)null);
+            parser.Match("abc").Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_EmptyPattern()
+        {
+            var parser = Match("");
+            parser.Match("abc").Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var parser = Match("abc");
+            var input = FromString("abcd");
+            parser.Match("abc").Should().BeTrue();
         }
 
         [Test]
