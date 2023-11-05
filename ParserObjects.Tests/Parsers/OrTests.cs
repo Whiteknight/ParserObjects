@@ -22,6 +22,30 @@ public class OrTests
         result.Consumed.Should().Be(firstSuccess | secondSuccess ? 1 : 0);
     }
 
+    [Test]
+    public void Parse_Null()
+    {
+        var target = Or((IParser<char>[])null);
+        var result = target.Parse("abc");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
+    public void Parse_Empty()
+    {
+        var target = Or();
+        var result = target.Parse("abc");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
+    public void Parse_Single()
+    {
+        var target = Or(_anyParser);
+        var result = target.Parse("abc");
+        result.Success.Should().BeTrue();
+    }
+
     [TestCase(true, true)]
     [TestCase(true, false)]
     [TestCase(false, true)]

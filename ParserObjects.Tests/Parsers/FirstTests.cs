@@ -5,7 +5,7 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class FirstTests
 {
-    public class OnMulti
+    public class MultiExtension
     {
         [Test]
         public void Parse_Test()
@@ -60,7 +60,7 @@ public static class FirstTests
         }
     }
 
-    public class Basic
+    public class Single
     {
         [TestCase("a", true)]
         [TestCase("X", true)]
@@ -79,6 +79,16 @@ public static class FirstTests
             result.Consumed.Should().Be(shouldMatch ? 1 : 0);
         }
 
+        [Test]
+        public void Parse_null()
+        {
+            var parser = First((IParser<char, char>[])null);
+
+            var result = parser.Parse("");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
         public void Parse_Empty()
         {
             var parser = First<char>();
@@ -111,7 +121,6 @@ public static class FirstTests
             var aParser = Match('a');
             var xParser = Match('X');
             var oneParser = Match('1');
-            var bParser = Match('b');
             var parser = First(
                 aParser,
                 xParser,
@@ -170,7 +179,7 @@ public static class FirstTests
         }
     }
 
-    public class OnValueTuple
+    public class ValueTupleExtension
     {
         private static readonly IParser<char, char> _a = Match('a');
         private static readonly IParser<char, char> _b = Match('b');
