@@ -1,4 +1,5 @@
-﻿using static ParserObjects.Parsers;
+﻿using System.Collections.Generic;
+using static ParserObjects.Parsers;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -24,12 +25,21 @@ public static class NotMatchAnyTests
         }
 
         [Test]
-        public void NoPossibilities()
+        public void EmptyList()
         {
-            var target = NotMatchAny(new char[0]);
-            var result = target.Parse("abc");
+            var target = NotMatchAny(Array.Empty<char>());
+            var result = target.Parse("X");
             result.Success.Should().BeTrue();
-            result.Value.Should().Be('a');
+            result.Value.Should().Be('X');
+        }
+
+        [Test]
+        public void Null()
+        {
+            var target = NotMatchAny((ICollection<char>)null);
+            var result = target.Parse("X");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be('X');
         }
     }
 

@@ -121,10 +121,18 @@ public static class MatchAnyTests
         }
 
         [Test]
-        public void NoPossibilities()
+        public void EmptyList()
         {
-            var target = MatchAny(new char[0]);
-            var result = target.Parse("abc");
+            var target = MatchAny(Array.Empty<char>());
+            var result = target.Parse("X");
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Null()
+        {
+            var target = MatchAny((ICollection<char>)null);
+            var result = target.Parse("X");
             result.Success.Should().BeFalse();
         }
     }
