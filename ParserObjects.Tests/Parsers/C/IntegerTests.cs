@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Tests.Parsers.C;
 
-internal class IntegerTests
+public class IntegerTests
 {
     [TestCase("0", 0)]
     [TestCase("1", 1)]
