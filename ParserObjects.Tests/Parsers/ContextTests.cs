@@ -24,6 +24,19 @@ public static class ContextTests
         }
 
         [Test]
+        public void Parse_NoCallbacks()
+        {
+            var target = Context(
+                Produce(() => "OK"),
+                null,
+                null
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("OK");
+        }
+
+        [Test]
         public void Parse_Fail()
         {
             var before = "";
@@ -222,6 +235,19 @@ public static class ContextTests
             result.Results[0].Value.Should().Be("OK");
             before.Should().Be("OK1");
             after.Should().Be("OK2");
+        }
+
+        [Test]
+        public void Parse_NoCallbacks()
+        {
+            var target = Context(
+                ProduceMulti(() => new[] { "OK" }),
+                null,
+                null
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be("OK");
         }
 
         [Test]
