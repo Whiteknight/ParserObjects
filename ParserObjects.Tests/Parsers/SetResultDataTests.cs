@@ -20,6 +20,17 @@ public static class SetResultDataTests
         }
 
         [Test]
+        public void Match_Test()
+        {
+            var target = Rule(
+                Produce(() => "value").SetResultData("test"),
+                GetData<string>("test"),
+                (a, b) => $"{a}{b}"
+            );
+            target.Match("").Should().BeTrue();
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             // TODO: We want this to be better
