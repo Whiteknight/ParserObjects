@@ -6,7 +6,7 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class StringifyTests
 {
-    public class Array
+    public class ArrayFunc
     {
         [Test]
         public void Test()
@@ -18,12 +18,36 @@ public static class StringifyTests
         }
     }
 
-    public class List
+    public class ListFunc
     {
         [Test]
         public void Test()
         {
             var target = Stringify(Produce(() => new List<char> { 'a', 'b', 'c' }));
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+        }
+    }
+
+    public class ArrayExtension
+    {
+        [Test]
+        public void Test()
+        {
+            var target = Produce(() => new[] { 'a', 'b', 'c' }).Stringify();
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be("abc");
+        }
+    }
+
+    public class ListExtension
+    {
+        [Test]
+        public void Test()
+        {
+            var target = Produce(() => new List<char> { 'a', 'b', 'c' }).Stringify();
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");
