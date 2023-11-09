@@ -13,11 +13,15 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `C.Identifier()` Match a C-style identifier and return it as a `string.
 * `C.IntegerString()` Match a C-style integer literal and return a `string`.
 * `C.Integer()` Match a C-style integer and return an `int`.
+* `C.LongIntegerString()` Match a C-style long integer literal and return a `string`.
+* `C.LongInteger()` Match a C-style long integer and return a `long`.
 * `C.String()` Match a C-style string literal.
 * `C.StrippedCharacter()` Match and decode a C-style char literal.
 * `C.StrippedString()` Match and decode a C-style string literal.
 * `C.UnsignedIntegerString()` Match a C-style unsigned integer and return a `string`.
-* `C.UnsignedInteger()` Match a C-style unsigned integer literal and return an `int`.
+* `C.UnsignedInteger()` Match a C-style unsigned integer literal and return an `uint`.
+* `C.UnsignedLongIntegerString()` Match a C-style unsigned long integer and return a `string`.
+* `C.UnsignedLongInteger()` Match a C-style unsigned long integer literal and return an `ulong`.
 * `Cache()` Cache the result of a parser at the given input location and return it immediately if the same parser is invoked at the same position again.
 * `CamelCase()` Match a series of characters in UpperCamelCaseFormat or lowerCamelCaseFormat.
 * `Capture()` Matches several parsers in series and returns a list of all matched input items.
@@ -135,4 +139,4 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `WhitespaceCharacter()` Match a single character of whitespace.
 * `WithDataContext()` Same as `DataContext()`.
 * `Word()` Match a series of `Letter` characters and returns the result as a `string`.
-* 
+

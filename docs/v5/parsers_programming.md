@@ -18,23 +18,40 @@ A C-style comment starts with `/*` and ends with `*/` and can go across multiple
 var parser = Comment();
 ```
 
-### Numbers
+### Hexadecimal Numbers
 
-A C-style hexadecimal string starts with the prefix `0x` and is followed by one more more hexadecimal digits. The `HexadecimalString` parser returns the matched string, while the `HexadecimalInteger` parser parses the string and returns an `int`.
+A C-style hexadecimal string has an optional negative sign `-`, starts with the prefix `0x` and is followed by 1 to 8 hexadecimal digits. The `HexadecimalString` parser returns the matched string, while the `HexadecimalInteger` parser parses the string and returns an `int`.
 
 ```csharp
 var parser = HexadecimalString();
 var parser = HexadecimalInteger();
 ```
 
-A C-style integer may be the literal number `0`, or it may have an optional `-` for negative followed by a non-zero digit, followed by a string of zero or more digits. The `IntegerString` parser returns the literal string, while the `Integer` parser returns the parsed `int`.
+Values can be in the range `-0x80000000` to `0x7FFFFFFF` inclusive. Without the negative sign, the range is `0x80000000` to `0x7FFFFFFF`. The hex values are parsed as an unsigned integer, then cast to an `int`, then the negative sign is applied, if any.
+
+### Integer Literals
+
+A C-style integer literal may take several different forms: a hexadecimal literal, an octal literal or a decimal literal. These values may be in the range `[int.MinValue, int.MaxValue]`. If there are additional digits beyond these limits, the parser will return successfully and the remaining digits will be left in the input sequence to be consumed by the next subsequent parse operation. 
 
 ```csharp
+// Between int.MinValue and int.MaxValue, inclusive
 var parser = IntegerString();
 var parser = Integer();
+
+// Between long.MinValue and long.MaxValue, inclusive
+var parser = LongIntegerString();
+var parser = LongInteger();
 ```
 
-A C-style floating point number has a whole and fractional part separated by a `.`. The `DoubleString` parser returns the literal string, while the `Double` parser returns the parsed `double`. (These parsers do not currently recognize the `f` suffix to denote a `Float` literal).
+The `Integer` and `LongInteger` parsers recognize the following formats:
+
+* Hexadecimal literals, like the `HexadecimalInteger()` parser described above. Values must start with `0x`, contain up to 8 or 16 digits, and may be in the range `-0x80000000` to `0x7FFFFFFF` or `-0x8000000000000000` to `0x7FFFFFFFFFFFFFFF`.
+* Decimal literals. Values may be in the range `-2147483648` to `2147483647` or `-9223372036854775808` to `9223372036854775807`.
+* Octal literals starting with `0`
+
+### Floating-Point Number Literals
+
+A C-style floating point number has a whole and fractional part separated by a `.`. The `DoubleString` parser returns the literal string, while the `Double` parser returns the parsed `double`. 
 
 ```csharp
 var parser = DoubleString();

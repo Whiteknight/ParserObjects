@@ -173,12 +173,12 @@ public static class RegexPatternGrammar
         return (low, high);
     }
 
-    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, int> digits)
+    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, uint> digits)
     {
         if (states.Last() is EndAnchorState)
             throw new RegexException("Cannot quantify the end anchor $");
 
-        int min = 0;
+        uint min = 0;
         var first = ctx.TryParse(digits);
         if (first.Success)
             min = first.Value;

@@ -5,6 +5,7 @@ namespace ParserObjects.Tests.Parsers.C;
 public class IntegerStringTests
 {
     [TestCase("0")]
+    [TestCase("-0")]
     [TestCase("1")]
     [TestCase("2")]
     [TestCase("3")]
@@ -29,7 +30,6 @@ public class IntegerStringTests
     [TestCase("a")]
     [TestCase("-")]
     [TestCase("X")]
-    [TestCase("-0")]
     public void Parse_Fail(string test)
     {
         var parser = IntegerString();

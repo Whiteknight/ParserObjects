@@ -93,6 +93,7 @@ public static class Sequential
             {
                 // This exception is part of normal flow-control for this parser
                 // Other exceptions bubble up like normal.
+                startCheckpoint.Rewind();
                 return false;
             }
             catch

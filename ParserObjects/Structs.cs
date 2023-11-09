@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ParserObjects;
 
@@ -154,6 +155,7 @@ public readonly struct SequentialState<TInput>
     /// </summary>
     /// <param name="error"></param>
     /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    [DoesNotReturn]
     public void Fail(string error = "Fail") => throw new Internal.Parsers.Sequential.ParseFailedException(error);
 
     /// <summary>

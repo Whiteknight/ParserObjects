@@ -161,7 +161,7 @@ public class PrattTests
     public void Prefix_Negation()
     {
         var target = Pratt<int>(c => c
-            .Add(UnsignedInteger())
+            .Add(UnsignedInteger().Transform(u => (int)u))
             .Add(Match('-'), p => p
                 .Bind(1, (ctx, op) => -ctx.Parse())
             )
@@ -176,7 +176,7 @@ public class PrattTests
     public void Postfix_Factorial()
     {
         var target = Pratt<int>(c => c
-            .Add(UnsignedInteger())
+            .Add(UnsignedInteger().Transform(u => (int)u))
             .Add(Match('!'), p => p
                 .BindLeft(1, (ctx, l, op) =>
                 {
