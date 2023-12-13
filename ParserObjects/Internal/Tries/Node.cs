@@ -138,8 +138,11 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // to take a Checkpoint if there's a value on this node. .Checkpoint() is cheap but
             // never free.
             current = current[wrappedKey];
-            var cont = current.HasResult ? keys.Checkpoint() : default;
-            previous[index++] = new BacktrackNode(current, cont);
+            if (current.HasResult)
+            {
+                var cont = keys.Checkpoint();
+                previous[index++] = new BacktrackNode(current, cont);
+            }
         }
     }
 
@@ -196,7 +199,8 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // Otherwise push the current node and the checkpoint from which we can continue
             // parsing from onto the stack, and prepare for the next loop iteration.
             current = current[wrappedKey];
-            previous[index++] = new BacktrackNode(current, cont);
+            if (current.HasResult)
+                previous[index++] = new BacktrackNode(current, cont);
         }
     }
 
