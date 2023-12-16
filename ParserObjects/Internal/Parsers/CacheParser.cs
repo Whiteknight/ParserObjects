@@ -6,7 +6,7 @@ namespace ParserObjects.Internal.Parsers;
 
 public static class Cache<TInput>
 {
-    private struct InternalParser<TParser, TResult, TCacheEntry>
+    private readonly struct InternalParser<TParser, TResult, TCacheEntry>
         where TParser : IParser
         where TResult : IResultBase
     {

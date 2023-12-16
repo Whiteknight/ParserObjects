@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Context<TInput>
 {
-    private struct InternalParser<TParser>
+    private readonly struct InternalParser<TParser>
         where TParser : IParser
     {
         private readonly Action<IParseState<TInput>>? _setup;

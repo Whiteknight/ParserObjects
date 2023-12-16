@@ -146,7 +146,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         }
     }
 
-    private record struct BacktrackNode(Node<TKey, TResult> Node, SequenceCheckpoint Checkpoint);
+    private readonly record struct BacktrackNode(Node<TKey, TResult> Node, SequenceCheckpoint Checkpoint);
 
     private static PartialResult<TResult> FindBestResult(int index, BacktrackNode[] previous, ISequence<TKey> keys, SequenceCheckpoint startCont, int startConsumed)
     {

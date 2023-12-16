@@ -98,14 +98,14 @@ public static class Function<TInput, TOutput>
         }
     }
 
-    public record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
+    public readonly record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
     {
         public ISequence<TInput> Input => State.Input;
         public DataStore Data => State.Data;
         public IResultsCache Cache => State.Cache;
     }
 
-    public record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
+    public readonly record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
 

@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Internal.Regexes;
 
-public struct MatchResult
+public readonly struct MatchResult
 {
     public MatchResult(string error, Location location)
     {

@@ -10,7 +10,7 @@ namespace ParserObjects.Internal.Visitors;
 /// </summary>
 public sealed class FindParserVisitor
 {
-    private struct State
+    private readonly struct State
     {
         public Func<IParser, bool> Predicate { get; }
         public bool JustOne { get; }

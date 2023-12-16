@@ -11,7 +11,7 @@ namespace ParserObjects.Pratt;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public struct Configuration<TInput, TOutput>
+public readonly struct Configuration<TInput, TOutput>
 {
     private readonly List<IParser> _references;
 

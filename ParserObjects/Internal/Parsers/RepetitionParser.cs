@@ -12,7 +12,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Repetition<TInput>
 {
-    private struct InternalParser<TParser, TResult, TItem>
+    private readonly struct InternalParser<TParser, TResult, TItem>
         where TParser : IParser<TInput>
         where TResult : IResult
     {

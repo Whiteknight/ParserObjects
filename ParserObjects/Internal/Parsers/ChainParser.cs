@@ -31,7 +31,7 @@ public static class Chain<TInput, TOutput>
         return new Parser<TMiddle, ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
     }
 
-    private struct InternalParser<TInnerParser, TInnerResult, TData>
+    private readonly struct InternalParser<TInnerParser, TInnerResult, TData>
         where TInnerParser : IParser<TInput>
         where TInnerResult : IResult
     {

@@ -7,7 +7,7 @@ namespace ParserObjects.Internal.Regexes;
 /// <summary>
 /// Represents a compiled regex pattern. Used by the RegexEngine to perform a match.
 /// </summary>
-public struct Regex
+public readonly struct Regex
 {
     public IReadOnlyList<IState> States { get; }
 

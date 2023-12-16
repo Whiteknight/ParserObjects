@@ -8,7 +8,7 @@ namespace ParserObjects;
 /// objects on the heap.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public struct PartialResult<TValue>
+public readonly struct PartialResult<TValue>
 {
     public PartialResult(string error)
     {

@@ -13,7 +13,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class TryParser<TInput>
 {
-    private struct ParserData<TParser, TResult>
+    private readonly struct ParserData<TParser, TResult>
         where TParser : IParser
         where TResult : IResultBase
     {

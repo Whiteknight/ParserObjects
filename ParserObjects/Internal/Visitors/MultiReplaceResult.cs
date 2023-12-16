@@ -39,7 +39,7 @@ public struct MultiReplaceResult
 
     public static MultiReplaceResult Failure() => default;
 
-    public void Deconstruct(out bool success, out IReadOnlyList<SingleReplaceResult> results)
+    public readonly void Deconstruct(out bool success, out IReadOnlyList<SingleReplaceResult> results)
     {
         success = Success;
         results = Results;

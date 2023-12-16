@@ -11,7 +11,7 @@ namespace ParserObjects.Internal.Earley;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public struct Engine<TInput, TOutput>
+public readonly struct Engine<TInput, TOutput>
 {
     private readonly INonterminal<TInput, TOutput> _startSymbol;
 

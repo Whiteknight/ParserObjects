@@ -24,7 +24,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
         _stats = default;
     }
 
-    private record struct Key(ISymbol Symbol, Location Location);
+    private readonly record struct Key(ISymbol Symbol, Location Location);
 
     public void Add<TValue>(ISymbol symbol, Location location, TValue value)
     {
