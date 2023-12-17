@@ -6,6 +6,10 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// A MatchPatternParser variant optimized to match characters against a string pattern and return
+/// results as a string.
+/// </summary>
 public sealed class MatchStringPatternParser : IParser<char, string>
 {
     public MatchStringPatternParser(string pattern, bool caseInsensitive, string name = "")
@@ -43,6 +47,9 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         return CaseInsensitive ? ParseCaseInsensitive(state, checkpoint) : ParseCaseSensitive(state, checkpoint);
     }
 
+    // TODO: Instead of a flag for CaseInsensitive we could take an IEqualityComparer<char> instance
+    // and use that to handle the comparison. We keep singleton instances of those objects so
+    // it shouldn't lead to more allocations.
     private IResult<string> ParseCaseSensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
     {
         if (Pattern.Length == 1)

@@ -5,8 +5,10 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parsers which attempt to match inner parsers, in sequence, and return an array of all items
-/// from the input sequence which have been consumed.
+/// Attempt to match a list of inner parsers, in order, but do not capture the results explicitly.
+/// Instead a callback method with start and end checkpoints for the entire completed match is
+/// used to produce a result value. In practice this is often used to get a list of all input values
+/// from the input sequence between the two checkpoints.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>

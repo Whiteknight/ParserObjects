@@ -12,6 +12,15 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Chain<TInput, TOutput>
 {
+    /* The Chain parser executes a callback to get the next parser after the initial parser has
+     * completed. In simple cases this is a user-defined callback and imposes very little structure
+     * on what is returned or how.
+     *
+     * The ParserPredicateSelector struct and the Configure() methods give us the Choose() behavior
+     * where we have a fluent interface to specify results. Internally that ParserPredicateSelector
+     * is just wrapped in a callback and passed to the Chain.Parser like normal
+     */
+
     public static IParser<TInput, TOutput> Configure(IParser<TInput> inner, Action<ParserPredicateSelector<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(inner);

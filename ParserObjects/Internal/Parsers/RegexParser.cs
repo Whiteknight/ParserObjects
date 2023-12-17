@@ -10,6 +10,10 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>
 {
+    /* Delegates to the Regex struct and the Regex.Engine struct for holding the pattern and
+     * testing pattern, respectively.
+     */
+
     public RegexParser(Regex regex, string describe, string? name = null)
     {
         Assert.ArgumentNotNull(regex);

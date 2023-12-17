@@ -6,7 +6,7 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parser infrastructure to execute a sequence of parsers without constructing an object graph.
+/// Parser infrastructure to execute a sequence of parsers procedurally.
 /// </summary>
 public static class Sequential
 {

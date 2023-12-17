@@ -13,6 +13,12 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TData"></typeparam>
 public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 {
+    /* The ReadAtEnd flag determines if we should attempt to read and match an end sentinel when
+     * the sequence is at end-of-input. This is useful in some cases where we want to have custom
+     * end parsing/handling, but many cases don't need to read the end sentinel and can bail out
+     * and end.
+     */
+
     private readonly TData _data;
     private readonly Func<T, TData, bool> _predicate;
     private readonly bool _readAtEnd;

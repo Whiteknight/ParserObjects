@@ -10,6 +10,9 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public sealed class EmptyParser<TInput> : IParser<TInput>
 {
+    /* Always returns a cached success result object no matter where or when it is invoked.
+     */
+
     private readonly IResult _result;
 
     public EmptyParser(string name = "")

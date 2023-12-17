@@ -5,8 +5,16 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Rule parses several parsers in order, failing if any parser fails. The results of each is
+/// stored in an array and passed to a generator function to create the final result value.
+/// </summary>
 public static class Rule
 {
+    /* The Create() function helps us with type inference because downstream usages of Rule can
+     * be quite messy. The Parser class implements the parser logic.
+     */
+
     public static Parser<TInput, TOutput, TData> Create<TInput, TOutput, TData>(
         IReadOnlyList<IParser<TInput>> parsers,
         TData data,

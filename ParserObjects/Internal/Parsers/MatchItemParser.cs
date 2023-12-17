@@ -4,8 +4,17 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Match a single input against a given item using the Equals() method for default equality
+/// semantics. Returns success if the items match, failure otherwise.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public sealed class MatchItemParser<T> : IParser<T, T>
 {
+    /* Since failure results are always identical, we can cache instances of them and return them
+     * instead of allocating a new one on every potential runthrough.
+     */
+
     private readonly IResult<T> _eofResult;
     private readonly IResult<T> _noMatchResult;
     private readonly bool _readAtEnd;

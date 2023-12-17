@@ -6,12 +6,16 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Executes an inner parser repeatedly, until it fails. All values are returned as a list.
-/// Expects a number of matches between minimum and maximum values, inclusive.
+/// Executes an inner parser repeatedly with optional separators, until it fails. All values are
+/// returned as a list. Expects a number of matches between minimum and maximum values, inclusive.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 public static class Repetition<TInput>
 {
+    /* The InternalParser struct implements the core parsing logic. The various Parser classes
+     * are just adaptors between InternalParser and IParser variants.
+     */
+
     private readonly struct InternalParser<TParser, TResult, TItem>
         where TParser : IParser<TInput>
         where TResult : IResult

@@ -21,6 +21,13 @@ public sealed record PrattParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
+    /* The Pratt implementation is located in Internals/Pratt/* and most of the core parsing logic
+     * is in the Engine class. This Parser type wraps an Engine instance and delegates most of the
+     * work to that. The Pratt.ParseException exception type is used for non-local control flow
+     * within the Pratt parser, and one of the conditions of it is handled here. ParseException
+     * should not be allowed to escape beyond this class.
+     */
+
     public static PrattParser<TInput, TOutput> Configure(Action<Configuration<TInput, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(setup);
@@ -56,6 +63,8 @@ public sealed record PrattParser<TInput, TOutput>(
 
     IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
+    // Because of the implementation of the Pratt engine, there's no (obvious) way to match it
+    // without just doing a full parse and allocating results.
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
     public IEnumerable<IParser> GetChildren() => Parselets.Select(static p => p.Parser).Concat(References);

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
-// Replaceable parsers should be the only parser types which have mutable data.
+// NOTE: Replaceable parsers should be the only parser types which have mutable data.
 // Keep it localized to just one place.
 
 namespace ParserObjects.Internal.Parsers;

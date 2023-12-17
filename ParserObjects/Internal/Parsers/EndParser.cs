@@ -11,6 +11,11 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public sealed class EndParser<TInput> : IParser<TInput>
 {
+    /* We do not cache the error result because the error message (currently) contains the item
+     * which was found in the input sequence. End-checking happens relatively rarely in most
+     * parsers so we (probably) don't need to optimize that case any further.
+     */
+
     private readonly IResult _success;
 
     public EndParser(string name = "")

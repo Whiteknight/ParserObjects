@@ -11,6 +11,11 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    /* Returns a pre-created, cached error result in all situations
+     * Multi-parser cannot cache the result object because of differences in IMultiResult requirements
+     * so we just have to create those new each time
+     */
+
     private readonly IResult<TOutput> _result;
 
     public FailParser(string errorMessage = "Fail", string name = "")

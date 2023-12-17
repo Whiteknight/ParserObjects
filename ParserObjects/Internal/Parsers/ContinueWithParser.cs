@@ -12,6 +12,11 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class ContinueWith<TInput, TMiddle, TOutput>
 {
+    /* We have two implementations the first is ContinueWith multi->single and the other is
+     * ContinueWith multi->multi. The former acts like a LINQ.Select() and the later acts like a
+     * LINQ.SelectMany(). They are conceptually similar but very different in implementation.
+     */
+
     public sealed class SingleParser : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TMiddle> _inner;

@@ -28,11 +28,13 @@ Several of the [Fundamental Parser Types](parsers_core.md) have variants which w
 
 ### Each
 
-The `Each` parser takes a list of `IParser<TInput, TOutput>` and attempts each from the current position. The results from each parser are returned as alternatives of a single multi-result.
+The `Each` parser takes a list of `IParser<TInput, TOutput>` and attempts each from the current position. The results from each parser are returned as alternatives of a single multi-result. This is useful in cases where we may want to explore multiple possibilities and select the "best" one once each path has been attempted. 
 
 ```csharp
 var parser = Each(p1, p2, p3...);
 ```
+
+The `Each()` parser is similar in concept and implementation to the `First()` parser, though `First()` returns only the first successful result while `Each()` returns all possible results and allows selecting of a single continuation based on user-defined criteria.
 
 ### Earley
 

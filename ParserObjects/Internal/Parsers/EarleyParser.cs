@@ -14,6 +14,10 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Earley<TInput, TOutput>
 {
+    /* The Setup() method helps us to create an Earley Grammar object. The Parser class passes
+     * that grammar object to an Earley.Engine instance which does most of the hard work.
+     */
+
     public static IMultiParser<TInput, TOutput> Setup(Func<EarleySymbolFactory<TInput, TOutput>, INonterminal<TInput, TOutput>> setup)
     {
         var factory = new EarleySymbolFactory<TInput, TOutput>(new Dictionary<string, ISymbol>());

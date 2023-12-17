@@ -4,8 +4,17 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Cache the results of the inner parser for the current location. Every time this same parser is
+/// attempted at the same location, the existing cached result will be returned immediately.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
 public static class Cache<TInput>
 {
+    /* InternalParser is the shared implementation of Parse() and Match() methods. The various
+     * Parser classes adapt this struct to the IParser interface variants.
+     */
+
     private readonly struct InternalParser<TParser, TResult, TCacheEntry>
         where TParser : IParser
         where TResult : IResultBase
