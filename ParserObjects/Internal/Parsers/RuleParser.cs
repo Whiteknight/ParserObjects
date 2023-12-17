@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
@@ -9,10 +10,11 @@ public static class Rule
     public static Parser<TInput, TOutput, TData> Create<TInput, TOutput, TData>(
         IReadOnlyList<IParser<TInput>> parsers,
         TData data,
-        Func<TData, IReadOnlyList<object>, TOutput> produce
+        Func<TData, IReadOnlyList<object>, TOutput> produce,
+        bool keepsArrayReference
     )
     {
-        return new Parser<TInput, TOutput, TData>(parsers, data, produce);
+        return new Parser<TInput, TOutput, TData>(parsers, data, produce, keepsArrayReference);
     }
 
     /// <summary>
@@ -25,11 +27,13 @@ public static class Rule
     /// <param name="Parsers"></param>
     /// <param name="Data"></param>
     /// <param name="Produce"></param>
+    /// <param name="KeepsArrayReference"></param>
     /// <param name="Name"></param>
     public sealed record Parser<TInput, TOutput, TData>(
         IReadOnlyList<IParser<TInput>> Parsers,
         TData Data,
         Func<TData, IReadOnlyList<object>, TOutput> Produce,
+        bool KeepsArrayReference,
         string Name = ""
 
     ) : IParser<TInput, TOutput>
@@ -39,28 +43,11 @@ public static class Rule
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
-
-            var startCheckpoint = state.Input.Checkpoint();
-
-            var outputs = new object[Parsers.Count];
-            for (int i = 0; i < Parsers.Count; i++)
-            {
-                var result = Parsers[i].Parse(state);
-                if (result.Success)
-                {
-                    outputs[i] = result.Value;
-                    continue;
-                }
-
-                startCheckpoint.Rewind();
-                var name = Parsers[i].Name;
-                if (string.IsNullOrEmpty(name))
-                    name = "(Unnamed)";
-                return state.Fail(this, $"Parser {i} {name} failed");
-            }
-
-            var consumed = state.Input.Consumed - startCheckpoint.Consumed;
-            return state.Success(this, Produce(Data, outputs), consumed);
+            var outputs = KeepsArrayReference ? new object[Parsers.Count] : ArrayPool<object>.Shared.Rent(Parsers.Count);
+            var result = Parse(state, outputs);
+            if (!KeepsArrayReference)
+                ArrayPool<object>.Shared.Return(outputs);
+            return result;
         }
 
         IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
@@ -99,6 +86,30 @@ public static class Rule
             where TVisitor : IVisitor<TState>
         {
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
+
+        private IResult<TOutput> Parse(IParseState<TInput> state, object[] outputs)
+        {
+            var startCheckpoint = state.Input.Checkpoint();
+            for (int i = 0; i < Parsers.Count; i++)
+            {
+                var result = Parsers[i].Parse(state);
+                if (result.Success)
+                {
+                    outputs[i] = result.Value;
+                    continue;
+                }
+
+                startCheckpoint.Rewind();
+                var name = Parsers[i].Name;
+                if (string.IsNullOrEmpty(name))
+                    name = "(Unnamed)";
+                return state.Fail(this, $"Parser {i} {name} failed");
+            }
+
+            var consumed = state.Input.Consumed - startCheckpoint.Consumed;
+            var resultValue = Produce(Data, outputs);
+            return state.Success(this, resultValue, consumed);
         }
     }
 }

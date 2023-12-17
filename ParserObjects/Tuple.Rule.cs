@@ -23,7 +23,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1])
+            static (p, list) => p((T1)list[0], (T2)list[1]),
+            false
         );
     }
 
@@ -47,7 +48,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2]),
+            false
         );
     }
 
@@ -72,7 +74,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3]),
+            false
         );
     }
 
@@ -97,7 +100,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4]),
+            false
         );
     }
 
@@ -124,7 +128,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5]),
+            false
         );
     }
 
@@ -152,7 +157,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6]),
+            false
         );
     }
 
@@ -181,7 +187,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7]),
+            false
         );
     }
 
@@ -211,7 +218,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8])
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]),
+            false
         );
     }
 }

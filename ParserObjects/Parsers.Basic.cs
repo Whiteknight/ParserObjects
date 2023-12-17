@@ -125,7 +125,8 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -142,7 +143,8 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 

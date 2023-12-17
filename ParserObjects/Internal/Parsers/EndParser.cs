@@ -28,7 +28,7 @@ public sealed class EndParser<TInput> : IParser<TInput>
         Assert.ArgumentNotNull(state);
         return state.Input.IsAtEnd
             ? _success
-            : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!.ToString());
+            : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!);
     }
 
     public bool Match(IParseState<TInput> state) => state.Input.IsAtEnd;

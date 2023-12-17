@@ -16,7 +16,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -31,7 +32,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -46,7 +48,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -61,7 +64,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -76,7 +80,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -91,7 +96,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -106,7 +112,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 
@@ -121,7 +128,8 @@ public static partial class TupleExtensions
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
         );
     }
 }
