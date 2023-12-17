@@ -44,9 +44,9 @@ public struct BacktrackState
         return (beforeMatch, captureIndex);
     }
 
-    public bool HasConsumptions => _consumptions.Count > 0;
+    public readonly bool HasConsumptions => _consumptions.Count > 0;
 
-    public void AddConsumption(SequenceCheckpoint beforeMatch, int captureIndex)
+    public readonly void AddConsumption(SequenceCheckpoint beforeMatch, int captureIndex)
     {
         _consumptions.Push((beforeMatch, captureIndex));
     }

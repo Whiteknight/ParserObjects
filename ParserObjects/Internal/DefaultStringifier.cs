@@ -35,7 +35,7 @@ public static class DefaultStringifier
         if (objType.DeclaringType != null)
             return $"<{objType.DeclaringType.Name}.{objType.Name}>";
 
-        return $"<objType.Name>";
+        return $"<{objType.Name}>";
     }
 
     public static string ToString(string type, string name, int id)

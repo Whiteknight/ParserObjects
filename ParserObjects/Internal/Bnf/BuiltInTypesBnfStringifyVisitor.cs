@@ -17,12 +17,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     // (?= ) is "positive lookahead" syntax. We use it to show something doesn't consume input
     // (?! ) is "negative lookahead" syntax. We use it for non-follows situations
 
-    public void Accept<TInput>(AndParser<TInput> p, BnfStringifyState state)
-    {
-        var children = p.GetChildren().ToArray();
-        state.Append(children[0], " && ", children[1]);
-    }
-
     public void Accept<TInput>(AnyParser<TInput> _, BnfStringifyState state)
     {
         state.Append('.');
@@ -46,11 +40,9 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(CaptureParser<TInput, TOutput> p, BnfStringifyState state)
     {
         var children = p.GetChildren().ToArray();
-        state.Append("(", children[0]);
+        state.Append(children[0]);
         foreach (var child in children.Skip(1))
-            state.Append(" ", child);
-
-        state.Append(')');
+            state.Append(" && ", child);
     }
 
     private static void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyState state)

@@ -34,6 +34,14 @@ public class CaptureTests
     {
         var target = Capture(Any()).Named("SUT");
         var result = target.ToBnf();
-        result.Should().Contain("SUT := (.)");
+        result.Should().Contain("SUT := .");
+    }
+
+    [Test]
+    public void ToBnf_2_Test()
+    {
+        var target = Capture(Any(), Any()).Named("SUT");
+        var result = target.ToBnf();
+        result.Should().Contain("SUT := . && .");
     }
 }
