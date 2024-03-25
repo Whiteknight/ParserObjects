@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
+/* This file contains a few random structs which are necessary for public parser interfaces but
+ * otherwise might prefer to be implemented in Internal/ closer to the parsers where they are used.
+ * This creates an issue with low cohesion, which is not desireable.
+ */
+
 namespace ParserObjects;
 
 /// <summary>

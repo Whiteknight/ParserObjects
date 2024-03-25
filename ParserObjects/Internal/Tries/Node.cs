@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ParserObjects.Internal.Tries;
 
-public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResult>>
+public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, (Node<TKey, TResult>? Node, bool HasValue, TResult? Value)>
 {
     /* I generally don't like concrete inheritance, but in this case it's an optimization to
      * make the RootNode and Node be IS-A Dictionary. If we made it a struct there would be the same
@@ -35,25 +35,17 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, Node<TKey, TResu
         Assert.ArgumentNotNull(key);
         var wrappedKey = new ValueTuple<TKey>(key);
         if (ContainsKey(wrappedKey))
-            return this[wrappedKey];
-        var newNode = new Node<TKey, TResult>(Comparer);
-        Add(wrappedKey, newNode);
-        return newNode;
-    }
-
-    public bool TryAddResult(TResult result)
-    {
-        if (!HasResult || Result == null)
         {
-            HasResult = true;
-            Result = result;
-            return true;
+            if (this[wrappedKey].Node != null)
+                return this[wrappedKey].Node!;
+            var node = new Node<TKey, TResult>(Comparer);
+            this[wrappedKey] = (node, this[wrappedKey].HasValue, this[wrappedKey].Value);
+            return node;
         }
 
-        if (Result.Equals(result))
-            return false;
-
-        throw new TrieInsertException("The result value has already been set for this input sequence");
+        var newNode = new Node<TKey, TResult>(Comparer);
+        Add(wrappedKey, (newNode, false, default));
+        return newNode;
     }
 }
 
@@ -114,7 +106,6 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         var index = 0;
         var startCont = keys.Checkpoint();
         var startConsumed = keys.Consumed;
-        previous[index++] = new BacktrackNode(current, startCont);
 
         while (true)
         {
@@ -137,27 +128,33 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // parsing from onto the stack, and prepare for the next loop iteration. We only need
             // to take a Checkpoint if there's a value on this node. .Checkpoint() is cheap but
             // never free.
-            current = current[wrappedKey];
-            if (current.HasResult)
+
+            var (node, hasValue, value) = current[wrappedKey];
+            if (hasValue)
             {
                 var cont = keys.Checkpoint();
-                previous[index++] = new BacktrackNode(current, cont);
+                previous[index++] = new BacktrackNode(true, value!, cont);
             }
+
+            if (node == null)
+                return FindBestResult(index, previous, keys, startCont, startConsumed);
+
+            current = node!;
         }
     }
 
-    private readonly record struct BacktrackNode(Node<TKey, TResult> Node, SequenceCheckpoint Checkpoint);
+    private readonly record struct BacktrackNode(bool HasValue, TResult Value, SequenceCheckpoint Checkpoint);
 
     private static PartialResult<TResult> FindBestResult(int index, BacktrackNode[] previous, ISequence<TKey> keys, SequenceCheckpoint startCont, int startConsumed)
     {
         while (index > 0)
         {
-            var (node, cont) = previous[--index];
-            if (node.HasResult)
+            var (hasValue, value, cont) = previous[--index];
+            if (hasValue)
             {
                 cont.Rewind();
                 ArrayPool<BacktrackNode>.Shared.Return(previous);
-                return new PartialResult<TResult>(node.Result!, keys.Consumed - startConsumed);
+                return new PartialResult<TResult>(value, keys.Consumed - startConsumed);
             }
         }
 
@@ -176,7 +173,6 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         var previous = ArrayPool<BacktrackNode>.Shared.Rent(MaxDepth);
         var index = 0;
         var startCont = keys.Checkpoint();
-        previous[index++] = new BacktrackNode(current, startCont);
 
         while (true)
         {
@@ -189,18 +185,21 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
             // null.
             var key = keys.GetNext();
-            var cont = keys.Checkpoint();
             var wrappedKey = new ValueTuple<TKey>(key);
-
-            // If there's no matching child, find the best value
             if (!current.ContainsKey(wrappedKey))
                 return FindBestResult(index, previous, keys, startCont, 0).Success;
 
-            // Otherwise push the current node and the checkpoint from which we can continue
-            // parsing from onto the stack, and prepare for the next loop iteration.
-            current = current[wrappedKey];
-            if (current.HasResult)
-                previous[index++] = new BacktrackNode(current, cont);
+            var (node, hasValue, value) = current[wrappedKey];
+            if (hasValue)
+            {
+                var cont = keys.Checkpoint();
+                previous[index++] = new BacktrackNode(hasValue, value!, cont);
+            }
+
+            if (node == null)
+                return FindBestResult(index, previous, keys, startCont, 0).Success;
+
+            current = node!;
         }
     }
 
@@ -219,18 +218,24 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // Get the next key. Wrap it in a ValueTuple to convince the compiler it's not
             // null.
             var key = keys.GetNext();
-            var cont = keys.Checkpoint();
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child in this node, return the results we have
             if (!current.ContainsKey(wrappedKey))
                 return results;
 
-            // Otherwise push the current node and the checkpoint from which we can continue
-            // parsing from onto the stack, and prepare for the next loop iteration.
-            current = current[wrappedKey];
-            if (current.HasResult && current.Result != null)
-                results.Add(new SuccessResultAlternative<TResult>(current.Result, cont.Consumed, cont));
+            var (node, hasValue, value) = current[wrappedKey];
+
+            if (hasValue)
+            {
+                var cont = keys.Checkpoint();
+                results.Add(new SuccessResultAlternative<TResult>(value!, cont.Consumed, cont));
+            }
+
+            if (node == null)
+                return results;
+
+            current = node!;
         }
     }
 
@@ -240,16 +245,28 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             throw new TrieInsertException("Cannot insert new items into a Trie which has been locked");
 
         Node<TKey, TResult> current = this;
-        foreach (var key in keyList)
-            current = current.GetOrAddChild(key);
+        for (int i = 0; i < keyList.Count - 1; i++)
+            current = current.GetOrAddChild(keyList[i]);
 
-        if (current.TryAddResult(value))
+        var finalKey = keyList[^1];
+        var wrappedKey = new ValueTuple<TKey>(finalKey);
+        if (current.ContainsKey(wrappedKey))
         {
+            if (current[wrappedKey].HasValue)
+            {
+                if (current[wrappedKey].Value!.Equals(value))
+                    return false;
+                throw new TrieInsertException("The result value has already been set for this input sequence");
+            }
+
+            current[wrappedKey] = (current[wrappedKey].Node, true, value);
             SetPatternDepth(keyList.Count);
             return true;
         }
 
-        return false;
+        current.Add(wrappedKey, (null, true, value));
+        SetPatternDepth(keyList.Count);
+        return true;
     }
 
     // Node and RootNode IS-A Dictionary, and Dictionary has annotations to prevent nullable types
