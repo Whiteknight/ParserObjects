@@ -39,11 +39,9 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="selector"></param>
     /// <returns></returns>
     public Option<TResult> Select<TResult>(Func<T, TResult> selector)
-    {
-        if (!Success)
-            return default;
-        return new Option<TResult>(true, selector(Value!));
-    }
+        => !Success
+            ? default
+            : new Option<TResult>(true, selector(Value!));
 
     /// <summary>
     /// Return a new Option object whose value (if it exists) is tranformed.
@@ -52,16 +50,10 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="selector"></param>
     /// <returns></returns>
     public Option<TResult> SelectMany<TResult>(Func<T, Option<TResult>> selector)
-    {
-        if (!Success)
-            return default;
-        return selector(Value!);
-    }
+        => !Success
+            ? default
+            : selector(Value!);
 
     public override int GetHashCode()
-    {
-        if (!Success)
-            return 0;
-        return Value!.GetHashCode();
-    }
+        => Success ? Value!.GetHashCode() : 0;
 }

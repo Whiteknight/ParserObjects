@@ -213,9 +213,7 @@ public static class Sequences
     /// <param name="options"></param>
     /// <returns></returns>
     public static ICharSequence FromString(string s, SequenceOptions<char> options = default)
-    {
-        if (options.NormalizeLineEndings)
-            return new CharBufferSequence.FromCharArray(s, options);
-        return new CharBufferSequence.FromNonnormalizedString(s, options);
-    }
+        => options.NormalizeLineEndings
+            ? new CharBufferSequence.FromCharArray(s, options)
+            : new CharBufferSequence.FromNonnormalizedString(s, options);
 }

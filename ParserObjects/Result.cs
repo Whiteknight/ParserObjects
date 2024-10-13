@@ -77,11 +77,7 @@ public readonly record struct Result<TValue>(
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
     public Result<TValue> AdjustConsumed(int consumed)
-    {
-        if (Consumed == consumed)
-            return this;
-        return this with { Consumed = consumed };
-    }
+        => this with { Consumed = consumed };
 
     public Result<T> Select<T>(Func<TValue, T> selector)
         => Success
