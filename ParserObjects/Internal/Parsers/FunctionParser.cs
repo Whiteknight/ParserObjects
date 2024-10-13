@@ -17,6 +17,17 @@ public static class Function<TInput, TOutput>
 
     public delegate bool MatchFunc<TData>(IParseState<TInput> state, TData data);
 
+    public static IParser<TInput, TOutput> Create<TData>(
+        TData data,
+        ParseFunc<TData> parseFunction,
+        MatchFunc<TData>? matchFunction,
+        string description,
+        IReadOnlyList<IParser>? children,
+        string name = "")
+    {
+        return new Parser<TData>(data, parseFunction, matchFunction, description, children, name);
+    }
+
     public sealed class Parser<TData> : IParser<TInput, TOutput>
     {
         private readonly TData _data;
@@ -54,9 +65,6 @@ public static class Function<TInput, TOutput>
 
             var args = new ResultFactory<TInput, TOutput>(this, state, startCheckpoint);
             var result = _parseFunction(state, _data, args);
-            if (result == default)
-                return state.Fail(this, "No result returned");
-
             if (!result.Success)
             {
                 startCheckpoint.Rewind();
@@ -75,7 +83,6 @@ public static class Function<TInput, TOutput>
             var startCheckpoint = state.Input.Checkpoint();
 
             var result = _matchFunction(state, _data);
-
             if (!result)
             {
                 startCheckpoint.Rewind();
