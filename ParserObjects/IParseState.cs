@@ -7,7 +7,7 @@ namespace ParserObjects;
 /// State information about parse, including the input sequence, logging and contextual data.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public interface IParseState<out TInput>
+public interface IParseState<TInput>
 {
     /// <summary>
     /// Gets a contextual data store which parsers may access during the parse.

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers;
+using System.ComponentModel.DataAnnotations;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -73,33 +75,38 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
-    public Result<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<Result<TOutput>, TData, TResult> map)
     {
         if (start.CompareTo(end) >= 0)
-            return Array.Empty<Result<TOutput>>();
+            return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
 
         var currentPosition = _input.Checkpoint();
         start.Rewind();
-        var buffer = new Result<TOutput>[end.Consumed - start.Consumed];
+        var size = end.Consumed - start.Consumed;
+
+        var buffer = ArrayPool<Result<TOutput>>.Shared.Rent(size);
+
         int i = 0;
         while (_input.Consumed < end.Consumed && i < buffer.Length)
         {
-            var result = _parser.Parse(_state);
+            var item = _parser.Parse(_state);
             _stats.ItemsRead++;
-            if (!result.Success)
+            if (!item.Success)
             {
                 currentPosition.Rewind();
-                return Array.Empty<Result<TOutput>>();
+                return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
             }
 
-            if (result.Consumed == 0)
-                return Array.Empty<Result<TOutput>>();
+            if (item.Consumed == 0)
+                return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
 
-            buffer[i++] = result;
+            buffer[i++] = item;
         }
 
         currentPosition.Rewind();
-        return buffer;
+        var result = map(buffer.AsSpan(0, size), data);
+        ArrayPool<Result<TOutput>>.Shared.Return(buffer);
+        return result;
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => _input.Owns(checkpoint);

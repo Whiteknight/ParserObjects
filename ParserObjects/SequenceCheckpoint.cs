@@ -17,10 +17,7 @@ public readonly record struct SequenceCheckpoint(
     /// <summary>
     /// Return the sequence to the state it was when the checkpoint was taken.
     /// </summary>
-    public void Rewind()
-    {
-        Sequence.Rewind(this);
-    }
+    public void Rewind() => Sequence.Rewind(this);
 
     /// <summary>
     /// Compares to another checkpoint to see which one comes later. If the two checkpoints are

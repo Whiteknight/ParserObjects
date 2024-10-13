@@ -50,10 +50,16 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public SequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
-    public TOutput[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<TOutput, TData, TResult> map)
     {
-        var values = _inputs.GetBetween(start, end);
-        return values.Select(_map).ToArray();
+        return _inputs.GetBetween(start, end, (data, _map, map), static (b, d) =>
+        {
+            var (data, itemMap, resultMap) = d;
+            var mappedItems = new TOutput[b.Length];
+            for (int i = 0; i < b.Length; i++)
+                mappedItems[i] = itemMap(b[i]);
+            return resultMap(mappedItems.AsSpan(), data);
+        });
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);

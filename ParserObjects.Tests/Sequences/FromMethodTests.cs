@@ -99,7 +99,7 @@ public static class FromMethodTests
             target.GetNext().Should().Be(5);
             target.GetNext().Should().Be(6);
 
-            var result = target.GetBetween(cp1, cp2);
+            var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result.Should().ContainInOrder(3, 4);
         }
@@ -282,7 +282,7 @@ public static class FromMethodTests
             target.GetNext().Should().Be('e');
             target.GetNext().Should().Be('f');
 
-            var result = target.GetBetween(cp1, cp2);
+            var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result.Should().ContainInOrder('c', 'd');
         }
@@ -312,7 +312,7 @@ public static class FromMethodTests
             var cp2 = target.Checkpoint();
             target.GetNext().Should().Be('f');
 
-            var result = target.GetBetween(cp1, cp2);
+            var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(4);
             result.Should().ContainInOrder('b', 'c', 'd', 'e');
         }

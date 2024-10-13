@@ -69,10 +69,22 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public SequenceStatistics GetStatistics() => _inputs.GetStatistics();
 
-    public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
     {
-        var result = _inputs.GetBetween(start, end);
-        return result.Where(_predicate).ToArray();
+        return _inputs.GetBetween(start, end, (data, _predicate, map), static (b, d) =>
+        {
+            var (data, predicate, map) = d;
+            var buffer = new T[b.Length];
+            int j = 0;
+            for (int i = 0; i < b.Length; i++)
+            {
+                var c = b[i];
+                if (predicate(c))
+                    buffer[j++] = c;
+            }
+
+            return map(buffer.AsSpan(0, j), data);
+        });
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);

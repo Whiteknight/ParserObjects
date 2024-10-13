@@ -4,7 +4,7 @@
 /// A parser which may return multiple possible results.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public interface IMultiParser<in TInput> : IParser
+public interface IMultiParser<TInput> : IParser
 {
     /// <summary>
     /// Parse the input sequence and return an IMultResult. The parse method may leave the
@@ -21,7 +21,7 @@ public interface IMultiParser<in TInput> : IParser
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IMultiParser<in TInput, TOutput> : IMultiParser<TInput>, ISymbol<TOutput>
+public interface IMultiParser<TInput, TOutput> : IMultiParser<TInput>, ISymbol<TOutput>
 {
     /// <summary>
     /// Parse an input sequence and return an IMultResult. The parse method may leave the
