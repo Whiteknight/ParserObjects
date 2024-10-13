@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -9,34 +7,25 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>
+public sealed class LeftValue<TInput, TOutput> : SimpleParser<TInput, TOutput>
 {
     public LeftValue(string name)
+        : base(name)
     {
-        Name = name;
     }
 
     public TOutput? Value { get; set; }
 
-    public int Id { get; } = UniqueIntegerGenerator.GetNext();
+    public override Result<TOutput> Parse(IParseState<TInput> state) => Result<TOutput>.Ok(this, Value!, 0);
 
-    public string Name { get; }
+    public override bool Match(IParseState<TInput> state) => true;
 
-    public Result<TOutput> Parse(IParseState<TInput> state) => Result<TOutput>.Ok(this, Value!, 0);
+    public override INamed SetName(string name) => throw new InvalidOperationException("Cannot rename inner value parser");
 
-    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Result<object>.Ok(this, Value!, 0);
-
-    public bool Match(IParseState<TInput> state) => true;
-
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-    public override string ToString() => DefaultStringifier.ToString(this);
-
-    public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename inner value parser");
-
-    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-        where TVisitor : IVisitor<TState>
+    public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
     {
         // At the moment LeftValue does not participate in visiting operations.
     }
+
+    public override string ToString() => DefaultStringifier.ToString(this);
 }
