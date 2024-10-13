@@ -45,7 +45,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
     public int Minimum { get; }
     public int? Maximum { get; }
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var startCp = state.Input.Checkpoint();
         var items = new List<TItem>();
@@ -70,13 +70,13 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         int count = 1;
 
         (var earlyResult, count) = ParseUntilMinimum(state, count, startCp, items);
-        if (earlyResult != null)
+        if (earlyResult != default)
             return earlyResult;
 
         return ParseUntilComplete(state, count, startCp, items);
     }
 
-    private (IResult<TOutput>? result, int count) ParseUntilMinimum(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
+    private (Result<TOutput> result, int count) ParseUntilMinimum(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
     {
         // First make sure we account for Minimum items. We don't even need to attempt the
         // Right parser at this time.
@@ -103,10 +103,10 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             count++;
         }
 
-        return (null, count);
+        return (default, count);
     }
 
-    private IResult<TOutput> ParseUntilComplete(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
+    private Result<TOutput> ParseUntilComplete(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
     {
         while (true)
         {
@@ -152,7 +152,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         }
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state)
     {

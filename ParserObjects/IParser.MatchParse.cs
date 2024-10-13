@@ -85,7 +85,7 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Parse<TOutput>(
+    public static Result<TOutput> Parse<TOutput>(
         this IParser<char, TOutput> parser,
         string s,
         SequenceOptions<char> options = default,
@@ -107,7 +107,7 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult Parse(
+    public static Result<object> Parse(
         this IParser<char> parser,
         string s,
         SequenceOptions<char> options = default,
@@ -129,7 +129,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Parse<TInput, TOutput>(
+    public static Result<TOutput> Parse<TInput, TOutput>(
         this IParser<TInput, TOutput> parser,
         ISequence<TInput> input,
         Action<string>? log = null
@@ -147,7 +147,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultiResult<TOutput> Parse<TInput, TOutput>(
+    public static IMultResult<TOutput> Parse<TInput, TOutput>(
         this IMultiParser<TInput, TOutput> parser,
         ISequence<TInput> input,
         Action<string>? log = null
@@ -164,7 +164,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IResult Parse<TInput>(
+    public static Result<object> Parse<TInput>(
         this IParser<TInput> parser,
         ISequence<TInput> input,
         Action<string>? log = null
@@ -181,7 +181,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultiResult Parse<TInput>(
+    public static IMultResult Parse<TInput>(
         this IMultiParser<TInput> parser,
         ISequence<TInput> input,
         Action<string>? log = null

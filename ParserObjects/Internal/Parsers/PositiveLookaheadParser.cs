@@ -15,19 +15,19 @@ public sealed record PositiveLookaheadParser<TInput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult Parse(IParseState<TInput> state)
+    public Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         var result = Inner.Parse(state);
         if (!result.Success)
-            return state.Fail(Inner, result.ErrorMessage);
+            return result;
 
         startCheckpoint.Rewind();
-        return state.Success(Inner, result.Value, 0);
+        return result.AdjustConsumed(0);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state)
     {

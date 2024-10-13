@@ -59,7 +59,7 @@ public static class ParseStateExtensions
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Fail<TInput, TOutput>(
+    public static Result<TOutput> Fail<TInput, TOutput>(
         this IParseState<TInput> state,
         IParser parser,
         string error,
@@ -67,7 +67,7 @@ public static class ParseStateExtensions
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, error, data);
+        return Result<TOutput>.Fail(parser, error).With(data);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public static class ParseStateExtensions
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Fail<TInput, TOutput>(
+    public static Result<TOutput> Fail<TInput, TOutput>(
         this IParseState<TInput> state,
         IParser<TInput, TOutput> parser,
         string error,
@@ -88,7 +88,7 @@ public static class ParseStateExtensions
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, error, data);
+        return Result<TOutput>.Fail(parser, error).With(data);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public static class ParseStateExtensions
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult Fail<TInput>(
+    public static Result<object> Fail<TInput>(
         this IParseState<TInput> state,
         IParser<TInput> parser,
         string error,
@@ -108,7 +108,7 @@ public static class ParseStateExtensions
     )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<object>(parser, error, data);
+        return Result<object>.Fail(parser, error).With(data);
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public static class ParseStateExtensions
     /// <param name="consumed"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Success<TInput, TOutput>(
+    public static Result<TOutput> Success<TInput, TOutput>(
         this IParseState<TInput> state,
         IParser parser,
         TOutput output,
@@ -131,7 +131,7 @@ public static class ParseStateExtensions
     )
     {
         state.Log(parser, "Succeeded");
-        return new SuccessResult<TOutput>(parser, output, consumed, data);
+        return Result<TOutput>.Ok(parser, output, consumed).With(data);
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public static class ParseStateExtensions
     /// <param name="parser"></param>
     /// <param name="part"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Result<TInput, TOutput>(
+    public static Result<TOutput> Result<TInput, TOutput>(
         this IParseState<TInput> state,
         IParser<TInput> parser,
         PartialResult<TOutput> part

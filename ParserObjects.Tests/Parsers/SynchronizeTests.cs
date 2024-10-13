@@ -24,7 +24,7 @@ public static class SynchronizeTests
             result.Success.Should().BeFalse();
             var errors = result.TryGetData<ErrorList>().Value;
             errors.ErrorResults.Count.Should().Be(1);
-            var finalResult = result.TryGetData<IResult<char>>().Value;
+            var finalResult = result.TryGetData<Result<char>>().Value;
             finalResult.Success.Should().BeTrue();
             finalResult.Value.Should().Be('B');
         }
@@ -37,7 +37,7 @@ public static class SynchronizeTests
             result.Success.Should().BeFalse();
             var errors = result.TryGetData<ErrorList>().Value;
             errors.ErrorResults.Count.Should().Be(3);
-            var finalResult = result.TryGetData<IResult<char>>().Value;
+            var finalResult = result.TryGetData<Result<char>>().Value;
             finalResult.Success.Should().BeTrue();
             finalResult.Value.Should().Be('D');
         }
@@ -50,7 +50,7 @@ public static class SynchronizeTests
             result.Success.Should().BeFalse();
             var errors = result.TryGetData<ErrorList>().Value;
             errors.ErrorResults.Count.Should().Be(4);
-            var finalResult = result.TryGetData<IResult<char>>();
+            var finalResult = result.TryGetData<Result<char>>();
             finalResult.Success.Should().BeFalse();
         }
 
@@ -62,7 +62,7 @@ public static class SynchronizeTests
             result.Success.Should().BeFalse();
             var errors = result.TryGetData<ErrorList>().Value;
             errors.ErrorResults.Count.Should().Be(1);
-            var finalResult = result.TryGetData<IResult<char>>();
+            var finalResult = result.TryGetData<Result<char>>();
             finalResult.Success.Should().BeFalse();
         }
 

@@ -11,29 +11,26 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="T"></typeparam>
 public sealed class AnyParser<T> : IParser<T, T>
 {
-    private readonly IResult<T> _eofResult;
-
     public AnyParser(string name = "")
     {
         Name = name;
-        _eofResult = new FailureResult<T>(this, "Expected any but found End.", default);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public string Name { get; }
 
-    public IResult<T> Parse(IParseState<T> state)
+    public Result<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state);
         if (state.Input.IsAtEnd)
-            return _eofResult;
+            return Result<T>.Fail(this, "Expected any but found End.");
 
         var next = state.Input.GetNext();
         return state.Success(this, next, 1);
     }
 
-    IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
+    Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<T> state)
     {

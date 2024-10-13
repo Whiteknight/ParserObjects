@@ -3,8 +3,8 @@
 namespace ParserObjects;
 
 /// <summary>
-/// A struct representing a partial parse result. Can be converted into an IResult by adding
-/// additional information. Used internally to pass values without having to allocate IResult
+/// A struct representing a partial parse result. Can be converted into an Result by adding
+/// additional information. Used internally to pass values without having to allocate Result
 /// objects on the heap.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>

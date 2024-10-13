@@ -108,9 +108,9 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(
         IParser<TInput, TMiddle> p,
-        Func<IResult<TMiddle>, IParser<TInput, TOutput>> getNext,
+        Func<Result<TMiddle>, IParser<TInput, TOutput>> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<IResult<TMiddle>, IParser<TInput, TOutput>>>(None(p), getNext, static (gn, r) => gn(r), mentions);
+    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<Result<TMiddle>, IParser<TInput, TOutput>>>(None(p), getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Given a list of parsers, parse each in sequence and return a list of object
@@ -121,7 +121,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
     {
         if (parsers == null || parsers.Length == 0)
-            return Produce(static () => Array.Empty<object>());
+            return Produce(static () => (IReadOnlyList<object>)Array.Empty<object>());
         return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
@@ -139,7 +139,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
     {
         if (parsers == null || parsers.Count == 0)
-            return Produce(static () => Array.Empty<object>());
+            return Produce(static () => (IReadOnlyList<object>)Array.Empty<object>());
         return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
@@ -167,7 +167,7 @@ public static partial class Parsers<TInput>
         => new Deferred<TInput, TOutput>.MultiParser(getParser);
 
     /// <summary>
-    /// Executes all the parsers from the current location and returns a multiresult with all
+    /// Executes all the parsers from the current location and returns a multResult with all
     /// results.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
@@ -282,7 +282,7 @@ public static partial class Parsers<TInput>
     }
 
     private readonly record struct FunctionArgs<TOutput>(
-        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> ParseFunction,
+        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> ParseFunction,
         Func<IParseState<TInput>, bool>? MatchFunction
     );
 
@@ -296,7 +296,7 @@ public static partial class Parsers<TInput>
     /// <param name="description"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Function<TOutput>(
-        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, IResult<TOutput>> parseFunction,
+        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> parseFunction,
         Func<IParseState<TInput>, bool>? matchFunction = null,
         string description = ""
     ) => new Function<TInput, TOutput>.Parser<FunctionArgs<TOutput>>(

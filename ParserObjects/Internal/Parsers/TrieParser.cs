@@ -19,24 +19,24 @@ public sealed record TrieParser<TInput, TOutput>(
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Trie.Get(state.Input);
         return state.Result(this, result);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Trie.CanGet(state.Input);
 
-    IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    IMultResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
         var results = Trie.GetMany(state.Input);
-        return new MultiResult<TOutput>(this, startCheckpoint, results);
+        return new MultResult<TOutput>(this, startCheckpoint, results);
     }
 
-    IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state);
+    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state);
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

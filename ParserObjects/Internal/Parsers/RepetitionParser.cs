@@ -18,14 +18,13 @@ public static class Repetition<TInput>
 
     private readonly struct InternalParser<TParser, TResult, TItem>
         where TParser : IParser<TInput>
-        where TResult : IResult
     {
         private readonly TParser _parser;
         private readonly IParser<TInput> _separator;
-        private readonly Func<TParser, IParseState<TInput>, TResult> _getResult;
-        private readonly Func<TResult, TItem> _getItem;
+        private readonly Func<TParser, IParseState<TInput>, Result<TResult>> _getResult;
+        private readonly Func<Result<TResult>, TItem> _getItem;
 
-        public InternalParser(TParser parser, IParser<TInput> separator, Func<TParser, IParseState<TInput>, TResult> getResult, Func<TResult, TItem> getItem, int minimum, int? maximum)
+        public InternalParser(TParser parser, IParser<TInput> separator, Func<TParser, IParseState<TInput>, Result<TResult>> getResult, Func<Result<TResult>, TItem> getItem, int minimum, int? maximum)
         {
             _parser = parser;
             _separator = separator;
@@ -170,19 +169,19 @@ public static class Repetition<TInput>
 
     public sealed class Parser : IParser<TInput>
     {
-        private readonly InternalParser<IParser<TInput>, IResult, object> _internal;
+        private readonly InternalParser<IParser<TInput>, object, object> _internal;
 
         public Parser(IParser<TInput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
             Assert.ArgumentNotNull(parser);
             Assert.ArgumentNotNull(separator);
 
-            _internal = new InternalParser<IParser<TInput>, IResult, object>(parser, separator, static (p, s) => p.Parse(s), static r => r.Value, minimum, maximum);
+            _internal = new InternalParser<IParser<TInput>, object, object>(parser, separator, static (p, s) => p.Parse(s), static r => r.Value, minimum, maximum);
 
             Name = name;
         }
 
-        private Parser(InternalParser<IParser<TInput>, IResult, object> internalData, string name)
+        private Parser(InternalParser<IParser<TInput>, object, object> internalData, string name)
         {
             _internal = internalData;
             Name = name;
@@ -193,10 +192,10 @@ public static class Repetition<TInput>
         public int Minimum => _internal.Minimum;
         public int? Maximum => _internal.Maximum;
 
-        public IResult Parse(IParseState<TInput> state)
+        public Result<object> Parse(IParseState<TInput> state)
         {
             var partialResult = _internal.Parse(state);
-            return state.Result(this, partialResult);
+            return state.Result(this, partialResult).AsObject();
         }
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
@@ -216,14 +215,14 @@ public static class Repetition<TInput>
 
     public sealed class Parser<TOutput> : IParser<TInput, IReadOnlyList<TOutput>>
     {
-        private readonly InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput> _internal;
+        private readonly InternalParser<IParser<TInput, TOutput>, TOutput, TOutput> _internal;
 
         public Parser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
             Assert.ArgumentNotNull(parser);
             Assert.ArgumentNotNull(separator);
 
-            _internal = new InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput>(
+            _internal = new InternalParser<IParser<TInput, TOutput>, TOutput, TOutput>(
                 parser,
                 separator,
                 static (p, s) => p.Parse(s),
@@ -235,7 +234,7 @@ public static class Repetition<TInput>
             Name = name;
         }
 
-        private Parser(InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput> internalData, string name)
+        private Parser(InternalParser<IParser<TInput, TOutput>, TOutput, TOutput> internalData, string name)
         {
             _internal = internalData;
             Name = name;
@@ -246,13 +245,13 @@ public static class Repetition<TInput>
         public int Minimum => _internal.Minimum;
         public int? Maximum => _internal.Maximum;
 
-        public IResult<IReadOnlyList<TOutput>> Parse(IParseState<TInput> state)
+        public Result<IReadOnlyList<TOutput>> Parse(IParseState<TInput> state)
         {
             var partialResult = _internal.Parse(state);
             return state.Result(this, partialResult);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
 

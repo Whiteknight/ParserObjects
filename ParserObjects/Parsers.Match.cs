@@ -76,10 +76,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
     {
         if (pattern == null)
-            return Produce(static () => Array.Empty<TInput>());
+            return Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>());
         var asList = pattern as IReadOnlyList<TInput> ?? pattern.ToList();
         if (asList.Count == 0)
-            return Produce(static () => Array.Empty<TInput>());
+            return Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>());
         return new MatchPatternParser<TInput>(asList);
     }
 

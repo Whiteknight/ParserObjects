@@ -10,7 +10,7 @@
 public readonly record struct ParseContext<TInput>(
     IParser<TInput> Parser,
     IParseState<TInput> State,
-    IResult? Result
+    Result<object> Result
 )
 {
     /// <summary>
@@ -30,7 +30,7 @@ public readonly record struct ParseContext<TInput>(
 public readonly record struct ParseContext<TInput, TOutput>(
     IParser<TInput, TOutput> Parser,
     IParseState<TInput> State,
-    IResult<TOutput>? Result
+    Result<TOutput> Result
 )
 {
     /// <summary>
@@ -55,7 +55,7 @@ public readonly record struct ParseContext<TInput, TOutput>(
 public readonly record struct MultiParseContext<TInput, TOutput>(
     IMultiParser<TInput, TOutput> Parser,
     IParseState<TInput> State,
-    IMultiResult<TOutput>? Result
+    IMultResult<TOutput>? Result
 )
 {
     /// <summary>

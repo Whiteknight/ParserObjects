@@ -12,7 +12,7 @@ public static partial class MultiParserExtensions
     /// <param name="p"></param>
     /// <param name="s"></param>
     /// <returns></returns>
-    public static IMultiResult<TOutput> Parse<TOutput>(this IMultiParser<char, TOutput> p, string s)
+    public static IMultResult<TOutput> Parse<TOutput>(this IMultiParser<char, TOutput> p, string s)
         => p.Parse(
             new ParseState<char>(
                 FromString(s, default),

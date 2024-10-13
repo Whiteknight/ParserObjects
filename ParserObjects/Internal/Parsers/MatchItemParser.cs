@@ -11,12 +11,6 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="T"></typeparam>
 public sealed class MatchItemParser<T> : IParser<T, T>
 {
-    /* Since failure results are always identical, we can cache instances of them and return them
-     * instead of allocating a new one on every potential runthrough.
-     */
-
-    private readonly IResult<T> _eofResult;
-    private readonly IResult<T> _noMatchResult;
     private readonly bool _readAtEnd;
 
     public MatchItemParser(T? item, string name = "", bool readAtEnd = true)
@@ -24,8 +18,6 @@ public sealed class MatchItemParser<T> : IParser<T, T>
         Item = item;
         Name = name;
         _readAtEnd = readAtEnd;
-        _eofResult = new FailureResult<T>(this, "Input sequence is at end.", default);
-        _noMatchResult = new FailureResult<T>(this, "Items do not match", default);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
@@ -43,18 +35,18 @@ public sealed class MatchItemParser<T> : IParser<T, T>
         return true;
     }
 
-    public IResult<T> Parse(IParseState<T> state)
+    public Result<T> Parse(IParseState<T> state)
     {
         if (!_readAtEnd && state.Input.IsAtEnd)
-            return _eofResult;
+            return Result<T>.Fail(this, "Input sequence is at end.");
         if (!Equals(Item, state.Input.Peek()))
-            return _noMatchResult;
+            return Result<T>.Fail(this, "Items do not match.");
         int startConsumed = state.Input.Consumed;
         var value = state.Input.GetNext();
         return state.Success(this, value, state.Input.Consumed - startConsumed);
     }
 
-    IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
+    Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();
 
     public INamed SetName(string name) => new MatchItemParser<T>(Item, name);
 

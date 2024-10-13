@@ -40,7 +40,7 @@ public class ToBnfTests
             throw new NotImplementedException();
         }
 
-        public IResult<string> Parse(IParseState<char> state)
+        public Result<string> Parse(IParseState<char> state)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +50,7 @@ public class ToBnfTests
             throw new NotImplementedException();
         }
 
-        IResult IParser<char>.Parse(IParseState<char> state)
+        Result<object> IParser<char>.Parse(IParseState<char> state)
         {
             throw new NotImplementedException();
         }

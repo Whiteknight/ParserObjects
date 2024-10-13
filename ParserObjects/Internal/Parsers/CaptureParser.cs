@@ -23,7 +23,7 @@ public record CaptureParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var startCp = state.Input.Checkpoint();
         for (int i = 0; i < Parsers.Count; i++)
@@ -42,7 +42,7 @@ public record CaptureParser<TInput, TOutput>(
         return state.Success(this, contents, endCp.Consumed - startCp.Consumed);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state)
     {

@@ -24,7 +24,7 @@ public static class Create<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
             // If so, we have to properly report that.
@@ -48,7 +48,7 @@ public static class Create<TInput, TOutput>
             return result;
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {
@@ -89,7 +89,7 @@ public static class Create<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
             // If so, we have to properly report that.
@@ -115,7 +115,7 @@ public static class Create<TInput, TOutput>
             return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + consumedDuringCreation, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
         }
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

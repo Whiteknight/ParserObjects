@@ -31,7 +31,7 @@ public static class Replaceable<TInput>
 
         public IParser ReplaceableChild => _value;
 
-        public IResult Parse(IParseState<TInput> state) => _value.Parse(state);
+        public Result<object> Parse(IParseState<TInput> state) => _value.Parse(state);
 
         public bool Match(IParseState<TInput> state) => _value.Match(state);
 
@@ -83,9 +83,9 @@ public static class Replaceable<TInput, TOutput>
 
         public IParser ReplaceableChild => _value;
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+        public Result<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => _value.Match(state);
 
@@ -127,9 +127,9 @@ public static class Replaceable<TInput, TOutput>
 
         public IParser ReplaceableChild => _value;
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 

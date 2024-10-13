@@ -5,7 +5,7 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parser to convert an IMultiResult into an IResult by selecting the best result alternative
+/// Parser to convert an IMultResult into an Result by selecting the best result alternative
 /// using user-supplied criteria.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
@@ -18,7 +18,7 @@ public sealed record SelectParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var multi = Initial.Parse(state);
         if (!multi.Success)
@@ -44,7 +44,7 @@ public sealed record SelectParser<TInput, TOutput>(
         return multi.ToResult(alt);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 

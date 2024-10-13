@@ -18,7 +18,7 @@ public sealed record IfParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var cp = state.Input.Checkpoint();
@@ -26,7 +26,7 @@ public sealed record IfParser<TInput, TOutput>(
         return Parse(state, result.Success ? OnSuccess : OnFailure, cp, result.Consumed);
     }
 
-    private static IResult<TOutput> Parse(IParseState<TInput> state, IParser<TInput, TOutput> parser, SequenceCheckpoint cp, int predicateConsumed)
+    private static Result<TOutput> Parse(IParseState<TInput> state, IParser<TInput, TOutput> parser, SequenceCheckpoint cp, int predicateConsumed)
     {
         var thenResult = parser.Parse(state);
         if (thenResult.Success)
@@ -35,7 +35,7 @@ public sealed record IfParser<TInput, TOutput>(
         return state.Fail(parser, thenResult.ErrorMessage);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
