@@ -5,11 +5,11 @@ using ParserObjects.Internal;
 
 namespace ParserObjects;
 
-public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
+public sealed class MultResult<TOutput> : IMultResult<TOutput>
 {
     private readonly ResultData _data;
 
-    public MultiResult(
+    public MultResult(
         IParser parser,
         SequenceCheckpoint startCheckpoint,
         IEnumerable<IResultAlternative<TOutput>> results,
@@ -31,9 +31,9 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
 
     public SequenceCheckpoint StartCheckpoint { get; }
 
-    IReadOnlyList<IResultAlternative> IMultiResult.Results => Results;
+    IReadOnlyList<IResultAlternative> IMultResult.Results => Results;
 
-    public IMultiResult<TOutput> Recreate(
+    public IMultResult<TOutput> Recreate(
         CreateNewResultAlternative<TOutput> recreate,
         IParser? parser = null,
         SequenceCheckpoint? startCheckpoint = null,
@@ -43,10 +43,10 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         Assert.ArgumentNotNull(recreate);
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
         var newCheckpoint = startCheckpoint ?? StartCheckpoint;
-        return new MultiResult<TOutput>(Parser, newCheckpoint, newAlternatives);
+        return new MultResult<TOutput>(Parser, newCheckpoint, newAlternatives);
     }
 
-    public IMultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
+    public IMultResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
         Assert.ArgumentNotNull(transform);
         var newAlternatives = new List<IResultAlternative<TValue>>();
@@ -56,7 +56,7 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
             newAlternatives.Add(newAlt);
         }
 
-        return new MultiResult<TValue>(Parser, StartCheckpoint, newAlternatives);
+        return new MultResult<TValue>(Parser, StartCheckpoint, newAlternatives);
     }
 
     public Option<T> TryGetData<T>() => _data.TryGetData<T>();

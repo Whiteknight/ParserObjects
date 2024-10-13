@@ -22,9 +22,9 @@ public class LeftValue<TInput, TOutput> : IParser<TInput, TOutput>
 
     public string Name { get; }
 
-    public IResult<TOutput> Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
+    public Result<TOutput> Parse(IParseState<TInput> state) => Result<TOutput>.Ok(this, Value!, 0);
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => state.Success(this, Value!, 0);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Result<object>.Ok(this, Value!, 0);
 
     public bool Match(IParseState<TInput> state) => true;
 

@@ -96,7 +96,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         return result.Value;
     }
 
-    IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         EnsureIsNotComplete();
         EnsureRecursionIsPermitted();
@@ -104,7 +104,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         return state.Result(this, result);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state).AsObject();
 
     /// <summary>
     /// Attempt to recurse into the Pratt engine to match the next item. Returns true if the match

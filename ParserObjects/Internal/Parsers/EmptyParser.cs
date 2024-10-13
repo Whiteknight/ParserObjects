@@ -10,14 +10,8 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public sealed class EmptyParser<TInput> : IParser<TInput>
 {
-    /* Always returns a cached success result object no matter where or when it is invoked.
-     */
-
-    private readonly IResult _result;
-
     public EmptyParser(string name = "")
     {
-        _result = new SuccessResult<object>(this, Defaults.ObjectInstance, 0);
         Name = name;
     }
 
@@ -25,10 +19,10 @@ public sealed class EmptyParser<TInput> : IParser<TInput>
 
     public string Name { get; }
 
-    public IResult Parse(IParseState<TInput> state)
+    public Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        return _result;
+        return Result<object>.Ok(this, Defaults.ObjectInstance, 0);
     }
 
     public bool Match(IParseState<TInput> state) => true;

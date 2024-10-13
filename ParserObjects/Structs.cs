@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ParserObjects;
 
 /// <summary>
-/// A factory for creating IResult objects in the current parser context.
+/// A factory for creating Result objects in the current parser context.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
@@ -35,7 +35,7 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// </summary>
     /// <param name="errorMessage"></param>
     /// <returns></returns>
-    public IResult<TOutput> Failure(string errorMessage)
+    public Result<TOutput> Failure(string errorMessage)
         => _state.Fail(Parser, errorMessage, default);
 
     /// <summary>
@@ -43,7 +43,7 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public IResult<TOutput> Success(TOutput value)
+    public Result<TOutput> Success(TOutput value)
         => _state.Success(Parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
 }
 
@@ -65,7 +65,7 @@ public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left
 /// <param name="Success"></param>
 /// <param name="Failure"></param>
 public readonly record struct SelectArguments<TOutput>(
-    IMultiResult<TOutput> Result,
+    IMultResult<TOutput> Result,
     Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,
     Func<Option<IResultAlternative<TOutput>>> Failure
 );
@@ -108,7 +108,7 @@ public readonly struct SequentialState<TInput>
     {
         var result = p.Parse(_state);
         if (!result.Success)
-            throw new Internal.Parsers.Sequential.ParseFailedException(result, errorMessage);
+            throw new Internal.Parsers.Sequential.ParseFailedException(result.AsObject(), errorMessage);
         return result.Value;
     }
 
@@ -118,7 +118,7 @@ public readonly struct SequentialState<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public IResult<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
+    public Result<TOutput> TryParse<TOutput>(IParser<TInput, TOutput> p)
         => p.Parse(_state);
 
     /// <summary>
@@ -147,7 +147,7 @@ public readonly struct SequentialState<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public IResult<TOutput> TestParse<TOutput>(IParser<TInput, TOutput> p)
+    public Result<TOutput> TestParse<TOutput>(IParser<TInput, TOutput> p)
     {
         var checkpoint = _state.Input.Checkpoint();
         var result = p.Parse(_state);

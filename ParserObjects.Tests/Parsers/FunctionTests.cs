@@ -26,9 +26,9 @@ public class FunctionTests
     }
 
     [Test]
-    public void Parse_Null()
+    public void Parse_Default()
     {
-        var parser = Function<object>((state, resultFactory) => null);
+        var parser = Function<object>((state, resultFactory) => default);
         var result = parser.Parse("X");
         result.Success.Should().BeFalse();
         result.Consumed.Should().Be(0);
@@ -110,9 +110,9 @@ public class FunctionTests
     }
 
     [Test]
-    public void Match_Null_Fallback()
+    public void Match_Default_Fallback()
     {
-        var parser = Function<object>((state, resultFactory) => null);
+        var parser = Function<object>((state, resultFactory) => default);
         var input = FromString("X");
         var result = parser.Match(input);
         result.Should().BeFalse();

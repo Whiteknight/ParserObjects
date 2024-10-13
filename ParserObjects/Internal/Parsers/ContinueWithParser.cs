@@ -41,13 +41,13 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
-            var multiResult = _inner.Parse(state);
+            var multResult = _inner.Parse(state);
 
             var results = new List<IResultAlternative<TOutput>>();
 
-            foreach (var alt in multiResult.Results)
+            foreach (var alt in multResult.Results)
             {
                 if (!alt.Success)
                     continue;
@@ -57,20 +57,20 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 var result = _right.Parse(state);
                 if (!result.Success)
                 {
-                    results.Add(new FailureResultAlternative<TOutput>(result.ErrorMessage, multiResult.StartCheckpoint));
+                    results.Add(new FailureResultAlternative<TOutput>(result.ErrorMessage, multResult.StartCheckpoint));
                     continue;
                 }
 
                 results.Add(new SuccessResultAlternative<TOutput>(result.Value, result.Consumed, state.Input.Checkpoint()));
             }
 
-            multiResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, multiResult.StartCheckpoint, results);
+            multResult.StartCheckpoint.Rewind();
+            return new MultResult<TOutput>(this, multResult.StartCheckpoint, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
 
         public INamed SetName(string name) => new SingleParser(_inner, _getParser, name);
@@ -106,13 +106,13 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
-            var multiResult = _inner.Parse(state);
+            var multResult = _inner.Parse(state);
 
             var results = new List<IResultAlternative<TOutput>>();
 
-            foreach (var alt in multiResult.Results)
+            foreach (var alt in multResult.Results)
             {
                 if (!alt.Success)
                     continue;
@@ -122,7 +122,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 var result = _right.Parse(state);
                 if (!result.Success)
                 {
-                    results.Add(new FailureResultAlternative<TOutput>("Right parser returned no valid results", multiResult.StartCheckpoint));
+                    results.Add(new FailureResultAlternative<TOutput>("Right parser returned no valid results", multResult.StartCheckpoint));
                     continue;
                 }
 
@@ -130,13 +130,13 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                     results.Add(new SuccessResultAlternative<TOutput>(resultAlt.Value, resultAlt.Consumed, resultAlt.Continuation));
             }
 
-            multiResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, multiResult.StartCheckpoint, results);
+            multResult.StartCheckpoint.Rewind();
+            return new MultResult<TOutput>(this, multResult.StartCheckpoint, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
             => Parse(state);
 
         public INamed SetName(string name) => new MultiParser(_inner, _getParser, name);

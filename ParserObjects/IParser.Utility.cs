@@ -41,10 +41,10 @@ public static class ParserExtensions
     /// <param name="getEndSentinel"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static ISequence<IResult<TOutput>> ToSequence<TInput, TOutput>(
+    public static ISequence<Result<TOutput>> ToSequence<TInput, TOutput>(
         this IParser<TInput, TOutput> parser,
         ISequence<TInput> input,
-        Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? getEndSentinel = null,
+        Func<ResultFactory<TInput, TOutput>, Result<TOutput>>? getEndSentinel = null,
         Action<string>? log = null
     ) => FromParseResult(input, parser, getEndSentinel, log);
 }

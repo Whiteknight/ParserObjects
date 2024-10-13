@@ -3,7 +3,7 @@
 namespace ParserObjects;
 
 /// <summary>
-/// Create a new IResultAlternative starting from an existing result.
+/// Create a new ResultAlternative starting from an existing result.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
 /// <param name="existing"></param>
@@ -74,7 +74,7 @@ public delegate IParser<TInput, TOutput> GetParserFromParser<TInput, TMiddle, TO
 /// <typeparam name="TOutput"></typeparam>
 /// <param name="result"></param>
 /// <returns></returns>
-public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TOutput>(IResult result);
+public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TOutput>(Result<object> result);
 
 /// <summary>
 /// Create a new parser, given an existing result.
@@ -84,7 +84,7 @@ public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TOutput>(IR
 /// <typeparam name="TOutput"></typeparam>
 /// <param name="result"></param>
 /// <returns></returns>
-public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TMiddle, TOutput>(IResult<TMiddle> result);
+public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TMiddle, TOutput>(Result<TMiddle> result);
 
 /// <summary>
 /// Create an enumerable of parsers, given an existing parser.

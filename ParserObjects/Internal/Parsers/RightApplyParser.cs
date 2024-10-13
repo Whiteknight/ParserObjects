@@ -39,7 +39,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public string Name { get; }
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
 
@@ -58,11 +58,11 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         };
     }
 
-    private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state, IResult<TOutput> leftResult)
+    private Result<TOutput> ParseZeroOrMore(IParseState<TInput> state, Result<TOutput> leftResult)
     {
         var resultStack = new Stack<(TOutput left, TMiddle middle)>();
 
-        IResult<TOutput> ProduceSuccess(TOutput right, int consumed)
+        Result<TOutput> ProduceSuccess(TOutput right, int consumed)
         {
             while (resultStack.Count > 0)
             {
@@ -108,7 +108,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             {
                 // create a synthetic right item and short-circuit exit (we could go around
                 // again, fail the <middle> and exit at that point, but this is faster and
-                // doesn't require allocating a new IResult<T>
+                // doesn't require allocating a new Result<T>
                 consumed += middleResult.Consumed;
                 var syntheticRight = _getMissingRight(state);
                 resultStack.Push((left, middleResult.Value));
@@ -121,7 +121,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         }
     }
 
-    private IResult<TOutput> ParseZeroOrOne(IParseState<TInput> state, IResult<TOutput> leftResult)
+    private Result<TOutput> ParseZeroOrOne(IParseState<TInput> state, Result<TOutput> leftResult)
     {
         var checkpoint = state.Input.Checkpoint();
         var middleResult = _middle.Parse(state);
@@ -143,7 +143,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         {
             // create a synthetic right item and short-circuit exit (we could go around
             // again, fail the <middle> and exit at that point, but this is faster and
-            // doesn't require allocating a new IResult<T>
+            // doesn't require allocating a new Result<T>
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
             var result = _produce(args);
@@ -153,7 +153,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         return leftResult;
     }
 
-    private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state, IResult<TOutput> leftResult, SequenceCheckpoint startCp)
+    private Result<TOutput> ParseExactlyOne(IParseState<TInput> state, Result<TOutput> leftResult, SequenceCheckpoint startCp)
     {
         var middleCp = state.Input.Checkpoint();
         var middleResult = _middle.Parse(state);
@@ -173,7 +173,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         {
             // create a synthetic right item and short-circuit exit (we could go around
             // again, fail the <middle> and exit at that point, but this is faster and
-            // doesn't require allocating a new IResult<T>
+            // doesn't require allocating a new Result<T>
             middleCp.Rewind();
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
@@ -185,7 +185,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         return state.Fail(this, "Expected exactly one production but found zero");
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 

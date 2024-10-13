@@ -23,7 +23,7 @@ public static class StringifyTests
         [Test]
         public void Test()
         {
-            var target = Stringify(Produce(() => new List<char> { 'a', 'b', 'c' }));
+            var target = Stringify(Produce(() => new char[] { 'a', 'b', 'c' }));
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");
@@ -47,7 +47,7 @@ public static class StringifyTests
         [Test]
         public void Test()
         {
-            var target = Produce(() => new List<char> { 'a', 'b', 'c' }).Stringify();
+            var target = Produce(() => new char[] { 'a', 'b', 'c' }).Stringify();
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");

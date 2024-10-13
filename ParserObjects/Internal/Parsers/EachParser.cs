@@ -5,7 +5,7 @@ namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
 /// Executes a number of IParser instances from the current location and returns all of their
-/// results as an IMultiResult.
+/// results as an IMultResult.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
@@ -23,7 +23,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 
     public string Name { get; set; }
 
-    public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+    public IMultResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
         var results = new List<IResultAlternative<TOutput>>();
@@ -35,7 +35,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
             startCheckpoint.Rewind();
         }
 
-        return new MultiResult<TOutput>(this, startCheckpoint, results);
+        return new MultResult<TOutput>(this, startCheckpoint, results);
     }
 
     private static IResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
@@ -50,7 +50,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
         return new FailureResultAlternative<TOutput>(result.ErrorMessage, startCheckpoint);
     }
 
-    IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
     public IEnumerable<IParser> GetChildren() => _parsers;
 

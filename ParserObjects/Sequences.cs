@@ -199,10 +199,10 @@ public static class Sequences
     /// <param name="getEndSentinel"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static ISequence<IResult<TResult>> FromParseResult<TInput, TResult>(
+    public static ISequence<Result<TResult>> FromParseResult<TInput, TResult>(
         ISequence<TInput> sequence,
         IParser<TInput, TResult> parser,
-        Func<ResultFactory<TInput, TResult>, IResult<TResult>>? getEndSentinel = null,
+        Func<ResultFactory<TInput, TResult>, Result<TResult>>? getEndSentinel = null,
         Action<string>? log = null
     ) => new ParseResultSequence<TInput, TResult>(sequence, parser, getEndSentinel, log ?? (_ => { }));
 

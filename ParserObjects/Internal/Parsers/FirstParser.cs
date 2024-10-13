@@ -17,9 +17,8 @@ public static class FirstParser<TInput>
      * interface variants
      */
 
-    private static TResult ParseInternal<TParser, TResult>(IParseState<TInput> state, IReadOnlyList<TParser> parsers, Func<IParseState<TInput>, TParser, TResult> getResult)
+    private static Result<TResult> ParseInternal<TParser, TResult>(IParseState<TInput> state, IReadOnlyList<TParser> parsers, Func<IParseState<TInput>, TParser, Result<TResult>> getResult)
         where TParser : IParser<TInput>
-        where TResult : IResult
     {
         Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
@@ -60,7 +59,7 @@ public static class FirstParser<TInput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state)
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
             => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
 
         public bool Match(IParseState<TInput> state)
@@ -86,11 +85,11 @@ public static class FirstParser<TInput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
             => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state)
-            => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
+            => ParseInternal(state, Parsers, static (s, p) => p.Parse(s)).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {

@@ -22,7 +22,6 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
     private readonly TData _data;
     private readonly Func<T, TData, bool> _predicate;
     private readonly bool _readAtEnd;
-    private readonly IResult<T> _failure;
 
     public MatchPredicateParser(TData data, Func<T, TData, bool> predicate, string name = "", bool readAtEnd = true)
     {
@@ -30,31 +29,30 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
         _predicate = predicate;
         Name = name;
         _readAtEnd = readAtEnd;
-        _failure = new FailureResult<T>(this, "Next item does not match the predicate");
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public string Name { get; }
 
-    public IResult<T> Parse(IParseState<T> state)
+    public Result<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state);
 
         var startConsumed = state.Input.Consumed;
 
         if (!_readAtEnd && state.Input.IsAtEnd)
-            return _failure;
+            return Result<T>.Fail(this, "Next item does not match the predicate");
 
         var next = state.Input.Peek();
         if (next == null || !_predicate(next, _data))
-            return _failure;
+            return Result<T>.Fail(this, "Next item does not match the predicate");
 
         state.Input.GetNext();
         return state.Success(this, next, state.Input.Consumed - startConsumed);
     }
 
-    IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
+    Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<T> state)
     {

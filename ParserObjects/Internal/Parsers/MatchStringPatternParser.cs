@@ -24,7 +24,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
     public bool CaseInsensitive { get; }
     public string Name { get; }
 
-    public IResult<string> Parse(IParseState<char> state)
+    public Result<string> Parse(IParseState<char> state)
     {
         Assert.ArgumentNotNull(state);
         Debug.Assert(Pattern.Length > 0, "We shouldn't have empty patterns here");
@@ -50,7 +50,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
     // TODO: Instead of a flag for CaseInsensitive we could take an IEqualityComparer<char> instance
     // and use that to handle the comparison. We keep singleton instances of those objects so
     // it shouldn't lead to more allocations.
-    private IResult<string> ParseCaseSensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
+    private Result<string> ParseCaseSensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
     {
         if (Pattern.Length == 1)
         {
@@ -73,7 +73,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         return state.Success(this, Pattern, Pattern.Length);
     }
 
-    private IResult<string> ParseCaseInsensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
+    private Result<string> ParseCaseInsensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
     {
         if (Pattern.Length == 1)
         {
@@ -98,7 +98,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         return state.Success(this, new string(buffer, 0, Pattern.Length), Pattern.Length);
     }
 
-    IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);
+    Result<object> IParser<char>.Parse(IParseState<char> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<char> state)
     {
