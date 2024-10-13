@@ -15,32 +15,25 @@ public static class Deferred<TInput, TOutput>
     public sealed record Parser(
         Func<IParser<TInput, TOutput>> GetParser,
         string Name = ""
-    ) : IParser<TInput, TOutput>
+    ) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public Result<TOutput> Parse(IParseState<TInput> state)
+        public override Result<TOutput> Parse(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);
             return parser.Parse(state);
         }
 
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
-
-        public bool Match(IParseState<TInput> state)
+        public override bool Match(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);
             return parser.Match(state);
         }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
+        public override IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 
         public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
 
-        public INamed SetName(string name) => this with { Name = name };
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-        where TVisitor : IVisitor<TState>
+        public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         {
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }

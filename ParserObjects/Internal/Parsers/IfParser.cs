@@ -14,11 +14,9 @@ public sealed record IfParser<TInput, TOutput>(
     IParser<TInput, TOutput> OnSuccess,
     IParser<TInput, TOutput> OnFailure,
     string Name = ""
-) : IParser<TInput, TOutput>
+) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>
 {
-    public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-    public Result<TOutput> Parse(IParseState<TInput> state)
+    public override Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var cp = state.Input.Checkpoint();
@@ -35,18 +33,11 @@ public sealed record IfParser<TInput, TOutput>(
         return state.Fail(parser, thenResult.ErrorMessage);
     }
 
-    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
-
-    public bool Match(IParseState<TInput> state) => Parse(state).Success;
-
-    public IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
+    public override IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
 
     public override string ToString() => DefaultStringifier.ToString("If", Name, Id);
 
-    public INamed SetName(string name) => this with { Name = name };
-
-    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-        where TVisitor : IVisitor<TState>
+    public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
     {
         visitor.Get<ILogicalPartialVisitor<TState>>()?.Accept(this, state);
     }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ParserObjects.Internal.Visitors;
+﻿using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -9,18 +7,11 @@ namespace ParserObjects.Internal.Parsers;
 /// returns it.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class AnyParser<T> : IParser<T, T>
+public sealed record AnyParser<T>(
+    string Name = ""
+) : SimpleRecordParser<T, T>(Name), IParser<T, T>
 {
-    public AnyParser(string name = "")
-    {
-        Name = name;
-    }
-
-    public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-    public string Name { get; }
-
-    public Result<T> Parse(IParseState<T> state)
+    public override Result<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state);
         if (state.Input.IsAtEnd)
@@ -30,9 +21,7 @@ public sealed class AnyParser<T> : IParser<T, T>
         return state.Success(this, next, 1);
     }
 
-    Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();
-
-    public bool Match(IParseState<T> state)
+    public override bool Match(IParseState<T> state)
     {
         if (state.Input.IsAtEnd)
             return false;
@@ -40,14 +29,7 @@ public sealed class AnyParser<T> : IParser<T, T>
         return true;
     }
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
-
-    public override string ToString() => DefaultStringifier.ToString("Any", Name, Id);
-
-    public INamed SetName(string name) => new AnyParser<T>(name);
-
-    public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-        where TVisitor : IVisitor<TState>
+    public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
     {
         visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
     }
