@@ -1,4 +1,4 @@
-﻿using static ParserObjects.Parsers.Guids;
+﻿using static ParserObjects.Parsers;
 
 namespace ParserObjects.Tests.Parsers;
 

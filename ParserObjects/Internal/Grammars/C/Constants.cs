@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using static ParserObjects.Parsers.Digits;
+using static ParserObjects.Parsers;
 
 namespace ParserObjects.Internal.Grammars.C;
 

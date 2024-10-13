@@ -2,7 +2,6 @@
 using System.Globalization;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
-using static ParserObjects.Parsers.Digits;
 
 namespace ParserObjects.Internal.Grammars.Data;
 

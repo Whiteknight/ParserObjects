@@ -1,4 +1,4 @@
-﻿using static ParserObjects.Parsers.Digits;
+﻿using static ParserObjects.Parsers;
 
 namespace ParserObjects.Tests.Parsers;
 
