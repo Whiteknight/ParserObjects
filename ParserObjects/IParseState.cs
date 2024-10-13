@@ -45,112 +45,91 @@ public interface IParseState<out TInput>
         Func<IParseState<TInput>, TArgs, TResult> withContext,
         IReadOnlyDictionary<string, object>? data = null
     );
-}
 
-public static class ParseStateExtensions
-{
     /// <summary>
     /// Create a failure result.
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static Result<TOutput> Fail<TInput, TOutput>(
-        this IParseState<TInput> state,
+    public Result<TOutput> Fail<TOutput>(
         IParser parser,
         string error,
         ResultData data = default
     )
     {
-        state.Log(parser, "Failed with error " + error);
-        return Result<TOutput>.Fail(parser, error).With(data);
+        Log(parser, "Failed with error " + error);
+        return ParserObjects.Result<TOutput>.Fail(parser, error).With(data);
     }
 
     /// <summary>
     /// Create a Failure result.
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static Result<TOutput> Fail<TInput, TOutput>(
-        this IParseState<TInput> state,
+    public Result<TOutput> Fail<TOutput>(
         IParser<TInput, TOutput> parser,
         string error,
         ResultData data = default
     )
     {
-        state.Log(parser, "Failed with error " + error);
-        return Result<TOutput>.Fail(parser, error).With(data);
+        Log(parser, "Failed with error " + error);
+        return ParserObjects.Result<TOutput>.Fail(parser, error).With(data);
     }
 
     /// <summary>
     /// Create a Failure result.
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static Result<object> Fail<TInput>(
-        this IParseState<TInput> state,
+    public Result<object> Fail(
         IParser<TInput> parser,
         string error,
         ResultData data = default
     )
     {
-        state.Log(parser, "Failed with error " + error);
-        return Result<object>.Fail(parser, error).With(data);
+        Log(parser, "Failed with error " + error);
+        return ParserObjects.Result<object>.Fail(parser, error).With(data);
     }
 
     /// <summary>
     /// Create a Success result.
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="output"></param>
     /// <param name="consumed"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static Result<TOutput> Success<TInput, TOutput>(
-        this IParseState<TInput> state,
+    public Result<TOutput> Success<TOutput>(
         IParser parser,
         TOutput output,
         int consumed,
         ResultData data = default
     )
     {
-        state.Log(parser, "Succeeded");
-        return Result<TOutput>.Ok(parser, output, consumed).With(data);
+        Log(parser, "Succeeded");
+        return ParserObjects.Result<TOutput>.Ok(parser, output, consumed).With(data);
     }
 
     /// <summary>
     /// Create a result from a partial result.
     /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="part"></param>
     /// <returns></returns>
-    public static Result<TOutput> Result<TInput, TOutput>(
-        this IParseState<TInput> state,
+    public Result<TOutput> Result<TOutput>(
         IParser<TInput> parser,
         PartialResult<TOutput> part
-    )
-    {
-        if (part.Success)
-            return Success(state, parser, part.Value!, part.Consumed);
-        return Fail<TInput, TOutput>(state, parser, part.ErrorMessage!);
-    }
+    ) => part.Success
+        ? Success(parser, part.Value!, part.Consumed)
+        : Fail<TOutput>(parser, part.ErrorMessage!);
 }

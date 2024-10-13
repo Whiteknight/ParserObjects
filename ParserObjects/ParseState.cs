@@ -61,7 +61,7 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 /// <summary>
 /// Access data from the current Parse State.
 /// </summary>
-public struct DataStore
+public readonly struct DataStore
 {
     private readonly LinkedList<Dictionary<string, object>> _store;
 
@@ -77,7 +77,7 @@ public struct DataStore
     /// <typeparam name="T"></typeparam>
     /// <param name="name"></param>
     /// <returns>The value or failure.</returns>
-    public Option<T> Get<T>(string name)
+    public readonly Option<T> Get<T>(string name)
     {
         var node = _store.Last;
         while (node != null)

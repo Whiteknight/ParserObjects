@@ -34,9 +34,5 @@ public readonly struct PartialResult<TValue>
     public string? ErrorMessage { get; }
 
     public TResult Match<TResult>(TResult nothing, Func<TValue, TResult> success)
-    {
-        if (!Success)
-            return nothing;
-        return success(Value!);
-    }
+        => Success ? success(Value!) : nothing;
 }
