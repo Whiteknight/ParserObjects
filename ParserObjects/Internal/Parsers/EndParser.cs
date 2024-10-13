@@ -16,23 +16,20 @@ public sealed class EndParser<TInput> : IParser<TInput>
      * parsers so we (probably) don't need to optimize that case any further.
      */
 
-    private readonly IResult _success;
-
     public EndParser(string name = "")
     {
         Name = name;
-        _success = new SuccessResult<object>(this, Defaults.ObjectInstance, 0);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public string Name { get; }
 
-    public IResult Parse(IParseState<TInput> state)
+    public Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         return state.Input.IsAtEnd
-            ? _success
+            ? Result<object>.Ok(this, Defaults.ObjectInstance, 0)
             : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!);
     }
 

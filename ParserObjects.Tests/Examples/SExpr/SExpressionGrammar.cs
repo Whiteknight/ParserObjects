@@ -19,7 +19,7 @@ public static class SExpressionGrammar
             str,
             symbol,
             oper
-        );
+        ).Map(x => (INode)x);
 
         IParser<Token, INode> listInternal = null;
         var list = Deferred(() => listInternal);
@@ -53,7 +53,7 @@ public static class SExpressionGrammar
                 var node = new ExpressionNode { Children = contents.Cast<INode>().ToList() };
                 if (close.Diagnostics?.Count > 0)
                     node.Diagnostics = close.Diagnostics;
-                return node;
+                return (INode)node;
             }
         );
 

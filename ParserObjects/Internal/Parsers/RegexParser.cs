@@ -30,7 +30,7 @@ public sealed class RegexParser : IParser<char, string>
 
     public string Name { get; }
 
-    public IResult<string> Parse(IParseState<char> state)
+    public Result<string> Parse(IParseState<char> state)
     {
         Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
@@ -44,7 +44,7 @@ public sealed class RegexParser : IParser<char, string>
         return state.Success(this, result.Value!, result.Consumed, new ResultData(result.Match!));
     }
 
-    IResult IParser<char>.Parse(IParseState<char> state) => Parse(state);
+    Result<object> IParser<char>.Parse(IParseState<char> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<char> state)
     {

@@ -185,7 +185,7 @@ public readonly struct Engine<TInput, TOutput>
         }
     }
 
-    private static (IResult result, SequenceCheckpoint continuation) TryParse(
+    private static (Result<object> result, SequenceCheckpoint continuation) TryParse(
         IParser<TInput> terminal,
         IParseState<TInput> parseState,
         SequenceCheckpoint stateCheckpoint
@@ -198,14 +198,14 @@ public readonly struct Engine<TInput, TOutput>
 
         var result = terminal.Parse(parseState);
         var continuation = result.Success ? parseState.Input.Checkpoint() : stateCheckpoint;
-        parseState.Cache.Add(terminal, location, new CachedParseResult(result, continuation));
+        parseState.Cache.Add(terminal, location, new CachedParseResult(result.AsObject(), continuation));
         return (result, continuation);
     }
 
-    private static IMultiResult TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
+    private static IMultResult TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
     {
         var location = parseState.Input.CurrentLocation;
-        var cached = parseState.Cache.Get<IMultiResult>(terminal, location);
+        var cached = parseState.Cache.Get<IMultResult>(terminal, location);
         if (cached.Success)
             return cached.Value;
 
@@ -336,5 +336,5 @@ public readonly struct Engine<TInput, TOutput>
             AddCompletedNullable(completedNullables, item, item.Production, stats);
     }
 
-    private record CachedParseResult(IResult Result, SequenceCheckpoint Continuation);
+    private record CachedParseResult(Result<object> Result, SequenceCheckpoint Continuation);
 }

@@ -19,13 +19,13 @@ public static class Deferred<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);
             return parser.Parse(state);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {
@@ -64,7 +64,7 @@ public static class Deferred<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
             var parser = GetParserFromCacheOrCallback(state);
             return parser.Parse(state);
@@ -81,7 +81,7 @@ public static class Deferred<TInput, TOutput>
             return parser;
         }
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 

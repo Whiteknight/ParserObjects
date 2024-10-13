@@ -22,21 +22,21 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
             if (!result.Success)
-                return new FailureResult<TOutput>(result.Parser, result.ErrorMessage, default);
+                return result.CastError<TOutput>();
 
             var transformedValue = Transform(Data, result.Value);
 
             return state.Success(this, transformedValue, result.Consumed);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => Inner.Match(state);
 
@@ -62,7 +62,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
@@ -73,7 +73,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
             return result.Transform(Data, Transform);
         }
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

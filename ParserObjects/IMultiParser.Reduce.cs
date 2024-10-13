@@ -5,7 +5,7 @@ namespace ParserObjects;
 public static partial class MultiParserExtensions
 {
     /// <summary>
-    /// Expect the IMultiResult to contain exactly 1 alternative, and select that to continue.
+    /// Expect the IMultResult to contain exactly 1 alternative, and select that to continue.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
@@ -52,7 +52,7 @@ public static partial class MultiParserExtensions
 
     /// <summary>
     /// Invoke a special callback to attempt to select a single alternative and turn it into
-    /// an IResult.
+    /// an Result.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>

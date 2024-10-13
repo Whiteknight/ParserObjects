@@ -41,10 +41,10 @@ public static class JsonGrammar
             .Named("JSON Array");
 
         valueInner = Predict<IJsonValue>(c => c
-            .When(t => t.Type == JsonTokenType.OpenCurlyBracket, jsonObject)
-            .When(t => t.Type == JsonTokenType.OpenSquareBracket, jsonArray)
-            .When(t => t.Type == JsonTokenType.String, str)
-            .When(t => t.Type == JsonTokenType.Number, number)
+            .When(t => t.Type == JsonTokenType.OpenCurlyBracket, jsonObject.Map(x => (IJsonValue)x))
+            .When(t => t.Type == JsonTokenType.OpenSquareBracket, jsonArray.Map(x => (IJsonValue)x))
+            .When(t => t.Type == JsonTokenType.String, str.Map(x => (IJsonValue)x))
+            .When(t => t.Type == JsonTokenType.Number, number.Map(x => (IJsonValue)x))
             .When(_ => true, Fail<IJsonValue>("Unexpected token type"))
         );
 

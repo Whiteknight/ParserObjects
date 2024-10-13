@@ -103,7 +103,7 @@ public static partial class Parsers<TInput>
 
     /// <summary>
     /// Invoke a special callback to attempt to select a single alternative result
-    /// and turn it into a single IResult.
+    /// and turn it into a single Result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>

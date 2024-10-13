@@ -17,23 +17,25 @@ public static class Cache<TInput>
 
     private readonly struct InternalParser<TParser, TResult, TCacheEntry>
         where TParser : IParser
-        where TResult : IResultBase
     {
         private readonly Func<TParser, IParseState<TInput>, TResult> _parse;
         private readonly Func<TResult, SequenceCheckpoint, TCacheEntry> _getCacheEntry;
         private readonly Func<TCacheEntry, (TResult, SequenceCheckpoint)> _decomposeCacheEntry;
+        private readonly Func<TResult, bool> _isSuccess;
 
         public InternalParser(
             TParser parser,
             Func<TParser, IParseState<TInput>, TResult> parse,
             Func<TResult, SequenceCheckpoint, TCacheEntry> getCacheEntry,
-            Func<TCacheEntry, (TResult, SequenceCheckpoint)> decomposeCacheEntry
+            Func<TCacheEntry, (TResult, SequenceCheckpoint)> decomposeCacheEntry,
+            Func<TResult, bool> isSuccess
         )
         {
             Parser = parser;
             _parse = parse;
             _getCacheEntry = getCacheEntry;
             _decomposeCacheEntry = decomposeCacheEntry;
+            _isSuccess = isSuccess;
         }
 
         public TParser Parser { get; }
@@ -51,9 +53,10 @@ public static class Cache<TInput>
             }
 
             var (cachedResult, continuation) = _decomposeCacheEntry(cached.Value);
-            if (!cachedResult.Success)
+            if (!_isSuccess(cachedResult))
                 return cachedResult;
 
+            // Jump back to the position after the successful result.
             continuation.Rewind();
             return cachedResult;
         }
@@ -61,15 +64,16 @@ public static class Cache<TInput>
 
     public sealed class Parser : IParser<TInput>
     {
-        private readonly InternalParser<IParser<TInput>, IResult, Tuple<IResult, SequenceCheckpoint>> _internal;
+        private readonly InternalParser<IParser<TInput>, Result<object>, Tuple<Result<object>, SequenceCheckpoint>> _internal;
 
         public Parser(IParser<TInput> inner, string name = "")
         {
-            _internal = new InternalParser<IParser<TInput>, IResult, Tuple<IResult, SequenceCheckpoint>>(
+            _internal = new InternalParser<IParser<TInput>, Result<object>, Tuple<Result<object>, SequenceCheckpoint>>(
                 inner,
                 static (p, s) => p.Parse(s),
                 static (r, cp) => Tuple.Create(r, cp),
-                static ce => (ce.Item1, ce.Item2)
+                static ce => (ce.Item1, ce.Item2),
+                static r => r.Success
             );
             Name = name;
         }
@@ -80,7 +84,7 @@ public static class Cache<TInput>
 
         public bool Match(IParseState<TInput> state) => _internal.Parse(state).Success;
 
-        public IResult Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public Result<object> Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
 
         public INamed SetName(string name) => new Parser(_internal.Parser, name);
 
@@ -97,15 +101,16 @@ public static class Cache<TInput>
 
     public sealed record Parser<TOutput> : IParser<TInput, TOutput>
     {
-        private readonly InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, Tuple<IResult<TOutput>, SequenceCheckpoint>> _internal;
+        private readonly InternalParser<IParser<TInput, TOutput>, Result<TOutput>, Tuple<Result<TOutput>, SequenceCheckpoint>> _internal;
 
         public Parser(IParser<TInput, TOutput> inner, string name = "")
         {
-            _internal = new InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, Tuple<IResult<TOutput>, SequenceCheckpoint>>(
+            _internal = new InternalParser<IParser<TInput, TOutput>, Result<TOutput>, Tuple<Result<TOutput>, SequenceCheckpoint>>(
                 inner,
                 static (p, s) => p.Parse(s),
                 static (r, cp) => Tuple.Create(r, cp),
-                static ce => (ce.Item1, ce.Item2)
+                static ce => (ce.Item1, ce.Item2),
+                static r => r.Success
             );
             Name = name;
         }
@@ -116,11 +121,11 @@ public static class Cache<TInput>
 
         public bool Match(IParseState<TInput> state) => _internal.Parse(state).Success;
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public Result<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
         public INamed SetName(string name) => new Parser<TOutput>(_internal.Parser, name);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
@@ -135,15 +140,16 @@ public static class Cache<TInput>
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
-        private readonly InternalParser<IMultiParser<TInput, TOutput>, IMultiResult<TOutput>, IMultiResult<TOutput>> _internal;
+        private readonly InternalParser<IMultiParser<TInput, TOutput>, IMultResult<TOutput>, IMultResult<TOutput>> _internal;
 
         public MultiParser(IMultiParser<TInput, TOutput> inner, string name = "")
         {
-            _internal = new InternalParser<IMultiParser<TInput, TOutput>, IMultiResult<TOutput>, IMultiResult<TOutput>>(
+            _internal = new InternalParser<IMultiParser<TInput, TOutput>, IMultResult<TOutput>, IMultResult<TOutput>>(
                 inner,
                 static (p, s) => p.Parse(s),
                 static (r, _) => r,
-                static ce => (ce, ce.StartCheckpoint)
+                static ce => (ce, ce.StartCheckpoint),
+                static r => r.Success
             );
             Name = name;
         }
@@ -152,11 +158,11 @@ public static class Cache<TInput>
 
         public string Name { get; }
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_internal.Parser, name);
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 

@@ -24,15 +24,15 @@ public sealed record SynchronizeParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Attempt.Parse(state);
         if (result.Success)
             return result;
 
-        var allErrors = new List<IResult>
+        var allErrors = new List<Result<object>>
         {
-            result
+            result.AsObject()
         };
 
         // Result failed. Enter a loop to discard tokens and try again.
@@ -49,7 +49,7 @@ public sealed record SynchronizeParser<TInput, TOutput>(
             result = Attempt.Parse(state);
             if (result.Success)
                 break;
-            allErrors.Add(result);
+            allErrors.Add(result.AsObject());
         }
 
         // At this point we have panic'd so we're always going to return a failure.
@@ -61,7 +61,7 @@ public sealed record SynchronizeParser<TInput, TOutput>(
         if (result.Success)
             data.Add(result);
 
-        return state.Fail(this, "One or more errors occured. Call IResult<T>.TryGetData<ErrorList>() for more details", new ResultData(data));
+        return state.Fail(this, "One or more errors occured. Call Result<T>.TryGetData<ErrorList>() for more details", new ResultData(data));
     }
 
     private void DiscardUntilConditionMet(IParseState<TInput> state)
@@ -76,7 +76,7 @@ public sealed record SynchronizeParser<TInput, TOutput>(
         }
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Attempt.Match(state);
 

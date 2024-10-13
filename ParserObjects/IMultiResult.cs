@@ -4,6 +4,33 @@ using System.Collections.Generic;
 namespace ParserObjects;
 
 /// <summary>
+/// Base interface for results returned from a parse operation. The result should include
+/// reference to the Parser which generated the reuslt and an indicator of success or failure.
+/// Subclasses of this type will include more detailed information about the result.
+/// </summary>
+public interface IResultBase
+{
+    /// <summary>
+    /// Gets the parser which created this result. Notice that this might not be the parser on
+    /// which the Parse method was called, but may instead be some internal parser to which the
+    /// task was delegated.
+    /// </summary>
+    IParser Parser { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the parse succeeded.
+    /// </summary>
+    bool Success { get; }
+
+    /// <summary>
+    /// Try to get attached data with the given type. If none exists, returns failure.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    Option<T> TryGetData<T>();
+}
+
+/// <summary>
 /// One of several possible results from an IMultiParser.
 /// </summary>
 public interface IResultAlternative
@@ -65,7 +92,7 @@ public interface IResultAlternative<TOutput> : IResultAlternative
 /// <summary>
 /// The output of an IMultiParser which holds 0 or more result values.
 /// </summary>
-public interface IMultiResult : IResultBase
+public interface IMultResult : IResultBase
 {
     /// <summary>
     /// Gets the sequence checkpoint from the start of the attempt.
@@ -82,7 +109,7 @@ public interface IMultiResult : IResultBase
 /// The output of an IMultiParser which holds 0 or more typed result values.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
-public interface IMultiResult<TOutput> : IMultiResult
+public interface IMultResult<TOutput> : IMultResult
 {
     /// <summary>
     /// Gets the list of typed result alternatives.
@@ -90,7 +117,7 @@ public interface IMultiResult<TOutput> : IMultiResult
     new IReadOnlyList<IResultAlternative<TOutput>> Results { get; }
 
     /// <summary>
-    /// Create a new IMultiResult of the same type, by transforming the data of the current
+    /// Create a new IMultResult of the same type, by transforming the data of the current
     /// instance.
     /// </summary>
     /// <param name="recreate"></param>
@@ -98,7 +125,7 @@ public interface IMultiResult<TOutput> : IMultiResult
     /// <param name="startCheckpoint"></param>
     /// <param name="location"></param>
     /// <returns></returns>
-    IMultiResult<TOutput> Recreate(
+    IMultResult<TOutput> Recreate(
         CreateNewResultAlternative<TOutput> recreate,
         IParser? parser = null,
         SequenceCheckpoint? startCheckpoint = null,
@@ -106,29 +133,29 @@ public interface IMultiResult<TOutput> : IMultiResult
     );
 
     /// <summary>
-    /// Create a new IMultiResult by applying a transformation to every alternative value.
+    /// Create a new IMultResult by applying a transformation to every alternative value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
     /// <typeparam name="TData"></typeparam>
     /// <param name="data"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    IMultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform);
+    IMultResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform);
 }
 
-public static class MultiResultExtensions
+public static class MultResultExtensions
 {
     /// <summary>
-    /// Select one of the result alternatives to turn into a single IResult.
+    /// Select one of the result alternatives to turn into a single Result.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="result"></param>
     /// <param name="alt"></param>
     /// <returns></returns>
-    public static IResult<TOutput> ToResult<TOutput>(this IMultiResult<TOutput> result, IResultAlternative<TOutput> alt)
+    public static Result<TOutput> ToResult<TOutput>(this IMultResult<TOutput> result, IResultAlternative<TOutput> alt)
     {
         if (alt.Success)
-            return new SuccessResult<TOutput>(result.Parser, alt.Value, alt.Consumed, default);
-        return new FailureResult<TOutput>(result.Parser, alt.ErrorMessage, default);
+            return Result<TOutput>.Ok(result.Parser, alt.Value, alt.Consumed);
+        return Result<TOutput>.Fail(result.Parser, alt.ErrorMessage);
     }
 }

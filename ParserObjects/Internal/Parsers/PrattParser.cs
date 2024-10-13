@@ -41,7 +41,7 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         return state.WithDataFrame(this, static (s, p) =>
@@ -61,7 +61,7 @@ public sealed record PrattParser<TInput, TOutput>(
         });
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     // Because of the implementation of the Pratt engine, there's no (obvious) way to match it
     // without just doing a full parse and allocating results.

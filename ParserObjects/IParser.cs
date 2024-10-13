@@ -36,7 +36,7 @@ public interface IParser<in TInput> : IParser
     /// </summary>
     /// <param name="state"></param>
     /// <returns></returns>
-    IResult Parse(IParseState<TInput> state);
+    Result<object> Parse(IParseState<TInput> state);
 
     /// <summary>
     /// Attempt to match the input sequence and return a boolean. If the match fails, it is
@@ -53,7 +53,7 @@ public interface IParser<in TInput> : IParser
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IParser<in TInput, out TOutput> : IParser<TInput>, ISymbol<TOutput>
+public interface IParser<in TInput, TOutput> : IParser<TInput>, ISymbol<TOutput>
 {
     /// <summary>
     /// Attempt to parse the input sequence and produce an output result. If the parse fails,
@@ -62,7 +62,7 @@ public interface IParser<in TInput, out TOutput> : IParser<TInput>, ISymbol<TOut
     /// </summary>
     /// <param name="state"></param>
     /// <returns></returns>
-    new IResult<TOutput> Parse(IParseState<TInput> state);
+    new Result<TOutput> Parse(IParseState<TInput> state);
 }
 
 /// <summary>

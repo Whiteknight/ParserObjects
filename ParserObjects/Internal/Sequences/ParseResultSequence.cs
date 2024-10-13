@@ -7,17 +7,17 @@ namespace ParserObjects.Internal.Sequences;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOutput>>
+public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOutput>>
 {
     private readonly ISequence<TInput> _input;
     private readonly IParseState<TInput> _state;
     private readonly IParser<TInput, TOutput> _parser;
-    private readonly Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? _getEndSentinel;
+    private readonly Func<ResultFactory<TInput, TOutput>, Result<TOutput>>? _getEndSentinel;
 
     private WorkingSequenceStatistics _stats;
-    private IResult<TOutput>? _endSentinel;
+    private Result<TOutput> _endSentinel;
 
-    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultFactory<TInput, TOutput>, IResult<TOutput>>? getEndSentinel, Action<string> log)
+    public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultFactory<TInput, TOutput>, Result<TOutput>>? getEndSentinel, Action<string> log)
     {
         Assert.ArgumentNotNull(input);
         Assert.ArgumentNotNull(parser);
@@ -25,13 +25,13 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         _input = input;
         _parser = parser;
         _getEndSentinel = getEndSentinel;
-        _endSentinel = null;
+        _endSentinel = default;
         _stats = default;
     }
 
-    public IResult<TOutput> GetNext() => GetNext(true);
+    public Result<TOutput> GetNext() => GetNext(true);
 
-    public IResult<TOutput> Peek() => GetNext(false);
+    public Result<TOutput> Peek() => GetNext(false);
 
     public Location CurrentLocation => _input.CurrentLocation;
 
@@ -45,11 +45,11 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
         return _input.Checkpoint();
     }
 
-    private IResult<TOutput> GetNext(bool advance)
+    private Result<TOutput> GetNext(bool advance)
     {
         if (_input.IsAtEnd)
         {
-            if (_endSentinel != null)
+            if (_endSentinel != default)
                 return _endSentinel;
 
             var builder = new ResultFactory<TInput, TOutput>(_parser, _state, default);
@@ -73,14 +73,14 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
-    public IResult<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public Result<TOutput>[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
     {
         if (start.CompareTo(end) >= 0)
-            return Array.Empty<IResult<TOutput>>();
+            return Array.Empty<Result<TOutput>>();
 
         var currentPosition = _input.Checkpoint();
         start.Rewind();
-        var buffer = new IResult<TOutput>[end.Consumed - start.Consumed];
+        var buffer = new Result<TOutput>[end.Consumed - start.Consumed];
         int i = 0;
         while (_input.Consumed < end.Consumed && i < buffer.Length)
         {
@@ -89,11 +89,11 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<IResult<TOu
             if (!result.Success)
             {
                 currentPosition.Rewind();
-                return Array.Empty<IResult<TOutput>>();
+                return Array.Empty<Result<TOutput>>();
             }
 
             if (result.Consumed == 0)
-                return Array.Empty<IResult<TOutput>>();
+                return Array.Empty<Result<TOutput>>();
 
             buffer[i++] = result;
         }

@@ -41,10 +41,10 @@ public static partial class Parsers
     /// letters of any case or digits. This is also known as 'kebab-case' or 'lisp-case'.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> SpinalCase() => _spinalCase.Value;
+    public static IParser<char, IReadOnlyList<string>> SpinalCase() => _spinalCase.Value;
 
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _spinalCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(
+    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _spinalCase
+        = new Lazy<IParser<char, IReadOnlyList<string>>>(
             static () =>
             {
                 var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '-');
@@ -59,10 +59,10 @@ public static partial class Parsers
     /// dashes. Words may contain upper-case letters or digits.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
+    public static IParser<char, IReadOnlyList<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
 
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSpinalCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(
+    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSpinalCase
+        = new Lazy<IParser<char, IReadOnlyList<string>>>(
             static () =>
             {
                 var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
@@ -77,10 +77,10 @@ public static partial class Parsers
     /// underscores. Also known as pothole_case.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> SnakeCase() => _snakeCase.Value;
+    public static IParser<char, IReadOnlyList<string>> SnakeCase() => _snakeCase.Value;
 
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _snakeCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(
+    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _snakeCase
+        = new Lazy<IParser<char, IReadOnlyList<string>>>(
             static () =>
             {
                 var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '_');
@@ -95,10 +95,10 @@ public static partial class Parsers
     /// underscores. Also known as MACRO_CASE or CONSTANT_CASE.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
+    public static IParser<char, IReadOnlyList<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
 
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _screamingSnakeCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(
+    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSnakeCase
+        = new Lazy<IParser<char, IReadOnlyList<string>>>(
             static () =>
             {
                 var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');

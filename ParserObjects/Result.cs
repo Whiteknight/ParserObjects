@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ParserObjects;
 
@@ -31,58 +32,71 @@ public readonly record struct ResultData(object Data)
     }
 }
 
-/// <summary>
-/// Result object representing success. This result contains a valid value and metadata about
-/// that value.
-/// </summary>
-/// <typeparam name="TValue"></typeparam>
-public sealed record SuccessResult<TValue>(
+public readonly record struct Result<TValue>(
     IParser Parser,
-    TValue Value,
+    bool Success,
+    string? InternalError,
+    TValue? InternalValue,
     int Consumed,
-    ResultData Data = default
-) : IResult<TValue>
+    ResultData Data
+)
 {
-    public bool Success => true;
-    public string ErrorMessage => string.Empty;
-    object IResult.Value => Value!;
+    public static Result<TValue> Fail(IParser parser, string errorMessage)
+        => new Result<TValue>(parser, false, errorMessage ?? string.Empty, default, 0, default);
+
+    public static Result<TValue> Ok(IParser parser, TValue value, int consumed)
+        => new Result<TValue>(parser, true, string.Empty, value, consumed, default);
+
+    public string ErrorMessage => Success ? string.Empty : InternalError ?? string.Empty;
+
+    public TValue Value
+        => Success
+        ? InternalValue!
+        : throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
+
+    /// <summary>
+    /// Safely get the value of the result, or the default value.
+    /// </summary>
+    /// <param name="defaultValue"></param>
+    /// <returns></returns>
+    public TValue GetValueOrDefault(TValue defaultValue)
+        => Success ? Value : defaultValue;
+
+    /// <summary>
+    /// Safely get the value of the result, or the default value.
+    /// </summary>
+    /// <param name="getDefaultValue"></param>
+    /// <returns></returns>
+    public TValue GetValueOrDefault(Func<TValue> getDefaultValue)
+        => Success ? Value : getDefaultValue();
+
+    public Result<TValue> WithData(object data) => this with { Data = new ResultData(data) };
+
+    public Result<TValue> With(ResultData data) => this with { Data = data };
 
     public Option<T> TryGetData<T>() => Data.TryGetData<T>();
 
-    public override string ToString() => $"{Parser} Ok";
-
-    public IResult<TValue> AdjustConsumed(int consumed)
+    public Result<TValue> AdjustConsumed(int consumed)
     {
         if (Consumed == consumed)
             return this;
         return this with { Consumed = consumed };
     }
 
-    IResult IResult.AdjustConsumed(int consumed) => AdjustConsumed(consumed);
-}
+    public Result<T> Select<T>(Func<TValue, T> selector)
+        => Success
+        ? new Result<T>(Parser, true, null, selector(Value), Consumed, Data)
+        : new Result<T>(Parser, false, ErrorMessage, default, 0, Data);
 
-/// <summary>
-/// Result object representing failure. This result contains an error message and information
-/// about the location of the error. Attempting to access the Value will result in an
-/// exception.
-/// </summary>
-/// <typeparam name="TValue"></typeparam>
-public sealed record FailureResult<TValue>(
-    IParser Parser,
-    string ErrorMessage,
-    ResultData Data = default
-) : IResult<TValue>
-{
-    public bool Success => false;
-    public TValue Value => throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
-    public int Consumed => 0;
-    object IResult.Value => Value!;
+    public Result<T> CastError<T>()
+        => Success
+        ? throw new InvalidOperationException("Can only cast error results without an explicit mapping")
+        : new Result<T>(Parser, false, InternalError, default, 0, Data);
 
-    public Option<T> TryGetData<T>() => Data.TryGetData<T>();
+    public Result<object> AsObject() => Select<object>(static t => t);
 
-    public override string ToString() => $"{Parser} FAIL: {ErrorMessage}";
-
-    public IResult<TValue> AdjustConsumed(int consumed) => this;
-
-    IResult IResult.AdjustConsumed(int consumed) => this;
+    public override string ToString()
+        => Success
+            ? $"{Parser} Ok"
+            : $"{Parser} FAIL: {ErrorMessage}";
 }

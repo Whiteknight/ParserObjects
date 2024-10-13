@@ -48,7 +48,7 @@ public static class Rule
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
             var outputs = KeepsArrayReference ? new object[Parsers.Count] : ArrayPool<object>.Shared.Rent(Parsers.Count);
@@ -58,7 +58,7 @@ public static class Rule
             return result;
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {
@@ -96,7 +96,7 @@ public static class Rule
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }
 
-        private IResult<TOutput> Parse(IParseState<TInput> state, object[] outputs)
+        private Result<TOutput> Parse(IParseState<TInput> state, object[] outputs)
         {
             var startCheckpoint = state.Input.Checkpoint();
             for (int i = 0; i < Parsers.Count; i++)

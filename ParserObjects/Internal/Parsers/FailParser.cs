@@ -11,42 +11,37 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
-    /* Returns a pre-created, cached error result in all situations
-     * Multi-parser cannot cache the result object because of differences in IMultiResult requirements
-     * so we just have to create those new each time
-     */
-
-    private readonly IResult<TOutput> _result;
+    private readonly string _errorMessage;
 
     public FailParser(string errorMessage = "Fail", string name = "")
     {
+        _errorMessage = errorMessage;
         Name = name;
-        _result = new FailureResult<TOutput>(this, errorMessage);
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public string Name { get; }
 
-    public string ErrorMessage => _result.ErrorMessage;
+    public string ErrorMessage => _errorMessage;
 
-    IResult<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
-        => _result;
+    Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+        => Result<TOutput>.Fail(this, _errorMessage);
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state)
-        => _result;
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
+        => Result<object>.Fail(this, _errorMessage);
 
-    IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    IMultResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
-        return new MultiResult<TOutput>(this, startCheckpoint, new[]
+        return new MultResult<TOutput>(this, startCheckpoint, new[]
         {
             new FailureResultAlternative<TOutput>(ErrorMessage, startCheckpoint)
         });
     }
 
-    IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
+    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
         => ((IMultiParser<TInput, TOutput>)this).Parse(state);
 
     public bool Match(IParseState<TInput> state) => false;

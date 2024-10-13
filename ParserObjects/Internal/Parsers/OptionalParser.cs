@@ -14,13 +14,10 @@ public static class Optional<TInput, TOutput>
 {
     public sealed class NoDefaultParser : IParser<TInput, Option<TOutput>>
     {
-        private readonly IResult<Option<TOutput>> _failure;
-
         public NoDefaultParser(IParser<TInput, TOutput> inner, string name = "")
         {
             Inner = inner;
             Name = name;
-            _failure = new SuccessResult<Option<TOutput>>(this, default, 0);
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
@@ -37,15 +34,15 @@ public static class Optional<TInput, TOutput>
             return true;
         }
 
-        public IResult<Option<TOutput>> Parse(IParseState<TInput> state)
+        public Result<Option<TOutput>> Parse(IParseState<TInput> state)
         {
             var result = Inner.Parse(state);
             if (!result.Success)
-                return _failure;
+                return Result<Option<TOutput>>.Ok(this, default, 0);
             return state.Success(this, new Option<TOutput>(true, result.Value), result.Consumed);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public INamed SetName(string name) => new NoDefaultParser(Inner, name);
 
@@ -74,7 +71,7 @@ public static class Optional<TInput, TOutput>
             return true;
         }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             int startConsumed = state.Input.Consumed;
             var result = Inner.Parse(state);
@@ -83,7 +80,7 @@ public static class Optional<TInput, TOutput>
             return state.Success(this, value, endConsumed - startConsumed);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public INamed SetName(string name) => this with { Name = name };
 

@@ -42,15 +42,14 @@ public static class Chain<TInput, TOutput>
 
     private readonly struct InternalParser<TInnerParser, TInnerResult, TData>
         where TInnerParser : IParser<TInput>
-        where TInnerResult : IResult
     {
         private readonly TData _data;
-        private readonly Func<TInnerParser, IParseState<TInput>, TInnerResult> _getResult;
-        private readonly Func<TData, TInnerResult, IParser<TInput, TOutput>> _getOuter;
+        private readonly Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> _getResult;
+        private readonly Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> _getOuter;
 
         public TInnerParser Inner { get; }
 
-        public InternalParser(TInnerParser inner, TData data, Func<TInnerParser, IParseState<TInput>, TInnerResult> getResult, Func<TData, TInnerResult, IParser<TInput, TOutput>> getOuter)
+        public InternalParser(TInnerParser inner, TData data, Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> getResult, Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> getOuter)
         {
             Inner = inner;
             _data = data;
@@ -58,7 +57,7 @@ public static class Chain<TInput, TOutput>
             _getOuter = getOuter;
         }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
@@ -90,7 +89,7 @@ public static class Chain<TInput, TOutput>
             return false;
         }
 
-        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, TInnerResult initial)
+        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, Result<TInnerResult> initial)
         {
             try
             {
@@ -107,17 +106,17 @@ public static class Chain<TInput, TOutput>
 
     public sealed class Parser<TMiddle, TData> : IParser<TInput, TOutput>
     {
-        private readonly InternalParser<IParser<TInput, TMiddle>, IResult<TMiddle>, TData> _internal;
+        private readonly InternalParser<IParser<TInput, TMiddle>, TMiddle, TData> _internal;
         private readonly IReadOnlyList<IParser> _mentions;
 
-        public Parser(IParser<TInput, TMiddle> inner, TData data, Func<TData, IResult<TMiddle>, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
+        public Parser(IParser<TInput, TMiddle> inner, TData data, Func<TData, Result<TMiddle>, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
         {
-            _internal = new InternalParser<IParser<TInput, TMiddle>, IResult<TMiddle>, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
+            _internal = new InternalParser<IParser<TInput, TMiddle>, TMiddle, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
             _mentions = mentions;
             Name = name;
         }
 
-        private Parser(InternalParser<IParser<TInput, TMiddle>, IResult<TMiddle>, TData> internalData, IReadOnlyList<IParser> mentions, string name)
+        private Parser(InternalParser<IParser<TInput, TMiddle>, TMiddle, TData> internalData, IReadOnlyList<IParser> mentions, string name)
         {
             _internal = internalData;
             _mentions = mentions;
@@ -128,9 +127,9 @@ public static class Chain<TInput, TOutput>
 
         public string Name { get; }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public Result<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
 
@@ -149,17 +148,17 @@ public static class Chain<TInput, TOutput>
 
     public sealed class Parser<TData> : IParser<TInput, TOutput>
     {
-        private readonly InternalParser<IParser<TInput>, IResult, TData> _internal;
+        private readonly InternalParser<IParser<TInput>, object, TData> _internal;
         private readonly IReadOnlyList<IParser> _mentions;
 
-        public Parser(IParser<TInput> inner, TData data, Func<TData, IResult, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
+        public Parser(IParser<TInput> inner, TData data, Func<TData, Result<object>, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
         {
-            _internal = new InternalParser<IParser<TInput>, IResult, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
+            _internal = new InternalParser<IParser<TInput>, object, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
             _mentions = mentions;
             Name = name;
         }
 
-        private Parser(InternalParser<IParser<TInput>, IResult, TData> internalData, IReadOnlyList<IParser> mentions, string name)
+        private Parser(InternalParser<IParser<TInput>, object, TData> internalData, IReadOnlyList<IParser> mentions, string name)
         {
             _internal = internalData;
             _mentions = mentions;
@@ -170,9 +169,9 @@ public static class Chain<TInput, TOutput>
 
         public string Name { get; }
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public Result<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
 

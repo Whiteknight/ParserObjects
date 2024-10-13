@@ -116,7 +116,7 @@ public static class Context<TInput>
                 static (_, _, _, _) => false
             );
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
             => _internal.Execute(
                 this,
                 state,
@@ -128,7 +128,7 @@ public static class Context<TInput>
                 static (ctx, s, _, ex) => s.Fail<TInput, TOutput>(ctx, "Setup code threw an exception", new ResultData(ex))
             );
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 
@@ -168,7 +168,7 @@ public static class Context<TInput>
 
         public string Name { get; }
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
             => _internal.Execute(
                 this,
                 state,
@@ -177,10 +177,10 @@ public static class Context<TInput>
                     var result = p.Parse(s);
                     return (result.Success, result);
                 },
-                static (ctx, _, cp, ex) => new MultiResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new ResultData(ex))
+                static (ctx, _, cp, ex) => new MultResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new ResultData(ex))
             );
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 

@@ -36,7 +36,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public string Name { get; }
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         return _quantifier switch
@@ -48,7 +48,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         };
     }
 
-    private IResult<TOutput> ParseExactlyOne(IParseState<TInput> state)
+    private Result<TOutput> ParseExactlyOne(IParseState<TInput> state)
     {
         // Parse the left. Parse the right exactly once. Return the result
         var checkpoint = state.Input.Checkpoint();
@@ -67,7 +67,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage);
     }
 
-    private IResult<TOutput> ParseZeroOrMore(IParseState<TInput> state)
+    private Result<TOutput> ParseZeroOrMore(IParseState<TInput> state)
     {
         // Parse <left> then attempt to parse <right> in a loop. If <right> fails at any
         // point, return whatever is the last value we had
@@ -90,7 +90,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         }
     }
 
-    private IResult<TOutput> ParseZeroOrOne(IParseState<TInput> state)
+    private Result<TOutput> ParseZeroOrOne(IParseState<TInput> state)
     {
         // Parse the left. Maybe parse the right. If <right>, return it. Otherwise <left>
         var leftResult = _initial.Parse(state);
@@ -105,7 +105,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
     }
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 

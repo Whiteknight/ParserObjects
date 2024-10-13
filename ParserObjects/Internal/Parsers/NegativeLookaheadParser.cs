@@ -15,7 +15,7 @@ public sealed record NegativeLookaheadParser<TInput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult Parse(IParseState<TInput> state)
+    public Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();

@@ -34,12 +34,12 @@ public static class Examine<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             var startConsumed = state.Input.Consumed;
-            Before?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, null));
+            Before?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, default));
             var result = Inner.Parse(state);
             After?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, result));
             var totalConsumed = state.Input.Consumed - startConsumed;
@@ -55,7 +55,7 @@ public static class Examine<TInput, TOutput>
             return result.AdjustConsumed(totalConsumed);
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
@@ -81,7 +81,7 @@ public static class Examine<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state)
+        public IMultResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
@@ -114,7 +114,7 @@ public static class Examine<TInput, TOutput>
             return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + totalConsumedInCallbacks, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
         }
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 
@@ -152,10 +152,10 @@ public sealed class ExamineParser<TInput> : IParser<TInput>
 
     public string Name { get; }
 
-    public IResult Parse(IParseState<TInput> state)
+    public Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        _before?.Invoke(new ParseContext<TInput>(_parser, state, null));
+        _before?.Invoke(new ParseContext<TInput>(_parser, state, default));
         var result = _parser.Parse(state);
         _after?.Invoke(new ParseContext<TInput>(_parser, state, result));
         return result;

@@ -19,7 +19,6 @@ public static class TryParser<TInput>
 
     private readonly struct ParserData<TParser, TResult>
         where TParser : IParser
-        where TResult : IResultBase
     {
         public ParserData(TParser parser, Action<Exception>? examine, bool bubble)
         {
@@ -90,15 +89,15 @@ public static class TryParser<TInput>
 
     public sealed class Parser : IParser<TInput>
     {
-        private readonly ParserData<IParser<TInput>, IResult> _data;
+        private readonly ParserData<IParser<TInput>, Result<object>> _data;
 
         public Parser(IParser<TInput> inner, Action<Exception>? examine = null, bool bubble = false, string name = "")
         {
-            _data = new ParserData<IParser<TInput>, IResult>(inner, examine, bubble);
+            _data = new ParserData<IParser<TInput>, Result<object>>(inner, examine, bubble);
             Name = name;
         }
 
-        private Parser(ParserData<IParser<TInput>, IResult> internalParser, string name)
+        private Parser(ParserData<IParser<TInput>, Result<object>> internalParser, string name)
         {
             _data = internalParser;
             Name = name;
@@ -112,10 +111,10 @@ public static class TryParser<TInput>
 
         public bool Match(IParseState<TInput> state) => _data.Match(static (p, s) => p.Match(s), state);
 
-        public IResult Parse(IParseState<TInput> state) => _data.Parse(
+        public Result<object> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => new FailureResult<object>(p, ex.Message, new ResultData(ex)),
+            static (p, ex, _) => Result<object>.Fail(p, ex.Message).WithData(ex),
             state
         );
 
@@ -132,11 +131,11 @@ public static class TryParser<TInput>
 
     public sealed class Parser<TOutput> : IParser<TInput, TOutput>
     {
-        private readonly ParserData<IParser<TInput, TOutput>, IResult<TOutput>> _data;
+        private readonly ParserData<IParser<TInput, TOutput>, Result<TOutput>> _data;
 
         public Parser(IParser<TInput, TOutput> inner, Action<Exception>? examine = null, bool bubble = false, string name = "")
         {
-            _data = new ParserData<IParser<TInput, TOutput>, IResult<TOutput>>(
+            _data = new ParserData<IParser<TInput, TOutput>, Result<TOutput>>(
                 inner,
                 examine,
                 bubble
@@ -144,7 +143,7 @@ public static class TryParser<TInput>
             Name = name;
         }
 
-        private Parser(ParserData<IParser<TInput, TOutput>, IResult<TOutput>> internalParser, string name)
+        private Parser(ParserData<IParser<TInput, TOutput>, Result<TOutput>> internalParser, string name)
         {
             _data = internalParser;
             Name = name;
@@ -158,14 +157,14 @@ public static class TryParser<TInput>
 
         public bool Match(IParseState<TInput> state) => _data.Match(static (p, s) => p.Match(s), state);
 
-        public IResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
+        public Result<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => new FailureResult<TOutput>(p, ex.Message, new ResultData(ex)),
+            static (p, ex, _) => Result<TOutput>.Fail(p, ex.Message).WithData(ex),
             state
         );
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public INamed SetName(string name) => new Parser<TOutput>(_data, name);
 
@@ -180,11 +179,11 @@ public static class TryParser<TInput>
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
-        private readonly ParserData<IMultiParser<TInput, TOutput>, IMultiResult<TOutput>> _data;
+        private readonly ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>> _data;
 
         public MultiParser(IMultiParser<TInput, TOutput> inner, Action<Exception>? examine = null, bool bubble = false, string name = "")
         {
-            _data = new ParserData<IMultiParser<TInput, TOutput>, IMultiResult<TOutput>>(
+            _data = new ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>>(
                 inner,
                 examine,
                 bubble
@@ -192,7 +191,7 @@ public static class TryParser<TInput>
             Name = name;
         }
 
-        private MultiParser(ParserData<IMultiParser<TInput, TOutput>, IMultiResult<TOutput>> internalParser, string name)
+        private MultiParser(ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>> internalParser, string name)
         {
             _data = internalParser;
             Name = name;
@@ -204,14 +203,14 @@ public static class TryParser<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _data.Parser };
 
-        public IMultiResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
+        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, cp) => new MultiResult<TOutput>(p, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new ResultData(ex)),
+            static (p, ex, cp) => new MultResult<TOutput>(p, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new ResultData(ex)),
             state
         );
 
-        IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_data, name);
 

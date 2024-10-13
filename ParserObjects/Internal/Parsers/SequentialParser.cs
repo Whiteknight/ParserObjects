@@ -17,13 +17,13 @@ public static class Sequential
         {
         }
 
-        public ParseFailedException(IResult result, string message)
+        public ParseFailedException(Result<object> result, string message)
             : base(message)
         {
             Result = result;
         }
 
-        public IResult? Result { get; }
+        public Result<object> Result { get; }
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class Sequential
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IResult<TOutput> Parse(IParseState<TInput> state)
+        public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
@@ -59,7 +59,7 @@ public static class Sequential
                 // Other exceptions bubble up like normal.
                 var location = state.Input.CurrentLocation;
                 startCheckpoint.Rewind();
-                if (spe.Result != null)
+                if (spe.Result != default)
                 {
                     var result = spe.Result;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
@@ -77,7 +77,7 @@ public static class Sequential
             }
         }
 
-        IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {

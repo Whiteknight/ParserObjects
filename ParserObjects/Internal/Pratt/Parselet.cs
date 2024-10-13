@@ -32,7 +32,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     /* At each iteration of the engine, it is going to attempt to invoke all available Parselets,
      * in order by how they were defined by the user. The Parselets invoke their Parsers to return
-     * an IResult<TValue>, which is fed into the NED or LED delegate callbacks to produce a
+     * an Result<TValue>, which is fed into the NED or LED delegate callbacks to produce a
      * ValueToken<TOutput>.
      *
      * TValue is the return value of the parser, but the Engine only works in terms of TInput and

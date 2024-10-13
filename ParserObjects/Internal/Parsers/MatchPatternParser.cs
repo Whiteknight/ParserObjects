@@ -17,7 +17,7 @@ public sealed record MatchPatternParser<T>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
+    public Result<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state);
         Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
@@ -29,7 +29,7 @@ public sealed record MatchPatternParser<T>(
             var next = state.Input.Peek();
             if (next == null || !next.Equals(Pattern[0]))
                 return state.Fail(this, "Item does not match");
-            return state.Success(this, new[] { state.Input.GetNext() }, 1);
+            return state.Success(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
         }
 
         var checkpoint = state.Input.Checkpoint();
@@ -51,10 +51,10 @@ public sealed record MatchPatternParser<T>(
             return state.Fail(this, $"Item does not match at position {i}");
         }
 
-        return state.Success(this, buffer, Pattern.Count);
+        return state.Success(this, (IReadOnlyList<T>)buffer, Pattern.Count);
     }
 
-    IResult IParser<T>.Parse(IParseState<T> state) => Parse(state);
+    Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();
 
     public bool Match(IParseState<T> state)
     {
