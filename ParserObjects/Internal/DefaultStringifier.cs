@@ -15,34 +15,32 @@ public static class DefaultStringifier
     {
         if (!string.IsNullOrEmpty(named.Name))
             return $"<{named.Name}>";
-
         if (named is IParser parser)
-        {
-            var pType = parser.GetType();
-            var pTypeName = pType.Name;
-            if (pType.DeclaringType != null)
-            {
-                if (pTypeName == "Parser" || pTypeName == "SingleParser" || pTypeName == "MultiParser")
-                    return $"<{pType.DeclaringType.Name} Id={parser.Id}>";
+            return UnnamedParserToString(parser);
+        return UnnamedNonParserToString(named);
+    }
 
-                return $"<{pType.DeclaringType.Name}.{pType.Name} Id={parser.Id}>";
-            }
-
-            return $"<{pType.Name} Id={parser.Id}>";
-        }
-
+    private static string UnnamedNonParserToString(INamed named)
+    {
         var objType = named.GetType();
-        if (objType.DeclaringType != null)
-            return $"<{objType.DeclaringType.Name}.{objType.Name}>";
+        return objType.DeclaringType != null
+            ? $"<{objType.DeclaringType.Name}.{objType.Name}>"
+            : $"<{objType.Name}>";
+    }
 
-        return $"<{objType.Name}>";
+    private static string UnnamedParserToString(IParser parser)
+    {
+        var pType = parser.GetType();
+        if (pType.DeclaringType == null)
+            return $"<{pType.Name} Id={parser.Id}>";
+
+        return pType.Name == "Parser" || pType.Name == "SingleParser" || pType.Name == "MultiParser"
+            ? $"<{pType.DeclaringType.Name} Id={parser.Id}>"
+            : $"<{pType.DeclaringType.Name}.{pType.Name} Id={parser.Id}>";
     }
 
     public static string ToString(string type, string name, int id)
-    {
-        if (!string.IsNullOrEmpty(name))
-            return $"<{name}>";
-
-        return $"<{type} Id={id}>";
-    }
+        => !string.IsNullOrEmpty(name)
+            ? $"<{name}>"
+            : $"<{type} Id={id}>";
 }

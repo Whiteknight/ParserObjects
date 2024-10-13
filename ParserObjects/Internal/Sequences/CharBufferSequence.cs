@@ -319,8 +319,6 @@ public static class CharBufferSequence
 
         public SequenceStatistics GetStatistics() => _internal.GetStatistics();
 
-#if NET5_0_OR_GREATER
-
         public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
         {
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
@@ -359,25 +357,6 @@ public static class CharBufferSequence
                     chars[i] = state.Buffer[state.StartConsumed + i];
             });
         }
-
-#else
-
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        {
-            if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return Array.Empty<char>();
-
-            return _internal.GetBetween(start, end);
-        }
-
-        public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        {
-            if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return string.Empty;
-            return new string(GetBetween(start, end));
-        }
-
-#endif
 
         public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
     }

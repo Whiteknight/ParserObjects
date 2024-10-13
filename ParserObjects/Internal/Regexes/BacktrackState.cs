@@ -37,12 +37,9 @@ public struct BacktrackState
     }
 
     public (SequenceCheckpoint? beforeMatch, int captureIndex) GetNextConsumption()
-    {
-        if (_consumptions.Count == 0)
-            return (null, -1);
-        var (beforeMatch, captureIndex) = _consumptions.Pop();
-        return (beforeMatch, captureIndex);
-    }
+        => _consumptions.Count == 0
+            ? (null, -1)
+            : _consumptions.Pop();
 
     public readonly bool HasConsumptions => _consumptions.Count > 0;
 

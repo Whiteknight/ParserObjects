@@ -26,9 +26,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public TPartial? Get<TPartial>()
         where TPartial : IPartialVisitor<BnfStringifyState>
-    {
-        return _partials.OfType<TPartial>().FirstOrDefault();
-    }
+        => _partials.OfType<TPartial>().FirstOrDefault();
 
     public void Add(IPartialVisitor<BnfStringifyState> partial)
     {
