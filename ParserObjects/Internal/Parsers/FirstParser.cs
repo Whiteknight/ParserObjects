@@ -55,24 +55,19 @@ public static class FirstParser<TInput>
     public sealed record WithoutOutput(
         IReadOnlyList<IParser<TInput>> Parsers,
         string Name = ""
-    ) : IParser<TInput>
+    ) : SimpleRecordParser<TInput>(Name), IParser<TInput>
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
+        public override Result<object> Parse(IParseState<TInput> state)
             => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
 
-        public bool Match(IParseState<TInput> state)
+        public override bool Match(IParseState<TInput> state)
             => MatchInternal(state, Parsers);
 
-        public IEnumerable<IParser> GetChildren() => Parsers;
+        public override IEnumerable<IParser> GetChildren() => Parsers;
 
         public override string ToString() => DefaultStringifier.ToString("First", Name, Id);
 
-        public INamed SetName(string name) => this with { Name = name };
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
+        public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         {
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }
@@ -81,17 +76,12 @@ public static class FirstParser<TInput>
     public sealed record WithOutput<TOutput>(
         IReadOnlyList<IParser<TInput, TOutput>> Parsers,
         string Name = ""
-    ) : IParser<TInput, TOutput>
+    ) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public Result<TOutput> Parse(IParseState<TInput> state)
+        public override Result<TOutput> Parse(IParseState<TInput> state)
             => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
 
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
-            => ParseInternal(state, Parsers, static (s, p) => p.Parse(s)).AsObject();
-
-        public bool Match(IParseState<TInput> state)
+        public override bool Match(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
             Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
@@ -107,14 +97,11 @@ public static class FirstParser<TInput>
             return false;
         }
 
-        public IEnumerable<IParser> GetChildren() => Parsers;
+        public override IEnumerable<IParser> GetChildren() => Parsers;
 
         public override string ToString() => DefaultStringifier.ToString("First", Name, Id);
 
-        public INamed SetName(string name) => this with { Name = name };
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
+        public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         {
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }
