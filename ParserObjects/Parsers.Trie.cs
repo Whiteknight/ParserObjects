@@ -31,10 +31,7 @@ public static partial class Parsers<TInput>
     /// <param name="keyComparer"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Trie<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie, IEqualityComparer<TInput>? keyComparer = null)
-    {
-        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer);
-        return Trie(trie);
-    }
+        => Trie(InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer));
 
     /// <summary>
     /// Lookup a sequences of inputs in a trie and return all matches from the current
@@ -60,8 +57,5 @@ public static partial class Parsers<TInput>
     /// <param name="keyComparer"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(Action<InsertableTrie<TInput, TOutput>> setupTrie, IEqualityComparer<TInput>? keyComparer = null)
-    {
-        var trie = InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer);
-        return TrieMulti(trie);
-    }
+        => TrieMulti(InsertableTrie<TInput, TOutput>.Setup(setupTrie, keyComparer));
 }
