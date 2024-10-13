@@ -36,21 +36,16 @@ public static partial class Parsers
     /// <param name="escapeStr"></param>
     /// <returns></returns>
     public static IParser<char, string> DelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
-    {
-        var escapedClose = $"{escapeStr}{closeStr}";
-        var escapedEscape = $"{escapeStr}{escapeStr}";
-        var bodyChar = Or(
-            MatchChars(escapedClose),
-            MatchChars(escapedEscape),
-            Match(c => c != closeStr)
-        );
-        return Capture(
-                Match(openStr),
-                bodyChar.List(),
-                Match(closeStr)
-            )
-            .Stringify();
-    }
+        => Capture(
+            Match(openStr),
+            Or(
+                MatchChars($"{escapeStr}{closeStr}"),
+                MatchChars($"{escapeStr}{escapeStr}"),
+                Match(c => c != closeStr)
+            ).List(),
+            Match(closeStr)
+        )
+        .Stringify();
 
     /// <summary>
     /// Double-quoted string with backslash-escaped quotes. The returned string is the string without
@@ -83,19 +78,14 @@ public static partial class Parsers
     /// <param name="escapeStr"></param>
     /// <returns></returns>
     public static IParser<char, string> StrippedDelimitedStringWithEscapedDelimiters(char openStr, char closeStr, char escapeStr)
-    {
-        var escapedClose = $"{escapeStr}{closeStr}";
-        var escapedEscape = $"{escapeStr}{escapeStr}";
-        var bodyChar = First(
-            MatchChars(escapedClose).Transform(_ => closeStr),
-            MatchChars(escapedEscape).Transform(_ => escapeStr),
-            Match(c => c != closeStr)
-        );
-        return Rule(
+        => Rule(
             Match(openStr),
-            bodyChar.ListCharToString(),
+            First(
+                MatchChars($"{escapeStr}{closeStr}").Transform(_ => closeStr),
+                MatchChars($"{escapeStr}{escapeStr}").Transform(_ => escapeStr),
+                Match(c => c != closeStr)
+            ).ListCharToString(),
             Match(closeStr),
             static (_, body, _) => body
         );
-    }
 }

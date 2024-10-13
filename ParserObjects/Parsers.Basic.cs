@@ -36,11 +36,9 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, TInput[]> Capture(params IParser<TInput>[] parsers)
-    {
-        if (parsers == null || parsers.Length == 0)
-            return Produce(static () => Array.Empty<TInput>());
-        return new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetBetween(start, end));
-    }
+        => parsers == null || parsers.Length == 0
+            ? Produce(static () => Array.Empty<TInput>())
+            : (IParser<TInput, TInput[]>)new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetBetween(start, end));
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -119,16 +117,14 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
-    {
-        if (parsers == null || parsers.Length == 0)
-            return Produce(static () => (IReadOnlyList<object>)Array.Empty<object>());
-        return Internal.Parsers.Rule.Create(
-            parsers,
-            Defaults.ObjectInstance,
-            static (_, r) => r,
-            true
-        );
-    }
+        => parsers == null || parsers.Length == 0
+            ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
+            : (IParser<TInput, IReadOnlyList<object>>)Internal.Parsers.Rule.Create(
+                parsers,
+                Defaults.ObjectInstance,
+                static (_, r) => r,
+                true
+            );
 
     /// <summary>
     /// Given a list of parsers, parse each in sequence and return a list of object results on
@@ -137,16 +133,14 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
-    {
-        if (parsers == null || parsers.Count == 0)
-            return Produce(static () => (IReadOnlyList<object>)Array.Empty<object>());
-        return Internal.Parsers.Rule.Create(
-            parsers,
-            Defaults.ObjectInstance,
-            static (_, r) => r,
-            true
-        );
-    }
+        => parsers == null || parsers.Count == 0
+            ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
+            : (IParser<TInput, IReadOnlyList<object>>)Internal.Parsers.Rule.Create(
+                parsers,
+                Defaults.ObjectInstance,
+                static (_, r) => r,
+                true
+            );
 
     /// <summary>
     /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
@@ -225,12 +219,9 @@ public static partial class Parsers<TInput>
         IParser<TInput> parser,
         Action<ParseContext<TInput>>? before = null,
         Action<ParseContext<TInput>>? after = null
-    )
-    {
-        if (before == null && after == null)
-            return parser;
-        return new ExamineParser<TInput>(parser, before, after);
-    }
+    ) => before == null && after == null
+        ? parser
+        : new ExamineParser<TInput>(parser, before, after);
 
     /// <summary>
     /// Unconditionally returns failure.
