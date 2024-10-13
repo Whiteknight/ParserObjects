@@ -27,7 +27,7 @@ public interface IParser : ISymbol
 /// Parser object which allows getting the result without type information.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public interface IParser<in TInput> : IParser
+public interface IParser<TInput> : IParser
 {
     /// <summary>
     /// Attempt to parse the input sequence and produce an output result of type object. If the
@@ -53,7 +53,7 @@ public interface IParser<in TInput> : IParser
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public interface IParser<in TInput, TOutput> : IParser<TInput>, ISymbol<TOutput>
+public interface IParser<TInput, TOutput> : IParser<TInput>, ISymbol<TOutput>
 {
     /// <summary>
     /// Attempt to parse the input sequence and produce an output result. If the parse fails,

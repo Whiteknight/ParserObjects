@@ -173,7 +173,7 @@ public class FromByteStreamTests
         target.GetNext(); // 10
         target.Consumed.Should().Be(10);
 
-        var result = target.GetBetween(cp1, cp2);
+        var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(5);
         result.Should().ContainInOrder(3, 4, 5, 6, 7);
     }
@@ -207,7 +207,7 @@ public class FromByteStreamTests
         target.GetNext(); // 9
         target.GetNext(); // 10
 
-        var result = target.GetBetween(cp1, cp2);
+        var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(5);
         result.Should().ContainInOrder(3, 4, 5, 6, 7);
     }
@@ -239,7 +239,7 @@ public class FromByteStreamTests
 
         target.GetNext(); // 8
 
-        var result = target.GetBetween(cp2, cp1);
+        var result = target.GetArrayBetween(cp2, cp1);
         result.Length.Should().Be(0);
     }
 

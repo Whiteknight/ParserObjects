@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 
 namespace ParserObjects.Internal.Sequences;
@@ -175,22 +176,30 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
-    public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
     {
+        Assert.ArgumentNotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return Array.Empty<char>();
+            return map(ReadOnlySpan<char>.Empty, data);
 
         var currentPosition = Checkpoint();
         start.Rewind();
-        var buffer = new char[end.Consumed - start.Consumed];
+        var size = end.Consumed - start.Consumed;
+
+        char[]? fromPool = null;
+        Span<char> buffer = size < 128
+            ? stackalloc char[size]
+            : (fromPool = ArrayPool<char>.Shared.Rent(size)).AsSpan(0, size);
+
         for (int i = 0; i < end.Consumed - start.Consumed; i++)
             buffer[i] = GetNext();
-        currentPosition.Rewind();
-        return buffer;
-    }
 
-    public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        => new string(GetBetween(start, end));
+        currentPosition.Rewind();
+        var result = map(buffer, data);
+        if (fromPool != null)
+            ArrayPool<char>.Shared.Return(fromPool);
+        return result;
+    }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 

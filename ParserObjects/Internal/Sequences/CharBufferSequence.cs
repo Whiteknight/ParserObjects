@@ -106,17 +106,7 @@ public static class CharBufferSequence
             _column = checkpoint.Location.Column;
         }
 
-        public SequenceStatistics GetStatistics() => _stats.Snapshot();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        {
-            int size = end.Consumed - start.Consumed;
-            var array = new char[size];
-            for (int i = 0; i < size; i++)
-                array[i] = _getCharAt(Data, start.Consumed + i);
-            return array;
-        }
+        public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
     }
 
     /// <summary>
@@ -162,12 +152,15 @@ public static class CharBufferSequence
 
         public SequenceStatistics GetStatistics() => _internal.GetStatistics();
 
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
+            Assert.ArgumentNotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return Array.Empty<char>();
+                return map(ReadOnlySpan<char>.Empty, data);
 
-            return _internal.GetBetween(start, end);
+            var size = end.Consumed - start.Consumed;
+            var span = _internal.Data.AsSpan(start.Consumed, size);
+            return map(span, data);
         }
 
         public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
@@ -319,44 +312,19 @@ public static class CharBufferSequence
 
         public SequenceStatistics GetStatistics() => _internal.GetStatistics();
 
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
+            Assert.ArgumentNotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return Array.Empty<char>();
+                return map(ReadOnlySpan<char>.Empty, data);
 
             var size = end.Consumed - start.Consumed;
-            return new ArraySegment<char>(_internal.Data, start.Consumed, size).ToArray();
-        }
-
-        private readonly struct GetStringBetweenContext
-        {
-            public readonly int Size { get; }
-
-            public readonly char[] Buffer { get; }
-
-            public readonly int StartConsumed { get; }
-
-            public GetStringBetweenContext(int size, char[] buffer, int startConsumed)
-            {
-                Size = size;
-                Buffer = buffer;
-                StartConsumed = startConsumed;
-            }
+            var span = _internal.Data.AsSpan(start.Consumed, size);
+            return map(span, data);
         }
 
         public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-        {
-            if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return string.Empty;
-
-            var size = end.Consumed - start.Consumed;
-            var context = new GetStringBetweenContext(size, _internal.Data, start.Consumed);
-            return string.Create(size, context, static (chars, state) =>
-            {
-                for (int i = 0; i < state.Size; i++)
-                    chars[i] = state.Buffer[state.StartConsumed + i];
-            });
-        }
+            => GetBetween(start, end, (object?)null, static (b, _) => new string(b));
 
         public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
     }
