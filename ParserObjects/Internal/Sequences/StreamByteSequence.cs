@@ -172,15 +172,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
             int startIndex = start.Consumed - startOfCurrentBuffer;
             int endIndex = end.Consumed - startOfCurrentBuffer;
             int size = endIndex - startIndex;
-#if NET5_0_OR_GREATER
             return new ArraySegment<byte>(_buffer, startIndex, size).ToArray();
-#else
-
-            var array = new byte[size];
-            for (int i = 0; i < size; i++)
-                array[i] = _buffer[startIndex + i];
-            return array;
-#endif
         }
 
         // Otherwise the requested range is partially or wholly outside of the current buffer. So

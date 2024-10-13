@@ -15,11 +15,9 @@ public static class State
     public static IState Fence { get; } = new FenceState();
 
     public static string QuantifierToString(Quantifier quantifier, int maximum)
-    {
-        if (quantifier == Quantifier.Range)
-            return $"0-{maximum}";
-        return quantifier.ToString();
-    }
+        => quantifier == Quantifier.Range
+        ? $"0-{maximum}"
+        : quantifier.ToString();
 
     public static List<IState> AddMatch(List<IState>? states, Func<char, bool> predicate, string description)
     {

@@ -12,7 +12,5 @@ public struct WorkingSequenceStatistics
     public int CheckpointsCreated { get; set; }
 
     public readonly SequenceStatistics Snapshot()
-    {
-        return new SequenceStatistics(ItemsRead, ItemsPeeked, ItemsGenerated, Rewinds, RewindsToCurrentBuffer, BufferFills, CheckpointsCreated);
-    }
+        => new SequenceStatistics(ItemsRead, ItemsPeeked, ItemsGenerated, Rewinds, RewindsToCurrentBuffer, BufferFills, CheckpointsCreated);
 }

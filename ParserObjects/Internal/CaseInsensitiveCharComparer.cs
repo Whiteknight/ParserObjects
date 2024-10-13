@@ -9,8 +9,5 @@ public sealed class CaseInsensitiveCharComparer : IEqualityComparer<char>
 
     public bool Equals(char x, char y) => CharMethods.EqualsCaseInsensitive(x, y);
 
-    public int GetHashCode([DisallowNull] char obj)
-    {
-        return char.ToUpper(obj).GetHashCode();
-    }
+    public int GetHashCode([DisallowNull] char obj) => char.ToUpper(obj).GetHashCode();
 }
