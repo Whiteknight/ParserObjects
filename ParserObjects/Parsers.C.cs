@@ -1,5 +1,4 @@
 ﻿using System;
-using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;

@@ -3,7 +3,6 @@ using ParserObjects;
 using ParserObjects.Earley;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers.C;
-using static ParserObjects.Parsers.Digits;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
