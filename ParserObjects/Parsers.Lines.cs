@@ -12,16 +12,13 @@ public static partial class Parsers
     /// <param name="prefix"></param>
     /// <returns></returns>
     public static IParser<char, string> PrefixedLine(string prefix)
-    {
-        if (string.IsNullOrEmpty(prefix))
-            return Line();
-
-        return CaptureString(
+        => string.IsNullOrEmpty(prefix)
+            ? Line()
+            : CaptureString(
                 MatchChars(prefix),
                 Match(static c => c != '\n').List()
             )
             .Named($"Line Prefixed:{prefix}");
-    }
 
     /// <summary>
     /// Parses a line of text until a newline or end of input. Newline not included.

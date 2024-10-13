@@ -18,10 +18,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <returns></returns>
     public static bool Match<TInput>(this IParser<TInput> parser, ISequence<TInput> input)
-    {
-        var state = new ParseState<TInput>(input, Defaults.LogMethod);
-        return parser.Match(state);
-    }
+        => parser.Match(new ParseState<TInput>(input, Defaults.LogMethod));
 
     /// <summary>
     /// Attempts a parse but does not consume any input. Instead it returns a boolean true if
@@ -33,8 +30,7 @@ public static class ParserMatchParseExtensions
     /// <returns></returns>
     public static bool Match<TInput>(this IMultiParser<TInput> parser, ISequence<TInput> input)
     {
-        var state = new ParseState<TInput>(input, Defaults.LogMethod);
-        var result = parser.Parse(state);
+        var result = parser.Parse(new ParseState<TInput>(input, Defaults.LogMethod));
         result.StartCheckpoint.Rewind();
         return result.Success;
     }
@@ -48,13 +44,12 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static bool Match(this IParser<char> parser, string input, SequenceOptions<char> options = default)
-    {
-        // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
-        // reuse it
-        var sequence = FromString(input, options);
-        var state = new ParseState<char>(sequence, Defaults.LogMethod);
-        return parser.Match(state);
-    }
+        => parser.Match(
+            new ParseState<char>(
+                FromString(input, options),
+                Defaults.LogMethod
+            )
+        );
 
     /// <summary>
     /// Convenience method for parsers which act on character sequences. Attempts a parse but
@@ -65,14 +60,12 @@ public static class ParserMatchParseExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static bool Match(this IMultiParser<char> parser, string input, SequenceOptions<char> options = default)
-    {
-        // Don't need to .Checkpoint()/.Rewind() because the sequence is private and we don't
-        // reuse it
-        var sequence = FromString(input, options);
-        var state = new ParseState<char>(sequence, Defaults.LogMethod);
-        var result = parser.Parse(state);
-        return result.Success;
-    }
+        => parser.Parse(
+            new ParseState<char>(
+                FromString(input, options),
+                Defaults.LogMethod
+            )
+        ).Success;
 
     /// <summary>
     /// Convenience method for parsers which act on character sequences. Parse the given input string

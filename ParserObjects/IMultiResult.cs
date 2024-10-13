@@ -141,21 +141,14 @@ public interface IMultResult<TOutput> : IMultResult
     /// <param name="transform"></param>
     /// <returns></returns>
     IMultResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform);
-}
 
-public static class MultResultExtensions
-{
     /// <summary>
     /// Select one of the result alternatives to turn into a single Result.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="result"></param>
     /// <param name="alt"></param>
     /// <returns></returns>
-    public static Result<TOutput> ToResult<TOutput>(this IMultResult<TOutput> result, IResultAlternative<TOutput> alt)
-    {
-        if (alt.Success)
-            return Result<TOutput>.Ok(result.Parser, alt.Value, alt.Consumed);
-        return Result<TOutput>.Fail(result.Parser, alt.ErrorMessage);
-    }
+    public Result<TOutput> ToResult(IResultAlternative<TOutput> alt)
+        => alt.Success
+            ? Result<TOutput>.Ok(Parser, alt.Value, alt.Consumed)
+            : Result<TOutput>.Fail(Parser, alt.ErrorMessage);
 }

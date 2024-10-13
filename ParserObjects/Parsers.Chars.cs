@@ -19,18 +19,16 @@ public static partial class Parsers
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<char, string> CaptureString(params IParser<char>[] parsers)
-    {
-        if (parsers == null || parsers.Length == 0)
-            return Produce(static () => string.Empty);
-        return new CaptureParser<char, string>(parsers, static (s, start, end) =>
-        {
-            if (s is ICharSequence charSequence)
-                return charSequence.GetStringBetween(start, end);
+        => parsers == null || parsers.Length == 0
+            ? Produce(static () => string.Empty)
+            : (IParser<char, string>)new CaptureParser<char, string>(parsers, static (s, start, end) =>
+            {
+                if (s is ICharSequence charSequence)
+                    return charSequence.GetStringBetween(start, end);
 
-            var chars = s.GetBetween(start, end);
-            return new string(chars, 0, chars.Length);
-        });
-    }
+                var chars = s.GetBetween(start, end);
+                return new string(chars, 0, chars.Length);
+            });
 
     /// <summary>
     /// Convenience method to match a literal sequence of characters and return the
@@ -81,11 +79,9 @@ public static partial class Parsers
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> MatchAny(ICollection<char> possibilities)
-    {
-        if (possibilities == null || possibilities.Count == 0)
-            return Fail("No possibilities provided so nothing can match");
-        return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
-    }
+        => possibilities == null || possibilities.Count == 0
+            ? Fail("No possibilities provided so nothing can match")
+            : new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
 
     /// <summary>
     /// Return success if the next character matches any characters from the string of possibilities,
@@ -108,11 +104,9 @@ public static partial class Parsers
     /// <param name="possibilities"></param>
     /// <returns></returns>
     public static IParser<char, char> NotMatchAny(ICollection<char> possibilities)
-    {
-        if (possibilities == null || possibilities.Count == 0)
-            return Any();
-        return new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
-    }
+        => possibilities == null || possibilities.Count == 0
+            ? Any()
+            : new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => !p.Contains(c));
 
     /// <summary>
     /// Return success if the next character does not match any characters from the string. False
