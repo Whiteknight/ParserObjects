@@ -170,7 +170,7 @@ public readonly struct SequentialState<TInput>
     public TInput[] GetCapturedInputs()
     {
         var currentCp = _state.Input.Checkpoint();
-        return _state.Input.GetBetween(_startCheckpoint, currentCp);
+        return _state.Input.GetArrayBetween(_startCheckpoint, currentCp);
     }
 
     public SequenceCheckpoint Checkpoint()

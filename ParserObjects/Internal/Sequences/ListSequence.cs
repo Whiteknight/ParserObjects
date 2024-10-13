@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -9,15 +10,15 @@ namespace ParserObjects.Internal.Sequences;
 /// operations.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class ListSequence<T> : ISequence<T?>
+public sealed class ListSequence<T> : ISequence<T>
 {
     private readonly IReadOnlyList<T> _list;
-    private readonly T? _endSentinelValue;
+    private readonly T _endSentinelValue;
 
     private WorkingSequenceStatistics _stats;
     private int _index;
 
-    public ListSequence(IEnumerable<T> enumerable, T? endSentinel)
+    public ListSequence(IEnumerable<T> enumerable, T endSentinel)
     {
         Assert.ArgumentNotNull(enumerable);
         _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToArray();
@@ -28,7 +29,7 @@ public sealed class ListSequence<T> : ISequence<T?>
         _stats = default;
     }
 
-    public ListSequence(IReadOnlyList<T> list, T? endSentinel)
+    public ListSequence(IReadOnlyList<T> list, T endSentinel)
     {
         Assert.ArgumentNotNull(list);
         _list = list;
@@ -42,19 +43,19 @@ public sealed class ListSequence<T> : ISequence<T?>
     // Notice that if T == char, GetNext() here doesn't respect normalized line endings, line
     // counting, etc.
 
-    public T? GetNext()
+    public T GetNext()
     {
         if (_index >= _list.Count)
             return _endSentinelValue;
 
-        var value = _list[_index];
+        T value = _list[_index];
         _index++;
 
         _stats.ItemsRead++;
         return value;
     }
 
-    public T? Peek()
+    public T Peek()
     {
         if (_index >= _list.Count)
             return _endSentinelValue;
@@ -85,19 +86,18 @@ public sealed class ListSequence<T> : ISequence<T?>
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
 
-    public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
     {
-        if (!Owns(start) || !Owns(end))
-            return Array.Empty<T>();
+        if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
+            return map(ReadOnlySpan<T>.Empty, data);
 
-        if (start.CompareTo(end) >= 0)
-            return Array.Empty<T>();
-
-        var buffer = new T[end.Consumed - start.Consumed];
-        for (int i = 0; i < end.Consumed - start.Consumed; i++)
-            buffer[i] = _list[start.Consumed + i];
-
-        return buffer;
+        var size = end.Consumed - start.Consumed;
+        return _list switch
+        {
+            List<T> l => map(CollectionsMarshal.AsSpan(l).Slice(start.Consumed, size), data),
+            T[] a => map(a.AsSpan(start.Consumed, size), data),
+            _ => throw new NotImplementedException()
+        };
     }
 
     public void Reset()

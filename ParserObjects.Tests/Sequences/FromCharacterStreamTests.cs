@@ -468,12 +468,12 @@ public class FromCharacterStreamTests
         var cp4 = target.Checkpoint();
         target.GetNext().Should().Be('\0');
 
-        new string(target.GetBetween(cp1, cp2)).Should().Be("ab");
-        new string(target.GetBetween(cp2, cp3)).Should().Be("cd");
-        new string(target.GetBetween(cp3, cp4)).Should().Be("ef");
-        new string(target.GetBetween(cp1, cp3)).Should().Be("abcd");
-        new string(target.GetBetween(cp2, cp4)).Should().Be("cdef");
-        new string(target.GetBetween(cp1, cp4)).Should().Be("abcdef");
+        new string(target.GetArrayBetween(cp1, cp2)).Should().Be("ab");
+        new string(target.GetArrayBetween(cp2, cp3)).Should().Be("cd");
+        new string(target.GetArrayBetween(cp3, cp4)).Should().Be("ef");
+        new string(target.GetArrayBetween(cp1, cp3)).Should().Be("abcd");
+        new string(target.GetArrayBetween(cp2, cp4)).Should().Be("cdef");
+        new string(target.GetArrayBetween(cp1, cp4)).Should().Be("abcdef");
     }
 
     [TestCase(5, true)]
@@ -497,12 +497,12 @@ public class FromCharacterStreamTests
         var cp4 = target.Checkpoint();
         target.GetNext().Should().Be('\0');
 
-        new string(target.GetBetween(cp2, cp1)).Should().Be("");
-        new string(target.GetBetween(cp3, cp2)).Should().Be("");
-        new string(target.GetBetween(cp4, cp3)).Should().Be("");
-        new string(target.GetBetween(cp3, cp1)).Should().Be("");
-        new string(target.GetBetween(cp4, cp2)).Should().Be("");
-        new string(target.GetBetween(cp4, cp1)).Should().Be("");
+        new string(target.GetArrayBetween(cp2, cp1)).Should().Be("");
+        new string(target.GetArrayBetween(cp3, cp2)).Should().Be("");
+        new string(target.GetArrayBetween(cp4, cp3)).Should().Be("");
+        new string(target.GetArrayBetween(cp3, cp1)).Should().Be("");
+        new string(target.GetArrayBetween(cp4, cp2)).Should().Be("");
+        new string(target.GetArrayBetween(cp4, cp1)).Should().Be("");
     }
 
     [TestCase(5, true)]

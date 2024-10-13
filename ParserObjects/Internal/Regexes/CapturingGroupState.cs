@@ -68,6 +68,6 @@ public sealed class CapturingGroupState : IState
     {
         if (input is ICharSequence charSequence)
             return charSequence.GetStringBetween(beforeMatch, afterMatch);
-        return new string(input.GetBetween(beforeMatch, afterMatch));
+        return input.GetBetween(beforeMatch, afterMatch, (object?)null, static (b, _) => new string(b));
     }
 }

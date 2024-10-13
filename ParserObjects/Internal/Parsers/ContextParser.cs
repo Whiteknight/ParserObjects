@@ -125,7 +125,7 @@ public static class Context<TInput>
                     var result = p.Parse(s);
                     return (result.Success, result);
                 },
-                static (ctx, s, _, ex) => s.Fail<TInput, TOutput>(ctx, "Setup code threw an exception", new ResultData(ex))
+                static (ctx, s, _, ex) => s.Fail<TOutput>(ctx, "Setup code threw an exception", new ResultData(ex))
             );
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

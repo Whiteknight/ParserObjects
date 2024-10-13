@@ -26,8 +26,7 @@ public static partial class Parsers
                 if (s is ICharSequence charSequence)
                     return charSequence.GetStringBetween(start, end);
 
-                var chars = s.GetBetween(start, end);
-                return new string(chars, 0, chars.Length);
+                return s.GetBetween(start, end, (object?)null, static (b, _) => new string(b));
             });
 
     /// <summary>

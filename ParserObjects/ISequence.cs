@@ -61,12 +61,14 @@ public interface ISequence
     void Reset();
 }
 
+public delegate TResult MapSequenceSpan<T, TData, TResult>(ReadOnlySpan<T> span, TData data);
+
 /// <summary>
 /// An input sequence of items. Similar to IEnumerable/IEnumerator but with the ability to rewind and
 /// put back items which are not needed.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface ISequence<out T> : ISequence
+public interface ISequence<T> : ISequence
 {
     /// <summary>
     /// Get the next value from the sequence or a default value if the sequence is at the end, and
@@ -85,10 +87,22 @@ public interface ISequence<out T> : ISequence
     /// Get an array of all input values between the two checkpoints. If start is greater than end,
     /// or if one of these checkpoints is not owned by this sequence, returns an empty array.
     /// </summary>
+    /// <typeparam name="TData"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
     /// <param name="start"></param>
     /// <param name="end"></param>
+    /// <param name="data"></param>
+    /// <param name="map"></param>
     /// <returns></returns>
-    T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
+    TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map);
+
+    public T[] GetArrayBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        => GetBetween(start, end, (object?)null, static (b, _) =>
+        {
+            var buffer = new T[b.Length];
+            b.CopyTo(buffer.AsSpan());
+            return buffer;
+        });
 }
 
 /// <summary>
@@ -109,7 +123,8 @@ public interface ICharSequence : ISequence<char>
     /// <param name="start"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end);
+    public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        => GetBetween(start, end, (object?)null, static (b, _) => new string(b));
 }
 
 public static class SequenceExtensions

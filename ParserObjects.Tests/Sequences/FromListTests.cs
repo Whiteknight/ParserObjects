@@ -123,7 +123,7 @@ public static class FromListTests
             var cp2 = target.Checkpoint();
             target.GetNext().Should().Be(5);
 
-            var result = target.GetBetween(cp1, cp2);
+            var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result[0].Should().Be(3);
             result[1].Should().Be(4);
@@ -341,7 +341,7 @@ public static class FromListTests
             var cp2 = target.Checkpoint();
             target.GetNext().Should().Be('e');
 
-            var result = target.GetBetween(cp1, cp2);
+            var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result[0].Should().Be('c');
             result[1].Should().Be('d');

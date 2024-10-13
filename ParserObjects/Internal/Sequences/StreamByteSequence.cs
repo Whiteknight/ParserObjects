@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 
 namespace ParserObjects.Internal.Sequences;
@@ -157,10 +158,11 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
-    public byte[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+    public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<byte, TData, TResult> map)
     {
+        Assert.ArgumentNotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return Array.Empty<byte>();
+            return map(ReadOnlySpan<byte>.Empty, data);
 
         var currentConsumed = Consumed;
         int startOfCurrentBuffer = currentConsumed - _bufferIndex;
@@ -171,19 +173,30 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
             // .Consumed values to indices and do a simple array copy.
             int startIndex = start.Consumed - startOfCurrentBuffer;
             int endIndex = end.Consumed - startOfCurrentBuffer;
-            int size = endIndex - startIndex;
-            return new ArraySegment<byte>(_buffer, startIndex, size).ToArray();
+            int localSize = endIndex - startIndex;
+            Span<byte> span = _buffer.AsSpan(startIndex, localSize);
+            return map(span, data);
         }
 
         // Otherwise the requested range is partially or wholly outside of the current buffer. So
         // we need to brute-force this by rewinding and calling .GetNext() in a loop
         var currentPosition = Checkpoint();
         start.Rewind();
-        var buffer = new byte[end.Consumed - start.Consumed];
+        var size = end.Consumed - start.Consumed;
+
+        byte[]? fromPool = null;
+        Span<byte> buffer = size < 128
+            ? stackalloc byte[size]
+            : (fromPool = ArrayPool<byte>.Shared.Rent(size)).AsSpan(0, size);
+
         for (int i = 0; i < end.Consumed - start.Consumed; i++)
             buffer[i] = GetNext();
+
         currentPosition.Rewind();
-        return buffer;
+        var result = map(buffer, data);
+        if (fromPool != null)
+            ArrayPool<byte>.Shared.Return(fromPool);
+        return result;
     }
 
     public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;

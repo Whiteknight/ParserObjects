@@ -138,7 +138,7 @@ public class SelectTests
         var cp2 = target.Checkpoint();
         target.GetNext().Should().Be(10);
 
-        var result = target.GetBetween(cp1, cp2);
+        var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(3);
         result.Should().ContainInOrder(4, 6, 8);
 

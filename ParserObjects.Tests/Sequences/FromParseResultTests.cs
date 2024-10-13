@@ -169,7 +169,7 @@ public class FromParseResultTests
         var cp2 = target.Checkpoint();
         target.GetNext().Value.Should().Be('f');
 
-        var result = target.GetBetween(cp1, cp2);
+        var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(3);
         result[0].Value.Should().Be('c');
         result[1].Value.Should().Be('d');
@@ -190,7 +190,7 @@ public class FromParseResultTests
         var cp2 = target.Checkpoint();
         target.GetNext().Value.Should().Be('f');
 
-        var result = target.GetBetween(cp2, cp1);
+        var result = target.GetArrayBetween(cp2, cp1);
         result.Length.Should().Be(0);
     }
 
@@ -213,7 +213,7 @@ public class FromParseResultTests
         target.GetNext().Value.Should().Be('d');
         var cp2 = target.Checkpoint();
 
-        var result = target.GetBetween(cp1, cp2);
+        var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(0);
     }
 }

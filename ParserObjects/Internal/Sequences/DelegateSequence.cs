@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -140,7 +141,7 @@ public static class UserDelegate
             return new SequenceCheckpoint(sequence, _index, _index, _buffers[_bufferPtr].StartIndex, new Location(string.Empty, line, column));
         }
 
-        public T[] GetBetween(ISequence sequence, SequenceCheckpoint start, SequenceCheckpoint end)
+        public TResult GetBetween<TData, TResult>(ISequence sequence, SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
         {
             var size = end.Consumed - start.Consumed;
             var chars = new T[size];
@@ -149,7 +150,7 @@ public static class UserDelegate
             for (int i = 0; i < size; i++)
                 chars[i] = GetNext();
             cp.Rewind();
-            return chars;
+            return map(chars.AsSpan(), data);
         }
 
         public void Rewind(SequenceCheckpoint checkpoint)
@@ -242,12 +243,12 @@ public static class UserDelegate
 
         public SequenceCheckpoint Checkpoint() => _internal.Checkpoint(this);
 
-        public T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
         {
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return Array.Empty<T>();
+                return map(ReadOnlySpan<T>.Empty, data);
 
-            return _internal.GetBetween(this, start, end);
+            return _internal.GetBetween(this, start, end, data, map);
         }
 
         public bool Owns(SequenceCheckpoint checkpoint)
@@ -347,16 +348,13 @@ public static class UserDelegate
         public SequenceCheckpoint Checkpoint()
             => _internal.Checkpoint(this, _line, _column);
 
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return Array.Empty<char>();
+                return map(ReadOnlySpan<char>.Empty, data);
 
-            return _internal.GetBetween(this, start, end);
+            return _internal.GetBetween(this, start, end, data, map);
         }
-
-        public string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end)
-            => new string(GetBetween(start, end));
 
         public bool Owns(SequenceCheckpoint checkpoint)
             => checkpoint.Sequence == this;

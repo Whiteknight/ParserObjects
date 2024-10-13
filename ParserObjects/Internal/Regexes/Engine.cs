@@ -54,8 +54,7 @@ public static class Engine
         if (input is ICharSequence charSequence)
             return charSequence.GetStringBetween(startCheckpoint, endCheckpoint);
 
-        var charArray = input.GetBetween(startCheckpoint, endCheckpoint);
-        return new string(charArray);
+        return input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
     }
 
     private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input)
