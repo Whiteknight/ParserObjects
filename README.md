@@ -35,9 +35,10 @@ var sequence = FromCharacterFile("fileName.txt");
 var sequence = FromCharacterStream(myStream);
 ```
 
-An `IParser` is an object that attempts to match a pattern in an input sequence. If the pattern is matched, the items will be consumed by the parser and a result will be returned. If the parser cannot match at the beginning of the input sequence, it returns a failure and no items are consumed. There are several dozen different types of parsers in the library, which can be found by including this in your file:
+An `IParser` is an object that attempts to match a pattern in an input sequence. If the pattern is matched, the items will be consumed by the parser and a result will be returned. If the parser cannot match at the beginning of the input sequence, it returns a failure and no items are consumed. There are several dozen types of parsers in the library, which can be found by including these lines in your file:
 
 ```csharp
+using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 ```
 
