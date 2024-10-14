@@ -4,7 +4,7 @@ namespace ParserObjects.Internal.Regexes;
 
 /// <summary>
 /// State used to prevent re-applying a second quantifier to an atom which has already been
-/// uantified. For example, "a{2}" would otherwise create states [ExactlyOne(a), ExactlyOne(a)],
+/// quantified. For example, "a{2}" would otherwise create states [ExactlyOne(a), ExactlyOne(a)],
 /// which appears not to be quantified, but it is. So instead we create states
 /// [ExactlyOne(a), ExactlyOne(a), Fence], and Fence will throw an exception if the regex attempts
 /// to add a quantifier to it.
