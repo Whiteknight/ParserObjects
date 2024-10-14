@@ -5,17 +5,20 @@ The example parser for Polish Notation (PN) demonstrates the use of the `ChainPa
 Of particular interest is this declaration:
 
 ```csharp
-var operation = operators.Chain(op =>
+var operation = operators.Chain(r =>
 {
+    if (!r.Success)
+        return Fail<int>("Unrecognized operator");
+    var op = r.Value;
     if (op == '+')
-        return operands.Transform(v => v[0] + v[1]);
+        return operands.Transform(v => v.Item1 + v.Item2);
     if (op == '-')
-        return operands.Transform(v => v[0] - v[1]);
+        return operands.Transform(v => v.Item1 - v.Item2);
     if (op == '*')
-        return operands.Transform(v => v[0] * v[1]);
+        return operands.Transform(v => v.Item1 * v.Item2);
     if (op == '/')
-        return operands.Transform(v => v[0] / v[1]);
-    throw new System.Exception("Unrecognized operator");
+        return operands.Transform(v => v.Item1 / v.Item2);
+    return Fail<int>("Unrecognized operator");
 });
 ```
 
