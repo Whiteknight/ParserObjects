@@ -5,19 +5,36 @@ The toy XML parser here is used to demonstrate the use of contextual/state data 
 In the XML parser pay particular attention to a few parts:
 
 ```csharp
-var node = Deferred(() => RecurseData(nodeInternal));
+var node = Deferred(() => nodeInternal);
 ``` 
 
-This line does two things: It uses `Deferred()` to setup a reference so the parser can recurse, and it uses `RecurseData()` to create a new data frame for every attempt to parse a node. This data frame is the way that the `"tag"` data set on a child tag does not overwrite the `"tag"` data set from the parent tag.
+This line uses `Deferred()` to setup a reference so the parser can recurse. Later we provide a definition for `nodeInternal`:
+
+```csharp
+nodeInternal = Rule(
+        openTag,
+        node.List(),
+        closeTag,
+        (open, children, close) =>
+        {
+            open.Children = children;
+            return open;
+        }
+    )
+    .WithDataContext()
+    .Named("node");
+```
+
+Here you can also see the `.WithDataContext()` method, which sets up a data frame. Whenever we try to parse a node we set up a contextual data frame, and that is the storage scratchpad where we can store the `"tag"` name of the `openTag`. We set the tag name here, with the `.SetResultData("tag")` parser:
 
 ```csharp
 var openTag = (Match('<'), nodeName, Match('>'))
-    .Produce((open, name, close) => new XmlNode(name))
+    .Rule((open, name, close) => new XmlNode(name))
     .Named("openTag")
-    .SetResultState("tag");
+    .SetResultData("tag");
 ```
 
-The final method call `.SetResultState()` saves the `XmlNode` result of the parser to the current data frame using the name `"tag"`.
+Then when we want to find a matching closing tag, we use the `Create()` parser to get the `"tag"` name from the current data frame and create a `Match()` parser for that name:
 
 ```csharp
 var closeTagName = Create(t =>
@@ -29,8 +46,6 @@ var closeTagName = Create(t =>
 }).Named("closeTagName");
 ```
 
-Here is where we read the state data. The `Create()` parser allows creating a parser during parse time. In this case it gets the string name of the `XmlNode` from the `openTag` in the current data frame, and creates a `MatchSequenceParser` instance to match that sequence of characters. If the close tag does not match the open tag, a failure result will be returned and bubbled up to the caller.
+There are other ways to accomplish this same goal without the use of impure parsers and state. For example, the `closeTagName` rule could match any `nodeName` value, and later in the `nodeInternal` rule's production callback we could verify that the open and close tags match. Throwing an exception in the middle of the parse is probably not a great idea either, because you can't continue from that point. Modern editors and IDEs want the parser to try to get all the way to the end, and give a list of all problems in the input document, not just the first one.
 
-There are other ways to accomplish this same goal without the use of impure parsers and state. For example, the `closeTagName` rule could match any `nodeName` value, and later in the `nodeInternal` rule when we are trying to assemble things we could check if the open and close tags match and throw an exception if not. Throwing an exception in the middle of the parse is probably not a great idea either, because you can't continue from that point. Modern editors and IDEs want the parser to try to get all the way to the end, and give a list of all problems in the input document, not just the first one.
-
-The final approach would be to assemble an abstract syntax tree first, instead of trying to assemble an `XmlNode` output directly. Then when you generate your AST you would have a separate step where you converted to an `XmlNode`, during which you could aggregate all errors you find along the way and report them all to the user at the end.
+Another approach would be to assemble an abstract syntax tree first, instead of trying to assemble an `XmlNode` output directly. Then when you generate your AST you would have a separate step where you converted to an `XmlNode`, during which you could aggregate all errors you find along the way and report them all to the user at the end.

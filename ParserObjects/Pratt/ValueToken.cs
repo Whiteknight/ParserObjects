@@ -1,23 +1,13 @@
 ﻿namespace ParserObjects.Pratt;
 
 // A token which includes a parsed value and some metadata about it's context.
-public readonly struct ValueToken<TValue>
+public readonly record struct ValueToken<TValue>(
+    int TokenTypeId,
+    TValue Value,
+    int LeftBindingPower,
+    int RightBindingPower,
+    string Name
+)
 {
-    public ValueToken(int typeId, TValue value, int lbp, int rbp, string name)
-    {
-        TokenTypeId = typeId;
-        Value = value;
-        LeftBindingPower = lbp;
-        RightBindingPower = rbp;
-        Name = name;
-    }
-
-    public int TokenTypeId { get; }
-    public TValue Value { get; }
-
-    public int LeftBindingPower { get; }
-    public int RightBindingPower { get; }
-    public string Name { get; }
-
     public override string ToString() => Value?.ToString() ?? string.Empty;
 }
