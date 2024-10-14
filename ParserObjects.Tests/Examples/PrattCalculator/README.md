@@ -18,14 +18,14 @@ This small piece of code is a shorthand for something like this:
 
 ```csharp
 .Add(number, p => p
-    .ProduceRight(0, (_, v) => v.Value))
+    .Bind(0, (_, v) => v.Value))
 ```
 
 It creates a non-operator value which does not itself interact with anything to the left or right of it. Most operators are defined like this:
 
 ```csharp
 .Add(Token(TokenType.Addition), p => p
-    .ProduceLeft(1, (ctx, left, _) =>
+    .BindLeft(1, (ctx, left, _) =>
     {
         var right = ctx.Parse();
         return left.Value + right;
@@ -36,7 +36,7 @@ This is a shorthand for the nearly-identical
 
 ```csharp
 .Add(Token(TokenType.Addition), p => p
-    .ProduceLeft(1, 2, (ctx, left, _) =>
+    .BindLeft(1, 2, (ctx, left, _) =>
     {
         var right = ctx.Parse();
         return left.Value + right;
@@ -47,7 +47,7 @@ This is the implementation for a left-associative "infix" operator, where values
 
 ```csharp
 .Add(Token(TokenType.Exponentiation), p => p
-    .ProduceLeft(6, 5, (ctx, left, _) =>
+    .BindLeft(6, 5, (ctx, left, _) =>
     {
         var right = ctx.Parse();
         return (int)Math.Pow(left.Value, right);

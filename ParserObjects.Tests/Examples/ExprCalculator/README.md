@@ -63,6 +63,6 @@ var multiplicative = LeftApply(
 );
 ```
 
-In the LeftApply parser, it parses the left token first (`number`) and then it tries to combine that with additional tokens. When one of the rules succeeds, that value is used as the new left-hand size and it tries to match the rules again. In the expression `1 * 2 * 3 * 4 * 5`, the parser tries to match a number (`left`), an operator and another number. When it finds that, it calculates the result and uses that as the new left-hand side of the equation `2 * 3 * 4 * 5`. It matches the rule again to reduce to `6 * 4 * 5`, followed by `24 * 5` and then the final answer is received after matching the rule for the final time `120`.
+In the LeftApply parser, it parses the left token first (`number`) and then it tries to combine that with additional tokens. When one of the rules succeeds, that value is used as the new left-hand side and it tries to match the rules again. In the expression `1 * 2 * 3 * 4 * 5`, the parser tries to match a number (`left`), an operator and another number. When it finds that, it calculates the result and uses that as the new left-hand side of the equation `2 * 3 * 4 * 5`. It matches the rule again to reduce to `6 * 4 * 5`, followed by `24 * 5` and then the final answer is received after matching the rule for the final time `120`.
 
 If you run the unit tests in debug mode, you can see the output trace in the Output window.

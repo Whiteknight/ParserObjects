@@ -33,7 +33,7 @@ public static class PolishGrammar
         var operands = Rule(
             value,
             value,
-            (a, b) => new[] { a, b }
+            (a, b) => (a, b)
         );
 
         var operation = operators.Chain(r =>
@@ -42,13 +42,13 @@ public static class PolishGrammar
                 return Fail<int>("Unrecognized operator");
             var op = r.Value;
             if (op == '+')
-                return operands.Transform(v => v[0] + v[1]);
+                return operands.Transform(v => v.Item1 + v.Item2);
             if (op == '-')
-                return operands.Transform(v => v[0] - v[1]);
+                return operands.Transform(v => v.Item1 - v.Item2);
             if (op == '*')
-                return operands.Transform(v => v[0] * v[1]);
+                return operands.Transform(v => v.Item1 * v.Item2);
             if (op == '/')
-                return operands.Transform(v => v[0] / v[1]);
+                return operands.Transform(v => v.Item1 / v.Item2);
             return Fail<int>("Unrecognized operator");
         });
 
