@@ -84,11 +84,13 @@ public static class State
         if (max == int.MaxValue)
         {
             previousState.Quantifier = Quantifier.ZeroOrMore;
+            states.Add(Fence);
             return states;
         }
 
         previousState.Quantifier = Quantifier.Range;
         previousState.Maximum = (int)(max - min);
+        states.Add(Fence);
         return states;
     }
 
@@ -98,10 +100,11 @@ public static class State
 
         var previousState = VerifyPreviousStateIsNotEndAnchor(states);
         Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
-        if (previousState.Quantifier != Quantifier.ExactlyOne)
+        if (previousState.Quantifier != Quantifier.ExactlyOne || previousState is EndAnchorState || previousState is FenceState)
             throw new RegexException("Quantifier may only follow an unquantified atom");
 
         previousState.Quantifier = quantifier;
+        states.Add(Fence);
         return states;
     }
 

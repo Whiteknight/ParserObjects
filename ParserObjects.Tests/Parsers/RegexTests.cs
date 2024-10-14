@@ -393,6 +393,21 @@ public class RegexTests
         matches[1][0].Should().Be(group1);
     }
 
+    [TestCase("(..)(..)\\2\\1", "abcdcdab", "abcdcdab", "ab", "cd")]
+    public void Parse_CaptureBackreference(string pattern, string input, string group0, string group1, string group2)
+    {
+        var target = Regex(pattern);
+        var result = target.Parse(input);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(group0);
+        var matchOption = result.TryGetData<RegexMatch>();
+        matchOption.Success.Should().BeTrue();
+        var matches = matchOption.Value;
+        matches[0][0].Should().Be(group0);
+        matches[1][0].Should().Be(group1);
+        matches[2][0].Should().Be(group2);
+    }
+
     [Test]
     public void Match_Test()
     {
