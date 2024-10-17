@@ -121,7 +121,7 @@ namespace ParserObjects.CodeGen
                 wr.WriteLine($"var r{i} = p{i}.Parse(state);");
                 wr.WriteLine($"if (!r{i}.Success)");
                 wr.Indent++;
-                wr.WriteLine($"return resultFactory.Failure(r{i}.ErrorMessage);");
+                wr.WriteLine($"return resultFactory.Failure(r{i}.ErrorMessage, parser: p{i});");
                 wr.Indent--;
             }
 

@@ -34,9 +34,10 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// Create a failure result with an error message.
     /// </summary>
     /// <param name="errorMessage"></param>
+    /// <param name="parser"></param>
     /// <returns></returns>
-    public Result<TOutput> Failure(string errorMessage)
-        => _state.Fail(Parser, errorMessage, default);
+    public Result<TOutput> Failure(string errorMessage, IParser? parser = null)
+        => _state.Fail<TOutput>(parser ?? Parser, errorMessage, default);
 
     /// <summary>
     /// Create a success result with a value.
