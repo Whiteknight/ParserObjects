@@ -1,18 +1,20 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ParserObjects.CodeGen
 {
     [Generator]
-    public class RuleSourceGenerator : ISourceGenerator
+    public class RuleSourceGenerator : IIncrementalGenerator
     {
-        public void Execute(GeneratorExecutionContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.AddSource("Parsers.Rules.g.cs", new RulesGenerator().GetRulesDefs());
-        }
-
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            // No initialization required for this one
+            context.RegisterPostInitializationOutput(ctx => ctx
+                .AddSource(
+                    "Parsers.Rules.g.cs",
+                    SourceText.From(new RulesGenerator().GetRulesDefs(), Encoding.UTF8)
+                )
+            );
         }
     }
 }

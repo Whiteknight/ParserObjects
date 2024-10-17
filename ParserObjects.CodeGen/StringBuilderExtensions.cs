@@ -1,31 +1,38 @@
-﻿using System.Text;
+﻿using System.CodeDom.Compiler;
 
 namespace ParserObjects.CodeGen
 {
     public static class StringBuilderExtensions
     {
-        public static StringBuilder TArgsList(this StringBuilder sb, int num)
+        public static void TArgsList(this IndentedTextWriter wr, int num)
         {
-            sb.Append("T1");
+            wr.Write("T1");
             for (int i = 2; i <= num; i++)
-                sb.Append(", T").Append(i);
-            return sb;
+            {
+                wr.Write(", T");
+                wr.Write(i);
+            }
         }
 
-        public static StringBuilder PList(this StringBuilder sb, int num)
+        public static void PList(this IndentedTextWriter wr, int num)
         {
-            sb.Append("p1");
+            wr.Write("p1");
             for (int i = 2; i <= num; i++)
-                sb.Append(", p").Append(i);
-            return sb;
+            {
+                wr.Write(", p");
+                wr.Write(i);
+            }
         }
 
-        public static StringBuilder RValueList(this StringBuilder sb, int num)
+        public static void RValueList(this IndentedTextWriter wr, int num)
         {
-            sb.Append("r1.Value");
+            wr.Write("r1.Value");
             for (int i = 2; i <= num; i++)
-                sb.Append(", r").Append(i).Append(".Value");
-            return sb;
+            {
+                wr.Write(", r");
+                wr.Write(i);
+                wr.Write(".Value");
+            }
         }
     }
 }
