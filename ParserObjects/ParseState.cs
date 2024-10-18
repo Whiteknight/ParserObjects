@@ -13,13 +13,12 @@ namespace ParserObjects;
 public sealed class ParseState<TInput> : IParseState<TInput>
 {
     private readonly Action<string> _logCallback;
-    private readonly LinkedList<Dictionary<string, object>> _data;
+    private LinkedList<Dictionary<string, object>>? _data;
 
     public ParseState(ISequence<TInput> input, Action<string> logCallback, IResultsCache? cache)
     {
         Input = input;
-        _data = new LinkedList<Dictionary<string, object>>();
-        _data.AddLast(new Dictionary<string, object>());
+        _data = null;
         _logCallback = logCallback;
         Cache = cache ?? NullResultsCache.Instance;
     }
@@ -31,7 +30,7 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 
     public ISequence<TInput> Input { get; }
 
-    public DataStore Data => new DataStore(_data);
+    public DataStore Data => new DataStore(GetDataStore());
 
     public IResultsCache Cache { get; }
 
@@ -39,22 +38,34 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 
     public TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null)
     {
+        var store = GetDataStore();
         try
         {
-            _data.AddLast(new Dictionary<string, object>());
+            store.AddLast(new Dictionary<string, object>());
             if (data != null)
             {
                 foreach (var kvp in data)
-                    _data.Last!.Value!.Add(kvp.Key, kvp.Value);
+                    store.Last!.Value!.Add(kvp.Key, kvp.Value);
             }
 
             return withContext(this, args);
         }
         finally
         {
-            if (_data.Count > 1)
-                _data.RemoveLast();
+            if (store.Count > 1)
+                store.RemoveLast();
         }
+    }
+
+    private LinkedList<Dictionary<string, object>> GetDataStore()
+    {
+        if (_data == null)
+        {
+            _data = new LinkedList<Dictionary<string, object>>();
+            _data.AddLast(new Dictionary<string, object>());
+        }
+
+        return _data;
     }
 }
 
