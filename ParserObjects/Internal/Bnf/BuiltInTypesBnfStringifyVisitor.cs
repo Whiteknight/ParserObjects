@@ -196,19 +196,11 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     {
         if (string.IsNullOrEmpty(description))
         {
-            // There is not currently a way to have children but no description. The Function()
-            // method doesn't take children, and all internal uses of Function always fill in
-            // description. In the future if we have other combinations we can expand this method.
-            Debug.Assert(children.Count == 0, "There is not currently any supported way to have children but no description");
             state.Append("User Function");
             return;
         }
 
-        var parts = description!.Split(new[] { "{child}" }, children.Count + 1, StringSplitOptions.None);
-        state.Append(parts[0]);
-
-        for (int i = 1; i < parts.Length; i++)
-            state.Append(children[i - 1], parts[i]);
+        BnfDescription.Append(state, description, children);
     }
 
     public void Accept<TInput, TData>(Function<TInput>.Parser<TData> p, BnfStringifyState state)

@@ -63,9 +63,9 @@ namespace ParserObjects.CodeGen
 
         private static void WriteFormatString(int num, IndentedTextWriter wr)
         {
-            wr.Write("\"({child}");
+            wr.Write("\"(%0");
             for (int i = 2; i <= num; i++)
-                wr.Write(" {child}");
+                wr.Write($" %{i - 1}");
             wr.Write(")\"");
         }
 
