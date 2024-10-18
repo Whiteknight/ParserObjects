@@ -5,16 +5,14 @@ In the first [expression parser example](expression_example.md) we showed an exp
 First we start by stubbing out our parser:
 
 ```csharp
-using static ParserObjects.Parsers<char>;
-```
-
-```csharp
 var parser = Earley<int>(symbols => {
-
+    ...
 });
 ```
 
-We would like to define a few parsers to help with getting the tokens we need:
+The Earley parse algorithm is a context-free recursive parsing algorithm which is extremely powerful. All that power comes with some drawbacks, however. We will see it in this example.
+
+Let's start by defining a few parsers to help with getting the tokens we need:
 
 ```csharp
 var plus = Token(TokenType.Addition);
@@ -24,7 +22,7 @@ var number = Token(TokenType.Number)
     .Transform(t => int.Parse(t.Value));
 ```
 
-Our grammar is going to look like this:
+The BNF for our grammar is going to look like this:
 
 ```
 Expr ::= <number>
@@ -32,7 +30,9 @@ Expr ::= <Expr> '+' <Expr>
 Expr ::= <Expr> '*' <Expr>
 ```
 
-Now we can create an Expression symbol in the Earley parser which combines these things together:
+Notice how unlike in the combinators example and the Pratt example, the BNF rules here are *recursive*. That is, the symbol `Expr` appears in it's own definition. Right-recursion (where the symbol appears at the end of it's own definition) is possible with many parsers, but Left-recursion (where the symbol appears at *the beginning* of it's own definition) is not. With the Earley parser, both recursion scenarios are possible and *easy*.
+
+Create an Expression symbol in the Earley parser which combines these things together:
 
 ```csharp
 var parser = Earley<int>(symbols => {
@@ -51,7 +51,7 @@ var parser = Earley<int>(symbols => {
 });
 ```
 
-The `return expr;` line tells the Earley parser which symbol is considered the "Start Symbol", or the top-level symbol for the grammar. The parser returns a successful result any time the Start Symbol is matched. Now we create a Calculator harness to hold this. The calculator will return a list of results since Earley is a multi parser:
+The `return expr;` line tells the Earley parser which symbol is considered the "Start Symbol", or the top-level symbol for the grammar. The parser returns a successful result any time the Start Symbol is matched. Now we create a Calculator harness to hold this. The calculator is modified to return a list of results since Earley is a multi parser:
 
 ```csharp
 public class Calculator
@@ -69,7 +69,7 @@ public class Calculator
         var expressionParser = ExpressionGrammar.CreateParser();
         var multiResult = expressionParser.Parse(tokenSequence);
 
-        // Get the values of the result
+        // Get the successful values of the result
         return result.Results
             .Where(r => r.Success)
             .Select(r => r.Value)
@@ -96,7 +96,7 @@ s.Rule(expr, eof, (value, _) => value);
 return s;
 ```
 
-This allows us to weed out the two partial results, but it doesn't help to disambiguate the remaining two. For that we need to insert precedence rules. New BNF:
+This allows us to weed out the two partial results, but it doesn't help to disambiguate the remaining two. For that we need to insert precedence rules. Let's try to add some precedence to our BNF rules:
 
 ```
 Term ::= <number>
@@ -104,6 +104,8 @@ Term ::= <Term> '*' <Term>
 Expr ::= <Term>
 Expr ::= <Expr> '+' <Expr>
 ```
+
+He we can see we want to parse `Term` first and then an `Expr` is a sum of `Term`. This is similar to our `multiplicative` and `additive` rules from the first example. Writing this in the Earley parser gives us:
 
 ```csharp
 var term = symbols.New<int>("Term");
@@ -138,7 +140,7 @@ expr.Rule(expr, plus, expr, (l, _, r) => l + r);
 expr.Rule(expr, minus, expr, (l, _, r) => l - r);
 ```
 
-Now the input `4*5+6/3-2` should be parsed as `"(4*5)+(6/3)-2" = 20` but when we run the code we get two values again. The number `20` is in the list twice! It turns out that the Earley algorithm arrived at the same result in two different ways, `<Expr> + <Expr>` and `<Expr> - <Expr>`. The addition and subtraction can, after all, happen in any order depending whether we recurse `<Expr>` on the left or on the right. So, let's remove the option and only recurse on the left. These operators are typically left-associative, after all:
+Now the input `4*5+6/3-2` should be parsed as `"(4*5)+(6/3)-2" = 20` but when we run the code we get two values again. The number `20` is in the list twice! It turns out that the Earley algorithm arrived at the same result in two different ways, `<Expr> + <Expr>` and `<Expr> - <Expr>`. The addition and subtraction have the same precedence level and can be evaluated in either order depending whether we recurse `<Expr>` on the left or on the right. So, let's remove the option and only recurse on the left. These operators are typically left-associative, after all:
 
 ```
 Primary ::= <number>

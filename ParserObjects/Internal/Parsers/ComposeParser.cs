@@ -7,7 +7,7 @@ namespace ParserObjects.Internal.Parsers;
 public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
     IParser<TInput, TMiddle> Lexer,
     IParser<TMiddle, TOutput> Parser,
-    Func<ResultFactory<TInput, TMiddle>, IResult<TMiddle>>? OnEnd,
+    Func<ResultFactory<TInput, TMiddle>, Result<TMiddle>>? OnEnd,
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
@@ -17,7 +17,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
-    public IResult<TOutput> Parse(IParseState<TInput> state)
+    public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var startCp = state.Input.Checkpoint();
         var innerState = GetInnerState(state);
@@ -68,7 +68,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
 
     public INamed SetName(string name) => this with { Name = name };
 
-    IResult IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>
@@ -78,12 +78,12 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
 
     private class InnerParserFailedException : ControlFlowException
     {
-        public InnerParserFailedException(IResult<TMiddle> errorResult)
+        public InnerParserFailedException(Result<TMiddle> errorResult)
             : base(errorResult.ErrorMessage)
         {
             ErrorResult = errorResult;
         }
 
-        public IResult<TMiddle> ErrorResult { get; }
+        public Result<TMiddle> ErrorResult { get; }
     }
 }
