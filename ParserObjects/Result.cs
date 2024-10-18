@@ -10,12 +10,6 @@ namespace ParserObjects;
 /// <param name="Data"></param>
 public readonly record struct ResultData(object Data)
 {
-    /* These lists are usually allocated with the result, and are often discarded immediately
-     * without ever being accessed. TryGetData is nice, but it's not often used. It would be nice
-     * if we could find a way to rent these lists of object from the ArrayPool, but we would have
-     * to find a way to return them when we're done. I don't want to wrap every result in a using
-     * block.
-     */
     public Option<T> TryGetData<T>()
     {
         if (Data == null)

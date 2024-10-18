@@ -1,15 +1,14 @@
-﻿namespace ParserObjects.Tests.Examples.JSON
+﻿namespace ParserObjects.Tests.Examples.JSON;
+
+public enum JsonTokenType
 {
-    public enum JsonTokenType
-    {
-        String,
-        Number,
-        OpenSquareBracket,
-        CloseSquareBracket,
-        OpenCurlyBracket,
-        CloseCurlyBracket,
-        Comma,
-        Colon,
-        End
-    }
+    String,
+    Number,
+    OpenSquareBracket,
+    CloseSquareBracket,
+    OpenCurlyBracket,
+    CloseCurlyBracket,
+    Comma,
+    Colon,
+    End
 }

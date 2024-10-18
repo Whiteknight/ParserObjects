@@ -11,7 +11,7 @@ namespace ParserObjects.Internal.Earley;
 /// </summary>
 public sealed class BnfGrammarVisitor
 {
-    private record struct State(
+    private readonly record struct State(
         BnfStringifyState OuterState,
         HashSet<object> SeenItems,
         List<string> Lines

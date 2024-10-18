@@ -21,7 +21,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     public StreamByteSequence(SequenceOptions<byte> options)
     {
         _options = options;
-        Assert.ArgumentNotNullOrEmpty(_options.FileName, nameof(_options.FileName));
+        Assert.ArgumentNotNullOrEmpty(_options.FileName);
         _options.Validate();
 
         _stats = default;
@@ -34,7 +34,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public StreamByteSequence(Stream stream, SequenceOptions<byte> options)
     {
-        Assert.ArgumentNotNull(stream, nameof(stream));
+        Assert.ArgumentNotNull(stream);
         _options = options;
         _options.Validate();
 

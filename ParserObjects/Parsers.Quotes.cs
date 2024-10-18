@@ -40,8 +40,8 @@ public static partial class Parsers
         var escapedClose = $"{escapeStr}{closeStr}";
         var escapedEscape = $"{escapeStr}{escapeStr}";
         var bodyChar = Or(
-            Match(escapedClose),
-            Match(escapedEscape),
+            MatchChars(escapedClose),
+            MatchChars(escapedEscape),
             Match(c => c != closeStr)
         );
         return Capture(
@@ -87,8 +87,8 @@ public static partial class Parsers
         var escapedClose = $"{escapeStr}{closeStr}";
         var escapedEscape = $"{escapeStr}{escapeStr}";
         var bodyChar = First(
-            Match(escapedClose).Transform(_ => closeStr),
-            Match(escapedEscape).Transform(_ => escapeStr),
+            MatchChars(escapedClose).Transform(_ => closeStr),
+            MatchChars(escapedEscape).Transform(_ => escapeStr),
             Match(c => c != closeStr)
         );
         return Rule(

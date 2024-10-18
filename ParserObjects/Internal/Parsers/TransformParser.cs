@@ -10,11 +10,13 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TMiddle"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public static class Transform<TInput, TMiddle, TOutput>
+/// <typeparam name="TData"></typeparam>
+public static class Transform<TInput, TMiddle, TOutput, TData>
 {
     public sealed record Parser(
         IParser<TInput, TMiddle> Inner,
-        Func<TMiddle, TOutput> Transform,
+        TData Data,
+        Func<TData, TMiddle, TOutput> Transform,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -22,14 +24,14 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
             if (!result.Success)
                 return new FailureResult<TOutput>(result.Parser, result.ErrorMessage, default);
 
-            var transformedValue = Transform(result.Value);
+            var transformedValue = Transform(Data, result.Value);
 
             return state.Success(this, transformedValue, result.Consumed);
         }
@@ -53,7 +55,8 @@ public static class Transform<TInput, TMiddle, TOutput>
 
     public sealed record MultiParser(
         IMultiParser<TInput, TMiddle> Inner,
-        Func<TMiddle, TOutput> Transform,
+        TData Data,
+        Func<TData, TMiddle, TOutput> Transform,
         string Name = ""
     ) : IMultiParser<TInput, TOutput>
     {
@@ -61,13 +64,13 @@ public static class Transform<TInput, TMiddle, TOutput>
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
             var result = Inner.Parse(state);
             result.StartCheckpoint.Rewind();
 
-            return result.Transform(Transform);
+            return result.Transform(Data, Transform);
         }
 
         IMultiResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);

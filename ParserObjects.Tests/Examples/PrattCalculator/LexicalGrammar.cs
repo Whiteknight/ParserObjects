@@ -2,65 +2,64 @@
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 
-namespace ParserObjects.Tests.Examples.PrattCalculator
+namespace ParserObjects.Tests.Examples.PrattCalculator;
+
+public static class LexicalGrammar
 {
-    public static class LexicalGrammar
+    public static IParser<char, Token> CreateParser()
     {
-        public static IParser<char, Token> CreateParser()
-        {
-            var addition = Match('+')
-                .Transform(_ => new Token(TokenType.Addition, "+"));
+        var addition = Match('+')
+            .Transform(_ => new Token(TokenType.Addition, "+"));
 
-            var subtraction = Match('-')
-                .Transform(_ => new Token(TokenType.Subtraction, "-"));
+        var subtraction = Match('-')
+            .Transform(_ => new Token(TokenType.Subtraction, "-"));
 
-            var multiplication = Match('*')
-                .Transform(_ => new Token(TokenType.Multiplication, "*"));
+        var multiplication = Match('*')
+            .Transform(_ => new Token(TokenType.Multiplication, "*"));
 
-            var division = Match('*')
-                .Transform(_ => new Token(TokenType.Division, "/"));
+        var division = Match('*')
+            .Transform(_ => new Token(TokenType.Division, "/"));
 
-            var exponent = Match('^')
-                .Transform(_ => new Token(TokenType.Exponentiation, "^"));
+        var exponent = Match('^')
+            .Transform(_ => new Token(TokenType.Exponentiation, "^"));
 
-            var factorial = Match('!')
-                .Transform(_ => new Token(TokenType.Factorial, "!"));
+        var factorial = Match('!')
+            .Transform(_ => new Token(TokenType.Factorial, "!"));
 
-            var openParen = Match('(')
-                .Transform(_ => new Token(TokenType.OpenParen, "("));
+        var openParen = Match('(')
+            .Transform(_ => new Token(TokenType.OpenParen, "("));
 
-            var closeParen = Match(')')
-                .Transform(_ => new Token(TokenType.CloseParen, ")"));
+        var closeParen = Match(')')
+            .Transform(_ => new Token(TokenType.CloseParen, ")"));
 
-            var number = Match(c => char.IsDigit(c))
-                .List(atLeastOne: true)
-                .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
+        var number = Match(c => char.IsDigit(c))
+            .List(atLeastOne: true)
+            .Transform(c => new Token(TokenType.Number, new string(c.ToArray())));
 
-            var end = If(End(), Produce(() =>
-                new Token(TokenType.End, "")));
+        var end = If(End(), Produce(() =>
+            new Token(TokenType.End, "")));
 
-            var whitespace = OptionalWhitespace();
+        var whitespace = OptionalWhitespace();
 
-            var anyToken = First(
-                addition,
-                subtraction,
-                multiplication,
-                division,
-                exponent,
-                factorial,
-                number,
-                openParen,
-                closeParen,
-                end
-            );
+        var anyToken = First(
+            addition,
+            subtraction,
+            multiplication,
+            division,
+            exponent,
+            factorial,
+            number,
+            openParen,
+            closeParen,
+            end
+        );
 
-            var whitespaceAndToken = Rule(
-                whitespace,
-                anyToken,
-                (_, t) => t
-            );
+        var whitespaceAndToken = Rule(
+            whitespace,
+            anyToken,
+            (_, t) => t
+        );
 
-            return whitespaceAndToken;
-        }
+        return whitespaceAndToken;
     }
 }

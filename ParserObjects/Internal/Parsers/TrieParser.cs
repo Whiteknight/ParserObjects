@@ -13,6 +13,10 @@ public sealed record TrieParser<TInput, TOutput>(
     string Name = ""
 ) : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    /* This parser delegates to the ReadableTrie struct, which in turn delegates to the Trie/Node
+     * class. All the parsing/matching logic is located in Node.
+     */
+
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
     public IResult<TOutput> Parse(IParseState<TInput> state)

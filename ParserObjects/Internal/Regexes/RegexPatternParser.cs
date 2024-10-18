@@ -69,7 +69,7 @@ public static class RegexPatternGrammar
                 .Bind(_bpAtom, static (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                 .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
-            .Add(Match("(?:"), static p => p
+            .Add(MatchChars("(?:"), static p => p
                 .Bind(_bpAtom, static (ctx, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
@@ -173,12 +173,12 @@ public static class RegexPatternGrammar
         return (low, high);
     }
 
-    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, int> digits)
+    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, uint> digits)
     {
         if (states.Last() is EndAnchorState)
             throw new RegexException("Cannot quantify the end anchor $");
 
-        int min = 0;
+        uint min = 0;
         var first = ctx.TryParse(digits);
         if (first.Success)
             min = first.Value;

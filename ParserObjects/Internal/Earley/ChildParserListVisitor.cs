@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Earley;
 /// </summary>
 public sealed class ChildParserListVisitor
 {
-    private record struct State(HashSet<object> SeenItems, List<IParser> ChildParsers);
+    private readonly record struct State(HashSet<object> SeenItems, List<IParser> ChildParsers);
 
     public IEnumerable<IParser> Visit(INonterminal item)
     {

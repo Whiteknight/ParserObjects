@@ -1,14 +1,32 @@
 ﻿using System.IO;
 using System.Text;
 using ParserObjects.Regexes;
-using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Parsers;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
 
 public class RegexTests
 {
+    [Test]
+    public void EmptyPattern()
+    {
+        var parser = Regex(string.Empty);
+        var result = parser.Parse("abc");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(string.Empty);
+    }
+
+    [Test]
+    public void NullPattern()
+    {
+        var parser = Regex(null);
+        var result = parser.Parse("abc");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(string.Empty);
+    }
+
     [Test]
     public void Regex_MatchLiteral_CanReparse()
     {

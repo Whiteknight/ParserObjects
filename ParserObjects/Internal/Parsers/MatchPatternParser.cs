@@ -19,7 +19,7 @@ public sealed record MatchPatternParser<T>(
 
     public IResult<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
 
         // If the pattern has exactly one item in it, check for equality without a loop

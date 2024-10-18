@@ -16,7 +16,7 @@ public sealed class Engine<TInput, TOutput>
 
     public Engine(IReadOnlyList<IParselet<TInput, TOutput>> parselets)
     {
-        Assert.ArrayNotNullAndContainsNoNulls(parselets, nameof(parselets));
+        Assert.ArrayNotNullAndContainsNoNulls(parselets);
         _nudableParselets = new IParselet<TInput, TOutput>[parselets.Count];
         _ledableParselets = new IParselet<TInput, TOutput>[parselets.Count];
         int numNudable = 0;
@@ -41,7 +41,7 @@ public sealed class Engine<TInput, TOutput>
 
     public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var levelCp = state.Input.Checkpoint();
         try
         {

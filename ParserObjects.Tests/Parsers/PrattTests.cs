@@ -161,7 +161,7 @@ public class PrattTests
     public void Prefix_Negation()
     {
         var target = Pratt<int>(c => c
-            .Add(UnsignedInteger())
+            .Add(UnsignedInteger().Transform(u => (int)u))
             .Add(Match('-'), p => p
                 .Bind(1, (ctx, op) => -ctx.Parse())
             )
@@ -176,7 +176,7 @@ public class PrattTests
     public void Postfix_Factorial()
     {
         var target = Pratt<int>(c => c
-            .Add(UnsignedInteger())
+            .Add(UnsignedInteger().Transform(u => (int)u))
             .Add(Match('!'), p => p
                 .BindLeft(1, (ctx, l, op) =>
                 {
@@ -562,7 +562,7 @@ public class PrattTests
         // We should match 'a', Any('b') then when we see 'c' we Complete() and FailRule(). This
         // will cause the entire parser to abort and return "ab" even though Any() should accept
         // 'c'. The parser won't even try it because it's marked complete.
-        // Not that this is ordering dependent, because Match('c') is defined before Any() so it
+        // Note that this is ordering dependent, because Match('c') is defined before Any() so it
         // is tested first.
         var target = Pratt<string>(c => c
             .Add(Match('a'), p => p

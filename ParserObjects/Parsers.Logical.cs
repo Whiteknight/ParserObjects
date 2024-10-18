@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Parsers;
+﻿using ParserObjects.Internal;
+using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
@@ -11,7 +12,7 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput> And(params IParser<TInput>[] parsers)
-        => new AndParser<TInput>(parsers);
+        => new CaptureParser<TInput, object>(parsers, static (_, _, _) => Defaults.ObjectInstance);
 
     /// <summary>
     /// Tests the predicate parser. If the predicate succeeds, invoke the success parser

@@ -17,12 +17,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     // (?= ) is "positive lookahead" syntax. We use it to show something doesn't consume input
     // (?! ) is "negative lookahead" syntax. We use it for non-follows situations
 
-    public void Accept<TInput>(AndParser<TInput> p, BnfStringifyState state)
-    {
-        var children = p.GetChildren().ToArray();
-        state.Append(children[0], " && ", children[1]);
-    }
-
     public void Accept<TInput>(AnyParser<TInput> _, BnfStringifyState state)
     {
         state.Append('.');
@@ -43,14 +37,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("CACHED(", p.GetChildren().First(), ")");
     }
 
-    public void Accept<TInput>(CaptureParser<TInput> p, BnfStringifyState state)
+    public void Accept<TInput, TOutput>(CaptureParser<TInput, TOutput> p, BnfStringifyState state)
     {
         var children = p.GetChildren().ToArray();
-        state.Append("(", children[0]);
+        state.Append(children[0]);
         foreach (var child in children.Skip(1))
-            state.Append(" ", child);
-
-        state.Append(')');
+            state.Append(" && ", child);
     }
 
     private static void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyState state)
@@ -253,12 +245,18 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("'", (object?)p.Item ?? ' ', "'");
     }
 
-    public void Accept<TInput>(MatchPredicateParser<TInput> _, BnfStringifyState state)
+    public void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, BnfStringifyState state)
     {
         state.Append("MATCH()");
     }
 
     public void Accept<TInput>(MatchPatternParser<TInput> p, BnfStringifyState state)
+    {
+        var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i}'"));
+        state.Append(pattern);
+    }
+
+    public void Accept(MatchStringPatternParser p, BnfStringifyState state)
     {
         var pattern = string.Join(" ", p.Pattern.Select(i => $"'{i}'"));
         state.Append(pattern);
@@ -459,7 +457,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("SELECT ", p.GetChildren().Single());
     }
 
-    public void Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> _, BnfStringifyState state)
+    public void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> _, BnfStringifyState state)
     {
         state.Append("User Function");
     }
@@ -469,12 +467,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(p.GetChildren().First());
     }
 
-    public void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, BnfStringifyState state)
+    public void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.Parser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First());
     }
 
-    public void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.MultiParser p, BnfStringifyState state)
+    public void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.MultiParser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First());
     }

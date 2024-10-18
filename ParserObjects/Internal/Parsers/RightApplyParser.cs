@@ -23,9 +23,9 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public RightApplyParser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<RightApplyArguments<TOutput, TMiddle>, TOutput> produce, Quantifier quantifier, Func<IParseState<TInput>, TOutput>? getMissingRight = null, string name = "")
     {
-        Assert.ArgumentNotNull(item, nameof(item));
-        Assert.ArgumentNotNull(middle, nameof(middle));
-        Assert.ArgumentNotNull(produce, nameof(produce));
+        Assert.ArgumentNotNull(item);
+        Assert.ArgumentNotNull(middle);
+        Assert.ArgumentNotNull(produce);
 
         _item = item;
         _middle = middle;
@@ -41,7 +41,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
 
         var startCp = state.Input.Checkpoint();
 

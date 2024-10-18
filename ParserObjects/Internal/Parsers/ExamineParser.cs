@@ -12,6 +12,15 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Examine<TInput, TOutput>
 {
+    /* NOTE 1: It is possible for the examination callbacks to modify the parse state, so we have
+     * to do a little bit of extra work to try and rollback some of those changes if the inner
+     * parser fails.
+     *
+     * NOTE 2: We do not handle exceptions thrown from the callback methods here. A Try() parser
+     * is advised for cases where the callback methods might throw errors. Care should be taken to
+     * avoid throwing exception in those methods in any case
+     */
+
     /// <summary>
     /// Examine parser for parsers which return typed output. Executes callbacks before and
     /// after the parse.
@@ -27,7 +36,7 @@ public static class Examine<TInput, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             var startConsumed = state.Input.Consumed;
             Before?.Invoke(new ParseContext<TInput, TOutput>(Inner, state, null));
@@ -74,7 +83,7 @@ public static class Examine<TInput, TOutput>
 
         public IMultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
 
@@ -145,7 +154,7 @@ public sealed class ExamineParser<TInput> : IParser<TInput>
 
     public IResult Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         _before?.Invoke(new ParseContext<TInput>(_parser, state, null));
         var result = _parser.Parse(state);
         _after?.Invoke(new ParseContext<TInput>(_parser, state, result));

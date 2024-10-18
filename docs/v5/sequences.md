@@ -26,15 +26,49 @@ Sequences provided by ParserObjects all satisfy the following invariants and des
    1. Sequences should read from the underlying data source as infrequently as possible.
    2. Sequences should dispose, cleanup or free resources as soon as reasonably possible.
 4. Sequences should be able to rewind to a previous position with `O(1)` time complexity (with the caveat that refilling a buffer may be `O(n)`)
-5. Sequences should be able to be read infinitely, and will return a special end sentinel value for all read attempts after the end of input.
+5. Sequences should be able to be read infinitely, and will return a special end sentinel value for all read attempts after the end of input. 
+
+### End Sentinels and End of Input
+
+Since sequences are infinite, `Peek()` and `GetNext()` should always return a value, even if the sequence is read from it's end position. In these cases the value returned will be the **end sentinel**. The end sentinel is a special constant value, usually the C# `default` value for that type, which can be specified by the user (see methods below). Notice that end sentinel values *are valid values for the item type*, and the same value may be a valid part of the input sequence at other locations besides end-of-input.
+
+For example, consider the following string used as a source for a character sequence:
+
+```csharp
+var input = "abc\0def\0ghi";
+var sequence = FromString(input);
+```
+
+For this string, the null character `'\0'` is part of the input string and will be returned when the sequence is read at that position. Because it is the default end sentinel for `char` sequences, the null character `'\0'` will also be returned for every subsequent read after the final character `'i'`. In order to tell if the sequence is at the end of input or not, with certainty, is to check the `sequence.IsAtEnd` property.
+
+Reads at end of input *will not consume any input*, so the value of `sequence.Consumed` will not change after the call to `sequence.GetNext()`. Parsers which allow matching the end sentinel will return `result.Consumed == 0` in those cases.
+
+Notice that many parsers will fail to match at end of input anyway, or may fail to match the end sentinel if it is read. Some examples:
+
+1. `Any()` will not attempt to read at end of input
+2. `Match()` will read at end of input and can match the end sentinel depending on arguments passed
+3. `MatchItem()` will not read at end of input, but is otherwise identical to `Match()`
+4. `Regex()` will not read at end of input.
+5. `List()` will not check for end of input, but will automatically end if a read consumes zero input. So a `List(Match(predicate))`, where the predicate can match the end sentinel, will return a single end sentinel at the end.
+
+The end sentinel value is usually the C# `default` value for that type, but you can change it in the `SequenceOptions`:
+
+```csharp
+var sequence = FromString("...", new SequenceOptions<char> 
+{ 
+    EndSentinel = 'X' 
+});
+```
+
+All factory methods for sequences (listed below) will allow passing a `SequenceOptions<T>`.
 
 ## Methods and Usage
 
 ### Get Next Item
 
-The `.GetNext()` method returns the next input item from the sequence. If the sequence is past the end of input, an "end sentinel" value will be returned instead. This is usually a default value like `null`, `'\0'` or `0` though the end sentinel value is configurable for most sources. If `null` or a default value is a valid input value, you may need to take extra care to differentiate a "real" input from the sequence from the "synthetic" end sentinel value.
+The `.GetNext()` method returns the next input item from the sequence. If the sequence is past the end of input, the end sentinel value will be returned instead. If `null` or a default value is a valid input value, you may need to take extra care to differentiate a "real" input from the sequence from the "synthetic" end sentinel value.
 
-All sequences are infinite, you can continue to read past the end of input for as long as you like, but all values returned after the end of input will be the end sentinel. This behavior allows us to create parsers without having to always check for end of input at every single step. Your parser can read an input, see that it doesn't match the current requirements, and return failure. For example, we can change this:
+All sequences are infinite: you can continue to read past the end of input for as long as you like, but all values returned after the end of input will be the end sentinel. This behavior allows the creation of parsers without having to always check for end of input at every single step. Your parser can read an input, see that it doesn't match the current requirements, and return failure. For example, we can change this:
 
 ```csharp
 If(End(), Fail(), Match('m'))
@@ -48,16 +82,13 @@ Match('m')
 
 That is, we don't need to explicitly check for `End()` before every read to avoid exceptions being thrown. In other words, reading from a sequence *should never throw an exception*, so you can focus more energy on being *expressive* and less energy on being *defensive*.
 
-The end sentinel value is usually the C# `default` value for that type, but you can change it in the `SequenceOptions`:
+Getting the next item with `.GetNext()` will update the `.CurrentLocation` of the sequence and will update the count of items `.Consumed`. If the sequence is at end of input, `.CurrentLocation` and `.Consumed` will not change.
+
+For character sequences, there is a method `.GetString(n)` which reads the next `n` characters of input and returns them together as a string:
 
 ```csharp
-var sequence = FromString("...", new SequenceOptions<char> 
-{ 
-    EndSentinel = 'X' 
-});
+var str = charSequence.GetString(5);
 ```
-
-All factory methods for sequences (listed below) will allow passing a `SequenceOptions<T>`.
 
 #### Newline Handling
 
@@ -76,11 +107,13 @@ var sequence = FromString("...", new SequenceOptions<char>
 
 ### Check for End
 
-The special `.IsAtEnd` property will return `true` when the sequence has returned it's last element, `false` otherwise. The `.IsAtEnd` property should be updated immediately when the last item from the sequence is read, you do not need to read the end sentinel in a separate operation to update the flag. This behavior means that, for some sequence types, the underlying data source may be advanced ahead of the call to `.GetNext()` so that the end can be planned for. `.IsAtEnd` means that the position of the sequence is at the end of the underlying data source. If `.Checkpoint()`/`.Rewind()` is used to move back to a prior position, `.IsAtEnd` will be updated to `false` even though the underlying data source may be exhausted.
+The special `.IsAtEnd` property will return `true` when the sequence has returned it's last element, `false` otherwise. The `.IsAtEnd` property will be updated automatically when the input is exhausted, you do not need to call `.GetNext()` or do anything else to update the flag. An empty input sequence will automatically set `.IsAtEnd` in the constructor. This behavior means that, for some sequence types, the underlying data source may be advanced ahead of the call to `.GetNext()` so that the end can be planned for.  If `.Checkpoint()`/`.Rewind()` is used to move back to a prior position, `.IsAtEnd` will be updated to `false` even though the underlying data source may be exhausted.
+
+It is important to understand the separation of the position of the *sequence* from the position of the *underlying data source*. If you are reading from a file, or a stream, or a network resource, calls to `.GetNext()` may trigger reads on the stream, but are not directly correlated with them. Sequences may read ahead on the stream and buffer data. If a sequence calls `.Reset()` or `.Rewind()` the position of the sequence may be far diverged from the position of the input sequence. The ParserObjects library attempts, within reason, to buffer data and avoid re-reading data which has already been fetched from the source. 
 
 ### Rewinding to a Previous Location
 
-The `.Checkpoint()` method creates a `SequenceCheckpoint` structure, which is an implementation of the **Memento** pattern. This checkpoint can be very similar conceptually to a **Continuation**. A `SequenceCheckpoint` object provides a single `.Rewind()` method which can be used to return the sequence to a different position. This allows you to rewind back to a prior position if you attempt a long parse and it fails.
+The `.Checkpoint()` method creates a `SequenceCheckpoint` structure, which is an implementation of the **Memento** pattern, and is conceptually similar to a **Continuation**. A `SequenceCheckpoint` object provides a single `.Rewind()` method which can be used to return the sequence to a different position. This allows you to rewind back to a prior position if you attempt a long parse and it fails.
 
 ```csharp
 var checkpoint = sequence.Checkpoint();
@@ -101,21 +134,39 @@ checkpoint.Rewind();
 var lookahead = sequence.Peek();
 ```
 
-The `.Rewind()` method can also be used to move the sequence forward to a position, not just backwards. Several specialty parsers use this ability to bounce back and forth along the input sequence, making attempts, rewinding to a previous position, then continuing again from where it left off. 
+The `.Rewind()` method can also be used to move the sequence forward to a position, not just backwards. It can take you to any position which has *previously been read*, even if that position is forward of where the sequence pointer currently is. Several specialty parsers use this ability to bounce back and forth along the input sequence, making attempts, rewinding to a previous position, then continuing again from where it left off. 
 
 ### Peek at the Next Item
 
-You can inspect the next item from the sequence without consuming it using the `.Peek()` method. Peek is currently limited to returning only 1 item of lookahead. Most sequences optimize `.Peek()` so that it is less expensive than `.Checkpoint()`/`.Rewind()` for a single input value. If you need to lookahead for several input values, you can just read them and use checkpoints to get back to the starting location of your attempt.
+You can inspect the next item from the sequence without consuming it using the `.Peek()` method. 
+
+```csharp
+var lookahead = sequence.Peek();
+```
+
+This variant, which returns a single value, is optimized by most sequence types to be faster than the equivalent `.GetNext()`/`.Rewind()` combination. There is also a variant to get multiple input items, which does use `.GetNext()`/`.Rewind()` internally:
+
+```csharp
+var lookaheads = sequence.Peek(5);
+```
+
+`.Peek()` has the same behavior as `.GetNext()` with respect to the end of input: Calling `.Peek()` or `.Peek(n)` at the end of input will return the end sentinel.
+
+For character sequences, there is also a method `.PeekString(n)` which reads the next `n` characters and returns them as a `string`:
+
+```csharp
+var lookaheadString = charSequence.PeekString(5);
+```
 
 ### Location
 
-You can get location information about the sequence using the `.CurrentLocation` property. This property will return a `Location` object with information about filename (if available), column number and line number (if available). `.FileName` will be made available for sequences which read from a file, or will be a default value otherwise. `.Line` number is only applicable for character sequences, and is updated when `\n` characters are detected.
+You can get location information about the sequence using the `.CurrentLocation` property. This property will return a `Location` object with information about filename (if available), column number and line number (if available). `.FileName` will be made available for sequences which read from a file, or will be a default value otherwise. `.Line` number is only applicable for character sequences, and is updated when newline characters are detected (keeping in mind that newline sequences `'\r\n'` and `'\r'` are normalized to `'\n'` by default).
 
 Reported location is based on the current position of the sequence, not the high-water mark of the underlying data source, so reported location will operate correctly across calls to `.Checkpoint()`/`.Rewind()`. 
 
 ### Items Consumed
 
-The `.Consumed` property will tell how many items of input have been consumed from the sequence at the current point in time. For non-text sequences, `.Consumed` may be identical or closely correlated to `.CurrentLocation.Column`, though slightly cheaper to execute. You can use this information to determine if you need to perform a `.Rewind()` or detect if you are getting into an infinite loop.
+The `.Consumed` property will tell how many items of input have been consumed from the sequence at the current point in time. For non-text sequences, `.Consumed` may be identical or closely correlated to `.CurrentLocation.Column`, though slightly cheaper to execute. `.Consumed` will not be updated if `.GetNext()` is called to read beyond the end of the input source. You can use this information to determine if you need to perform a `.Rewind()` or detect if you are getting into an infinite loop.
 
 ```csharp
 var startConsumed = sequence.Consumed;
@@ -150,12 +201,14 @@ Some sequences might have disposable resources. Cleaning them up manually will h
 
 ### Checkpoint Ownership
 
-A checkpoint "belongs" to a single sequence, and you cannot use a checkpoint created from one sequence to change the position in another sequence. You can tell if a checkpoint belongs to a given sequence with the `.Owns()` method:
+A checkpoint "belongs" to a single sequence, and you cannot use a checkpoint created from one sequence to change the position in another sequence, even if the two sequences share an underlying source (an in-memory string, for example). You can tell if a checkpoint belongs to a given sequence with the `.Owns()` method:
 
 ```csharp
 if (sequence.Owns(checkpoint))
     ...
 ```
+
+Attempting to `.Rewind()` a sequence to a checkpoint which it does not own may throw an exception or leave the input sequence in a faulty state.
 
 ### Getting spans of items
 
@@ -165,7 +218,7 @@ If you create two checkpoints, you can get an array containing all the values be
 var values = sequence.GetBetween(startCheckpoint, endCheckpoint);
 ```
 
-Notice that this is an `O(N)` operation, and may require re-reading data from the source, such as re-reading data from a `Stream` if the start or end checkpoints are outside the current buffered data. 
+Notice that this is an `O(N)` operation, and may require re-reading/re-buffering data from the source. ParserObjects does buffer data from dynamic sources such as `Stream`s, but buffers are configurable and are not guaranteed to hold all data for all active checkpoints.
 
 If the `start` checkpoint and the `end` checkpoint are for the same location, or if `start` is after `end`, an empty array will be returned.
 
@@ -185,7 +238,7 @@ var remainder = sequence.GetRemainder();
 
 This can be useful in some cases where you want to tell the user about data which was not successfully parsed, or in testing/debugging scenarios when you want to see where a parse failed.
 
-The sequences which implement this are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. Other char-based sequence types added in the future will also have this method. 
+The sequences which implement this are `FromString()`, `FromCharacterFile()` and `FromCharacterStream()`. 
 
 ## Sequence Types
 
@@ -202,9 +255,11 @@ var sequence = "...".ToCharSequence();
 
 By default this sequence converts line endings to `\n` and uses `\0` as the end sentinel. You can change those options with the `SequenceOptions<char>` parameter.
 
+`ICharacterSequence`s also implement the `.GetString(n)` and `.PeekString(n)` methods described above.
+
 ### Read Characters from a File or Stream
 
-You can read characters from a file or from any other stream using the `StreamCharacterSequence` or the `.ToCharSequence()` extension method:
+You can read **characters** from a file or from any other stream using the `StreamCharacterSequence` or the `.ToCharSequence()` extension method:
 
 ```csharp
 var sequence = FromCharacterStream(stream);
@@ -212,7 +267,7 @@ var sequence = FromCharacterFile(stream);
 var sequence = stream.ToCharSequence();
 ```
 
-Once you instantiate the sequence, ParserObjects expects to have exclusive use of the Stream. Concurrent reads of the stream from other locations in your code may lead to unexpected results and missing data.
+Once you instantiate the sequence, ParserObjects expects to have exclusive use of the Stream. Concurrent reads of the stream from other locations in your code may lead to unexpected results and missing data or unexpected exceptions.
 
 This sequence converts line endings to `\n`, it ignores `\r` characters, and uses `\0` as the end sentinel. These values can be changed with the `SequenceOptions<char>` parameter.
 
@@ -222,7 +277,7 @@ This sequence converts line endings to `\n`, it ignores `\r` characters, and use
 
 ### Read Bytes from a File or Stream
 
-You can read bytes from a stream or file.
+You can read **bytes** from a stream or file.
 
 ```csharp
 var sequence = FromByteFile("my-file-name.txt");
@@ -230,11 +285,11 @@ var sequence = FromStream(stream);
 var sequence = stream.ToByteSequence();
 ```
 
-This sequence uses `0` as the default end sentinel value, but may be configured to use something else with the `SequenceOptions<byte>` parameter.
+This sequence uses `0` as the default end sentinel value, but may be configured to use something else with the `SequenceOptions<byte>` parameter. This sequence will not do newline normalization, even if the underlying bytes actually represent character data.
 
 ### Convert an `IReadOnlyList<T>` to a Sequence
 
-You can convert `IReadOnlyList<T>` to `ISequence<T>` using an extension method:
+You can convert `IReadOnlyList<T>` to `ISequence<T>`:
 
 ```csharp
 var sequence = FromList(list);
@@ -264,7 +319,9 @@ var sequence = FromMethod(index => {
 });
 ```
 
-**Note**: The sequence may be optimized to avoid calling your delegate after the point when the `isAtEnd` value has been signaled. Make sure that the desired end sentinel value is set up correctly in the delegate itself and in the `SequenceOptions<T>`.
+**Notice**: The sequence may be optimized to avoid calling your delegate after the point when the `isAtEnd` value has been signaled. Make sure that the desired end sentinel value is set up correctly in the delegate itself and in the `SequenceOptions<T>`.
+
+**Notice**: Because the delegate returns a boolean `isAtEnd` flag representing the position *after the read*, it is impossible for a delegate sequence to correctly handle being empty. A delegate sequence must be able to provide **at least one item of input**. If you cannot provide at least one, you should attempt to detect that situation before creating the sequence and create another sequence type instead such as `Array.Empty<T>().ToSequence()`.
 
 If your delegate returns type `char`, the `FromMethod()` sequence will implement `ICharSequence`, giving you access to line ending normalization, `.Line` and `.Column` tracking, and methods from `ICharSequence`.
 
@@ -332,9 +389,9 @@ var stats = sequence.GetStatistics();
 The statistics returned are a read-only snapshot. You must call `.GetStatistics()` again to get updated values.
 
 * `.ItemsRead` The number of items read with the `.GetNext()` call, `.GetRemainder()`, `.GetBetween()` and any other method or mechanism that reads values.
-* `.ItemsPeeked` The number of times `.Peek()` is called.
+* `.ItemsPeeked` The number of times `.Peek()` is called. Notice that `.Peek(n)` method call works differently so it won't be included in this count.
 * `.ItemsGenerated` For sequences which read values from an external source, the number of times an item has been requested from that source.
-* `.Rewinds` The number of times a checkpoint has been rewinded, or `.Reset()` has been called.
+* `.Rewinds` The number of times `.Rewind()` or `.Reset()` have been called.
 * `.RewindsToCurrentBuffer` For sequences which use multiple buffers, the number of times a `.Rewind()` has been able to rewind to the current buffer without refilling.
 * `.BufferFills` For sequences which use buffers, the number of times a buffer has been filled.
 * `.CheckpointsCreated` The number of checkpoints which have been created.

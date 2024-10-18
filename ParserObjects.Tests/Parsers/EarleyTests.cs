@@ -15,7 +15,7 @@ public class EarleyTests
     {
         var target = Earley<int>(symbols => symbols
             .New("S")
-            .Rule(UnsignedInteger(), n => n)
+            .Rule(UnsignedInteger(), n => (int)n)
         );
 
         var result = target.Parse("4");
@@ -29,7 +29,7 @@ public class EarleyTests
     {
         var target = Earley<int>(symbols => symbols
             .New()
-            .Rule(UnsignedInteger(), n => n)
+            .Rule(UnsignedInteger(), n => (int)n)
         );
 
         var result = target.Parse("4");
@@ -47,7 +47,7 @@ public class EarleyTests
             var star = Match('*').Named("star");
 
             var expr = symbols.New("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -78,7 +78,7 @@ public class EarleyTests
                 var star = Match('*').Named("star");
 
                 var expr = symbols.New("Expr")
-                    .Rule(UnsignedInteger().Named("literal"), n => n);
+                    .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
                 expr.Rule(expr, plus, expr, (l, _, r) => l + r);
                 expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -119,7 +119,7 @@ public class EarleyTests
             var star = Match('*').Named("'*'");
 
             var expr = symbols.New<int>("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -150,7 +150,7 @@ public class EarleyTests
             var minus = Match('-').Named("'-'");
             var star = Match('*').Named("'*'");
             var divide = Match('/').Named("'/'");
-            var number = UnsignedInteger().Named("literal");
+            var number = Integer().Named("literal");
 
             var primary = symbols.New("Primary")
                 .Rule(number, n => (n.ToString(), n));
@@ -186,7 +186,7 @@ public class EarleyTests
             var star = CharacterString("**").Named("star");
 
             var expr = symbols.New("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -214,7 +214,7 @@ public class EarleyTests
             var star = Match('*').Named("star");
 
             var expr = symbols.New("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -615,7 +615,7 @@ public class EarleyTests
             var star = Match('*').Named("'*'");
 
             var expr = symbols.New<int>("Expr")
-                .Rule(UnsignedInteger().Named("literal"));
+                .Rule(Integer().Named("literal"));
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -642,7 +642,7 @@ public class EarleyTests
             var star = Match('*').Named("'*'");
 
             var expr = symbols.New<int>("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
 
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
@@ -699,7 +699,7 @@ public class EarleyTests
         {
             var plus = Match('+').Named("plus");
             var expr = symbols.New("Expr")
-                .Rule(UnsignedInteger().Named("literal"), n => n);
+                .Rule(UnsignedInteger().Named("literal"), n => (int)n);
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             return expr;
         }).Named("inner");

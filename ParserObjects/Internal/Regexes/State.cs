@@ -48,12 +48,12 @@ public static class State
         return states;
     }
 
-    public static List<IState> SetPreviousStateRange(List<IState> states, int min, int max)
+    public static List<IState> SetPreviousStateRange(List<IState> states, uint min, uint max)
     {
         if (min > max)
             throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
-        if (min < 0 || max <= 0)
-            throw new RegexException("Invalid range. Minimum must be 0 or more, and maximum must be 1 or more");
+        if (max == 0)
+            throw new RegexException("Invalid range. Maximum must be 1 or more");
 
         var previousState = states.LastOrDefault();
         Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
@@ -90,7 +90,7 @@ public static class State
         }
 
         previousState.Quantifier = Quantifier.Range;
-        previousState.Maximum = max - min;
+        previousState.Maximum = (int)(max - min);
         return states;
     }
 

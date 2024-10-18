@@ -55,9 +55,11 @@ public interface IResultAlternative<TOutput> : IResultAlternative
     /// Creates a new result with a transformed value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="data"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    IResultAlternative<TValue> Transform<TValue>(Func<TOutput, TValue> transform);
+    IResultAlternative<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform);
 }
 
 /// <summary>
@@ -107,9 +109,11 @@ public interface IMultiResult<TOutput> : IMultiResult
     /// Create a new IMultiResult by applying a transformation to every alternative value.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="data"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    IMultiResult<TValue> Transform<TValue>(Func<TOutput, TValue> transform);
+    IMultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform);
 }
 
 public static class MultiResultExtensions

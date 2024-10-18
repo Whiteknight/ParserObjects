@@ -8,7 +8,8 @@ namespace ParserObjects.Internal;
 /// </summary>
 public class ControlFlowException : Exception
 {
-    public ControlFlowException(string message) : base(message)
+    public ControlFlowException(string message)
+        : base(message)
     {
     }
 }

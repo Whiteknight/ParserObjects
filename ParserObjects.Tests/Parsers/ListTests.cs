@@ -381,6 +381,33 @@ public static class ListTests
 
     public class UntypedUnseparatedExtension
     {
+        [Test]
+        public void Parse_AtLeastOneTrue()
+        {
+            var parser = ((IParser<char>)Any()).List(true);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
+            var list = result.Value as List<object>;
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+            list[2].Should().Be('c');
+        }
+
+        [Test]
+        public void Parse_Maximum()
+        {
+            var parser = ((IParser<char>)Any()).List(0, 2);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(2);
+            var list = result.Value as List<object>;
+            list.Count.Should().Be(2);
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+        }
     }
 
     public class TypedSeparatedMethod
@@ -390,7 +417,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4");
@@ -409,7 +436,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4,");
@@ -428,7 +455,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("");
@@ -443,7 +470,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1");
@@ -458,7 +485,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1,2,3");
@@ -475,7 +502,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("");
@@ -488,7 +515,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 4
             );
             var input = FromString("1,2,3");
@@ -501,7 +528,7 @@ public static class ListTests
         {
             var parser = List(
                 Integer(),
-                Match(","),
+                MatchChar(','),
                 0,
                 2
             );
@@ -541,7 +568,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4");
@@ -560,7 +587,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("1,2,3,4,");
@@ -579,7 +606,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: false
             );
             var input = FromString("");
@@ -594,7 +621,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1");
@@ -609,7 +636,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("1,2,3");
@@ -626,7 +653,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 atLeastOne: true
             );
             var input = FromString("");
@@ -639,7 +666,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 4
             );
             var input = FromString("1,2,3");
@@ -652,7 +679,7 @@ public static class ListTests
         {
             var parser = List(
                 (IParser<char>)Integer(),
-                Match(","),
+                MatchChar(','),
                 0,
                 2
             );
@@ -692,7 +719,7 @@ public static class ListTests
         {
             var parser = Integer()
                 .List(
-                    Match(","),
+                    MatchChar(','),
                     atLeastOne: false
                 );
             var input = FromString("1,2,3,4");
@@ -713,7 +740,7 @@ public static class ListTests
         {
             var parser = ((IParser<char>)Integer())
                 .List(
-                    Match(","),
+                    MatchChar(','),
                     atLeastOne: false
                 );
             var input = FromString("1,2,3,4");

@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
+/* This file contains a few random structs which are necessary for public parser interfaces but
+ * otherwise might prefer to be implemented in Internal/ closer to the parsers where they are used.
+ * This creates an issue with low cohesion, which is not desireable.
+ */
 
 namespace ParserObjects;
 
@@ -154,6 +160,7 @@ public readonly struct SequentialState<TInput>
     /// </summary>
     /// <param name="error"></param>
     /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    [DoesNotReturn]
     public void Fail(string error = "Fail") => throw new Internal.Parsers.Sequential.ParseFailedException(error);
 
     /// <summary>
@@ -165,4 +172,7 @@ public readonly struct SequentialState<TInput>
         var currentCp = _state.Input.Checkpoint();
         return _state.Input.GetBetween(_startCheckpoint, currentCp);
     }
+
+    public SequenceCheckpoint Checkpoint()
+        => _state.Input.Checkpoint();
 }

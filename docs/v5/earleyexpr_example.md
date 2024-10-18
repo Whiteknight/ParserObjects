@@ -5,6 +5,10 @@ In the first [expression parser example](expression_example.md) we showed an exp
 First we start by stubbing out our parser:
 
 ```csharp
+using static ParserObjects.Parsers<char>;
+```
+
+```csharp
 var parser = Earley<int>(symbols => {
 
 });
@@ -33,9 +37,16 @@ Now we can create an Expression symbol in the Earley parser which combines these
 ```csharp
 var parser = Earley<int>(symbols => {
     var expr = symbols.New("Expression");
+
+    // Expr ::= <number>
     expr.Rule(number, n => n);
+
+    // Expr ::= <Expr> '+' <Expr>
     expr.Rule(expr, plus, expr, (l, _, r) => l + r);
+
+    // Expr ::= <Expr> '*' <Expr>
     expr.Rule(expr, star, expr, (l, _, r) => l * r);
+
     return expr;
 });
 ```
@@ -85,7 +96,14 @@ s.Rule(expr, eof, (value, _) => value);
 return s;
 ```
 
-This allows us to weed out the two partial results, but it doesn't help to disambiguate the remaining two. For that we need to insert precedence rules:
+This allows us to weed out the two partial results, but it doesn't help to disambiguate the remaining two. For that we need to insert precedence rules. New BNF:
+
+```
+Term ::= <number>
+Term ::= <Term> '*' <Term>
+Expr ::= <Term>
+Expr ::= <Expr> '+' <Expr>
+```
 
 ```csharp
 var term = symbols.New<int>("Term");
@@ -99,6 +117,15 @@ expr.Rule(expr, plus, expr, (l, _, r) => l + r);
 
 This works the way we expect. An input `"4*5+6"` now correctly parses as `"(4*5)+6" = 26`. This is a good success. Now we can start to add more operators:
 
+```
+Term ::= <number>
+Term ::= <Term> '*' <Term>
+Term ::= <Term> '/' <Term>
+Expr ::= <Term>
+Expr ::= <Expr> '+' <Expr>
+Expr ::= <Expr> '-' <Expr>
+```
+
 ```csharp
 var term = symbols.New<int>("Term");
 term.Rule(number, n => n);
@@ -111,7 +138,17 @@ expr.Rule(expr, plus, expr, (l, _, r) => l + r);
 expr.Rule(expr, minus, expr, (l, _, r) => l - r);
 ```
 
-Now the input `4*5+6/3-2` should be parsed as `"(4*5)+(6/3)-2" = 20`  but when we run the code we get two values. The number `20` is in the list twice! It turns out that the Earley algorithm arrived at the same result in two different ways, `<Expr> + <Expr>` and `<Expr> - <Expr>`. The addition and subtraction can, after all, happen in any order depending whether we recurse `<Expr>` on the left or on the right. So, let's remove the option and only recurse on the left. These operators are typically left-associative, after all:
+Now the input `4*5+6/3-2` should be parsed as `"(4*5)+(6/3)-2" = 20` but when we run the code we get two values again. The number `20` is in the list twice! It turns out that the Earley algorithm arrived at the same result in two different ways, `<Expr> + <Expr>` and `<Expr> - <Expr>`. The addition and subtraction can, after all, happen in any order depending whether we recurse `<Expr>` on the left or on the right. So, let's remove the option and only recurse on the left. These operators are typically left-associative, after all:
+
+```
+Primary ::= <number>
+Term ::= <Primary>
+Term ::= <Term> '*' <Primary>
+Term ::= <Term> '/' <Primary>
+Expr ::= <Term>
+Expr ::= <Expr> '+' <Term>
+Expr ::= <Expr> '-' <Term>
+```
 
 ```csharp
 var primary = symbols.New("Primary")
@@ -129,5 +166,7 @@ expr.Rule(expr, minus, term, (l, _, r) => l - r);
 ```
 
 Now when we run the calculator example we get the one answer we expect, `20`. 
+
+Notice that this grammar we have created is still *left-recursive*, which is very difficult to express and implement in other parser types. With the Earley algorithm we are able to create a left-recursive grammar in only a few lines of code, and are able to follow a very natural development path without worrying about how recursion was being implemented. As an exercise for the reader, try to re-implement the above grammar using right recursion instead.
 
 The Earley parser is very powerful, but sometimes all that extra power gives you some unexpected problems. You may find that if your rules are not precise enough you will end up with more results than you expect, and you will have to do some work to narrow the grammar down to give you just the values that you want.

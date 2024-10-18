@@ -12,11 +12,16 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class FirstParser<TInput>
 {
+    /* ParseInternal and MatchInternal are the implementations of Parse() and Match() methods,
+     * respectively. The Parser classes are adaptors between these methods and the IParser
+     * interface variants
+     */
+
     private static TResult ParseInternal<TParser, TResult>(IParseState<TInput> state, IReadOnlyList<TParser> parsers, Func<IParseState<TInput>, TParser, TResult> getResult)
         where TParser : IParser<TInput>
         where TResult : IResult
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < parsers.Count - 1; i++)
@@ -33,7 +38,7 @@ public static class FirstParser<TInput>
     private static bool MatchInternal<TParser>(IParseState<TInput> state, IReadOnlyList<TParser> parsers)
         where TParser : IParser<TInput>
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < parsers.Count - 1; i++)
@@ -47,6 +52,7 @@ public static class FirstParser<TInput>
         return parsers[parsers.Count - 1].Match(state);
     }
 
+    // TODO: I think these things need to be named "*Parser" to play nicely with some reflection-based unit tests.
     public sealed record WithoutOutput(
         IReadOnlyList<IParser<TInput>> Parsers,
         string Name = ""
@@ -88,7 +94,7 @@ public static class FirstParser<TInput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
             for (int i = 0; i < Parsers.Count; i++)

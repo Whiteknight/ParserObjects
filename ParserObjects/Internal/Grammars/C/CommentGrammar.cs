@@ -6,7 +6,7 @@ public static class CommentGrammar
 {
     public static IParser<char, string> CreateParser()
     {
-        return Sequential(s =>
+        return Sequential(static s =>
         {
             if (s.Input.GetNext() != '/')
                 s.Fail();

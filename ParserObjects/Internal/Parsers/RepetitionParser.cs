@@ -6,13 +6,17 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Executes an inner parser repeatedly, until it fails. All values are returned as a list.
-/// Expects a number of matches between minimum and maximum values, inclusive.
+/// Executes an inner parser repeatedly with optional separators, until it fails. All values are
+/// returned as a list. Expects a number of matches between minimum and maximum values, inclusive.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 public static class Repetition<TInput>
 {
-    private struct InternalParser<TParser, TResult, TItem>
+    /* The InternalParser struct implements the core parsing logic. The various Parser classes
+     * are just adaptors between InternalParser and IParser variants.
+     */
+
+    private readonly struct InternalParser<TParser, TResult, TItem>
         where TParser : IParser<TInput>
         where TResult : IResult
     {
@@ -40,7 +44,7 @@ public static class Repetition<TInput>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PartialResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
             var items = new List<TItem>();
@@ -105,7 +109,7 @@ public static class Repetition<TInput>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             int count = 0;
             var startCheckpoint = state.Input.Checkpoint();
@@ -170,8 +174,8 @@ public static class Repetition<TInput>
 
         public Parser(IParser<TInput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            Assert.ArgumentNotNull(separator, nameof(separator));
+            Assert.ArgumentNotNull(parser);
+            Assert.ArgumentNotNull(separator);
 
             _internal = new InternalParser<IParser<TInput>, IResult, object>(parser, separator, static (p, s) => p.Parse(s), static r => r.Value, minimum, maximum);
 
@@ -216,8 +220,8 @@ public static class Repetition<TInput>
 
         public Parser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
-            Assert.ArgumentNotNull(parser, nameof(parser));
-            Assert.ArgumentNotNull(separator, nameof(separator));
+            Assert.ArgumentNotNull(parser);
+            Assert.ArgumentNotNull(separator);
 
             _internal = new InternalParser<IParser<TInput, TOutput>, IResult<TOutput>, TOutput>(
                 parser,
