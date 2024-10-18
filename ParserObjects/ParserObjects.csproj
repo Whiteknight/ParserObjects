@@ -54,9 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
-      <ProjectReference Include="..\ParserObjects.CodeGen\ParserObjects.CodeGen.csproj"
-                        OutputItemType="Analyzer"
-                        ReferenceOutputAssembly="false"/>
+      <ProjectReference Include="..\ParserObjects.CodeGen\ParserObjects.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
