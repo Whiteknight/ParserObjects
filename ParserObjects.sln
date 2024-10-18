@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		StyleCop.ruleset = StyleCop.ruleset
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utility", "Utility", "{200F15F4-B82F-4594-B70D-4851382657B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserObjects.BenchmarkHarness", "ParserObjects.BenchmarkHarness\ParserObjects.BenchmarkHarness.csproj", "{4E3513CB-82F6-4616-AEF4-49D06C8DEE24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{97302AA6-29B0-4F5F-B514-2F665B057BB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97302AA6-29B0-4F5F-B514-2F665B057BB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97302AA6-29B0-4F5F-B514-2F665B057BB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E3513CB-82F6-4616-AEF4-49D06C8DEE24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3513CB-82F6-4616-AEF4-49D06C8DEE24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E3513CB-82F6-4616-AEF4-49D06C8DEE24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E3513CB-82F6-4616-AEF4-49D06C8DEE24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4E3513CB-82F6-4616-AEF4-49D06C8DEE24} = {200F15F4-B82F-4594-B70D-4851382657B1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3B0DC888-5466-40AB-9D60-50449CB4D874}

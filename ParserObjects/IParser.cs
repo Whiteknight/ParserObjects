@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Utility;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects;
 
@@ -18,6 +18,9 @@ public interface IParser : ISymbol
     /// </summary>
     /// <returns></returns>
     IEnumerable<IParser> GetChildren();
+
+    void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        where TVisitor : IVisitor<TState>;
 }
 
 /// <summary>
@@ -34,6 +37,15 @@ public interface IParser<in TInput> : IParser
     /// <param name="state"></param>
     /// <returns></returns>
     IResult Parse(IParseState<TInput> state);
+
+    /// <summary>
+    /// Attempt to match the input sequence and return a boolean. If the match fails, it is
+    /// expected that this method will return the input sequence to the state it was at before the
+    /// match was attempted.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    bool Match(IParseState<TInput> state);
 }
 
 /// <summary>
@@ -69,12 +81,4 @@ public interface IReplaceableParserUntyped : IParser
     /// </summary>
     /// <param name="parser"></param>
     SingleReplaceResult SetParser(IParser parser);
-}
-
-/// <summary>
-/// Tag type to mark parsers which are hidden, internal implementation details and not
-/// first-class parser types.
-/// </summary>
-public interface IHiddenInternalParser
-{
 }

@@ -2,9 +2,8 @@
 
 /// <summary>
 /// Base interface for results returned from a parse operation. The result should include
-/// reference to the Parser which generated the reuslt, an indicator of success or failure, and
-/// the location where the result occured. Subclasses of this type will include more detailed
-/// information about the result.
+/// reference to the Parser which generated the reuslt and an indicator of success or failure.
+/// Subclasses of this type will include more detailed information about the result.
 /// </summary>
 public interface IResultBase
 {
@@ -21,11 +20,9 @@ public interface IResultBase
     bool Success { get; }
 
     /// <summary>
-    /// Gets the approximate location of the successful parse in the input sequence. On failure, this
-    /// value is undefined and may show the location of the start of the attempt, the location at
-    /// which failure occured, null, or some other value.
+    /// Try to get attached data with the given type. If none exists, returns failure.
     /// </summary>
-    Location Location { get; }
-
-    IOption<T> TryGetData<T>();
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    Option<T> TryGetData<T>();
 }

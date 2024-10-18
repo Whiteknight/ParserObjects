@@ -1,44 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using ParserObjects.Utility;
+using ParserObjects.Internal;
+using ParserObjects.Internal.Pratt;
 
 namespace ParserObjects.Pratt;
 
-// Configuration object for the Pratt parser. Not intended for direct use, use the abstraction
-// instead.
-public sealed class Configuration<TInput, TOutput> : IConfiguration<TInput, TOutput>
+/// <summary>
+/// Configuration for the Pratt engine. Use this type to add matchers and precidence rules to your
+/// parser.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+public readonly struct Configuration<TInput, TOutput>
 {
     private readonly List<IParser> _references;
 
-    public Configuration()
+    public Configuration(List<IParselet<TInput, TOutput>> parselets, List<IParser> references)
     {
-        Parselets = new List<IParselet<TInput, TOutput>>();
-        _references = new List<IParser>();
+        Parselets = parselets;
+        _references = references;
     }
 
+    /// <summary>
+    /// Gets the current list of Parselets. You shouldn't modify this unless you know exactly what you
+    /// are doing.
+    /// </summary>
     public List<IParselet<TInput, TOutput>> Parselets { get; }
 
-    public IConfiguration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Action<IPrattParseletBuilder<TInput, TValue, TOutput>> setup)
+    /// <summary>
+    /// Add a new parselet to the list of parselets with configured settings and callbacks.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="matcher"></param>
+    /// <param name="setup"></param>
+    /// <returns></returns>
+    public Configuration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Func<ParseletBuilder<TInput, TValue, TOutput>, ParseletBuilder<TInput, TValue, TOutput>> setup)
     {
-        Assert.ArgumentNotNull(matcher, nameof(matcher));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(matcher);
+        Assert.ArgumentNotNull(setup);
 
-        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher);
-        setup(parseletConfig);
-        var parselets = parseletConfig.Build();
+        var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher.Name ?? string.Empty);
+        parseletConfig = setup(parseletConfig);
+        var parselets = parseletConfig.Build(matcher);
         Parselets.AddRange(parselets);
         return this;
     }
 
-    public IConfiguration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher)
-        => Add(matcher, p => p.Bind(0, (ctx, v) => v.Value));
+    /// <summary>
+    /// Add a new parselet for the given parser and default settings.
+    /// </summary>
+    /// <param name="matcher"></param>
+    /// <returns></returns>
+    public Configuration<TInput, TOutput> Add(IParser<TInput, TOutput> matcher)
+        => Add(
+            matcher,
+            static p => p.Bind(
+                0,
+                static (_, v) => v.Value
+            )
+        );
 
-    public IConfiguration<TInput, TOutput> Reference(IParser parser)
+    /// <summary>
+    /// Add an explicit parse reference which will be returned from the Pratt's GetChildren()
+    /// method, but isn't otherwise included as a matcher in this configuration.
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <returns></returns>
+    public Configuration<TInput, TOutput> Reference(IParser parser)
     {
         _references.Add(parser);
         return this;
     }
-
-    public IEnumerable<IParser> GetParsers() => Parselets.Select(p => p.Parser).Concat(_references);
 }

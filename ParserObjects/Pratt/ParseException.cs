@@ -1,24 +1,15 @@
-﻿using System;
+﻿using ParserObjects.Internal;
 
 namespace ParserObjects.Pratt;
 
 /// <summary>
-/// Internal control-flow exception type used to direct errors in the Pratt parser. Not for
-/// external use.
+/// Control-flow exception used to control the parse in the Pratt parser. In certain failure
+/// scenarios a ParseException is used to immediately abandon the current user callback function
+/// and return to the engine. This type SHOULD NOT be caught by user code.
 /// </summary>
-[Serializable]
 public class ParseException : ControlFlowException
 {
-    public ParseException()
-    {
-    }
-
     public ParseException(string message) : base(message)
-    {
-    }
-
-    public ParseException(string message, Exception inner)
-        : base(message, inner)
     {
     }
 
@@ -28,12 +19,6 @@ public class ParseException : ControlFlowException
         Severity = severity;
         Parser = parser;
         Location = location;
-    }
-
-    protected ParseException(
-      System.Runtime.Serialization.SerializationInfo info,
-      System.Runtime.Serialization.StreamingContext context) : base(info, context)
-    {
     }
 
     public ParseExceptionSeverity Severity { get; }

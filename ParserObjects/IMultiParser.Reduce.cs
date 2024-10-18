@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-using ParserObjects.Parsers;
-using ParserObjects.Utility;
 
 namespace ParserObjects;
 
@@ -15,12 +12,7 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Single<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-        => multiParser.Select(args =>
-        {
-            if (args.Result.Results.Count == 1)
-                return args.Success(args.Result.Results[0]);
-            return args.Failure();
-        });
+        => Parsers<TInput>.SingleResult(multiParser);
 
     /// <summary>
     /// Select the result alternative which consumed the most amount of input and use that to
@@ -32,14 +24,7 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Longest<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-        => multiParser.Select(args =>
-        {
-            var longest = args.Result.Results
-                .Where(r => r.Success)
-                .OrderByDescending(r => r.Consumed)
-                .FirstOrDefault();
-            return longest != null ? args.Success(longest) : args.Failure();
-        });
+        => Parsers<TInput>.LongestResult(multiParser);
 
     /// <summary>
     /// Returns the first successful alternative which matches a predicate to continue the
@@ -50,15 +35,10 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser, Func<IResultAlternative<TOutput>, bool> predicate)
-    {
-        Assert.ArgumentNotNull(predicate, nameof(predicate));
-        return multiParser.Select(args =>
-        {
-            var selected = args.Result.Results.FirstOrDefault(predicate);
-            return selected != null ? args.Success(selected) : args.Failure();
-        });
-    }
+    public static IParser<TInput, TOutput> First<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> multiParser,
+        Func<IResultAlternative<TOutput>, bool> predicate
+    ) => Parsers<TInput>.FirstResult(multiParser, predicate);
 
     /// <summary>
     /// Selects the first successful alternative to continue the parse with.
@@ -68,7 +48,7 @@ public static partial class MultiParserExtensions
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiParser)
-        => First(multiParser, r => r.Success);
+        => Parsers<TInput>.FirstResult(multiParser, r => r.Success);
 
     /// <summary>
     /// Invoke a special callback to attempt to select a single alternative and turn it into
@@ -76,9 +56,11 @@ public static partial class MultiParserExtensions
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="multiparser"></param>
+    /// <param name="multiParser"></param>
     /// <param name="select"></param>
     /// <returns></returns>
-    public static IParser<TInput, TOutput> Select<TInput, TOutput>(this IMultiParser<TInput, TOutput> multiparser, Func<Select<TInput, TOutput>.Arguments, IOption<IResultAlternative<TOutput>>> select)
-        => new Select<TInput, TOutput>.Parser(multiparser, select);
+    public static IParser<TInput, TOutput> Select<TInput, TOutput>(
+        this IMultiParser<TInput, TOutput> multiParser,
+        Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> select
+    ) => Parsers<TInput>.SelectResult(multiParser, select);
 }

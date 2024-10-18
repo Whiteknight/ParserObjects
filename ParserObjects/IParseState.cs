@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects;
 
@@ -11,7 +12,7 @@ public interface IParseState<out TInput>
     /// <summary>
     /// Gets a contextual data store which parsers may access during the parse.
     /// </summary>
-    IDataStore Data { get; }
+    DataStore Data { get; }
 
     /// <summary>
     /// Gets the current input sequence.
@@ -29,9 +30,23 @@ public interface IParseState<out TInput>
     /// <param name="parser"></param>
     /// <param name="message"></param>
     void Log(IParser parser, string message);
+
+    /// <summary>
+    /// Execute the given callback inside a data frame.
+    /// </summary>
+    /// <typeparam name="TArgs"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="args"></param>
+    /// <param name="withContext"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    TResult WithDataFrame<TArgs, TResult>(
+        TArgs args,
+        Func<IParseState<TInput>, TArgs, TResult> withContext,
+        IReadOnlyDictionary<string, object>? data = null
+    );
 }
 
-// TODO: Clean this up and remove unnecessary overrides
 public static class ParseStateExtensions
 {
     /// <summary>
@@ -42,13 +57,17 @@ public static class ParseStateExtensions
     /// <param name="state"></param>
     /// <param name="parser"></param>
     /// <param name="error"></param>
-    /// <param name="location"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Fail<TInput, TOutput>(this IParseState<TInput> state, IParser parser, string error, Location location, IReadOnlyList<object>? data = null)
+    public static IResult<TOutput> Fail<TInput, TOutput>(
+        this IParseState<TInput> state,
+        IParser parser,
+        string error,
+        ResultData data = default
+    )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, location, error, data);
+        return new FailureResult<TOutput>(parser, error, data);
     }
 
     /// <summary>
@@ -61,40 +80,15 @@ public static class ParseStateExtensions
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Fail<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, string error, IReadOnlyList<object>? data = null)
-        => Fail(state, parser, error, state.Input.CurrentLocation, data);
-
-    /// <summary>
-    /// Create a Failure result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="error"></param>
-    /// <param name="location"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult<TOutput> Fail<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, string error, Location location, IReadOnlyList<object>? data = null)
+    public static IResult<TOutput> Fail<TInput, TOutput>(
+        this IParseState<TInput> state,
+        IParser<TInput, TOutput> parser,
+        string error,
+        ResultData data = default
+    )
     {
         state.Log(parser, "Failed with error " + error);
-        return new FailureResult<TOutput>(parser, location, error, data);
-    }
-
-    /// <summary>
-    /// Create a Failure result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="error"></param>
-    /// <param name="location"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult Fail<TInput>(this IParseState<TInput> state, IParser<TInput> parser, string error, Location location, IReadOnlyList<object>? data = null)
-    {
-        state.Log(parser, "Failed with error " + error);
-        return new FailureResult<object>(parser, location, error, data);
+        return new FailureResult<TOutput>(parser, error, data);
     }
 
     /// <summary>
@@ -106,8 +100,16 @@ public static class ParseStateExtensions
     /// <param name="error"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult Fail<TInput>(this IParseState<TInput> state, IParser<TInput> parser, string error, IReadOnlyList<object>? data = null)
-        => Fail(state, parser, error, state.Input.CurrentLocation, data);
+    public static IResult Fail<TInput>(
+        this IParseState<TInput> state,
+        IParser<TInput> parser,
+        string error,
+        ResultData data = default
+    )
+    {
+        state.Log(parser, "Failed with error " + error);
+        return new FailureResult<object>(parser, error, data);
+    }
 
     /// <summary>
     /// Create a Success result.
@@ -118,44 +120,19 @@ public static class ParseStateExtensions
     /// <param name="parser"></param>
     /// <param name="output"></param>
     /// <param name="consumed"></param>
-    /// <param name="location"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Success<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, TOutput output, int consumed, Location location, IReadOnlyList<object>? data = null)
+    public static IResult<TOutput> Success<TInput, TOutput>(
+        this IParseState<TInput> state,
+        IParser parser,
+        TOutput output,
+        int consumed,
+        ResultData data = default
+    )
     {
         state.Log(parser, "Succeeded");
-        return new SuccessResult<TOutput>(parser, output, location, consumed, data);
+        return new SuccessResult<TOutput>(parser, output, consumed, data);
     }
-
-    /// <summary>
-    /// Create a Success result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="output"></param>
-    /// <param name="consumed"></param>
-    /// <param name="location"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult<object> Success<TInput>(this IParseState<TInput> state, IParser<TInput> parser, object output, int consumed, Location location, IReadOnlyList<object>? data = null)
-    {
-        state.Log(parser, "Succeeded");
-        return new SuccessResult<object>(parser, output, location, consumed, data);
-    }
-
-    /// <summary>
-    /// Create a Success result.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <param name="state"></param>
-    /// <param name="parser"></param>
-    /// <param name="output"></param>
-    /// <param name="consumed"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static IResult<object> Success<TInput>(this IParseState<TInput> state, IParser<TInput> parser, object output, int consumed, IReadOnlyList<object>? data = null)
-        => Success(state, parser, output, consumed, state.Input.CurrentLocation, data);
 
     /// <summary>
     /// Create a result from a partial result.
@@ -166,10 +143,14 @@ public static class ParseStateExtensions
     /// <param name="parser"></param>
     /// <param name="part"></param>
     /// <returns></returns>
-    public static IResult<TOutput> Result<TInput, TOutput>(this IParseState<TInput> state, IParser<TInput, TOutput> parser, PartialResult<TOutput> part)
+    public static IResult<TOutput> Result<TInput, TOutput>(
+        this IParseState<TInput> state,
+        IParser<TInput> parser,
+        PartialResult<TOutput> part
+    )
     {
         if (part.Success)
-            return Success(state, parser, part.Value!, part.Consumed, part.Location);
-        return Fail(state, parser, part.ErrorMessage!, part.Location);
+            return Success(state, parser, part.Value!, part.Consumed);
+        return Fail<TInput, TOutput>(state, parser, part.ErrorMessage!);
     }
 }

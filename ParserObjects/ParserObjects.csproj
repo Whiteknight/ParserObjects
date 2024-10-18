@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
 
     <AssemblyName>ParserObjects</AssemblyName>
     <RootNamespace>ParserObjects</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.1.0</Version>
+    <Version>5.2.0</Version>
 
     <Authors>Andrew F. Whitworth</Authors>
     <Company />
@@ -24,6 +24,8 @@
 
     <DocumentationFile>C:\projects\ParserObjects\ParserObjects\ParserObjects.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <NoWarn>$(NoWarn);NU1504;NU1505;NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -42,7 +44,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.2" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>

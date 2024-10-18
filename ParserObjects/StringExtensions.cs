@@ -1,4 +1,4 @@
-﻿using ParserObjects.Sequences;
+﻿using static ParserObjects.Sequences;
 
 namespace ParserObjects;
 
@@ -10,6 +10,8 @@ public static class StringExtensions
     /// <param name="str"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static ISequence<char> ToCharacterSequence(this string str, StringCharacterSequence.Options options = default)
-        => new StringCharacterSequence(str, options);
+    public static ICharSequence ToCharacterSequence(
+        this string str,
+        SequenceOptions<char> options = default
+    ) => FromString(str, options);
 }

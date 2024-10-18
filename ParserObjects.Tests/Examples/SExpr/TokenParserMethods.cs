@@ -1,9 +1,8 @@
-﻿using static ParserObjects.ParserMethods<ParserObjects.Tests.Examples.SExpr.Token>;
+﻿using static ParserObjects.Parsers<ParserObjects.Tests.Examples.SExpr.Token>;
 
-namespace ParserObjects.Tests.Examples.SExpr
+namespace ParserObjects.Tests.Examples.SExpr;
+
+public static class TokenParserMethods
 {
-    public static class TokenParserMethods
-    {
-        public static IParser<Token, Token> Token(ValueType type) => Match(t => t.Type == type);
-    }
+    public static IParser<Token, Token> Token(ValueType type) => Match(t => t.Type == type);
 }

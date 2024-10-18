@@ -1,5 +1,6 @@
 ﻿using System;
-using ParserObjects.Sequences;
+using ParserObjects.Internal;
+using ParserObjects.Internal.Sequences;
 
 namespace ParserObjects;
 
@@ -25,7 +26,21 @@ public interface ISequence
     /// sequence needs to be rewound.
     /// </summary>
     /// <returns></returns>
-    ISequenceCheckpoint Checkpoint();
+    SequenceCheckpoint Checkpoint();
+
+    /// <summary>
+    /// Returns true if this checkpoint was created by this sequence. False otherwise.
+    /// </summary>
+    /// <param name="checkpoint"></param>
+    /// <returns></returns>
+    bool Owns(SequenceCheckpoint checkpoint);
+
+    /// <summary>
+    /// Rewinds the sequence to the location pointed to by the checkpoint. If the checkpoint is not
+    /// owned by this sequence, the method will do nothing.
+    /// </summary>
+    /// <param name="checkpoint"></param>
+    void Rewind(SequenceCheckpoint checkpoint);
 
     /// <summary>
     /// Gets a count of the total number of input items that have been consumed from this
@@ -33,7 +48,17 @@ public interface ISequence
     /// </summary>
     int Consumed { get; }
 
-    ISequenceStatistics GetStatistics();
+    /// <summary>
+    /// Get a snapshot of current statistics for the sequence. Not all sequences implement all
+    /// statistics values.
+    /// </summary>
+    /// <returns></returns>
+    SequenceStatistics GetStatistics();
+
+    /// <summary>
+    /// Reset this sequence back to it's initial position. Will not reset statistics.
+    /// </summary>
+    void Reset();
 }
 
 /// <summary>
@@ -55,21 +80,40 @@ public interface ISequence<out T> : ISequence
     /// </summary>
     /// <returns></returns>
     T Peek();
+
+    /// <summary>
+    /// Get an array of all input values between the two checkpoints. If start is greater than end,
+    /// or if one of these checkpoints is not owned by this sequence, returns an empty array.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    T[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end);
+}
+
+/// <summary>
+/// Sequence type for character-based sequences which may return a string in some operations.
+/// </summary>
+public interface ICharSequence : ISequence<char>
+{
+    /// <summary>
+    /// Return a string containing all remaining characters from the current string position until
+    /// the end of input.
+    /// </summary>
+    /// <returns></returns>
+    string GetRemainder();
+
+    /// <summary>
+    /// Return the characters between the two checkpoints as a string.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    string GetStringBetween(SequenceCheckpoint start, SequenceCheckpoint end);
 }
 
 public static class SequenceExtensions
 {
-    /// <summary>
-    /// Create a buffer from the given sequence. A buffer allows random-order accessing of
-    /// input items using an array-like interface. Buffers require special cleanup to make
-    /// sure unused items are returned to the sequence.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    public static SequenceBuffer<T> CreateBuffer<T>(this ISequence<T> input)
-        => new SequenceBuffer<T>(input);
-
     /// <summary>
     /// Transform a sequence of one type into a sequence of another type by applying a transformation
     /// function to every element.
@@ -79,8 +123,10 @@ public static class SequenceExtensions
     /// <param name="input"></param>
     /// <param name="map"></param>
     /// <returns></returns>
-    public static ISequence<TOutput> Select<TInput, TOutput>(this ISequence<TInput> input, Func<TInput, TOutput> map)
-        => new MapSequence<TInput, TOutput>(input, map);
+    public static ISequence<TOutput> Select<TInput, TOutput>(
+        this ISequence<TInput> input,
+        Func<TInput, TOutput> map
+    ) => new MapSequence<TInput, TOutput>(input, map);
 
     /// <summary>
     /// Filter elements in a sequence to only return items which match a predicate.
@@ -91,4 +137,50 @@ public static class SequenceExtensions
     /// <returns></returns>
     public static ISequence<T> Where<T>(this ISequence<T> input, Func<T, bool> predicate)
         => new FilterSequence<T>(input, predicate);
+
+    public static T[] GetNext<T>(this ISequence<T> input, int count)
+    {
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        var result = new T[count];
+        for (int i = 0; i < count; i++)
+            result[i] = input.GetNext();
+        return result;
+    }
+
+    public static string GetString(this ICharSequence input, int count)
+    {
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        var result = new char[count];
+        int i = 0;
+        for (; !input.IsAtEnd && i < count; i++)
+            result[i] = input.GetNext();
+        return new string(result, 0, i);
+    }
+
+    public static T[] Peek<T>(this ISequence<T> input, int count)
+    {
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        var result = new T[count];
+        var cp = input.Checkpoint();
+        for (int i = 0; i < count; i++)
+            result[i] = input.GetNext();
+        cp.Rewind();
+        return result;
+    }
+
+    public static string PeekString(this ICharSequence input, int count)
+    {
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        var result = new char[count];
+        var cp = input.Checkpoint();
+        int i = 0;
+        for (; !input.IsAtEnd && i < count; i++)
+            result[i] = input.GetNext();
+        cp.Rewind();
+        return new string(result, 0, i);
+    }
 }

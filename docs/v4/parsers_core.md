@@ -98,7 +98,7 @@ The Chain parser will throw an `InvalidOperationException` if the callback metho
 The `ChainWith` parser is related to the `Chain` parser but uses a different fluent syntax for selecting a value.
 
 ```csharp
-var parser = ChainWith(config => config
+var parser = ChainWith(initial, config => config
     .When(x => x == 'a', new AParser())
     .When(x => x == 'b', new BParser())
 );
@@ -321,7 +321,7 @@ var parser = Empty().Transform(_ => "abcd");
 
 ### Rule Parser
 
-The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewound and the whole parser fails. You can create rule parsers by using the `.Produce()` extension method on a `Tuple` or `ValueTuple` of parser objects, which may be cleaner to read and write in some situations
+The `Rule` parser attempts to execute a list of parsers, and then return a combined result. If any parser in the list fails, the input is rewound and the whole parser fails. You can create rule parsers by using the `.Rule()` extension method on a `Tuple` or `ValueTuple` of parser objects, which may be cleaner to read and write in some situations
 
 ```csharp
 var parser = Rule(
@@ -330,7 +330,7 @@ var parser = Rule(
     parser3, 
     (r1, r2, r3) => ...
 );
-var parser = (parser1, parser2, parser3).Produce((r1, r2, r3) => ...);
+var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
 ```
 
 The `Rule()` method and tuple variants are both limited to 9 parsers at most. If you need to combine the results of more than 9 parsers, use the `Combine` parser instead. 
@@ -375,6 +375,25 @@ var parser = Sequential(t =>
 
 The `t` object assists in performing the parse and it has ability to handle errors by causing the whole `Sequential` parser to fail if any of the child parsers fail. 
 
+### Synchronize Parser
+
+The `Synchronize` parser allows entering **panic mode** when a parse fails. In panic mode, the parser will discard tokens to get back to a known "good" state, before attempting the parse again. This is useful for cases where you want to report all syntax errors to the user, not just the first error.
+
+```csharp
+var parser = Synchronize(inner, x => x == ';');
+var parser = inner.Synchronize(x => x == ';');
+```
+
+Once you define your parser, you can check to see if there are any errors. If the parser eventually succeeds, the successful result will also be available:
+
+```csharp
+var result = parser.Parse(...);
+var allErrors = result.TryGetData<ErrorList>();
+var successResult = result.TryGetData<IResult>();
+```
+
+You can use the list of errors to report problems back to the user.
+
 ### Try Parser
 
 The `Try` parser catches user-thrown exceptions from within the parse and handles them. When an exception is caught, the input sequence is rewound to the location where the `Try` parser began.
@@ -384,6 +403,13 @@ var parser = Try(innerParser, ex => {...}, bubble: true);
 ```
 
 The second parameter is a callback to allow examining the exception when it is received. This can be a useful place to set a breakpoint during debugging. The third parameter `bubble` tells whether to rethrow the exception (`true`) or to handle the exception and return a failure result (`false`).
+
+You can get information about the exception thrown from the result, if you set `bubble: false`:
+
+```csharp
+var result = parser.Parse(...);
+var exception = result.TryGetData<Exception>();
+```
 
 ## Matching Parsers
 

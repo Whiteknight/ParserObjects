@@ -12,6 +12,12 @@ public interface INamed
     /// </summary>
     string Name { get; }
 
+    /// <summary>
+    /// Create a new instance with the given name.
+    /// Notice that the result value should be an object of the same type as the current object.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     INamed SetName(string name);
 }
 

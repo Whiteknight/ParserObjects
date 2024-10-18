@@ -18,7 +18,7 @@ For error-handling pay attention to this line:
 
 ```csharp
 var tokenSequence = tokens
-    .ToSequence(new StringCharacterSequence(s))
+    .ToSequence(FromString(s))
     .Select(r => r.GetValueOrDefault(() => new RpnToken(r.ErrorMessage, RpnTokenType.Failure)));
 ```
 
