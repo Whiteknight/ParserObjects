@@ -6,7 +6,7 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parser infrastructure to execute a sequence of parsers without constructing an object graph.
+/// Parser infrastructure to execute a sequence of parsers procedurally.
 /// </summary>
 public static class Sequential
 {
@@ -33,8 +33,10 @@ public static class Sequential
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public sealed record Parser<TInput, TOutput>(
-        Func<SequentialState<TInput>, TOutput> Function,
+    /// <typeparam name="TData"></typeparam>
+    public sealed record Parser<TInput, TOutput, TData>(
+        TData Data,
+        Func<SequentialState<TInput>, TData, TOutput> Function,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -42,12 +44,12 @@ public static class Sequential
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
-                var result = Function(seqState);
+                var result = Function(seqState, Data);
                 var endConsumed = state.Input.Consumed;
                 return state.Success(this, result, endConsumed - startCheckpoint.Consumed);
             }
@@ -79,18 +81,19 @@ public static class Sequential
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
-                Function(seqState);
+                Function(seqState, Data);
                 return true;
             }
             catch (ParseFailedException)
             {
                 // This exception is part of normal flow-control for this parser
                 // Other exceptions bubble up like normal.
+                startCheckpoint.Rewind();
                 return false;
             }
             catch

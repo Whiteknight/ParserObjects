@@ -17,7 +17,7 @@ public sealed record NegativeLookaheadParser<TInput>(
 
     public IResult Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
 
         var result = Inner.Parse(state);
@@ -30,7 +30,7 @@ public sealed record NegativeLookaheadParser<TInput>(
 
     public bool Match(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
 
         var result = Inner.Match(state);

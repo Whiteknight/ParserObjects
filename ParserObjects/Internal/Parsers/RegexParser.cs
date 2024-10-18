@@ -10,9 +10,13 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>
 {
+    /* Delegates to the Regex struct and the Regex.Engine struct for holding the pattern and
+     * testing pattern, respectively.
+     */
+
     public RegexParser(Regex regex, string describe, string? name = null)
     {
-        Assert.ArgumentNotNull(regex, nameof(regex));
+        Assert.ArgumentNotNull(regex);
         Regex = regex;
         Name = name ?? $"/{describe}/";
         Pattern = describe;
@@ -28,7 +32,7 @@ public sealed class RegexParser : IParser<char, string>
 
     public IResult<string> Parse(IParseState<char> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
         var result = Engine.GetMatch(state.Input, Regex);
         if (!result.Success)
@@ -44,7 +48,7 @@ public sealed class RegexParser : IParser<char, string>
 
     public bool Match(IParseState<char> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
         var result = Engine.TestMatch(state.Input, Regex);
         if (!result)

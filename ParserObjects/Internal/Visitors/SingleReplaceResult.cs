@@ -3,7 +3,7 @@
 /// <summary>
 /// Result of a single replacement operation
 /// </summary>
-public record struct SingleReplaceResult(
+public readonly record struct SingleReplaceResult(
     IReplaceableParserUntyped Replaceable,
     IParser Previous,
     IParser Current

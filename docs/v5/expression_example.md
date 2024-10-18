@@ -1,6 +1,6 @@
 # Expression Parsing Example
 
-We would like to create a calculator routine which parses a string like "1 + 2 * 3" into a result following standard order-of-operations rules. The first operators we will support are "+" and "*", where multiplication has higher precedence and both operators are left-associative. 
+We would like to create a calculator routine which parses a string like `"1 + 2 * 3"` into a result following standard order-of-operations rules. The first operators we will support are "+" and "*", where multiplication has higher precedence and both operators are left-associative. 
 
 Up-to-date working code for this example is part of the [ParserObjects unit test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples/ExprCalculator). Where this documentation may be out of date or contain typos, the code in the unit test suite is guaranteed to build, run and produce the described results.
 
@@ -12,7 +12,7 @@ This example is mostly to showcase some techniques involved in parser writing, a
 
 A "parser" here can be composed of one phase ("scannerless") or can be broken down into two phases: Lexical Analysis (breaking the input into tokens) and Parsing (arranging the tokens according to a grammar).
 
-A two-phase design lets us separate complexity and deal with some issues (whitespace, low-level character matching, etc) separately from the more important grammar issues. That's what we're going to do here. This means we're going to create two `IParser` objects: One to read a sequence of characters and output a special `Token` object, and another parser to read in a sequence of `Token` objects and output our final numerical result.
+A two-phase design lets us separate complexity and deal with some issues (whitespace, low-level character matching, etc) separately from the more important grammar issues. That's what we're going to do here, but it is by no means a requirement or even a suggestion for you to follow in your own parsers. We have to pick one approach for the purposes of this example, so we've chosen the one that helps us explain and demonstrates a variety of concepts. This means we're going to create two `IParser` objects: One to read a sequence of characters and output a special `Token` object, and another parser to read in a sequence of `Token` objects and output our final numerical result.
 
 First, let's create the `Token` class (We should put in a `.ToString()` method to help with debugging later, but I'll leave that and the definition of the `TokenType` enum as an exercise for the reader):
 
@@ -91,7 +91,7 @@ Unit tests at this point can show that given an input string of numbers and oper
 We do not need a parser which produces a stream of Tokens, we need a Parser which takes Tokens as input and returns a numerical value. First, let's create our Expression grammar class:
 
 ```csharp
-using static ParserObjects.ParserMethods<ExpressionGrammar.Token>;
+using static ParserObjects.Parsers<ExpressionGrammar.Token>;
 
 public class ExpressionGrammar
 {
@@ -105,7 +105,7 @@ public class ExpressionGrammar
 Let's first create a helpful static method for creating a parser to match tokens by type:
 
 ```csharp
-using static ParserObjects.Parsers.ParserMethods<Token>;
+using static ParserObjects.Parsers.Parsers<Token>;
 
 public static class TokenParserExtension
 {
@@ -187,7 +187,7 @@ See how the declaration of this parser starts to look a little bit like the pseu
 var multiplicative = LeftApply(
     number,
     left => First(
-         Rule(
+        Rule(
             left,
             Token(TokenType.Multiplication),
             number,
@@ -229,7 +229,7 @@ public class Calculator
     public int Calculate(string equation)
     {
         // Turn the input string into a sequence of characters
-        var characterSequence = new StringCharacterSequence(equation);
+        var characterSequence = FromString(equation);
 
         // Get the lexical grammar, and use it to create a sequence of tokens
         var lexicalParser = LexicalGrammar.CreateParser();

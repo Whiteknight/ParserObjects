@@ -14,8 +14,8 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
     {
-        Assert.ArgumentNotNull(inputs, nameof(inputs));
-        Assert.ArgumentNotNull(predicate, nameof(predicate));
+        Assert.ArgumentNotNull(inputs);
+        Assert.ArgumentNotNull(predicate);
         _inputs = inputs;
         _predicate = predicate;
     }

@@ -3,6 +3,11 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Pushes a data frame onto the contextual data store for the current parse, and pops the frame
+/// off again when the inner parser has completed.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
 public static class DataFrame<TInput>
 {
     public sealed class Parser<TOutput> : IParser<TInput, TOutput>

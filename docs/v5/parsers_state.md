@@ -20,7 +20,7 @@ The `Cache` parser will cache the results of the inner parser, at the current in
 var parser = Cache(innerParser);
 ```
 
-This may be a savings in situations where you are parsing, rewinding, and re-parsing the same series of input multiple times. You should benchmark your application to see if it is helpful to cache.
+This may be a savings in situations where you are parsing, rewinding, and re-parsing the same series of input multiple times. You should benchmark your application to see if it is helpful to cache. Notice that, if you did not create the ParseState with a working cache, the `Cache` parser will do no caching.
 
 ### Creating Caches
 
@@ -58,7 +58,7 @@ var parser = inner.Examine(
 
 The `parseContext` struct contains references to the `inner` parser, the current parse state and the parse result (in the `after` callback only). 
 
-Either the before or after callbacks can be omitted if not required. If both callbacks are ommitted, `parser` will be identical to `innerParser`. 
+Either the before or after callbacks can be omitted if not required. If both callbacks are omitted, `parser` will be identical to `innerParser`. 
 
 Exceptions thrown from either callback will not be automatically handled. If you made changes to the parse state in the `before` method and an exception is thrown, those changes will not have a chance to be cleaned up and the parse may be left in an indeterminate state. For this reason it is best not to make modifications to the parse state in the Examine parser (even if it is technically possible to do).
 
@@ -88,11 +88,13 @@ It is a good idea to try not to throw exceptions from these or any other callbac
 
 The parse state can hold some contextual data which can be inserted and read at any point in the parse. Any callback which takes an `IParseState<TInput>` can set or read contextual data. You can use this data in, for example, the `Create` parser to create at parse-time a parser to match a value which is not known until parse time. 
 
-All data stored in the contextual data store must have a string name and be accessed by type. 
+All data stored in the contextual data store must have a string name and be accessed by type. Attempting to access a piece of data with the wrong name or the wrong data type will result no no data being returned.
+
+There are several Parsers which operate on State data, and state data can be accessed from any other parser whose callback contains an `IParseState` reference.
 
 ### GetData Parser
 
-The `GetData` parser searches for data in the contexual data store by name and type.
+The `GetData` parser searches for data in the contextual data store by name and type.
 
 ```csharp
 var parser = GetData<MyDataType>("name");

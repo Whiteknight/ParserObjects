@@ -1,23 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parsers which attempt to match inner parsers, in sequence, and return an array of all items
-/// from the input sequence which have been consumed.
+/// Attempt to match a list of inner parsers, in order, but do not capture the results explicitly.
+/// Instead a callback method with start and end checkpoints for the entire completed match is
+/// used to produce a result value. In practice this is often used to get a list of all input values
+/// from the input sequence between the two checkpoints.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
 /// <param name="Parsers"></param>
+/// <param name="GetOutput"></param>
 /// <param name="Name"></param>
-public record CaptureParser<TInput>(
+public record CaptureParser<TInput, TOutput>(
     IReadOnlyList<IParser<TInput>> Parsers,
+    Func<ISequence<TInput>, SequenceCheckpoint, SequenceCheckpoint, TOutput> GetOutput,
     string Name = ""
-) : IParser<TInput, TInput[]>
+) : IParser<TInput, TOutput>
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IResult<TInput[]> Parse(IParseState<TInput> state)
+    public IResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCp = state.Input.Checkpoint();
         for (int i = 0; i < Parsers.Count; i++)
@@ -32,7 +38,7 @@ public record CaptureParser<TInput>(
         }
 
         var endCp = state.Input.Checkpoint();
-        var contents = state.Input.GetBetween(startCp, endCp);
+        var contents = GetOutput(state.Input, startCp, endCp);
         return state.Success(this, contents, endCp.Consumed - startCp.Consumed);
     }
 

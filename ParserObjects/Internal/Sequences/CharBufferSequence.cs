@@ -72,11 +72,11 @@ public static class CharBufferSequence
             return next;
         }
 
-        public Location CurrentLocation => new Location(_options.FileName, _line, _column);
+        public readonly Location CurrentLocation => new Location(_options.FileName, _line, _column);
 
-        public bool IsAtEnd => _index >= Length;
+        public readonly bool IsAtEnd => _index >= Length;
 
-        public int Index => _index;
+        public readonly int Index => _index;
 
         public TData Data { get; }
 
@@ -109,7 +109,7 @@ public static class CharBufferSequence
         public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
+        public readonly char[] GetBetween(SequenceCheckpoint start, SequenceCheckpoint end)
         {
             int size = end.Consumed - start.Consumed;
             var array = new char[size];
@@ -130,7 +130,7 @@ public static class CharBufferSequence
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             Debug.Assert(options.MaintainLineEndings, "Only used when line-ending normalization is off");
             _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
         }
@@ -191,14 +191,14 @@ public static class CharBufferSequence
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s, nameof(s));
+            Assert.ArgumentNotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }

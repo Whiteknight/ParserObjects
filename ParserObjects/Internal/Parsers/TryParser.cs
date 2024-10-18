@@ -13,7 +13,11 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class TryParser<TInput>
 {
-    private struct ParserData<TParser, TResult>
+    /* We have several parser types for different IParser and IMultiParser interface configurations,
+     * all of which delegate to the ParserData<> struct for implementation.
+     */
+
+    private readonly struct ParserData<TParser, TResult>
         where TParser : IParser
         where TResult : IResultBase
     {

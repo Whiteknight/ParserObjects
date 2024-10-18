@@ -40,16 +40,22 @@ public sealed class MultiResult<TOutput> : IMultiResult<TOutput>
         Location? location = null
     )
     {
-        Assert.ArgumentNotNull(recreate, nameof(recreate));
+        Assert.ArgumentNotNull(recreate);
         var newAlternatives = Results.Select(alt => !alt.Success ? alt : recreate(alt, alt.Factory));
         var newCheckpoint = startCheckpoint ?? StartCheckpoint;
         return new MultiResult<TOutput>(Parser, newCheckpoint, newAlternatives);
     }
 
-    public IMultiResult<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
+    public IMultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
-        Assert.ArgumentNotNull(transform, nameof(transform));
-        var newAlternatives = Results.Select(alt => alt.Transform(transform));
+        Assert.ArgumentNotNull(transform);
+        var newAlternatives = new List<IResultAlternative<TValue>>();
+        for (int i = 0; i < Results.Count; i++)
+        {
+            var newAlt = Results[i].Transform(data, transform);
+            newAlternatives.Add(newAlt);
+        }
+
         return new MultiResult<TValue>(Parser, StartCheckpoint, newAlternatives);
     }
 
@@ -65,7 +71,7 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
 {
     public SuccessResultAlternative(TOutput value, int consumed, SequenceCheckpoint continuation)
     {
-        Assert.ArgumentNotNull(continuation, nameof(continuation));
+        Assert.ArgumentNotNull(continuation);
         Value = value;
         Consumed = consumed;
         Continuation = continuation;
@@ -88,9 +94,9 @@ public sealed class SuccessResultAlternative<TOutput> : IResultAlternative<TOutp
 
     object IResultAlternative.Value => Value!;
 
-    public IResultAlternative<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
+    public IResultAlternative<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
-        var newValue = transform(Value);
+        var newValue = transform(data, Value);
         return new SuccessResultAlternative<TValue>(newValue, Consumed, Continuation);
     }
 }
@@ -121,6 +127,6 @@ public sealed class FailureResultAlternative<TOutput> : IResultAlternative<TOutp
 
     public ResultAlternativeFactoryMethod<TOutput> Factory => throw new InvalidOperationException("This result is not a success and does not have a factory");
 
-    public IResultAlternative<TValue> Transform<TValue>(Func<TOutput, TValue> transform)
+    public IResultAlternative<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
         => new FailureResultAlternative<TValue>(ErrorMessage, Continuation);
 }

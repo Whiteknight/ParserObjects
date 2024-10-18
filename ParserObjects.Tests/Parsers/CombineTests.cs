@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
@@ -6,12 +7,25 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class CombineTests
 {
-    public class Method
+    public class MethodParams
     {
         [Test]
         public void Parse_Empty()
         {
             var parser = Combine();
+            var input = FromString("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(0);
+        }
+    }
+
+    public class MethodList
+    {
+        [Test]
+        public void Parse_Empty()
+        {
+            var parser = Combine(new List<IParser<char>>());
             var input = FromString("abd");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();

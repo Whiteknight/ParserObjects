@@ -9,13 +9,15 @@ The Wikipedia page on [Parsing](https://en.wikipedia.org/wiki/Parsing#Computer_l
 
 ## Project Goals
 
-The ParserObjects project intends to be an easy, usable and flexible parsing solution for the .NET ecosystem. The goal of this project is to be an on-ramp for developers who need to parse data but aren't necessarily experts in parsing theory. You don't need to know BNF or CFG or the details of any parsing algorithm in order to get started with ParserObjects. Parsers should be easy to build, the code should be easy to read, and the examples should be easy to understand.
+The ParserObjects project intends to be an easy, usable and flexible parsing solution for the .NET ecosystem. The goal of this project is to be an on-ramp for developers who need to parse structured data but aren't necessarily experts in parsing theory. You don't need to know BNF or CFG or the details of any parsing algorithm in order to get started with ParserObjects. Parsers should be easy to build, the code should be easy to read, and the examples should be easy to understand.
 
-This library also intends to showcase the Combinators approach to parsing, and the underlying ethos of being able to compose solutions together from reusable components. 
+This library also intends to showcase the Combinators approach to parsing, and the underlying ethos of being able to compose solutions together from simple and reusable components. 
 
 The developers of this library believe very strongly in the compositional approach. Large solutions are made by composing together smaller solutions. We also believe that all abstractions leak. For this reason a design decision has been made which runs counter to how many other large library projects organize things: Almost every class in this library is explicitly marked `public`, even the ones that we recommend users do not access directly.
 
-The `ParserObjects.Internal` namespace contains many classes and methods which are available to you, but are **explicitly not supported in any way**. Significant "breaking" changes may be made to the contents of this namespace without increasing the major version number of the library, and without offering any warning,  explanation or assistance in migrating to the new implementations. We provide this access so that you have the power to compose your own solutions using the same building blocks that we use. If you find yourself using and relying upon a bit of functionality from the `ParserObjects.Internal` namespace, and would like to have it added to the supported interface of the library, please contact the development team and we will be happy to help.
+The `ParserObjects.Internal` namespace contains many classes and methods which are available to you, but are **explicitly not supported in any way**. Significant "breaking" changes may be made to the contents of this namespace without increasing the major version number of the library, and without offering any warning, explanation or assistance in migrating to the new implementations. We provide this access so that you have the power to compose your own solutions using the same building blocks that we use. If you find yourself using and relying upon a bit of functionality from the `ParserObjects.Internal` namespace, and would like to have it added to the supported interface of the library, please contact the development team and we will be happy to help.
+
+**Note**: The ParserObjects library is explicitly *not asynchronous* and no part of the library should be considered to be thread-safe. 
 
 ## Key Concepts and Abstractions
 
@@ -56,6 +58,7 @@ using static ParserObjects.Parsers<char>;
 * [Pratt Parser Reference](parsers_pratt.md)
 * [Multi Parsers Reference](parsers_multi.md)
 * [Earley Parser Reference](parsers_earley.md)
+* [Index of all Parsers](parsers_index.md)
 
 ## Examples
 

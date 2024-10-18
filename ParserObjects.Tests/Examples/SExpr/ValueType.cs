@@ -1,14 +1,13 @@
-﻿namespace ParserObjects.Tests.Examples.SExpr
+﻿namespace ParserObjects.Tests.Examples.SExpr;
+
+public enum ValueType
 {
-    public enum ValueType
-    {
-        Operator,
-        Number,
-        Symbol,
-        QuotedString,
-        Whitespace,
-        OpenParen,
-        CloseParen,
-        End
-    }
+    Operator,
+    Number,
+    Symbol,
+    QuotedString,
+    Whitespace,
+    OpenParen,
+    CloseParen,
+    End
 }

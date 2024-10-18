@@ -17,10 +17,13 @@ public static class Engine
     /// <returns></returns>
     public static MatchResult GetMatch(ISequence<char> input, Regex regex)
     {
-        Assert.ArgumentNotNull(input, nameof(input));
-        Assert.ArgumentNotNull(regex, nameof(regex));
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(regex);
 
         var startLocation = input.CurrentLocation;
+        // TODO: If we know that the Regex does not contain any capturing groups, we can probably
+        // skip this allocation of a CaptureCollection and move into a simplified workflow
+        // where we only return the overall match and not any captures.
         var captures = new CaptureCollection();
         var startCheckpoint = input.Checkpoint();
         var matches = Test(captures, regex.States, input);
@@ -37,9 +40,11 @@ public static class Engine
 
     public static bool TestMatch(ISequence<char> input, Regex regex)
     {
-        Assert.ArgumentNotNull(input, nameof(input));
-        Assert.ArgumentNotNull(regex, nameof(regex));
+        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(regex);
 
+        // TODO: Same as the note above, if the Regex has no captures, we can avoid allocating a
+        // CaptureCollection here and use a dummy singleton instance which has no storage.
         var captures = new CaptureCollection();
         return Test(captures, regex.States, input);
     }

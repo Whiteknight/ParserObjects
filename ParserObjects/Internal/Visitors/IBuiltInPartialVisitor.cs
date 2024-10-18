@@ -27,7 +27,7 @@ public interface IFunctionPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, TState state);
 
-    void Accept<TInput, TOutput>(Sequential.Parser<TInput, TOutput> _, TState state);
+    void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> _, TState state);
 }
 
 public interface IListPartialVisitor<TState> : IPartialVisitor<TState>
@@ -47,7 +47,7 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput>(Cache<TInput>.Parser p, TState state);
 
-    void Accept<TInput>(CaptureParser<TInput> p, TState state);
+    void Accept<TInput, TOutput>(CaptureParser<TInput, TOutput> p, TState state);
 
     void Accept<TInput, TOutput, TData>(Chain<TInput, TOutput>.Parser<TData> p, TState state);
 
@@ -95,9 +95,9 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput>(SynchronizeParser<TInput, TOutput> p, TState state);
 
-    void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.MultiParser p, TState state);
+    void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.MultiParser p, TState state);
 
-    void Accept<TInput, TMiddle, TOutput>(Transform<TInput, TMiddle, TOutput>.Parser p, TState state);
+    void Accept<TInput, TMiddle, TOutput, TData>(Transform<TInput, TMiddle, TOutput, TData>.Parser p, TState state);
 
     void Accept<TInput, TOutput>(TryParser<TInput>.Parser<TOutput> p, TState state);
 
@@ -126,8 +126,6 @@ public interface IMultiPartialVisitor<TState> : IPartialVisitor<TState>
 
 public interface ILogicalPartialVisitor<TState> : IPartialVisitor<TState>
 {
-    void Accept<TInput>(AndParser<TInput> p, TState state);
-
     void Accept<TInput, TOutput>(IfParser<TInput, TOutput> p, TState state);
 }
 
@@ -153,7 +151,9 @@ public interface IMatchPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput>(MatchPatternParser<TInput> p, TState state);
 
-    void Accept<TInput>(MatchPredicateParser<TInput> _, TState state);
+    void Accept(MatchStringPatternParser p, TState state);
+
+    void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, TState state);
 
     void Accept<TInput>(PeekParser<TInput> _, TState state);
 

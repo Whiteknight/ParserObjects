@@ -10,15 +10,26 @@ namespace ParserObjects.Internal.Parsers;
 /// the end sentinel will be made available to the predicate and may match.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class MatchPredicateParser<T> : IParser<T, T>
+/// <typeparam name="TData"></typeparam>
+public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 {
-    private readonly Func<T, bool> _predicate;
+    /* The ReadAtEnd flag determines if we should attempt to read and match an end sentinel when
+     * the sequence is at end-of-input. This is useful in some cases where we want to have custom
+     * end parsing/handling, but many cases don't need to read the end sentinel and can bail out
+     * and end.
+     */
+
+    private readonly TData _data;
+    private readonly Func<T, TData, bool> _predicate;
+    private readonly bool _readAtEnd;
     private readonly IResult<T> _failure;
 
-    public MatchPredicateParser(Func<T, bool> predicate, string name = "")
+    public MatchPredicateParser(TData data, Func<T, TData, bool> predicate, string name = "", bool readAtEnd = true)
     {
+        _data = data;
         _predicate = predicate;
         Name = name;
+        _readAtEnd = readAtEnd;
         _failure = new FailureResult<T>(this, "Next item does not match the predicate");
     }
 
@@ -28,12 +39,15 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public IResult<T> Parse(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
 
         var startConsumed = state.Input.Consumed;
 
+        if (!_readAtEnd && state.Input.IsAtEnd)
+            return _failure;
+
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next))
+        if (next == null || !_predicate(next, _data))
             return _failure;
 
         state.Input.GetNext();
@@ -44,10 +58,13 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public bool Match(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
+
+        if (!_readAtEnd && state.Input.IsAtEnd)
+            return false;
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next))
+        if (next == null || !_predicate(next, _data))
             return false;
 
         state.Input.GetNext();
@@ -58,7 +75,7 @@ public sealed class MatchPredicateParser<T> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
-    public INamed SetName(string name) => new MatchPredicateParser<T>(_predicate, name);
+    public INamed SetName(string name) => new MatchPredicateParser<T, TData>(_data, _predicate, name, _readAtEnd);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>

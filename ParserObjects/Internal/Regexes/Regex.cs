@@ -7,13 +7,13 @@ namespace ParserObjects.Internal.Regexes;
 /// <summary>
 /// Represents a compiled regex pattern. Used by the RegexEngine to perform a match.
 /// </summary>
-public struct Regex
+public readonly struct Regex
 {
     public IReadOnlyList<IState> States { get; }
 
     public Regex(IReadOnlyList<IState> states)
     {
-        Assert.ArgumentNotNull(states, nameof(states));
+        Assert.ArgumentNotNull(states);
         States = states;
         Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
         NumberGroups(states);

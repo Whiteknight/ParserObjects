@@ -24,7 +24,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1]));
+            static (p, list) => p((T1)list[0], (T2)list[1]),
+            false
+        );
     }
 
     /// <summary>
@@ -50,7 +52,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2]),
+            false
+        );
     }
 
     /// <summary>
@@ -79,7 +83,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3]),
+            false
+        );
     }
 
     /// <summary>
@@ -111,7 +117,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4]),
+            false
+        );
     }
 
     /// <summary>
@@ -146,7 +154,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5]),
+            false
+        );
     }
 
     /// <summary>
@@ -184,7 +194,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6]),
+            false
+        );
     }
 
     /// <summary>
@@ -225,7 +237,9 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7]),
+            false
+        );
     }
 
     /// <summary>
@@ -269,6 +283,8 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             new IParser<TInput>[] { p1, p2, p3, p4, p5, p6, p7, p8, p9 },
             produce,
-            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]));
+            static (p, list) => p((T1)list[0], (T2)list[1], (T3)list[2], (T4)list[3], (T5)list[4], (T6)list[5], (T7)list[6], (T8)list[7], (T9)list[8]),
+            false
+        );
     }
 }

@@ -12,10 +12,19 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Chain<TInput, TOutput>
 {
+    /* The Chain parser executes a callback to get the next parser after the initial parser has
+     * completed. In simple cases this is a user-defined callback and imposes very little structure
+     * on what is returned or how.
+     *
+     * The ParserPredicateSelector struct and the Configure() methods give us the Choose() behavior
+     * where we have a fluent interface to specify results. Internally that ParserPredicateSelector
+     * is just wrapped in a callback and passed to the Chain.Parser like normal
+     */
+
     public static IParser<TInput, TOutput> Configure(IParser<TInput> inner, Action<ParserPredicateSelector<TInput, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(inner, nameof(inner));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(inner);
+        Assert.ArgumentNotNull(setup);
 
         var config = new ParserPredicateSelector<TInput, TOutput>(new List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
@@ -24,14 +33,14 @@ public static class Chain<TInput, TOutput>
 
     public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(inner, nameof(inner));
-        Assert.ArgumentNotNull(setup, nameof(setup));
+        Assert.ArgumentNotNull(inner);
+        Assert.ArgumentNotNull(setup);
         var config = new ParserPredicateSelector<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
         return new Parser<TMiddle, ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
     }
 
-    private struct InternalParser<TInnerParser, TInnerResult, TData>
+    private readonly struct InternalParser<TInnerParser, TInnerResult, TData>
         where TInnerParser : IParser<TInput>
         where TInnerResult : IResult
     {
@@ -51,7 +60,7 @@ public static class Chain<TInput, TOutput>
 
         public IResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _getResult(Inner, state);
@@ -67,7 +76,7 @@ public static class Chain<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state, nameof(state));
+            Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _getResult(Inner, state);

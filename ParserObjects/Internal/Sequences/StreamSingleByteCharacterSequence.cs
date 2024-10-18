@@ -20,7 +20,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public StreamSingleByteCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(stream, nameof(stream));
+        Assert.ArgumentNotNull(stream);
         _options = options;
         _options.Validate();
         if (!_options.Encoding!.IsSingleByte)

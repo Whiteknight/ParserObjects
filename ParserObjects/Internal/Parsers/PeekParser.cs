@@ -24,7 +24,7 @@ public sealed class PeekParser<T> : IParser<T, T>
 
     public IResult<T> Parse(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         if (state.Input.IsAtEnd)
             return _eofResult;
 

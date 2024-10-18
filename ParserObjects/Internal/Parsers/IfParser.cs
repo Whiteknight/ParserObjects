@@ -20,7 +20,7 @@ public sealed record IfParser<TInput, TOutput>(
 
     public IResult<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var cp = state.Input.Checkpoint();
         var result = Predicate.Parse(state);
         return Parse(state, result.Success ? OnSuccess : OnFailure, cp, result.Consumed);

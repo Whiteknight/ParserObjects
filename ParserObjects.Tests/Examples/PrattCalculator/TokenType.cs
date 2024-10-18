@@ -1,17 +1,16 @@
-﻿namespace ParserObjects.Tests.Examples.PrattCalculator
+﻿namespace ParserObjects.Tests.Examples.PrattCalculator;
+
+public enum TokenType
 {
-    public enum TokenType
-    {
-        Error,
-        Addition,
-        Division,
-        Multiplication,
-        Subtraction,
-        Exponentiation,
-        Factorial,
-        Number,
-        OpenParen,
-        CloseParen,
-        End
-    }
+    Error,
+    Addition,
+    Division,
+    Multiplication,
+    Subtraction,
+    Exponentiation,
+    Factorial,
+    Number,
+    OpenParen,
+    CloseParen,
+    End
 }

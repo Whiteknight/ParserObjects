@@ -35,24 +35,29 @@ public static partial class Parsers<TInput>
     public static IParser<TInput> Empty() => _empty;
 
     /// <summary>
-    /// Matches affirmatively at the end of the input, fails everywhere else. Returns no value.
+    /// Returns a success result at end of input, a failure result at any other location. Returns
+    /// no value in either case.
     /// </summary>
     /// <returns></returns>
     public static IParser<TInput> End() => _end;
 
     /// <summary>
-    /// Matches affirmatively at the end of the input. Fails everywhere else. Returns a boolean value.
+    /// Always returns success, with a boolean value indicating whether the input sequence is at
+    /// end of input or not.
     /// </summary>
     /// <returns></returns>
     public static IParser<TInput, bool> IsEnd() => _isEnd;
 
     /// <summary>
-    /// Test the next input value and return it, if it matches the predicate.
+    /// Test the next input value and return it, if it matches the predicate. Notice that this
+    /// parser can match the end sentinel, if the end sentinel satisfies the given predicate.
+    /// If you do not want to match the end sentinel, update your predicate to exclude it or use
+    /// MatchItem(predicate) instead.
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns></returns>
     public static IParser<TInput, TInput> Match(Func<TInput, bool> predicate)
-        => new MatchPredicateParser<TInput>(predicate);
+        => new MatchPredicateParser<TInput, Func<TInput, bool>>(predicate, static (i, p) => p(i));
 
     /// <summary>
     /// Get the next input value and return it if it .Equals() to the given value.
@@ -70,11 +75,23 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
     {
-        var asList = pattern.ToList();
+        if (pattern == null)
+            return Produce(static () => Array.Empty<TInput>());
+        var asList = pattern as IReadOnlyList<TInput> ?? pattern.ToList();
         if (asList.Count == 0)
-            return Produce(() => Array.Empty<TInput>());
+            return Produce(static () => Array.Empty<TInput>());
         return new MatchPatternParser<TInput>(asList);
     }
+
+    /// <summary>
+    /// Test the next input value and return it, if it matches the predicate. Notice that this
+    /// parser cannot match the end sentinel, even if the given predicate would allow it. If you
+    /// do want to match the end sentinel, use Match(predicate) instead.
+    /// </summary>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TInput> MatchItem(Func<TInput, bool> predicate)
+        => new MatchPredicateParser<TInput, Func<TInput, bool>>(predicate, static (i, p) => p(i), readAtEnd: false);
 
     /// <summary>
     /// Return the next item of input without consuming any input. Returns failure at end of

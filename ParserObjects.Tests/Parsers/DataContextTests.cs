@@ -3,6 +3,9 @@ using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
 
+// These tests cover DataContext, GetData and SetData parsers. There's no good way to test these
+// parsers independently of each other using workflows that we actually expects downstream users
+// to use.
 public static class DataContextTests
 {
     public class Single

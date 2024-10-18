@@ -10,7 +10,16 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Context<TInput>
 {
-    private struct InternalParser<TParser>
+    /* This is very similar to the Examine parser, except in Examine we explicitly do not wrap
+     * user callbacks in try/catch because we *expect* the user to use those callbacks for readonly
+     * examination and not to make modifications. We don't enforce it, but it is on the user to make
+     * sure they use the tool correctly.
+     *
+     * Here in the Context() parser we have access to all the parse state and are expected to be
+     * making modifications. This is why we are much more cautious about try/catch and error handlers
+     */
+
+    private readonly struct InternalParser<TParser>
         where TParser : IParser
     {
         private readonly Action<IParseState<TInput>>? _setup;

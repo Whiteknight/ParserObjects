@@ -24,7 +24,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(reader, nameof(reader));
+        Assert.ArgumentNotNull(reader);
         _options = options;
         _options.Encoding = reader.CurrentEncoding;
         _options.Validate();
@@ -39,7 +39,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(stream, nameof(stream));
+        Assert.ArgumentNotNull(stream);
         _options = options;
         _options.Validate();
         _stats = default;

@@ -2,9 +2,8 @@
 global using FluentAssertions;
 global using NUnit.Framework;
 
-namespace ParserObjects.Tests
+namespace ParserObjects.Tests;
+
+public static class Setup
 {
-    public static class Setup
-    {
-    }
 }

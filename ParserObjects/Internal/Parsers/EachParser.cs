@@ -3,6 +3,12 @@ using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
+/// <summary>
+/// Executes a number of IParser instances from the current location and returns all of their
+/// results as an IMultiResult.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
 public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 {
     private readonly IReadOnlyList<IParser<TInput, TOutput>> _parsers;

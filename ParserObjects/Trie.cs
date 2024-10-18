@@ -12,7 +12,7 @@ namespace ParserObjects;
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 /// <typeparam name="TResult"></typeparam>
-public struct InsertableTrie<TKey, TResult>
+public readonly struct InsertableTrie<TKey, TResult>
 {
     private readonly RootNode<TKey, TResult> _root;
     private readonly List<IReadOnlyList<TKey>> _patterns;
@@ -24,20 +24,26 @@ public struct InsertableTrie<TKey, TResult>
     }
 
     /// <summary>
-    /// Create a new instance.
+    /// Create a new instance using the given equality comparer.
     /// </summary>
+    /// <param name="comparer"></param>
     /// <returns></returns>
-    public static InsertableTrie<TKey, TResult> Create()
-        => new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
+    public static InsertableTrie<TKey, TResult> Create(IEqualityComparer<TKey>? comparer = null)
+    {
+        if (comparer == null)
+            return new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), new List<IReadOnlyList<TKey>>());
+        return new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(comparer), new List<IReadOnlyList<TKey>>());
+    }
 
     /// <summary>
     /// Create and initialize a new trie instance from a user callback.
     /// </summary>
     /// <param name="setup"></param>
+    /// <param name="equalityComparer"></param>
     /// <returns></returns>
-    public static InsertableTrie<TKey, TResult> Setup(Action<InsertableTrie<TKey, TResult>> setup)
+    public static InsertableTrie<TKey, TResult> Setup(Action<InsertableTrie<TKey, TResult>> setup, IEqualityComparer<TKey>? equalityComparer)
     {
-        var trie = Create();
+        var trie = Create(equalityComparer);
         setup?.Invoke(trie);
         return trie;
     }
@@ -45,7 +51,7 @@ public struct InsertableTrie<TKey, TResult>
     /// <summary>
     /// Gets the count of items added to the trie.
     /// </summary>
-    public int Count => _patterns.Count;
+    public readonly int Count => _patterns.Count;
 
     /// <summary>
     /// Adds a new item to the Trie with the given key pattern.
@@ -55,8 +61,8 @@ public struct InsertableTrie<TKey, TResult>
     /// <returns></returns>
     public InsertableTrie<TKey, TResult> Add(IEnumerable<TKey> keys, TResult result)
     {
-        Assert.ArgumentNotNull(keys, nameof(keys));
-        Assert.ArgumentNotNull(result, nameof(result));
+        Assert.ArgumentNotNull(keys);
+        Assert.ArgumentNotNull(result);
         var keyList = keys.ToArray();
         if (_root.TryAdd(keyList, result))
             _patterns.Add(keyList);

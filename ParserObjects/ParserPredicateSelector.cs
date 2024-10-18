@@ -28,8 +28,8 @@ public readonly struct ParserPredicateSelector<TInput, TMiddle, TOutput>
     /// <returns></returns>
     public ParserPredicateSelector<TInput, TMiddle, TOutput> When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
     {
-        Assert.ArgumentNotNull(equals, nameof(equals));
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(equals);
+        Assert.ArgumentNotNull(parser);
         _parsers.Add((equals, parser));
         return this;
     }
@@ -85,8 +85,8 @@ public readonly struct ParserPredicateSelector<TInput, TOutput>
     /// <param name="parser"></param>
     public ParserPredicateSelector<TInput, TOutput> When(Func<object, bool> equals, IParser<TInput, TOutput> parser)
     {
-        Assert.ArgumentNotNull(equals, nameof(equals));
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(equals);
+        Assert.ArgumentNotNull(parser);
         _parsers.Add((equals, parser));
         return this;
     }

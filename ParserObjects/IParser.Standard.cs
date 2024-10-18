@@ -467,4 +467,21 @@ public static class ParserCombinatorExtensions
         this IParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform
     ) => Parsers<TInput>.Transform(parser, transform);
+
+    /// <summary>
+    /// Transform the output of the given parser to a new value.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="parser"></param>
+    /// <param name="data"></param>
+    /// <param name="transform"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Transform<TInput, TMiddle, TOutput, TData>(
+        this IParser<TInput, TMiddle> parser,
+        TData data,
+        Func<TData, TMiddle, TOutput> transform
+    ) => Parsers<TInput>.Transform(parser, data, transform);
 }

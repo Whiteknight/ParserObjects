@@ -11,13 +11,13 @@ namespace ParserObjects.Internal.Earley;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public struct Engine<TInput, TOutput>
+public readonly struct Engine<TInput, TOutput>
 {
     private readonly INonterminal<TInput, TOutput> _startSymbol;
 
     public Engine(INonterminal<TInput, TOutput> startSymbol)
     {
-        Assert.ArgumentNotNull(startSymbol, nameof(startSymbol));
+        Assert.ArgumentNotNull(startSymbol);
         if (startSymbol.Productions.Count == 0)
             throw new GrammarException("The start symbol contains no valid productions");
         if (startSymbol.Productions.All(p => p.Symbols.Count == 0))
@@ -28,7 +28,7 @@ public struct Engine<TInput, TOutput>
 
     public ParseResult<TOutput> Parse(IParseState<TInput> parseState)
     {
-        Assert.ArgumentNotNull(parseState, nameof(parseState));
+        Assert.ArgumentNotNull(parseState);
 
         var stats = new ParseStatistics();
 

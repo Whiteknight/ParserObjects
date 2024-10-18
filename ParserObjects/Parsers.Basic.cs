@@ -39,7 +39,7 @@ public static partial class Parsers<TInput>
     {
         if (parsers == null || parsers.Length == 0)
             return Produce(static () => Array.Empty<TInput>());
-        return new CaptureParser<TInput>(parsers);
+        return new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetBetween(start, end));
     }
 
     /// <summary>
@@ -125,7 +125,26 @@ public static partial class Parsers<TInput>
         return Internal.Parsers.Rule.Create(
             parsers,
             Defaults.ObjectInstance,
-            static (_, r) => r
+            static (_, r) => r,
+            true
+        );
+    }
+
+    /// <summary>
+    /// Given a list of parsers, parse each in sequence and return a list of object results on
+    /// success.
+    /// </summary>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
+    public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
+    {
+        if (parsers == null || parsers.Count == 0)
+            return Produce(static () => Array.Empty<object>());
+        return Internal.Parsers.Rule.Create(
+            parsers,
+            Defaults.ObjectInstance,
+            static (_, r) => r,
+            true
         );
     }
 
@@ -380,7 +399,7 @@ public static partial class Parsers<TInput>
         Func<TOutput> getDefault
     )
     {
-        Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+        Assert.ArgumentNotNull(getDefault);
         return new Optional<TInput, TOutput>.DefaultValueParser(p, _ => getDefault());
     }
 
@@ -396,7 +415,7 @@ public static partial class Parsers<TInput>
         Func<IParseState<TInput>, TOutput> getDefault
     )
     {
-        Assert.ArgumentNotNull(getDefault, nameof(getDefault));
+        Assert.ArgumentNotNull(getDefault);
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
 
@@ -525,7 +544,18 @@ public static partial class Parsers<TInput>
     /// <param name="func"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
-        => new Sequential.Parser<TInput, TOutput>(func);
+        => new Sequential.Parser<TInput, TOutput, Func<SequentialState<TInput>, TOutput>>(func, static (s, d) => d(s));
+
+    /// <summary>
+    /// Execute a specially-structured callback to turn a parse into sequential, procedural code.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="data"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Sequential<TOutput, TData>(TData data, Func<SequentialState<TInput>, TData, TOutput> func)
+        => new Sequential.Parser<TInput, TOutput, TData>(data, func);
 
     /// <summary>
     /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
@@ -553,7 +583,23 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform
-    ) => new Transform<TInput, TMiddle, TOutput>.Parser(parser, transform);
+    ) => new Transform<TInput, TMiddle, TOutput, Func<TMiddle, TOutput>>.Parser(parser, transform, static (t, v) => t(v));
+
+    /// <summary>
+    /// Transform the output value of the parser.
+    /// </summary>
+    /// <typeparam name="TMiddle"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="parser"></param>
+    /// <param name="data"></param>
+    /// <param name="transform"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Transform<TMiddle, TOutput, TData>(
+        IParser<TInput, TMiddle> parser,
+        TData data,
+        Func<TData, TMiddle, TOutput> transform
+    ) => new Transform<TInput, TMiddle, TOutput, TData>.Parser(parser, data, transform);
 
     /// <summary>
     /// Transforms the output value of the parser.
@@ -566,7 +612,7 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IMultiParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform
-    ) => new Transform<TInput, TMiddle, TOutput>.MultiParser(parser, transform);
+    ) => new Transform<TInput, TMiddle, TOutput, Func<TMiddle, TOutput>>.MultiParser(parser, transform, static (t, v) => t(v));
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On

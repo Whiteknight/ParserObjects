@@ -46,7 +46,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// </summary>
     /// <param name="matcher"></param>
     /// <returns></returns>
-    public IEnumerable<IParselet<TInput, TOutput>> Build(IParser<TInput, TValue> matcher)
+    public readonly IEnumerable<IParselet<TInput, TOutput>> Build(IParser<TInput, TValue> matcher)
     {
         var parselets = new IParselet<TInput, TOutput>[_getParselets.Count];
         for (int i = 0; i < _getParselets.Count; i++)
@@ -81,9 +81,9 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <param name="rbp"></param>
     /// <param name="getNud"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
-        Assert.ArgumentNotNull(getNud, nameof(getNud));
+        Assert.ArgumentNotNull(getNud);
         _getParselets.Add(new GetParseletArguments(getNud, null, rbp, rbp));
         return this;
     }
@@ -96,9 +96,9 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <param name="rbp"></param>
     /// <param name="getLed"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
-        Assert.ArgumentNotNull(getLed, nameof(getLed));
+        Assert.ArgumentNotNull(getLed);
         _getParselets.Add(new GetParseletArguments(null, getLed, lbp, rbp));
         return this;
     }
@@ -118,7 +118,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <param name="rbp"></param>
     /// <param name="getLed"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> BindLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> BindLeft(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
         => LeftDenominator(lbp, rbp, getLed);
 
     /// <summary>
@@ -129,7 +129,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <param name="lbp"></param>
     /// <param name="getLed"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> BindLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> BindLeft(int lbp, LedFunc<TInput, TValue, TOutput> getLed)
         => LeftDenominator(lbp, lbp + 1, getLed);
 
     /// <summary>
@@ -139,7 +139,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// </summary>
     /// <param name="getNud"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> Bind(NudFunc<TInput, TValue, TOutput> getNud)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> Bind(NudFunc<TInput, TValue, TOutput> getNud)
         => NullDenominator(0, getNud);
 
     /// <summary>
@@ -150,6 +150,6 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <param name="rbp"></param>
     /// <param name="getNud"></param>
     /// <returns></returns>
-    public ParseletBuilder<TInput, TValue, TOutput> Bind(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
+    public readonly ParseletBuilder<TInput, TValue, TOutput> Bind(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
         => NullDenominator(rbp, getNud);
 }

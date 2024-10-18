@@ -6,7 +6,7 @@ using ParserObjects.Earley;
 
 namespace ParserObjects.Internal.Earley;
 
-public struct ItemDerivationVisitor
+public readonly struct ItemDerivationVisitor
 {
     private readonly Dictionary<(IProduction, int, int), IReadOnlyList<object>> _cache;
     private readonly ParseStatistics _statistics;

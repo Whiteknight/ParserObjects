@@ -24,9 +24,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 
     public PrattParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name, ParseControl parseControl)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
-        Assert.ArgumentNotNull(engine, nameof(engine));
-        Assert.ArgumentNotNull(parseControl, nameof(parseControl));
+        Assert.ArgumentNotNull(state);
+        Assert.ArgumentNotNull(engine);
+        Assert.ArgumentNotNull(parseControl);
 
         _state = state;
         _engine = engine;
@@ -88,7 +88,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <exception cref="ParseException">Thrown if the parser fails.</exception>
     public TValue Parse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(parser);
         EnsureIsNotComplete();
         var result = parser.Parse(_state);
         if (!result.Success)
@@ -127,7 +127,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public bool Match(IParser<TInput> parser)
     {
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(parser);
         EnsureIsNotComplete();
         return parser.Match(_state);
     }
@@ -141,7 +141,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// callback.</exception>
     public void Expect(IParser<TInput> parser)
     {
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(parser);
         EnsureIsNotComplete();
         var result = parser.Match(_state);
         if (!result)
@@ -214,7 +214,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.ArgumentNotNull(parser, nameof(parser));
+        Assert.ArgumentNotNull(parser);
         if (_parseControl.IsComplete)
             return default;
         var result = parser.Parse(_state);

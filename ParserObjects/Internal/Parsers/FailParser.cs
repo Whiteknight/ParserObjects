@@ -11,6 +11,11 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
+    /* Returns a pre-created, cached error result in all situations
+     * Multi-parser cannot cache the result object because of differences in IMultiResult requirements
+     * so we just have to create those new each time
+     */
+
     private readonly IResult<TOutput> _result;
 
     public FailParser(string errorMessage = "Fail", string name = "")
@@ -33,7 +38,7 @@ public sealed class FailParser<TInput, TOutput> : IParser<TInput, TOutput>, IMul
 
     IMultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state, nameof(state));
+        Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         return new MultiResult<TOutput>(this, startCheckpoint, new[]
         {
