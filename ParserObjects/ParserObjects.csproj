@@ -26,8 +26,6 @@
     <NoWarn>1591</NoWarn>
     <NoWarn>$(NoWarn);NU1504;NU1505;NU1701</NoWarn>
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
-
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
