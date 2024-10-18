@@ -25,7 +25,7 @@ public static partial class Parsers<TInput>
                 return args.Success(result.Success);
             },
             static (state, p) => p.Match(state),
-            "IF {child}",
+            "IF %0",
             new[] { parser }
         );
 
@@ -331,7 +331,7 @@ public static partial class Parsers<TInput>
 
                 return false;
             },
-            "(?={child})",
+            "(?=%0)",
             new[] { parser }
         );
 
@@ -365,7 +365,7 @@ public static partial class Parsers<TInput>
                 startCheckpoint.Rewind();
                 return true;
             },
-            "(?={child})",
+            "(?=%0)",
             new[] { parser }
         );
 

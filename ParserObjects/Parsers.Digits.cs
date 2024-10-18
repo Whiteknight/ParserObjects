@@ -38,7 +38,13 @@ public static partial class Parsers
         );
 
     /// <summary>
-    /// Pares digits in series and returns them as an integer with a given minimum and maximum
+    /// Parses digits in series, from 0-999,999,999 inclusive, and returns them as an integer.
+    /// </summary>
+    /// <returns></returns>
+    public static IParser<char, int> DigitsAsInteger() => DigitsAsInteger(1, 9);
+
+    /// <summary>
+    /// Parses digits in series and returns them as an integer with a given minimum and maximum
     /// number of digits.
     /// </summary>
     /// <param name="minimum"></param>
