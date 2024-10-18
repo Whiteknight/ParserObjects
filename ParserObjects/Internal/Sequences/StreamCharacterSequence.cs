@@ -66,10 +66,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     private int GetEncodingByteCountForCharacter(char c)
     {
-        unsafe
-        {
-            return _options.Encoding!.GetByteCount(&c, 1);
-        }
+        Span<char> buffer = stackalloc char[1] { c };
+        return _options.Encoding!.GetByteCount(buffer);
     }
 
     public char GetNext()
