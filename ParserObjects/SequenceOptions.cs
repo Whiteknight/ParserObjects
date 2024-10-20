@@ -52,9 +52,7 @@ public struct SequenceOptions<T>
     {
         if (BufferSize <= 0)
             BufferSize = SequenceOptions.DefaultBufferSize;
-        if (FileName == null)
-            FileName = string.Empty;
-        if (Encoding == null)
-            Encoding = Encoding.UTF8;
+        FileName ??= string.Empty;
+        Encoding ??= Encoding.UTF8;
     }
 }

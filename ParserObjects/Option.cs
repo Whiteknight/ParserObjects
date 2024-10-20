@@ -24,13 +24,12 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="value"></param>
     /// <returns></returns>
     public bool Is(T value)
-    {
-        if (!Success)
-            return false;
-        if (value == null)
-            return Value == null;
-        return Value!.Equals(value);
-    }
+        => (Success, value) switch
+        {
+            (true, null) => Value is null,
+            (true, not null) => Value is not null && Value.Equals(value),
+            _ => false
+        };
 
     /// <summary>
     /// Return another Option object whose value (if it exists) is tranformed.
@@ -39,9 +38,9 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="selector"></param>
     /// <returns></returns>
     public Option<TResult> Select<TResult>(Func<T, TResult> selector)
-        => !Success
-            ? default
-            : new Option<TResult>(true, selector(Value!));
+        => Success
+        ? new Option<TResult>(true, selector(Value!))
+        : default;
 
     /// <summary>
     /// Return a new Option object whose value (if it exists) is tranformed.
@@ -50,10 +49,12 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="selector"></param>
     /// <returns></returns>
     public Option<TResult> SelectMany<TResult>(Func<T, Option<TResult>> selector)
-        => !Success
-            ? default
-            : selector(Value!);
+        => Success
+        ? selector(Value!)
+        : default;
 
     public override int GetHashCode()
-        => Success ? Value!.GetHashCode() : 0;
+        => Success
+        ? Value!.GetHashCode()
+        : 0;
 }

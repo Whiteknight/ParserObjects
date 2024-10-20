@@ -32,7 +32,5 @@ public static class NamedExtensions
     /// <returns></returns>
     public static T Named<T>(this T nameable, string name)
          where T : INamed
-    {
-        return (T)nameable.SetName(name);
-    }
+        => (T)nameable.SetName(name);
 }

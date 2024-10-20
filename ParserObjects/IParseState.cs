@@ -129,7 +129,5 @@ public interface IParseState<TInput>
     public Result<TOutput> Result<TOutput>(
         IParser<TInput> parser,
         PartialResult<TOutput> part
-    ) => part.Success
-        ? Success(parser, part.Value!, part.Consumed)
-        : Fail<TOutput>(parser, part.ErrorMessage!);
+    ) => part.ToResult(parser);
 }

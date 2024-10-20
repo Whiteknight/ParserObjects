@@ -160,7 +160,9 @@ public static class Function<TInput, TOutput>
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
         public string Description { get; }
+
         public string Name { get; }
 
         private static MultiResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)

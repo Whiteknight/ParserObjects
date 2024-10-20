@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -126,8 +127,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                     continue;
                 }
 
-                foreach (var resultAlt in result.Results)
-                    results.Add(ResultAlternative<TOutput>.Ok(resultAlt.Value, resultAlt.Consumed, resultAlt.Continuation));
+                results.AddRange(result.Results.Where(r => r.Success));
             }
 
             innerResult.StartCheckpoint.Rewind();

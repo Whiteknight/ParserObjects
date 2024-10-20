@@ -7,11 +7,21 @@ namespace ParserObjects;
 
 public readonly record struct ResultAlternative<TOutput>(
     bool Success,
-    string ErrorMessage,
-    TOutput Value,
+    string? InternalError,
+    TOutput? InternalValue,
     int Consumed,
     SequenceCheckpoint Continuation)
 {
+    public TOutput Value
+        => Success
+        ? InternalValue!
+        : throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
+
+    public string ErrorMessage
+        => Success
+        ? string.Empty
+        : InternalError ?? string.Empty;
+
     public static ResultAlternative<TOutput> Failure(string errorMessage, SequenceCheckpoint startCheckpoint)
         => new ResultAlternative<TOutput>(false, errorMessage, default!, 0, startCheckpoint);
 
@@ -32,6 +42,9 @@ public readonly record struct MultiResult<TOutput>(
 )
 {
     public bool Success => Results.Any(r => r.Success);
+
+    public static MultiResult<TOutput> FromSingleFailure(IParser parser, SequenceCheckpoint startCheckpoint, string errorMessage)
+        => new MultiResult<TOutput>(parser, startCheckpoint, new[] { ResultAlternative<TOutput>.Failure(errorMessage, startCheckpoint) });
 
     public MultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
