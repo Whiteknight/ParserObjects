@@ -24,7 +24,7 @@ public sealed record PositiveLookaheadParser<TInput>(
             return result;
 
         startCheckpoint.Rewind();
-        return result.AdjustConsumed(0);
+        return result with { Consumed = 0 };
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

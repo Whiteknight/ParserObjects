@@ -61,7 +61,7 @@ public interface IParseState<TInput>
     )
     {
         Log(parser, "Failed with error " + error);
-        return ParserObjects.Result<TOutput>.Fail(parser, error).With(data);
+        return ParserObjects.Result<TOutput>.Fail(parser, error) with { Data = data };
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public interface IParseState<TInput>
     )
     {
         Log(parser, "Failed with error " + error);
-        return ParserObjects.Result<TOutput>.Fail(parser, error).With(data);
+        return ParserObjects.Result<TOutput>.Fail(parser, error) with { Data = data };
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public interface IParseState<TInput>
     )
     {
         Log(parser, "Failed with error " + error);
-        return ParserObjects.Result<object>.Fail(parser, error).With(data);
+        return ParserObjects.Result<object>.Fail(parser, error) with { Data = data };
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public interface IParseState<TInput>
     )
     {
         Log(parser, "Succeeded");
-        return ParserObjects.Result<TOutput>.Ok(parser, output, consumed).With(data);
+        return ParserObjects.Result<TOutput>.Ok(parser, output, consumed) with { Data = data };
     }
 
     /// <summary>

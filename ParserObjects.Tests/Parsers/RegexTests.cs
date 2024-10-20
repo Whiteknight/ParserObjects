@@ -285,7 +285,7 @@ public class RegexTests
         var result = target.Parse("abc");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("abc");
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[1][0].Should().Be("abc");
@@ -302,7 +302,7 @@ public class RegexTests
         var target = Regex(pattern);
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[0][0].Should().Be(input);
@@ -319,7 +319,7 @@ public class RegexTests
         var target = Regex(pattern);
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[0][0].Should().Be(input);
@@ -337,7 +337,7 @@ public class RegexTests
         var target = Regex("(.)+d");
         var result = target.Parse("ad");
         result.Success.Should().BeTrue();
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[0][0].Should().Be("ad");
@@ -357,7 +357,7 @@ public class RegexTests
         var target = Regex(pattern);
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches.Count.Should().Be(1);
@@ -386,7 +386,7 @@ public class RegexTests
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
         result.Value.Should().Be(group0);
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[0][0].Should().Be(group0);
@@ -400,7 +400,7 @@ public class RegexTests
         var result = target.Parse(input);
         result.Success.Should().BeTrue();
         result.Value.Should().Be(group0);
-        var matchOption = result.TryGetData<RegexMatch>();
+        var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
         matches[0][0].Should().Be(group0);

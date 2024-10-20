@@ -176,7 +176,7 @@ public static class SequentialTests
 
             var result = Try(parser).Parse("");
             result.Success.Should().BeFalse();
-            var ex = result.TryGetData<Exception>().Value;
+            var ex = result.Data.OfType<Exception>().Value;
             ex.Message.Should().Be("test");
         }
 

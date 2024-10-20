@@ -5,7 +5,7 @@ namespace ParserObjects;
 public static partial class MultiParserExtensions
 {
     /// <summary>
-    /// Expect the IMultResult to contain exactly 1 alternative, and select that to continue.
+    /// Expect the MultiResult to contain exactly 1 alternative, and select that to continue.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
@@ -37,7 +37,7 @@ public static partial class MultiParserExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TInput, TOutput>(
         this IMultiParser<TInput, TOutput> multiParser,
-        Func<IResultAlternative<TOutput>, bool> predicate
+        Func<ResultAlternative<TOutput>, bool> predicate
     ) => Parsers<TInput>.FirstResult(multiParser, predicate);
 
     /// <summary>
@@ -61,6 +61,6 @@ public static partial class MultiParserExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> Select<TInput, TOutput>(
         this IMultiParser<TInput, TOutput> multiParser,
-        Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> select
+        Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> select
     ) => Parsers<TInput>.SelectResult(multiParser, select);
 }

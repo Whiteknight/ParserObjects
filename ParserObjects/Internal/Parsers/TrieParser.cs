@@ -29,14 +29,14 @@ public sealed record TrieParser<TInput, TOutput>(
 
     public bool Match(IParseState<TInput> state) => Trie.CanGet(state.Input);
 
-    IMultResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
         var results = Trie.GetMany(state.Input);
-        return new MultResult<TOutput>(this, startCheckpoint, results);
+        return new MultiResult<TOutput>(this, startCheckpoint, results);
     }
 
-    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state);
+    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

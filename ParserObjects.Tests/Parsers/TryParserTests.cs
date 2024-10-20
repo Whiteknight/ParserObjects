@@ -15,7 +15,7 @@ public static class TryParserTests
             result.Success.Should().BeTrue();
             result.Value.Should().Be('a');
             result.Consumed.Should().Be(1);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -26,7 +26,7 @@ public static class TryParserTests
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -37,7 +37,7 @@ public static class TryParserTests
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeTrue();
             ex.Value.Message.Should().Be("test");
         }
@@ -80,7 +80,7 @@ public static class TryParserTests
 
             var result = target.Parse("ab");
             result.Success.Should().BeFalse();
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -153,7 +153,7 @@ public static class TryParserTests
             var result = target.Parse("abc");
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -164,7 +164,7 @@ public static class TryParserTests
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -176,7 +176,7 @@ public static class TryParserTests
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeTrue();
             ex.Value.Message.Should().Be("test");
         }
@@ -270,7 +270,7 @@ public static class TryParserTests
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Results[0].Value.Should().Be('a');
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeFalse();
         }
 
@@ -280,7 +280,7 @@ public static class TryParserTests
             var target = Try(ProduceMulti<char>(() => throw new Exception("test")));
             var result = target.Parse("");
             result.Success.Should().BeFalse();
-            var ex = result.TryGetData<Exception>();
+            var ex = result.Data.OfType<Exception>();
             ex.Success.Should().BeTrue();
             ex.Value.Message.Should().Be("test");
         }
