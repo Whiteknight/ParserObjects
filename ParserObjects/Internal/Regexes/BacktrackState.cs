@@ -38,8 +38,8 @@ public struct BacktrackState
 
     public (SequenceCheckpoint? beforeMatch, int captureIndex) GetNextConsumption()
         => _consumptions.Count == 0
-            ? (null, -1)
-            : _consumptions.Pop();
+        ? (null, -1)
+        : _consumptions.Pop();
 
     public readonly bool HasConsumptions => _consumptions.Count > 0;
 
