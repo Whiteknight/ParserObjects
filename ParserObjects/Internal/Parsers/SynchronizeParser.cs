@@ -30,9 +30,9 @@ public sealed record SynchronizeParser<TInput, TOutput>(
         if (result.Success)
             return result;
 
-        var allErrors = new List<Result<object>>
+        var allErrors = new ErrorList<TOutput>
         {
-            result.AsObject()
+            result
         };
 
         // Result failed. Enter a loop to discard tokens and try again.
@@ -49,19 +49,16 @@ public sealed record SynchronizeParser<TInput, TOutput>(
             result = Attempt.Parse(state);
             if (result.Success)
                 break;
-            allErrors.Add(result.AsObject());
+            allErrors.Add(result);
         }
 
         // At this point we have panic'd so we're always going to return a failure.
         // Append all the data necessary so the caller can examine what's going on.
-        var data = new List<object>
-        {
-            new ErrorList(allErrors)
-        };
+        var data = new ResultData(allErrors);
         if (result.Success)
-            data.Add(result);
+            data = data.And(result);
 
-        return state.Fail(this, "One or more errors occured. Call Result<T>.TryGetData<ErrorList>() for more details", new ResultData(data));
+        return state.Fail(this, "One or more errors occured. Call Result<T>.Data.OfType<ErrorList>() for more details", data);
     }
 
     private void DiscardUntilConditionMet(IParseState<TInput> state)
