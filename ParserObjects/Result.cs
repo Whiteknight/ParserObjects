@@ -1,24 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ParserObjects;
-
-/// <summary>
-/// A wrapper struct for a list of objects. Can be used to get an object of a given type from
-/// the list, if it exists.
-/// </summary>
-/// <param name="Data"></param>
-public readonly record struct ResultData(object Data)
-{
-    public Option<T> OfType<T>()
-        => Data switch
-        {
-            T typed => new Option<T>(true, typed),
-            IEnumerable<object> list => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
-            _ => default
-        };
-}
 
 public readonly record struct Result<TValue>(
     IParser Parser,
@@ -35,7 +17,10 @@ public readonly record struct Result<TValue>(
     public static Result<TValue> Ok(IParser parser, TValue value, int consumed)
         => new Result<TValue>(parser, true, string.Empty, value, consumed, default);
 
-    public string ErrorMessage => Success ? string.Empty : InternalError ?? string.Empty;
+    public string ErrorMessage
+        => Success
+        ? string.Empty
+        : InternalError ?? string.Empty;
 
     public TValue Value
         => Success
@@ -57,6 +42,14 @@ public readonly record struct Result<TValue>(
     /// <returns></returns>
     public TValue GetValueOrDefault(Func<TValue> getDefaultValue)
         => Success ? Value : getDefaultValue();
+
+    public Option<TValue> ToOption()
+        => Match(static v => new Option<TValue>(true, v), static () => default);
+
+    public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<TResult> onFailure)
+        => Success
+        ? onSuccess(Value)
+        : onFailure();
 
     public Result<T> Select<T>(Func<TValue, T> selector)
         => Success
