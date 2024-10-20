@@ -5,8 +5,7 @@ namespace ParserObjects.Internal.Grammars.C;
 public static class CommentGrammar
 {
     public static IParser<char, string> CreateParser()
-    {
-        return Sequential(static s =>
+        => Sequential(static s =>
         {
             if (s.Input.GetNext() != '/')
                 s.Fail();
@@ -31,5 +30,4 @@ public static class CommentGrammar
             s.Fail("Could not find */");
             return "";
         }).Named("C-Style Comment");
-    }
 }

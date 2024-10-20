@@ -28,8 +28,7 @@ public sealed class MatchCharacterClassState : IState
                 continue;
             }
 
-            if (rangeList == null)
-                rangeList = new List<(char low, char high)>();
+            rangeList ??= new List<(char low, char high)>();
             rangeList.Add((low, high));
         }
 
@@ -77,11 +76,7 @@ public sealed class MatchCharacterClassState : IState
     }
 
     private bool IsMatch(char c)
-    {
-        var isMatch = IsMatchBasic(c);
-        // small strength reduction from "_invert ? !isMatch : isMatch"
-        return _invert ^ isMatch;
-    }
+        => _invert ^ IsMatchBasic(c);
 
     private static void SetCharBit(byte[] chars, char c)
     {

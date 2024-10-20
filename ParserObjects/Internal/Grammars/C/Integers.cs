@@ -8,28 +8,20 @@ public static class Integers
     private static readonly IParser<char, char> _octalDigit = Match(c => char.IsDigit(c) && c >= '0' && c <= '7');
 
     public static IParser<char, int> CreateHexSignedIntegerParser()
-    {
-        return Sequential(static s => (int)ParseSignedHexLong(s, 8))
+        => Sequential(static s => (int)ParseSignedHexLong(s, 8))
             .Named("C-Style Hex Signed Integer Literal");
-    }
 
     public static IParser<char, uint> CreateHexUnsignedIntegerParser()
-    {
-        return Sequential(static s => (uint)ParseUnsignedHexLong(s, 8))
+        => Sequential(static s => (uint)ParseUnsignedHexLong(s, 8))
             .Named("C-Style Hex Unsigned Integer Literal");
-    }
 
     public static IParser<char, long> CreateHexSignedLongParser()
-    {
-        return Sequential(static s => ParseSignedHexLong(s, 16))
+        => Sequential(static s => ParseSignedHexLong(s, 16))
             .Named("C-Style Hex Signed Long Literal");
-    }
 
     public static IParser<char, ulong> CreateHexUnsignedLongParser()
-    {
-        return Sequential(static s => ParseUnsignedHexLong(s, 16))
+        => Sequential(static s => ParseUnsignedHexLong(s, 16))
             .Named("C-Style Hex Unsigned Long Literal");
-    }
 
     public static IParser<char, int> CreateSignedIntegerParser()
     {
@@ -315,13 +307,11 @@ public static class Integers
     }
 
     private static ulong ConvertHexDigit(char c)
-    {
-        if (c >= '0' && c <= '9')
-            return (ulong)(c - '0');
-        if (c >= 'a' && c <= 'f')
-            return (ulong)(c - 'a' + 10);
-        if (c >= 'A' && c <= 'F')
-            return (ulong)(c - 'A' + 10);
-        return 0;
-    }
+        => c switch
+        {
+            >= '0' and <= '9' => (ulong)(c - '0'),
+            >= 'a' and <= 'f' => (ulong)(c - 'a' + 10),
+            >= 'A' and <= 'F' => (ulong)(c - 'A' + 10),
+            _ => 0
+        };
 }

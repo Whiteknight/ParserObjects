@@ -40,9 +40,13 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
      */
 
     public int TokenTypeId { get; }
+
     public int Lbp { get; }
+
     public int Rbp { get; }
+
     public string Name { get; }
+
     public IParser Parser => _match;
 
     public bool CanNud => _nud != null;

@@ -98,16 +98,13 @@ public sealed class Engine<TInput, TOutput>
                 continue;
 
             var (success, token, consumed) = parselet.TryGetNextLed(state, this, parseControl, leftToken);
-            if (!success)
-            {
-                // If the parse failed we want to keep trying other parselets UNLESS the parse is
-                // marked complete.
-                if (parseControl.IsComplete)
-                    return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
-                continue;
-            }
+            if (success)
+                return new PartialResult<ValueToken<TOutput>>(token, consumed);
 
-            return new PartialResult<ValueToken<TOutput>>(token, consumed);
+            // If the parse failed we want to keep trying other parselets UNLESS the parse is
+            // marked complete.
+            if (parseControl.IsComplete)
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
         }
 
         return new PartialResult<ValueToken<TOutput>>(string.Empty);
@@ -121,16 +118,13 @@ public sealed class Engine<TInput, TOutput>
             var parselet = _nudableParselets[i];
 
             var (success, token, consumed) = parselet.TryGetNextNud(state, this, parseControl);
-            if (!success)
-            {
-                // If we failed we want to keep trying other parselets UNLESS the parse is marked
-                // complete.
-                if (parseControl.IsComplete)
-                    return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
-                continue;
-            }
+            if (success)
+                return new PartialResult<ValueToken<TOutput>>(token, consumed);
 
-            return new PartialResult<ValueToken<TOutput>>(token, consumed);
+            // If we failed we want to keep trying other parselets UNLESS the parse is marked
+            // complete.
+            if (parseControl.IsComplete)
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
         }
 
         return new PartialResult<ValueToken<TOutput>>("No parselets matched and transformed at the current position.");
