@@ -41,11 +41,7 @@ public static class Create<TInput, TOutput>
                 return result;
             }
 
-            // If no inputs were consumed during parser creation, we can just return the result
-            if (consumedDuringCreation != 0)
-                return result.AdjustConsumed(result.Consumed + consumedDuringCreation);
-
-            return result;
+            return result with { Consumed = result.Consumed + consumedDuringCreation };
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -89,7 +85,7 @@ public static class Create<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             // Get the parser. The callback has access to the input, so it may consume items.
             // If so, we have to properly report that.
@@ -112,10 +108,10 @@ public static class Create<TInput, TOutput>
             if (consumedDuringCreation == 0)
                 return result;
 
-            return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + consumedDuringCreation, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
+            return result.SelectMany(r => r with { Consumed = r.Consumed + consumedDuringCreation }) with { Parser = this };
         }
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
 

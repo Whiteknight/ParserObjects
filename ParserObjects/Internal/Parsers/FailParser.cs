@@ -18,18 +18,18 @@ public sealed record FailParser<TInput, TOutput>(
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
         => Result<object>.Fail(this, ErrorMessage);
 
-    IMultResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
-        return new MultResult<TOutput>(this, startCheckpoint, new[]
+        return new MultiResult<TOutput>(this, startCheckpoint, new[]
         {
-            new FailureResultAlternative<TOutput>(ErrorMessage, startCheckpoint)
+            ResultAlternative<TOutput>.Failure(ErrorMessage, startCheckpoint)
         });
     }
 
-    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
-        => ((IMultiParser<TInput, TOutput>)this).Parse(state);
+    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
+        => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
 
     public override bool Match(IParseState<TInput> state) => false;
 

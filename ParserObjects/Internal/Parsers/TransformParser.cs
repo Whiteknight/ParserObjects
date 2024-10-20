@@ -62,7 +62,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
@@ -73,7 +73,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
             return result.Transform(Data, Transform);
         }
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 

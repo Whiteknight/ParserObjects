@@ -88,7 +88,7 @@ public class EarleyTests
 
         var result = target.Parse("4*5+6");
         result.Success.Should().BeTrue();
-        var statistics = result.TryGetData<IParseStatistics>().Value;
+        var statistics = result.Data.OfType<IParseStatistics>().Value;
 
         statistics.CreatedItems.Should().Be(54);
         statistics.NumberOfStates.Should().Be(6);
@@ -222,10 +222,11 @@ public class EarleyTests
 
         var target = parser.Select(args =>
         {
-            var best = args.Result.Results.Where(alt => alt.Value % 2 == 1).OrderByDescending(alt => alt.Value).FirstOrDefault();
-            if (best == null)
-                return args.Failure();
-            return args.Success(best);
+            var best = args.Result.Results
+                .Where(alt => alt.Value % 2 == 1)
+                .OrderByDescending(alt => alt.Value)
+                .FirstOrDefault();
+            return best.Success ? args.Success(best) : args.Failure();
         });
 
         var result = target.Parse("11+25*30");
@@ -296,7 +297,7 @@ public class EarleyTests
 
         var result = target.Parse("");
         result.Success.Should().BeTrue();
-        var statistics = result.TryGetData<IParseStatistics>().Value;
+        var statistics = result.Data.OfType<IParseStatistics>().Value;
 
         statistics.ScannedSuccess.Should().Be(2);
 
@@ -379,7 +380,7 @@ public class EarleyTests
 
         var result = target.Parse("a");
         result.Success.Should().BeTrue();
-        var statistics = result.TryGetData<IParseStatistics>().Value;
+        var statistics = result.Data.OfType<IParseStatistics>().Value;
 
         statistics.ScannedSuccess.Should().Be(3);
 

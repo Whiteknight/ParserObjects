@@ -5,14 +5,14 @@ using ParserObjects.Internal.Visitors;
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
-/// Parser to convert an IMultResult into an Result by selecting the best result alternative
+/// Parser to convert an MultiResult into an Result by selecting the best result alternative
 /// using user-supplied criteria.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
 public sealed record SelectParser<TInput, TOutput>(
     IMultiParser<TInput, TOutput> Initial,
-    Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> Selector,
+    Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> Selector,
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
@@ -24,14 +24,10 @@ public sealed record SelectParser<TInput, TOutput>(
         if (!multi.Success)
             return state.Fail(this, "Parser returned no valid results");
 
-        static Option<IResultAlternative<TOutput>> Success(IResultAlternative<TOutput> alt)
-        {
-            if (alt == null)
-                return default;
-            return new Option<IResultAlternative<TOutput>>(true, alt);
-        }
+        static Option<ResultAlternative<TOutput>> Success(ResultAlternative<TOutput> alt)
+            => new Option<ResultAlternative<TOutput>>(true, alt);
 
-        static Option<IResultAlternative<TOutput>> Fail()
+        static Option<ResultAlternative<TOutput>> Fail()
             => default;
 
         var args = new SelectArguments<TOutput>(multi, Success, Fail);

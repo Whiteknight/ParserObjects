@@ -69,14 +69,14 @@ public static class DataFrame<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             return state.WithDataFrame(_inner, static (s, p) => p.Parse(s), _values);
         }
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_inner, _values, name);
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public override string ToString() => DefaultStringifier.ToString(this);
 

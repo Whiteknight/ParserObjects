@@ -114,7 +114,7 @@ public static class TryParser<TInput>
         public Result<object> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => Result<object>.Fail(p, ex.Message).WithData(ex),
+            static (p, ex, _) => Result<object>.Fail(p, ex.Message) with { Data = new ResultData(ex) },
             state
         );
 
@@ -160,7 +160,7 @@ public static class TryParser<TInput>
         public Result<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => Result<TOutput>.Fail(p, ex.Message).WithData(ex),
+            static (p, ex, _) => Result<TOutput>.Fail(p, ex.Message) with { Data = new ResultData(ex) },
             state
         );
 
@@ -179,11 +179,11 @@ public static class TryParser<TInput>
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
-        private readonly ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>> _data;
+        private readonly ParserData<IMultiParser<TInput, TOutput>, MultiResult<TOutput>> _data;
 
         public MultiParser(IMultiParser<TInput, TOutput> inner, Action<Exception>? examine = null, bool bubble = false, string name = "")
         {
-            _data = new ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>>(
+            _data = new ParserData<IMultiParser<TInput, TOutput>, MultiResult<TOutput>>(
                 inner,
                 examine,
                 bubble
@@ -191,7 +191,7 @@ public static class TryParser<TInput>
             Name = name;
         }
 
-        private MultiParser(ParserData<IMultiParser<TInput, TOutput>, IMultResult<TOutput>> internalParser, string name)
+        private MultiParser(ParserData<IMultiParser<TInput, TOutput>, MultiResult<TOutput>> internalParser, string name)
         {
             _data = internalParser;
             Name = name;
@@ -203,14 +203,15 @@ public static class TryParser<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _data.Parser };
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
-            static (p, s) => p.Parse(s),
-            this,
-            static (p, ex, cp) => new MultResult<TOutput>(p, cp, Array.Empty<IResultAlternative<TOutput>>(), data: new ResultData(ex)),
-            state
-        );
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
+            => _data.Parse(
+                static (p, s) => p.Parse(s),
+                this,
+                static (p, ex, cp) => new MultiResult<TOutput>(p, cp, Array.Empty<ResultAlternative<TOutput>>(), new ResultData(ex)),
+                state
+            );
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_data, name);
 

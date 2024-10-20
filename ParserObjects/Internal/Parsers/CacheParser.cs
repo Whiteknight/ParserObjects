@@ -140,11 +140,11 @@ public static class Cache<TInput>
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
-        private readonly InternalParser<IMultiParser<TInput, TOutput>, IMultResult<TOutput>, IMultResult<TOutput>> _internal;
+        private readonly InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>, MultiResult<TOutput>> _internal;
 
         public MultiParser(IMultiParser<TInput, TOutput> inner, string name = "")
         {
-            _internal = new InternalParser<IMultiParser<TInput, TOutput>, IMultResult<TOutput>, IMultResult<TOutput>>(
+            _internal = new InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>, MultiResult<TOutput>>(
                 inner,
                 static (p, s) => p.Parse(s),
                 static (r, _) => r,
@@ -158,11 +158,11 @@ public static class Cache<TInput>
 
         public string Name { get; }
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
+        public MultiResult<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
 
         public INamed SetName(string name) => new MultiParser<TOutput>(_internal.Parser, name);
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public override string ToString() => DefaultStringifier.ToString(this);
 

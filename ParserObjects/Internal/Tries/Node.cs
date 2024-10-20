@@ -203,10 +203,10 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         }
     }
 
-    public IReadOnlyList<IResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
+    public IReadOnlyList<ResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
     {
         Node<TKey, TResult> current = this;
-        var results = new List<IResultAlternative<TResult>>();
+        var results = new List<ResultAlternative<TResult>>();
 
         while (true)
         {
@@ -229,7 +229,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             if (hasValue)
             {
                 var cont = keys.Checkpoint();
-                results.Add(new SuccessResultAlternative<TResult>(value!, cont.Consumed, cont));
+                results.Add(ResultAlternative<TResult>.Ok(value!, cont.Consumed, cont));
             }
 
             if (node == null)

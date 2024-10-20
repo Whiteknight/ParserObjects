@@ -41,18 +41,17 @@ public static class Earley<TInput, TOutput>
 
         public string Name { get; }
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
 
             var results = _engine.Parse(state);
 
             startCheckpoint.Rewind();
-            return new MultResult<TOutput>(this, startCheckpoint, results.Alternatives, new ResultData(results.Statistics));
+            return new MultiResult<TOutput>(this, startCheckpoint, results.Alternatives, new ResultData(results.Statistics));
         }
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state)
-            => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren()
         {

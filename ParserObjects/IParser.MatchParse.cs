@@ -140,7 +140,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultResult<TOutput> Parse<TInput, TOutput>(
+    public static MultiResult<TOutput> Parse<TInput, TOutput>(
         this IMultiParser<TInput, TOutput> parser,
         ISequence<TInput> input,
         Action<string>? log = null
@@ -174,7 +174,7 @@ public static class ParserMatchParseExtensions
     /// <param name="input"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    public static IMultResult Parse<TInput>(
+    public static MultiResult<object> Parse<TInput>(
         this IMultiParser<TInput> parser,
         ISequence<TInput> input,
         Action<string>? log = null

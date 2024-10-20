@@ -5,7 +5,7 @@ namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
 /// Executes a number of IParser instances from the current location and returns all of their
-/// results as an IMultResult.
+/// results as an MultiResult.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
@@ -23,10 +23,10 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
 
     public string Name { get; set; }
 
-    public IMultResult<TOutput> Parse(IParseState<TInput> state)
+    public MultiResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
-        var results = new List<IResultAlternative<TOutput>>();
+        var results = new List<ResultAlternative<TOutput>>();
 
         foreach (var parser in _parsers)
         {
@@ -35,22 +35,22 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
             startCheckpoint.Rewind();
         }
 
-        return new MultResult<TOutput>(this, startCheckpoint, results);
+        return new MultiResult<TOutput>(this, startCheckpoint, results);
     }
 
-    private static IResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
+    private static ResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
     {
         var result = parser.Parse(state);
         if (result.Success)
         {
             var endCheckpoint = state.Input.Checkpoint();
-            return new SuccessResultAlternative<TOutput>(result.Value, result.Consumed, endCheckpoint);
+            return ResultAlternative<TOutput>.Ok(result.Value, result.Consumed, endCheckpoint);
         }
 
-        return new FailureResultAlternative<TOutput>(result.ErrorMessage, startCheckpoint);
+        return ResultAlternative<TOutput>.Failure(result.ErrorMessage, startCheckpoint);
     }
 
-    IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
     public IEnumerable<IParser> GetChildren() => _parsers;
 

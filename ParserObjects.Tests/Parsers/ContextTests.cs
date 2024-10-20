@@ -66,7 +66,7 @@ public static class ContextTests
 
             after.Should().Be("");
 
-            var exData = result.TryGetData<Exception>();
+            var exData = result.Data.OfType<Exception>();
             exData.Success.Should().BeTrue();
             exData.Value.Message.Should().Be("test");
         }

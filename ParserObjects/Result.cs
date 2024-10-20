@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 
 namespace ParserObjects;
 
@@ -11,25 +11,13 @@ namespace ParserObjects;
 /// <param name="Data"></param>
 public readonly record struct ResultData(object Data)
 {
-    public Option<T> TryGetData<T>()
-    {
-        if (Data == null)
-            return default;
-
-        if (Data is T dataTyped)
-            return new Option<T>(true, dataTyped);
-
-        if (Data is not IReadOnlyList<object> list)
-            return default;
-
-        foreach (var item in list)
+    public Option<T> OfType<T>()
+        => Data switch
         {
-            if (item is T itemTyped)
-                return new Option<T>(true, itemTyped);
-        }
-
-        return default;
-    }
+            T typed => new Option<T>(true, typed),
+            IEnumerable<object> list => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
+            _ => default
+        };
 }
 
 public readonly record struct Result<TValue>(
@@ -70,15 +58,6 @@ public readonly record struct Result<TValue>(
     public TValue GetValueOrDefault(Func<TValue> getDefaultValue)
         => Success ? Value : getDefaultValue();
 
-    public Result<TValue> WithData(object data) => this with { Data = new ResultData(data) };
-
-    public Result<TValue> With(ResultData data) => this with { Data = data };
-
-    public Option<T> TryGetData<T>() => Data.TryGetData<T>();
-
-    public Result<TValue> AdjustConsumed(int consumed)
-        => this with { Consumed = consumed };
-
     public Result<T> Select<T>(Func<TValue, T> selector)
         => Success
         ? new Result<T>(Parser, true, null, selector(Value), Consumed, Data)
@@ -89,7 +68,7 @@ public readonly record struct Result<TValue>(
         ? throw new InvalidOperationException("Can only cast error results without an explicit mapping")
         : new Result<T>(Parser, false, InternalError, default, 0, Data);
 
-    public Result<object> AsObject() => Select<object>(static t => t);
+    public Result<object> AsObject() => Select<object>(static t => t!);
 
     public override string ToString()
         => Success

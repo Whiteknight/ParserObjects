@@ -71,8 +71,7 @@ public static class Function<TInput, TOutput>
                 return result;
             }
 
-            var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            return result.AdjustConsumed(totalConsumed);
+            return result with { Consumed = state.Input.Consumed - startCheckpoint.Consumed };
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -112,7 +111,11 @@ public static class Function<TInput, TOutput>
         public IResultsCache Cache => State.Cache;
     }
 
-    public readonly record struct MultiBuilder(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State, IList<IResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
+    public readonly record struct MultiBuilder(
+        IMultiParser<TInput, TOutput> Parser,
+        IParseState<TInput> State,
+        IList<ResultAlternative<TOutput>> Results,
+        SequenceCheckpoint StartCheckpoint)
     {
         public ISequence<TInput> Input => State.Input;
 
@@ -121,19 +124,24 @@ public static class Function<TInput, TOutput>
             var checkpoint = Input.Checkpoint();
             var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
             foreach (var value in values)
-                Results.Add(new SuccessResultAlternative<TOutput>(value, consumed, checkpoint));
+                Results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
         }
+
+        public IReadOnlyList<ResultAlternative<TOutput>> GetFinalResultList()
+            => Results is IReadOnlyList<ResultAlternative<TOutput>> readOnlyList
+                ? readOnlyList
+                : Results.ToList();
     }
 
     public sealed class MultiParser<TData> : IMultiParser<TInput, TOutput>
     {
         private readonly TData _data;
-        private readonly Func<TData, Function<TInput, TOutput>.MultiArguments, IMultResult<TOutput>> _parseFunction;
+        private readonly Func<TData, Function<TInput, TOutput>.MultiArguments, MultiResult<TOutput>> _parseFunction;
         private readonly IReadOnlyList<IParser> _children;
 
         public MultiParser(
             TData data,
-            Func<TData, MultiArguments, IMultResult<TOutput>> parseFunction,
+            Func<TData, MultiArguments, MultiResult<TOutput>> parseFunction,
             string description,
             IReadOnlyList<IParser>? children,
             string name = ""
@@ -155,28 +163,28 @@ public static class Function<TInput, TOutput>
         public string Description { get; }
         public string Name { get; }
 
-        private static IMultResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)
+        private static MultiResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)
         {
             Assert.ArgumentNotNull(build);
             var startCheckpoint = args.Input.Checkpoint();
 
-            var buildArgs = new MultiBuilder(args.Parser, args.State, new List<IResultAlternative<TOutput>>(), startCheckpoint);
+            var buildArgs = new MultiBuilder(args.Parser, args.State, new List<ResultAlternative<TOutput>>(), startCheckpoint);
             build(data, buildArgs);
 
             startCheckpoint.Rewind();
-            return new MultResult<TOutput>(args.Parser, startCheckpoint, buildArgs.Results);
+            return new MultiResult<TOutput>(args.Parser, startCheckpoint, buildArgs.GetFinalResultList());
         }
 
         public IEnumerable<IParser> GetChildren() => _children;
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
             var args = new MultiArguments(this, state);
             return _parseFunction(_data, args);
         }
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public override string ToString() => DefaultStringifier.ToString("Function (Multi)", Name, Id);
 
@@ -236,8 +244,7 @@ public static class Function<TInput>
                 return result;
             }
 
-            var totalConsumed = state.Input.Consumed - startCheckpoint.Consumed;
-            return result.AdjustConsumed(totalConsumed);
+            return result with { Consumed = state.Input.Consumed - startCheckpoint.Consumed };
         }
 
         public bool Match(IParseState<TInput> state)

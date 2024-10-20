@@ -9,7 +9,7 @@ namespace ParserObjects;
 /// <param name="existing"></param>
 /// <param name="factory"></param>
 /// <returns></returns>
-public delegate IResultAlternative<TOutput> CreateNewResultAlternative<TOutput>(IResultAlternative<TOutput> existing, ResultAlternativeFactoryMethod<TOutput> factory);
+public delegate ResultAlternative<TOutput> CreateNewResultAlternative<TOutput>(ResultAlternative<TOutput> existing, ResultAlternativeFactoryMethod<TOutput> factory);
 
 /// <summary>
 /// Get or create a parser given the current parse state.
@@ -104,4 +104,4 @@ public delegate IEnumerable<IParser<TInput, TOutput>> GetParsersFromParser<TInpu
 /// <param name="consumed"></param>
 /// <param name="continuation"></param>
 /// <returns></returns>
-public delegate IResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, SequenceCheckpoint continuation);
+public delegate ResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, SequenceCheckpoint continuation);
