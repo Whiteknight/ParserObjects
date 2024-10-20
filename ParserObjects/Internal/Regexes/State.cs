@@ -78,7 +78,7 @@ public static class State
             // a range onto
             for (int i = 0; i < min; i++)
                 states.Add(previousState.Clone());
-            previousState = states.Last();
+            previousState = states[^1];
         }
 
         if (max == int.MaxValue)
@@ -163,10 +163,10 @@ public static class State
          => new MatchPredicateState(description, predicate);
 
     private static IState? VerifyPreviousStateIsNotEndAnchor(List<IState> states)
-    {
-        var previousState = states.LastOrDefault();
-        if (previousState is EndAnchorState)
-            throw new RegexException("Cannot add more states, or quantifiers, to end anchor$");
-        return previousState;
-    }
+        => states.LastOrDefault() switch
+        {
+            EndAnchorState => throw new RegexException("Cannot add more states, or quantifiers, to end anchor$"),
+            IState previousState => previousState,
+            _ => null
+        };
 }

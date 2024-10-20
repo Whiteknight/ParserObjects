@@ -39,10 +39,6 @@ public sealed class NonCapturingCloisterState : IState
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
-    {
-        if (context.Input.IsAtEnd)
-            return false;
-
-        return test(context.Captures, Group, context.Input);
-    }
+        => !context.Input.IsAtEnd
+        && test(context.Captures, Group, context.Input);
 }

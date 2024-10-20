@@ -7,8 +7,7 @@ namespace ParserObjects.Internal.Grammars.C;
 public static class StrippedStringGrammar
 {
     public static IParser<char, string> CreateStringParser()
-    {
-        var parser = Sequential(static s =>
+        => Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '"')
@@ -37,13 +36,10 @@ public static class StrippedStringGrammar
 
             s.Fail("No end quote");
             return "";
-        });
-        return parser.Named("C-Style Stripped String");
-    }
+        }).Named("C-Style Stripped String");
 
     public static IParser<char, char> CreateCharacterParser()
-    {
-        var parser = Sequential(static s =>
+        => Sequential(static s =>
         {
             CheckForCharPreamble(s);
 
@@ -60,10 +56,7 @@ public static class StrippedStringGrammar
             var value = ParseStrippedCharacterEscapeSequence(s);
             ExpectEndQuote(s);
             return value;
-        });
-
-        return parser.Named("C-Style Stripped Character");
-    }
+        }).Named("C-Style Stripped Character");
 
     private static void CheckForCharPreamble(SequentialState<char> s)
     {

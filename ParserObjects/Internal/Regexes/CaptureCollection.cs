@@ -43,18 +43,13 @@ public sealed class CaptureCollection : List<(int group, string value)>
 
     public RegexMatch ToRegexMatch(string overallMatch)
     {
-        if (CaptureIndex < 0)
-        {
-            return new RegexMatch
-            {
-                { 0, new[] { overallMatch } }
-            };
-        }
-
         var groups = new RegexMatch
         {
             { 0, new[] { overallMatch } }
         };
+
+        if (CaptureIndex < 0)
+            return groups;
 
         for (int i = 0; i <= CaptureIndex; i++)
         {

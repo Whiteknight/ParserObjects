@@ -173,71 +173,59 @@ public static class DateTimeGrammar
     );
 
     public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
-    {
-        var part = First(
+        => First(
             _dateParts.Value,
             _timeParts.Value,
             _literal.Value
-        );
-
-        return part
-            .List(1)
-            .FollowedBy(End())
-            .Transform(static parsers => Combine(parsers)
-                .Transform(static results =>
-                {
-                    DateTime dateTime = DateTime.MinValue;
-                    foreach (var result in results)
-                        dateTime = ((IPart)result).AddTo(dateTime);
-                    return new DateTimeOffset(dateTime, TimeSpan.Zero);
-                })
-            )
-            .Named("DateAndTime Format");
-    }
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                foreach (var result in results)
+                    dateTime = ((IPart)result).AddTo(dateTime);
+                return new DateTimeOffset(dateTime, TimeSpan.Zero);
+            })
+        )
+        .Named("DateAndTime Format");
 
     public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
-    {
-        var part = First(
+        => First(
             _dateParts.Value,
             _literal.Value
-        );
-
-        return part
-            .List(1)
-            .FollowedBy(End())
-            .Transform(static parsers => Combine(parsers)
-                .Transform(static results =>
-                {
-                    DateTime dateTime = DateTime.MinValue;
-                    foreach (var result in results)
-                        dateTime = ((IPart)result).AddTo(dateTime);
-                    return dateTime;
-                })
-            )
-            .Named("Date Format");
-    }
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                foreach (var result in results)
+                    dateTime = ((IPart)result).AddTo(dateTime);
+                return dateTime;
+            })
+        )
+        .Named("Date Format");
 
     public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
-    {
-        var part = First(
+        => First(
             _timeParts.Value,
             _literal.Value
-        );
-
-        return part
-            .List(1)
-            .FollowedBy(End())
-            .Transform(static parsers => Combine(parsers)
-                .Transform(static results =>
-                {
-                    DateTime dateTime = DateTime.MinValue;
-                    foreach (var result in results)
-                        dateTime = ((IPart)result).AddTo(dateTime);
-                    return dateTime.TimeOfDay;
-                })
-            )
-            .Named("Time Format");
-    }
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                foreach (var result in results)
+                    dateTime = ((IPart)result).AddTo(dateTime);
+                return dateTime.TimeOfDay;
+            })
+        )
+        .Named("Time Format");
 
     private interface IPart
     {
@@ -255,9 +243,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(_value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-        }
+            => new DateTime(_value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
     }
 
     private sealed class MonthPart : IPart
@@ -271,9 +257,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, _value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-        }
+            => new DateTime(dt.Year, _value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
     }
 
     private sealed class DayPart : IPart
@@ -287,9 +271,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, dt.Month, _value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-        }
+            => new DateTime(dt.Year, dt.Month, _value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
     }
 
     private sealed class HourPart : IPart
@@ -303,9 +285,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, dt.Month, dt.Day, _value, dt.Minute, dt.Second, dt.Millisecond);
-        }
+            => new DateTime(dt.Year, dt.Month, dt.Day, _value, dt.Minute, dt.Second, dt.Millisecond);
     }
 
     private sealed class MinutePart : IPart
@@ -319,9 +299,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, _value, dt.Second, dt.Millisecond);
-        }
+            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, _value, dt.Second, dt.Millisecond);
     }
 
     private sealed class SecondPart : IPart
@@ -335,9 +313,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, _value, dt.Millisecond);
-        }
+            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, _value, dt.Millisecond);
     }
 
     private sealed class MillisecondPart : IPart
@@ -351,9 +327,7 @@ public static class DateTimeGrammar
         }
 
         public DateTime AddTo(DateTime dt)
-        {
-            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, _value);
-        }
+            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, _value);
     }
 
     private sealed class LiteralPart : IPart

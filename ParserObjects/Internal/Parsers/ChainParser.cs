@@ -49,7 +49,11 @@ public static class Chain<TInput, TOutput>
 
         public TInnerParser Inner { get; }
 
-        public InternalParser(TInnerParser inner, TData data, Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> getResult, Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> getOuter)
+        public InternalParser(
+            TInnerParser inner,
+            TData data,
+            Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> getResult,
+            Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> getOuter)
         {
             Inner = inner;
             _data = data;

@@ -39,9 +39,13 @@ public sealed class Item : IEquatable<Item>
     }
 
     public bool AtStart => Index == 0;
+
     public bool AtEnd => Index == Production.Symbols.Count;
+
     public State ParentState { get; }
+
     public IProduction Production { get; }
+
     public int Index { get; }
 
     // Matched values from the symbol directly to the LEFT of the fat dot
@@ -88,12 +92,7 @@ public sealed class Item : IEquatable<Item>
     }
 
     public override int GetHashCode()
-    {
-        unchecked
-        {
-            return ParentState.Number ^ Production.GetHashCode() ^ Index ^ CurrentState.Number;
-        }
-    }
+        => HashCode.Combine(ParentState.Number, Production, Index, CurrentState.Number);
 
     // If this Item has a production with a single item, and that item is a terminal, set the
     // single value
@@ -123,11 +122,11 @@ public sealed class Item : IEquatable<Item>
     }
 
     public bool CanImport(Item other)
-    {
-        return Equals(other)
-            && ((other._derivations == null && _derivations == null) ||
-                (other._derivations?.Count == 0));
-    }
+        => Equals(other)
+        && (
+            (other._derivations == null && _derivations == null)
+            || (other._derivations?.Count == 0)
+        );
 
     public bool IsWaitingFor(IProduction production)
         => !AtEnd && NextSymbolToMatch is INonterminal nonterminal && nonterminal.Productions.Contains(production);

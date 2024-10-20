@@ -25,9 +25,11 @@ public readonly struct MatchResult
     }
 
     public bool Success { get; }
+
     public string? Value { get; }
 
     public int Consumed { get; }
+
     public Location Location { get; }
 
     public string? ErrorMessage { get; }

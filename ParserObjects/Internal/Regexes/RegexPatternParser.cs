@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Pratt;
 using ParserObjects.Regexes;
 using static ParserObjects.Parsers;
@@ -164,18 +163,15 @@ public static class RegexPatternGrammar
         if (c == ']')
             throw new RegexException("Unexpected ] after -. Expected end of range. Did you mean '\\]'?");
 
-        c = GetUnescapedCharacter(ctx, c);
-
-        var high = c;
-        if (high < low)
-            throw new RegexException($"Invalid range {high}-{low} should be {low}-{high}");
-
-        return (low, high);
+        var high = GetUnescapedCharacter(ctx, c);
+        return high < low
+            ? throw new RegexException($"Invalid range {high}-{low} should be {low}-{high}")
+            : (low, high);
     }
 
     private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, uint> digits)
     {
-        if (states.Last() is EndAnchorState)
+        if (states[^1] is EndAnchorState)
             throw new RegexException("Cannot quantify the end anchor $");
 
         uint min = 0;
@@ -213,12 +209,8 @@ public static class RegexPatternGrammar
         }
         while (ctx.Match(MatchChar('|')));
 
-        if (options.Count == 1)
-            return states;
-
-        return new List<IState>
-        {
-            new AlternationState("alternation", options)
-        };
+        return options.Count == 1
+            ? states
+            : new List<IState> { new AlternationState("alternation", options) };
     }
 }

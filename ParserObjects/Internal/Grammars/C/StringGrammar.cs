@@ -6,8 +6,7 @@ namespace ParserObjects.Internal.Grammars.C;
 public static class StringGrammar
 {
     public static IParser<char, string> CreateStringParser()
-    {
-        var parser = Sequential(static s =>
+        => Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '"')
@@ -40,14 +39,10 @@ public static class StringGrammar
 
             s.Fail("No end quote");
             return "";
-        });
-
-        return parser.Named("C-Style String");
-    }
+        }).Named("C-Style String");
 
     public static IParser<char, string> CreateCharacterParser()
-    {
-        var parser = Sequential(static s =>
+        => Sequential(static s =>
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '\'')
@@ -68,10 +63,7 @@ public static class StringGrammar
             ParseEscapeSequence(s, sb, true);
             ExpectEndQuote(s, sb);
             return sb.ToString();
-        });
-
-        return parser.Named("C-Style Character");
-    }
+        }).Named("C-Style Character");
 
     private static char CheckForUnexpectedCharEnd(SequentialState<char> s)
     {
