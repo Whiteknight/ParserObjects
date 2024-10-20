@@ -126,7 +126,7 @@ public static class Sequences
     public static ISequence<T?> FromEnumerable<T>(
         IEnumerable<T> source,
         SequenceOptions<T?> options = default
-    ) => new ListSequence<T>(source, options.EndSentinel);
+    ) => new ListSequence<T?>(source, options.EndSentinel);
 
     /// <summary>
     /// Read the enumerable into an IReadOnlyList and wrap the list in an ICharSequence.
@@ -147,7 +147,7 @@ public static class Sequences
     /// <param name="endSentinel"></param>
     /// <returns></returns>
     public static ISequence<T?> FromList<T>(IReadOnlyList<T> list, T? endSentinel = default)
-        => new ListSequence<T>(list, endSentinel);
+        => new ListSequence<T?>(list, endSentinel);
 
     /// <summary>
     /// Wrap the list of characters in an ICharSequence.
@@ -214,6 +214,6 @@ public static class Sequences
     /// <returns></returns>
     public static ICharSequence FromString(string s, SequenceOptions<char> options = default)
         => options.NormalizeLineEndings
-            ? new CharBufferSequence.FromCharArray(s, options)
-            : new CharBufferSequence.FromNonnormalizedString(s, options);
+        ? new CharBufferSequence.FromCharArray(s, options)
+        : new CharBufferSequence.FromNonnormalizedString(s, options);
 }

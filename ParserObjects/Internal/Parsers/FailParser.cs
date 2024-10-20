@@ -21,11 +21,7 @@ public sealed record FailParser<TInput, TOutput>(
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        var startCheckpoint = state.Input.Checkpoint();
-        return new MultiResult<TOutput>(this, startCheckpoint, new[]
-        {
-            ResultAlternative<TOutput>.Failure(ErrorMessage, startCheckpoint)
-        });
+        return MultiResult<TOutput>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)

@@ -27,12 +27,28 @@ public readonly struct PartialResult<TValue>
     }
 
     public bool Success { get; }
+
     public TValue? Value { get; }
 
     public int Consumed { get; }
 
     public string? ErrorMessage { get; }
 
-    public TResult Match<TResult>(TResult nothing, Func<TValue, TResult> success)
-        => Success ? success(Value!) : nothing;
+    public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<TResult> onFailure)
+        => Success
+        ? onSuccess(Value!)
+        : onFailure();
+
+    public TResult Match<TResult, TData>(TData data, Func<TValue, TData, TResult> onSuccess, Func<TData, TResult> onFailure)
+        => Success
+        ? onSuccess(Value!, data)
+        : onFailure(data);
+
+    public Option<TValue> ToOption()
+        => Match(static v => new Option<TValue>(true, v), static () => default);
+
+    public Result<TValue> ToResult(IParser parser)
+        => Success
+        ? new Result<TValue>(parser, true, null, Value, Consumed, default)
+        : new Result<TValue>(parser, false, ErrorMessage, default, 0, default);
 }

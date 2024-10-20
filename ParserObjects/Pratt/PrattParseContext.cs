@@ -16,7 +16,6 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 {
     private readonly IParseState<TInput> _state;
     private readonly Engine<TInput, TOutput> _engine;
-
     private readonly int _rbp;
     private readonly bool _canRecurse;
     private readonly ParseControl _parseControl;
@@ -74,9 +73,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         EnsureIsNotComplete();
         EnsureRecursionIsPermitted();
         var result = _engine.TryParse(_state, rbp, _parseControl);
-        if (!result.Success)
-            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage!, this, _state.Input.CurrentLocation);
-        return result.Value!;
+        return result.Success
+            ? result.Value!
+            : throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage!, this, _state.Input.CurrentLocation);
     }
 
     /// <summary>
@@ -91,9 +90,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         Assert.ArgumentNotNull(parser);
         EnsureIsNotComplete();
         var result = parser.Parse(_state);
-        if (!result.Success)
-            throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, _state.Input.CurrentLocation);
-        return result.Value;
+        return result.Success
+            ? result.Value
+            : throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, _state.Input.CurrentLocation);
     }
 
     Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
@@ -101,7 +100,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         EnsureIsNotComplete();
         EnsureRecursionIsPermitted();
         var result = _engine.TryParse(_state, _rbp, _parseControl);
-        return state.Result(this, result);
+        return result.ToResult(this);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state).AsObject();
@@ -198,12 +197,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <param name="rbp"></param>
     /// <returns></returns>
     public Option<TOutput> TryParse(int rbp)
-    {
-        if (!_canRecurse || _parseControl.IsComplete)
-            return default;
-        var result = _engine.TryParse(_state, rbp, _parseControl);
-        return result.Match(default, value => new Option<TOutput>(true, value));
-    }
+        => _canRecurse && !_parseControl.IsComplete
+        ? _engine.TryParse(_state, rbp, _parseControl).ToOption()
+        : default;
 
     /// <summary>
     /// Attempt to parse with the given parser. Returns a successful option on success, false
@@ -215,10 +211,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     public Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
     {
         Assert.ArgumentNotNull(parser);
-        if (_parseControl.IsComplete)
-            return default;
-        var result = parser.Parse(_state);
-        return result!.Success ? new Option<TValue>(true, result!.Value) : default;
+        return _parseControl.IsComplete
+            ? default
+            : parser.Parse(_state).ToOption();
     }
 
     public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
@@ -241,7 +236,5 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 }

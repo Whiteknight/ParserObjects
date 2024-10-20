@@ -27,6 +27,6 @@ public readonly record struct SequenceCheckpoint(
     /// <returns>Negative if this is less than other, 0 if they are equal or uncomparable, positive otherwise.</returns>
     public int CompareTo(SequenceCheckpoint other)
         => other.Sequence == Sequence
-            ? Consumed.CompareTo(other.Consumed)
-            : 0;
+        ? Consumed.CompareTo(other.Consumed)
+        : 0;
 }
