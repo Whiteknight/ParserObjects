@@ -22,8 +22,8 @@ public static class SynchronizeTests
             var parser = Synchronize(Match('B'), x => x == ';');
             var result = parser.Parse("A;B;C;D");
             result.Success.Should().BeFalse();
-            var errors = result.Data.OfType<ErrorList>().Value;
-            errors.ErrorResults.Count.Should().Be(1);
+            var errors = result.Data.OfType<ErrorList<char>>().Value;
+            errors.Count.Should().Be(1);
             var finalResult = result.Data.OfType<Result<char>>().Value;
             finalResult.Success.Should().BeTrue();
             finalResult.Value.Should().Be('B');
@@ -35,8 +35,8 @@ public static class SynchronizeTests
             var parser = Synchronize(Match('D'), x => x == ';');
             var result = parser.Parse("A;B;C;D");
             result.Success.Should().BeFalse();
-            var errors = result.Data.OfType<ErrorList>().Value;
-            errors.ErrorResults.Count.Should().Be(3);
+            var errors = result.Data.OfType<ErrorList<char>>().Value;
+            errors.Count.Should().Be(3);
             var finalResult = result.Data.OfType<Result<char>>().Value;
             finalResult.Success.Should().BeTrue();
             finalResult.Value.Should().Be('D');
@@ -48,8 +48,8 @@ public static class SynchronizeTests
             var parser = Synchronize(Match('X'), x => x == ';');
             var result = parser.Parse("A;B;C;D");
             result.Success.Should().BeFalse();
-            var errors = result.Data.OfType<ErrorList>().Value;
-            errors.ErrorResults.Count.Should().Be(4);
+            var errors = result.Data.OfType<ErrorList<char>>().Value;
+            errors.Count.Should().Be(4);
             var finalResult = result.Data.OfType<Result<char>>();
             finalResult.Success.Should().BeFalse();
         }
@@ -60,8 +60,8 @@ public static class SynchronizeTests
             var parser = Synchronize(Match('X'), x => x == ';');
             var result = parser.Parse("");
             result.Success.Should().BeFalse();
-            var errors = result.Data.OfType<ErrorList>().Value;
-            errors.ErrorResults.Count.Should().Be(1);
+            var errors = result.Data.OfType<ErrorList<char>>().Value;
+            errors.Count.Should().Be(1);
             var finalResult = result.Data.OfType<Result<char>>();
             finalResult.Success.Should().BeFalse();
         }

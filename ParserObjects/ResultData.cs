@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace ParserObjects;
@@ -9,21 +11,47 @@ namespace ParserObjects;
 /// </summary>
 public readonly struct ResultData
 {
-    private readonly bool _hasData;
+    private readonly ResultDataType _storageType;
 
     public ResultData(object data)
     {
-        _hasData = data is not null;
+        _storageType = data is null ? ResultDataType.None : ResultDataType.One;
         Data = data;
+    }
+
+    private ResultData(ResultDataType type, object? data)
+    {
+        (_storageType, Data) = (type, data) switch
+        {
+            (ResultDataType.One, not null) => (ResultDataType.One, data),
+            (ResultDataType.List, ImmutableList<object>) => (ResultDataType.List, data),
+            _ => (ResultDataType.None, null)
+        };
     }
 
     public object? Data { get; }
 
     public Option<T> OfType<T>()
-        => (_hasData, Data) switch
+        => (_storageType, Data) switch
         {
-            (true, T typed) => new Option<T>(true, typed),
-            (true, IEnumerable<object> list) => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
+            (ResultDataType.One, T typed) => new Option<T>(true, typed),
+            (ResultDataType.List, IEnumerable<object> list) => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
             _ => default
         };
+
+    public ResultData And(object data)
+        => (_storageType, Data) switch
+        {
+            (ResultDataType.One, not null) => new ResultData(ResultDataType.List, ImmutableList<object>.Empty.Add(Data).Add(data)),
+            (ResultDataType.List, ImmutableList<object> list) => new ResultData(ResultDataType.List, list.Add(data)),
+            (ResultDataType.List, _) => throw new InvalidOperationException("Cannot be here"),
+            _ => new ResultData(data is null ? ResultDataType.None : ResultDataType.One, data)
+        };
+
+    private enum ResultDataType
+    {
+        None = 0,
+        One = 1,
+        List = 2
+    }
 }
