@@ -2,4 +2,6 @@
 
 namespace ParserObjects;
 
-public record ErrorList(IReadOnlyList<Result<object>> ErrorResults);
+public sealed class ErrorList<T> : List<Result<T>>
+{
+}
