@@ -127,9 +127,9 @@ public static class Replaceable<TInput, TOutput>
 
         public IParser ReplaceableChild => _value;
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+        public MultiResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => new[] { _value };
 

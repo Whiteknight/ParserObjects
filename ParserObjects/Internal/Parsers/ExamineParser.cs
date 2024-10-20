@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -52,7 +53,7 @@ public static class Examine<TInput, TOutput>
                 return result;
             }
 
-            return result.AdjustConsumed(totalConsumed);
+            return result with { Consumed = totalConsumed };
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -81,7 +82,7 @@ public static class Examine<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
@@ -111,10 +112,10 @@ public static class Examine<TInput, TOutput>
             if (totalConsumedInCallbacks == 0)
                 return result;
 
-            return result.Recreate((alt, factory) => factory(alt.Value, alt.Consumed + totalConsumedInCallbacks, alt.Continuation), parser: this, startCheckpoint: startCheckpoint);
+            return result.SelectMany(r => r with { Consumed = r.Consumed + totalConsumedInCallbacks }) with { Parser = this };
         }
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => new List<IParser> { Inner };
 

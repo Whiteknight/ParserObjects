@@ -66,9 +66,9 @@ public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left
 /// <param name="Success"></param>
 /// <param name="Failure"></param>
 public readonly record struct SelectArguments<TOutput>(
-    IMultResult<TOutput> Result,
-    Func<IResultAlternative<TOutput>, Option<IResultAlternative<TOutput>>> Success,
-    Func<Option<IResultAlternative<TOutput>>> Failure
+    MultiResult<TOutput> Result,
+    Func<ResultAlternative<TOutput>, Option<ResultAlternative<TOutput>>> Success,
+    Func<Option<ResultAlternative<TOutput>>> Failure
 );
 
 /// <summary>

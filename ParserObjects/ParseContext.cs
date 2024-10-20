@@ -55,7 +55,7 @@ public readonly record struct ParseContext<TInput, TOutput>(
 public readonly record struct MultiParseContext<TInput, TOutput>(
     IMultiParser<TInput, TOutput> Parser,
     IParseState<TInput> State,
-    IMultResult<TOutput>? Result
+    MultiResult<TOutput>? Result
 )
 {
     /// <summary>

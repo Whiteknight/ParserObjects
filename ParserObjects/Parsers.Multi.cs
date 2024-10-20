@@ -62,14 +62,14 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> FirstResult<TOutput>(
         IMultiParser<TInput, TOutput> multiParser,
-        Func<IResultAlternative<TOutput>, bool> predicate
+        Func<ResultAlternative<TOutput>, bool> predicate
     )
     {
         Assert.ArgumentNotNull(predicate);
         return SelectResult(multiParser, args =>
         {
             var selected = args.Result.Results.FirstOrDefault(predicate);
-            return selected != null ? args.Success(selected) : args.Failure();
+            return selected.Success ? args.Success(selected) : args.Failure();
         });
     }
 
@@ -97,7 +97,7 @@ public static partial class Parsers<TInput>
                     .Where(r => r.Success)
                     .OrderByDescending(r => r.Consumed)
                     .FirstOrDefault();
-                return longest != null ? args.Success(longest) : args.Failure();
+                return longest.Success ? args.Success(longest) : args.Failure();
             }
         );
 
@@ -111,7 +111,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SelectResult<TOutput>(
         IMultiParser<TInput, TOutput> p,
-        Func<SelectArguments<TOutput>, Option<IResultAlternative<TOutput>>> select
+        Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> select
     ) => new SelectParser<TInput, TOutput>(p, select);
 
     /// <summary>

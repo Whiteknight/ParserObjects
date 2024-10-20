@@ -168,7 +168,7 @@ public static class Context<TInput>
 
         public string Name { get; }
 
-        public IMultResult<TOutput> Parse(IParseState<TInput> state)
+        public MultiResult<TOutput> Parse(IParseState<TInput> state)
             => _internal.Execute(
                 this,
                 state,
@@ -177,10 +177,10 @@ public static class Context<TInput>
                     var result = p.Parse(s);
                     return (result.Success, result);
                 },
-                static (ctx, _, cp, ex) => new MultResult<TOutput>(ctx, cp, Array.Empty<IResultAlternative<TOutput>>(), new ResultData(ex))
+                static (ctx, _, cp, ex) => new MultiResult<TOutput>(ctx, cp, Array.Empty<ResultAlternative<TOutput>>(), new ResultData(ex))
             );
 
-        IMultResult IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
 

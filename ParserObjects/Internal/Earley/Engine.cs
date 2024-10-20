@@ -54,7 +54,7 @@ public readonly struct Engine<TInput, TOutput>
     )
     {
         var derivationVisitor = new ItemDerivationVisitor(stats);
-        var results = new List<IResultAlternative<TOutput>>();
+        var results = new List<ResultAlternative<TOutput>>();
         for (int i = 0; i < resultItems.Count; i++)
         {
             var resultItem = resultItems[i];
@@ -63,7 +63,7 @@ public readonly struct Engine<TInput, TOutput>
             {
                 if (derivations[j] is not TOutput value)
                     continue;
-                var result = new SuccessResultAlternative<TOutput>(value, resultItem.State.Number, resultItem.State.Checkpoint);
+                var result = ResultAlternative<TOutput>.Ok(value, resultItem.State.Number, resultItem.State.Checkpoint);
                 results.Add(result);
             }
         }
@@ -202,10 +202,10 @@ public readonly struct Engine<TInput, TOutput>
         return (result, continuation);
     }
 
-    private static IMultResult TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
+    private static MultiResult<object> TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
     {
         var location = parseState.Input.CurrentLocation;
-        var cached = parseState.Cache.Get<IMultResult>(terminal, location);
+        var cached = parseState.Cache.Get<MultiResult<object>>(terminal, location);
         if (cached.Success)
             return cached.Value;
 

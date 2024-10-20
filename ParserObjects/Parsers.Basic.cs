@@ -161,7 +161,7 @@ public static partial class Parsers<TInput>
         => new Deferred<TInput, TOutput>.MultiParser(getParser);
 
     /// <summary>
-    /// Executes all the parsers from the current location and returns a multResult with all
+    /// Executes all the parsers from the current location and returns a MultiResult with all
     /// results.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
