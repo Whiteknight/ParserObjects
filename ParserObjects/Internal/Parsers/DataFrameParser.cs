@@ -29,14 +29,10 @@ public static class DataFrame<TInput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public bool Match(IParseState<TInput> state)
-        {
-            return state.WithDataFrame(_inner, static (s, p) => p.Match(s), _values);
-        }
+            => state.WithDataFrame(_inner, static (s, p) => p.Match(s), _values);
 
         public Result<TOutput> Parse(IParseState<TInput> state)
-        {
-            return state.WithDataFrame(_inner, static (s, p) => p.Parse(s), _values);
-        }
+            => state.WithDataFrame(_inner, static (s, p) => p.Parse(s), _values);
 
         public INamed SetName(string name) => new Parser<TOutput>(_inner, _values, name);
 
@@ -70,13 +66,11 @@ public static class DataFrame<TInput>
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
-        {
-            return state.WithDataFrame(_inner, static (s, p) => p.Parse(s), _values);
-        }
-
-        public INamed SetName(string name) => new MultiParser<TOutput>(_inner, _values, name);
+            => state.WithDataFrame(_inner, static (s, p) => p.Parse(s), _values);
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
+
+        public INamed SetName(string name) => new MultiParser<TOutput>(_inner, _values, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
