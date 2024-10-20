@@ -56,13 +56,9 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 alt.Continuation.Rewind();
                 _left.Value = alt.Value;
                 var result = _right.Parse(state);
-                if (!result.Success)
-                {
-                    results.Add(ResultAlternative<TOutput>.Failure(result.ErrorMessage, innerResult.StartCheckpoint));
-                    continue;
-                }
-
-                results.Add(ResultAlternative<TOutput>.Ok(result.Value, result.Consumed, state.Input.Checkpoint()));
+                results.Add(result.Success
+                    ? new ResultAlternative<TOutput>(true, null, result.Value, result.Consumed, state.Input.Checkpoint())
+                    : new ResultAlternative<TOutput>(false, result.ErrorMessage, default, 0, innerResult.StartCheckpoint));
             }
 
             innerResult.StartCheckpoint.Rewind();
