@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xml.Linq;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -17,7 +16,9 @@ public static class UserDelegate
         }
 
         public T[] Values { get; }
+
         public int StartIndex { get; set; }
+
         public int HighWaterMark { get; set; }
     }
 
