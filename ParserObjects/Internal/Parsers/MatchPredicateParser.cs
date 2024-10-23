@@ -23,12 +23,16 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
     private readonly Func<T, TData, bool> _predicate;
     private readonly bool _readAtEnd;
 
-    public MatchPredicateParser(TData data, Func<T, TData, bool> predicate, string name = "", bool readAtEnd = true)
+    public MatchPredicateParser(
+        TData data,
+        Func<T, TData, bool> predicate,
+        bool readAtEnd = true,
+        string name = "")
     {
         _data = data;
         _predicate = predicate;
-        Name = name;
         _readAtEnd = readAtEnd;
+        Name = name;
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
@@ -73,7 +77,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 
-    public INamed SetName(string name) => new MatchPredicateParser<T, TData>(_data, _predicate, name, _readAtEnd);
+    public INamed SetName(string name) => new MatchPredicateParser<T, TData>(_data, _predicate, _readAtEnd, name);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>

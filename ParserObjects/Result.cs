@@ -27,6 +27,8 @@ public readonly record struct Result<TValue>(
         ? InternalValue!
         : throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
 
+    public bool IsValid => (Success && InternalValue != null) || (!Success && !string.IsNullOrEmpty(InternalError));
+
     /// <summary>
     /// Safely get the value of the result, or the default value.
     /// </summary>
