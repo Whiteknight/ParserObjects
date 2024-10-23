@@ -449,9 +449,16 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("SELECT ", p.GetChildren().Single());
     }
 
-    public void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> _, BnfStringifyState state)
+    public void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> p, BnfStringifyState state)
     {
-        state.Append("User Function");
+        var description = p.Description;
+        if (string.IsNullOrEmpty(description))
+        {
+            state.Append("User Function");
+            return;
+        }
+
+        BnfDescription.Append(state, description, p.GetChildren().ToList());
     }
 
     public void Accept<TInput, TOutput>(SynchronizeParser<TInput, TOutput> p, BnfStringifyState state)

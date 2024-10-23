@@ -37,6 +37,8 @@ public static class Sequential
     public sealed record Parser<TInput, TOutput, TData>(
         TData Data,
         Func<SequentialState<TInput>, TData, TOutput> Function,
+        string Description = "",
+        IReadOnlyList<IParser>? Children = null,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -59,7 +61,7 @@ public static class Sequential
                 // Other exceptions bubble up like normal.
                 var location = state.Input.CurrentLocation;
                 startCheckpoint.Rewind();
-                if (spe.Result != default)
+                if (spe.Result.IsValid)
                 {
                     var result = spe.Result;
                     state.Log(this, $"Parse failed during sequential callback: {result}\n\n{spe.StackTrace}");
@@ -103,7 +105,7 @@ public static class Sequential
             }
         }
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+        public IEnumerable<IParser> GetChildren() => Children ?? Enumerable.Empty<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString("Sequential", Name, Id);
 
