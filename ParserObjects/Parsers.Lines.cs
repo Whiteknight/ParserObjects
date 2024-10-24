@@ -7,6 +7,19 @@ namespace ParserObjects;
 public static partial class Parsers
 {
     /// <summary>
+    /// Parser that returns success at end of input and immediately before a newline. Failure
+    /// otherwise.
+    /// </summary>
+    /// <returns></returns>
+    public static IParser<char, object> EndOfLine()
+        => PositiveLookahead(
+            First(
+                MatchChar('\n'),
+                End()
+            )
+        );
+
+    /// <summary>
     /// Parses a line of text, starting with a prefix and going until a newline or end
     /// of input. Newline not included.
     /// </summary>
@@ -39,5 +52,10 @@ public static partial class Parsers
         SequencePositionFlags.StartOfLine,
         "Expected start of line but found ");
 
+    /// <summary>
+    /// Parser that returns true at Start of Input and immediately after a newline. Failure
+    /// otherwise.
+    /// </summary>
+    /// <returns></returns>
     public static IParser<char, object> StartOfLine() => _startOfLine;
 }

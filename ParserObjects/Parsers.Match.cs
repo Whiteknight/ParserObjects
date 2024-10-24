@@ -108,5 +108,9 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TInput> Peek() => _peek;
 
+    /// <summary>
+    /// Parser that returns success at the start of input, failure otherwise.
+    /// </summary>
+    /// <returns></returns>
     public static IParser<TInput, object> Start() => _start;
 }

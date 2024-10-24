@@ -52,6 +52,7 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `Earley` Allows construction of an Earley parser for recursive or ambiguous grammars.
 * `Empty()` Matches at any position and returns no value.
 * `End()` Matches successfully at the end of input, fails everywhere else, and returns no value.
+* `EndOfLine()` Matches successfully at the end of input and immediately before a newline '\n'. Fails everywhere else and returns no value.
 * `Examine()` Allows inserting user-defined callbacks before and after a parser, for debugging purposes.
 * `Fail()` Returns a failure result.
 * `FailMulti()` Returns a failure multi-result.
