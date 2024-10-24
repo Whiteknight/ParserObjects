@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -29,9 +30,7 @@ public static class CharBufferSequence
             _index = 0;
             _line = 1;
             _column = 0;
-            Flags = SequencePositionFlags.StartOfInput;
-            if (length == 0)
-                Flags = Flags.With(SequencePositionFlags.EndOfInput);
+            Flags = FlagsForStartOfCharSequence(Length == 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,7 +40,9 @@ public static class CharBufferSequence
                 return _options.EndSentinel;
             var next = GetNextInternal(true);
 
+            Flags = Flags.Without(SequencePositionFlags.StartOfInput);
             _stats.ItemsRead++;
+
             if (_index >= Length)
                 Flags = Flags.With(SequencePositionFlags.EndOfInput);
 
@@ -50,11 +51,11 @@ public static class CharBufferSequence
             {
                 _line++;
                 _column = 0;
-                Flags = Flags.With(SequencePositionFlags.AfterNewLine);
+                Flags = Flags.With(SequencePositionFlags.StartOfLine);
                 return next;
             }
 
-            Flags = Flags.Without(SequencePositionFlags.AfterNewLine);
+            Flags = Flags.Without(SequencePositionFlags.StartOfLine);
 
             // Bump counts and return
             _column++;
@@ -96,9 +97,7 @@ public static class CharBufferSequence
             _index = 0;
             _line = 1;
             _column = 0;
-            Flags = SequencePositionFlags.StartOfInput;
-            if (Length == 0)
-                Flags = Flags.With(SequencePositionFlags.EndOfInput);
+            Flags = FlagsForStartOfCharSequence(Length == 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

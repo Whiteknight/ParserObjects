@@ -136,7 +136,7 @@ public enum SequencePositionFlags
     None = 0,
     StartOfInput = 1,
     EndOfInput = 2,
-    AfterNewLine = 4
+    StartOfLine = 4
 }
 
 public static class SequenceExtensions
