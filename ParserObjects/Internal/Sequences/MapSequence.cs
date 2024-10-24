@@ -32,6 +32,8 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public bool IsAtEnd => _inputs.IsAtEnd;
 
+    public SequencePositionFlags Flags => _inputs.Flags;
+
     public int Consumed => _inputs.Consumed;
 
     public SequenceCheckpoint Checkpoint() => _inputs.Checkpoint();

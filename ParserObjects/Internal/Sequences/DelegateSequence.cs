@@ -48,6 +48,7 @@ public static class UserDelegate
             _bufferPtr = 0;
             _index = 0;
             _endIndex = -1;
+            Flags = SequencePositionFlags.StartOfInput;
 
             GetNextRaw(false);
         }
@@ -59,15 +60,22 @@ public static class UserDelegate
         public int Index => _index;
         public int EndIndex => _endIndex;
 
-        public bool IsAtEnd => _endIndex > 0 && _index >= _endIndex;
+        public bool IsAtEnd => _endIndex >= 0 && _index >= _endIndex;
+
+        public SequencePositionFlags Flags { get; private set; }
 
         public T GetNext()
         {
             if (IsAtEnd)
+            {
+                Flags = Flags.With(SequencePositionFlags.EndOfInput);
                 return _options.EndSentinel;
+            }
 
             var next = GetNextRaw(true);
             _stats.ItemsRead++;
+            if (IsAtEnd)
+                Flags = Flags.With(SequencePositionFlags.EndOfInput);
 
             return next;
         }
@@ -133,13 +141,13 @@ public static class UserDelegate
         public SequenceCheckpoint Checkpoint(ISequence sequence)
         {
             _stats.CheckpointsCreated++;
-            return new SequenceCheckpoint(sequence, _index, _index, _buffers[_bufferPtr].StartIndex, new Location(string.Empty, 1, _index));
+            return new SequenceCheckpoint(sequence, _index, _index, _buffers[_bufferPtr].StartIndex, Flags, new Location(string.Empty, 1, _index));
         }
 
         public SequenceCheckpoint Checkpoint(ISequence sequence, int line, int column)
         {
             _stats.CheckpointsCreated++;
-            return new SequenceCheckpoint(sequence, _index, _index, _buffers[_bufferPtr].StartIndex, new Location(string.Empty, line, column));
+            return new SequenceCheckpoint(sequence, _index, _index, _buffers[_bufferPtr].StartIndex, Flags, new Location(string.Empty, line, column));
         }
 
         public TResult GetBetween<TData, TResult>(ISequence sequence, SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
@@ -217,6 +225,7 @@ public static class UserDelegate
         {
             _stats.Rewinds++;
             _index = 0;
+            Flags = SequencePositionFlags.StartOfInput;
         }
     }
 
@@ -232,6 +241,8 @@ public static class UserDelegate
         public Location CurrentLocation => new Location(string.Empty, 1, _internal.Index);
 
         public bool IsAtEnd => _internal.IsAtEnd;
+
+        public SequencePositionFlags Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 
@@ -266,12 +277,14 @@ public static class UserDelegate
         private InternalSequence<char> _internal;
         private int _line;
         private int _column;
+        private SequencePositionFlags _flags;
 
         public CharSequence(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options)
         {
             _internal = new InternalSequence<char>(function, options);
             _line = 1;
             _column = 0;
+            _flags = SequencePositionFlags.None;
         }
 
         public Location CurrentLocation => new Location(string.Empty, _line, _column);
@@ -279,6 +292,8 @@ public static class UserDelegate
         public bool IsAtEnd => _internal.IsAtEnd;
 
         public int Consumed => _internal.Index;
+
+        public SequencePositionFlags Flags => _internal.Flags | _flags;
 
         public char GetNext()
         {
@@ -298,9 +313,11 @@ public static class UserDelegate
             {
                 _line++;
                 _column = 0;
+                _flags = _flags.With(SequencePositionFlags.AfterNewLine);
                 return next;
             }
 
+            _flags = _flags.Without(SequencePositionFlags.AfterNewLine);
             _column++;
             return next;
         }
@@ -361,7 +378,13 @@ public static class UserDelegate
             => checkpoint.Sequence == this;
 
         public void Rewind(SequenceCheckpoint checkpoint)
-            => _internal.Rewind(checkpoint);
+        {
+            _flags = checkpoint.Flags.Only(SequencePositionFlags.AfterNewLine);
+            _internal.Rewind(checkpoint with
+            {
+                Flags = checkpoint.Flags.Without(SequencePositionFlags.AfterNewLine)
+            });
+        }
 
         public void Reset()
         {
