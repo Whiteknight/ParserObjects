@@ -54,6 +54,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     public byte GetNext()
     {
         var b = GetNextByteRaw(true);
+        Flags = Flags.Without(SequencePositionFlags.StartOfInput);
         if (b == _options.EndSentinel)
             return b;
         _stats.ItemsRead++;
@@ -215,5 +216,8 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
             _isComplete = true;
         _consumed = 0;
         _bufferIndex = 0;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (_isComplete)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 }

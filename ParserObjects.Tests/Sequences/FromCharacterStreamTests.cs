@@ -46,6 +46,23 @@ public class FromCharacterStreamTests
     [TestCase(5, false)]
     [TestCase(2, true)]
     [TestCase(2, false)]
+    public void GetNext_Flags(int bufferSize, bool useAscii)
+    {
+        var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.GetNext().Should().Be('a');
+        target.GetNext().Should().Be('b');
+        target.GetNext().Should().Be('c');
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+        target.GetNext().Should().Be('\0');
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
     public void GetNext_CustomEndSentinel(int bufferSize, bool useAscii)
     {
         var target = GetTarget("abc", endSentinel: 'X', bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
@@ -71,16 +88,38 @@ public class FromCharacterStreamTests
     [TestCase(5, false)]
     [TestCase(2, true)]
     [TestCase(2, false)]
+    public void Peek_DoesNotChangeFlags(int bufferSize, bool useAscii)
+    {
+        var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Peek().Should().Be('a');
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Peek().Should().Be('a');
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Peek().Should().Be('a');
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
     public void IsAtEnd_Test(int bufferSize, bool useAscii)
     {
         var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
         target.IsAtEnd.Should().BeFalse();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
     }
 
     [TestCase(true)]
@@ -89,6 +128,7 @@ public class FromCharacterStreamTests
     {
         var target = GetTarget("", encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
         target.IsAtEnd.Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -120,6 +160,23 @@ public class FromCharacterStreamTests
         var cp = target.Checkpoint();
         cp.Rewind();
         target.GetNext().Should().Be('b');
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void Checkpoint_Beginning(int bufferSize, bool useAscii)
+    {
+        var target = GetTarget("abc", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        var cp = target.Checkpoint();
+        target.GetNext().Should().Be('a');
+        cp.Rewind();
+        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.GetNext().Should().Be('a');
     }
 
     [TestCase(5)]
@@ -258,9 +315,13 @@ public class FromCharacterStreamTests
     public void GetNext_WindowsNewlines(int bufferSize, bool useAscii)
     {
         var target = GetTarget("\r\na\r\n", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
     }
 
@@ -271,11 +332,15 @@ public class FromCharacterStreamTests
     public void GetNext_WindowsNewlines_NonNormalized(int bufferSize, bool useAscii)
     {
         var target = GetTarget("\r\na\r\n", normalizeLineEndings: false, bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
     }
 
@@ -299,9 +364,13 @@ public class FromCharacterStreamTests
     public void GetNext_OldMacNewlines(int bufferSize, bool useAscii)
     {
         var target = GetTarget("\ra\r", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\n');
+        target.Flags.Has(SequencePositionFlags.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
     }
 
