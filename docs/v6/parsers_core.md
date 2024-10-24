@@ -80,10 +80,18 @@ The `End` parser returns success if the stream is at the end, failure otherwise.
 var parser = End();
 ```
 
-There is also an `IsEnd` parser which returns a success result with a boolean value to indicate end:
+### IsEnd Parser
+
+There is also an `IsEnd` parser which always returns a success and consumes no input, with a boolean result value to indicate end:
 
 ```csharp
 var parser = IsEnd();
+```
+
+This is the same as:
+
+```csharp
+var parser = Bool(End());
 ```
 
 ### Match  Parser
@@ -129,6 +137,14 @@ This parser is functionally equivalent to the `Any` and `None` parsers:
 
 ```csharp
 var parser = Any().None();
+```
+
+### Start Parser
+
+The `Start` parser returns success if the stream is at the beginning, failure otherwise. It consumes no input and returns no value.
+
+```csharp
+var parser = Start();
 ```
 
 ## Basic Combinator Parser Types

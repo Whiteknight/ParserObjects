@@ -7,9 +7,11 @@ namespace ParserObjects.Internal.Parsers;
 /// besides the end.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public sealed record EndParser<TInput>(
+public sealed record SequenceFlagParser<TInput>(
+    SequencePositionFlags Flags,
+    string FailureMessage,
     string Name = ""
-) : SimpleRecordParser<TInput>(Name), IParser<TInput>
+) : SimpleRecordParser<TInput, object>(Name), IParser<TInput, object>
 {
     /* We do not cache the error result because the error message (currently) contains the item
      * which was found in the input sequence. End-checking happens relatively rarely in most
@@ -19,12 +21,13 @@ public sealed record EndParser<TInput>(
     public override Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        return state.Input.IsAtEnd
+        return state.Input.Flags.Has(Flags)
             ? Result<object>.Ok(this, Defaults.ObjectInstance, 0)
-            : state.Fail(this, "Expected end of Input but found " + state.Input.Peek()!);
+            : state.Fail(this, FailureMessage + state.Input.Peek()!);
     }
 
-    public override bool Match(IParseState<TInput> state) => state.Input.IsAtEnd;
+    public override bool Match(IParseState<TInput> state)
+        => state.Input.Flags.Has(Flags);
 
     public override string ToString() => DefaultStringifier.ToString("End", Name, Id);
 

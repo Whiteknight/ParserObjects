@@ -1,4 +1,5 @@
 ﻿using System;
+using ParserObjects.Internal.Parsers;
 using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
@@ -33,4 +34,10 @@ public static partial class Parsers
             return notNewlineChar.ListCharToString();
         }
     );
+
+    private static readonly IParser<char, object> _startOfLine = new SequenceFlagParser<char>(
+        SequencePositionFlags.StartOfLine,
+        "Expected start of line but found ");
+
+    public static IParser<char, object> StartOfLine() => _startOfLine;
 }
