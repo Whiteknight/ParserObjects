@@ -123,6 +123,8 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `Sql.Comment()` Match an SQL-style Comment with `--`.
 * `Sql.Identifier()` Match an SQL-style identifier.
 * `Sql.QualifiedIdentifier()` Match an SQL-style multipart identifier.
+* `Start()` Returns success at the start of input, failure otherwise
+* `StartOfLine()` Returns success at the start of a new line (at `Start()` and immediately after `\n`) for character sequences only.
 * `Stringify()` Convert an `IReadOnlyList<char>` result into a `string` result.
 * `StrippedDoubleQuotedString()` Match and decode a string using double quotes.
 * `StrippedDelimitedStringWithEscapedDelimiters()` Match and decode a string with custom quote and escape characters.

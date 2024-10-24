@@ -145,8 +145,6 @@ public interface IMatchPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput>(EmptyParser<TInput> _, TState state);
 
-    void Accept<TInput>(EndParser<TInput> _, TState state);
-
     void Accept<TInput>(MatchItemParser<TInput> p, TState state);
 
     void Accept<TInput>(MatchPatternParser<TInput> p, TState state);
@@ -156,6 +154,8 @@ public interface IMatchPartialVisitor<TState> : IPartialVisitor<TState>
     void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, TState state);
 
     void Accept<TInput>(PeekParser<TInput> _, TState state);
+
+    void Accept<TInput>(SequenceFlagParser<TInput> _, TState state);
 
     void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, TState state);
 }

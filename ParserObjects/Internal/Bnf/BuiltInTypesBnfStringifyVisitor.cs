@@ -148,11 +148,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("()");
     }
 
-    public void Accept<TInput>(EndParser<TInput> _, BnfStringifyState state)
-    {
-        state.Append("END");
-    }
-
     public void Accept<TInput>(ExamineParser<TInput> p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First());
@@ -447,6 +442,17 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(SelectParser<TInput, TOutput> p, BnfStringifyState state)
     {
         state.Append("SELECT ", p.GetChildren().Single());
+    }
+
+    public void Accept<TInput>(SequenceFlagParser<TInput> p, BnfStringifyState state)
+    {
+        state.Append(p.Flags switch
+        {
+            SequencePositionFlags.StartOfInput => "START",
+            SequencePositionFlags.EndOfInput => "END",
+            SequencePositionFlags.StartOfLine => "START OF LINE",
+            _ => "UNKNOWN"
+        });
     }
 
     public void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> p, BnfStringifyState state)
