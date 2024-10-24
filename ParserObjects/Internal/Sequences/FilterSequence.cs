@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -18,6 +17,7 @@ public sealed class FilterSequence<T> : ISequence<T>
         Assert.ArgumentNotNull(predicate);
         _inputs = inputs;
         _predicate = predicate;
+        DiscardNonMatches();
     }
 
     public T GetNext()
@@ -46,6 +46,15 @@ public sealed class FilterSequence<T> : ISequence<T>
         {
             DiscardNonMatches();
             return _inputs.IsAtEnd;
+        }
+    }
+
+    public SequencePositionFlags Flags
+    {
+        get
+        {
+            DiscardNonMatches();
+            return _inputs.Flags;
         }
     }
 
