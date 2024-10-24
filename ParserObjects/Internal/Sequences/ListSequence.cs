@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -48,6 +49,7 @@ public sealed class ListSequence<T> : ISequence<T>
         _index++;
 
         _stats.ItemsRead++;
+        Flags = Flags.Without(SequencePositionFlags.StartOfInput);
         if (_index >= _list.Count)
             Flags = Flags.With(SequencePositionFlags.EndOfInput);
         return value;
@@ -104,8 +106,6 @@ public sealed class ListSequence<T> : ISequence<T>
     public void Reset()
     {
         _index = 0;
-        Flags = SequencePositionFlags.StartOfInput;
-        if (_list.Count == 0)
-            Flags = Flags.With(SequencePositionFlags.EndOfInput);
+        Flags = FlagsForStartOfSequence(_list.Count == 0);
     }
 }

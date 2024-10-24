@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.ComponentModel.DataAnnotations;
 
 namespace ParserObjects.Internal.Sequences;
 

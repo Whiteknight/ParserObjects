@@ -73,6 +73,7 @@ public static class UserDelegate
             }
 
             var next = GetNextRaw(true);
+            Flags = Flags.Without(SequencePositionFlags.StartOfInput);
             _stats.ItemsRead++;
             if (IsAtEnd)
                 Flags = Flags.With(SequencePositionFlags.EndOfInput);
@@ -165,6 +166,7 @@ public static class UserDelegate
         public void Rewind(SequenceCheckpoint checkpoint)
         {
             var bufferStartIndex = (int)checkpoint.StreamPosition;
+            Flags = checkpoint.Flags;
 
             _index = checkpoint.Index;
             _stats.Rewinds++;
@@ -284,7 +286,7 @@ public static class UserDelegate
             _internal = new InternalSequence<char>(function, options);
             _line = 1;
             _column = 0;
-            _flags = SequencePositionFlags.None;
+            _flags = SequencePositionFlags.StartOfLine;
         }
 
         public Location CurrentLocation => new Location(string.Empty, _line, _column);
@@ -313,11 +315,11 @@ public static class UserDelegate
             {
                 _line++;
                 _column = 0;
-                _flags = _flags.With(SequencePositionFlags.AfterNewLine);
+                _flags = _flags.With(SequencePositionFlags.StartOfLine);
                 return next;
             }
 
-            _flags = _flags.Without(SequencePositionFlags.AfterNewLine);
+            _flags = _flags.Without(SequencePositionFlags.StartOfLine);
             _column++;
             return next;
         }
@@ -379,10 +381,10 @@ public static class UserDelegate
 
         public void Rewind(SequenceCheckpoint checkpoint)
         {
-            _flags = checkpoint.Flags.Only(SequencePositionFlags.AfterNewLine);
+            _flags = checkpoint.Flags.Only(SequencePositionFlags.StartOfLine);
             _internal.Rewind(checkpoint with
             {
-                Flags = checkpoint.Flags.Without(SequencePositionFlags.AfterNewLine)
+                Flags = checkpoint.Flags.Without(SequencePositionFlags.StartOfLine)
             });
         }
 
@@ -391,6 +393,7 @@ public static class UserDelegate
             _internal.Reset();
             _line = 1;
             _column = 0;
+            _flags = SequencePositionFlags.StartOfLine;
         }
     }
 }

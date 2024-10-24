@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -38,16 +39,15 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _totalCharsInBuffer = ReadStream();
         _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
-        Flags = SequencePositionFlags.StartOfInput;
-        if (IsAtEnd)
-            Flags = Flags.With(SequencePositionFlags.EndOfInput);
+        Flags = FlagsForStartOfCharSequence(IsAtEnd);
     }
 
     public char GetNext()
     {
+        if (IsAtEnd)
+            return _options.EndSentinel;
+
         var c = GetNextCharRaw(true);
-        if (c == _options.EndSentinel)
-            return c;
 
         if (_options.NormalizeLineEndings && c == '\r')
         {
@@ -57,18 +57,21 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         }
 
         _stats.ItemsRead++;
+        Flags = Flags.Without(SequencePositionFlags.StartOfInput);
         _consumed++;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
 
         if (c == '\n')
         {
             _line++;
             _column = 0;
-            Flags = Flags.With(SequencePositionFlags.AfterNewLine);
+            Flags = Flags.With(SequencePositionFlags.StartOfLine);
             return c;
         }
 
         _column++;
-        Flags = Flags.Without(SequencePositionFlags.AfterNewLine);
+        Flags = Flags.Without(SequencePositionFlags.StartOfLine);
         return c;
     }
 
@@ -233,8 +236,6 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _line = 0;
         _column = 0;
         _consumed = 0;
-        Flags = SequencePositionFlags.StartOfInput;
-        if (IsAtEnd)
-            Flags = Flags.With(SequencePositionFlags.EndOfInput);
+        Flags = FlagsForStartOfCharSequence(IsAtEnd);
     }
 }
