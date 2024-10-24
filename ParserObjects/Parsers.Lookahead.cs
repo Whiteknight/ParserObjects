@@ -19,6 +19,6 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput> PositiveLookahead(IParser<TInput> p)
+    public static IParser<TInput, object> PositiveLookahead(IParser<TInput> p)
         => new PositiveLookaheadParser<TInput>(p);
 }
