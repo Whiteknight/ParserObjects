@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public sealed record EmptyParser<TInput>(
     string Name = ""
-) : SimpleRecordParser<TInput>(Name), IParser<TInput>
+) : SimpleRecordParser<TInput, object>(Name), IParser<TInput, object>
 {
     public override Result<object> Parse(IParseState<TInput> state)
     {

@@ -108,7 +108,7 @@ public static class RegexPatternGrammar
             )
         );
 
-        return (regex, IsEnd()).Rule(static (r, _) => r)
+        return (regex, End()).Rule(static (r, _) => r)
             .Transform(static r => new Regex(r))
             .Named("RegexPattern");
     }

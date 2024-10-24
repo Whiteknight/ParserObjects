@@ -10,17 +10,25 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
-    private static readonly IParser<TInput> _empty = new EmptyParser<TInput>();
-    private static readonly IParser<TInput> _end = new EndParser<TInput>();
-    private static readonly IParser<TInput, TInput> _peek = new PeekParser<TInput>();
+    private static readonly IParser<TInput, object> _empty = new EmptyParser<TInput>();
+
+    private static readonly IParser<TInput, object> _end = new SequenceFlagParser<TInput>(
+        SequencePositionFlags.EndOfInput,
+        "Expected end of input but found ");
 
     private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser<object>(
         Defaults.ObjectInstance,
-        static (state, _, args) => state.Input.IsAtEnd ? args.Success(true) : args.Failure(""),
+        static (state, _, args) => args.Success(state.Input.IsAtEnd),
         static (state, _) => state.Input.IsAtEnd,
         "IF END THEN PRODUCE",
         Array.Empty<IParser>()
     );
+
+    private static readonly IParser<TInput, TInput> _peek = new PeekParser<TInput>();
+
+    private static readonly IParser<TInput, object> _start = new SequenceFlagParser<TInput>(
+        SequencePositionFlags.StartOfInput,
+        "Expected start of input but found ");
 
     /// <summary>
     /// Matches anywhere in the sequence except at the end, and consumes 1 token of input.
@@ -32,14 +40,14 @@ public static partial class Parsers<TInput>
     /// The empty parser, consumers no input and always returns success at any point.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput> Empty() => _empty;
+    public static IParser<TInput, object> Empty() => _empty;
 
     /// <summary>
     /// Returns a success result at end of input, a failure result at any other location. Returns
     /// no value in either case.
     /// </summary>
     /// <returns></returns>
-    public static IParser<TInput> End() => _end;
+    public static IParser<TInput, object> End() => _end;
 
     /// <summary>
     /// Always returns success, with a boolean value indicating whether the input sequence is at
@@ -99,4 +107,6 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <returns></returns>
     public static IParser<TInput, TInput> Peek() => _peek;
+
+    public static IParser<TInput, object> Start() => _start;
 }

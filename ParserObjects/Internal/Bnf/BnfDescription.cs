@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Internal.Bnf;
 
@@ -10,7 +11,7 @@ public static class BnfDescription
     public static void Append(BnfStringifyState state, string description, IReadOnlyList<IParser> children)
     {
         var parser = Grammar.GetParser();
-        var input = ParserObjects.Sequences.FromString(description);
+        var input = FromString(description);
         while (!input.IsAtEnd)
         {
             var result = parser.Parse(input);

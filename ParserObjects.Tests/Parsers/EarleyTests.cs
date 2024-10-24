@@ -123,7 +123,7 @@ public class EarleyTests
             expr.Rule(expr, plus, expr, (l, _, r) => l + r);
             expr.Rule(expr, star, expr, (l, _, r) => l * r);
 
-            var eof = IsEnd();
+            var eof = End();
 
             return symbols.New("S")
                 .Rule(expr, eof, (e, _) => e);
@@ -164,7 +164,7 @@ public class EarleyTests
             expr.Rule(expr, plus, term, (l, _, r) => ($"({l.Item1}+{r.Item1})", l.Item2 + r.Item2));
             expr.Rule(expr, minus, term, (l, _, r) => ($"({l.Item1}-{r.Item1})", l.Item2 - r.Item2));
 
-            var eof = IsEnd();
+            var eof = End();
 
             return symbols.New("S")
                 .Rule(expr, eof, (e, _) => e);
@@ -249,7 +249,7 @@ public class EarleyTests
                 .Rule(empty, v => v);
             expr.Rule(expr, Match('a'), (count, _) => count + 1);
 
-            var eof = IsEnd();
+            var eof = End();
 
             return symbols.New("Start")
                 .Rule(expr, eof, (v, _) => v);
@@ -328,7 +328,7 @@ public class EarleyTests
                 .Rule(a, _ => 1);
             e.Rule(a, e, (_, count) => count + 1);
 
-            var eof = IsEnd().Named("End");
+            var eof = End().Named("End");
 
             return symbols.New("S")
                 .Rule(e, eof, (count, _) => count).Named("S");
@@ -405,7 +405,7 @@ public class EarleyTests
         {
             // Nullable is a production rule which consumes no input
             var nullable = Produce(() => "Test");
-            var eof = IsEnd();
+            var eof = End();
             return symbols.New("S")
                 .Rule(nullable, eof, (a, _) => a);
         });
@@ -434,7 +434,7 @@ public class EarleyTests
             var nullable = symbols.New("N")
                 .Rule(rulea, ruleb, (a, b) => $"({a},{b})");
 
-            var eof = IsEnd().Named("END");
+            var eof = End().Named("END");
             return symbols.New("S")
                 .Rule(nullable, nullable, eof, (first, second, _) => $"[{first}:{second}]");
         });
@@ -595,7 +595,7 @@ public class EarleyTests
                 .Rule(a, a, a, a, a, a, a, a, a, (_, _, _, _, _, _, _, _, _) => 9)
                 ;
 
-            var eof = IsEnd().Named("END");
+            var eof = End().Named("END");
             return symbols.New("S")
                 .Rule(e, eof, (v, _) => v);
         });
