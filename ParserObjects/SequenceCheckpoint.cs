@@ -4,13 +4,15 @@ namespace ParserObjects;
 
 /// <summary>
 /// A snapshot of a sequence at a specific point. Can be used to return the sequence to that
-/// point.
+/// point. Sequence checkpoint should be treated as opaque and immutable. You should not create
+/// your own SequenceCheckpoint nor modify the contents of one you receive from a Sequence.
 /// </summary>
 public readonly record struct SequenceCheckpoint(
     ISequence Sequence,
     int Consumed,
     int Index,
     long StreamPosition,
+    SequencePositionFlags Flags,
     Location Location
 ) : IComparable<SequenceCheckpoint>
 {

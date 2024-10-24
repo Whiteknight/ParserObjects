@@ -25,29 +25,36 @@ public static class CharBufferSequence
             Data = data;
             Length = length;
             _getCharAt = getCharAt;
-
             _stats = default;
             _index = 0;
             _line = 1;
             _column = 0;
+            Flags = SequencePositionFlags.StartOfInput;
+            if (length == 0)
+                Flags = Flags.With(SequencePositionFlags.EndOfInput);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public char GetNext()
         {
+            if (IsAtEnd)
+                return _options.EndSentinel;
             var next = GetNextInternal(true);
-            if (next == _options.EndSentinel)
-                return next;
 
             _stats.ItemsRead++;
+            if (_index >= Length)
+                Flags = Flags.With(SequencePositionFlags.EndOfInput);
 
             // If we have a newline, update the line-tracking.
             if (next == '\n')
             {
                 _line++;
                 _column = 0;
+                Flags = Flags.With(SequencePositionFlags.AfterNewLine);
                 return next;
             }
+
+            Flags = Flags.Without(SequencePositionFlags.AfterNewLine);
 
             // Bump counts and return
             _column++;
@@ -76,6 +83,8 @@ public static class CharBufferSequence
 
         public readonly bool IsAtEnd => _index >= Length;
 
+        public SequencePositionFlags Flags { get; private set; }
+
         public readonly int Index => _index;
 
         public TData Data { get; }
@@ -87,13 +96,16 @@ public static class CharBufferSequence
             _index = 0;
             _line = 1;
             _column = 0;
+            Flags = SequencePositionFlags.StartOfInput;
+            if (Length == 0)
+                Flags = Flags.With(SequencePositionFlags.EndOfInput);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SequenceCheckpoint Checkpoint(ISequence sequence)
         {
             _stats.CheckpointsCreated++;
-            return new SequenceCheckpoint(sequence, _index, _index, 0L, new Location(_options.FileName, _line, _column));
+            return new SequenceCheckpoint(sequence, _index, _index, 0L, Flags, new Location(_options.FileName, _line, _column));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -104,6 +116,7 @@ public static class CharBufferSequence
             _index = checkpoint.Index;
             _line = checkpoint.Location.Line;
             _column = checkpoint.Location.Column;
+            Flags = checkpoint.Flags;
         }
 
         public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
@@ -132,6 +145,8 @@ public static class CharBufferSequence
         public Location CurrentLocation => _internal.CurrentLocation;
 
         public bool IsAtEnd => _internal.IsAtEnd;
+
+        public SequencePositionFlags Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 
@@ -292,6 +307,8 @@ public static class CharBufferSequence
         public Location CurrentLocation => _internal.CurrentLocation;
 
         public bool IsAtEnd => _internal.IsAtEnd;
+
+        public SequencePositionFlags Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 

@@ -23,10 +23,8 @@ public sealed class ListSequence<T> : ISequence<T>
         Assert.ArgumentNotNull(enumerable);
         _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToArray();
         _endSentinelValue = endSentinel;
-
-        _index = 0;
-
         _stats = default;
+        Reset();
     }
 
     public ListSequence(IReadOnlyList<T> list, T endSentinel)
@@ -34,10 +32,8 @@ public sealed class ListSequence<T> : ISequence<T>
         Assert.ArgumentNotNull(list);
         _list = list;
         _endSentinelValue = endSentinel;
-
-        _index = 0;
-
         _stats = default;
+        Reset();
     }
 
     // Notice that if T == char, GetNext() here doesn't respect normalized line endings, line
@@ -52,6 +48,8 @@ public sealed class ListSequence<T> : ISequence<T>
         _index++;
 
         _stats.ItemsRead++;
+        if (_index >= _list.Count)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
         return value;
     }
 
@@ -67,12 +65,14 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public bool IsAtEnd => _index >= _list.Count;
 
+    public SequencePositionFlags Flags { get; private set; }
+
     public int Consumed => _index;
 
     public SequenceCheckpoint Checkpoint()
     {
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _index, _index, 0L, CurrentLocation);
+        return new SequenceCheckpoint(this, _index, _index, 0L, Flags, CurrentLocation);
     }
 
     public void Rewind(SequenceCheckpoint checkpoint)
@@ -80,6 +80,7 @@ public sealed class ListSequence<T> : ISequence<T>
         _stats.Rewinds++;
         _stats.RewindsToCurrentBuffer++;
         _index = checkpoint.Index;
+        Flags = checkpoint.Flags;
     }
 
     public SequenceStatistics GetStatistics() => _stats.Snapshot();
@@ -103,5 +104,8 @@ public sealed class ListSequence<T> : ISequence<T>
     public void Reset()
     {
         _index = 0;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (_list.Count == 0)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 }

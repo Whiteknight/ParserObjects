@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Sequences;
 
@@ -20,6 +21,8 @@ public interface ISequence
     /// retrieved. False if the sequence is exhausted and no more values are available.
     /// </summary>
     bool IsAtEnd { get; }
+
+    SequencePositionFlags Flags { get; }
 
     /// <summary>
     /// Take a snapshot of the state of the sequence, which can be returned to later if the
@@ -127,8 +130,33 @@ public interface ICharSequence : ISequence<char>
         => GetBetween(start, end, (object?)null, static (b, _) => new string(b));
 }
 
+[Flags]
+public enum SequencePositionFlags
+{
+    None = 0,
+    StartOfInput = 1,
+    EndOfInput = 2,
+    AfterNewLine = 4
+}
+
 public static class SequenceExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SequencePositionFlags With(this SequencePositionFlags source, SequencePositionFlags toAdd)
+        => source | toAdd;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SequencePositionFlags Without(this SequencePositionFlags source, SequencePositionFlags toRemove)
+        => source & ~toRemove;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool Has(this SequencePositionFlags source, SequencePositionFlags test)
+        => (source & test) == test;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SequencePositionFlags Only(this SequencePositionFlags source, SequencePositionFlags test)
+        => source & test;
+
     /// <summary>
     /// Transform a sequence of one type into a sequence of another type by applying a transformation
     /// function to every element.

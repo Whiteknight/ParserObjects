@@ -38,6 +38,9 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _totalCharsInBuffer = ReadStream();
         _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 
     public char GetNext()
@@ -60,10 +63,12 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         {
             _line++;
             _column = 0;
+            Flags = Flags.With(SequencePositionFlags.AfterNewLine);
             return c;
         }
 
         _column++;
+        Flags = Flags.Without(SequencePositionFlags.AfterNewLine);
         return c;
     }
 
@@ -79,6 +84,8 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
     public Location CurrentLocation => new Location(_options.FileName, _line + 1, _column);
 
     public bool IsAtEnd => _totalCharsInBuffer == 0;
+
+    public SequencePositionFlags Flags { get; private set; }
 
     public int Consumed => _consumed;
 
@@ -128,12 +135,13 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
     public SequenceCheckpoint Checkpoint()
     {
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, _consumed, _index, _bufferStartStreamPosition, new Location(_options.FileName, _line, _column));
+        return new SequenceCheckpoint(this, _consumed, _index, _bufferStartStreamPosition, Flags, new Location(_options.FileName, _line, _column));
     }
 
     public void Rewind(SequenceCheckpoint checkpoint)
     {
         _stats.Rewinds++;
+        Flags = checkpoint.Flags;
 
         var bufferStartStreamPosition = checkpoint.StreamPosition;
 
@@ -225,5 +233,8 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _line = 0;
         _column = 0;
         _consumed = 0;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 }

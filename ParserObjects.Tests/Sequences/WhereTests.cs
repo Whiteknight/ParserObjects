@@ -14,7 +14,7 @@ public class WhereTests
 
         // .Consumed is based on the value from the underlying sequence, so we have to acknowledge
         // that we are skipping values
-        target.Consumed.Should().Be(0);
+        target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);
         target.Consumed.Should().Be(2);
         target.GetNext().Should().Be(4);
@@ -34,6 +34,26 @@ public class WhereTests
         ).Where(x => x % 2 == 0);
         target.IsAtEnd.Should().BeFalse();
         target.GetNext().Should().Be(2);
+        target.IsAtEnd.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsAtEnd_Empty()
+    {
+        var target = FromList(
+            new int[] { },
+            0
+        ).Where(x => x % 2 == 0);
+        target.IsAtEnd.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsAtEnd_NoMatches()
+    {
+        var target = FromList(
+            new int[] { 1, 3, 5 },
+            0
+        ).Where(x => x % 2 == 0);
         target.IsAtEnd.Should().BeTrue();
     }
 
@@ -93,7 +113,7 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 0);
 
-        target.Consumed.Should().Be(0);
+        target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);
         target.Consumed.Should().Be(2);
         target.GetNext().Should().Be(4);

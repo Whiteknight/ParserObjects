@@ -36,6 +36,9 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _stats.BufferFills++;
         _bufferStartPositions = new long[(_reader.BaseStream.Length / _options.BufferSize) + 1];
         _bufferStartPositions[0] = 0L;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
@@ -50,6 +53,9 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _stats.BufferFills++;
         _bufferStartPositions = new long[(_reader.BaseStream.Length / _options.BufferSize) + 1];
         _bufferStartPositions[0] = 0L;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 
     /*
@@ -66,7 +72,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     private int GetEncodingByteCountForCharacter(char c)
     {
-        Span<char> buffer = stackalloc char[1] { c };
+        Span<char> buffer = stackalloc char[1];
+        buffer[0] = c;
         return _options.Encoding!.GetByteCount(buffer);
     }
 
@@ -89,10 +96,12 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         {
             _line++;
             _column = 0;
+            Flags = Flags.With(SequencePositionFlags.AfterNewLine);
             return c;
         }
 
         _column++;
+        Flags = Flags.Without(SequencePositionFlags.AfterNewLine);
         return c;
     }
 
@@ -108,6 +117,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
     public Location CurrentLocation => new Location(_options.FileName, _line + 1, _column);
 
     public bool IsAtEnd => _totalCharsInBuffer == 0;
+
+    public SequencePositionFlags Flags { get; private set; }
 
     public int Consumed { get; private set; }
 
@@ -213,13 +224,14 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         if (_expectLowSurrogate)
             throw new InvalidOperationException("Cannot set a checkpoint between the high and low surrogates of a single codepoint");
         _stats.CheckpointsCreated++;
-        return new SequenceCheckpoint(this, Consumed, _index, _streamPosition, new Location(_options.FileName, _line, _column));
+        return new SequenceCheckpoint(this, Consumed, _index, _streamPosition, Flags, new Location(_options.FileName, _line, _column));
     }
 
     public void Rewind(SequenceCheckpoint checkpoint)
     {
         // Clear this flag, just in case
         _expectLowSurrogate = false;
+        Flags = checkpoint.Flags;
 
         _stats.Rewinds++;
 
@@ -318,5 +330,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         _expectLowSurrogate = false;
         Consumed = 0;
         _stats.BufferFills++;
+        Flags = SequencePositionFlags.StartOfInput;
+        if (IsAtEnd)
+            Flags = Flags.With(SequencePositionFlags.EndOfInput);
     }
 }
