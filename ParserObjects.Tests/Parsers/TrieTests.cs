@@ -257,7 +257,7 @@ public static class TrieTests
         {
             var parser = Trie<string>(trie => { }).Named("parser");
             var result = parser.ToBnf();
-            result.Should().Contain("parser := FAIL");
+            result.Should().Contain("parser := PRODUCE");
         }
     }
 
@@ -289,7 +289,8 @@ public static class TrieTests
             var target = Trie(trie);
 
             var result = target.Parse("abc");
-            result.Success.Should().BeFalse();
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(0);
         }
 
         [Test]

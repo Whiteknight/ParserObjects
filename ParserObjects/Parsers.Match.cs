@@ -10,6 +10,7 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
+
     private static readonly IParser<TInput, object> _empty = new EmptyParser<TInput>();
 
     private static readonly IParser<TInput, object> _end = new SequenceFlagParser<TInput>(
@@ -83,12 +84,12 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<TInput>> Match(IEnumerable<TInput> pattern)
     {
-        if (pattern == null)
-            return Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>());
-        var asList = pattern as IReadOnlyList<TInput> ?? pattern.ToList();
-        if (asList.Count == 0)
-            return Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>());
-        return new MatchPatternParser<TInput>(asList);
+        var asList = pattern as IReadOnlyList<TInput>
+            ?? pattern?.ToList()
+            ?? (IReadOnlyList<TInput>)Array.Empty<TInput>();
+        return asList.Count == 0
+            ? Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>())
+            : new MatchPatternParser<TInput>(asList);
     }
 
     /// <summary>

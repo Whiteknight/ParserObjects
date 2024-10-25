@@ -42,7 +42,7 @@ public static partial class Parsers<TInput>
 
     /// <summary>
     /// Invoke the given parser and invert the result. On Success return Failure, on Failure return
-    /// Success. Consumes input but returns no output.
+    /// Success. Consumes no input and produces no output value.
     /// </summary>
     /// <param name="p1"></param>
     /// <returns></returns>
