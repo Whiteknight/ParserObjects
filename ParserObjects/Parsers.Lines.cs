@@ -11,12 +11,17 @@ public static partial class Parsers
     /// otherwise.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, object> EndOfLine()
-        => PositiveLookahead(
-            First(
-                MatchChar('\n'),
-                End()
+    public static IParser<char, object> EndOfLine() => _endOfLine.Value;
+
+    private static readonly Lazy<IParser<char, object>> _endOfLine
+        = new Lazy<IParser<char, object>>(
+            static () => PositiveLookahead(
+                First(
+                    MatchChar('\n'),
+                    End()
+                )
             )
+            .Named("End of Line")
         );
 
     /// <summary>

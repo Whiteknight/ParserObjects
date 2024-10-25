@@ -115,12 +115,15 @@ public static partial class Parsers
     /// <param name="caseInsensitive"></param>
     /// <returns></returns>
     public static IParser<char, char> NotMatchAny(string possibilities, bool caseInsensitive = false)
-    {
-        if (string.IsNullOrEmpty(possibilities))
-            return Any();
-        var collection = new HashSet<char>(possibilities, caseInsensitive ? CaseInsensitiveCharComparer.Instance : CaseSensitiveCharComparer.Instance);
-        return new MatchPredicateParser<char, HashSet<char>>(collection, static (c, s) => !s.Contains(c));
-    }
+        => string.IsNullOrEmpty(possibilities)
+            ? Any()
+            : new MatchPredicateParser<char, HashSet<char>>(
+                new HashSet<char>(possibilities, caseInsensitive
+                    ? CaseInsensitiveCharComparer.Instance
+                    : CaseSensitiveCharComparer.Instance
+                ),
+                static (c, s) => !s.Contains(c)
+            );
 
     /// <summary>
     /// Optimized version of Match(char) which caches common instances for reuse. Notice that this
@@ -135,16 +138,16 @@ public static partial class Parsers
         if (caseInsensitive)
         {
             var realC = char.ToUpper(c);
-            if (_matchByCharInsensitive.ContainsKey(realC))
-                return _matchByCharInsensitive[realC];
+            if (_matchByCharInsensitive.TryGetValue(realC, out IParser<char, char>? cached))
+                return cached;
 
             var pi = new MatchPredicateParser<char, char>(realC, static (i, r) => char.ToUpper(i) == r, readAtEnd: false);
             _matchByCharInsensitive.Add(realC, pi);
             return pi;
         }
 
-        if (_matchByChar.ContainsKey(c))
-            return _matchByChar[c];
+        if (_matchByChar.TryGetValue(c, out IParser<char, char>? value))
+            return value;
 
         var p = new MatchItemParser<char>(c, readAtEnd: false);
         _matchByChar.Add(c, p);

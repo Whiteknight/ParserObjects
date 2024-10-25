@@ -156,12 +156,12 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TValue> GetData<TValue>(string name)
         => new Function<TInput, TValue>.Parser<string>(
             name,
-            static (state, n, args) =>
+            static (state, n, results) =>
             {
                 var result = state.Data.Get<TValue>(n);
-                return result.Success ?
-                    args.Success(result.Value) :
-                    args.Failure($"State data '{n}' with type does not exist");
+                return result.Success
+                    ? results.Success(result.Value)
+                    : results.Failure($"State data '{n}' with type does not exist");
             },
             static (_, _) => true,
             $"GET '{name}'",

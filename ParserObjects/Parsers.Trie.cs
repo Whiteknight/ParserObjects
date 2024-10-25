@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Tries;
 
@@ -15,12 +16,9 @@ public static partial class Parsers<TInput>
     /// <param name="trie"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Trie<TOutput>(InsertableTrie<TInput, TOutput> trie)
-    {
-        if (trie.Count == 0)
-            return Fail<TOutput>("The Trie contains no elements");
-        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
-        return new TrieParser<TInput, TOutput>(readable);
-    }
+        => trie.Count == 0
+            ? Produce<TOutput>(static () => default!)
+            : new TrieParser<TInput, TOutput>(ReadableTrie<TInput, TOutput>.Create(trie));
 
     /// <summary>
     /// Lookup sequences of inputs in an trie to greedily find the longest matching sequence.
@@ -41,12 +39,9 @@ public static partial class Parsers<TInput>
     /// <param name="trie"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> TrieMulti<TOutput>(InsertableTrie<TInput, TOutput> trie)
-    {
-        if (trie.Count == 0)
-            return FailMulti<TOutput>("The Trie contains no elements");
-        var readable = ReadableTrie<TInput, TOutput>.Create(trie);
-        return new TrieParser<TInput, TOutput>(readable);
-    }
+        => trie.Count == 0
+            ? ProduceMulti(static () => Enumerable.Empty<TOutput>())
+            : new TrieParser<TInput, TOutput>(ReadableTrie<TInput, TOutput>.Create(trie));
 
     /// <summary>
     /// Lookup sequences of inputs in a trie and return all matches from the current position.

@@ -40,7 +40,7 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _qualifiedIdentifier
             = new Lazy<IParser<char, IReadOnlyList<string>>>(
-                () => _identifier.Value.List(MatchChar('.'), 1)
+                static () => _identifier.Value.List(MatchChar('.'), 1)
             );
     }
 }

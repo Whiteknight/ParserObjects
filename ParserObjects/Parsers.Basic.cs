@@ -255,22 +255,25 @@ public static partial class Parsers<TInput>
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> First<TOutput>(params IParser<TInput, TOutput>[] parsers)
-    {
-        if (parsers == null || parsers.Length == 0)
-            return Fail<TOutput>("No parsers given");
-        if (parsers.Length == 1)
-            return parsers[0];
-        return new FirstParser<TInput>.WithOutput<TOutput>(parsers);
-    }
+        => parsers switch
+        {
+            { Length: 1 } => parsers[0],
+            { Length: > 1 } => new FirstParser<TInput>.WithOutput<TOutput>(parsers),
+            _ => Fail<TOutput>("No parsers given")
+        };
 
+    /// <summary>
+    /// Returns success when any parser succeeds, failure otherwise.
+    /// </summary>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
     public static IParser<TInput> First(params IParser<TInput>[] parsers)
-    {
-        if (parsers == null || parsers.Length == 0)
-            return Fail("No parsers given");
-        if (parsers.Length == 1)
-            return parsers[0];
-        return new FirstParser<TInput>.WithoutOutput(parsers);
-    }
+        => parsers switch
+        {
+            { Length: 1 } => parsers[0],
+            { Length: > 1 } => new FirstParser<TInput>.WithoutOutput(parsers),
+            _ => Fail("No parsers given")
+        };
 
     private readonly record struct FunctionArgs<TOutput>(
         Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> ParseFunction,
