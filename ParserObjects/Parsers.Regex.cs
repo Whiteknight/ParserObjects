@@ -18,11 +18,7 @@ public static partial class Parsers
         if (string.IsNullOrEmpty(pattern))
             return Parsers<char>.Produce(static () => string.Empty);
 
-        var result = RegexPattern().Parse(pattern, new SequenceOptions<char>
-        {
-            FileName = pattern,
-            MaintainLineEndings = true
-        });
+        var result = RegexPattern().Parse(pattern, SequenceOptions.ForRegex(pattern));
         return result.Success
             ? (IParser<char, string>)new RegexParser(result.Value, pattern)
             : throw new RegexException("Could not parse pattern " + pattern);

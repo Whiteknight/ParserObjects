@@ -10,6 +10,13 @@ public static class SequenceOptions
     /// will be proportional to this value.
     /// </summary>
     public const int DefaultBufferSize = 1024;
+
+    public static SequenceOptions<char> ForRegex(string pattern)
+        => new SequenceOptions<char>
+        {
+            FileName = pattern,
+            MaintainLineEndings = true
+        };
 }
 
 public struct SequenceOptions<T>

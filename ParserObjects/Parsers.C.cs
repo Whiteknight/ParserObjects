@@ -71,18 +71,12 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _identifier
             = new Lazy<IParser<char, string>>(
-                static () =>
-                {
-                    var startChar = Match(static c => c == '_' || char.IsLetter(c));
-                    var bodyChar = Match(static c => c == '_' || char.IsLetterOrDigit(c));
-                    var parser = Capture(
-                        startChar,
-                        bodyChar.List()
-                    );
-                    return parser
-                        .Stringify()
-                        .Named("C-Style Identifier");
-                }
+                static () => Capture(
+                        Match(static c => c == '_' || char.IsLetter(c)),
+                        Match(static c => c == '_' || char.IsLetterOrDigit(c)).List()
+                    )
+                    .Stringify()
+                    .Named("C-Style Identifier")
             );
 
         /// <summary>
@@ -93,12 +87,10 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _integerString
             = new Lazy<IParser<char, string>>(
-                static () =>
-                {
-                    return CaptureString(
+                static () => CaptureString(
                         Integer()
-                    ).Named("C-Style Integer String");
-                }
+                    )
+                    .Named("C-Style Integer String")
             );
 
         /// <summary>
@@ -118,12 +110,10 @@ public static partial class Parsers
 
         private static readonly Lazy<IParser<char, string>> _longIntegerString
             = new Lazy<IParser<char, string>>(
-                static () =>
-                {
-                    return CaptureString(
+                static () => CaptureString(
                         LongInteger()
-                    ).Named("C-Style Long String");
-                }
+                    )
+                    .Named("C-Style Long String")
             );
 
         /// <summary>
