@@ -1,6 +1,7 @@
 ﻿using System;
 using ParserObjects.Internal.Parsers;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -11,17 +12,15 @@ public static partial class Parsers
     /// otherwise.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, object> EndOfLine() => _endOfLine.Value;
-
-    private static readonly Lazy<IParser<char, object>> _endOfLine
-        = new Lazy<IParser<char, object>>(
+    public static IParser<char, object> EndOfLine()
+        => GetOrCreate(
+            "End of Line",
             static () => PositiveLookahead(
                 First(
                     MatchChar('\n'),
                     End()
                 )
             )
-            .Named("End of Line")
         );
 
     /// <summary>
@@ -43,15 +42,11 @@ public static partial class Parsers
     /// Parses a line of text until a newline or end of input. Newline not included.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> Line() => _line.Value;
-
-    private static readonly Lazy<IParser<char, string>> _line = new Lazy<IParser<char, string>>(
-        static () =>
-        {
-            var notNewlineChar = Match(static c => c != '\n');
-            return notNewlineChar.ListCharToString();
-        }
-    );
+    public static IParser<char, string> Line()
+        => GetOrCreate(
+            "Line",
+            static () => Match(static c => c != '\n').ListCharToString()
+        );
 
     private static readonly IParser<char, object> _startOfLine = new SequenceFlagParser<char>(
         SequencePositionFlags.StartOfLine,

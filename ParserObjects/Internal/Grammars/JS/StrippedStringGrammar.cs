@@ -83,6 +83,6 @@ public static class StrippedStringGrammar
         return First(
             doubleQuotedString,
             singleQuotedString
-        ).Named("JavaScript-Style Stripped String");
+        );
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -10,11 +10,8 @@ public static partial class Parsers
     /// Parses a single digit 0-9.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> Digit() => _digit.Value;
-
-    private static readonly Lazy<IParser<char, char>> _digit = new Lazy<IParser<char, char>>(
-        static () => Match(char.IsDigit).Named("digit")
-    );
+    public static IParser<char, char> Digit()
+        => GetOrCreate("digit", static () => Match(char.IsDigit));
 
     /// <summary>
     /// Parses digits in series and returns them as a string with given minimum and maximum
@@ -30,12 +27,8 @@ public static partial class Parsers
     /// Parses digits in series and returns them as a string.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> DigitString() => _digitString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _digitString
-        = new Lazy<IParser<char, string>>(
-            static () => Digit().ListCharToString(true).Named("digits")
-        );
+    public static IParser<char, string> DigitString()
+        => GetOrCreate("digits", static () => Digit().ListCharToString(true));
 
     /// <summary>
     /// Parses digits in series, from 0-999,999,999 inclusive, and returns them as an integer.
@@ -57,32 +50,20 @@ public static partial class Parsers
     /// Parses a single non-zero digit 1-9.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> NonZeroDigit() => _nonZeroDigit.Value;
-
-    private static readonly Lazy<IParser<char, char>> _nonZeroDigit
-        = new Lazy<IParser<char, char>>(
-            static () => Match(static c => c != '0' && char.IsDigit(c)).Named("nonZeroDigit")
-        );
+    public static IParser<char, char> NonZeroDigit()
+        => GetOrCreate("nonZeroDigit", static () => Match(static c => c != '0' && char.IsDigit(c)));
 
     /// <summary>
     /// Returns a single hexadecimal digit: 0-9, a-f, A-F.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> HexadecimalDigit() => _hexadecimalDigit.Value;
-
-    private static readonly Lazy<IParser<char, char>> _hexadecimalDigit
-        = new Lazy<IParser<char, char>>(
-            static () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")).Named("hexDigit")
-        );
+    public static IParser<char, char> HexadecimalDigit()
+        => GetOrCreate("hexDigit", static () => MatchAny(new HashSet<char>("abcdefABCDEF0123456789")));
 
     /// <summary>
     /// Returns a sequence of at least one hexadecimal digits and returns them as a string.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> HexadecimalString() => _hexadecimalString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _hexadecimalString
-        = new Lazy<IParser<char, string>>(
-            static () => HexadecimalDigit().ListCharToString(true).Named("hexDigits")
-        );
+    public static IParser<char, string> HexadecimalString()
+        => GetOrCreate("hexDigits", static () => HexadecimalDigit().ListCharToString(true));
 }

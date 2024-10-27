@@ -2,6 +2,7 @@
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Regexes;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -29,8 +30,6 @@ public static partial class Parsers
     /// the RegexParser and RegexEngine.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, Regex> RegexPattern() => _regexPattern.Value;
-
-    private static readonly Lazy<IParser<char, Regex>> _regexPattern
-        = new Lazy<IParser<char, Regex>>(RegexPatternGrammar.CreateParser);
+    public static IParser<char, Regex> RegexPattern()
+        => GetOrCreate("Regex Pattern", RegexPatternGrammar.CreateParser);
 }
