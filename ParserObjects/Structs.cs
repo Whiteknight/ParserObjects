@@ -142,6 +142,13 @@ public readonly struct SequentialState<TInput>
             throw new Internal.Parsers.Sequential.ParseFailedException("Expect failed");
     }
 
+    public void Expect(TInput c)
+    {
+        var real = _state.Input.GetNext();
+        if (real?.Equals(c) != true)
+            Fail($"Expected {c} but found {real}");
+    }
+
     /// <summary>
     /// Attempt to invoke the parser but consume no input. Returns the result of the parser.
     /// </summary>

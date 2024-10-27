@@ -49,12 +49,12 @@ public static class StrippedStringGrammar
 
             if (c != '\\')
             {
-                ExpectEndQuote(s);
+                s.Expect('\'');
                 return c;
             }
 
             var value = ParseStrippedCharacterEscapeSequence(s);
-            ExpectEndQuote(s);
+            s.Expect('\'');
             return value;
         });
 
@@ -67,13 +67,6 @@ public static class StrippedStringGrammar
         s.Input.GetNext();
         if (s.Input.IsAtEnd)
             s.Fail("Unexpected end of input");
-    }
-
-    private static void ExpectEndQuote(SequentialState<char> s)
-    {
-        var endQuote = s.Input.GetNext();
-        if (endQuote != '\'')
-            s.Fail($"Expected close quote but found '{endQuote}'");
     }
 
     private static char ParseStrippedCharacterEscapeSequence(SequentialState<char> s)

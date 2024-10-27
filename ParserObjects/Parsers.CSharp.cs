@@ -16,7 +16,7 @@ public static partial class Parsers
                     foreach (var name in System.Enum.GetNames(typeof(TEnum)))
                         t.Add(name, (TEnum)System.Enum.Parse(typeof(TEnum), name));
                 },
-                CaseInsensitiveCharComparer.Instance
+                CharComparer.CaseInsensitive
             )
             .Named($"Enum({typeof(TEnum).Namespace}.{typeof(TEnum).Name}");
     }

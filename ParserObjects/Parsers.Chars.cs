@@ -56,14 +56,14 @@ public static partial class Parsers
     public static IParser<char, string> MatchAny(IEnumerable<string> patterns, bool caseInsensitive = false)
     {
         if (patterns == null)
-            return Fail<string>("No possibilities provide so nothing can match");
+            return Fail<string>("No possibilities provided so nothing can match");
 
-        var trie = caseInsensitive ? InsertableTrie<char, string>.Create(CaseInsensitiveCharComparer.Instance) : InsertableTrie<char, string>.Create();
+        var trie = caseInsensitive ? InsertableTrie<char, string>.Create(CharComparer.CaseInsensitive) : InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
 
         if (trie.Count == 0)
-            return Fail<string>("No possibilities provide so nothing can match");
+            return Fail<string>("No possibilities provided so nothing can match");
 
         var readable = ReadableTrie<char, string>.Create(trie);
         return new TrieParser<char, string>(readable);
@@ -91,7 +91,7 @@ public static partial class Parsers
     {
         if (string.IsNullOrEmpty(possibilities))
             return Fail("No possibilities provided so nothing can match");
-        var collection = new HashSet<char>(possibilities, caseInsensitive ? CaseInsensitiveCharComparer.Instance : CaseSensitiveCharComparer.Instance);
+        var collection = new HashSet<char>(possibilities, CharComparer.Get(!caseInsensitive));
         return new MatchPredicateParser<char, HashSet<char>>(collection, static (c, s) => s.Contains(c));
     }
 
@@ -116,10 +116,7 @@ public static partial class Parsers
         => string.IsNullOrEmpty(possibilities)
             ? Any()
             : new MatchPredicateParser<char, HashSet<char>>(
-                new HashSet<char>(possibilities, caseInsensitive
-                    ? CaseInsensitiveCharComparer.Instance
-                    : CaseSensitiveCharComparer.Instance
-                ),
+                new HashSet<char>(possibilities, CharComparer.Get(!caseInsensitive)),
                 static (c, s) => !s.Contains(c)
             );
 

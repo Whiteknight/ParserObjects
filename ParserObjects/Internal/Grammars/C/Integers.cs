@@ -24,9 +24,6 @@ public static class Integers
 
     public static IParser<char, int> CreateSignedIntegerParser()
     {
-        var nonZeroDigit = NonZeroDigit();
-        var digit = Digit();
-
         var decimalInteger = Sequential(static s =>
         {
             var sign = s.TryParse(MatchChar('-')).Success;
@@ -55,9 +52,6 @@ public static class Integers
 
     public static IParser<char, uint> CreateUnsignedIntegerParser()
     {
-        var nonZeroDigit = NonZeroDigit();
-        var digit = Digit();
-
         var decimalInteger = Sequential(static s =>
         {
             // Get the first digit, which cannot be zero.
@@ -83,9 +77,6 @@ public static class Integers
 
     public static IParser<char, long> CreateSignedLongParser()
     {
-        var nonZeroDigit = NonZeroDigit();
-        var digit = Digit();
-
         var decimalInteger = Sequential(static s =>
         {
             var sign = s.TryParse(MatchChar('-')).Success;
@@ -114,9 +105,6 @@ public static class Integers
 
     public static IParser<char, ulong> CreateUnsignedLongParser()
     {
-        var nonZeroDigit = NonZeroDigit();
-        var digit = Digit();
-
         var decimalInteger = Sequential(static s =>
         {
             // Get the first digit, which cannot be zero.
@@ -149,8 +137,8 @@ public static class Integers
 
     private static ulong ParseUnsignedHexLong(SequentialState<char> s, int maxDigits)
     {
-        s.Expect(MatchChar('0'));
-        s.Expect(MatchChar('x'));
+        s.Expect('0');
+        s.Expect('x');
 
         var digit = HexadecimalDigit();
         var firstDigit = s.Parse(digit);
