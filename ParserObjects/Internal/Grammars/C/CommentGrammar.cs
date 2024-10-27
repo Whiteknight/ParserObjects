@@ -7,23 +7,21 @@ public static class CommentGrammar
     public static IParser<char, string> CreateParser()
         => Sequential(static s =>
         {
-            if (s.Input.GetNext() != '/')
-                s.Fail();
-            if (s.Input.GetNext() != '*')
-                s.Fail();
+            s.Expect('/');
+            s.Expect('*');
 
             while (!s.Input.IsAtEnd)
             {
                 var c = s.Input.GetNext();
-                if (c == '*')
-                {
-                    var lookahead = s.Input.Peek();
-                    if (lookahead == '/')
-                    {
-                        s.Input.GetNext();
+                if (c != '*')
+                    continue;
 
-                        return new string(s.GetCapturedInputs());
-                    }
+                var lookahead = s.Input.Peek();
+                if (lookahead == '/')
+                {
+                    s.Input.GetNext();
+
+                    return new string(s.GetCapturedInputs());
                 }
             }
 
