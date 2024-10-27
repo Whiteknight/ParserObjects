@@ -9,8 +9,8 @@ public static class CamelCaseGrammar
 {
     public static IParser<char, IEnumerable<string>> CreateParser()
     {
-        var lowerCase = Match(char.IsLower);
-        var upperCase = Match(char.IsUpper);
+        var lowerCase = LowerCase();
+        var upperCase = UpperCase();
 
         // Any run of digits of any length is a string
         var digits = DigitString();
@@ -55,8 +55,8 @@ public static class CamelCaseGrammar
 
     public static IParser<char, IEnumerable<string>> CreateLowerParser()
     {
-        var lowerCase = Match(char.IsLower);
-        var upperCase = Match(char.IsUpper);
+        var lowerCase = LowerCase();
+        var upperCase = UpperCase();
 
         // Any run of digits of any length is a string
         var digits = DigitString();
@@ -93,8 +93,8 @@ public static class CamelCaseGrammar
 
     public static IParser<char, IEnumerable<string>> CreateUpperParser()
     {
-        var lowerCase = Match(char.IsLower);
-        var upperCase = Match(char.IsUpper);
+        var lowerCase = LowerCase();
+        var upperCase = UpperCase();
 
         // Any run of digits of any length is a string
         var digits = DigitString();
