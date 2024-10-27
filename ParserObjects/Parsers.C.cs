@@ -1,5 +1,5 @@
-﻿using System;
-using static ParserObjects.Parsers<char>;
+﻿using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -11,201 +11,141 @@ public static partial class Parsers
         /// C-style comment with '/*' ... '*/' delimiters.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> Comment() => _comment.Value;
-
-        private static readonly Lazy<IParser<char, string>> _comment
-            = new Lazy<IParser<char, string>>(Internal.Grammars.C.CommentGrammar.CreateParser);
+        public static IParser<char, string> Comment()
+            => GetOrCreate("C-Style Comment", Internal.Grammars.C.CommentGrammar.CreateParser);
 
         /// <summary>
         /// C-style Double literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> DoubleString() => _doubleString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _doubleString
-            = new Lazy<IParser<char, string>>(
+        public static IParser<char, string> DoubleString()
+            => GetOrCreate(
+                "C-Style Double String",
                 static () => Capture(IntegerString(), MatchChar('.'), DigitString())
                     .Stringify()
-                    .Named("C-Style Double String")
             );
 
         /// <summary>
         /// C-style float/double literal returned as a parsed Double.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, double> Double() => _double.Value;
-
-        private static readonly Lazy<IParser<char, double>> _double
-            = new Lazy<IParser<char, double>>(
-                static () => DoubleString()
-                    .Transform(double.Parse)
-                    .Named("C-Style Double Literal")
+        public static IParser<char, double> Double()
+            => GetOrCreate(
+                "C-Style Double Literal",
+                static () => DoubleString().Transform(double.Parse)
             );
 
         /// <summary>
         /// C-style hexadecimal literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> HexadecimalString() => _hexString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _hexString
-            = new Lazy<IParser<char, string>>(
-                static () => CaptureString(HexadecimalInteger())
-                    .Named("C-Style Hex String")
-            );
+        public static IParser<char, string> HexadecimalString()
+            => GetOrCreate("C-Style Hex String", static () => CaptureString(HexadecimalInteger()));
 
         /// <summary>
         /// C-style hexadecimal literal returned as an unsigned integer.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, uint> HexadecimalInteger() => _hexInteger.Value;
-
-        private static readonly Lazy<IParser<char, uint>> _hexInteger
-            = new Lazy<IParser<char, uint>>(Internal.Grammars.C.Integers.CreateHexUnsignedIntegerParser);
+        public static IParser<char, uint> HexadecimalInteger()
+            => GetOrCreate("C-Style Hex Unsigned Integer Literal", Internal.Grammars.C.Integers.CreateHexUnsignedIntegerParser);
 
         /// <summary>
         /// C-style Identifier.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> Identifier() => _identifier.Value;
-
-        private static readonly Lazy<IParser<char, string>> _identifier
-            = new Lazy<IParser<char, string>>(
+        public static IParser<char, string> Identifier()
+            => GetOrCreate(
+                "C-Style Identifier",
                 static () => Capture(
                         Match(static c => c == '_' || char.IsLetter(c)),
                         Match(static c => c == '_' || char.IsLetterOrDigit(c)).List()
                     )
                     .Stringify()
-                    .Named("C-Style Identifier")
             );
 
         /// <summary>
         /// C-style integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> IntegerString() => _integerString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _integerString
-            = new Lazy<IParser<char, string>>(
-                static () => CaptureString(
-                        Integer()
-                    )
-                    .Named("C-Style Integer String")
-            );
+        public static IParser<char, string> IntegerString()
+            => GetOrCreate("C-Style Integer String", static () => CaptureString(Integer()));
 
         /// <summary>
         /// C-style Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, int> Integer() => _integer.Value;
-
-        private static readonly Lazy<IParser<char, int>> _integer
-            = new Lazy<IParser<char, int>>(Internal.Grammars.C.Integers.CreateSignedIntegerParser);
+        public static IParser<char, int> Integer()
+            => GetOrCreate("C-Style Signed Integer Literal", Internal.Grammars.C.Integers.CreateSignedIntegerParser);
 
         /// <summary>
         /// C-style integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> LongIntegerString() => _longIntegerString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _longIntegerString
-            = new Lazy<IParser<char, string>>(
-                static () => CaptureString(
-                        LongInteger()
-                    )
-                    .Named("C-Style Long String")
-            );
+        public static IParser<char, string> LongIntegerString()
+            => GetOrCreate("C-Style Long String", static () => CaptureString(LongInteger()));
 
         /// <summary>
         /// C-style Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, long> LongInteger() => _longInteger.Value;
-
-        private static readonly Lazy<IParser<char, long>> _longInteger
-            = new Lazy<IParser<char, long>>(Internal.Grammars.C.Integers.CreateSignedLongParser);
+        public static IParser<char, long> LongInteger()
+            => GetOrCreate("C-Style Signed Long Literal", Internal.Grammars.C.Integers.CreateSignedLongParser);
 
         /// <summary>
         /// C-style unsigned integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> UnsignedIntegerString() => _unsignedIntegerString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _unsignedIntegerString
-            = new Lazy<IParser<char, string>>(
-                static () => CaptureString(
-                        UnsignedInteger()
-                    )
-                    .Named("C-Style Unsigned Integer String")
-            );
+        public static IParser<char, string> UnsignedIntegerString()
+            => GetOrCreate("C-Style Unsigned Integer String", static () => CaptureString(UnsignedInteger()));
 
         /// <summary>
         /// C-style Unsigned Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, uint> UnsignedInteger() => _unsignedInteger.Value;
-
-        private static readonly Lazy<IParser<char, uint>> _unsignedInteger
-            = new Lazy<IParser<char, uint>>(Internal.Grammars.C.Integers.CreateUnsignedIntegerParser);
+        public static IParser<char, uint> UnsignedInteger()
+            => GetOrCreate("C-Style Unsigned Integer Literal", Internal.Grammars.C.Integers.CreateUnsignedIntegerParser);
 
         /// <summary>
         /// C-style Unsigned Long Integer literal returned as a parsed Int32.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, ulong> UnsignedLongInteger() => _unsignedLongInteger.Value;
-
-        private static readonly Lazy<IParser<char, ulong>> _unsignedLongInteger
-            = new Lazy<IParser<char, ulong>>(Internal.Grammars.C.Integers.CreateUnsignedLongParser);
+        public static IParser<char, ulong> UnsignedLongInteger()
+            => GetOrCreate("C-Style Unsigned Long Literal", Internal.Grammars.C.Integers.CreateUnsignedLongParser);
 
         /// <summary>
         /// C-style unsigned long integer literal returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> UnsignedLongIntegerString() => _unsignedLongIntegerString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _unsignedLongIntegerString
-            = new Lazy<IParser<char, string>>(
-                static () => CaptureString(
-                        UnsignedLongInteger()
-                    )
-                    .Named("C-Style Unsigned Long Integer String")
-            );
+        public static IParser<char, string> UnsignedLongIntegerString()
+            => GetOrCreate("C-Style Unsigned Long Integer String", static () => CaptureString(UnsignedLongInteger()));
 
         /// <summary>
         /// Parse a C-style string, removing quotes and replacing escape sequences with their
         /// proper values.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> StrippedString() => _strippedString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _strippedString
-            = new Lazy<IParser<char, string>>(Internal.Grammars.C.StrippedStringGrammar.CreateStringParser);
+        public static IParser<char, string> StrippedString()
+            => GetOrCreate("C-Style Stripped String", Internal.Grammars.C.StrippedStringGrammar.CreateStringParser);
 
         /// <summary>
         /// Parse a C-style string, keeping quotes and escape sequences.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> String() => _string.Value;
-
-        private static readonly Lazy<IParser<char, string>> _string
-            = new Lazy<IParser<char, string>>(Internal.Grammars.C.StringGrammar.CreateStringParser);
+        public static IParser<char, string> String()
+            => GetOrCreate("C-Style String", Internal.Grammars.C.StringGrammar.CreateStringParser);
 
         /// <summary>
         /// Parses a C-style char literal, removing quotes and resolving escape sequences.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, char> StrippedCharacter() => _strippedCharacter.Value;
-
-        private static readonly Lazy<IParser<char, char>> _strippedCharacter
-            = new Lazy<IParser<char, char>>(Internal.Grammars.C.StrippedStringGrammar.CreateCharacterParser);
+        public static IParser<char, char> StrippedCharacter()
+            => GetOrCreate("C-Style Stripped Character", Internal.Grammars.C.StrippedStringGrammar.CreateCharacterParser);
 
         /// <summary>
         /// Parse a C-style char literal, keeping the quotes and escape sequences.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> Character() => _character.Value;
-
-        private static readonly Lazy<IParser<char, string>> _character
-            = new Lazy<IParser<char, string>>(Internal.Grammars.C.StringGrammar.CreateCharacterParser);
+        public static IParser<char, string> Character()
+            => GetOrCreate("C-Style Character", Internal.Grammars.C.StringGrammar.CreateCharacterParser);
     }
 }

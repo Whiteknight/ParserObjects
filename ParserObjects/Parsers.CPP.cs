@@ -1,4 +1,4 @@
-﻿using System;
+﻿using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -10,11 +10,7 @@ public static partial class Parsers
         /// C++-style comment '//' ...
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> Comment() => _comment.Value;
-
-        private static readonly Lazy<IParser<char, string>> _comment
-            = new Lazy<IParser<char, string>>(
-                static () => PrefixedLine("//").Named("C++-Style Comment")
-            );
+        public static IParser<char, string> Comment()
+            => GetOrCreate("C++-Style Comment", static () => PrefixedLine("//"));
     }
 }

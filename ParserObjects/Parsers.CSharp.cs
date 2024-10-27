@@ -7,8 +7,8 @@ public static partial class Parsers
 {
     public static class CSharp
     {
-        public static IParser<char, TEnum> Enum<TEnum>() =>
-            Trie<TEnum>(
+        public static IParser<char, TEnum> Enum<TEnum>()
+            => Trie<TEnum>(
                 t =>
                 {
                     // If the enum is integer-based, we should also be able to parse the integer and

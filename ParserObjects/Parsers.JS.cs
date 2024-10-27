@@ -1,5 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
+using ParserObjects.Internal;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -11,41 +12,33 @@ public static partial class Parsers
         /// JavaScript-style number literal, returned as a string.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> NumberString() => _numberString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _numberString
-            = new Lazy<IParser<char, string>>(Internal.Grammars.JS.NumberGrammar.CreateParser);
+        public static IParser<char, string> NumberString()
+            => GetOrCreate("JavaScript-Style Number String", Internal.Grammars.JS.NumberGrammar.CreateParser);
 
         /// <summary>
         /// JavaScript-style number literal returned as a parsed Double.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, double> Number() => _number.Value;
-
-        private static readonly Lazy<IParser<char, double>> _number = new Lazy<IParser<char, double>>(
-            () => NumberString()
-                .Transform(static s => double.Parse(s, NumberStyles.Float))
-                .Named("JavaScript-Style Number Literal")
-        );
+        public static IParser<char, double> Number()
+            => GetOrCreate(
+                "JavaScript-Style Number Literal",
+                static () => NumberString().Transform(static s => double.Parse(s, NumberStyles.Float))
+            );
 
         /// <summary>
         /// Parse a JavaScript-style string, removing quotes and replacing escape sequences
         /// with their literal values.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> StrippedString() => _strippedString.Value;
-
-        private static readonly Lazy<IParser<char, string>> _strippedString
-            = new Lazy<IParser<char, string>>(Internal.Grammars.JS.StrippedStringGrammar.CreateParser);
+        public static IParser<char, string> StrippedString()
+            => GetOrCreate("JavaScript-Style Stripped String", Internal.Grammars.JS.StrippedStringGrammar.CreateParser);
 
         /// <summary>
         /// Parse a JavaScript-style string, returning the complete string literal with quotes
         /// and escape sequences unmodified.
         /// </summary>
         /// <returns></returns>
-        public static IParser<char, string> String() => _string.Value;
-
-        private static readonly Lazy<IParser<char, string>> _string
-            = new Lazy<IParser<char, string>>(Internal.Grammars.JS.StringGrammar.CreateParser);
+        public static IParser<char, string> String()
+            => GetOrCreate("JavaScript-Style String", Internal.Grammars.JS.StringGrammar.CreateParser);
     }
 }

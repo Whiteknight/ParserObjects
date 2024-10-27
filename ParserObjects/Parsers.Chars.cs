@@ -4,6 +4,7 @@ using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Tries;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -42,11 +43,8 @@ public static partial class Parsers
     /// Matches a Letter character.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> Letter() => _letter.Value;
-
-    private static readonly Lazy<IParser<char, char>> _letter = new Lazy<IParser<char, char>>(
-        static () => Match(char.IsLetter).Named("letter")
-    );
+    public static IParser<char, char> Letter()
+        => GetOrCreate("letter", static () => Match(char.IsLetter));
 
     /// <summary>
     /// Optimized implementation of First() which returns an input which matches any of the given pattern
@@ -198,11 +196,8 @@ public static partial class Parsers
     /// Matches a lower-case letter character.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> LowerCase() => _lowerCase.Value;
-
-    private static readonly Lazy<IParser<char, char>> _lowerCase = new Lazy<IParser<char, char>>(
-        static () => Match(char.IsLower).Named("lowerCase")
-    );
+    public static IParser<char, char> LowerCase()
+        => GetOrCreate("lowerCase", static () => Match(char.IsLower));
 
     /// <summary>
     /// Given a parser which returns an array of characters, change it to a parser which returns
@@ -226,9 +221,6 @@ public static partial class Parsers
     /// Matches a symbol or punctuation character.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, char> Symbol() => _symbol.Value;
-
-    private static readonly Lazy<IParser<char, char>> _symbol = new Lazy<IParser<char, char>>(
-        static () => Match(static c => char.IsPunctuation(c) || char.IsSymbol(c)).Named("lowerCase")
-    );
+    public static IParser<char, char> Symbol()
+        => GetOrCreate("symbol", static () => Match(static c => char.IsPunctuation(c) || char.IsSymbol(c)));
 }

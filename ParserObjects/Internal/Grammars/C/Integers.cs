@@ -12,8 +12,7 @@ public static class Integers
             .Named("C-Style Hex Signed Integer Literal");
 
     public static IParser<char, uint> CreateHexUnsignedIntegerParser()
-        => Sequential(static s => (uint)ParseUnsignedHexLong(s, 8))
-            .Named("C-Style Hex Unsigned Integer Literal");
+        => Sequential(static s => (uint)ParseUnsignedHexLong(s, 8));
 
     public static IParser<char, long> CreateHexSignedLongParser()
         => Sequential(static s => ParseSignedHexLong(s, 16))
@@ -51,7 +50,7 @@ public static class Integers
             CreateHexSignedIntegerParser(),
             octalInteger,
             MatchChar('0').Transform(static _ => 0)
-        ).Named("C-Style Signed Integer Literal");
+        );
     }
 
     public static IParser<char, uint> CreateUnsignedIntegerParser()
@@ -79,7 +78,7 @@ public static class Integers
             CreateHexUnsignedIntegerParser(),
             octalInteger,
             MatchChar('0').Transform(_ => 0U)
-        ).Named("C-Style Unsigned Integer Literal");
+        );
     }
 
     public static IParser<char, long> CreateSignedLongParser()
@@ -110,7 +109,7 @@ public static class Integers
             CreateHexSignedLongParser(),
             octalInteger,
             MatchChar('0').Transform(_ => 0L)
-        ).Named("C-Style Signed Long Literal");
+        );
     }
 
     public static IParser<char, ulong> CreateUnsignedLongParser()
@@ -138,7 +137,7 @@ public static class Integers
             CreateHexUnsignedLongParser(),
             octalInteger,
             MatchChar('0').Transform(_ => 0UL)
-        ).Named("C-Style Unsigned Long Literal");
+        );
     }
 
     private static long ParseSignedHexLong(SequentialState<char> s, int maxDigits)

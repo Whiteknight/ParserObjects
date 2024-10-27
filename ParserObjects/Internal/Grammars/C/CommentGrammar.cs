@@ -29,5 +29,5 @@ public static class CommentGrammar
 
             s.Fail("Could not find */");
             return "";
-        }).Named("C-Style Comment");
+        });
 }

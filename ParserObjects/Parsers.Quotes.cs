@@ -1,5 +1,6 @@
 ﻿using System;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -10,22 +11,22 @@ public static partial class Parsers
     /// literal with quotes and escapes.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> DoubleQuotedString() => _doubleQuotedString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _doubleQuotedString = new Lazy<IParser<char, string>>(
-        static () => DelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Double-Quoted String")
-    );
+    public static IParser<char, string> DoubleQuotedString()
+        => GetOrCreate(
+            "Double-Quoted String",
+            static () => DelimitedStringWithEscapedDelimiters('"', '"', '\\')
+        );
 
     /// <summary>
     /// Single-quoted string literal, with backslash-escaped quotes. The returned string is the string
     /// literal with quotes and escapes.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> SingleQuotedString() => _singleQuotedString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _singleQuotedString = new Lazy<IParser<char, string>>(
-        static () => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Single-Quoted String")
-    );
+    public static IParser<char, string> SingleQuotedString()
+        => GetOrCreate(
+            "Single-Quoted String",
+            static () => DelimitedStringWithEscapedDelimiters('\'', '\'', '\\')
+        );
 
     /// <summary>
     /// A parser for delimited strings. Returns the string literal with open sequence, close sequence,
@@ -52,22 +53,22 @@ public static partial class Parsers
     /// quotes and without internal escape sequences.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> StrippedDoubleQuotedString() => _strippedDoubleQuotedString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _strippedDoubleQuotedString = new Lazy<IParser<char, string>>(
-        static () => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\').Named("Stripped Double-Quoted String")
-    );
+    public static IParser<char, string> StrippedDoubleQuotedString()
+        => GetOrCreate(
+            "Stripped Double-Quoted String",
+            static () => StrippedDelimitedStringWithEscapedDelimiters('"', '"', '\\')
+        );
 
     /// <summary>
     /// Single-quoted string with backslash-escaped quotes. The returned string is the string without
     /// quotes and without internal escape sequences.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, string> StrippedSingleQuotedString() => _strippedSingleQuotedString.Value;
-
-    private static readonly Lazy<IParser<char, string>> _strippedSingleQuotedString = new Lazy<IParser<char, string>>(
-        static () => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Stripped Single-Quoted String")
-    );
+    public static IParser<char, string> StrippedSingleQuotedString()
+        => GetOrCreate(
+            "Stripped Single-Quoted String",
+            static () => StrippedDelimitedStringWithEscapedDelimiters('\'', '\'', '\\').Named("Stripped Single-Quoted String")
+        );
 
     /// <summary>
     /// A parser for delimited strings. Returns the string literal, stripped of open sequence, close
