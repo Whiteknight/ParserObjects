@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
 
@@ -11,40 +12,33 @@ public static partial class Parsers
     /// the identifier. Parses lowerCamelCase and UpperCamelCase.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> CamelCase() => _camelCase.Value;
-
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _camelCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(Internal.Grammars.Casing.CamelCaseGrammar.CreateParser);
+    public static IParser<char, IEnumerable<string>> CamelCase()
+        => GetOrCreate("CamelCase Words", Internal.Grammars.Casing.CamelCaseGrammar.CreateParser);
 
     /// <summary>
     /// Parses a lowerCamelCase identifier. If the first character is a letter, it is
     /// expected to be lower-case.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> LowerCamelCase() => _lowerCamelCase.Value;
-
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _lowerCamelCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(Internal.Grammars.Casing.CamelCaseGrammar.CreateLowerParser);
+    public static IParser<char, IEnumerable<string>> LowerCamelCase()
+        => GetOrCreate("LowerCamelCase Words", Internal.Grammars.Casing.CamelCaseGrammar.CreateLowerParser);
 
     /// <summary>
     /// Parses an UpperCamelCase string. If the first character is a letter, it is expected to
     /// be upper-case. Also known as 'Pascal Case'.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IEnumerable<string>> UpperCamelCase() => _upperCamelCase.Value;
-
-    private static readonly Lazy<IParser<char, IEnumerable<string>>> _upperCamelCase
-        = new Lazy<IParser<char, IEnumerable<string>>>(Internal.Grammars.Casing.CamelCaseGrammar.CreateUpperParser);
+    public static IParser<char, IEnumerable<string>> UpperCamelCase()
+        => GetOrCreate("UpperCamelCase Words", Internal.Grammars.Casing.CamelCaseGrammar.CreateUpperParser);
 
     /// <summary>
     /// Matches a spinal-case identifier, with words separated by dashes. Characters can be
     /// letters of any case or digits. This is also known as 'kebab-case' or 'lisp-case'.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IReadOnlyList<string>> SpinalCase() => _spinalCase.Value;
-
-    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _spinalCase
-        = new Lazy<IParser<char, IReadOnlyList<string>>>(
+    public static IParser<char, IReadOnlyList<string>> SpinalCase()
+        => GetOrCreate(
+            "SpinalCase Words",
             static () =>
             {
                 var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '-');
@@ -59,15 +53,14 @@ public static partial class Parsers
     /// dashes. Words may contain upper-case letters or digits.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IReadOnlyList<string>> ScreamingSpinalCase() => _screamingSpinalCase.Value;
-
-    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSpinalCase
-        = new Lazy<IParser<char, IReadOnlyList<string>>>(
+    public static IParser<char, IReadOnlyList<string>> ScreamingSpinalCase()
+        => GetOrCreate(
+            "ScreamingSpinalCase Words",
             static () =>
             {
                 var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
                 var word = idChar.ListCharToString();
-                var separator = Match('-');
+                var separator = MatchChar('-');
                 return word.List(separator, atLeastOne: true);
             }
         );
@@ -77,10 +70,9 @@ public static partial class Parsers
     /// underscores. Also known as pothole_case.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IReadOnlyList<string>> SnakeCase() => _snakeCase.Value;
-
-    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _snakeCase
-        = new Lazy<IParser<char, IReadOnlyList<string>>>(
+    public static IParser<char, IReadOnlyList<string>> SnakeCase()
+        => GetOrCreate(
+            "SnakeCase Words",
             static () =>
             {
                 var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '_');
@@ -95,10 +87,9 @@ public static partial class Parsers
     /// underscores. Also known as MACRO_CASE or CONSTANT_CASE.
     /// </summary>
     /// <returns></returns>
-    public static IParser<char, IReadOnlyList<string>> ScreamingSnakeCase() => _screamingSnakeCase.Value;
-
-    private static readonly Lazy<IParser<char, IReadOnlyList<string>>> _screamingSnakeCase
-        = new Lazy<IParser<char, IReadOnlyList<string>>>(
+    public static IParser<char, IReadOnlyList<string>> ScreamingSnakeCase()
+        => GetOrCreate(
+            "ScreamingSnakeCase Words",
             static () =>
             {
                 var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');

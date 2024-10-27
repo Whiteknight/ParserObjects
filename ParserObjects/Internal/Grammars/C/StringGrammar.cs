@@ -39,7 +39,7 @@ public static class StringGrammar
 
             s.Fail("No end quote");
             return "";
-        }).Named("C-Style String");
+        });
 
     public static IParser<char, string> CreateCharacterParser()
         => Sequential(static s =>
@@ -63,7 +63,7 @@ public static class StringGrammar
             ParseEscapeSequence(s, sb, true);
             ExpectEndQuote(s, sb);
             return sb.ToString();
-        }).Named("C-Style Character");
+        });
 
     private static char CheckForUnexpectedCharEnd(SequentialState<char> s)
     {

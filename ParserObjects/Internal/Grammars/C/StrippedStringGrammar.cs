@@ -36,7 +36,7 @@ public static class StrippedStringGrammar
 
             s.Fail("No end quote");
             return "";
-        }).Named("C-Style Stripped String");
+        });
 
     public static IParser<char, char> CreateCharacterParser()
         => Sequential(static s =>
@@ -56,7 +56,7 @@ public static class StrippedStringGrammar
             var value = ParseStrippedCharacterEscapeSequence(s);
             ExpectEndQuote(s);
             return value;
-        }).Named("C-Style Stripped Character");
+        });
 
     private static void CheckForCharPreamble(SequentialState<char> s)
     {

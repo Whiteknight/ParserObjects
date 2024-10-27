@@ -82,6 +82,6 @@ public static class StringGrammar
         return First(
             doubleQuotedString,
             singleQuotedString
-        ).Named("JavaScript-Style String");
+        );
     }
 }

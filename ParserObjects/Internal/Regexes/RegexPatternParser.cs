@@ -109,8 +109,7 @@ public static class RegexPatternGrammar
         );
 
         return (regex, End()).Rule(static (r, _) => r)
-            .Transform(static r => new Regex(r))
-            .Named("RegexPattern");
+            .Transform(static r => new Regex(r));
     }
 
     private static char GetUnescapedCharacter(PrattParseContext<char, List<IState>> ctx, char c)
