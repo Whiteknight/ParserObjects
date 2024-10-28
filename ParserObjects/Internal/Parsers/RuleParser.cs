@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
+using System.Linq;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -15,15 +15,23 @@ public static class Rule
      * be quite messy. The Parser class implements the parser logic.
      */
 
-    public static Parser<TInput, TOutput, TData> Create<TInput, TOutput, TData>(
+    public static IParser<TInput, TOutput> Create<TInput, TOutput, TData>(
         IReadOnlyList<IParser<TInput>> parsers,
         TData data,
-        Func<TData, IReadOnlyList<object>, TOutput> produce,
-        bool keepsArrayReference
-    )
-    {
-        return new Parser<TInput, TOutput, TData>(parsers, data, produce, keepsArrayReference);
-    }
+        Func<TData, IReadOnlyList<object>, TOutput> produce
+    ) => new Parser<TInput, TOutput, TData, IParser<TInput>, object>(parsers, data,
+            static (state, parser) => parser.Parse(state),
+            static (state, parser) => parser.Match(state),
+            produce);
+
+    public static IParser<TInput, TOutput> CreateTyped<TInput, TItem, TOutput, TData>(
+        IReadOnlyList<IParser<TInput, TItem>> parsers,
+        TData data,
+        Func<TData, IReadOnlyList<TItem>, TOutput> produce
+    ) => new Parser<TInput, TOutput, TData, IParser<TInput, TItem>, TItem>(parsers, data,
+            static (state, parser) => parser.Parse(state),
+            static (state, parser) => parser.Match(state),
+            produce);
 
     /// <summary>
     /// Parses a list of steps in sequence and produces a single output as a combination of outputs
@@ -32,30 +40,31 @@ public static class Rule
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     /// <typeparam name="TData"></typeparam>
+    /// <typeparam name="TParser"></typeparam>
+    /// <typeparam name="TItem"></typeparam>
     /// <param name="Parsers"></param>
     /// <param name="Data"></param>
+    /// <param name="ParseItem"></param>
+    /// <param name="MatchItem"></param>
     /// <param name="Produce"></param>
-    /// <param name="KeepsArrayReference"></param>
     /// <param name="Name"></param>
-    public sealed record Parser<TInput, TOutput, TData>(
-        IReadOnlyList<IParser<TInput>> Parsers,
+    public sealed record Parser<TInput, TOutput, TData, TParser, TItem>(
+        IReadOnlyList<TParser> Parsers,
         TData Data,
-        Func<TData, IReadOnlyList<object>, TOutput> Produce,
-        bool KeepsArrayReference,
+        Func<IParseState<TInput>, TParser, Result<TItem>> ParseItem,
+        Func<IParseState<TInput>, TParser, bool> MatchItem,
+        Func<TData, IReadOnlyList<TItem>, TOutput> Produce,
         string Name = ""
 
     ) : IParser<TInput, TOutput>
+        where TParser : IParser
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
-            var outputs = KeepsArrayReference ? new object[Parsers.Count] : ArrayPool<object>.Shared.Rent(Parsers.Count);
-            var result = Parse(state, outputs);
-            if (!KeepsArrayReference)
-                ArrayPool<object>.Shared.Return(outputs);
-            return result;
+            return Parse(state, new TItem[Parsers.Count]);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -68,7 +77,7 @@ public static class Rule
 
             for (int i = 0; i < Parsers.Count; i++)
             {
-                var result = Parsers[i].Match(state);
+                var result = MatchItem(state, Parsers[i]);
                 if (result)
                     continue;
 
@@ -84,7 +93,7 @@ public static class Rule
             return true;
         }
 
-        public IEnumerable<IParser> GetChildren() => Parsers;
+        public IEnumerable<IParser> GetChildren() => Parsers.Cast<IParser>();
 
         public override string ToString() => DefaultStringifier.ToString("Rule", Name, Id);
 
@@ -96,12 +105,12 @@ public static class Rule
             visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }
 
-        private Result<TOutput> Parse(IParseState<TInput> state, object[] outputs)
+        private Result<TOutput> Parse(IParseState<TInput> state, TItem[] outputs)
         {
             var startCheckpoint = state.Input.Checkpoint();
             for (int i = 0; i < Parsers.Count; i++)
             {
-                var result = Parsers[i].Parse(state);
+                var result = ParseItem(state, Parsers[i]);
                 if (result.Success)
                 {
                     outputs[i] = result.Value;

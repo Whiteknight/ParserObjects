@@ -119,11 +119,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
         => parsers == null || parsers.Length == 0
             ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
-            : (IParser<TInput, IReadOnlyList<object>>)Internal.Parsers.Rule.Create(
+            : Internal.Parsers.Rule.Create(
                 parsers,
                 Defaults.ObjectInstance,
-                static (_, r) => r,
-                true
+                static (_, r) => r
             );
 
     /// <summary>
@@ -135,11 +134,19 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
         => parsers == null || parsers.Count == 0
             ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
-            : (IParser<TInput, IReadOnlyList<object>>)Internal.Parsers.Rule.Create(
+            : Internal.Parsers.Rule.Create(
                 parsers,
                 Defaults.ObjectInstance,
-                static (_, r) => r,
-                true
+                static (_, r) => r
+            );
+
+    public static IParser<TInput, IReadOnlyList<TItem>> Combine<TItem>(IReadOnlyList<IParser<TInput, TItem>> parsers)
+        => parsers == null || parsers.Count == 0
+            ? Produce(static () => (IReadOnlyList<TItem>)Array.Empty<TItem>())
+            : Internal.Parsers.Rule.CreateTyped(
+                parsers,
+                Defaults.ObjectInstance,
+                static (_, r) => r
             );
 
     /// <summary>
