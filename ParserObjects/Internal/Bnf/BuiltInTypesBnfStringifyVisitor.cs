@@ -429,7 +429,8 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(children[0], " (", children[1], string.IsNullOrEmpty(p.Name) ? " SELF" : $" <{p.Name}>)*");
     }
 
-    public void Accept<TInput, TOutput, TData>(Rule.Parser<TInput, TOutput, TData> p, BnfStringifyState state)
+    public void Accept<TInput, TOutput, TData, TParser, TItem>(Rule.Parser<TInput, TOutput, TData, TParser, TItem> p, BnfStringifyState state)
+        where TParser : IParser
     {
         var children = p.GetChildren().ToArray();
         state.Append("(", children[0]);

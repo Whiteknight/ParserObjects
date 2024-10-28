@@ -91,7 +91,8 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.MultiParser p, TState state);
 
-    void Accept<TInput, TOutput, TData>(Rule.Parser<TInput, TOutput, TData> p, TState state);
+    void Accept<TInput, TOutput, TData, TParser, TItem>(Rule.Parser<TInput, TOutput, TData, TParser, TItem> p, TState state)
+        where TParser : IParser;
 
     void Accept<TInput, TOutput>(SynchronizeParser<TInput, TOutput> p, TState state);
 
