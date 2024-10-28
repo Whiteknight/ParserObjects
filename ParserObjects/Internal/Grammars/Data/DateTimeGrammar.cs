@@ -11,6 +11,214 @@ public static class DateTimeGrammar
 {
     // https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings
 
+    /* A format string like "yyyy MM DD" becomes a list of parsers like:
+     *
+     *      (yearyyyy, literal, monthMM, literal, daydd)
+     *
+     * Then when we parse a string like "2024 01 02" we parse the year, the literal space, the
+     * month, the literal space and the day.
+     *
+     * Each format specifier creates a parser that matches some input and returns a Part. Then
+     * we take an empty DateTime and add each Part to the DateTime, one after the other. Anything
+     * that isn't a known format specified is a "literal", which matches that single character
+     * and returns a Part which does nothing. ':' and '/' matches the current time separator and
+     * date separator, respectively. The `\` escapes the next character so it isn't treated as a
+     * format specifier.
+     *
+     * The final parser is a Compose() over a list of IParser<char, Part>, and then a .Transform
+     * to convert a list of Parts to a DateTime
+     */
+
+    private static readonly Lazy<IParser<char, IParser<char, Part>>> _dateParts = new Lazy<IParser<char, IParser<char, Part>>>(
+        () =>
+        {
+            var yearyyyy = DigitsAsInteger(4, 4).Transform(static y => new Part(PartType.Year, y));
+
+            // MM expects 2 digits, so take two and do the bounds check in MonthPart
+            var monthMM = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Month, m));
+
+            var monthM = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 12);
+                return new Part(PartType.Month, value);
+            });
+
+            var monthMMM = Trie<int>(static t =>
+            {
+                for (int i = 0; i < 12; i++)
+                    t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
+            }).Transform(static m => new Part(PartType.Month, m));
+
+            var monthMMMM = Trie<int>(static t =>
+            {
+                for (int i = 0; i < 12; i++)
+                    t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
+            }).Transform(static m => new Part(PartType.Month, m));
+
+            var dayd = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 31);
+                return new Part(PartType.Day, value);
+            });
+
+            var daydd = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Day, m));
+
+            // ddd and dddd specifiers are for day-of-week which is useful for .ToString() but
+            // not currently useful for parsing.
+            // yy may be useful for 2-digit year parsing, but it would be limited to current century
+            return Trie<IParser<char, Part>>(t => t
+                .Add("yyyy", yearyyyy)
+                .Add("MMMM", monthMMMM)
+                .Add("MMM", monthMMM)
+                .Add("MM", monthMM)
+                .Add("M", monthM)
+                .Add("dd", daydd)
+                .Add("d", dayd)
+            );
+        }
+    );
+
+    private static readonly Lazy<IParser<char, IParser<char, Part>>> _timeParts = new Lazy<IParser<char, IParser<char, Part>>>(
+        () =>
+        {
+            // For each format specifier, when we match it, return an instance of an "internal"
+            // parser to handle values of that type.
+            var hourHH = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Hour, m));
+            var hourH = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 24);
+                return new Part(PartType.Hour, value);
+            });
+
+            var hourhh = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Hour, m));
+            var hourh = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 12);
+                return new Part(PartType.Hour, value);
+            });
+
+            var minutemm = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Minute, m));
+            var minutem = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 59);
+                return new Part(PartType.Minute, value);
+            });
+
+            var secondss = DigitsAsInteger(1, 2).Transform(static m => new Part(PartType.Second, m));
+            var seconds = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 59);
+                return new Part(PartType.Second, value);
+            });
+
+            var millisecondfffff = DigitsAsInteger(5, 5)
+                .Transform(static m => new Part(PartType.Millisecond, m / 100));
+            var millisecondffff = DigitsAsInteger(4, 4)
+                .Transform(static m => new Part(PartType.Millisecond, m / 10));
+            var millisecondfff = DigitsAsInteger(3, 3)
+                .Transform(static m => new Part(PartType.Millisecond, m));
+            var millisecondff = DigitsAsInteger(2, 2)
+                .Transform(static m => new Part(PartType.Millisecond, m * 10));
+            var millisecondf = DigitsAsInteger(1, 1)
+                .Transform(static m => new Part(PartType.Millisecond, m * 100));
+
+            return Trie<IParser<char, Part>>(t => t
+                .Add("HH", hourHH)
+                .Add("H", hourH)
+                .Add("hh", hourhh)
+                .Add("h", hourh)
+                .Add("m", minutem)
+                .Add("mm", minutemm)
+                .Add("s", seconds)
+                .Add("ss", secondss)
+                .Add("f", millisecondf)
+                .Add("ff", millisecondff)
+                .Add("fff", millisecondfff)
+                .Add("ffff", millisecondffff)
+                .Add("fffff", millisecondfffff)
+            );
+        }
+    );
+
+    private static readonly Lazy<IParser<char, IParser<char, Part>>> _literal = new Lazy<IParser<char, IParser<char, Part>>>(
+        () =>
+        {
+            // A literal matches any single character which isn't one of the format specifiers.
+            // It would be nice if this method could consume mulitiple characters into a string
+            // and ignore them all together, but for now this works and isn't too memory-intensive
+            // for simple formats.
+            var currentTimeSeparator = Match(DateTimeFormatInfo.CurrentInfo.TimeSeparator)
+                .Transform(static _ => Part.Literal);
+            var currentDateSeparator = Match(DateTimeFormatInfo.CurrentInfo.DateSeparator)
+                .Transform(static _ => Part.Literal);
+            return First(
+                Rule(
+                    Match('\\'),
+                    Any(),
+                    static (_, c) => MatchChar(c).Transform(static _ => Part.Literal)
+                ),
+                Match(':').Transform(currentTimeSeparator, static (p, _) => p),
+                Match('/').Transform(currentDateSeparator, static (p, _) => p),
+                Any().Transform(static c => MatchChar(c).Transform(static _ => Part.Literal))
+            ).Named("literal");
+        }
+    );
+
+    public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
+        => First(
+            _dateParts.Value,
+            _timeParts.Value,
+            _literal.Value
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                for (int i = 0; i < results.Count; i++)
+                    dateTime = results[i].AddTo(dateTime);
+                return new DateTimeOffset(dateTime, TimeSpan.Zero);
+            })
+        )
+        .Named("DateAndTime Format");
+
+    public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
+        => First(
+            _dateParts.Value,
+            _literal.Value
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                for (int i = 0; i < results.Count; i++)
+                    dateTime = results[i].AddTo(dateTime);
+                return dateTime;
+            })
+        )
+        .Named("Date Format");
+
+    public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
+        => First(
+            _timeParts.Value,
+            _literal.Value
+        )
+        .List(1)
+        .FollowedBy(End())
+        .Transform(static parsers => Combine(parsers)
+            .Transform(static results =>
+            {
+                DateTime dateTime = DateTime.MinValue;
+                for (int i = 0; i < results.Count; i++)
+                    dateTime = results[i].AddTo(dateTime);
+                return dateTime.TimeOfDay;
+            })
+        )
+        .Named("Time Format");
+
     private static int ParseBounded2DigitValue(SequentialState<char> s, int maxValue)
     {
         var firstDigit = s.Parse(Digit());
@@ -33,307 +241,33 @@ public static class DateTimeGrammar
         return newValue;
     }
 
-    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _dateParts = new Lazy<IParser<char, IParser<char, IPart>>>(
-        () =>
-        {
-            var yearyyyy = DigitsAsInteger(4, 4).Transform(static y => (IPart)new YearPart(y));
-
-            // MM expects 2 digits, so take two and do the bounds check in MonthPart
-            var monthMM = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MonthPart(m));
-
-            var monthM = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 12);
-                return (IPart)new MonthPart(value);
-            });
-
-            var monthMMM = Trie<int>(static t =>
-            {
-                for (int i = 0; i < 12; i++)
-                    t.Add(DateTimeFormatInfo.CurrentInfo.AbbreviatedMonthNames[i], i + 1);
-            }).Transform(static m => (IPart)new MonthPart(m));
-
-            var monthMMMM = Trie<int>(static t =>
-            {
-                for (int i = 0; i < 12; i++)
-                    t.Add(DateTimeFormatInfo.CurrentInfo.MonthNames[i], i + 1);
-            }).Transform(static m => (IPart)new MonthPart(m));
-
-            var dayd = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 31);
-                return (IPart)new DayPart(value);
-            });
-
-            var daydd = DigitsAsInteger(2, 2).Transform(static m => (IPart)new DayPart(m));
-
-            // ddd and dddd specifiers are for day-of-week which is useful for .ToString() but
-            // not currently useful for parsing.
-            // yy may be useful for 2-digit year parsing, but it would be limited to current century
-            return Trie<IParser<char, IPart>>(t => t
-                .Add("yyyy", yearyyyy)
-                .Add("MMMM", monthMMMM)
-                .Add("MMM", monthMMM)
-                .Add("MM", monthMM)
-                .Add("M", monthM)
-                .Add("dd", daydd)
-                .Add("d", dayd)
-            );
-        }
-    );
-
-    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _timeParts = new Lazy<IParser<char, IParser<char, IPart>>>(
-        () =>
-        {
-            // For each format specifier, when we match it, return an instance of an "internal"
-            // parser to handle values of that type.
-            var hourHH = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
-            var hourH = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 24);
-                return (IPart)new HourPart(value);
-            });
-
-            var hourhh = DigitsAsInteger(2, 2).Transform(static m => (IPart)new HourPart(m));
-            var hourh = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 12);
-                return (IPart)new HourPart(value);
-            });
-
-            var minutemm = DigitsAsInteger(2, 2).Transform(static m => (IPart)new MinutePart(m));
-
-            var minutem = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 59);
-
-                return (IPart)new MinutePart(value);
-            });
-
-            var secondss = DigitsAsInteger(1, 2).Transform(static m => (IPart)new SecondPart(m));
-
-            var seconds = Sequential(s =>
-            {
-                var value = ParseBounded2DigitValue(s, 59);
-
-                return (IPart)new SecondPart(value);
-            });
-
-            var millisecondfffff = DigitsAsInteger(5, 5)
-                .Transform(static m => (IPart)new MillisecondPart(m / 100));
-            var millisecondffff = DigitsAsInteger(4, 4)
-                .Transform(static m => (IPart)new MillisecondPart(m / 10));
-            var millisecondfff = DigitsAsInteger(3, 3)
-                .Transform(static m => (IPart)new MillisecondPart(m));
-            var millisecondff = DigitsAsInteger(2, 2)
-                .Transform(static m => (IPart)new MillisecondPart(m * 10));
-            var millisecondf = DigitsAsInteger(1, 1)
-                .Transform(static m => (IPart)new MillisecondPart(m * 100));
-
-            return Trie<IParser<char, IPart>>(t => t
-                .Add("HH", hourHH)
-                .Add("H", hourH)
-                .Add("hh", hourhh)
-                .Add("h", hourh)
-                .Add("m", minutem)
-                .Add("mm", minutemm)
-                .Add("s", seconds)
-                .Add("ss", secondss)
-                .Add("f", millisecondf)
-                .Add("ff", millisecondff)
-                .Add("fff", millisecondfff)
-                .Add("ffff", millisecondffff)
-                .Add("fffff", millisecondfffff)
-            );
-        }
-    );
-
-    private static readonly Lazy<IParser<char, IParser<char, IPart>>> _literal = new Lazy<IParser<char, IParser<char, IPart>>>(
-        () =>
-        {
-            // A literal matches any single character which isn't one of the format specifiers.
-            // It would be nice if this method could consume mulitiple characters into a string
-            // and ignore them all together, but for now this works and isn't too memory-intensive
-            // for simple formats.
-            var currentTimeSeparator = Match(DateTimeFormatInfo.CurrentInfo.TimeSeparator)
-                .Transform(static _ => (IPart)LiteralPart.Instance);
-            var currentDateSeparator = Match(DateTimeFormatInfo.CurrentInfo.DateSeparator)
-                .Transform(static _ => (IPart)LiteralPart.Instance);
-            return First(
-                Rule(
-                    Match('\\'),
-                    Any(),
-                    static (_, c) => MatchChar(c).Transform(static _ => (IPart)LiteralPart.Instance)
-                ),
-                Match(':').Transform(currentTimeSeparator, static (p, _) => p),
-                Match('/').Transform(currentDateSeparator, static (p, _) => p),
-                Any().Transform(static c => MatchChar(c).Transform(static _ => (IPart)LiteralPart.Instance))
-            ).Named("literal");
-        }
-    );
-
-    public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
-        => First(
-            _dateParts.Value,
-            _timeParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                foreach (var result in results)
-                    dateTime = ((IPart)result).AddTo(dateTime);
-                return new DateTimeOffset(dateTime, TimeSpan.Zero);
-            })
-        )
-        .Named("DateAndTime Format");
-
-    public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
-        => First(
-            _dateParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                foreach (var result in results)
-                    dateTime = ((IPart)result).AddTo(dateTime);
-                return dateTime;
-            })
-        )
-        .Named("Date Format");
-
-    public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
-        => First(
-            _timeParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                foreach (var result in results)
-                    dateTime = ((IPart)result).AddTo(dateTime);
-                return dateTime.TimeOfDay;
-            })
-        )
-        .Named("Time Format");
-
-    private interface IPart
+    private enum PartType
     {
-        DateTime AddTo(DateTime dt);
+        Literal = 0,
+        Year,
+        Month,
+        Day,
+        Hour,
+        Minute,
+        Second,
+        Millisecond
     }
 
-    private sealed class YearPart : IPart
+    private readonly record struct Part(PartType Type, int Value)
     {
-        private readonly int _value;
-
-        public YearPart(int value)
-        {
-            Assert.ArgumentGreaterThanOrEqualTo(value, 1);
-            _value = value;
-        }
+        public static Part Literal => new Part(PartType.Literal, 0);
 
         public DateTime AddTo(DateTime dt)
-            => new DateTime(_value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-    }
-
-    private sealed class MonthPart : IPart
-    {
-        private readonly int _value;
-
-        public MonthPart(int value)
-        {
-            Assert.ArgumentInRange(value, 1, 12);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, _value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-    }
-
-    private sealed class DayPart : IPart
-    {
-        private readonly int _value;
-
-        public DayPart(int value)
-        {
-            Assert.ArgumentInRange(value, 1, 31);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, dt.Month, _value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
-    }
-
-    private sealed class HourPart : IPart
-    {
-        private readonly int _value;
-
-        public HourPart(int value)
-        {
-            Assert.ArgumentInRange(value, 0, 23);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, dt.Month, dt.Day, _value, dt.Minute, dt.Second, dt.Millisecond);
-    }
-
-    private sealed class MinutePart : IPart
-    {
-        private readonly int _value;
-
-        public MinutePart(int value)
-        {
-            Assert.ArgumentInRange(value, 0, 59);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, _value, dt.Second, dt.Millisecond);
-    }
-
-    private sealed class SecondPart : IPart
-    {
-        private readonly int _value;
-
-        public SecondPart(int value)
-        {
-            Assert.ArgumentInRange(value, 0, 59);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, _value, dt.Millisecond);
-    }
-
-    private sealed class MillisecondPart : IPart
-    {
-        private readonly int _value;
-
-        public MillisecondPart(int value)
-        {
-            Assert.ArgumentInRange(value, 0, 999);
-            _value = value;
-        }
-
-        public DateTime AddTo(DateTime dt)
-            => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, _value);
-    }
-
-    private sealed class LiteralPart : IPart
-    {
-        public static LiteralPart Instance { get; } = new LiteralPart();
-
-        public DateTime AddTo(DateTime dt) => dt;
+            => Type switch
+            {
+                PartType.Year => new DateTime(Value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
+                PartType.Month => new DateTime(dt.Year, Value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
+                PartType.Day => new DateTime(dt.Year, dt.Month, Value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
+                PartType.Hour => new DateTime(dt.Year, dt.Month, dt.Day, Value, dt.Minute, dt.Second, dt.Millisecond),
+                PartType.Minute => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, Value, dt.Second, dt.Millisecond),
+                PartType.Second => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, Value, dt.Millisecond),
+                PartType.Millisecond => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, Value),
+                _ => dt
+            };
     }
 }
