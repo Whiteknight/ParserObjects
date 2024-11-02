@@ -2,6 +2,7 @@
 using System.Globalization;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects.Internal.Grammars.Data;
 
@@ -29,14 +30,72 @@ public static class DateTimeGrammar
      * to convert a list of Parts to a DateTime
      */
 
-    private static readonly Lazy<IParser<char, IParser<char, Part>>> _dateParts = new Lazy<IParser<char, IParser<char, Part>>>(
-        () =>
+    public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
+        => GetOrCreate("DateTime Format", () => First(
+                DateParts(),
+                TimeParts(),
+                Literal()
+            )
+            .List(1)
+            .FollowedBy(End())
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    for (int i = 0; i < results.Count; i++)
+                        dateTime = results[i].AddTo(dateTime);
+                    return new DateTimeOffset(dateTime, TimeSpan.Zero);
+                })
+            )
+        );
+
+    public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
+        => GetOrCreate("Date Format", () => First(
+                DateParts(),
+                Literal()
+            )
+            .List(1)
+            .FollowedBy(End())
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    for (int i = 0; i < results.Count; i++)
+                        dateTime = results[i].AddTo(dateTime);
+                    return dateTime;
+                })
+            )
+        );
+
+    public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
+        => GetOrCreate("Time Format", () => First(
+                TimeParts(),
+                Literal()
+            )
+            .List(1)
+            .FollowedBy(End())
+            .Transform(static parsers => Combine(parsers)
+                .Transform(static results =>
+                {
+                    DateTime dateTime = DateTime.MinValue;
+                    for (int i = 0; i < results.Count; i++)
+                        dateTime = results[i].AddTo(dateTime);
+                    return dateTime.TimeOfDay;
+                })
+            )
+        );
+
+    private static IParser<char, IParser<char, Part>> DateParts()
+        => GetOrCreate("DateTime.dateParts", () =>
         {
             var yearyyyy = DigitsAsInteger(4, 4).Transform(static y => new Part(PartType.Year, y));
 
             // MM expects 2 digits, so take two and do the bounds check in MonthPart
-            var monthMM = DigitsAsInteger(2, 2).Transform(static m => new Part(PartType.Month, m));
-
+            var monthMM = Sequential(s =>
+            {
+                var value = ParseBounded2DigitValue(s, 12);
+                return new Part(PartType.Month, value);
+            });
             var monthM = Sequential(s =>
             {
                 var value = ParseBounded2DigitValue(s, 12);
@@ -75,11 +134,10 @@ public static class DateTimeGrammar
                 .Add("dd", daydd)
                 .Add("d", dayd)
             );
-        }
-    );
+        });
 
-    private static readonly Lazy<IParser<char, IParser<char, Part>>> _timeParts = new Lazy<IParser<char, IParser<char, Part>>>(
-        () =>
+    private static IParser<char, IParser<char, Part>> TimeParts()
+        => GetOrCreate("DateTime.timeParts", () =>
         {
             // For each format specifier, when we match it, return an instance of an "internal"
             // parser to handle values of that type.
@@ -137,11 +195,10 @@ public static class DateTimeGrammar
                 .Add("ffff", millisecondffff)
                 .Add("fffff", millisecondfffff)
             );
-        }
-    );
+        });
 
-    private static readonly Lazy<IParser<char, IParser<char, Part>>> _literal = new Lazy<IParser<char, IParser<char, Part>>>(
-        () =>
+    private static IParser<char, IParser<char, Part>> Literal()
+        => GetOrCreate("DateTime.Literal", () =>
         {
             // A literal matches any single character which isn't one of the format specifiers.
             // It would be nice if this method could consume mulitiple characters into a string
@@ -161,72 +218,22 @@ public static class DateTimeGrammar
                 Match('/').Transform(currentDateSeparator, static (p, _) => p),
                 Any().Transform(static c => MatchChar(c).Transform(static _ => Part.Literal))
             ).Named("literal");
-        }
-    );
-
-    public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
-        => First(
-            _dateParts.Value,
-            _timeParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                for (int i = 0; i < results.Count; i++)
-                    dateTime = results[i].AddTo(dateTime);
-                return new DateTimeOffset(dateTime, TimeSpan.Zero);
-            })
-        )
-        .Named("DateAndTime Format");
-
-    public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
-        => First(
-            _dateParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                for (int i = 0; i < results.Count; i++)
-                    dateTime = results[i].AddTo(dateTime);
-                return dateTime;
-            })
-        )
-        .Named("Date Format");
-
-    public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
-        => First(
-            _timeParts.Value,
-            _literal.Value
-        )
-        .List(1)
-        .FollowedBy(End())
-        .Transform(static parsers => Combine(parsers)
-            .Transform(static results =>
-            {
-                DateTime dateTime = DateTime.MinValue;
-                for (int i = 0; i < results.Count; i++)
-                    dateTime = results[i].AddTo(dateTime);
-                return dateTime.TimeOfDay;
-            })
-        )
-        .Named("Time Format");
+        });
 
     private static int ParseBounded2DigitValue(SequentialState<char> s, int maxValue)
     {
-        var firstDigit = s.Parse(Digit());
-        var value = firstDigit - '0';
+        // Must get at least one digit
+        var value = s.Parse(Digit()) - '0';
+
+        // If that digit would be too large to be in the 10's place, just return it.
         if (value > (maxValue / 10))
             return value;
 
         var cp = s.Checkpoint();
+
+        // See if there's a second digit to get. If the second digit is not present or if adding
+        // the second digit puts us over the max value, return the first digit only. Otherwise
+        // return the whole thing.
         var secondDigit = s.TryParse(Digit());
         if (!secondDigit.Success)
             return value;
