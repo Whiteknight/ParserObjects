@@ -17,4 +17,13 @@ public class DateAndTimeTests
         var dt = result.Value;
         dt.Should().Be(new DateTimeOffset(2023, 10, 21, 8, 35, 42, 123, TimeSpan.Zero));
     }
+
+    public void Iso8601Test()
+    {
+        var target = DateAndTimeIso8601();
+        var result = target.Parse("2023-10-21 08:35:42.123");
+        result.Success.Should().BeTrue();
+        var dt = result.Value;
+        dt.Should().Be(new DateTimeOffset(2023, 10, 21, 8, 35, 42, 123, TimeSpan.Zero));
+    }
 }

@@ -41,7 +41,10 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `CreateMulti()` Create a new multi-parser at runtime using contextual data from the parse.
 * `DataContext()` Create a new contextual data frame to hold contextual data.
 * `Date()` Match a date value with a custom format string.
+* `DateFormat()` Match a Date format string and returns a parser for values of that format.
 * `DateAndTime()` Match a date and time value with a custom format string.
+* `DateAndTimeFormat()` Match a DateTimeOffset format string and returns a parser for values of that format.
+* `DateAndTimeIso8601()` Match a date and time value in ISO-8601 format `"yyyy-MM-dd HH:mm:ss.fff"`.
 * `Deferred()` Maintains an indirect reference to a parser, to support circular references.
 * `DelimitedStringWithEscapedDelimiters()` Match a string with custom quote and escape characters.
 * `Digit()` Matches a digit character.
@@ -134,6 +137,7 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `Synchronize()` Attempt the parse. If it fails, consume input until we can get back to a known good state and continue.
 * `Then()` Same as `If()`.
 * `Time()` Match a time value with a custom format string.
+* `TimeFormat()` Match a time format string and return a parser which parses values of that format.
 * `Transform()` Modify the output value of a parser.
 * `Trie()` Use a prefix tree to efficiently match one of several patterns and return the longest result.
 * `TrieMulti()` Use a prefix tree to efficiently match several patterns and return all matches as a multi-result.
