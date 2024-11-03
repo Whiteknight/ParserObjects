@@ -508,7 +508,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform
-    ) => new Transform<TInput, TMiddle, TOutput, Func<TMiddle, TOutput>>.Parser(parser, transform, static (t, v) => t(v));
+    ) => Transform<TInput>.Create(parser, transform, static (t, v) => t(v));
 
     /// <summary>
     /// Transform the output value of the parser.
@@ -524,7 +524,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> parser,
         TData data,
         Func<TData, TMiddle, TOutput> transform
-    ) => new Transform<TInput, TMiddle, TOutput, TData>.Parser(parser, data, transform);
+    ) => Transform<TInput>.Create(parser, data, transform);
 
     /// <summary>
     /// Transforms the output value of the parser.
@@ -537,7 +537,7 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IMultiParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform
-    ) => new Transform<TInput, TMiddle, TOutput, Func<TMiddle, TOutput>>.MultiParser(parser, transform, static (t, v) => t(v));
+    ) => Transform<TInput>.Create(parser, transform, static (t, v) => t(v));
 
     /// <summary>
     /// Execute a parser and catch any unhandled exceptions which may be thrown by it. On
