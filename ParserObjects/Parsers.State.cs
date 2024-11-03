@@ -7,8 +7,8 @@ namespace ParserObjects;
 public static partial class Parsers<TInput>
 {
     /// <summary>
-    /// Adjust the current parse context before a parse and cleanup any changes after the
-    /// parse.
+    /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
+    /// inner parser.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
@@ -17,14 +17,29 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Context<TOutput>(
         IParser<TInput, TOutput> parser,
-        Action<IParseState<TInput>>? setup,
-        Action<IParseState<TInput>>? cleanup
+        Action<ParseContext<TInput, TOutput>>? setup,
+        Action<ParseContext<TInput, TOutput>>? cleanup
     ) => setup == null && cleanup == null
         ? parser
         : new Context<TInput>.Parser<TOutput>(parser, setup, cleanup);
 
     /// <summary>
-    /// Adjust the current parse context before a parse and cleanup any changes after the parse.
+    /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
+    /// inner parser.
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <param name="setup"></param>
+    /// <param name="cleanup"></param>
+    /// <returns></returns>
+    public static IParser<TInput, object> Context(
+        IParser<TInput> parser,
+        Action<ParseContext<TInput, object>>? setup,
+        Action<ParseContext<TInput, object>>? cleanup
+    ) => new Context<TInput>.Parser(parser, setup, cleanup);
+
+    /// <summary>
+    /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
+    /// inner parser.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
@@ -33,8 +48,8 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Context<TOutput>(
         IMultiParser<TInput, TOutput> parser,
-        Action<IParseState<TInput>> setup,
-        Action<IParseState<TInput>> cleanup
+        Action<MultiParseContext<TInput, TOutput>>? setup,
+        Action<MultiParseContext<TInput, TOutput>>? cleanup
     ) => setup == null && cleanup == null
         ? parser
         : new Context<TInput>.MultiParser<TOutput>(parser, setup, cleanup);
@@ -145,6 +160,47 @@ public static partial class Parsers<TInput>
     )
         where TData : notnull
         => DataContext(inner, new Dictionary<string, object> { { name, value! } });
+
+    /// <summary>
+    /// Invoke callbacks before and after a parse.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="parser"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Examine<TOutput>(
+        IParser<TInput, TOutput> parser,
+        Action<ParseContext<TInput, TOutput>>? before = null,
+        Action<ParseContext<TInput, TOutput>>? after = null
+    ) => Context(parser, before, after);
+
+    /// <summary>
+    /// Invoke callbacks before and after a parse.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="parser"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns></returns>
+    public static IMultiParser<TInput, TOutput> Examine<TOutput>(
+        IMultiParser<TInput, TOutput> parser,
+        Action<MultiParseContext<TInput, TOutput>>? before = null,
+        Action<MultiParseContext<TInput, TOutput>>? after = null
+    ) => Context(parser, before, after);
+
+    /// <summary>
+    /// Invoke callbacks before and after a parse.
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns></returns>
+    public static IParser<TInput, object> Examine(
+        IParser<TInput> parser,
+        Action<ParseContext<TInput, object>>? before = null,
+        Action<ParseContext<TInput, object>>? after = null
+    ) => Context(parser, before, after);
 
     /// <summary>
     /// A parser which tries to get a value from current contextual data and return it as the

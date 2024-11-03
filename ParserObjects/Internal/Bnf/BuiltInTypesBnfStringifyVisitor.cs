@@ -79,6 +79,11 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(p.GetChildren().Single());
     }
 
+    public void Accept<TInput>(Context<TInput>.Parser p, BnfStringifyState state)
+    {
+        state.Append(p.GetChildren().Single());
+    }
+
     public void Accept<TInput, TMulti, TOutput>(ContinueWith<TInput, TMulti, TOutput>.MultiParser p, BnfStringifyState state)
     {
         var children = p.GetChildren().ToList();
@@ -146,21 +151,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput>(EmptyParser<TInput> _, BnfStringifyState state)
     {
         state.Append("()");
-    }
-
-    public void Accept<TInput>(ExamineParser<TInput> p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
-    }
-
-    public void Accept<TInput, TOutput>(Examine<TInput, TOutput>.Parser p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
-    }
-
-    public void Accept<TInput, TOutput>(Examine<TInput, TOutput>.MultiParser p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
     }
 
     public void Accept<TInput, TOutput>(FailParser<TInput, TOutput> p, BnfStringifyState state)

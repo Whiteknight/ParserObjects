@@ -689,7 +689,11 @@ public class EarleyTests
         result.Success.Should().BeTrue();
         result.Results.Count.Should().Be(1);
         result.Results[0].Value.Should().Be('5');
-        result.Results[0].Consumed.Should().Be(3);
+
+        // Items consumed in the after/cleanup callback are ignored because the alternatives already
+        // exist and rewinding to one alternative or the other to continue the parse will never
+        // account for those items and the callback won't be executed again.
+        result.Results[0].Consumed.Should().Be(2);
     }
 
     [Test]
