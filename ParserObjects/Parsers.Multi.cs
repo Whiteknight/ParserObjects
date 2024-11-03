@@ -66,11 +66,7 @@ public static partial class Parsers<TInput>
     )
     {
         Assert.ArgumentNotNull(predicate);
-        return SelectResult(multiParser, args =>
-        {
-            var selected = args.Result.Results.FirstOrDefault(predicate);
-            return selected.Success ? args.Success(selected) : args.Failure();
-        });
+        return SelectResult(multiParser, multi => multi.Results.FirstOrDefault(predicate));
     }
 
     /// <summary>
@@ -91,15 +87,10 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> LongestResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
         => SelectResult(
             multiParser,
-            static args =>
-            {
-                var longest = args.Result.Results
-                    .Where(r => r.Success)
-                    .OrderByDescending(r => r.Consumed)
-                    .FirstOrDefault();
-                return longest.Success ? args.Success(longest) : args.Failure();
-            }
-        );
+            static multi => multi.Results
+                .Where(r => r.Success)
+                .OrderByDescending(r => r.Consumed)
+                .FirstOrDefault());
 
     /// <summary>
     /// Invoke a special callback to attempt to select a single alternative result
@@ -111,7 +102,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SelectResult<TOutput>(
         IMultiParser<TInput, TOutput> p,
-        Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> select
+        SelectResultFromMultiResult<TOutput> select
     ) => new SelectParser<TInput, TOutput>(p, select);
 
     /// <summary>
@@ -122,8 +113,5 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SingleResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => SelectResult(multiParser, static args => args.Result.Results.Count == 1
-            ? args.Success(args.Result.Results[0])
-            : args.Failure()
-        );
+        => SelectResult(multiParser, static multi => multi.Results.FirstOrDefault());
 }

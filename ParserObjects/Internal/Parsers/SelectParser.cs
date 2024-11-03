@@ -12,7 +12,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public sealed record SelectParser<TInput, TOutput>(
     IMultiParser<TInput, TOutput> Initial,
-    Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> Selector,
+    SelectResultFromMultiResult<TOutput> Selector,
     string Name = ""
 ) : IParser<TInput, TOutput>
 {
@@ -24,20 +24,12 @@ public sealed record SelectParser<TInput, TOutput>(
         if (!multi.Success)
             return state.Fail(this, "Parser returned no valid results");
 
-        static Option<ResultAlternative<TOutput>> Success(ResultAlternative<TOutput> alt)
-            => new Option<ResultAlternative<TOutput>>(true, alt);
+        var selected = Selector(multi);
+        if (!selected.Success)
+            return state.Fail(this, "No alternative selected, or no matching successful value could be found");
 
-        static Option<ResultAlternative<TOutput>> Fail()
-            => default;
-
-        var args = new SelectArguments<TOutput>(multi, Success, Fail);
-        var selected = Selector(args);
-        if (!selected.Success || !selected.Value.Success)
-            return state.Fail(this, "No alternative selected, or no matching value could be found");
-
-        var alt = selected.Value;
-        alt.Continuation.Rewind();
-        return multi.ToResult(alt);
+        selected.Continuation.Rewind();
+        return multi.ToResult(selected);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

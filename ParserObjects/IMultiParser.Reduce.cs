@@ -61,6 +61,6 @@ public static partial class MultiParserExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> Select<TInput, TOutput>(
         this IMultiParser<TInput, TOutput> multiParser,
-        Func<SelectArguments<TOutput>, Option<ResultAlternative<TOutput>>> select
+        SelectResultFromMultiResult<TOutput> select
     ) => Parsers<TInput>.SelectResult(multiParser, select);
 }
