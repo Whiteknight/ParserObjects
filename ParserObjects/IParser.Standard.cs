@@ -38,7 +38,7 @@ public static class ParserCombinatorExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> Chain<TInput, TOutput>(
         this IParser<TInput> p,
-        GetParserFromResult<TInput, TOutput> getNext,
+        GetParserFromResult<TInput, object, TOutput> getNext,
         params IParser[] mentions
     ) => Parsers<TInput>.Chain(p, getNext, mentions);
 

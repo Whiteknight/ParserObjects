@@ -49,8 +49,6 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput>(CaptureParser<TInput, TOutput> p, TState state);
 
-    void Accept<TInput, TOutput, TData>(Chain<TInput, TOutput>.Parser<TData> p, TState state);
-
     void Accept<TInput, TOutput, TMiddle, TData>(Chain<TInput, TOutput>.Parser<TMiddle, TData> p, TState state);
 
     void Accept<TInput, TOutput>(Context<TInput>.MultiParser<TOutput> p, TState state);

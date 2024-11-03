@@ -21,16 +21,6 @@ public static class Chain<TInput, TOutput>
      * is just wrapped in a callback and passed to the Chain.Parser like normal
      */
 
-    public static IParser<TInput, TOutput> Configure(IParser<TInput> inner, Action<ParserPredicateSelector<TInput, TOutput>> setup, string name = "")
-    {
-        Assert.ArgumentNotNull(inner);
-        Assert.ArgumentNotNull(setup);
-
-        var config = new ParserPredicateSelector<TInput, TOutput>(new List<(Func<object, bool> equals, IParser<TInput, TOutput> parser)>());
-        setup(config);
-        return new Parser<ParserPredicateSelector<TInput, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
-    }
-
     public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(inner);
@@ -142,48 +132,6 @@ public static class Chain<TInput, TOutput>
         public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
 
         public INamed SetName(string name) => new Parser<TMiddle, TData>(_internal, _mentions, name);
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
-    }
-
-    public sealed class Parser<TData> : IParser<TInput, TOutput>
-    {
-        private readonly InternalParser<IParser<TInput>, object, TData> _internal;
-        private readonly IReadOnlyList<IParser> _mentions;
-
-        public Parser(IParser<TInput> inner, TData data, Func<TData, Result<object>, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
-        {
-            _internal = new InternalParser<IParser<TInput>, object, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
-            _mentions = mentions;
-            Name = name;
-        }
-
-        private Parser(InternalParser<IParser<TInput>, object, TData> internalData, IReadOnlyList<IParser> mentions, string name)
-        {
-            _internal = internalData;
-            _mentions = mentions;
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public Result<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
-
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
-
-        public bool Match(IParseState<TInput> state) => _internal.Match(state);
-
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Inner }.Concat(_mentions);
-
-        public override string ToString() => DefaultStringifier.ToString("Chain (Multi)", Name, Id);
-
-        public INamed SetName(string name) => new Parser<TData>(_internal, _mentions, name);
 
         public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>
