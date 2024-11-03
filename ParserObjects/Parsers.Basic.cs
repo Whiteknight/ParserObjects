@@ -178,59 +178,6 @@ public static partial class Parsers<TInput>
         => new EachParser<TInput, TOutput>(parsers, string.Empty);
 
     /// <summary>
-    /// Invoke callbacks before and after a parse.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="parser"></param>
-    /// <param name="before"></param>
-    /// <param name="after"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Examine<TOutput>(
-        IParser<TInput, TOutput> parser,
-        Action<ParseContext<TInput, TOutput>>? before = null,
-        Action<ParseContext<TInput, TOutput>>? after = null
-    )
-    {
-        if (before == null && after == null)
-            return parser;
-        return new Examine<TInput, TOutput>.Parser(parser, before, after);
-    }
-
-    /// <summary>
-    /// Invoke callbacks before and after a parse.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="parser"></param>
-    /// <param name="before"></param>
-    /// <param name="after"></param>
-    /// <returns></returns>
-    public static IMultiParser<TInput, TOutput> Examine<TOutput>(
-        IMultiParser<TInput, TOutput> parser,
-        Action<MultiParseContext<TInput, TOutput>>? before = null,
-        Action<MultiParseContext<TInput, TOutput>>? after = null
-    )
-    {
-        if (before == null && after == null)
-            return parser;
-        return new Examine<TInput, TOutput>.MultiParser(parser, before, after);
-    }
-
-    /// <summary>
-    /// Invoke callbacks before and after a parse.
-    /// </summary>
-    /// <param name="parser"></param>
-    /// <param name="before"></param>
-    /// <param name="after"></param>
-    /// <returns></returns>
-    public static IParser<TInput> Examine(
-        IParser<TInput> parser,
-        Action<ParseContext<TInput>>? before = null,
-        Action<ParseContext<TInput>>? after = null
-    ) => before == null && after == null
-        ? parser
-        : new ExamineParser<TInput>(parser, before, after);
-
-    /// <summary>
     /// Unconditionally returns failure.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
