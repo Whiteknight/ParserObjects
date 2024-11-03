@@ -58,20 +58,6 @@ public static partial class Parsers<TInput>
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
     /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="getNext"></param>
-    /// <param name="mentions"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Chain<TOutput>(
-        IParser<TInput> p,
-        GetParserFromResult<TInput, object, TOutput> getNext,
-        params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<object, GetParserFromResult<TInput, object, TOutput>>(Object(p), getNext, static (gn, r) => gn(r), mentions);
-
-    /// <summary>
-    /// Executes a parser, and uses the value to determine the next parser to execute.
-    /// </summary>
     /// <typeparam name="TMiddle"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
@@ -81,18 +67,6 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> p,
         Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup
     ) => Internal.Parsers.Chain<TInput, TOutput>.Configure(p, setup);
-
-    /// <summary>
-    /// Executes a parser, and uses the value to determine the next parser to execute.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="setup"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> ChainWith<TOutput>(
-        IParser<TInput> p,
-        Action<ParserPredicateSelector<TInput, object, TOutput>> setup
-    ) => Internal.Parsers.Chain<TInput, TOutput>.Configure(Object(p), setup);
 
     /// <summary>
     /// Executes a parser without consuming any input, and uses the value to determine the next

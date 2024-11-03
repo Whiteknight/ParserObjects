@@ -87,6 +87,8 @@ public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TMiddle, TO
 /// <returns></returns>
 public delegate IEnumerable<IParser<TInput, TOutput>> GetParsersFromParser<TInput, TMiddle, TOutput>(IParser<TInput, TMiddle> p);
 
+public delegate ResultAlternative<TOutput> SelectResultFromMultiResult<TOutput>(MultiResult<TOutput> result);
+
 /// <summary>
 /// Factory method for creating a new result alternative of the same type.
 /// </summary>

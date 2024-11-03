@@ -220,14 +220,10 @@ public class EarleyTests
             return expr;
         });
 
-        var target = parser.Select(args =>
-        {
-            var best = args.Result.Results
-                .Where(alt => alt.Value % 2 == 1)
-                .OrderByDescending(alt => alt.Value)
-                .FirstOrDefault();
-            return best.Success ? args.Success(best) : args.Failure();
-        });
+        var target = parser.Select(multi => multi.Results
+            .Where(alt => alt.Value % 2 == 1)
+            .OrderByDescending(alt => alt.Value)
+            .FirstOrDefault());
 
         var result = target.Parse("11+25*30");
         result.Success.Should().BeTrue();

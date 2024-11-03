@@ -59,19 +59,6 @@ public readonly struct ResultFactory<TInput, TOutput>
 public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
 
 /// <summary>
-/// Holds arguments for Select.
-/// </summary>
-/// <typeparam name="TOutput"></typeparam>
-/// <param name="Result"></param>
-/// <param name="Success"></param>
-/// <param name="Failure"></param>
-public readonly record struct SelectArguments<TOutput>(
-    MultiResult<TOutput> Result,
-    Func<ResultAlternative<TOutput>, Option<ResultAlternative<TOutput>>> Success,
-    Func<Option<ResultAlternative<TOutput>>> Failure
-);
-
-/// <summary>
 /// State object for a sequential parse. Handles control flow and input sequence
 /// management.
 /// </summary>
