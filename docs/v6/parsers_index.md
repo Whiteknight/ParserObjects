@@ -98,6 +98,7 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `Not()` Inverts the success result of the parser.
 * `NotFollowedBy()` Match a value but only if it would not be followed by another value.
 * `NotMatchAny()` Match a character which does not exist in the given collection.
+* `Object()` Converts a parser without an explicit return type to a parser which returns `object`.
 * `Optional()` Executes a parser but always returns success.
 * `OptionalWhitespace()` Match zero or more whitespace characters.
 * `Or()` Attempts several parsers and returns success as soon as any one of them succeed.

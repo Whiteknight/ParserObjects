@@ -202,17 +202,21 @@ public static class Function<TInput, TOutput>
 
 public static class Function<TInput>
 {
-    public sealed class Parser<TData> : IParser<TInput>
+    public delegate Result<object> ParseFunc<TData>(IParseState<TInput> state, TData data, ResultFactory<TInput, object> resultFactory);
+
+    public delegate bool MatchFunc<TData>(IParseState<TInput> state, TData data);
+
+    public sealed class Parser<TData> : IParser<TInput, object>
     {
         private readonly TData _data;
-        private readonly Func<TData, IParseState<TInput>, Result<object>> _parseFunction;
-        private readonly Func<TData, IParseState<TInput>, bool> _matchFunction;
+        private readonly ParseFunc<TData> _parseFunction;
+        private readonly MatchFunc<TData> _matchFunction;
         private readonly IReadOnlyList<IParser> _children;
 
         public Parser(
             TData data,
-            Func<TData, IParseState<TInput>, Result<object>> parseFunction,
-            Func<TData, IParseState<TInput>, bool>? matchFunction,
+            ParseFunc<TData> parseFunction,
+            MatchFunc<TData>? matchFunction,
             string? description,
             IEnumerable<IParser>? children,
             string name = ""
@@ -221,7 +225,7 @@ public static class Function<TInput>
             Assert.ArgumentNotNull(parseFunction);
             _data = data;
             _parseFunction = parseFunction;
-            _matchFunction = matchFunction ?? ((_, state) => Parse(state).Success);
+            _matchFunction = matchFunction ?? ((state, _) => Parse(state).Success);
             Name = name;
             Description = description;
             var childList = children?.ToArray() as IReadOnlyList<IParser>;
@@ -239,7 +243,7 @@ public static class Function<TInput>
         public Result<object> Parse(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var result = _parseFunction(_data, state);
+            var result = _parseFunction(state, _data, new ResultFactory<TInput, object>(this, state, startCheckpoint));
             if (!result.Success)
             {
                 startCheckpoint.Rewind();
@@ -252,7 +256,7 @@ public static class Function<TInput>
         public bool Match(IParseState<TInput> state)
         {
             var startCheckpoint = state.Input.Checkpoint();
-            var result = _matchFunction(_data, state);
+            var result = _matchFunction(state, _data);
             if (!result)
             {
                 startCheckpoint.Rewind();
