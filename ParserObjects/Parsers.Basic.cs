@@ -229,28 +229,23 @@ public static partial class Parsers<TInput>
             _ => Fail<object>("No parsers given")
         };
 
-    private readonly record struct FunctionArgs<TOutput>(
-        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> ParseFunction,
-        Func<IParseState<TInput>, bool>? MatchFunction
-    );
-
     /// <summary>
     /// Invoke a function callback to perform the parse at the current location in the input
     /// stream.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
-    /// <param name="parseFunction"></param>
-    /// <param name="matchFunction"></param>
+    /// <param name="parse"></param>
+    /// <param name="match"></param>
     /// <param name="description"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Function<TOutput>(
-        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> parseFunction,
-        Func<IParseState<TInput>, bool>? matchFunction = null,
+        Func<IParseState<TInput>, ResultFactory<TInput, TOutput>, Result<TOutput>> parse,
+        Func<IParseState<TInput>, bool>? match = null,
         string description = ""
-    ) => new Function<TInput, TOutput>.Parser<FunctionArgs<TOutput>>(
-        new FunctionArgs<TOutput>(parseFunction, matchFunction),
-        static (state, f, args) => f.ParseFunction(state, args),
-        matchFunction == null ? null : static (state, f) => f.MatchFunction!.Invoke(state),
+    ) => Function<TInput, TOutput>.Create(
+        (parse, match),
+        static (state, f, args) => f.parse(state, args),
+        match == null ? null : static (state, f) => f.match!.Invoke(state),
         description ?? "",
         Array.Empty<IParser>()
     );
@@ -262,7 +257,7 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> None<TOutput>(IParser<TInput, TOutput> parser)
-        => new Function<TInput, TOutput>.Parser<IParser<TInput, TOutput>>(
+        => Function<TInput, TOutput>.Create(
             parser,
             static (state, p, args) =>
             {
@@ -298,9 +293,9 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, object> None(IParser<TInput> parser)
-        => new Function<TInput, object>.Parser<IParser<TInput>>(
+        => Function<TInput, object>.Create(
             parser,
-            static (state, p, results) =>
+            static (state, p, _) =>
             {
                 var startCheckpoint = state.Input.Checkpoint();
                 var result = p.Parse(state);
@@ -383,7 +378,7 @@ public static partial class Parsers<TInput>
     /// <param name="setup"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Predict<TOutput>(Action<ParserPredicateSelector<TInput, TInput, TOutput>> setup)
-         => Internal.Parsers.Chain<TInput, TOutput>.Configure<TInput>(Peek(), setup);
+         => Internal.Parsers.Chain<TInput, TOutput>.Configure(Peek(), setup);
 
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.
@@ -392,7 +387,7 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
-        => new Function<TInput, TOutput>.Parser<Func<TOutput>>(
+        => Function<TInput, TOutput>.Create(
             produce,
             static (_, p, args) =>
             {
@@ -411,7 +406,7 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
-        => new Function<TInput, TOutput>.Parser<Func<IParseState<TInput>, TOutput>>(
+        => Function<TInput, TOutput>.Create(
             produce,
             static (state, p, args) =>
             {

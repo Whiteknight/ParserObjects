@@ -122,10 +122,8 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SingleResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => SelectResult(multiParser, static args =>
-        {
-            if (args.Result.Results.Count == 1)
-                return args.Success(args.Result.Results[0]);
-            return args.Failure();
-        });
+        => SelectResult(multiParser, static args => args.Result.Results.Count == 1
+            ? args.Success(args.Result.Results[0])
+            : args.Failure()
+        );
 }
