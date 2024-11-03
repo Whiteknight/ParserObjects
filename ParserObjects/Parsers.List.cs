@@ -24,7 +24,7 @@ public static partial class Parsers<TInput>
     /// <param name="p"></param>
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
-    public static IParser<TInput> List(IParser<TInput> p, bool atLeastOne)
+    public static IParser<TInput, IReadOnlyList<object>> List(IParser<TInput> p, bool atLeastOne)
         => List(p, Empty(), atLeastOne);
 
     /// <summary>
@@ -50,7 +50,7 @@ public static partial class Parsers<TInput>
     /// <param name="separator"></param>
     /// <param name="atLeastOne"></param>
     /// <returns></returns>
-    public static IParser<TInput> List(IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
+    public static IParser<TInput, IReadOnlyList<object>> List(IParser<TInput> p, IParser<TInput> separator, bool atLeastOne)
         => List(p, separator, minimum: atLeastOne ? 1 : 0);
 
     /// <summary>
@@ -74,7 +74,7 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput> List(IParser<TInput> p, int minimum, int? maximum = null)
+    public static IParser<TInput, IReadOnlyList<object>> List(IParser<TInput> p, int minimum, int? maximum = null)
         => List(p, Empty(), minimum, maximum);
 
     /// <summary>
@@ -101,7 +101,7 @@ public static partial class Parsers<TInput>
     /// <param name="minimum"></param>
     /// <param name="maximum"></param>
     /// <returns></returns>
-    public static IParser<TInput> List(
+    public static IParser<TInput, IReadOnlyList<object>> List(
         IParser<TInput> p,
         IParser<TInput>? separator = null,
         int minimum = 0,

@@ -14,7 +14,7 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TInput"></typeparam>
 public static class Replaceable<TInput>
 {
-    public sealed class SingleParser : IParser<TInput>, IReplaceableParserUntyped
+    public sealed class SingleParser : IParser<TInput, object>, IReplaceableParserUntyped
     {
         private IParser<TInput> _value;
 

@@ -11,7 +11,7 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput> And(params IParser<TInput>[] parsers)
+    public static IParser<TInput, object> And(params IParser<TInput>[] parsers)
         => new CaptureParser<TInput, object>(parsers, static (_, _, _) => Defaults.ObjectInstance);
 
     /// <summary>
@@ -46,7 +46,7 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="p1"></param>
     /// <returns></returns>
-    public static IParser<TInput> Not(IParser<TInput> p1)
+    public static IParser<TInput, object> Not(IParser<TInput> p1)
         => new NegativeLookaheadParser<TInput>(p1);
 
     /// <summary>
@@ -55,6 +55,6 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput> Or(params IParser<TInput>[] parsers)
+    public static IParser<TInput, object> Or(params IParser<TInput>[] parsers)
         => First(parsers);
 }

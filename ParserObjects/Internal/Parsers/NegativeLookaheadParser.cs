@@ -11,7 +11,7 @@ namespace ParserObjects.Internal.Parsers;
 public sealed record NegativeLookaheadParser<TInput>(
     IParser<TInput> Inner,
     string Name = ""
-) : IParser<TInput>
+) : IParser<TInput, object>
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 

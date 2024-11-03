@@ -221,12 +221,12 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput> First(params IParser<TInput>[] parsers)
+    public static IParser<TInput, object> First(params IParser<TInput>[] parsers)
         => parsers switch
         {
-            { Length: 1 } => parsers[0],
+            { Length: 1 } => Object(parsers[0]),
             { Length: > 1 } => new FirstParser<TInput>.WithoutOutput(parsers),
-            _ => Fail("No parsers given")
+            _ => Fail<object>("No parsers given")
         };
 
     private readonly record struct FunctionArgs<TOutput>(
@@ -297,10 +297,10 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="parser"></param>
     /// <returns></returns>
-    public static IParser<TInput> None(IParser<TInput> parser)
-        => new Function<TInput>.Parser<IParser<TInput>>(
+    public static IParser<TInput, object> None(IParser<TInput> parser)
+        => new Function<TInput, object>.Parser<IParser<TInput>>(
             parser,
-            static (p, state) =>
+            static (state, p, results) =>
             {
                 var startCheckpoint = state.Input.Checkpoint();
                 var result = p.Parse(state);
@@ -311,7 +311,7 @@ public static partial class Parsers<TInput>
                 startCheckpoint.Rewind();
                 return state.Success(p, result.Value, 0);
             },
-            static (p, state) =>
+            static (state, p) =>
             {
                 var startCheckpoint = state.Input.Checkpoint();
                 var result = p.Parse(state);
@@ -325,6 +325,14 @@ public static partial class Parsers<TInput>
             "(?=%0)",
             new[] { parser }
         );
+
+    /// <summary>
+    /// Converts a parser which returns a value of unknown type to one which returns object.
+    /// </summary>
+    /// <param name="parser"></param>
+    /// <returns></returns>
+    public static IParser<TInput, object> Object(IParser<TInput> parser)
+        => new ObjectParser<TInput>(parser);
 
     /// <summary>
     /// AAttempt to invoke a parser. Returns an Option with the value on success.
@@ -449,15 +457,15 @@ public static partial class Parsers<TInput>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
-        => new Replaceable<TInput, TOutput>.SingleParser(defaultParser ?? new FailParser<TInput, TOutput>());
+        => new Replaceable<TInput, TOutput>.SingleParser(defaultParser ?? Fail<TOutput>());
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
     /// </summary>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
-    public static IParser<TInput> Replaceable(IParser<TInput> defaultParser)
-        => new Replaceable<TInput>.SingleParser(defaultParser ?? new FailParser<TInput, object>());
+    public static IParser<TInput, object> Replaceable(IParser<TInput> defaultParser)
+        => new Replaceable<TInput>.SingleParser(defaultParser ?? Fail<object>());
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -466,7 +474,7 @@ public static partial class Parsers<TInput>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Replaceable<TOutput>(IMultiParser<TInput, TOutput> defaultParser)
-        => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? new FailParser<TInput, TOutput>());
+        => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? FailMulti<TOutput>());
 
     /// <summary>
     /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
@@ -587,7 +595,7 @@ public static partial class Parsers<TInput>
     /// <param name="examine"></param>
     /// <param name="bubble"></param>
     /// <returns></returns>
-    public static IParser<TInput> Try(
+    public static IParser<TInput, object> Try(
         IParser<TInput> parser,
         Action<Exception>? examine = null,
         bool bubble = false

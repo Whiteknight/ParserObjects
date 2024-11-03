@@ -167,7 +167,7 @@ public static class Repetition<TInput>
         public IEnumerable<IParser> GetChildren() => new[] { _parser, _separator };
     }
 
-    public sealed class Parser : IParser<TInput>
+    public sealed class Parser : IParser<TInput, IReadOnlyList<object>>
     {
         private readonly InternalParser<IParser<TInput>, object, object> _internal;
 
@@ -192,11 +192,13 @@ public static class Repetition<TInput>
         public int Minimum => _internal.Minimum;
         public int? Maximum => _internal.Maximum;
 
-        public Result<object> Parse(IParseState<TInput> state)
+        public Result<IReadOnlyList<object>> Parse(IParseState<TInput> state)
         {
             var partialResult = _internal.Parse(state);
-            return state.Result(this, partialResult).AsObject();
+            return state.Result(this, partialResult);
         }
+
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state) => _internal.Match(state);
 

@@ -53,7 +53,7 @@ public abstract record SimpleRecordParser<TInput, TOutput>(
 
 public abstract record SimpleRecordParser<TInput>(
     string Name
-) : IParser<TInput>
+) : IParser<TInput, object>
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
