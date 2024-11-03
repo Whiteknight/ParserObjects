@@ -224,8 +224,6 @@ public static partial class Parsers<TInput>
             Array.Empty<IParser>()
         );
 
-    private readonly record struct SetDataArgs<TValue>(string Name, TValue Value);
-
     /// <summary>
     /// A parser which sets a value into the current context data and returns that same value
     /// as a result.
@@ -235,8 +233,8 @@ public static partial class Parsers<TInput>
     /// <param name="value"></param>
     /// <returns></returns>
     public static IParser<TInput, TValue> SetData<TValue>(string name, TValue value)
-        => new Function<TInput, TValue>.Parser<SetDataArgs<TValue>>(
-            new SetDataArgs<TValue>(name, value),
+        => Function<TInput, TValue>.Create(
+            (Name: name, Value: value),
             static (state, sdArgs, funcArgs) =>
             {
                 state.Data.Set(sdArgs.Name, sdArgs.Value);
@@ -246,12 +244,6 @@ public static partial class Parsers<TInput>
             $"SET '{name}'",
             Array.Empty<IParser>()
         );
-
-    private readonly record struct SetResultDataArgs<TOutput, TValue>(
-        IParser<TInput, TOutput> Parser,
-        string Name,
-        Func<TOutput, TValue> GetValue
-    );
 
     /// <summary>
     /// Execute the inner parser and, on success, save the result value to the current context
@@ -281,8 +273,8 @@ public static partial class Parsers<TInput>
         IParser<TInput, TOutput> p,
         string name,
         Func<TOutput, TValue> getValue
-    ) => new Function<TInput, TOutput>.Parser<SetResultDataArgs<TOutput, TValue>>(
-        new SetResultDataArgs<TOutput, TValue>(p, name, getValue),
+    ) => Function<TInput, TOutput>.Create(
+        (Parser: p, Name: name, GetValue: getValue),
         static (state, srdArgs, _) =>
         {
             var result = srdArgs.Parser.Parse(state);
