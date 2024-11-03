@@ -9,4 +9,8 @@ namespace ParserObjects.Regexes;
 /// </summary>
 public class RegexMatch : Dictionary<int, IReadOnlyList<string>>
 {
+    public static RegexMatch Empty { get; } = new RegexMatch
+    {
+        { 0, new[] { string.Empty } }
+    };
 }

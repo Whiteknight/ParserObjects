@@ -2,13 +2,14 @@
 using System.Linq;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Visitors;
+using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Parsers;
 
 /// <summary>
 /// Uses limited Regular Expression syntax to match a pattern of characters.
 /// </summary>
-public sealed class RegexParser : IParser<char, string>
+public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatch>
 {
     /* Delegates to the Regex struct and the Regex.Engine struct for holding the pattern and
      * testing pattern, respectively.
@@ -30,7 +31,7 @@ public sealed class RegexParser : IParser<char, string>
 
     public string Name { get; }
 
-    public Result<string> Parse(IParseState<char> state)
+    Result<RegexMatch> IParser<char, RegexMatch>.Parse(IParseState<char> state)
     {
         Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
@@ -38,13 +39,27 @@ public sealed class RegexParser : IParser<char, string>
         if (!result.Success)
         {
             startCp.Rewind();
-            return state.Fail(this, result.ErrorMessage!);
+            return state.Fail<RegexMatch>(this, result.ErrorMessage!);
+        }
+
+        return state.Success(this, result.Match!, result.Consumed, new ResultData(result.Match!));
+    }
+
+    Result<string> IParser<char, string>.Parse(IParseState<char> state)
+    {
+        Assert.ArgumentNotNull(state);
+        var startCp = state.Input.Checkpoint();
+        var result = Engine.GetMatch(state.Input, Regex);
+        if (!result.Success)
+        {
+            startCp.Rewind();
+            return state.Fail<string>(this, result.ErrorMessage!);
         }
 
         return state.Success(this, result.Value!, result.Consumed, new ResultData(result.Match!));
     }
 
-    Result<object> IParser<char>.Parse(IParseState<char> state) => Parse(state).AsObject();
+    Result<object> IParser<char>.Parse(IParseState<char> state) => ((IParser<char, RegexMatch>)this).Parse(state).AsObject();
 
     public bool Match(IParseState<char> state)
     {

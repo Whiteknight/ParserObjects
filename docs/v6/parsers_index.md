@@ -109,7 +109,8 @@ This is an alphabetical list of all parsers from the ParserObjects library:
 * `PrefixedLine()` Parse a whole line of text that starts with a given prefix.
 * `Produce()` Return a value from a user callback and consume no input.
 * `ProduceMulti()` Return a multi-value from a user callback and consume no input.
-* `Regex()` Match a pattern defined by a regular expression.
+* `Regex()` Match a pattern defined by a regular expression and return the string that matched.
+* `RegexMatch()` Match a pattern defined by a regular expression and return the entire match object.
 * `RegexPattern()` Parse a regular expression into a `Regex` object.
 * `Replaceable()` Allows a parser reference to be changed after build-up.
 * `Rule()` Execute several parsers and combine their results using a custom callback.
