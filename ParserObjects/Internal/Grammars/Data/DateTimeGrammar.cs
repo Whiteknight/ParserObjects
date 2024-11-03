@@ -30,8 +30,10 @@ public static class DateTimeGrammar
      * to convert a list of Parts to a DateTime
      */
 
+    public const string Iso8601Format = "YYYY-MM-dd HH:mmss.fff";
+
     public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
-        => GetOrCreate("DateTime Format", () => First(
+        => First(
                 DateParts(),
                 TimeParts(),
                 Literal()
@@ -46,11 +48,10 @@ public static class DateTimeGrammar
                         dateTime = results[i].AddTo(dateTime);
                     return new DateTimeOffset(dateTime, TimeSpan.Zero);
                 })
-            )
-        );
+            );
 
     public static IParser<char, IParser<char, DateTime>> CreateDateFormatParser()
-        => GetOrCreate("Date Format", () => First(
+        => First(
                 DateParts(),
                 Literal()
             )
@@ -64,11 +65,10 @@ public static class DateTimeGrammar
                         dateTime = results[i].AddTo(dateTime);
                     return dateTime;
                 })
-            )
-        );
+            );
 
     public static IParser<char, IParser<char, TimeSpan>> CreateTimeFormatParser()
-        => GetOrCreate("Time Format", () => First(
+        => First(
                 TimeParts(),
                 Literal()
             )
@@ -82,8 +82,7 @@ public static class DateTimeGrammar
                         dateTime = results[i].AddTo(dateTime);
                     return dateTime.TimeOfDay;
                 })
-            )
-        );
+            );
 
     private static IParser<char, IParser<char, Part>> DateParts()
         => GetOrCreate("DateTime.dateParts", () =>
