@@ -87,7 +87,7 @@ public static class TryParser<TInput>
         }
     }
 
-    public sealed class Parser : IParser<TInput>
+    public sealed class Parser : IParser<TInput, object>
     {
         private readonly ParserData<IParser<TInput>, Result<object>> _data;
 

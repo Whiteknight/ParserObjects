@@ -1,5 +1,4 @@
-﻿using System;
-using ParserObjects.Internal.Parsers;
+﻿using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Regexes;
 using static ParserObjects.Internal.ParserCache;

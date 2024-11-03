@@ -162,7 +162,7 @@ public static class ParserCombinatorExtensions
     /// <param name="p"></param>
     /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
     /// <returns></returns>
-    public static IParser<TInput> List<TInput>(this IParser<TInput> p, bool atLeastOne)
+    public static IParser<TInput, IReadOnlyList<object>> List<TInput>(this IParser<TInput> p, bool atLeastOne)
         => Parsers<TInput>.List(p, atLeastOne);
 
     /// <summary>
@@ -174,7 +174,7 @@ public static class ParserCombinatorExtensions
     /// <param name="separator">The separator to expect between items.</param>
     /// <param name="atLeastOne">Whether the list must contain at least one item.</param>
     /// <returns></returns>
-    public static IParser<TInput> List<TInput>(
+    public static IParser<TInput, IReadOnlyList<object>> List<TInput>(
         this IParser<TInput> p,
         IParser<TInput> separator, bool atLeastOne
     ) => Parsers<TInput>.List(p, separator, atLeastOne);
@@ -204,7 +204,7 @@ public static class ParserCombinatorExtensions
     /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
     /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
     /// <returns></returns>
-    public static IParser<TInput> List<TInput>(this IParser<TInput> p, int minimum, int? maximum = null)
+    public static IParser<TInput, IReadOnlyList<object>> List<TInput>(this IParser<TInput> p, int minimum, int? maximum = null)
         => Parsers<TInput>.List(p, Parsers<TInput>.Empty(), minimum, maximum);
 
     /// <summary>
@@ -239,7 +239,7 @@ public static class ParserCombinatorExtensions
     /// <param name="minimum">A non-negative number which is the minimum number of items to match.</param>
     /// <param name="maximum">A non-negative number which is the maximum number of matches to allow.</param>
     /// <returns></returns>
-    public static IParser<TInput> List<TInput>(
+    public static IParser<TInput, IReadOnlyList<object>> List<TInput>(
         this IParser<TInput> p,
         IParser<TInput>? separator = null,
         int minimum = 0,
@@ -319,7 +319,7 @@ public static class ParserCombinatorExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="inner"></param>
     /// <returns></returns>
-    public static IParser<TInput> None<TInput>(this IParser<TInput> inner)
+    public static IParser<TInput, object> None<TInput>(this IParser<TInput> inner)
         => Parsers<TInput>.None(inner);
 
     /// <summary>
@@ -397,7 +397,7 @@ public static class ParserCombinatorExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput> Replaceable<TInput>(this IParser<TInput> p)
+    public static IParser<TInput, object> Replaceable<TInput>(this IParser<TInput> p)
         => Parsers<TInput>.Replaceable(p);
 
     /// <summary>

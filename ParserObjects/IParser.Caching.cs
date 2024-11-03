@@ -22,6 +22,6 @@ public static class ParserCachingExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput> Cache<TInput>(this IParser<TInput> p)
+    public static IParser<TInput, object> Cache<TInput>(this IParser<TInput> p)
         => Parsers<TInput>.Cache(p);
 }
