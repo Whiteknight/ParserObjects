@@ -3,32 +3,8 @@
 /// <summary>
 /// Current contextual state of the parse
 /// </summary>
-/// <typeparam name="TInput"></typeparam>
-/// <param name="Parser"></param>
-/// <param name="State"></param>
-/// <param name="Result"></param>
-public readonly record struct ParseContext<TInput>(
-    IParser<TInput> Parser,
-    IParseState<TInput> State,
-    Result<object> Result
-)
-{
-    /// <summary>
-    /// Gets the parse state data.
-    /// </summary>
-    public DataStore Data => State.Data;
-
-    /// <summary>
-    /// Gets the current input sequence.
-    /// </summary>
-    public ISequence<TInput> Input => State.Input;
-}
-
-/// <summary>
-/// Current contextual state of the parse
-/// </summary>
 public readonly record struct ParseContext<TInput, TOutput>(
-    IParser<TInput, TOutput> Parser,
+    IParser Parser,
     IParseState<TInput> State,
     Result<TOutput> Result
 )

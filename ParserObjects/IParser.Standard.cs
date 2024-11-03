@@ -98,10 +98,10 @@ public static class ParserCombinatorExtensions
     /// <param name="before"></param>
     /// <param name="after"></param>
     /// <returns></returns>
-    public static IParser<TInput> Examine<TInput>(
+    public static IParser<TInput, object> Examine<TInput>(
         this IParser<TInput> parser,
-        Action<ParseContext<TInput>>? before = null,
-        Action<ParseContext<TInput>>? after = null
+        Action<ParseContext<TInput, object>>? before = null,
+        Action<ParseContext<TInput, object>>? after = null
     ) => Parsers<TInput>.Examine(parser, before, after);
 
     /// <summary>
