@@ -71,15 +71,6 @@ public delegate IParser<TInput, TOutput> GetParserFromParser<TInput, TMiddle, TO
 /// Create a new parser, given an existing result.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-/// <typeparam name="TOutput"></typeparam>
-/// <param name="result"></param>
-/// <returns></returns>
-public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TOutput>(Result<object> result);
-
-/// <summary>
-/// Create a new parser, given an existing result.
-/// </summary>
-/// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TMiddle"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
 /// <param name="result"></param>
