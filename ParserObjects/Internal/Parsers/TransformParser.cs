@@ -32,8 +32,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
                 return result.CastError<TOutput>();
 
             var transformedValue = Transform(Data, result.Value);
-
-            return state.Success(this, transformedValue, result.Consumed);
+            return Result<TOutput>.Ok(this, transformedValue, result.Consumed, result.Data);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

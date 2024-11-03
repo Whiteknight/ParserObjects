@@ -38,7 +38,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TInput[]> Capture(params IParser<TInput>[] parsers)
         => parsers == null || parsers.Length == 0
             ? Produce(static () => Array.Empty<TInput>())
-            : (IParser<TInput, TInput[]>)new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetArrayBetween(start, end));
+            : new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetArrayBetween(start, end));
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.

@@ -113,5 +113,5 @@ public static partial class Parsers<TInput>
     /// <param name="multiParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> SingleResult<TOutput>(IMultiParser<TInput, TOutput> multiParser)
-        => SelectResult(multiParser, static multi => multi.Results.FirstOrDefault());
+        => SelectResult(multiParser, static multi => multi.Results.Count == 1 ? multi.Results[0] : default);
 }
