@@ -27,22 +27,6 @@ public static class ParserCombinatorExtensions
     ) => Parsers<TInput>.Chain(p, getNext, mentions);
 
     /// <summary>
-    /// Execute a parser and use the result value to select the next parser to invoke. Uses
-    /// a configuration object to setup parsers and the predicates which trigger them.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="getNext"></param>
-    /// <param name="mentions"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Chain<TInput, TOutput>(
-        this IParser<TInput> p,
-        GetParserFromResult<TInput, object, TOutput> getNext,
-        params IParser[] mentions
-    ) => Parsers<TInput>.Chain(p, getNext, mentions);
-
-    /// <summary>
     /// Execute a parser and use the result to select the nex parser to invoke. Uses a
     /// configuration object to store possible parsers and the input values which are used to
     /// select them.
