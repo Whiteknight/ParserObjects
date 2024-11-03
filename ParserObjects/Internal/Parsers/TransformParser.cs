@@ -8,12 +8,23 @@ namespace ParserObjects.Internal.Parsers;
 /// Parsers to transform the result value of an inner parser.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-/// <typeparam name="TMiddle"></typeparam>
-/// <typeparam name="TOutput"></typeparam>
-/// <typeparam name="TData"></typeparam>
-public static class Transform<TInput, TMiddle, TOutput, TData>
+public static class Transform<TInput>
 {
-    public sealed record Parser(
+    public static IParser<TInput, TOutput> Create<TMiddle, TOutput, TData>(
+        IParser<TInput, TMiddle> inner,
+        TData data,
+        Func<TData, TMiddle, TOutput> transform,
+        string name = ""
+    ) => new Parser<TMiddle, TOutput, TData>(inner, data, transform, name);
+
+    public static IMultiParser<TInput, TOutput> Create<TMiddle, TOutput, TData>(
+        IMultiParser<TInput, TMiddle> inner,
+        TData data,
+        Func<TData, TMiddle, TOutput> transform,
+        string name = ""
+    ) => new MultiParser<TMiddle, TOutput, TData>(inner, data, transform, name);
+
+    public sealed record Parser<TMiddle, TOutput, TData>(
         IParser<TInput, TMiddle> Inner,
         TData Data,
         Func<TData, TMiddle, TOutput> Transform,
@@ -52,7 +63,7 @@ public static class Transform<TInput, TMiddle, TOutput, TData>
         }
     }
 
-    public sealed record MultiParser(
+    public sealed record MultiParser<TMiddle, TOutput, TData>(
         IMultiParser<TInput, TMiddle> Inner,
         TData Data,
         Func<TData, TMiddle, TOutput> Transform,
