@@ -11,11 +11,11 @@ public readonly record struct Result<TValue>(
     ResultData Data
 )
 {
-    public static Result<TValue> Fail(IParser parser, string errorMessage)
-        => new Result<TValue>(parser, false, errorMessage ?? string.Empty, default, 0, default);
+    public static Result<TValue> Fail(IParser parser, string errorMessage, ResultData data = default)
+        => new Result<TValue>(parser, false, errorMessage ?? string.Empty, default, 0, data);
 
-    public static Result<TValue> Ok(IParser parser, TValue value, int consumed)
-        => new Result<TValue>(parser, true, string.Empty, value, consumed, default);
+    public static Result<TValue> Ok(IParser parser, TValue value, int consumed, ResultData data = default)
+        => new Result<TValue>(parser, true, string.Empty, value, consumed, data);
 
     public string ErrorMessage
         => Success

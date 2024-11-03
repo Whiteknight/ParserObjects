@@ -63,9 +63,9 @@ public static class ChainWithTests
             var y = Match('Y');
             var z = Match('Z');
             var target = ChainWith<char, char>(first, config => config
-                .When(c => (char)c == 'a', x)
-                .When(c => (char)c == 'b', y)
-                .When(c => (char)c == 'c', z)
+                .When(c => c == 'a', x)
+                .When(c => c == 'b', y)
+                .When(c => c == 'c', z)
             ).Named("SUT");
             var result = target.ToBnf();
             result.Should().Contain("SUT := .->CHAIN('X' 'Y' 'Z')");
