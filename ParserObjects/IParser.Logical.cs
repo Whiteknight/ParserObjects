@@ -12,7 +12,7 @@ public static class ParserLogicalExtensions
     /// <param name="p1"></param>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
+    public static IParser<TInput, object> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
         => Parsers<TInput>.And(
             new[] { p1 }
                 .Concat(parsers)
@@ -41,7 +41,7 @@ public static class ParserLogicalExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="p1"></param>
     /// <returns></returns>
-    public static IParser<TInput> Not<TInput>(this IParser<TInput> p1)
+    public static IParser<TInput, object> Not<TInput>(this IParser<TInput> p1)
         => Parsers<TInput>.Not(p1);
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class ParserLogicalExtensions
     /// <param name="p1"></param>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
+    public static IParser<TInput, object> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
         => Parsers<TInput>.Or(
             new[] { p1 }
                 .Concat(parsers)

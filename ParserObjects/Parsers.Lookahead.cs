@@ -10,7 +10,7 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="p"></param>
     /// <returns></returns>
-    public static IParser<TInput> NegativeLookahead(IParser<TInput> p)
+    public static IParser<TInput, object> NegativeLookahead(IParser<TInput> p)
         => new NegativeLookaheadParser<TInput>(p);
 
     /// <summary>

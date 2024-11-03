@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ParserObjects;
@@ -296,6 +295,9 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         WriteQuantifier(state, p.Minimum, p.Maximum);
         state.Append(" ", continuation);
     }
+
+    public void Accept<TInput>(ObjectParser<TInput> p, BnfStringifyState state)
+        => state.Append(p.GetChildren().First(), "?");
 
     public void Accept<TInput, TOutput>(Optional<TInput, TOutput>.DefaultValueParser p, BnfStringifyState state)
     {

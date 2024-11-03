@@ -62,7 +62,7 @@ public static class Cache<TInput>
         }
     }
 
-    public sealed class Parser : IParser<TInput>
+    public sealed class Parser : IParser<TInput, object>
     {
         private readonly InternalParser<IParser<TInput>, Result<object>, Tuple<Result<object>, SequenceCheckpoint>> _internal;
 

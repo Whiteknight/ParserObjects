@@ -10,7 +10,7 @@ public static partial class Parsers<TInput>
     /// </summary>
     /// <param name="parser"></param>
     /// <returns></returns>
-    public static IParser<TInput> Cache(IParser<TInput> parser)
+    public static IParser<TInput, object> Cache(IParser<TInput> parser)
         => new Cache<TInput>.Parser(parser);
 
     /// <summary>

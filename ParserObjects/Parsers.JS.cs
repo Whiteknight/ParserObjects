@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using ParserObjects.Internal;
 using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;
