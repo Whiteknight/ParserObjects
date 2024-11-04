@@ -62,43 +62,6 @@ public static class Cache<TInput>
         }
     }
 
-    public sealed class Parser : IParser<TInput, object>
-    {
-        private readonly InternalParser<IParser<TInput>, Result<object>, Tuple<Result<object>, SequenceCheckpoint>> _internal;
-
-        public Parser(IParser<TInput> inner, string name = "")
-        {
-            _internal = new InternalParser<IParser<TInput>, Result<object>, Tuple<Result<object>, SequenceCheckpoint>>(
-                inner,
-                static (p, s) => p.Parse(s),
-                static (r, cp) => Tuple.Create(r, cp),
-                static ce => (ce.Item1, ce.Item2),
-                static r => r.Success
-            );
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public bool Match(IParseState<TInput> state) => _internal.Parse(state).Success;
-
-        public Result<object> Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
-
-        public INamed SetName(string name) => new Parser(_internal.Parser, name);
-
-        public override string ToString() => DefaultStringifier.ToString(this);
-
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
-    }
-
     public sealed record Parser<TOutput> : IParser<TInput, TOutput>
     {
         private readonly InternalParser<IParser<TInput, TOutput>, Result<TOutput>, Tuple<Result<TOutput>, SequenceCheckpoint>> _internal;
