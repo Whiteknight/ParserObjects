@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -30,33 +31,42 @@ public static class Chain<TInput, TOutput>
         return new Parser<TMiddle, ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
     }
 
-    private readonly struct InternalParser<TInnerParser, TInnerResult, TData>
-        where TInnerParser : IParser<TInput>
+    public static IParser<TInput, TOutput> Create<TData, TMiddle>(
+        IParser<TInput, TMiddle> inner,
+        TData data,
+        GetOuter<TData, TMiddle> getOuter,
+        IReadOnlyList<IParser> mentions,
+        string name = ""
+    ) => new Parser<TMiddle, TData>(inner, data, getOuter, mentions, name);
+
+    public delegate IParser<TInput, TOutput> GetOuter<TData, TMiddle>(TData data, Result<TMiddle> result);
+
+    public sealed class Parser<TMiddle, TData> : IParser<TInput, TOutput>
     {
+        private readonly IParser<TInput, TMiddle> _inner;
         private readonly TData _data;
-        private readonly Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> _getResult;
-        private readonly Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> _getOuter;
+        private readonly GetOuter<TData, TMiddle> _getOuter;
+        private readonly IReadOnlyList<IParser> _mentions;
 
-        public TInnerParser Inner { get; }
-
-        public InternalParser(
-            TInnerParser inner,
-            TData data,
-            Func<TInnerParser, IParseState<TInput>, Result<TInnerResult>> getResult,
-            Func<TData, Result<TInnerResult>, IParser<TInput, TOutput>> getOuter)
+        public Parser(IParser<TInput, TMiddle> inner, TData data, GetOuter<TData, TMiddle> getOuter, IReadOnlyList<IParser> mentions, string name = "")
         {
-            Inner = inner;
+            _inner = inner;
             _data = data;
-            _getResult = getResult;
             _getOuter = getOuter;
+            _mentions = mentions;
+            Name = name;
         }
+
+        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
+        public string Name { get; }
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
-            var initial = _getResult(Inner, state);
+            var initial = _inner.Parse(state);
 
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
@@ -67,12 +77,14 @@ public static class Chain<TInput, TOutput>
             return state.Fail(nextParser, nextResult.ErrorMessage);
         }
 
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
+
         public bool Match(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
-            var initial = _getResult(Inner, state);
+            var initial = _inner.Parse(state);
 
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Match(state);
@@ -83,7 +95,19 @@ public static class Chain<TInput, TOutput>
             return false;
         }
 
-        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, Result<TInnerResult> initial)
+        public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
+
+        public override string ToString() => DefaultStringifier.ToString("Chain", Name, Id);
+
+        public INamed SetName(string name) => new Parser<TMiddle, TData>(_inner, _data, _getOuter, _mentions, name);
+
+        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+            where TVisitor : IVisitor<TState>
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
+
+        private IParser<TInput, TOutput> GetNextParser(SequenceCheckpoint checkpoint, Result<TMiddle> initial)
         {
             try
             {
@@ -95,48 +119,6 @@ public static class Chain<TInput, TOutput>
                 checkpoint.Rewind();
                 throw;
             }
-        }
-    }
-
-    public sealed class Parser<TMiddle, TData> : IParser<TInput, TOutput>
-    {
-        private readonly InternalParser<IParser<TInput, TMiddle>, TMiddle, TData> _internal;
-        private readonly IReadOnlyList<IParser> _mentions;
-
-        public Parser(IParser<TInput, TMiddle> inner, TData data, Func<TData, Result<TMiddle>, IParser<TInput, TOutput>> getOuter, IReadOnlyList<IParser> mentions, string name = "")
-        {
-            _internal = new InternalParser<IParser<TInput, TMiddle>, TMiddle, TData>(inner, data, static (p, s) => p.Parse(s), getOuter);
-            _mentions = mentions;
-            Name = name;
-        }
-
-        private Parser(InternalParser<IParser<TInput, TMiddle>, TMiddle, TData> internalData, IReadOnlyList<IParser> mentions, string name)
-        {
-            _internal = internalData;
-            _mentions = mentions;
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public Result<TOutput> Parse(IParseState<TInput> state) => _internal.Parse(state);
-
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _internal.Parse(state).AsObject();
-
-        public bool Match(IParseState<TInput> state) => _internal.Match(state);
-
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Inner }.Concat(_mentions);
-
-        public override string ToString() => DefaultStringifier.ToString("Chain (Single)", Name, Id);
-
-        public INamed SetName(string name) => new Parser<TMiddle, TData>(_internal, _mentions, name);
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
         }
     }
 }
