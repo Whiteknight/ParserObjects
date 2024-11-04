@@ -53,7 +53,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> p,
         GetParserFromResult<TInput, TMiddle, TOutput> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<TMiddle, GetParserFromResult<TInput, TMiddle, TOutput>>(p, getNext, static (gn, r) => gn(r), mentions);
+    ) => Internal.Parsers.Chain<TInput, TOutput>.Create(p, getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Executes a parser, and uses the value to determine the next parser to execute.
@@ -80,9 +80,9 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(
         IParser<TInput, TMiddle> p,
-        Func<Result<TMiddle>, IParser<TInput, TOutput>> getNext,
+        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
         params IParser[] mentions
-    ) => new Chain<TInput, TOutput>.Parser<TMiddle, Func<Result<TMiddle>, IParser<TInput, TOutput>>>(None(p), getNext, static (gn, r) => gn(r), mentions);
+    ) => Internal.Parsers.Chain<TInput, TOutput>.Create(None(p), getNext, static (gn, r) => gn(r), mentions);
 
     /// <summary>
     /// Given a list of parsers, parse each in sequence and return a list of object
