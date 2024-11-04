@@ -21,11 +21,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append('.');
     }
 
-    public void Accept<TInput>(Cache<TInput>.Parser p, BnfStringifyState state)
-    {
-        state.Append("CACHED(", p.GetChildren().First(), ")");
-    }
-
     public void Accept<TInput, TOutput>(Cache<TInput>.Parser<TOutput> p, BnfStringifyState state)
     {
         state.Append("CACHED(", p.GetChildren().First(), ")");

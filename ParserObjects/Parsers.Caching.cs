@@ -8,15 +8,6 @@ public static partial class Parsers<TInput>
     /// Cache the result of the given parser so subsequent calls to .Parse at the same
     /// location will return the same result.
     /// </summary>
-    /// <param name="parser"></param>
-    /// <returns></returns>
-    public static IParser<TInput, object> Cache(IParser<TInput> parser)
-        => new Cache<TInput>.Parser(parser);
-
-    /// <summary>
-    /// Cache the result of the given parser so subsequent calls to .Parse at the same
-    /// location will return the same result.
-    /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
     /// <returns></returns>
