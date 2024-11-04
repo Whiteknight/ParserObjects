@@ -177,11 +177,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         BnfDescription.Append(state, description, children);
     }
 
-    public void Accept<TInput, TData>(Function<TInput>.Parser<TData> p, BnfStringifyState state)
-    {
-        AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);
-    }
-
     public void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, BnfStringifyState state)
     {
         AcceptFunctionVariant(p.Description, p.GetChildren().ToList(), state);

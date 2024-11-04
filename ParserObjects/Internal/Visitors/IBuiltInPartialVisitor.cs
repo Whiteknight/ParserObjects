@@ -21,8 +21,6 @@ public interface IRegexPartialVisitor<in TState> : IPartialVisitor<TState>
 
 public interface IFunctionPartialVisitor<TState> : IPartialVisitor<TState>
 {
-    void Accept<TInput, TData>(Function<TInput>.Parser<TData> p, TState state);
-
     void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.MultiParser<TData> p, TState state);
 
     void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, TState state);
