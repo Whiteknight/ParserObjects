@@ -37,36 +37,6 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 
     public void Log(IParser parser, string message) => _logCallback?.Invoke($"{parser}: {message}");
 
-    public int PushDataFrame(IReadOnlyDictionary<string, object>? data = null)
-    {
-        var store = GetDataStore();
-        var frame = new Dictionary<string, object>();
-        var version = store.Last!.Value.Version + 1;
-        if (data != null)
-        {
-            foreach (var kvp in data)
-                frame.Add(kvp.Key, kvp.Value);
-        }
-
-        store.AddLast((version, frame));
-        return version;
-    }
-
-    public int PopDataFrame(int version = 0)
-    {
-        Assert.ArgumentGreaterThanOrEqualTo(version, 0);
-        var store = GetDataStore();
-        if (version == 0)
-            version = store.Last!.Value.Version - 1;
-
-        while (store.Last!.Value.Version > version)
-            store.RemoveLast();
-
-        return store.Last!.Value.Version;
-    }
-
-    public int GetCurrentDataFrame() => GetDataStore().Last!.Value.Version;
-
     private LinkedList<(int Version, Dictionary<string, object> Values)> GetDataStore()
     {
         if (_data == null)
@@ -88,8 +58,37 @@ public readonly struct DataStore
 
     public DataStore(LinkedList<(int Version, Dictionary<string, object> Values)> data)
     {
+        Assert.ArgumentNotNull(data);
         _store = data;
     }
+
+    public int PushDataFrame(IReadOnlyDictionary<string, object>? data = null)
+    {
+        var frame = new Dictionary<string, object>();
+        var version = _store.Last!.Value.Version + 1;
+        if (data != null)
+        {
+            foreach (var kvp in data)
+                frame.Add(kvp.Key, kvp.Value);
+        }
+
+        _store.AddLast((version, frame));
+        return version;
+    }
+
+    public int PopDataFrame(int version = 0)
+    {
+        Assert.ArgumentGreaterThanOrEqualTo(version, 0);
+        if (version == 0)
+            version = _store.Last!.Value.Version - 1;
+
+        while (_store.Last!.Value.Version > version)
+            _store.RemoveLast();
+
+        return _store.Last!.Value.Version;
+    }
+
+    public int GetCurrentDataFrame() => _store.Last!.Value.Version;
 
     /// <summary>
     /// Get a value from the current data context with the given name. If no value exists with that

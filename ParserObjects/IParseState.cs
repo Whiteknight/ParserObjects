@@ -31,12 +31,6 @@ public interface IParseState<TInput>
     /// <param name="message"></param>
     void Log(IParser parser, string message);
 
-    int PushDataFrame(IReadOnlyDictionary<string, object>? data = null);
-
-    int PopDataFrame(int version = 0);
-
-    int GetCurrentDataFrame();
-
     /// <summary>
     /// Create a failure result.
     /// </summary>

@@ -88,8 +88,8 @@ public static partial class Parsers<TInput>
         Dictionary<string, object> values
     ) => Context(
         inner,
-        c => c.State.PushDataFrame(values),
-        static c => c.State.PopDataFrame()
+        c => c.State.Data.PushDataFrame(values),
+        static c => c.State.Data.PopDataFrame()
     );
 
     /// <summary>
@@ -106,8 +106,8 @@ public static partial class Parsers<TInput>
         Dictionary<string, object> values
     ) => Context(
         inner,
-        c => c.State.PushDataFrame(values),
-        static c => c.State.PopDataFrame()
+        c => c.State.Data.PushDataFrame(values),
+        static c => c.State.Data.PopDataFrame()
     );
 
     /// <summary>
@@ -120,8 +120,8 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
          => Context(
             inner,
-            c => c.State.PushDataFrame(),
-            static c => c.State.PopDataFrame()
+            c => c.State.Data.PushDataFrame(),
+            static c => c.State.Data.PopDataFrame()
         );
 
     /// <summary>
@@ -135,8 +135,8 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
         => Context(
             inner,
-            c => c.State.PushDataFrame(),
-            static c => c.State.PopDataFrame()
+            c => c.State.Data.PushDataFrame(),
+            static c => c.State.Data.PopDataFrame()
         );
 
     /// <summary>

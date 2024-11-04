@@ -44,7 +44,7 @@ public sealed record PrattParser<TInput, TOutput>(
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        var frame = state.PushDataFrame();
+        var frame = state.Data.PushDataFrame();
         var startCp = state.Input.Checkpoint();
         try
         {
@@ -58,7 +58,7 @@ public sealed record PrattParser<TInput, TOutput>(
         }
         finally
         {
-            state.PopDataFrame(frame);
+            state.Data.PopDataFrame(frame);
         }
     }
 
