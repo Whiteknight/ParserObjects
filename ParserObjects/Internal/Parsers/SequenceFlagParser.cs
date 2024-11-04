@@ -13,11 +13,6 @@ public sealed record SequenceFlagParser<TInput>(
     string Name = ""
 ) : SimpleRecordParser<TInput, object>(Name), IParser<TInput, object>
 {
-    /* We do not cache the error result because the error message (currently) contains the item
-     * which was found in the input sequence. End-checking happens relatively rarely in most
-     * parsers so we (probably) don't need to optimize that case any further.
-     */
-
     public override Result<object> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
