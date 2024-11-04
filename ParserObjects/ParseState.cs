@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Caching;
 
 namespace ParserObjects;
@@ -13,7 +14,7 @@ namespace ParserObjects;
 public sealed class ParseState<TInput> : IParseState<TInput>
 {
     private readonly Action<string> _logCallback;
-    private LinkedList<Dictionary<string, object>>? _data;
+    private LinkedList<(int Version, Dictionary<string, object> Values)>? _data;
 
     public ParseState(ISequence<TInput> input, Action<string> logCallback, IResultsCache? cache)
     {
@@ -38,31 +39,54 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 
     public TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null)
     {
-        var store = GetDataStore();
+        int frame = 0;
         try
         {
-            store.AddLast(new Dictionary<string, object>());
-            if (data != null)
-            {
-                foreach (var kvp in data)
-                    store.Last!.Value!.Add(kvp.Key, kvp.Value);
-            }
-
+            frame = PushDataFrame(data);
             return withContext(this, args);
         }
         finally
         {
-            if (store.Count > 1)
-                store.RemoveLast();
+            PopDataFrame(frame);
         }
     }
 
-    private LinkedList<Dictionary<string, object>> GetDataStore()
+    public int PushDataFrame(IReadOnlyDictionary<string, object>? data = null)
+    {
+        var store = GetDataStore();
+        var frame = new Dictionary<string, object>();
+        var version = store.Last!.Value.Version + 1;
+        if (data != null)
+        {
+            foreach (var kvp in data)
+                frame.Add(kvp.Key, kvp.Value);
+        }
+
+        store.AddLast((version, frame));
+        return version;
+    }
+
+    public int PopDataFrame(int version = 0)
+    {
+        Assert.ArgumentGreaterThanOrEqualTo(version, 0);
+        var store = GetDataStore();
+        if (version == 0)
+            version = store.Last!.Value.Version - 1;
+
+        while (store.Last!.Value.Version > version)
+            store.RemoveLast();
+
+        return store.Last!.Value.Version;
+    }
+
+    public int GetCurrentDataFrame() => GetDataStore().Last!.Value.Version;
+
+    private LinkedList<(int Version, Dictionary<string, object> Values)> GetDataStore()
     {
         if (_data == null)
         {
-            _data = new LinkedList<Dictionary<string, object>>();
-            _data.AddLast(new Dictionary<string, object>());
+            _data = new LinkedList<(int Version, Dictionary<string, object> Values)>();
+            _data.AddLast((1, new Dictionary<string, object>()));
         }
 
         return _data;
@@ -74,9 +98,9 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 /// </summary>
 public readonly struct DataStore
 {
-    private readonly LinkedList<Dictionary<string, object>> _store;
+    private readonly LinkedList<(int Version, Dictionary<string, object> Values)> _store;
 
-    public DataStore(LinkedList<Dictionary<string, object>> data)
+    public DataStore(LinkedList<(int Version, Dictionary<string, object> Values)> data)
     {
         _store = data;
     }
@@ -93,12 +117,13 @@ public readonly struct DataStore
         var node = _store.Last;
         while (node != null)
         {
-            if (node.Value.ContainsKey(name))
+            if (node.Value.Values.TryGetValue(name, out var value))
             {
-                var value = node.Value[name];
-                if (value is T typed)
-                    return new Option<T>(true, typed);
-                return default;
+                return value switch
+                {
+                    T typed => new Option<T>(true, typed),
+                    _ => default
+                };
             }
 
             node = node.Previous;
@@ -116,7 +141,7 @@ public readonly struct DataStore
     /// <param name="value"></param>
     public void Set<T>(string name, T value)
     {
-        var dict = _store!.Last!.Value!;
+        var dict = _store!.Last!.Value!.Values;
         Debug.Assert(dict != null, "Shouldn't be null");
 
         if (dict.ContainsKey(name))
