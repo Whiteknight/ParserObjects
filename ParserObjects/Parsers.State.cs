@@ -86,7 +86,11 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> DataContext<TOutput>(
         IParser<TInput, TOutput> inner,
         Dictionary<string, object> values
-    ) => new DataFrame<TInput>.Parser<TOutput>(inner, values);
+    ) => Context(
+        inner,
+        c => c.State.PushDataFrame(values),
+        static c => c.State.PopDataFrame()
+    );
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -100,7 +104,11 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(
         IMultiParser<TInput, TOutput> inner,
         Dictionary<string, object> values
-    ) => new DataFrame<TInput>.MultiParser<TOutput>(inner, values);
+    ) => Context(
+        inner,
+        c => c.State.PushDataFrame(values),
+        static c => c.State.PopDataFrame()
+    );
 
     /// <summary>
     /// Creates a new contextual data frame to store data. Execute the inner parser. When the
@@ -110,7 +118,11 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-        => new DataFrame<TInput>.Parser<TOutput>(inner);
+         => Context(
+            inner,
+            c => c.State.PushDataFrame(),
+            static c => c.State.PopDataFrame()
+        );
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -121,7 +133,11 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
-        => new DataFrame<TInput>.MultiParser<TOutput>(inner);
+        => Context(
+            inner,
+            c => c.State.PushDataFrame(),
+            static c => c.State.PopDataFrame()
+        );
 
     /// <summary>
     /// Creates a new contextual data frame to store data, populated initially with the given

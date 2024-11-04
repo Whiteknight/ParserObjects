@@ -46,6 +46,12 @@ public interface IParseState<TInput>
         IReadOnlyDictionary<string, object>? data = null
     );
 
+    int PushDataFrame(IReadOnlyDictionary<string, object>? data = null);
+
+    int PopDataFrame(int version = 0);
+
+    int GetCurrentDataFrame();
+
     /// <summary>
     /// Create a failure result.
     /// </summary>
