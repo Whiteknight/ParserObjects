@@ -37,20 +37,6 @@ public sealed class ParseState<TInput> : IParseState<TInput>
 
     public void Log(IParser parser, string message) => _logCallback?.Invoke($"{parser}: {message}");
 
-    public TResult WithDataFrame<TArgs, TResult>(TArgs args, Func<IParseState<TInput>, TArgs, TResult> withContext, IReadOnlyDictionary<string, object>? data = null)
-    {
-        int frame = 0;
-        try
-        {
-            frame = PushDataFrame(data);
-            return withContext(this, args);
-        }
-        finally
-        {
-            PopDataFrame(frame);
-        }
-    }
-
     public int PushDataFrame(IReadOnlyDictionary<string, object>? data = null)
     {
         var store = GetDataStore();

@@ -44,21 +44,22 @@ public sealed record PrattParser<TInput, TOutput>(
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
         Assert.ArgumentNotNull(state);
-        return state.WithDataFrame(this, static (s, p) =>
+        var frame = state.PushDataFrame();
+        var startCp = state.Input.Checkpoint();
+        try
         {
-            var startCp = s.Input.Checkpoint();
-            try
-            {
-                Assert.ArgumentNotNull(s);
-                var result = p.Engine.TryParse(s, 0);
-                return s.Result(p, result);
-            }
-            catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
-            {
-                startCp.Rewind();
-                return s.Fail<TOutput>(pe.Parser ?? p, pe.Message);
-            }
-        });
+            var result = Engine.TryParse(state, 0);
+            return result.ToResult(this);
+        }
+        catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
+        {
+            startCp.Rewind();
+            return state.Fail<TOutput>(pe.Parser ?? this, pe.Message);
+        }
+        finally
+        {
+            state.PopDataFrame(frame);
+        }
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
