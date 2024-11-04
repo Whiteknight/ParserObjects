@@ -37,7 +37,7 @@ public static class TryParser<TInput>
         public bool Match(Func<TParser, IParseState<TInput>, bool> match, IParseState<TInput> state)
         {
             var cp = state.Input.Checkpoint();
-            var frame = state.GetCurrentDataFrame();
+            var frame = state.Data.GetCurrentDataFrame();
             try
             {
                 return match(Parser, state);
@@ -51,7 +51,7 @@ public static class TryParser<TInput>
             catch (Exception ex)
             {
                 cp.Rewind();
-                state.PopDataFrame(frame);
+                state.Data.PopDataFrame(frame);
                 Examine?.Invoke(ex);
                 if (Bubble)
                     throw;
@@ -68,7 +68,7 @@ public static class TryParser<TInput>
         )
         {
             var cp = state.Input.Checkpoint();
-            var frame = state.GetCurrentDataFrame();
+            var frame = state.Data.GetCurrentDataFrame();
             try
             {
                 return parse(Parser, state);
@@ -82,7 +82,7 @@ public static class TryParser<TInput>
             catch (Exception ex)
             {
                 cp.Rewind();
-                state.PopDataFrame(frame);
+                state.Data.PopDataFrame(frame);
                 Examine?.Invoke(ex);
                 if (Bubble)
                     throw;
