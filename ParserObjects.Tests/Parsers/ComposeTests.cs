@@ -79,4 +79,14 @@ public class ComposeTests
         result.Should().Contain(inner);
         result.Should().Contain(outer);
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var inner = Parsers<byte>.Any().Transform(b => (char)b);
+        var outer = CharacterString("abc");
+        var target = Compose(inner, outer).Named("target");
+        var result = target.ToBnf();
+        result.Should().Contain("target := . * 'a' 'b' 'c'");
+    }
 }

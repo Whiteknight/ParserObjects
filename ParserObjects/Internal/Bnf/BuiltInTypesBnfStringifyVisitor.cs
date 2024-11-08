@@ -58,6 +58,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         AcceptChain(p.GetChildren().ToList(), state);
     }
 
+    public void Accept<TInput, TMiddle, TOutput>(ComposeParser<TInput, TMiddle, TOutput> p, BnfStringifyState state)
+    {
+        var children = p.GetChildren().ToList();
+        state.Append(children[0], " * ", children[1]);
+    }
+
     public void Accept<TInput, TOutput>(Context<TInput>.MultiParser<TOutput> p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().Single());
