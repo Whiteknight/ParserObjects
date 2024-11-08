@@ -3,24 +3,34 @@
 namespace ParserObjects.Internal.Parsers;
 
 // A wrapper to convert IParser<TInput> to IParser<TInput, object>
-public sealed class ObjectParser<TInput> : SimpleParser<TInput, object>
+public static class Objects<TInput>
 {
-    private readonly IParser<TInput> _inner;
-
-    public ObjectParser(IParser<TInput> inner, string name = "")
-        : base(name)
+    public static IParser<TInput, object> AsObject(IParser<TInput> parser)
     {
-        _inner = inner;
+        if (parser is IParser<TInput, object> typed)
+            return typed;
+        return new Parser(parser);
     }
 
-    public override Result<object> Parse(IParseState<TInput> state) => _inner.Parse(state);
-
-    public override INamed SetName(string name) => new ObjectParser<TInput>(_inner, name);
-
-    public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+    public sealed class Parser : SimpleParser<TInput, object>
     {
-        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-    }
+        private readonly IParser<TInput> _inner;
 
-    public override string ToString() => DefaultStringifier.ToString("Object", Name, Id);
+        public Parser(IParser<TInput> inner, string name = "")
+            : base(name)
+        {
+            _inner = inner;
+        }
+
+        public override Result<object> Parse(IParseState<TInput> state) => _inner.Parse(state);
+
+        public override INamed SetName(string name) => new Parser(_inner, name);
+
+        public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+        {
+            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+        }
+
+        public override string ToString() => DefaultStringifier.ToString("Object", Name, Id);
+    }
 }

@@ -273,7 +273,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(" ", continuation);
     }
 
-    public void Accept<TInput>(ObjectParser<TInput> p, BnfStringifyState state)
+    public void Accept<TInput>(Objects<TInput>.Parser p, BnfStringifyState state)
         => state.Append(p.GetChildren().First(), "?");
 
     public void Accept<TInput, TOutput>(Optional<TInput, TOutput>.DefaultValueParser p, BnfStringifyState state)
@@ -372,17 +372,8 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         AcceptRepetitionParser<TInput>(state, item, separator, p.Minimum, p.Maximum);
     }
 
-    public void Accept<TInput>(Replaceable<TInput>.SingleParser p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
-    }
-
-    public void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.SingleParser p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
-    }
-
-    public void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.MultiParser p, BnfStringifyState state)
+    public void Accept<TInput, TOutput, TParser>(Replaceable<TInput, TOutput>.Parser<TParser> p, BnfStringifyState state)
+        where TParser : class, IParser
     {
         state.Append(p.GetChildren().First());
     }
