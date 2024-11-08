@@ -17,16 +17,18 @@ public static class FirstParser<TInput>
      * interface variants
      */
 
-    private static Result<TResult> ParseInternal<TParser, TResult>(IParseState<TInput> state, IReadOnlyList<TParser> parsers, Func<IParseState<TInput>, TParser, Result<TResult>> getResult)
-        where TParser : IParser<TInput>
+    private static Result<TResult> ParseInternal<TParser, TResult>(
+        IParseState<TInput> state,
+        IReadOnlyList<TParser> parsers,
+        Func<IParseState<TInput>, TParser, Result<TResult>> getResult
+    )
     {
         Assert.ArgumentNotNull(state);
         Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
 
         for (int i = 0; i < parsers.Count - 1; i++)
         {
-            var parser = parsers[i];
-            var result = getResult(state, parser);
+            var result = getResult(state, parsers[i]);
             if (result.Success)
                 return result;
         }

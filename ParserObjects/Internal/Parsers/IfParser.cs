@@ -24,7 +24,12 @@ public sealed record IfParser<TInput, TOutput>(
         return Parse(state, result.Success ? OnSuccess : OnFailure, cp, result.Consumed);
     }
 
-    private static Result<TOutput> Parse(IParseState<TInput> state, IParser<TInput, TOutput> parser, SequenceCheckpoint cp, int predicateConsumed)
+    private static Result<TOutput> Parse(
+        IParseState<TInput> state,
+        IParser<TInput, TOutput> parser,
+        SequenceCheckpoint cp,
+        int predicateConsumed
+    )
     {
         var thenResult = parser.Parse(state);
         if (thenResult.Success)

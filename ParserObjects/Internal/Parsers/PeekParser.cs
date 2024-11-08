@@ -6,13 +6,9 @@ namespace ParserObjects.Internal.Parsers;
 /// Obtain the next item of input without advancing the input sequence.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed record PeekParser<T> : SimpleRecordParser<T, T>, IParser<T, T>
+public sealed record PeekParser<T>(string Name = "")
+    : SimpleRecordParser<T, T>(Name), IParser<T, T>
 {
-    public PeekParser(string name = "")
-        : base(name)
-    {
-    }
-
     public override Result<T> Parse(IParseState<T> state)
     {
         Assert.ArgumentNotNull(state);

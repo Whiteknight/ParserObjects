@@ -23,10 +23,8 @@ public static class Function<TInput, TOutput>
         MatchFunc<TData>? matchFunction,
         string description,
         IReadOnlyList<IParser>? children,
-        string name = "")
-    {
-        return new Parser<TData>(data, parseFunction, matchFunction, description, children, name);
-    }
+        string name = ""
+    ) => new Parser<TData>(data, parseFunction, matchFunction, description, children, name);
 
     public sealed class Parser<TData> : IParser<TInput, TOutput>
     {

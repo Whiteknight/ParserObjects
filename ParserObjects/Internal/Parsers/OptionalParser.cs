@@ -12,19 +12,12 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Optional<TInput, TOutput>
 {
-    public sealed class NoDefaultParser : IParser<TInput, Option<TOutput>>
+    public sealed record NoDefaultParser(
+        IParser<TInput, TOutput> Inner,
+        string Name = ""
+    ) : IParser<TInput, Option<TOutput>>
     {
-        public NoDefaultParser(IParser<TInput, TOutput> inner, string name = "")
-        {
-            Inner = inner;
-            Name = name;
-        }
-
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public IParser<TInput, TOutput> Inner { get; }
 
         public IEnumerable<IParser> GetChildren() => new[] { Inner };
 
@@ -37,14 +30,14 @@ public static class Optional<TInput, TOutput>
         public Result<Option<TOutput>> Parse(IParseState<TInput> state)
         {
             var result = Inner.Parse(state);
-            if (!result.Success)
-                return Result<Option<TOutput>>.Ok(this, default, 0);
-            return state.Success(this, new Option<TOutput>(true, result.Value), result.Consumed);
+            return result.Success
+                ? state.Success(this, new Option<TOutput>(true, result.Value), result.Consumed)
+                : Result<Option<TOutput>>.Ok(this, default, 0);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
-        public INamed SetName(string name) => new NoDefaultParser(Inner, name);
+        public INamed SetName(string name) => this with { Name = name };
 
         public override string ToString() => DefaultStringifier.ToString("Optional", Name, Id);
 
@@ -55,7 +48,7 @@ public static class Optional<TInput, TOutput>
         }
     }
 
-    public record DefaultValueParser(
+    public sealed record DefaultValueParser(
         IParser<TInput, TOutput> Inner,
         Func<IParseState<TInput>, TOutput> GetDefault,
         string Name = ""

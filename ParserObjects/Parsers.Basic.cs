@@ -304,7 +304,8 @@ public static partial class Parsers<TInput>
         => new ObjectParser<TInput>(parser);
 
     /// <summary>
-    /// AAttempt to invoke a parser. Returns an Option with the value on success.
+    /// Attempt to invoke a parser. Returns success with an Option to contain the value of the
+    /// inner parser.
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>

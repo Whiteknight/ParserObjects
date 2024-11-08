@@ -25,7 +25,10 @@ public sealed record FailParser<TInput, TOutput>(
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
-        => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
+    {
+        Assert.ArgumentNotNull(state);
+        return MultiResult<object>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
+    }
 
     public override bool Match(IParseState<TInput> state) => false;
 
