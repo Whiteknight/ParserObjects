@@ -16,9 +16,9 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     // (?= ) is "positive lookahead" syntax. We use it to show something doesn't consume input
     // (?! ) is "negative lookahead" syntax. We use it for non-follows situations
 
-    public void Accept<TInput>(AnyParser<TInput> _, BnfStringifyState state)
+    public void Accept<TInput>(AnyParser<TInput> p, BnfStringifyState state)
     {
-        state.Append('.');
+        state.Append(p.Peek ? "(?=.)" : ".");
     }
 
     public void Accept<TInput, TOutput>(Cache<TInput>.Parser<TOutput> p, BnfStringifyState state)
@@ -284,11 +284,6 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(Optional<TInput, TOutput>.NoDefaultParser p, BnfStringifyState state)
     {
         state.Append(p.GetChildren().First(), "?");
-    }
-
-    public void Accept<TInput>(PeekParser<TInput> _, BnfStringifyState state)
-    {
-        state.Append("(?=.)");
     }
 
     public void Accept<TInput>(PositiveLookaheadParser<TInput> p, BnfStringifyState state)
