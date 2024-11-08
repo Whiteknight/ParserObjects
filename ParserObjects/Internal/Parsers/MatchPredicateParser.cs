@@ -27,7 +27,8 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
         TData data,
         Func<T, TData, bool> predicate,
         bool readAtEnd = true,
-        string name = "")
+        string name = ""
+    )
     {
         _data = data;
         _predicate = predicate;
