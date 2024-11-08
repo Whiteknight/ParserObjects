@@ -10,73 +10,67 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
-public static class Deferred<TInput, TOutput>
+/// <typeparam name="TParser"></typeparam>
+/// <param name="GetParser"></param>
+/// <param name="Name"></param>
+public sealed record DeferredParser<TInput, TOutput, TParser>(
+    Func<TParser> GetParser,
+    string Name = ""
+) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
+        where TParser : class, IParser
 {
-    public sealed record Parser(
-        Func<IParser<TInput, TOutput>> GetParser,
-        string Name = ""
-    ) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>
+    public override Result<TOutput> Parse(IParseState<TInput> state)
     {
-        public override Result<TOutput> Parse(IParseState<TInput> state)
-            => GetParserFromCacheOrCallback(state).Parse(state);
-
-        public override bool Match(IParseState<TInput> state)
-            => GetParserFromCacheOrCallback(state).Match(state);
-
-        public override IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
-
-        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
-
-        public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
-
-        private IParser<TInput, TOutput> GetParserFromCacheOrCallback(IParseState<TInput> state)
-        {
-            var existing = state.Cache.Get<IParser<TInput, TOutput>>(this, default);
-            if (existing.Success)
-                return existing.Value;
-
-            var parser = GetParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
-            state.Cache.Add(this, default, parser);
-            return parser;
-        }
+        var parser = GetParserFromCacheOrCallback(state) as IParser<TInput, TOutput>
+            ?? throw new InvalidOperationException("Invalid parser type");
+        return parser.Parse(state);
     }
 
-    public sealed record MultiParser(
-        Func<IMultiParser<TInput, TOutput>> GetParser,
-        string Name = ""
-    ) : IMultiParser<TInput, TOutput>
+    Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
     {
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
+        var parser = GetParserFromCacheOrCallback(state) as IParser<TInput>
+            ?? throw new InvalidOperationException("Invalid parser type");
+        return parser.Parse(state);
+    }
 
-        public MultiResult<TOutput> Parse(IParseState<TInput> state)
-            => GetParserFromCacheOrCallback(state).Parse(state);
+    MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+    {
+        var parser = GetParserFromCacheOrCallback(state) as IMultiParser<TInput, TOutput>
+            ?? throw new InvalidOperationException("Invalid parser type");
+        return parser.Parse(state);
+    }
 
-        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
+    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
+    {
+        var parser = GetParserFromCacheOrCallback(state) as IMultiParser<TInput>
+            ?? throw new InvalidOperationException("Invalid parser type");
+        return parser.Parse(state);
+    }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
+    public override bool Match(IParseState<TInput> state)
+    {
+        var parser = GetParserFromCacheOrCallback(state) as IParser<TInput, TOutput>
+           ?? throw new InvalidOperationException("Invalid parser type");
+        return parser.Match(state);
+    }
 
-        public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
+    public override IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
 
-        public INamed SetName(string name) => this with { Name = name };
+    public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
 
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
+    public override void Visit<TVisitor, TState>(TVisitor visitor, TState state)
+    {
+        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
+    }
 
-        private IMultiParser<TInput, TOutput> GetParserFromCacheOrCallback(IParseState<TInput> state)
-        {
-            var existing = state.Cache.Get<IMultiParser<TInput, TOutput>>(this, default);
-            if (existing.Success)
-                return existing.Value;
+    private TParser GetParserFromCacheOrCallback(IParseState<TInput> state)
+    {
+        var existing = state.Cache.Get<TParser>(this, default);
+        if (existing.Success)
+            return existing.Value;
 
-            var parser = GetParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
-            state.Cache.Add(this, default, parser);
-            return parser;
-        }
+        var parser = GetParser() ?? throw new InvalidOperationException("Deferred parser value must not be null");
+        state.Cache.Add(this, default, parser);
+        return parser;
     }
 }
