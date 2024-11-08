@@ -68,17 +68,14 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput>(FirstParser<TInput>.WithoutOutput p, TState state);
 
-    void Accept<TInput>(ObjectParser<TInput> p, TState state);
+    void Accept<TInput>(Objects<TInput>.Parser p, TState state);
 
     void Accept<TInput, TOutput>(Optional<TInput, TOutput>.DefaultValueParser p, TState state);
 
     void Accept<TInput, TOutput>(Optional<TInput, TOutput>.NoDefaultParser p, TState state);
 
-    void Accept<TInput>(Replaceable<TInput>.SingleParser p, TState state);
-
-    void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.SingleParser p, TState state);
-
-    void Accept<TInput, TOutput>(Replaceable<TInput, TOutput>.MultiParser p, TState state);
+    void Accept<TInput, TOutput, TParser>(Replaceable<TInput, TOutput>.Parser<TParser> p, TState state)
+        where TParser : class, IParser;
 
     void Accept<TInput, TOutput, TData, TParser, TItem>(Rule.Parser<TInput, TOutput, TData, TParser, TItem> p, TState state)
         where TParser : IParser;

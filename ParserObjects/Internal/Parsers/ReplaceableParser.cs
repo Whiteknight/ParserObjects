@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
 // NOTE: Replaceable parsers should be the only parser types which have mutable data.
@@ -12,138 +13,79 @@ namespace ParserObjects.Internal.Parsers;
 /// modifications need to be made after the parser has been created.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
-public static class Replaceable<TInput>
-{
-    public sealed class SingleParser : IParser<TInput, object>, IReplaceableParserUntyped
-    {
-        private IParser<TInput> _value;
-
-        public SingleParser(IParser<TInput> defaultValue, string name = "")
-        {
-            Assert.ArgumentNotNull(defaultValue);
-            _value = defaultValue;
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public IParser ReplaceableChild => _value;
-
-        public Result<object> Parse(IParseState<TInput> state) => _value.Parse(state);
-
-        public bool Match(IParseState<TInput> state) => _value.Match(state);
-
-        public IEnumerable<IParser> GetChildren() => new[] { _value };
-
-        public SingleReplaceResult SetParser(IParser parser)
-        {
-            var previous = _value;
-            if (parser is IParser<TInput> typed)
-                _value = typed;
-            return new SingleReplaceResult(this, previous, _value);
-        }
-
-        public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
-
-        public INamed SetName(string name) => new SingleParser(_value, name);
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
-    }
-}
-
-/// <summary>
-/// Delegates to an internal parser, and allows the internal parser to be replaced in-place
-/// after the parser graph has been created. Useful for cases where grammar extensions or
-/// modifications need to be made after the parser has been created.
-/// </summary>
-/// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
 public static class Replaceable<TInput, TOutput>
 {
-    public sealed class SingleParser : IParser<TInput, TOutput>, IReplaceableParserUntyped
-    {
-        private IParser<TInput, TOutput> _value;
+    public static TParser From<TParser>(TParser parser)
+        where TParser : class, IParser
+        => (new Parser<TParser>(parser) as TParser)!;
 
-        public SingleParser(IParser<TInput, TOutput> defaultValue, string name = "")
+    public sealed class Parser<TParser>
+        : IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
+        where TParser : class, IParser
+    {
+        private TParser _parser;
+
+        public Parser(TParser parser, string name = "")
         {
-            Assert.ArgumentNotNull(defaultValue);
-            _value = defaultValue;
+            _parser = parser;
             Name = name;
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
+        public IParser ReplaceableChild => _parser;
+
         public string Name { get; }
 
-        public IParser ReplaceableChild => _value;
+        Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
+        {
+            var parser = _parser as IParser<TInput>
+                ?? throw new InvalidOperationException("Parser is not the correct type");
+            return parser.Parse(state);
+        }
 
-        public Result<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
+        Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+        {
+            var parser = _parser as IParser<TInput, TOutput>
+                ?? throw new InvalidOperationException("Parser is not the correct type");
+            return parser.Parse(state);
+        }
 
-        Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state).AsObject();
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
+        {
+            var parser = _parser as IMultiParser<TInput>
+                ?? throw new InvalidOperationException("Parser is not the correct type");
+            return parser.Parse(state);
+        }
 
-        public bool Match(IParseState<TInput> state) => _value.Match(state);
+        MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
+        {
+            var parser = _parser as IMultiParser<TInput, TOutput>
+                ?? throw new InvalidOperationException("Parser is not the correct type");
+            return parser.Parse(state);
+        }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _value };
+        public bool Match(IParseState<TInput> state)
+        {
+            var parser = _parser as IParser<TInput>
+                ?? throw new InvalidOperationException("Parser is not the correct type");
+            return parser.Match(state);
+        }
+
+        public IEnumerable<IParser> GetChildren() => new[] { _parser };
 
         public SingleReplaceResult SetParser(IParser parser)
         {
-            var previous = _value;
-            if (parser is IParser<TInput, TOutput> typed)
-                _value = typed;
-            return new SingleReplaceResult(this, previous, _value);
+            var previous = _parser;
+            if (parser is TParser typed)
+                _parser = typed;
+            return new SingleReplaceResult(this, previous, _parser);
         }
 
         public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
 
-        public INamed SetName(string name) => new SingleParser(_value, name);
-
-        public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
-        {
-            visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
-        }
-    }
-
-    public sealed class MultiParser : IMultiParser<TInput, TOutput>, IReplaceableParserUntyped
-    {
-        private IMultiParser<TInput, TOutput> _value;
-
-        public MultiParser(IMultiParser<TInput, TOutput> defaultValue, string name = "")
-        {
-            Assert.ArgumentNotNull(defaultValue);
-            _value = defaultValue;
-            Name = name;
-        }
-
-        public int Id { get; } = UniqueIntegerGenerator.GetNext();
-
-        public string Name { get; }
-
-        public IParser ReplaceableChild => _value;
-
-        public MultiResult<TOutput> Parse(IParseState<TInput> state) => _value.Parse(state);
-
-        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => _value.Parse(state).AsObject();
-
-        public IEnumerable<IParser> GetChildren() => new[] { _value };
-
-        public SingleReplaceResult SetParser(IParser parser)
-        {
-            var previous = _value;
-            if (parser is IMultiParser<TInput, TOutput> typed)
-                _value = typed;
-            return new SingleReplaceResult(this, previous, _value);
-        }
-
-        public override string ToString() => DefaultStringifier.ToString("Replaceable", Name, Id);
-
-        public INamed SetName(string name) => new MultiParser(_value, name);
+        public INamed SetName(string name) => new Parser<TParser>(_parser, name);
 
         public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>

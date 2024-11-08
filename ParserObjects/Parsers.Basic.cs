@@ -301,7 +301,7 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public static IParser<TInput, object> Object(IParser<TInput> parser)
-        => new ObjectParser<TInput>(parser);
+        => new Objects<TInput>.Parser(parser);
 
     /// <summary>
     /// Attempt to invoke a parser. Returns success with an Option to contain the value of the
@@ -427,7 +427,9 @@ public static partial class Parsers<TInput>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Replaceable<TOutput>(IParser<TInput, TOutput> defaultParser)
-        => new Replaceable<TInput, TOutput>.SingleParser(defaultParser ?? Fail<TOutput>());
+        => Replaceable<TInput, TOutput>.From(
+            defaultParser ?? Fail<TOutput>()
+        );
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -435,7 +437,9 @@ public static partial class Parsers<TInput>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
     public static IParser<TInput, object> Replaceable(IParser<TInput> defaultParser)
-        => new Replaceable<TInput>.SingleParser(defaultParser ?? Fail<object>());
+        => Replaceable<TInput, object>.From(
+            Objects<TInput>.AsObject(defaultParser ?? Fail<object>())
+        );
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.
@@ -444,7 +448,9 @@ public static partial class Parsers<TInput>
     /// <param name="defaultParser"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Replaceable<TOutput>(IMultiParser<TInput, TOutput> defaultParser)
-        => new Replaceable<TInput, TOutput>.MultiParser(defaultParser ?? FailMulti<TOutput>());
+        => Replaceable<TInput, TOutput>.From(
+            defaultParser ?? FailMulti<TOutput>()
+        );
 
     /// <summary>
     /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
@@ -452,7 +458,9 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Replaceable<TOutput>()
-        => new Replaceable<TInput, TOutput>.SingleParser(new FailParser<TInput, TOutput>());
+        => Replaceable<TInput, TOutput>.From(
+            Fail<TOutput>()
+        );
 
     /// <summary>
     /// Serves as a placeholder in the parser graph where an in-place replacement can be made.
@@ -460,7 +468,9 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ReplaceableMulti<TOutput>()
-        => new Replaceable<TInput, TOutput>.MultiParser(new FailParser<TInput, TOutput>());
+        => Replaceable<TInput, TOutput>.From(
+            FailMulti<TOutput>()
+        );
 
     /// <summary>
     /// Execute a specially-structured callback to turn a parse into sequential, procedural
