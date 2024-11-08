@@ -130,7 +130,7 @@ public static partial class Parsers<TInput>
     /// <param name="getParser"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Deferred<TOutput>(Func<IParser<TInput, TOutput>> getParser)
-        => new Deferred<TInput, TOutput>.Parser(getParser);
+        => new DeferredParser<TInput, TOutput, IParser<TInput, TOutput>>(getParser);
 
     /// <summary>
     /// Get a reference to a parser dynamically. Avoids circular dependencies in the grammar.
@@ -139,7 +139,7 @@ public static partial class Parsers<TInput>
     /// <param name="getParser"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> Deferred<TOutput>(Func<IMultiParser<TInput, TOutput>> getParser)
-        => new Deferred<TInput, TOutput>.MultiParser(getParser);
+        => new DeferredParser<TInput, TOutput, IMultiParser<TInput, TOutput>>(getParser);
 
     /// <summary>
     /// Executes all the parsers from the current location and returns a MultiResult with all

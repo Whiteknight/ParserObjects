@@ -101,12 +101,8 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("CREATE");
     }
 
-    public void Accept<TInput, TOutput>(Deferred<TInput, TOutput>.Parser p, BnfStringifyState state)
-    {
-        state.Append(p.GetChildren().First());
-    }
-
-    public void Accept<TInput, TOutput>(Deferred<TInput, TOutput>.MultiParser p, BnfStringifyState state)
+    public void Accept<TInput, TOutput, TParser>(DeferredParser<TInput, TOutput, TParser> p, BnfStringifyState state)
+        where TParser : class, IParser
     {
         state.Append(p.GetChildren().First());
     }

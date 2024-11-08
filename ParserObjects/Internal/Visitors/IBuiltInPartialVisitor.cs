@@ -59,9 +59,8 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser _, TState state);
 
-    void Accept<TInput, TOutput>(Deferred<TInput, TOutput>.MultiParser p, TState state);
-
-    void Accept<TInput, TOutput>(Deferred<TInput, TOutput>.Parser p, TState state);
+    void Accept<TInput, TOutput, TParser>(DeferredParser<TInput, TOutput, TParser> p, TState state)
+        where TParser : class, IParser;
 
     void Accept<TInput, TOutput>(FailParser<TInput, TOutput> p, TState state);
 
