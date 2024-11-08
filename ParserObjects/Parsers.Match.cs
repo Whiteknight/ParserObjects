@@ -9,7 +9,7 @@ namespace ParserObjects;
 // Parsers which match input values.
 public static partial class Parsers<TInput>
 {
-    private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>();
+    private static readonly IParser<TInput, TInput> _any = new AnyParser<TInput>(false);
 
     private static readonly IParser<TInput, object> _empty = new EmptyParser<TInput>();
 
@@ -25,7 +25,7 @@ public static partial class Parsers<TInput>
         Array.Empty<IParser>()
     );
 
-    private static readonly IParser<TInput, TInput> _peek = new PeekParser<TInput>();
+    private static readonly IParser<TInput, TInput> _peek = new AnyParser<TInput>(true);
 
     private static readonly IParser<TInput, object> _start = new SequenceFlagParser<TInput>(
         SequencePositionFlags.StartOfInput,

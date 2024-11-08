@@ -8,6 +8,7 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public sealed record AnyParser<T>(
+    bool Peek,
     string Name = ""
 ) : SimpleRecordParser<T, T>(Name), IParser<T, T>
 {
@@ -17,7 +18,7 @@ public sealed record AnyParser<T>(
         if (state.Input.IsAtEnd)
             return Result<T>.Fail(this, "Expected any but found End.");
 
-        var next = state.Input.GetNext();
+        var next = GetNext(state);
         return state.Success(this, next, 1);
     }
 
@@ -25,7 +26,8 @@ public sealed record AnyParser<T>(
     {
         if (state.Input.IsAtEnd)
             return false;
-        state.Input.GetNext();
+
+        GetNext(state);
         return true;
     }
 
@@ -33,4 +35,7 @@ public sealed record AnyParser<T>(
     {
         visitor.Get<IMatchPartialVisitor<TState>>()?.Accept(this, state);
     }
+
+    private T GetNext(IParseState<T> state)
+        => Peek ? state.Input.Peek() : state.Input.GetNext();
 }

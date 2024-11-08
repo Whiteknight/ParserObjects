@@ -2,6 +2,7 @@
 
 namespace ParserObjects.Internal.Parsers;
 
+// A wrapper to convert IParser<TInput> to IParser<TInput, object>
 public sealed class ObjectParser<TInput> : SimpleParser<TInput, object>
 {
     private readonly IParser<TInput> _inner;
