@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Internal.Visitors;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Internal.Parsers;
@@ -73,7 +74,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>
     {
-        throw new NotImplementedException();
+        visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
     }
 
     private class InnerParserFailedException : ControlFlowException
