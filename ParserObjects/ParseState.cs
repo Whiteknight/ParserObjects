@@ -21,7 +21,7 @@ public sealed class ParseState<TInput> : IParseState<TInput>
         Input = input;
         _data = null;
         _logCallback = logCallback;
-        Cache = cache ?? NullResultsCache.Instance;
+        Cache = cache ?? new SimpleDictionaryCache();
     }
 
     public ParseState(ISequence<TInput> input, Action<string> logCallback)

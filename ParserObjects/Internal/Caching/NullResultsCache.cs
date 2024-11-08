@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Internal.Caching;
+﻿using System.Collections.Generic;
+
+namespace ParserObjects.Internal.Caching;
 
 public sealed class NullResultsCache : IResultsCache
 {
