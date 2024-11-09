@@ -77,8 +77,9 @@ public static class Transform<TInput>
             Assert.ArgumentNotNull(state);
 
             // Execute the parse and transform the result
+            var startCp = state.Input.Checkpoint();
             var result = Inner.Parse(state);
-            result.StartCheckpoint.Rewind();
+            startCp.Rewind();
 
             return result.Transform(Data, Transform);
         }

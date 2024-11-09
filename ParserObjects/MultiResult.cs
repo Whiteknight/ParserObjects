@@ -36,7 +36,6 @@ public readonly record struct ResultAlternative<TOutput>(
 
 public readonly record struct MultiResult<TOutput>(
     IParser Parser,
-    SequenceCheckpoint StartCheckpoint,
     IReadOnlyList<ResultAlternative<TOutput>> Results,
     ResultData Data = default
 )
@@ -44,14 +43,13 @@ public readonly record struct MultiResult<TOutput>(
     public bool Success => Results.Any(r => r.Success);
 
     public static MultiResult<TOutput> FromSingleFailure(IParser parser, SequenceCheckpoint startCheckpoint, string errorMessage)
-        => new MultiResult<TOutput>(parser, startCheckpoint, new[] { ResultAlternative<TOutput>.Failure(errorMessage, startCheckpoint) });
+        => new MultiResult<TOutput>(parser, new[] { ResultAlternative<TOutput>.Failure(errorMessage, startCheckpoint) });
 
     public MultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
         Assert.ArgumentNotNull(transform);
         return new MultiResult<TValue>(
             Parser,
-            StartCheckpoint,
             Results.Select(r => r.Transform(data, transform)).ToList(),
             Data);
     }
@@ -68,7 +66,6 @@ public readonly record struct MultiResult<TOutput>(
         Assert.ArgumentNotNull(select);
         return new MultiResult<TValue>(
             Parser,
-            StartCheckpoint,
             Results.Select(r => r.Success ? select(r) : r.Transform<TValue, object?>(null, static (_, _) => default!)).ToList(),
             Data);
     }
