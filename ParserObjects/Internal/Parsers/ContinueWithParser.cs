@@ -44,6 +44,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
+            var startCp = state.Input.Checkpoint();
             var innerResult = _inner.Parse(state);
 
             var results = new List<ResultAlternative<TOutput>>();
@@ -58,11 +59,11 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 var result = _right.Parse(state);
                 results.Add(result.Success
                     ? new ResultAlternative<TOutput>(true, null, result.Value, result.Consumed, state.Input.Checkpoint())
-                    : new ResultAlternative<TOutput>(false, result.ErrorMessage, default, 0, innerResult.StartCheckpoint));
+                    : new ResultAlternative<TOutput>(false, result.ErrorMessage, default, 0, startCp));
             }
 
-            innerResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, innerResult.StartCheckpoint, results);
+            startCp.Rewind();
+            return new MultiResult<TOutput>(this, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);
@@ -105,6 +106,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
+            var startCp = state.Input.Checkpoint();
             var innerResult = _inner.Parse(state);
 
             var results = new List<ResultAlternative<TOutput>>();
@@ -119,15 +121,15 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 var result = _right.Parse(state);
                 if (!result.Success)
                 {
-                    results.Add(ResultAlternative<TOutput>.Failure("Right parser returned no valid results", innerResult.StartCheckpoint));
+                    results.Add(ResultAlternative<TOutput>.Failure("Right parser returned no valid results", startCp));
                     continue;
                 }
 
                 results.AddRange(result.Results.Where(r => r.Success));
             }
 
-            innerResult.StartCheckpoint.Rewind();
-            return new MultiResult<TOutput>(this, innerResult.StartCheckpoint, results);
+            startCp.Rewind();
+            return new MultiResult<TOutput>(this, results);
         }
 
         public override string ToString() => DefaultStringifier.ToString("ContinueWith", Name, Id);

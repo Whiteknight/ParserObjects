@@ -15,26 +15,20 @@ public static class Cache<TInput>
      * Parser classes adapt this struct to the IParser interface variants.
      */
 
-    private readonly struct InternalParser<TParser, TResult, TCacheEntry>
+    private readonly struct InternalParser<TParser, TResult>
         where TParser : IParser
     {
         private readonly Func<TParser, IParseState<TInput>, TResult> _parse;
-        private readonly Func<TResult, SequenceCheckpoint, TCacheEntry> _getCacheEntry;
-        private readonly Func<TCacheEntry, (TResult, SequenceCheckpoint)> _decomposeCacheEntry;
         private readonly Func<TResult, bool> _isSuccess;
 
         public InternalParser(
             TParser parser,
             Func<TParser, IParseState<TInput>, TResult> parse,
-            Func<TResult, SequenceCheckpoint, TCacheEntry> getCacheEntry,
-            Func<TCacheEntry, (TResult, SequenceCheckpoint)> decomposeCacheEntry,
             Func<TResult, bool> isSuccess
         )
         {
             Parser = parser;
             _parse = parse;
-            _getCacheEntry = getCacheEntry;
-            _decomposeCacheEntry = decomposeCacheEntry;
             _isSuccess = isSuccess;
         }
 
@@ -43,36 +37,31 @@ public static class Cache<TInput>
         public TResult Parse(IParseState<TInput> state)
         {
             var startCp = state.Input.Checkpoint();
-            var cached = state.Cache.Get<TCacheEntry>(Parser, startCp.Location);
+            var cached = state.Cache.Get<Tuple<TResult, SequenceCheckpoint>>(Parser, startCp.Location);
             if (!cached.Success)
             {
                 var result = _parse(Parser, state);
-                var cacheKey = _getCacheEntry(result, startCp);
+                var cacheKey = Tuple.Create(result, startCp);
                 state.Cache.Add(Parser, startCp.Location, cacheKey);
                 return result;
             }
 
-            var (cachedResult, continuation) = _decomposeCacheEntry(cached.Value);
-            if (!_isSuccess(cachedResult))
-                return cachedResult;
-
-            // Jump back to the position after the successful result.
-            continuation.Rewind();
+            var (cachedResult, continuation) = cached.Value;
+            if (_isSuccess(cachedResult))
+                continuation.Rewind();
             return cachedResult;
         }
     }
 
     public sealed record Parser<TOutput> : IParser<TInput, TOutput>
     {
-        private readonly InternalParser<IParser<TInput, TOutput>, Result<TOutput>, Tuple<Result<TOutput>, SequenceCheckpoint>> _internal;
+        private readonly InternalParser<IParser<TInput, TOutput>, Result<TOutput>> _internal;
 
         public Parser(IParser<TInput, TOutput> inner, string name = "")
         {
-            _internal = new InternalParser<IParser<TInput, TOutput>, Result<TOutput>, Tuple<Result<TOutput>, SequenceCheckpoint>>(
+            _internal = new InternalParser<IParser<TInput, TOutput>, Result<TOutput>>(
                 inner,
                 static (p, s) => p.Parse(s),
-                static (r, cp) => Tuple.Create(r, cp),
-                static ce => (ce.Item1, ce.Item2),
                 static r => r.Success
             );
             Name = name;
@@ -103,15 +92,13 @@ public static class Cache<TInput>
 
     public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
     {
-        private readonly InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>, MultiResult<TOutput>> _internal;
+        private readonly InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>> _internal;
 
         public MultiParser(IMultiParser<TInput, TOutput> inner, string name = "")
         {
-            _internal = new InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>, MultiResult<TOutput>>(
+            _internal = new InternalParser<IMultiParser<TInput, TOutput>, MultiResult<TOutput>>(
                 inner,
                 static (p, s) => p.Parse(s),
-                static (r, _) => r,
-                static ce => (ce, ce.StartCheckpoint),
                 static r => r.Success
             );
             Name = name;

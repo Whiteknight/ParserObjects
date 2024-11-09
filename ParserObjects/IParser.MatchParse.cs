@@ -30,8 +30,9 @@ public static class ParserMatchParseExtensions
     /// <returns></returns>
     public static bool Match<TInput>(this IMultiParser<TInput> parser, ISequence<TInput> input)
     {
+        var startCp = input.Checkpoint();
         var result = parser.Parse(new ParseState<TInput>(input, Defaults.LogMethod));
-        result.StartCheckpoint.Rewind();
+        startCp.Rewind();
         return result.Success;
     }
 

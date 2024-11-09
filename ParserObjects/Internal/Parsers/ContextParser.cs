@@ -254,7 +254,7 @@ public static class Context<TInput>
             {
                 if (consumedInSetup > 0)
                     startCp.Rewind();
-                return new MultiResult<TOutput>(_inner, startCp, Array.Empty<ResultAlternative<TOutput>>(), new ResultData(setupException));
+                return new MultiResult<TOutput>(_inner, Array.Empty<ResultAlternative<TOutput>>(), new ResultData(setupException));
             }
 
             MultiResult<TOutput> result = default;

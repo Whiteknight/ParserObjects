@@ -172,7 +172,7 @@ public static class Function<TInput, TOutput>
             build(data, buildArgs);
 
             startCheckpoint.Rewind();
-            return new MultiResult<TOutput>(args.Parser, startCheckpoint, buildArgs.GetFinalResultList());
+            return new MultiResult<TOutput>(args.Parser, buildArgs.GetFinalResultList());
         }
 
         public IEnumerable<IParser> GetChildren() => _children;
