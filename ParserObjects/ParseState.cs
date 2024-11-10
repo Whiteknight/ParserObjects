@@ -66,12 +66,7 @@ public readonly struct DataStore
     {
         var frame = new Dictionary<string, object>();
         var version = _store.Last!.Value.Version + 1;
-        if (data != null)
-        {
-            foreach (var kvp in data)
-                frame.Add(kvp.Key, kvp.Value);
-        }
-
+        data?.AddTo(frame);
         _store.AddLast((version, frame));
         return version;
     }
@@ -102,16 +97,17 @@ public readonly struct DataStore
         var node = _store.Last;
         while (node != null)
         {
-            if (node.Value.Values.TryGetValue(name, out var value))
+            if (!node.Value.Values.TryGetValue(name, out var value))
             {
-                return value switch
-                {
-                    T typed => new Option<T>(true, typed),
-                    _ => default
-                };
+                node = node.Previous;
+                continue;
             }
 
-            node = node.Previous;
+            return value switch
+            {
+                T typed => new Option<T>(true, typed),
+                _ => default
+            };
         }
 
         return default;
