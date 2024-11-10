@@ -27,9 +27,9 @@ public sealed record MatchPatternParser<T>(
         if (Pattern.Count == 1)
         {
             var next = state.Input.Peek();
-            if (next == null || !next.Equals(Pattern[0]))
-                return Result.Fail(this, "Item does not match");
-            return Result.Ok(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
+            return next == null || !next.Equals(Pattern[0])
+                ? Result.Fail(this, "Item does not match")
+                : Result.Ok(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
         }
 
         var checkpoint = state.Input.Checkpoint();

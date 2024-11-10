@@ -6,11 +6,9 @@ namespace ParserObjects.Internal.Parsers;
 public static class Objects<TInput>
 {
     public static IParser<TInput, object> AsObject(IParser<TInput> parser)
-    {
-        if (parser is IParser<TInput, object> typed)
-            return typed;
-        return new Parser(parser);
-    }
+        => parser is IParser<TInput, object> typed
+        ? typed :
+        new Parser(parser);
 
     public sealed class Parser : SimpleParser<TInput, object>
     {

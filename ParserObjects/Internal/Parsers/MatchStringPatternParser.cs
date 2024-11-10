@@ -55,9 +55,9 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         if (Pattern.Length == 1)
         {
             var next = state.Input.Peek();
-            if (next != Pattern[0])
-                return Result.Fail(this, "Item does not match");
-            return Result.Ok(this, Pattern, 1);
+            return next != Pattern[0]
+                ? Result.Fail(this, "Item does not match")
+                : Result.Ok(this, Pattern, 1);
         }
 
         for (var i = 0; i < Pattern.Length; i++)
@@ -78,9 +78,9 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         if (Pattern.Length == 1)
         {
             var next = state.Input.Peek();
-            if (!CharMethods.EqualsCaseInsensitive(next, Pattern[0]))
-                return Result.Fail(this, "Item does not match");
-            return Result.Ok(this, new string(next, 1), 1);
+            return !CharMethods.EqualsCaseInsensitive(next, Pattern[0])
+                ? Result.Fail(this, "Item does not match")
+                : Result.Ok(this, new string(next, 1), 1);
         }
 
         var buffer = new char[Pattern.Length];
