@@ -34,7 +34,12 @@ public static class Transform<TInput>
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public Result<TOutput> Parse(IParseState<TInput> state)
-            => Inner.Parse(state).Select((Transform, Data), static (v, data) => data.Transform(data.Data, v));
+        {
+            var result = Inner.Parse(state);
+            return result.Success
+                ? Result.Ok(this, Transform(Data, result.Value), result.Consumed, result.Data)
+                : Result.Fail<TOutput>(Inner, result.ErrorMessage, result.Data);
+        }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 

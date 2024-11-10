@@ -400,10 +400,10 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IEnumerable<TOutput>> produce)
-        => new Function<TInput, TOutput>.MultiParser<Func<IEnumerable<TOutput>>>(produce, static (p, builder) =>
+        => Function<TInput, TOutput>.CreateMulti(produce, static (_, p, builder) =>
         {
             var values = p();
-            builder.AddSuccesses(values);
+            return builder.AddSuccesses(values).BuildResult();
         }, "PRODUCE", Array.Empty<IParser>());
 
     /// <summary>
@@ -414,10 +414,10 @@ public static partial class Parsers<TInput>
     /// <param name="produce"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> ProduceMulti<TOutput>(Func<IParseState<TInput>, IEnumerable<TOutput>> produce)
-        => new Function<TInput, TOutput>.MultiParser<Func<IParseState<TInput>, IEnumerable<TOutput>>>(produce, static (p, builder) =>
+        => Function<TInput, TOutput>.CreateMulti(produce, static (s, p, builder) =>
         {
-            var values = p(builder.State);
-            builder.AddSuccesses(values);
+            var values = p(s);
+            return builder.AddSuccesses(values).BuildResult();
         }, "PRODUCE", Array.Empty<IParser>());
 
     /// <summary>

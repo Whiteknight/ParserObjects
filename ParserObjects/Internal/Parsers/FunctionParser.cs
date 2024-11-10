@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -102,44 +101,25 @@ public static class Function<TInput, TOutput>
         }
     }
 
-    public readonly record struct MultiArguments(IMultiParser<TInput, TOutput> Parser, IParseState<TInput> State)
-    {
-        public ISequence<TInput> Input => State.Input;
-        public DataStore Data => State.Data;
-        public IResultsCache Cache => State.Cache;
-    }
+    public delegate MultiResult<TOutput> MultiParseFunc<TData>(IParseState<TInput> state, TData data, MultiResultBuilder<TInput, TOutput> resultBuilder);
 
-    public readonly record struct MultiBuilder(
-        IMultiParser<TInput, TOutput> Parser,
-        IParseState<TInput> State,
-        IList<ResultAlternative<TOutput>> Results,
-        SequenceCheckpoint StartCheckpoint)
-    {
-        public ISequence<TInput> Input => State.Input;
-
-        public void AddSuccesses(IEnumerable<TOutput> values)
-        {
-            var checkpoint = Input.Checkpoint();
-            var consumed = checkpoint.Consumed - StartCheckpoint.Consumed;
-            foreach (var value in values)
-                Results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
-        }
-
-        public IReadOnlyList<ResultAlternative<TOutput>> GetFinalResultList()
-            => Results is IReadOnlyList<ResultAlternative<TOutput>> readOnlyList
-                ? readOnlyList
-                : Results.ToList();
-    }
+    public static IMultiParser<TInput, TOutput> CreateMulti<TData>(
+        TData data,
+        MultiParseFunc<TData> parseFunction,
+        string description,
+        IReadOnlyList<IParser>? children,
+        string name = ""
+    ) => new MultiParser<TData>(data, parseFunction, description, children, name);
 
     public sealed class MultiParser<TData> : IMultiParser<TInput, TOutput>
     {
         private readonly TData _data;
-        private readonly Func<TData, Function<TInput, TOutput>.MultiArguments, MultiResult<TOutput>> _parseFunction;
+        private readonly MultiParseFunc<TData> _parseFunction;
         private readonly IReadOnlyList<IParser> _children;
 
         public MultiParser(
             TData data,
-            Func<TData, MultiArguments, MultiResult<TOutput>> parseFunction,
+            MultiParseFunc<TData> parseFunction,
             string description,
             IReadOnlyList<IParser>? children,
             string name = ""
@@ -152,36 +132,19 @@ public static class Function<TInput, TOutput>
             Name = name;
         }
 
-        public MultiParser(TData data, Action<TData, MultiBuilder> builder, string description, IReadOnlyList<IParser> children, string name = "")
-            : this(data, (d, args) => AdaptMultiParserBuilderToFunction(d, args, builder), description, children, name)
-        {
-        }
-
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public string Description { get; }
 
         public string Name { get; }
 
-        private static MultiResult<TOutput> AdaptMultiParserBuilderToFunction(TData data, MultiArguments args, Action<TData, MultiBuilder> build)
-        {
-            Assert.ArgumentNotNull(build);
-            var startCheckpoint = args.Input.Checkpoint();
-
-            var buildArgs = new MultiBuilder(args.Parser, args.State, new List<ResultAlternative<TOutput>>(), startCheckpoint);
-            build(data, buildArgs);
-
-            startCheckpoint.Rewind();
-            return new MultiResult<TOutput>(args.Parser, buildArgs.GetFinalResultList());
-        }
-
         public IEnumerable<IParser> GetChildren() => _children;
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
-            var args = new MultiArguments(this, state);
-            return _parseFunction(_data, args);
+            var builder = new MultiResultBuilder<TInput, TOutput>(this, state, new List<ResultAlternative<TOutput>>(), state.Input.Checkpoint());
+            return _parseFunction(state, _data, builder);
         }
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
