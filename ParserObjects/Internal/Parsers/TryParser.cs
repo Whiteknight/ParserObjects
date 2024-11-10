@@ -118,7 +118,7 @@ public static class TryParser<TInput>
         public Result<object> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => Result<object>.Fail(p, ex.Message) with { Data = new ResultData(ex) },
+            static (p, ex, _) => Result.Fail<object>(p, ex.Message, new ResultData(ex)),
             state
         );
 
@@ -164,7 +164,7 @@ public static class TryParser<TInput>
         public Result<TOutput> Parse(IParseState<TInput> state) => _data.Parse(
             static (p, s) => p.Parse(s),
             this,
-            static (p, ex, _) => Result<TOutput>.Fail(p, ex.Message) with { Data = new ResultData(ex) },
+            static (p, ex, _) => Result.Fail<TOutput>(p, ex.Message, new ResultData(ex)),
             state
         );
 

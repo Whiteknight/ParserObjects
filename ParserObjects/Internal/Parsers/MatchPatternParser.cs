@@ -28,8 +28,8 @@ public sealed record MatchPatternParser<T>(
         {
             var next = state.Input.Peek();
             if (next == null || !next.Equals(Pattern[0]))
-                return state.Fail(this, "Item does not match");
-            return state.Success(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
+                return Result.Fail(this, "Item does not match");
+            return Result.Ok(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
         }
 
         var checkpoint = state.Input.Checkpoint();
@@ -40,7 +40,7 @@ public sealed record MatchPatternParser<T>(
             if (c == null)
             {
                 checkpoint.Rewind();
-                return state.Fail(this, $"Item does not match at position {i}");
+                return Result.Fail(this, $"Item does not match at position {i}");
             }
 
             buffer[i] = c;
@@ -48,10 +48,10 @@ public sealed record MatchPatternParser<T>(
                 continue;
 
             checkpoint.Rewind();
-            return state.Fail(this, $"Item does not match at position {i}");
+            return Result.Fail(this, $"Item does not match at position {i}");
         }
 
-        return state.Success(this, (IReadOnlyList<T>)buffer, Pattern.Count);
+        return Result.Ok(this, (IReadOnlyList<T>)buffer, Pattern.Count);
     }
 
     Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();

@@ -121,12 +121,12 @@ public static class Rule
                 var name = Parsers[i].Name;
                 if (string.IsNullOrEmpty(name))
                     name = "(Unnamed)";
-                return state.Fail(this, $"Parser {i} {name} failed");
+                return Result.Fail(this, $"Parser {i} {name} failed");
             }
 
             var consumed = state.Input.Consumed - startCheckpoint.Consumed;
             var resultValue = Produce(Data, outputs);
-            return state.Success(this, resultValue, consumed);
+            return Result.Ok(this, resultValue, consumed);
         }
     }
 }

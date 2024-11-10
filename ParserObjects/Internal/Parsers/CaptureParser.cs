@@ -33,13 +33,13 @@ public record CaptureParser<TInput, TOutput>(
             if (!result)
             {
                 startCp.Rewind();
-                return state.Fail(this, $"Inner parser {i} failed.");
+                return Result.Fail(this, $"Inner parser {i} failed.");
             }
         }
 
         var endCp = state.Input.Checkpoint();
         var contents = GetOutput(state.Input, startCp, endCp);
-        return state.Success(this, contents, endCp.Consumed - startCp.Consumed);
+        return Result.Ok(this, contents, endCp.Consumed - startCp.Consumed);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

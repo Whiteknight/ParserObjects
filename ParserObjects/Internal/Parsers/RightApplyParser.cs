@@ -71,7 +71,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
                 right = _produce(args);
             }
 
-            return state.Success(this, right, consumed);
+            return Result.Ok(this, right, consumed);
         }
 
         var left = leftResult.Value;
@@ -133,7 +133,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         {
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, rightResult.Value);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
+            return Result.Ok(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
         }
 
         checkpoint.Rewind();
@@ -147,7 +147,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed);
+            return Result.Ok(this, result, leftResult.Consumed + middleResult.Consumed);
         }
 
         return leftResult;
@@ -158,14 +158,14 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         var middleCp = state.Input.Checkpoint();
         var middleResult = _middle.Parse(state);
         if (!middleResult.Success)
-            return state.Fail(this, "Expected exactly one production but found zero");
+            return Result.Fail(this, "Expected exactly one production but found zero");
 
         var rightResult = _item.Parse(state);
         if (rightResult.Success)
         {
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, rightResult.Value);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
+            return Result.Ok(this, result, leftResult.Consumed + middleResult.Consumed + rightResult.Consumed);
         }
 
         // We have <left> <middle> but no <right>. See if we can make a synthetic one
@@ -178,11 +178,11 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             var syntheticRight = _getMissingRight(state);
             var args = new RightApplyArguments<TOutput, TMiddle>(leftResult.Value, middleResult.Value, syntheticRight);
             var result = _produce(args);
-            return state.Success(this, result, leftResult.Consumed + middleResult.Consumed);
+            return Result.Ok(this, result, leftResult.Consumed + middleResult.Consumed);
         }
 
         startCp.Rewind();
-        return state.Fail(this, "Expected exactly one production but found zero");
+        return Result.Fail(this, "Expected exactly one production but found zero");
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

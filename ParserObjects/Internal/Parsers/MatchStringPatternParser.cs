@@ -38,10 +38,10 @@ public sealed class MatchStringPatternParser : IParser<char, string>
             if (s.Length < Pattern.Length || !Pattern.Equals(s, CaseInsensitive ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture))
             {
                 checkpoint.Rewind();
-                return state.Fail(this, "Pattern does not match");
+                return Result.Fail(this, "Pattern does not match");
             }
 
-            return state.Success(this, s, s.Length);
+            return Result.Ok(this, s, s.Length);
         }
 
         return CaseInsensitive ? ParseCaseInsensitive(state, checkpoint) : ParseCaseSensitive(state, checkpoint);
@@ -56,8 +56,8 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         {
             var next = state.Input.Peek();
             if (next != Pattern[0])
-                return state.Fail(this, "Item does not match");
-            return state.Success(this, Pattern, 1);
+                return Result.Fail(this, "Item does not match");
+            return Result.Ok(this, Pattern, 1);
         }
 
         for (var i = 0; i < Pattern.Length; i++)
@@ -67,10 +67,10 @@ public sealed class MatchStringPatternParser : IParser<char, string>
                 continue;
 
             checkpoint.Rewind();
-            return state.Fail(this, $"Item does not match at position {i}");
+            return Result.Fail(this, $"Item does not match at position {i}");
         }
 
-        return state.Success(this, Pattern, Pattern.Length);
+        return Result.Ok(this, Pattern, Pattern.Length);
     }
 
     private Result<string> ParseCaseInsensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
@@ -79,8 +79,8 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         {
             var next = state.Input.Peek();
             if (!CharMethods.EqualsCaseInsensitive(next, Pattern[0]))
-                return state.Fail(this, "Item does not match");
-            return state.Success(this, new string(next, 1), 1);
+                return Result.Fail(this, "Item does not match");
+            return Result.Ok(this, new string(next, 1), 1);
         }
 
         var buffer = new char[Pattern.Length];
@@ -92,10 +92,10 @@ public sealed class MatchStringPatternParser : IParser<char, string>
                 continue;
 
             checkpoint.Rewind();
-            return state.Fail(this, $"Item does not match at position {i}");
+            return Result.Fail(this, $"Item does not match at position {i}");
         }
 
-        return state.Success(this, new string(buffer, 0, Pattern.Length), Pattern.Length);
+        return Result.Ok(this, new string(buffer, 0, Pattern.Length), Pattern.Length);
     }
 
     Result<object> IParser<char>.Parse(IParseState<char> state) => Parse(state).AsObject();

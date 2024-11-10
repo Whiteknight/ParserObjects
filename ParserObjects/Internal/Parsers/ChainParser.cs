@@ -70,10 +70,10 @@ public static class Chain<TInput, TOutput>
             var nextParser = GetNextParser(checkpoint, initial);
             var nextResult = nextParser.Parse(state);
             if (nextResult.Success)
-                return state.Success(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed);
+                return Result.Ok(nextParser, nextResult.Value, initial.Consumed + nextResult.Consumed);
 
             checkpoint.Rewind();
-            return state.Fail(nextParser, nextResult.ErrorMessage);
+            return Result.Fail(nextParser, nextResult.ErrorMessage);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

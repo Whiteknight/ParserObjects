@@ -44,7 +44,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
             Quantifier.ExactlyOne => ParseExactlyOne(state),
             Quantifier.ZeroOrOne => ParseZeroOrOne(state),
             Quantifier.ZeroOrMore => ParseZeroOrMore(state),
-            _ => state.Fail(this, $"Quantifier value {_quantifier} not supported"),
+            _ => Result.Fail(this, $"Quantifier value {_quantifier} not supported"),
         };
     }
 
@@ -61,10 +61,10 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
         var rightResult = _right.Parse(state);
         if (rightResult.Success)
-            return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
+            return Result.Ok(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
 
         checkpoint.Rewind();
-        return state.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage);
+        return Result.Fail(this, "Expected exactly one right-hand side, but right parser failed: " + rightResult.ErrorMessage);
     }
 
     private Result<TOutput> ParseZeroOrMore(IParseState<TInput> state)
@@ -82,7 +82,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         {
             var rhsResult = _right.Parse(state);
             if (!rhsResult.Success)
-                return state.Success(this, current, consumed);
+                return Result.Ok(this, current, consumed);
 
             consumed += rhsResult.Consumed;
             current = rhsResult.Value;
@@ -102,7 +102,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
         var rightResult = _right.Parse(state);
         if (!rightResult.Success)
             return leftResult;
-        return state.Success(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
+        return Result.Ok(this, rightResult.Value, leftResult.Consumed + rightResult.Consumed);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

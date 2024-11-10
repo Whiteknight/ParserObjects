@@ -45,7 +45,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
         catch (InnerParserFailedException ipf)
         {
             startCp.Rewind();
-            return state.Fail(this, ipf.ErrorResult.ErrorMessage, new ResultData(ipf.ErrorResult));
+            return Result.Fail(this, ipf.ErrorResult.ErrorMessage, new ResultData(ipf.ErrorResult));
         }
     }
 

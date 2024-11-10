@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -31,8 +32,8 @@ public static class Optional<TInput, TOutput>
         {
             var result = Inner.Parse(state);
             return result.Success
-                ? state.Success(this, new Option<TOutput>(true, result.Value), result.Consumed)
-                : Result<Option<TOutput>>.Ok(this, default, 0);
+                ? Result.Ok(this, new Option<TOutput>(true, result.Value), result.Consumed)
+                : Result.Ok(this, default(Option<TOutput>), 0);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -70,7 +71,7 @@ public static class Optional<TInput, TOutput>
             var result = Inner.Parse(state);
             var value = result.Success ? result.Value : GetDefault(state);
             var endConsumed = state.Input.Consumed;
-            return state.Success(this, value, endConsumed - startConsumed);
+            return Result.Ok(this, value, endConsumed - startConsumed);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
