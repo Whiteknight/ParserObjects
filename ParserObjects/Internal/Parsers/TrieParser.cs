@@ -22,7 +22,7 @@ public sealed record TrieParser<TInput, TOutput>(
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
         var result = Trie.Get(state.Input);
-        return state.Result(this, result);
+        return Result.Create(this, result);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -31,7 +31,6 @@ public sealed record TrieParser<TInput, TOutput>(
 
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
-        var startCheckpoint = state.Input.Checkpoint();
         var results = Trie.GetMany(state.Input);
         return new MultiResult<TOutput>(this, results);
     }

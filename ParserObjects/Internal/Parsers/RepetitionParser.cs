@@ -195,7 +195,7 @@ public static class Repetition<TInput>
         public Result<IReadOnlyList<object>> Parse(IParseState<TInput> state)
         {
             var partialResult = _internal.Parse(state);
-            return state.Result(this, partialResult);
+            return Result.Create(this, partialResult);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
@@ -250,7 +250,7 @@ public static class Repetition<TInput>
         public Result<IReadOnlyList<TOutput>> Parse(IParseState<TInput> state)
         {
             var partialResult = _internal.Parse(state);
-            return state.Result(this, partialResult);
+            return Result.Create(this, partialResult);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

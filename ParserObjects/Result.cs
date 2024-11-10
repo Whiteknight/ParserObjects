@@ -1,6 +1,26 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace ParserObjects;
+
+public static class Result
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<T> Ok<T>(IParser parser, T value, int consumed, ResultData data = default)
+        => new Result<T>(parser, true, string.Empty, value, consumed, data);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<T> Fail<T>(IParser parser, string errorMessage, ResultData data = default)
+        => new Result<T>(parser, false, errorMessage ?? string.Empty, default, 0, data);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<TOutput> Fail<TInput, TOutput>(IParser<TInput, TOutput> parser, string errorMessage, ResultData data = default)
+        => new Result<TOutput>(parser, false, errorMessage ?? string.Empty, default, 0, data);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<TOutput> Create<TOutput>(IParser parser, PartialResult<TOutput> part)
+        => part.ToResult(parser);
+}
 
 public readonly record struct Result<TValue>(
     IParser Parser,
@@ -11,12 +31,6 @@ public readonly record struct Result<TValue>(
     ResultData Data
 )
 {
-    public static Result<TValue> Fail(IParser parser, string errorMessage, ResultData data = default)
-        => new Result<TValue>(parser, false, errorMessage ?? string.Empty, default, 0, data);
-
-    public static Result<TValue> Ok(IParser parser, TValue value, int consumed, ResultData data = default)
-        => new Result<TValue>(parser, true, string.Empty, value, consumed, data);
-
     public string ErrorMessage
         => Success
         ? string.Empty

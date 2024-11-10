@@ -38,12 +38,12 @@ public sealed class MatchItemParser<T> : IParser<T, T>
     public Result<T> Parse(IParseState<T> state)
     {
         if (!_readAtEnd && state.Input.IsAtEnd)
-            return Result<T>.Fail(this, "Input sequence is at end.");
+            return Result.Fail<T>(this, "Input sequence is at end.");
         if (!Equals(Item, state.Input.Peek()))
-            return Result<T>.Fail(this, "Items do not match.");
+            return Result.Fail<T>(this, "Items do not match.");
         int startConsumed = state.Input.Consumed;
         var value = state.Input.GetNext();
-        return state.Success(this, value, state.Input.Consumed - startConsumed);
+        return Result.Ok(this, value, state.Input.Consumed - startConsumed);
     }
 
     Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();

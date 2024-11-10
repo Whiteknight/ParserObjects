@@ -22,11 +22,11 @@ public sealed record SelectParser<TInput, TOutput>(
     {
         var multi = Initial.Parse(state);
         if (!multi.Success)
-            return state.Fail(this, "Parser returned no valid results");
+            return Result.Fail(this, "Parser returned no valid results");
 
         var selected = Selector(multi);
         if (!selected.Success)
-            return state.Fail(this, "No alternative selected, or no matching successful value could be found");
+            return Result.Fail(this, "No alternative selected, or no matching successful value could be found");
 
         selected.Continuation.Rewind();
         return multi.ToResult(selected);

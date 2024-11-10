@@ -47,14 +47,14 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
         var startConsumed = state.Input.Consumed;
 
         if (!_readAtEnd && state.Input.IsAtEnd)
-            return Result<T>.Fail(this, "Next item does not match the predicate");
+            return Result.Fail<T>(this, "Next item does not match the predicate");
 
         var next = state.Input.Peek();
         if (next == null || !_predicate(next, _data))
-            return Result<T>.Fail(this, "Next item does not match the predicate");
+            return Result.Fail<T>(this, "Next item does not match the predicate");
 
         state.Input.GetNext();
-        return state.Success(this, next, state.Input.Consumed - startConsumed);
+        return Result.Ok(this, next, state.Input.Consumed - startConsumed);
     }
 
     Result<object> IParser<T>.Parse(IParseState<T> state) => Parse(state).AsObject();

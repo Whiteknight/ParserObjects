@@ -64,7 +64,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         // Try to match the first item
         var nextItemResult = _itemParser.Parse(state);
         if (!nextItemResult.Success)
-            return state.Fail(this, $"Expected at least {Minimum} items in the list but found 0.");
+            return Result.Fail(this, $"Expected at least {Minimum} items in the list but found 0.");
 
         items.Add(nextItemResult.Value);
         int count = 1;
@@ -88,7 +88,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             {
                 // If the separator fails, and we're still below the minimum, it's a failure
                 startCp.Rewind();
-                return (state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
+                return (Result.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
             }
 
             // Parse an item. This must succeed or the list fails
@@ -96,7 +96,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             if (!nextItemResult.Success)
             {
                 startCp.Rewind();
-                return (state.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
+                return (Result.Fail(this, $"Expected at least {Minimum} items in the list but found {count}."), count);
             }
 
             items.Add(nextItemResult.Value);
@@ -113,10 +113,10 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             // First, see if we can match the Right parser and bail out
             var result = _rightParser.Parse(state);
             if (result.Success)
-                return state.Success(this, result.Value, state.Input.Consumed - startCp.Consumed);
+                return Result.Ok(this, result.Value, state.Input.Consumed - startCp.Consumed);
 
             if (Maximum.HasValue && count >= Maximum)
-                return state.Fail(this, $"Found maximum {Maximum} items but could not complete list.");
+                return Result.Fail(this, $"Found maximum {Maximum} items but could not complete list.");
 
             int cycleStartConsumed = state.Input.Consumed;
 
@@ -126,7 +126,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             {
                 // Right failed and Separator failed, so there's nowhere left to go. Fail.
                 startCp.Rewind();
-                return state.Fail(this, "Could not continue or complete the list.");
+                return Result.Fail(this, "Could not continue or complete the list.");
             }
 
             // Parse an item. This must succeed or the list fails
@@ -134,7 +134,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
             if (!nextItemResult.Success)
             {
                 startCp.Rewind();
-                return state.Fail(this, "Found a separator but could not find the next item.");
+                return Result.Fail(this, "Found a separator but could not find the next item.");
             }
 
             int cycleEndConsumed = state.Input.Consumed;
@@ -144,7 +144,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
                 // Separator and Item have consumed no inputs. Since we're already above
                 // Minimum items, we won't keep looping. We also know that Right doesn't match
                 // at this position, so it's a failure
-                return state.Fail(this, "Consumed zero inputs but could not complete list. Failing to avoid an infinite loop.");
+                return Result.Fail(this, "Consumed zero inputs but could not complete list. Failing to avoid an infinite loop.");
             }
 
             items.Add(nextItemResult.Value);

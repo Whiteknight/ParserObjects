@@ -37,7 +37,7 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public Result<TOutput> Failure(string errorMessage, IParser? parser = null)
-        => _state.Fail<TOutput>(parser ?? Parser, errorMessage, default);
+        => Result.Fail<TOutput>(parser ?? Parser, errorMessage, default);
 
     /// <summary>
     /// Create a success result with a value.
@@ -45,7 +45,7 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// <param name="value"></param>
     /// <returns></returns>
     public Result<TOutput> Success(TOutput value)
-        => _state.Success(Parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+        => Result.Ok(Parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
 }
 
 /// <summary>

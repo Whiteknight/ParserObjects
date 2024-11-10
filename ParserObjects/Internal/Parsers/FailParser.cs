@@ -13,10 +13,10 @@ public sealed record FailParser<TInput, TOutput>(
 ) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
 {
     public override Result<TOutput> Parse(IParseState<TInput> state)
-        => Result<TOutput>.Fail(this, ErrorMessage);
+        => Result.Fail(this, ErrorMessage);
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
-        => Result<object>.Fail(this, ErrorMessage);
+        => Result.Fail<object>(this, ErrorMessage);
 
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {

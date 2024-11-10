@@ -22,10 +22,10 @@ public sealed record NegativeLookaheadParser<TInput>(
 
         var result = Inner.Parse(state);
         if (!result.Success)
-            return state.Success(this, Defaults.ObjectInstance, 0);
+            return Result.Ok(this, Defaults.ObjectInstance, 0);
 
         startCheckpoint.Rewind();
-        return state.Fail(this, "Lookahead pattern existed but was not supposed to");
+        return Result.Fail(this, "Lookahead pattern existed but was not supposed to");
     }
 
     public bool Match(IParseState<TInput> state)

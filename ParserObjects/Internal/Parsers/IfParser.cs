@@ -35,7 +35,7 @@ public sealed record IfParser<TInput, TOutput>(
         if (thenResult.Success)
             return thenResult with { Consumed = predicateConsumed + thenResult.Consumed };
         cp.Rewind();
-        return state.Fail(parser, thenResult.ErrorMessage);
+        return Result.Fail(parser, thenResult.ErrorMessage);
     }
 
     public override IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
