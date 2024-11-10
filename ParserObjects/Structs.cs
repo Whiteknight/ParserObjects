@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 /* This file contains a few random structs which are necessary for public parser interfaces but
  * otherwise might prefer to be implemented in Internal/ closer to the parsers where they are used.
@@ -15,20 +17,16 @@ namespace ParserObjects;
 /// <typeparam name="TOutput"></typeparam>
 public readonly struct ResultFactory<TInput, TOutput>
 {
+    private readonly IParser _parser;
     private readonly IParseState<TInput> _state;
     private readonly SequenceCheckpoint _startCheckpoint;
 
-    public ResultFactory(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
+    public ResultFactory(IParser parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
     {
-        Parser = parser;
+        _parser = parser;
         _state = state;
         _startCheckpoint = startCheckpoint;
     }
-
-    /// <summary>
-    /// Gets the current parser.
-    /// </summary>
-    public IParser<TInput, TOutput> Parser { get; }
 
     /// <summary>
     /// Create a failure result with an error message.
@@ -37,7 +35,7 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// <param name="parser"></param>
     /// <returns></returns>
     public Result<TOutput> Failure(string errorMessage, IParser? parser = null)
-        => Result.Fail<TOutput>(parser ?? Parser, errorMessage, default);
+        => Result.Fail<TOutput>(parser ?? _parser, errorMessage, default);
 
     /// <summary>
     /// Create a success result with a value.
@@ -45,7 +43,49 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// <param name="value"></param>
     /// <returns></returns>
     public Result<TOutput> Success(TOutput value)
-        => Result.Ok(Parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+        => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+}
+
+public readonly struct MultiResultBuilder<TInput, TOutput>
+{
+    private readonly IParser _parser;
+    private readonly IParseState<TInput> _state;
+    private readonly List<ResultAlternative<TOutput>> _results;
+    private readonly SequenceCheckpoint _startCheckpoint;
+
+    public MultiResultBuilder(IParser parser, IParseState<TInput> state, List<ResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
+    {
+        _parser = parser;
+        _state = state;
+        _results = Results;
+        _startCheckpoint = StartCheckpoint;
+    }
+
+    public MultiResultBuilder<TInput, TOutput> AddSuccesses(IEnumerable<TOutput> values)
+    {
+        var checkpoint = _state.Input.Checkpoint();
+        var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
+        foreach (var value in values)
+            _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
+        return this;
+    }
+
+    public MultiResultBuilder<TInput, TOutput> AddSuccess(TOutput value)
+    {
+        var checkpoint = _state.Input.Checkpoint();
+        var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
+        _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
+        return this;
+    }
+
+    public MultiResultBuilder<TInput, TOutput> AddFailure(string message)
+    {
+        _results.Add(ResultAlternative<TOutput>.Failure(message, _startCheckpoint));
+        return this;
+    }
+
+    public MultiResult<TOutput> BuildResult()
+        => new MultiResult<TOutput>(_parser, _results);
 }
 
 /// <summary>
