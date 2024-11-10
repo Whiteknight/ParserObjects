@@ -2,6 +2,15 @@
 
 namespace ParserObjects;
 
+public static class Option
+{
+    public static Option<T> Ok<T>(T value)
+        => new Option<T>(true, value);
+
+    public static Option<T> Fail<T>()
+        => default;
+}
+
 /// <summary>
 /// A result which has a value on success, no value otherwise. Used to avoid passing null
 /// result values around.

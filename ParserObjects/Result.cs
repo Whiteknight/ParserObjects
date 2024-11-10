@@ -72,10 +72,10 @@ public readonly record struct Result<TValue>(
         ? new Result<T>(Parser, true, null, selector(Value), Consumed, Data)
         : new Result<T>(Parser, false, ErrorMessage, default, 0, Data);
 
-    public Result<T> CastError<T>()
+    public Result<T> Select<T, TData>(TData data, Func<TValue, TData, T> selector)
         => Success
-        ? throw new InvalidOperationException("Can only cast error results without an explicit mapping")
-        : new Result<T>(Parser, false, InternalError, default, 0, Data);
+        ? new Result<T>(Parser, true, null, selector(Value, data), Consumed, Data)
+        : new Result<T>(Parser, false, ErrorMessage, default, 0, Data);
 
     public Result<object> AsObject() => Select<object>(static t => t!);
 
