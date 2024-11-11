@@ -11,19 +11,19 @@ public static class CharComparer
 
     public static IEqualityComparer<char> Get(bool caseSensitive = true)
         => caseSensitive
-        ? CaseSensitive
-        : CaseInsensitive;
+            ? CaseSensitive
+            : CaseInsensitive;
 
     public sealed class CaseInsensitiveComparer : IEqualityComparer<char>
     {
-        public bool Equals(char x, char y) => CharMethods.EqualsCaseInsensitive(x, y);
+        public bool Equals(char x, char y) => char.ToUpper(x) == char.ToUpper(y);
 
         public int GetHashCode([DisallowNull] char obj) => char.ToUpper(obj).GetHashCode();
     }
 
     public sealed class CaseSensitiveComparer : IEqualityComparer<char>
     {
-        public bool Equals(char x, char y) => CharMethods.EqualsCaseSensitive(x, y);
+        public bool Equals(char x, char y) => x == y;
 
         public int GetHashCode([DisallowNull] char obj) => obj.GetHashCode();
     }
