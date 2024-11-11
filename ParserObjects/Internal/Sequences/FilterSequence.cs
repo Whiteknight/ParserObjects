@@ -37,15 +37,15 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public int Consumed => _inputs.Consumed;
 
-    private bool DiscardNonMatches()
+    private void DiscardNonMatches()
     {
         while (true)
         {
             if (_inputs.IsAtEnd)
-                return false;
+                return;
             var next = _inputs.Peek();
             if (_predicate(next))
-                return true;
+                return;
             _inputs.GetNext();
         }
     }

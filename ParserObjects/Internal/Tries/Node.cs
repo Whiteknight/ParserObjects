@@ -15,18 +15,14 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, (Node<TKey, TRes
 
     public Node()
     {
-        HasResult = false;
         Result = default;
     }
 
     public Node(IEqualityComparer<ValueTuple<TKey>> comparer)
         : base(comparer)
     {
-        HasResult = false;
         Result = default;
     }
-
-    public bool HasResult { get; private set; }
 
     public TResult? Result { get; private set; }
 
@@ -121,7 +117,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child, find the best value
-            if (!current.ContainsKey(wrappedKey))
+            if (!current.TryGetValue(wrappedKey, out var currentValue))
                 return FindBestResult(index, previous, keys, startCont, startConsumed);
 
             // Otherwise push the current node and the checkpoint from which we can continue
@@ -129,7 +125,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // to take a Checkpoint if there's a value on this node. .Checkpoint() is cheap but
             // never free.
 
-            var (node, hasValue, value) = current[wrappedKey];
+            var (node, hasValue, value) = currentValue;
             if (hasValue)
             {
                 var cont = keys.Checkpoint();
@@ -186,10 +182,10 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             // null.
             var key = keys.GetNext();
             var wrappedKey = new ValueTuple<TKey>(key);
-            if (!current.ContainsKey(wrappedKey))
+            if (!current.TryGetValue(wrappedKey, out var currentValue))
                 return FindBestResult(index, previous, keys, startCont, 0).Success;
 
-            var (node, hasValue, value) = current[wrappedKey];
+            var (node, hasValue, value) = currentValue;
             if (hasValue)
             {
                 var cont = keys.Checkpoint();
@@ -221,10 +217,10 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             var wrappedKey = new ValueTuple<TKey>(key);
 
             // If there's no matching child in this node, return the results we have
-            if (!current.ContainsKey(wrappedKey))
+            if (!current.TryGetValue(wrappedKey, out var currentValue))
                 return results;
 
-            var (node, hasValue, value) = current[wrappedKey];
+            var (node, hasValue, value) = currentValue;
 
             if (hasValue)
             {
@@ -250,9 +246,9 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
 
         var finalKey = keyList[^1];
         var wrappedKey = new ValueTuple<TKey>(finalKey);
-        if (current.ContainsKey(wrappedKey))
+        if (current.TryGetValue(wrappedKey, out var currentValue))
         {
-            if (current[wrappedKey].HasValue)
+            if (currentValue.HasValue)
             {
                 if (current[wrappedKey].Value!.Equals(value))
                     return false;
