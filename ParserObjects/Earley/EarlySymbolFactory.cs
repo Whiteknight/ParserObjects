@@ -35,7 +35,7 @@ public readonly struct EarleySymbolFactory<TInput, TOutput>
         return name;
     }
 
-    private INonterminal<TInput, TValue> AllocateNewSymbol<TValue>(string name)
+    private Nonterminal<TInput, TValue> AllocateNewSymbol<TValue>(string name)
     {
         if (_symbols.ContainsKey(name))
             throw new GrammarException($"This grammar already contains a symbol named '{name}'");

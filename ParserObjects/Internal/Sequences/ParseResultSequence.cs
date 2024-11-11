@@ -38,7 +38,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
 
     public bool IsAtEnd => _input.IsAtEnd;
 
-    public SequencePositionFlags Flags => _input.Flags;
+    public SequenceStateType Flags => _input.Flags;
 
     public int Consumed => _input.Consumed;
 

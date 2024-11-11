@@ -8,7 +8,7 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 public sealed record SequenceFlagParser<TInput>(
-    SequencePositionFlags Flags,
+    SequenceStateType Flags,
     string FailureMessage,
     string Name = ""
 ) : SimpleRecordParser<TInput, object>(Name), IParser<TInput, object>

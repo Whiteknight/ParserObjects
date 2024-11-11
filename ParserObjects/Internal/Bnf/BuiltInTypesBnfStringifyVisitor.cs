@@ -404,9 +404,9 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     {
         state.Append(p.Flags switch
         {
-            SequencePositionFlags.StartOfInput => "START",
-            SequencePositionFlags.EndOfInput => "END",
-            SequencePositionFlags.StartOfLine => "START OF LINE",
+            SequenceStateType.StartOfInput => "START",
+            SequenceStateType.EndOfInput => "END",
+            SequenceStateType.StartOfLine => "START OF LINE",
             _ => "UNKNOWN"
         });
     }

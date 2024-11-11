@@ -12,7 +12,7 @@ public readonly record struct SequenceCheckpoint(
     int Consumed,
     int Index,
     long StreamPosition,
-    SequencePositionFlags Flags,
+    SequenceStateType Flags,
     Location Location
 ) : IComparable<SequenceCheckpoint>
 {
