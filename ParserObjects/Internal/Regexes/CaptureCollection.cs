@@ -13,12 +13,22 @@ public sealed class CaptureCollection : List<(int group, string value)>
      * value in snapshots so that it can rewind to a previous index during backtracking.
      */
 
+    private static readonly CaptureCollection _reusableInstance = new CaptureCollection();
+
     public CaptureCollection()
     {
         CaptureIndex = -1;
     }
 
     public int CaptureIndex { get; private set; }
+
+    // If we know that a Regex has no capturing groups, we can just reuse an empty CaptureCollection
+    // and not allocate a new one.
+    public static CaptureCollection GetReusableInstance()
+    {
+        _reusableInstance.Clear();
+        return _reusableInstance;
+    }
 
     public int AddCapture(int group, string value)
     {
