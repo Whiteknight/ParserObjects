@@ -46,58 +46,6 @@ public readonly struct ResultFactory<TInput, TOutput>
         => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
 }
 
-public readonly struct MultiResultBuilder<TInput, TOutput>
-{
-    private readonly IParser _parser;
-    private readonly IParseState<TInput> _state;
-    private readonly List<ResultAlternative<TOutput>> _results;
-    private readonly SequenceCheckpoint _startCheckpoint;
-
-    public MultiResultBuilder(IParser parser, IParseState<TInput> state, List<ResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
-    {
-        _parser = parser;
-        _state = state;
-        _results = Results;
-        _startCheckpoint = StartCheckpoint;
-    }
-
-    public MultiResultBuilder<TInput, TOutput> AddSuccesses(IEnumerable<TOutput> values)
-    {
-        var checkpoint = _state.Input.Checkpoint();
-        var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
-        foreach (var value in values)
-            _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
-        return this;
-    }
-
-    public MultiResultBuilder<TInput, TOutput> AddSuccess(TOutput value)
-    {
-        var checkpoint = _state.Input.Checkpoint();
-        var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
-        _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
-        return this;
-    }
-
-    public MultiResultBuilder<TInput, TOutput> AddFailure(string message)
-    {
-        _results.Add(ResultAlternative<TOutput>.Failure(message, _startCheckpoint));
-        return this;
-    }
-
-    public MultiResult<TOutput> BuildResult()
-        => new MultiResult<TOutput>(_parser, _results);
-}
-
-/// <summary>
-/// Holds arguments for RightApply.
-/// </summary>
-/// <typeparam name="TOutput"></typeparam>
-/// <typeparam name="TMiddle"></typeparam>
-/// <param name="Left"></param>
-/// <param name="Middle"></param>
-/// <param name="Right"></param>
-public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
-
 /// <summary>
 /// State object for a sequential parse. Handles control flow and input sequence
 /// management.

@@ -41,6 +41,18 @@ public static class Sequences
     ) => new StreamByteSequence(stream, options);
 
     /// <summary>
+    /// Converts an existing  Stream to an ISequence of byte. Calling .Dispose() on the sequence
+    /// will dispose the stream as well.
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ISequence<byte> ToByteSequence(
+        this Stream stream,
+        SequenceOptions<byte> options = default
+    ) => FromByteStream(stream, options);
+
+    /// <summary>
     /// Return a char sequence from the file with the given name.
     /// </summary>
     /// <param name="fileName"></param>
@@ -117,6 +129,30 @@ public static class Sequences
     ) => new StreamCharacterSequence(reader, options);
 
     /// <summary>
+    /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
+    /// Calling .Dispose() on the sequence will dispose the stream as well.
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence ToCharacterSequence(
+        this Stream stream,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(stream, options);
+
+    /// <summary>
+    /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
+    /// sequence will dispose the reader as well.
+    /// </summary>
+    /// <param name="streamReader"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence ToCharacterSequence(
+        this StreamReader streamReader,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(streamReader, options);
+
+    /// <summary>
     /// Read the enumerable to an IReadOnlyList and wrap the list in an ISequence.
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -159,6 +195,26 @@ public static class Sequences
         IReadOnlyList<char> list,
         SequenceOptions<char> options = default
     ) => new CharBufferSequence.FromCharArray(list, options);
+
+    /// <summary>
+    /// Read the enumerable to a list and then wrap the list in a sequence.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="enumerable"></param>
+    /// <param name="endSentinel">An end value to return when the sequence is exhausted.</param>
+    /// <returns></returns>
+    public static ISequence<T?> ToSequence<T>(this IEnumerable<T> enumerable, T? endSentinel = default)
+        => FromList(enumerable.ToList(), endSentinel);
+
+    /// <summary>
+    /// Wrap the list in a sequence.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="endValue"></param>
+    /// <returns></returns>
+    public static ISequence<T?> ToSequence<T>(this IReadOnlyList<T> list, T? endValue = default)
+        => FromList(list, endValue);
 
     /// <summary>
     /// Convert a function delegate to an ICharSequence. The function should take an index i, starting
@@ -216,4 +272,15 @@ public static class Sequences
         => options.NormalizeLineEndings
         ? new CharBufferSequence.FromCharArray(s, options)
         : new CharBufferSequence.FromNonnormalizedString(s, options);
+
+    /// <summary>
+    /// Wrap the string as a sequence of characters.
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence ToCharacterSequence(
+        this string str,
+        SequenceOptions<char> options = default
+    ) => FromString(str, options);
 }

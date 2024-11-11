@@ -101,7 +101,7 @@ public static class Function<TInput, TOutput>
         }
     }
 
-    public delegate MultiResult<TOutput> MultiParseFunc<TData>(IParseState<TInput> state, TData data, MultiResultBuilder<TInput, TOutput> resultBuilder);
+    public delegate MultiResult<TOutput> MultiParseFunc<TData>(IParseState<TInput> state, TData data, MultiResultBuilder resultBuilder);
 
     public static IMultiParser<TInput, TOutput> CreateMulti<TData>(
         TData data,
@@ -143,7 +143,7 @@ public static class Function<TInput, TOutput>
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
-            var builder = new MultiResultBuilder<TInput, TOutput>(this, state, new List<ResultAlternative<TOutput>>(), state.Input.Checkpoint());
+            var builder = new MultiResultBuilder(this, state, new List<ResultAlternative<TOutput>>(), state.Input.Checkpoint());
             return _parseFunction(state, _data, builder);
         }
 
@@ -158,5 +158,47 @@ public static class Function<TInput, TOutput>
         {
             visitor.Get<IFunctionPartialVisitor<TState>>()?.Accept(this, state);
         }
+    }
+
+    public readonly struct MultiResultBuilder
+    {
+        private readonly IParser _parser;
+        private readonly IParseState<TInput> _state;
+        private readonly List<ResultAlternative<TOutput>> _results;
+        private readonly SequenceCheckpoint _startCheckpoint;
+
+        public MultiResultBuilder(IParser parser, IParseState<TInput> state, List<ResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
+        {
+            _parser = parser;
+            _state = state;
+            _results = Results;
+            _startCheckpoint = StartCheckpoint;
+        }
+
+        public MultiResultBuilder AddSuccesses(IEnumerable<TOutput> values)
+        {
+            var checkpoint = _state.Input.Checkpoint();
+            var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
+            foreach (var value in values)
+                _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
+            return this;
+        }
+
+        public MultiResultBuilder AddSuccess(TOutput value)
+        {
+            var checkpoint = _state.Input.Checkpoint();
+            var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
+            _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
+            return this;
+        }
+
+        public MultiResultBuilder AddFailure(string message)
+        {
+            _results.Add(ResultAlternative<TOutput>.Failure(message, _startCheckpoint));
+            return this;
+        }
+
+        public MultiResult<TOutput> BuildResult()
+            => new MultiResult<TOutput>(_parser, _results);
     }
 }
