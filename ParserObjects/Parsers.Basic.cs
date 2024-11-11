@@ -41,50 +41,6 @@ public static partial class Parsers<TInput>
             : new CaptureParser<TInput, TInput[]>(parsers, static (s, start, end) => s.GetArrayBetween(start, end));
 
     /// <summary>
-    /// Executes a parser, and uses the value to determine the next parser to execute.
-    /// </summary>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="getNext"></param>
-    /// <param name="mentions"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Chain<TMiddle, TOutput>(
-        IParser<TInput, TMiddle> p,
-        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
-        params IParser[] mentions
-    ) => Internal.Parsers.Chain<TInput, TOutput>.Create(p, getNext, static (gn, r) => gn(r), mentions);
-
-    /// <summary>
-    /// Executes a parser, and uses the value to determine the next parser to execute.
-    /// </summary>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="setup"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> ChainWith<TMiddle, TOutput>(
-        IParser<TInput, TMiddle> p,
-        Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup
-    ) => Internal.Parsers.Chain<TInput, TOutput>.Configure(p, setup);
-
-    /// <summary>
-    /// Executes a parser without consuming any input, and uses the value to determine the next
-    /// parser to execute.
-    /// </summary>
-    /// <typeparam name="TMiddle"></typeparam>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="p"></param>
-    /// <param name="getNext"></param>
-    /// <param name="mentions"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Choose<TMiddle, TOutput>(
-        IParser<TInput, TMiddle> p,
-        GetParserFromResult<TInput, TMiddle, TOutput> getNext,
-        params IParser[] mentions
-    ) => Internal.Parsers.Chain<TInput, TOutput>.Create(None(p), getNext, static (gn, r) => gn(r), mentions);
-
-    /// <summary>
     /// Given a list of parsers, parse each in sequence and return a list of object
     /// results on success.
     /// </summary>
@@ -344,16 +300,6 @@ public static partial class Parsers<TInput>
         Assert.ArgumentNotNull(getDefault);
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
-
-    /// <summary>
-    /// Given the next input lookahead value, select the appropriate parser to use to continue
-    /// the parse.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="setup"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Predict<TOutput>(Action<ParserPredicateSelector<TInput, TInput, TOutput>> setup)
-         => Internal.Parsers.Chain<TInput, TOutput>.Configure(Peek(), setup);
 
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.

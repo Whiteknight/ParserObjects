@@ -21,13 +21,14 @@ public static class Chain<TInput, TOutput>
      * is just wrapped in a callback and passed to the Chain.Parser like normal
      */
 
-    public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup, string name = "")
+    public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateBuilder<TInput, TMiddle, TOutput>> setup, string name = "")
     {
         Assert.ArgumentNotNull(inner);
         Assert.ArgumentNotNull(setup);
-        var config = new ParserPredicateSelector<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
+        var config = new ParserPredicateBuilder<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
         setup(config);
-        return new Parser<TMiddle, ParserPredicateSelector<TInput, TMiddle, TOutput>>(inner, config, static (c, r) => c.Pick(r.Value), config.GetChildren().ToList(), name);
+        var selector = new Selector<TMiddle>(config.Parsers);
+        return new Parser<TMiddle, Selector<TMiddle>>(inner, selector, static (c, r) => c.Pick(r.Value), selector.GetChildren().ToList(), name);
     }
 
     public static IParser<TInput, TOutput> Create<TData, TMiddle>(
@@ -118,6 +119,39 @@ public static class Chain<TInput, TOutput>
                 checkpoint.Rewind();
                 throw;
             }
+        }
+    }
+
+    public readonly record struct Selector<TMiddle>(
+        IReadOnlyList<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)> Parsers
+    )
+    {
+        /// <summary>
+        /// Return the first parser whose predicate matches the given next item.
+        /// </summary>
+        /// <param name="next"></param>
+        /// <returns></returns>
+        public IParser<TInput, TOutput> Pick(TMiddle next)
+        {
+            foreach (var (equals, parser) in Parsers)
+            {
+                if (equals(next))
+                    return parser;
+            }
+
+            return Parsers<TInput>.Fail<TOutput>($"No configured parsers handle {next}");
+        }
+
+        /// <summary>
+        /// Return a list of all parsers held in this object.
+        /// </summary>
+        /// <returns></returns>
+        public IReadOnlyList<IParser> GetChildren()
+        {
+            var children = new IParser[Parsers.Count];
+            for (int i = 0; i < Parsers.Count; i++)
+                children[i] = Parsers[i].parser;
+            return children;
         }
     }
 }
