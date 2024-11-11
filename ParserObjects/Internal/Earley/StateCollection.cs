@@ -25,7 +25,7 @@ public sealed class StateCollection
 
     public State InitialState { get; }
 
-    private class StateNode
+    private sealed class StateNode
     {
         public StateNode(State state)
         {

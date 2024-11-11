@@ -336,5 +336,5 @@ public readonly struct Engine<TInput, TOutput>
             AddCompletedNullable(completedNullables, item, item.Production, stats);
     }
 
-    private record CachedParseResult(Result<object> Result, SequenceCheckpoint Continuation);
+    private sealed record CachedParseResult(Result<object> Result, SequenceCheckpoint Continuation);
 }

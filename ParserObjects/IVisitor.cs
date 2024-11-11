@@ -1,5 +1,8 @@
 ﻿namespace ParserObjects;
 
+#pragma warning disable S125
+#pragma warning disable S2326
+
 /* Visitors consist of two classes:
  * 1. A Visitor, which serves as a holder for a list of IPartialVisitor<TState>
  * 2. A State, which holds information about the visit and performs the operation.

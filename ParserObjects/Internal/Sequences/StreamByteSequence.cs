@@ -2,6 +2,8 @@
 using System.Buffers;
 using System.IO;
 
+#pragma warning disable S1121
+
 namespace ParserObjects.Internal.Sequences;
 
 /// <summary>

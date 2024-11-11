@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using ParserObjects.Earley;
 
+#pragma warning disable S1994
+
 namespace ParserObjects.Internal.Earley;
 
 public readonly struct ItemDerivationVisitor

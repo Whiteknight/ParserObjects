@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ParserObjects.Earley;
 using ParserObjects.Internal.Earley;
 
+#pragma warning disable S2326
+
 namespace ParserObjects;
 
 /// <summary>

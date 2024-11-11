@@ -204,18 +204,18 @@ public static class DateTimeGrammar
             // and ignore them all together, but for now this works and isn't too memory-intensive
             // for simple formats.
             var currentTimeSeparator = Match(DateTimeFormatInfo.CurrentInfo.TimeSeparator)
-                .Transform(static _ => Part.Literal);
+                .Transform(static _ => Part.LiteralPart);
             var currentDateSeparator = Match(DateTimeFormatInfo.CurrentInfo.DateSeparator)
-                .Transform(static _ => Part.Literal);
+                .Transform(static _ => Part.LiteralPart);
             return First(
                 Rule(
                     Match('\\'),
                     Any(),
-                    static (_, c) => MatchChar(c).Transform(static _ => Part.Literal)
+                    static (_, c) => MatchChar(c).Transform(static _ => Part.LiteralPart)
                 ),
                 Match(':').Transform(currentTimeSeparator, static (p, _) => p),
                 Match('/').Transform(currentDateSeparator, static (p, _) => p),
-                Any().Transform(static c => MatchChar(c).Transform(static _ => Part.Literal))
+                Any().Transform(static c => MatchChar(c).Transform(static _ => Part.LiteralPart))
             ).Named("literal");
         });
 
@@ -261,18 +261,18 @@ public static class DateTimeGrammar
 
     private readonly record struct Part(PartType Type, int Value)
     {
-        public static Part Literal => new Part(PartType.Literal, 0);
+        public static Part LiteralPart => new Part(PartType.Literal, 0);
 
         public DateTime AddTo(DateTime dt)
             => Type switch
             {
-                PartType.Year => new DateTime(Value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
-                PartType.Month => new DateTime(dt.Year, Value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
-                PartType.Day => new DateTime(dt.Year, dt.Month, Value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
-                PartType.Hour => new DateTime(dt.Year, dt.Month, dt.Day, Value, dt.Minute, dt.Second, dt.Millisecond),
-                PartType.Minute => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, Value, dt.Second, dt.Millisecond),
-                PartType.Second => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, Value, dt.Millisecond),
-                PartType.Millisecond => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, Value),
+                PartType.Year => new DateTime(Value, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Kind),
+                PartType.Month => new DateTime(dt.Year, Value, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Kind),
+                PartType.Day => new DateTime(dt.Year, dt.Month, Value, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Kind),
+                PartType.Hour => new DateTime(dt.Year, dt.Month, dt.Day, Value, dt.Minute, dt.Second, dt.Millisecond, dt.Kind),
+                PartType.Minute => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, Value, dt.Second, dt.Millisecond, dt.Kind),
+                PartType.Second => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, Value, dt.Millisecond, dt.Kind),
+                PartType.Millisecond => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, Value, dt.Kind),
                 _ => dt
             };
     }

@@ -50,7 +50,7 @@ public sealed class Production<TData, TOutput> : IProduction<TOutput>
         {
             Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");
             var value = _reduce(_data, argsList);
-            return value == null ? default : new Option<object>(true, value);
+            return value is null ? default : new Option<object>(true, value);
         }
         catch
         {

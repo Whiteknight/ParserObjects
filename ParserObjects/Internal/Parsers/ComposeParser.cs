@@ -77,7 +77,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
         visitor.Get<ICorePartialVisitor<TState>>()?.Accept(this, state);
     }
 
-    private class InnerParserFailedException : ControlFlowException
+    private sealed class InnerParserFailedException : ControlFlowException
     {
         public InnerParserFailedException(Result<TMiddle> errorResult)
             : base(errorResult.ErrorMessage)

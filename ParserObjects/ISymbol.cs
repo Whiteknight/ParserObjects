@@ -1,5 +1,7 @@
 ﻿namespace ParserObjects;
 
+#pragma warning disable S2326
+
 /// <summary>
 /// Marker interface for types which can be used as grammar symbols.
 /// </summary>

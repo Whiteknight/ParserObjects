@@ -39,7 +39,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
     public void Add<T>()
         where T : IPartialVisitor<BnfStringifyState>, new()
     {
-        if (_partials.Any(p => p is T))
+        if (_partials.Exists(p => p is T))
             return;
         Add(new T());
     }
