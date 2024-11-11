@@ -11,15 +11,17 @@ public readonly struct Regex
 {
     public IReadOnlyList<IState> States { get; }
 
+    public int NumberOfGroups { get; }
+
     public Regex(IReadOnlyList<IState> states)
     {
         Assert.ArgumentNotNull(states);
         States = states;
         Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
-        NumberGroups(states);
+        NumberOfGroups = NumberGroups(states);
     }
 
-    private static void NumberGroups(IReadOnlyList<IState> states)
+    private static int NumberGroups(IReadOnlyList<IState> states)
     {
         // The pattern parser numbers all Group states according to the index in the states array,
         // with "duplicate" groups having the same GroupNumber.
@@ -28,7 +30,7 @@ public readonly struct Regex
         // This method goes through the list and tries to renumber these starting from 1,
         // depth-first. We do this by keeping track of the last "source group number" and incrementing
         // the "destination group number" only when necessary.
-        NumberGroups(states, 0);
+        return NumberGroups(states, 0);
     }
 
     private static int NumberGroups(IReadOnlyList<IState> states, int destGroupNumber)
