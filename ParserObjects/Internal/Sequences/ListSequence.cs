@@ -49,9 +49,9 @@ public sealed class ListSequence<T> : ISequence<T>
         _index++;
 
         _stats.ItemsRead++;
-        Flags = Flags.Without(SequenceStateType.StartOfInput);
+        Flags = Flags.Without(SequenceStateTypes.StartOfInput);
         if (_index >= _list.Count)
-            Flags = Flags.With(SequenceStateType.EndOfInput);
+            Flags = Flags.With(SequenceStateTypes.EndOfInput);
         return value;
     }
 
@@ -67,7 +67,7 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public bool IsAtEnd => _index >= _list.Count;
 
-    public SequenceStateType Flags { get; private set; }
+    public SequenceStateTypes Flags { get; private set; }
 
     public int Consumed => _index;
 

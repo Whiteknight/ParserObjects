@@ -22,7 +22,7 @@ public interface ISequence
     /// </summary>
     bool IsAtEnd { get; }
 
-    SequenceStateType Flags { get; }
+    SequenceStateTypes Flags { get; }
 
     /// <summary>
     /// Take a snapshot of the state of the sequence, which can be returned to later if the
@@ -131,7 +131,7 @@ public interface ICharSequence : ISequence<char>
 }
 
 [Flags]
-public enum SequenceStateType
+public enum SequenceStateTypes
 {
     None = 0,
     StartOfInput = 1,
@@ -142,19 +142,19 @@ public enum SequenceStateType
 public static class SequenceExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SequenceStateType With(this SequenceStateType source, SequenceStateType toAdd)
+    public static SequenceStateTypes With(this SequenceStateTypes source, SequenceStateTypes toAdd)
         => source | toAdd;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SequenceStateType Without(this SequenceStateType source, SequenceStateType toRemove)
+    public static SequenceStateTypes Without(this SequenceStateTypes source, SequenceStateTypes toRemove)
         => source & ~toRemove;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Has(this SequenceStateType source, SequenceStateType test)
+    public static bool Has(this SequenceStateTypes source, SequenceStateTypes test)
         => (source & test) == test;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SequenceStateType Only(this SequenceStateType source, SequenceStateType test)
+    public static SequenceStateTypes Only(this SequenceStateTypes source, SequenceStateTypes test)
         => source & test;
 
     /// <summary>

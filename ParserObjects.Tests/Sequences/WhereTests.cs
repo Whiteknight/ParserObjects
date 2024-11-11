@@ -14,8 +14,8 @@ public class WhereTests
 
         // .Consumed is based on the value from the underlying sequence, so we have to acknowledge
         // that we are skipping values
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
 
         target.GetNext().Should().Be(2);
@@ -28,13 +28,13 @@ public class WhereTests
         target.Consumed.Should().Be(6);
 
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
 
         target.GetNext().Should().Be(0);
         target.Consumed.Should().Be(6);
 
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -47,8 +47,8 @@ public class WhereTests
 
         // .Consumed is based on the value from the underlying sequence, so we have to acknowledge
         // that we are skipping values
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
 
         target.GetNext().Should().Be(1);
@@ -61,12 +61,12 @@ public class WhereTests
         target.Consumed.Should().Be(6);
 
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
 
         target.GetNext().Should().Be(0);
         target.Consumed.Should().Be(6);
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -76,12 +76,12 @@ public class WhereTests
             new[] { 1, 2, 3 },
             0
         ).Where(x => x % 2 == 0);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.IsAtEnd.Should().BeFalse();
         target.GetNext().Should().Be(2);
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -92,8 +92,8 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 0);
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -104,8 +104,8 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 0);
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -132,9 +132,9 @@ public class WhereTests
             new[] { 1, 2, 3, 4, 5, 6 },
             0
         ).Where(x => x % 2 == 0);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.Peek().Should().Be(2);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
     }
 
     [Test]
@@ -144,9 +144,9 @@ public class WhereTests
             new[] { 1, 2, 3, 4, 5, 6 },
             0
         ).Where(x => x % 2 == 1);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
         target.Peek().Should().Be(1);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -169,16 +169,16 @@ public class WhereTests
         var target = "aBcDeFgH".ToCharacterSequence().Where(x => char.IsUpper(x));
         // Because the filter sequence discards non-matches at the beginning, we won't be at the
         // "start" here, even though we just created it.
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         var cp = target.Checkpoint();
         target.GetNext().Should().Be('B');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.GetNext().Should().Be('D');
         target.GetNext().Should().Be('F');
         target.GetNext().Should().Be('H');
         target.GetNext().Should().Be('\0');
         cp.Rewind();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.GetNext().Should().Be('B');
         target.GetNext().Should().Be('D');
         target.GetNext().Should().Be('F');
@@ -211,7 +211,7 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 1);
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
         target.Consumed.Should().Be(0);
 
         target.GetNext().Should().Be(1);
@@ -221,7 +221,7 @@ public class WhereTests
         target.Consumed.Should().Be(4);
 
         target.Reset();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
 
         target.Consumed.Should().Be(0);
         target.GetNext().Should().Be(1);
@@ -235,7 +235,7 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 0);
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
 
         target.GetNext().Should().Be(2);
@@ -245,7 +245,7 @@ public class WhereTests
         target.Consumed.Should().Be(5);
 
         target.Reset();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
 
         target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);
@@ -259,7 +259,7 @@ public class WhereTests
             0
         ).Where(x => x % 2 == 0);
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
 
         target.GetNext().Should().Be(2);
@@ -268,11 +268,11 @@ public class WhereTests
         target.GetNext().Should().Be(4);
         target.Consumed.Should().Be(4);
 
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
         target.Reset();
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
 
         target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);

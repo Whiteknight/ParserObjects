@@ -14,7 +14,7 @@ public static partial class Parsers<TInput>
     private static readonly IParser<TInput, object> _empty = new EmptyParser<TInput>();
 
     private static readonly IParser<TInput, object> _end = new SequenceFlagParser<TInput>(
-        SequenceStateType.EndOfInput,
+        SequenceStateTypes.EndOfInput,
         "Expected end of input but found ");
 
     private static readonly IParser<TInput, bool> _isEnd = new Function<TInput, bool>.Parser<object>(
@@ -28,7 +28,7 @@ public static partial class Parsers<TInput>
     private static readonly IParser<TInput, TInput> _peek = new AnyParser<TInput>(true);
 
     private static readonly IParser<TInput, object> _start = new SequenceFlagParser<TInput>(
-        SequenceStateType.StartOfInput,
+        SequenceStateTypes.StartOfInput,
         "Expected start of input but found ");
 
     /// <summary>

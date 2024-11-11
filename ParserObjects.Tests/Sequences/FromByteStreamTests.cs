@@ -18,8 +18,8 @@ public class FromByteStreamTests
     {
         var target = GetTarget(1, 2, 3);
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
         target.CurrentLocation.Column.Should().Be(0);
 
@@ -34,14 +34,14 @@ public class FromByteStreamTests
         target.GetNext().Should().Be(3);
         target.Consumed.Should().Be(3);
         target.CurrentLocation.Column.Should().Be(3);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
 
         target.GetNext().Should().Be(0);
         target.Consumed.Should().Be(3);
         target.CurrentLocation.Column.Should().Be(3);
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -58,16 +58,16 @@ public class FromByteStreamTests
     {
         var target = GetTarget(1, 2, 3);
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -262,8 +262,8 @@ public class FromByteStreamTests
     {
         var target = GetTarget(1, 2, 3);
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
         target.GetNext().Should().Be(1);
         target.Consumed.Should().Be(1);
@@ -271,8 +271,8 @@ public class FromByteStreamTests
         target.Consumed.Should().Be(2);
 
         target.Reset();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
         target.GetNext().Should().Be(1);
     }
@@ -282,12 +282,12 @@ public class FromByteStreamTests
     {
         var target = GetTarget();
 
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
         target.IsAtEnd.Should().BeTrue();
         target.Reset();
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 }

@@ -30,7 +30,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         _buffer = new byte[_options.BufferSize];
         _stream = File.OpenRead(_options.FileName);
         _consumed = 0;
-        Flags = SequenceStateType.StartOfInput;
+        Flags = SequenceStateTypes.StartOfInput;
         FillBuffer();
     }
 
@@ -47,14 +47,14 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         if (!_stream.CanSeek || !_stream.CanRead)
             throw new InvalidOperationException("Stream must support Read and Seek to be used in a Sequence");
         _consumed = 0;
-        Flags = SequenceStateType.StartOfInput;
+        Flags = SequenceStateTypes.StartOfInput;
         FillBuffer();
     }
 
     public byte GetNext()
     {
         var b = GetNextByteRaw(true);
-        Flags = Flags.Without(SequenceStateType.StartOfInput);
+        Flags = Flags.Without(SequenceStateTypes.StartOfInput);
         if (b == _options.EndSentinel)
             return b;
         _stats.ItemsRead++;
@@ -73,7 +73,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public bool IsAtEnd => _isComplete;
 
-    public SequenceStateType Flags { get; private set; }
+    public SequenceStateTypes Flags { get; private set; }
 
     public int Consumed => _consumed;
 
@@ -107,7 +107,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
         if (_stream.Position >= _stream.Length)
         {
             _isComplete = true;
-            Flags = Flags.With(SequenceStateType.EndOfInput);
+            Flags = Flags.With(SequenceStateTypes.EndOfInput);
             return;
         }
 
@@ -216,8 +216,8 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
             _isComplete = true;
         _consumed = 0;
         _bufferIndex = 0;
-        Flags = SequenceStateType.StartOfInput;
+        Flags = SequenceStateTypes.StartOfInput;
         if (_isComplete)
-            Flags = Flags.With(SequenceStateType.EndOfInput);
+            Flags = Flags.With(SequenceStateTypes.EndOfInput);
     }
 }

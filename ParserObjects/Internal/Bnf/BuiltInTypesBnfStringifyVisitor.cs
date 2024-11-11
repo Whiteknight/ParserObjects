@@ -91,12 +91,12 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(children[0], " CONTINUEWITH ", children[1]);
     }
 
-    public void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser _, BnfStringifyState state)
+    public void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, BnfStringifyState state)
     {
         state.Append("CREATE");
     }
 
-    public void Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser _, BnfStringifyState state)
+    public void Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser p, BnfStringifyState state)
     {
         state.Append("CREATE");
     }
@@ -129,7 +129,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append(p.GetBnf(state));
     }
 
-    public void Accept<TInput>(EmptyParser<TInput> _, BnfStringifyState state)
+    public void Accept<TInput>(EmptyParser<TInput> p, BnfStringifyState state)
     {
         state.Append("()");
     }
@@ -198,7 +198,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("'", (object?)p.Item ?? ' ', "'");
     }
 
-    public void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, BnfStringifyState state)
+    public void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> p, BnfStringifyState state)
     {
         state.Append("MATCH()");
     }
@@ -404,9 +404,9 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     {
         state.Append(p.Flags switch
         {
-            SequenceStateType.StartOfInput => "START",
-            SequenceStateType.EndOfInput => "END",
-            SequenceStateType.StartOfLine => "START OF LINE",
+            SequenceStateTypes.StartOfInput => "START",
+            SequenceStateTypes.EndOfInput => "END",
+            SequenceStateTypes.StartOfLine => "START OF LINE",
             _ => "UNKNOWN"
         });
     }

@@ -20,15 +20,15 @@ public class FromStringTests
     public void GetNext_Flags(bool normalize)
     {
         var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.GetNext().Should().Be('b');
         target.GetNext().Should().Be('c');
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [TestCase(true)]
@@ -46,14 +46,14 @@ public class FromStringTests
     public void Peek_DoesNotChangeFlags(bool normalize)
     {
         var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Peek().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Peek().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.Peek().Should().Be('a');
     }
 
@@ -70,11 +70,11 @@ public class FromStringTests
     public void EmptyFlags(bool normalize)
     {
         var target = FromString("", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
         target.Peek().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
     }
 
     [TestCase(true)]
@@ -145,15 +145,15 @@ public class FromStringTests
     public void GetNext_WindowsNewlines()
     {
         var target = FromString("\r\na\r\n");
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
     }
 
     [Test]
@@ -163,47 +163,47 @@ public class FromStringTests
         {
             MaintainLineEndings = true
         });
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
     }
 
     [Test]
     public void GetNext_UnixNewlines()
     {
         var target = FromString("\na\n");
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
     }
 
     [Test]
     public void GetNext_OldMacNewlines()
     {
         var target = FromString("\ra\r");
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\n');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
     }
 
     [Test]
@@ -213,10 +213,10 @@ public class FromStringTests
         {
             MaintainLineEndings = true
         });
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeTrue();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfLine).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfLine).Should().BeFalse();
         target.GetNext().Should().Be('\r');
         target.GetNext().Should().Be('\0');
     }
@@ -362,13 +362,13 @@ public class FromStringTests
     public void Reset_Test(bool normalize)
     {
         var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
         target.GetNext().Should().Be('a');
         target.GetNext().Should().Be('b');
         target.GetNext().Should().Be('c');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.Reset();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
         target.GetNext().Should().Be('a');
         target.GetNext().Should().Be('b');
         target.GetNext().Should().Be('c');
@@ -380,16 +380,16 @@ public class FromStringTests
     public void IsAtEnd_Test(bool normalize)
     {
         var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.IsAtEnd.Should().BeFalse();
         target.GetNext();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.IsAtEnd.Should().BeFalse();
         target.GetNext();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         target.IsAtEnd.Should().BeFalse();
         target.GetNext();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
         target.IsAtEnd.Should().BeTrue();
     }
 
@@ -398,19 +398,19 @@ public class FromStringTests
     public void Checkpoint_Beginning(bool normalize)
     {
         var target = FromString("abc", new SequenceOptions<char> { MaintainLineEndings = !normalize });
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
         var cp = target.Checkpoint();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.GetNext().Should().Be('b');
         target.GetNext().Should().Be('c');
         target.GetNext().Should().Be('\0');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         cp.Rewind();
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
         target.GetNext().Should().Be('a');
-        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
         target.GetNext().Should().Be('b');
         target.GetNext().Should().Be('c');
         target.GetNext().Should().Be('\0');

@@ -2,19 +2,19 @@
 
 public static class SequenceFlags
 {
-    public static SequenceStateType FlagsForStartOfCharSequence(bool isEnd)
+    public static SequenceStateTypes FlagsForStartOfCharSequence(bool isEnd)
     {
-        var flags = SequenceStateType.StartOfInput | SequenceStateType.StartOfLine;
+        var flags = SequenceStateTypes.StartOfInput | SequenceStateTypes.StartOfLine;
         if (isEnd)
-            flags |= SequenceStateType.EndOfInput;
+            flags |= SequenceStateTypes.EndOfInput;
         return flags;
     }
 
-    public static SequenceStateType FlagsForStartOfSequence(bool isEnd)
+    public static SequenceStateTypes FlagsForStartOfSequence(bool isEnd)
     {
-        var flags = SequenceStateType.StartOfInput;
+        var flags = SequenceStateTypes.StartOfInput;
         if (isEnd)
-            flags |= SequenceStateType.EndOfInput;
+            flags |= SequenceStateTypes.EndOfInput;
         return flags;
     }
 }
