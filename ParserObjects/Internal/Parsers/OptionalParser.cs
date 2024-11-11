@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Options;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;

@@ -53,7 +53,6 @@ public static class FirstParser<TInput>
         return parsers[parsers.Count - 1].Match(state);
     }
 
-    // TODO: I think these things need to be named "*Parser" to play nicely with some reflection-based unit tests.
     public sealed record WithoutOutput(
         IReadOnlyList<IParser<TInput>> Parsers,
         string Name = ""

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
