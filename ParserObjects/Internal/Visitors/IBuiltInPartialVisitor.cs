@@ -25,7 +25,7 @@ public interface IFunctionPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput, TOutput, TData>(Function<TInput, TOutput>.Parser<TData> p, TState state);
 
-    void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> _, TState state);
+    void Accept<TInput, TOutput, TData>(Sequential.Parser<TInput, TOutput, TData> p, TState state);
 }
 
 public interface IListPartialVisitor<TState> : IPartialVisitor<TState>
@@ -55,9 +55,9 @@ public interface ICorePartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept<TInput>(Context<TInput>.Parser p, TState state);
 
-    void Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser _, TState state);
+    void Accept<TInput, TOutput>(Create<TInput, TOutput>.MultiParser p, TState state);
 
-    void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser _, TState state);
+    void Accept<TInput, TOutput>(Create<TInput, TOutput>.Parser p, TState state);
 
     void Accept<TInput, TOutput, TParser>(DeferredParser<TInput, TOutput, TParser> p, TState state)
         where TParser : class, IParser;
@@ -130,7 +130,7 @@ public interface IMatchPartialVisitor<TState> : IPartialVisitor<TState>
 {
     void Accept<TInput>(AnyParser<TInput> p, TState state);
 
-    void Accept<TInput>(EmptyParser<TInput> _, TState state);
+    void Accept<TInput>(EmptyParser<TInput> p, TState state);
 
     void Accept<TInput>(MatchItemParser<TInput> p, TState state);
 
@@ -138,9 +138,9 @@ public interface IMatchPartialVisitor<TState> : IPartialVisitor<TState>
 
     void Accept(MatchStringPatternParser p, TState state);
 
-    void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> _, TState state);
+    void Accept<TInput, TData>(MatchPredicateParser<TInput, TData> p, TState state);
 
-    void Accept<TInput>(SequenceFlagParser<TInput> _, TState state);
+    void Accept<TInput>(SequenceFlagParser<TInput> p, TState state);
 
     void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, TState state);
 }
