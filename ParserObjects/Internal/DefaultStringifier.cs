@@ -20,6 +20,11 @@ public static class DefaultStringifier
         return UnnamedNonParserToString(named);
     }
 
+    public static string ToString(string type, string name, int id)
+        => !string.IsNullOrEmpty(name)
+            ? $"<{name}>"
+            : $"<{type} Id={id}>";
+
     private static string UnnamedNonParserToString(INamed named)
     {
         var objType = named.GetType();
@@ -38,9 +43,4 @@ public static class DefaultStringifier
             ? $"<{pType.DeclaringType.Name} Id={parser.Id}>"
             : $"<{pType.DeclaringType.Name}.{pType.Name} Id={parser.Id}>";
     }
-
-    public static string ToString(string type, string name, int id)
-        => !string.IsNullOrEmpty(name)
-            ? $"<{name}>"
-            : $"<{type} Id={id}>";
 }
