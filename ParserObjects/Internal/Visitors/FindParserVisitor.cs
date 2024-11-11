@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ParserObjects;
 
 namespace ParserObjects.Internal.Visitors;
 
 /// <summary>
 /// Parser-visitor type to traverse the parser tree and find matching parser nodes.
 /// </summary>
-public sealed class FindParserVisitor
+public static class FindParserVisitor
 {
     private readonly struct State
     {
         public Func<IParser, bool> Predicate { get; }
         public bool JustOne { get; }
-        public IList<IParser> Found { get; }
-        public ICollection<IParser> Seen { get; }
+        public List<IParser> Found { get; }
+        public HashSet<IParser> Seen { get; }
 
         public bool CanStop => JustOne && Found.Count > 0;
 
@@ -32,11 +31,10 @@ public sealed class FindParserVisitor
     {
         Assert.ArgumentNotNull(root);
         Assert.ArgumentNotNull(predicate);
-        var visitor = new FindParserVisitor();
         var state = new State(predicate, true);
-        visitor.Visit(root, state);
+        Visit(root, state);
         if (state.Found.Count > 0)
-            return new Option<IParser>(true, state.Found.First());
+            return new Option<IParser>(true, state.Found[0]);
         return default;
     }
 
@@ -72,9 +70,8 @@ public sealed class FindParserVisitor
         where TParser : IParser
     {
         Assert.ArgumentNotNull(root);
-        var visitor = new FindParserVisitor();
         var state = new State(p => p is TParser, false);
-        visitor.Visit(root, state);
+        Visit(root, state);
         return state.Found.Cast<TParser>().ToList();
     }
 
@@ -95,9 +92,8 @@ public sealed class FindParserVisitor
     {
         if (root == null || predicate == null || replacement == null)
             return MultiReplaceResult.Failure();
-        var visitor = new FindParserVisitor();
         var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
-        visitor.Visit(root, state);
+        Visit(root, state);
         var results = new List<SingleReplaceResult>();
         foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
         {
@@ -139,9 +135,8 @@ public sealed class FindParserVisitor
     {
         if (root == null || predicate == null || transform == null)
             return MultiReplaceResult.Failure();
-        var visitor = new FindParserVisitor();
         var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
-        visitor.Visit(root, state);
+        Visit(root, state);
         var results = new List<SingleReplaceResult>();
         foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
         {
@@ -193,9 +188,8 @@ public sealed class FindParserVisitor
     {
         if (root == null || predicate == null || transform == null)
             return MultiReplaceResult.Failure();
-        var visitor = new FindParserVisitor();
         var state = new State(p => p is IReplaceableParserUntyped replaceable && predicate(replaceable), true);
-        visitor.Visit(root, state);
+        Visit(root, state);
         var results = new List<SingleReplaceResult>();
         foreach (var found in state.Found.Cast<IReplaceableParserUntyped>())
         {
@@ -228,14 +222,14 @@ public sealed class FindParserVisitor
         GetMultiParserFromMultiParser<TInput, TOutput> transform
     ) => ReplaceMulti(root, p => p.Name == name, transform);
 
-    private void Visit(IParser parser, State state)
+    private static void Visit(IParser parser, State state)
     {
         if (parser == null)
             return;
         VisitInternal(parser, state);
     }
 
-    private void VisitInternal(IParser parser, State state)
+    private static void VisitInternal(IParser parser, State state)
     {
         if (state.CanStop || state.Seen.Contains(parser))
             return;
