@@ -3,6 +3,8 @@ using System.Buffers;
 using System.IO;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
+#pragma warning disable S1121
+
 namespace ParserObjects.Internal.Sequences;
 
 public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposable

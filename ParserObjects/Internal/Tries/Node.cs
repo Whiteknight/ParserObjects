@@ -272,7 +272,7 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
     // (although the only internal value is a null pointer, so a by-value comparsion would be
     // against a null pointer which is treated like untyped memory). We use this equality comparer
     // to wrap up an IEqualityComparer<TKey> so we can pass it to the dictionary.
-    private class WrappedEqualityComparer : IEqualityComparer<ValueTuple<TKey>>
+    private sealed class WrappedEqualityComparer : IEqualityComparer<ValueTuple<TKey>>
     {
         public IEqualityComparer<TKey> _inner;
 
@@ -285,6 +285,6 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             => _inner.Equals(x.Item1, y.Item1);
 
         public int GetHashCode([DisallowNull] ValueTuple<TKey> obj)
-            => obj.Item1 == null ? 0 : _inner.GetHashCode(obj.Item1!);
+            => obj.Item1 is null ? 0 : _inner.GetHashCode(obj.Item1!);
     }
 }

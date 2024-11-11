@@ -76,7 +76,7 @@ public sealed class RegexContext
             beforeMatch?.Rewind();
             if (captureIndex >= 0)
                 Captures.ResetCaptureIndex(captureIndex);
-            _backtrackStack?.Push(backtrackState);
+            _backtrackStack.Push(backtrackState);
             CurrentState = _queue.Pop();
             return true;
         }

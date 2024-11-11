@@ -36,23 +36,6 @@ public static class FirstParser<TInput>
         return getResult(state, parsers[parsers.Count - 1]);
     }
 
-    private static bool MatchInternal<TParser>(IParseState<TInput> state, IReadOnlyList<TParser> parsers)
-        where TParser : IParser<TInput>
-    {
-        Assert.ArgumentNotNull(state);
-        Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
-
-        for (int i = 0; i < parsers.Count - 1; i++)
-        {
-            var parser = parsers[i];
-            var result = parser.Match(state);
-            if (result)
-                return result;
-        }
-
-        return parsers[parsers.Count - 1].Match(state);
-    }
-
     public sealed record WithoutOutput(
         IReadOnlyList<IParser<TInput>> Parsers,
         string Name = ""
@@ -62,7 +45,20 @@ public static class FirstParser<TInput>
             => ParseInternal(state, Parsers, static (s, p) => p.Parse(s));
 
         public override bool Match(IParseState<TInput> state)
-            => MatchInternal(state, Parsers);
+        {
+            Assert.ArgumentNotNull(state);
+            Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
+
+            for (int i = 0; i < Parsers.Count - 1; i++)
+            {
+                var parser = Parsers[i];
+                var result = parser.Match(state);
+                if (result)
+                    return result;
+            }
+
+            return Parsers[Parsers.Count - 1].Match(state);
+        }
 
         public override IEnumerable<IParser> GetChildren() => Parsers;
 

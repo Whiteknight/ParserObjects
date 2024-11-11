@@ -71,7 +71,7 @@ public sealed class Engine<TInput, TOutput>
         while (!parseControl.IsComplete)
         {
             var rightResult = GetRight(state, rbp, leftToken, parseControl);
-            if (!rightResult.Success || rightResult.Value.Value == null)
+            if (!rightResult.Success || rightResult.Value.Value is null)
                 break;
 
             // Set the next left value to be the current combined right value and continue

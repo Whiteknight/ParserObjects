@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+#pragma warning disable S2326
+
 namespace ParserObjects.Earley;
 
 /// <summary>

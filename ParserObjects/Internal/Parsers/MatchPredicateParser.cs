@@ -50,7 +50,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
             return Result.Fail<T>(this, "Next item does not match the predicate");
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next, _data))
+        if (next is null || !_predicate(next, _data))
             return Result.Fail<T>(this, "Next item does not match the predicate");
 
         state.Input.GetNext();
@@ -67,7 +67,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
             return false;
 
         var next = state.Input.Peek();
-        if (next == null || !_predicate(next, _data))
+        if (next is null || !_predicate(next, _data))
             return false;
 
         state.Input.GetNext();

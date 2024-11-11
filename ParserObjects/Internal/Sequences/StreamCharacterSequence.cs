@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
+#pragma warning disable S1121
+
 namespace ParserObjects.Internal.Sequences;
 
 /// <summary>

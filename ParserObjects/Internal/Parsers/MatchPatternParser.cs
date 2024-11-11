@@ -27,7 +27,7 @@ public sealed record MatchPatternParser<T>(
         if (Pattern.Count == 1)
         {
             var next = state.Input.Peek();
-            return next == null || !next.Equals(Pattern[0])
+            return next is null || !next.Equals(Pattern[0])
                 ? Result.Fail(this, "Item does not match")
                 : Result.Ok(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
         }
@@ -37,7 +37,7 @@ public sealed record MatchPatternParser<T>(
         for (var i = 0; i < Pattern.Count; i++)
         {
             var c = state.Input.GetNext();
-            if (c == null)
+            if (c is null)
             {
                 checkpoint.Rewind();
                 return Result.Fail(this, $"Item does not match at position {i}");
