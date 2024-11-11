@@ -39,7 +39,7 @@ public static class ParserCombinatorExtensions
     /// <returns></returns>
     public static IParser<TInput, TOutput> ChainWith<TInput, TMiddle, TOutput>(
         this IParser<TInput, TMiddle> p,
-        Action<ParserPredicateSelector<TInput, TMiddle, TOutput>> setup
+        Action<ParserPredicateBuilder<TInput, TMiddle, TOutput>> setup
     ) => Parsers<TInput>.ChainWith(p, setup);
 
     /// <summary>
