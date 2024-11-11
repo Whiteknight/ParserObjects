@@ -22,41 +22,18 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public T GetNext()
     {
-        bool hasMore = DiscardNonMatches();
-
-        // If we don't have any values, we are at the end. In this case calling
-        // _inputs.GetNext() will return the end sentinel, which is not subject to filtering.
-        if (!hasMore)
-            return _inputs.GetNext();
-
-        return _inputs.GetNext();
-    }
-
-    public T Peek()
-    {
+        var item = _inputs.GetNext();
         DiscardNonMatches();
-        return _inputs.Peek();
+        return item;
     }
+
+    public T Peek() => _inputs.Peek();
 
     public Location CurrentLocation => _inputs.CurrentLocation;
 
-    public bool IsAtEnd
-    {
-        get
-        {
-            DiscardNonMatches();
-            return _inputs.IsAtEnd;
-        }
-    }
+    public bool IsAtEnd => _inputs.IsAtEnd;
 
-    public SequencePositionFlags Flags
-    {
-        get
-        {
-            DiscardNonMatches();
-            return _inputs.Flags;
-        }
-    }
+    public SequencePositionFlags Flags => _inputs.Flags;
 
     public int Consumed => _inputs.Consumed;
 
@@ -98,7 +75,11 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public bool Owns(SequenceCheckpoint checkpoint) => _inputs.Owns(checkpoint);
 
-    public void Rewind(SequenceCheckpoint checkpoint) => _inputs.Rewind(checkpoint);
+    public void Rewind(SequenceCheckpoint checkpoint)
+    {
+        _inputs.Rewind(checkpoint);
+        DiscardNonMatches();
+    }
 
     public void Reset()
     {
