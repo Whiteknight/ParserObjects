@@ -21,6 +21,7 @@ public static class Engine
         Assert.ArgumentNotNull(regex);
 
         var startLocation = input.CurrentLocation;
+
         // TODO: If we know that the Regex does not contain any capturing groups, we can probably
         // skip this allocation of a CaptureCollection and move into a simplified workflow
         // where we only return the overall match and not any captures.

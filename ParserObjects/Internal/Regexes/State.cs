@@ -115,7 +115,7 @@ public static class State
 
         // If it's one of the special char classes (\d \D \w \W \s \S) do that match. Otherwise
         // it's an escaped char and return a normal match.
-        var matchState = type switch
+        IState matchState = type switch
         {
             'd' => CreateMatchState(c => char.IsDigit(c), "digit"),
             'D' => CreateMatchState(c => !char.IsDigit(c), "not digit"),
@@ -159,7 +159,7 @@ public static class State
         return states;
     }
 
-    private static IState CreateMatchState(Func<char, bool> predicate, string description)
+    private static MatchPredicateState CreateMatchState(Func<char, bool> predicate, string description)
          => new MatchPredicateState(description, predicate);
 
     private static IState? VerifyPreviousStateIsNotEndAnchor(List<IState> states)

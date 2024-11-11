@@ -29,12 +29,12 @@ public sealed class AlternationState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
-    => new AlternationState(name, Alternations)
-    {
-        Quantifier = Quantifier,
-        Maximum = Maximum
-    };
+    private AlternationState Clone(string name)
+        => new AlternationState(name, Alternations)
+        {
+            Quantifier = Quantifier,
+            Maximum = Maximum
+        };
 
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
 

@@ -30,7 +30,7 @@ public sealed class MatchBackreferenceState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private MatchBackreferenceState Clone(string name)
         => new MatchBackreferenceState(name, GroupNumber)
         {
             Quantifier = Quantifier,
