@@ -140,7 +140,7 @@ public readonly struct Engine<TInput, TOutput>
         State state,
         Item item,
         INonterminal nonterminal,
-        IDictionary<IProduction, IList<Item>> completedNullables,
+        Dictionary<IProduction, IList<Item>> completedNullables,
         ParseStatistics stats
     )
     {
@@ -289,7 +289,7 @@ public readonly struct Engine<TInput, TOutput>
     private static void Complete(
         State state,
         Item item,
-        IDictionary<IProduction, IList<Item>> completedNullables,
+        Dictionary<IProduction, IList<Item>> completedNullables,
         ParseStatistics stats
     )
     {
