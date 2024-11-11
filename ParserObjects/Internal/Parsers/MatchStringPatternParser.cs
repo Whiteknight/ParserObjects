@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ParserObjects.Internal.Visitors;
@@ -12,16 +11,19 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 public sealed class MatchStringPatternParser : IParser<char, string>
 {
-    public MatchStringPatternParser(string pattern, bool caseInsensitive, string name = "")
+    public MatchStringPatternParser(string pattern, IEqualityComparer<char> comparer, string name = "")
     {
         Pattern = pattern;
-        CaseInsensitive = caseInsensitive;
+        Comparer = comparer;
         Name = name;
     }
 
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
+
     public string Pattern { get; }
-    public bool CaseInsensitive { get; }
+
+    public IEqualityComparer<char> Comparer { get; }
+
     public string Name { get; }
 
     public Result<string> Parse(IParseState<char> state)
@@ -35,7 +37,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         if (state.Input is ICharSequence charSequence)
         {
             var s = charSequence.GetString(Pattern.Length);
-            if (s.Length < Pattern.Length || !Pattern.Equals(s, CaseInsensitive ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture))
+            if (!Compare(s))
             {
                 checkpoint.Rewind();
                 return Result.Fail(this, "Pattern does not match");
@@ -44,26 +46,23 @@ public sealed class MatchStringPatternParser : IParser<char, string>
             return Result.Ok(this, s, s.Length);
         }
 
-        return CaseInsensitive ? ParseCaseInsensitive(state, checkpoint) : ParseCaseSensitive(state, checkpoint);
+        return Parse(state, Comparer, checkpoint);
     }
 
-    // TODO: Instead of a flag for CaseInsensitive we could take an IEqualityComparer<char> instance
-    // and use that to handle the comparison. We keep singleton instances of those objects so
-    // it shouldn't lead to more allocations.
-    private Result<string> ParseCaseSensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
+    private Result<string> Parse(IParseState<char> state, IEqualityComparer<char> comparer, SequenceCheckpoint checkpoint)
     {
         if (Pattern.Length == 1)
         {
             var next = state.Input.Peek();
-            return next != Pattern[0]
-                ? Result.Fail(this, "Item does not match")
-                : Result.Ok(this, Pattern, 1);
+            return comparer.Equals(next, Pattern[0])
+                ? Result.Ok(this, Pattern, 1)
+                : Result.Fail(this, "Item does not match");
         }
 
         for (var i = 0; i < Pattern.Length; i++)
         {
             var c = state.Input.GetNext();
-            if (c == Pattern[i])
+            if (comparer.Equals(c, Pattern[i]))
                 continue;
 
             checkpoint.Rewind();
@@ -73,29 +72,18 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         return Result.Ok(this, Pattern, Pattern.Length);
     }
 
-    private Result<string> ParseCaseInsensitive(IParseState<char> state, SequenceCheckpoint checkpoint)
+    private bool Compare(string input)
     {
-        if (Pattern.Length == 1)
+        if (input.Length != Pattern.Length)
+            return false;
+
+        for (int i = 0; i < input.Length; i++)
         {
-            var next = state.Input.Peek();
-            return !CharMethods.EqualsCaseInsensitive(next, Pattern[0])
-                ? Result.Fail(this, "Item does not match")
-                : Result.Ok(this, new string(next, 1), 1);
+            if (!Comparer.Equals(input[i], Pattern[i]))
+                return false;
         }
 
-        var buffer = new char[Pattern.Length];
-        for (var i = 0; i < Pattern.Length; i++)
-        {
-            var c = state.Input.GetNext();
-            buffer[i] = c;
-            if (CharMethods.EqualsCaseInsensitive(c, Pattern[i]))
-                continue;
-
-            checkpoint.Rewind();
-            return Result.Fail(this, $"Item does not match at position {i}");
-        }
-
-        return Result.Ok(this, new string(buffer, 0, Pattern.Length), Pattern.Length);
+        return true;
     }
 
     Result<object> IParser<char>.Parse(IParseState<char> state) => Parse(state).AsObject();
@@ -105,11 +93,10 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         if (Pattern.Length == 0)
             return true;
 
-        Func<char, char, bool> test = CaseInsensitive ? CharMethods.EqualsCaseInsensitive : CharMethods.EqualsCaseSensitive;
         var checkpoint = state.Input.Checkpoint();
         for (int i = 0; i < Pattern.Length; i++)
         {
-            if (!test(Pattern[i], state.Input.GetNext()))
+            if (!Comparer.Equals(Pattern[i], state.Input.GetNext()))
             {
                 checkpoint.Rewind();
                 return false;
@@ -123,7 +110,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
 
     public override string ToString() => DefaultStringifier.ToString("MatchPattern", Name, Id);
 
-    public INamed SetName(string name) => new MatchStringPatternParser(Pattern, CaseInsensitive, name);
+    public INamed SetName(string name) => new MatchStringPatternParser(Pattern, Comparer, name);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>

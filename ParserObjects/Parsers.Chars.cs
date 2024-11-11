@@ -167,7 +167,17 @@ public static partial class Parsers
     /// <param name="caseInsensitive"></param>
     /// <returns></returns>
     public static IParser<char, string> MatchChars(string pattern, bool caseInsensitive = false)
-        => new MatchStringPatternParser(pattern, caseInsensitive);
+        => MatchChars(pattern, CharComparer.Get(!caseInsensitive));
+
+    /// <summary>
+    /// Match the next several characters in sequence against the given string using the given
+    /// character comparer. Return the string if all characters match. Failure otherwise.
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <param name="comparer"></param>
+    /// <returns></returns>
+    public static IParser<char, string> MatchChars(string pattern, IEqualityComparer<char> comparer)
+        => new MatchStringPatternParser(pattern, comparer ?? CharComparer.CaseSensitive);
 
     /// <summary>
     /// Matches a series of consecutive letter characters.
