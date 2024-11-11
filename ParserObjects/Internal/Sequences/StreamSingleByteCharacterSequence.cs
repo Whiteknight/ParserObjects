@@ -57,21 +57,21 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         }
 
         _stats.ItemsRead++;
-        Flags = Flags.Without(SequencePositionFlags.StartOfInput);
+        Flags = Flags.Without(SequenceStateType.StartOfInput);
         _consumed++;
         if (IsAtEnd)
-            Flags = Flags.With(SequencePositionFlags.EndOfInput);
+            Flags = Flags.With(SequenceStateType.EndOfInput);
 
         if (c == '\n')
         {
             _line++;
             _column = 0;
-            Flags = Flags.With(SequencePositionFlags.StartOfLine);
+            Flags = Flags.With(SequenceStateType.StartOfLine);
             return c;
         }
 
         _column++;
-        Flags = Flags.Without(SequencePositionFlags.StartOfLine);
+        Flags = Flags.Without(SequenceStateType.StartOfLine);
         return c;
     }
 
@@ -88,7 +88,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public bool IsAtEnd => _totalCharsInBuffer == 0;
 
-    public SequencePositionFlags Flags { get; private set; }
+    public SequenceStateType Flags { get; private set; }
 
     public int Consumed => _consumed;
 

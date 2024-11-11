@@ -11,11 +11,11 @@ public class FromParseResultTests
         var parser = Any();
         var target = FromParseResult("abc".ToCharacterSequence(), parser);
 
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
         target.Consumed.Should().Be(0);
         target.GetNext().Value.Should().Be('a');
         target.Consumed.Should().Be(1);
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
         target.GetNext().Value.Should().Be('b');
         target.Consumed.Should().Be(2);
         target.GetNext().Value.Should().Be('c');
@@ -31,18 +31,18 @@ public class FromParseResultTests
         var target = FromParseResult("a".ToCharacterSequence(), parser,
             getEndSentinel: b => b.Success('X'));
 
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
         target.GetNext().Value.Should().Be('a');
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
         target.Consumed.Should().Be(1);
         target.GetNext().Value.Should().Be('X');
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
         target.Consumed.Should().Be(1);
         target.GetNext().Value.Should().Be('X');
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
         target.Consumed.Should().Be(1);
     }
 
@@ -70,16 +70,16 @@ public class FromParseResultTests
         var parser = Any();
         var target = FromParseResult("abc".ToCharacterSequence(), parser);
 
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
         target.GetNext().Value.Should().Be('a');
         target.Consumed.Should().Be(1);
         target.GetNext().Value.Should().Be('b');
         target.Consumed.Should().Be(2);
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
         target.Reset();
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
         target.Consumed.Should().Be(0);
         target.GetNext().Value.Should().Be('a');
     }
@@ -102,11 +102,11 @@ public class FromParseResultTests
     {
         var parser = Any();
         var target = FromParseResult("abc".ToCharacterSequence(), parser);
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.Peek().Value.Should().Be('a');
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
     }
 
     [Test]
@@ -115,16 +115,16 @@ public class FromParseResultTests
         var parser = Any();
         var target = FromParseResult("abc".ToCharacterSequence(), parser);
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeFalse();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.GetNext();
         target.IsAtEnd.Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
     }
 
     [Test]
@@ -169,8 +169,8 @@ public class FromParseResultTests
     {
         var parser = Any();
         var target = FromParseResult("abcde".ToCharacterSequence(), parser);
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         var cp = target.Checkpoint();
         target.GetNext().Value.Should().Be('a');
         target.GetNext().Value.Should().Be('b');
@@ -179,8 +179,8 @@ public class FromParseResultTests
         target.GetNext().Value.Should().Be('e');
         target.IsAtEnd.Should().BeTrue();
         cp.Rewind();
-        target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
-        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+        target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
+        target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
         target.GetNext().Value.Should().Be('a');
         target.GetNext().Value.Should().Be('b');
         target.GetNext().Value.Should().Be('c');

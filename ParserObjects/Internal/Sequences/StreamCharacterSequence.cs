@@ -80,7 +80,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
             return _options.EndSentinel;
 
         var c = GetNextCharRaw(true);
-        Flags = Flags.Without(SequencePositionFlags.StartOfInput);
+        Flags = Flags.Without(SequenceStateType.StartOfInput);
 
         if (_options.NormalizeLineEndings && c == '\r')
         {
@@ -91,18 +91,18 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
         _stats.ItemsRead++;
         if (IsAtEnd)
-            Flags = Flags.With(SequencePositionFlags.EndOfInput);
+            Flags = Flags.With(SequenceStateType.EndOfInput);
 
         if (c == '\n')
         {
             _line++;
             _column = 0;
-            Flags = Flags.With(SequencePositionFlags.StartOfLine);
+            Flags = Flags.With(SequenceStateType.StartOfLine);
             return c;
         }
 
         _column++;
-        Flags = Flags.Without(SequencePositionFlags.StartOfLine);
+        Flags = Flags.Without(SequenceStateType.StartOfLine);
         return c;
     }
 
@@ -119,7 +119,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public bool IsAtEnd => _totalCharsInBuffer == 0;
 
-    public SequencePositionFlags Flags { get; private set; }
+    public SequenceStateType Flags { get; private set; }
 
     public int Consumed { get; private set; }
 
