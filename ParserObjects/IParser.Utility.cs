@@ -14,7 +14,7 @@ public static class ParserExtensions
     /// <param name="p"></param>
     /// <returns></returns>
     public static IReadOnlyDictionary<int, IParser> GetAllParsers(this IParser p)
-        => new ListParsersVisitor().Visit(p);
+        => ListParsersVisitor.Visit(p);
 
     /// <summary>
     /// Attempt to describe the parser as a string of pseudo-BNF. This feature depends on parsers having

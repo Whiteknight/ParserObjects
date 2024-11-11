@@ -2,9 +2,9 @@
 
 namespace ParserObjects.Internal.Visitors;
 
-public sealed class ListParsersVisitor
+public static class ListParsersVisitor
 {
-    public IReadOnlyDictionary<int, IParser> Visit(IParser parser)
+    public static IReadOnlyDictionary<int, IParser> Visit(IParser parser)
     {
         if (parser == null)
             return new Dictionary<int, IParser>();
@@ -13,7 +13,7 @@ public sealed class ListParsersVisitor
         return parsers;
     }
 
-    private void VisitInternal(IParser parser, Dictionary<int, IParser> parsers)
+    private static void VisitInternal(IParser parser, Dictionary<int, IParser> parsers)
     {
         if (parsers.ContainsKey(parser.Id))
             return;
