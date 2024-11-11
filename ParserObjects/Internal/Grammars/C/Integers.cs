@@ -159,9 +159,7 @@ public static class Integers
     {
         int maxBeforeLastDigit = int.MaxValue / numberBase;
         int minBeforeLastDigit = int.MinValue / numberBase;
-        var value = startValue;
-        if (sign)
-            value = -value;
+        var value = AdjustForSign(startValue, sign);
 
         // Keep getting more digits so long as we stay below maxint and there are more digits
         // to get.
@@ -187,7 +185,7 @@ public static class Integers
                 return value;
             }
 
-            value = nextValue + (sign ? -digitValue : digitValue);
+            value = nextValue + AdjustForSign(digitValue, sign);
         }
     }
 
@@ -228,9 +226,7 @@ public static class Integers
     {
         long maxBeforeLastDigit = long.MaxValue / numberBase;
         long minBeforeLastDigit = long.MinValue / numberBase;
-        var value = startValue;
-        if (sign)
-            value = -value;
+        var value = AdjustForSign(startValue, sign);
 
         // Keep getting more digits so long as we stay below maxint and there are more digits
         // to get.
@@ -256,7 +252,7 @@ public static class Integers
                 return value;
             }
 
-            value = nextValue + (sign ? -digitValue : digitValue);
+            value = nextValue + AdjustForSign(digitValue, sign);
         }
     }
 
@@ -292,6 +288,12 @@ public static class Integers
             value = nextValue + digitValue;
         }
     }
+
+    private static int AdjustForSign(int value, bool sign)
+        => sign ? -value : value;
+
+    public static long AdjustForSign(long value, bool sign)
+        => sign ? -value : value;
 
     private static ulong ConvertHexDigit(char c)
         => c switch
