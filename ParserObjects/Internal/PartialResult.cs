@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ParserObjects;
+namespace ParserObjects.Internal;
 
 /// <summary>
 /// A struct representing a partial parse result. Can be converted into an Result by adding

@@ -68,3 +68,13 @@ public static partial class Parsers<TInput>
         getMissingRight
     );
 }
+
+/// <summary>
+/// Holds arguments for RightApply.
+/// </summary>
+/// <typeparam name="TOutput"></typeparam>
+/// <typeparam name="TMiddle"></typeparam>
+/// <param name="Left"></param>
+/// <param name="Middle"></param>
+/// <param name="Right"></param>
+public readonly record struct RightApplyArguments<TOutput, TMiddle>(TOutput Left, TMiddle Middle, TOutput Right);
