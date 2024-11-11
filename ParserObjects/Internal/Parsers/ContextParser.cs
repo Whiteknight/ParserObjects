@@ -13,7 +13,7 @@ public static class Context<TInput>
     /* Basic flow goes like this:
      * 1. Run setup callback.
      *      a. If setup fails, we catch it, rewind any consumed input, and return a nice failure message.
-     * 2. Execute the inner parser in a try{}
+     * 2. Execute the inner parser in a try
      *      a. If the Inner parser throws we attempt to invoke Cleanup, then allow the exception to bubble up.
      *      b. We do not explicitly rewind here, we want to leave the input in the state it was
      *         when the exception was thrown. Try() parser may rewind it.

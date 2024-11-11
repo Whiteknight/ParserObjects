@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserObjects.Internal.Parsers;
 
 public abstract class SimpleParser<TInput, TOutput> : IParser<TInput, TOutput>
 {
-    public SimpleParser(string name)
+    protected SimpleParser(string name)
     {
         Name = name;
     }
