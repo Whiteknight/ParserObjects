@@ -25,7 +25,7 @@ public sealed class MatchPredicateState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private MatchPredicateState Clone(string name)
         => new MatchPredicateState(name, ValuePredicate)
         {
             Quantifier = Quantifier,

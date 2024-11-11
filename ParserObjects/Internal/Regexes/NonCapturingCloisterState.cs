@@ -29,7 +29,7 @@ public sealed class NonCapturingCloisterState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private NonCapturingCloisterState Clone(string name)
          => new NonCapturingCloisterState(name, Group)
          {
              Quantifier = Quantifier,

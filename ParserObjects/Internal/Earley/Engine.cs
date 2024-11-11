@@ -274,7 +274,7 @@ public readonly struct Engine<TInput, TOutput>
     }
 
     private static void AddCompletedNullable(
-        IDictionary<IProduction, IList<Item>> completedNullables,
+        Dictionary<IProduction, IList<Item>> completedNullables,
         Item item,
         IProduction production,
         ParseStatistics stats
