@@ -7,15 +7,24 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class CacheTests
 {
+    private static IResultsCache GetCache(string type)
+        => type switch
+        {
+            "memory" => InMemoryCache(),
+            "dictionary" => Dictionary(),
+            _ => NullCache()
+        };
+
     public class MethodNoOutput
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = Cache(End());
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -49,13 +58,14 @@ public static class CacheTests
 
     public class MethodSingle
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = Cache(CharacterString("TEST"));
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -91,13 +101,14 @@ public static class CacheTests
 
     public class MethodMulti
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -133,13 +144,14 @@ public static class CacheTests
 
     public class ExtensionNoOutput
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = End().Cache();
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -165,13 +177,14 @@ public static class CacheTests
 
     public class ExtensionSingle
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = CharacterString("TEST").Cache();
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
@@ -199,13 +212,14 @@ public static class CacheTests
 
     public class ExtensionMulti
     {
-        [Test]
-        public void Parse_Test()
+        [TestCase("memory")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
         {
             var parser = ProduceMulti(() => new[] { "abc" }).Cache();
             var input = FromString("TEST");
             var start = input.Checkpoint();
-            var cache = InMemoryCache();
+            var cache = GetCache(cacheType);
             var state = new ParseState<char>(input, _ => { }, cache);
 
             // First attempt, we parse the string for the first time. There's nothing in cache
