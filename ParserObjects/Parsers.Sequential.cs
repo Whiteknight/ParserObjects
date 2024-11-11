@@ -1,49 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-
-/* This file contains a few random structs which are necessary for public parser interfaces but
- * otherwise might prefer to be implemented in Internal/ closer to the parsers where they are used.
- * This creates an issue with low cohesion, which is not desireable.
- */
+using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
 
-/// <summary>
-/// A factory for creating Result objects in the current parser context.
-/// </summary>
-/// <typeparam name="TInput"></typeparam>
-/// <typeparam name="TOutput"></typeparam>
-public readonly struct ResultFactory<TInput, TOutput>
+public static partial class Parsers<TInput>
 {
-    private readonly IParser _parser;
-    private readonly IParseState<TInput> _state;
-    private readonly SequenceCheckpoint _startCheckpoint;
-
-    public ResultFactory(IParser parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
-    {
-        _parser = parser;
-        _state = state;
-        _startCheckpoint = startCheckpoint;
-    }
+    /// <summary>
+    /// Execute a specially-structured callback to turn a parse into sequential, procedural
+    /// code.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
+        => new Sequential.Parser<TInput, TOutput, Func<SequentialState<TInput>, TOutput>>(func, static (s, d) => d(s));
 
     /// <summary>
-    /// Create a failure result with an error message.
+    /// Execute a specially-structured callback to turn a parse into sequential, procedural code.
     /// </summary>
-    /// <param name="errorMessage"></param>
-    /// <param name="parser"></param>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="data"></param>
+    /// <param name="func"></param>
     /// <returns></returns>
-    public Result<TOutput> Failure(string errorMessage, IParser? parser = null)
-        => Result.Fail<TOutput>(parser ?? _parser, errorMessage, default);
-
-    /// <summary>
-    /// Create a success result with a value.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public Result<TOutput> Success(TOutput value)
-        => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+    public static IParser<TInput, TOutput> Sequential<TOutput, TData>(TData data, Func<SequentialState<TInput>, TData, TOutput> func)
+        => new Sequential.Parser<TInput, TOutput, TData>(data, func);
 }
 
 /// <summary>

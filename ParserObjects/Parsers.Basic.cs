@@ -419,27 +419,6 @@ public static partial class Parsers<TInput>
         );
 
     /// <summary>
-    /// Execute a specially-structured callback to turn a parse into sequential, procedural
-    /// code.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <param name="func"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Sequential<TOutput>(Func<SequentialState<TInput>, TOutput> func)
-        => new Sequential.Parser<TInput, TOutput, Func<SequentialState<TInput>, TOutput>>(func, static (s, d) => d(s));
-
-    /// <summary>
-    /// Execute a specially-structured callback to turn a parse into sequential, procedural code.
-    /// </summary>
-    /// <typeparam name="TOutput"></typeparam>
-    /// <typeparam name="TData"></typeparam>
-    /// <param name="data"></param>
-    /// <param name="func"></param>
-    /// <returns></returns>
-    public static IParser<TInput, TOutput> Sequential<TOutput, TData>(TData data, Func<SequentialState<TInput>, TData, TOutput> func)
-        => new Sequential.Parser<TInput, TOutput, TData>(data, func);
-
-    /// <summary>
     /// Attempt the parse. Return on success. On failure, enter "panic mode" where input tokens can be
     /// discarded until the next "good" location and the parse will be attempted again. Subsequent
     /// attempts will always return failure, but with error information about all the errors which

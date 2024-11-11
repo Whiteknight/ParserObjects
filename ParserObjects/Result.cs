@@ -85,3 +85,39 @@ public readonly record struct Result<TValue>(
             ? $"{Parser} Ok"
             : $"{Parser} FAIL: {ErrorMessage}";
 }
+
+/// <summary>
+/// A factory for creating Result objects in the current parser context.
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+public readonly struct ResultFactory<TInput, TOutput>
+{
+    private readonly IParser _parser;
+    private readonly IParseState<TInput> _state;
+    private readonly SequenceCheckpoint _startCheckpoint;
+
+    public ResultFactory(IParser parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
+    {
+        _parser = parser;
+        _state = state;
+        _startCheckpoint = startCheckpoint;
+    }
+
+    /// <summary>
+    /// Create a failure result with an error message.
+    /// </summary>
+    /// <param name="errorMessage"></param>
+    /// <param name="parser"></param>
+    /// <returns></returns>
+    public Result<TOutput> Failure(string errorMessage, IParser? parser = null)
+        => Result.Fail<TOutput>(parser ?? _parser, errorMessage, default);
+
+    /// <summary>
+    /// Create a success result with a value.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public Result<TOutput> Success(TOutput value)
+        => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+}
