@@ -129,30 +129,6 @@ public static class Sequences
     ) => new StreamCharacterSequence(reader, options);
 
     /// <summary>
-    /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
-    /// Calling .Dispose() on the sequence will dispose the stream as well.
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static ICharSequence ToCharacterSequence(
-        this Stream stream,
-        SequenceOptions<char> options = default
-    ) => FromCharacterStream(stream, options);
-
-    /// <summary>
-    /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
-    /// sequence will dispose the reader as well.
-    /// </summary>
-    /// <param name="streamReader"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static ICharSequence ToCharacterSequence(
-        this StreamReader streamReader,
-        SequenceOptions<char> options = default
-    ) => FromCharacterStream(streamReader, options);
-
-    /// <summary>
     /// Read the enumerable to an IReadOnlyList and wrap the list in an ISequence.
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -283,4 +259,28 @@ public static class Sequences
         this string str,
         SequenceOptions<char> options = default
     ) => FromString(str, options);
+
+    /// <summary>
+    /// Converts an existing Stream to a sequence of char using the default UTF-8 encoding.
+    /// Calling .Dispose() on the sequence will dispose the stream as well.
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence ToCharacterSequence(
+        this Stream stream,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(stream, options);
+
+    /// <summary>
+    /// Converts an existing StreamReader to a sequence of char. Calling .Dispose() on the
+    /// sequence will dispose the reader as well.
+    /// </summary>
+    /// <param name="streamReader"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static ICharSequence ToCharacterSequence(
+        this StreamReader streamReader,
+        SequenceOptions<char> options = default
+    ) => FromCharacterStream(streamReader, options);
 }

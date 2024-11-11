@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Internal.Grammars.Sql;
 using static ParserObjects.Internal.ParserCache;
 

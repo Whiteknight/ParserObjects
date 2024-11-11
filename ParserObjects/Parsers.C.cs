@@ -1,6 +1,8 @@
 ﻿using static ParserObjects.Parsers<char>;
 using static ParserObjects.Internal.ParserCache;
 
+#pragma warning disable S3218
+
 namespace ParserObjects;
 
 public static partial class Parsers
