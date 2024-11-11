@@ -17,14 +17,22 @@ public class WhereTests
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
         target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
+
         target.GetNext().Should().Be(2);
-        target.Consumed.Should().Be(2);
+        target.Consumed.Should().Be(3);
+
         target.GetNext().Should().Be(4);
-        target.Consumed.Should().Be(4);
+        target.Consumed.Should().Be(5);
+
         target.GetNext().Should().Be(6);
         target.Consumed.Should().Be(6);
+
+        target.IsAtEnd.Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+
         target.GetNext().Should().Be(0);
         target.Consumed.Should().Be(6);
+
         target.IsAtEnd.Should().BeTrue();
         target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
     }
@@ -42,12 +50,19 @@ public class WhereTests
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
         target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
         target.Consumed.Should().Be(0);
+
         target.GetNext().Should().Be(1);
-        target.Consumed.Should().Be(1);
+        target.Consumed.Should().Be(2);
+
         target.GetNext().Should().Be(3);
-        target.Consumed.Should().Be(3);
+        target.Consumed.Should().Be(4);
+
         target.GetNext().Should().Be(5);
-        target.Consumed.Should().Be(5);
+        target.Consumed.Should().Be(6);
+
+        target.IsAtEnd.Should().BeTrue();
+        target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
+
         target.GetNext().Should().Be(0);
         target.Consumed.Should().Be(6);
         target.IsAtEnd.Should().BeTrue();
@@ -198,10 +213,13 @@ public class WhereTests
 
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
         target.Consumed.Should().Be(0);
+
         target.GetNext().Should().Be(1);
-        target.Consumed.Should().Be(1);
+        target.Consumed.Should().Be(2);
+
         target.GetNext().Should().Be(3);
-        target.Consumed.Should().Be(3);
+        target.Consumed.Should().Be(4);
+
         target.Reset();
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeTrue();
 
@@ -219,10 +237,13 @@ public class WhereTests
 
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
+
         target.GetNext().Should().Be(2);
-        target.Consumed.Should().Be(2);
+        target.Consumed.Should().Be(3);
+
         target.GetNext().Should().Be(4);
-        target.Consumed.Should().Be(4);
+        target.Consumed.Should().Be(5);
+
         target.Reset();
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
 
@@ -240,15 +261,19 @@ public class WhereTests
 
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
         target.Consumed.Should().Be(1);
+
         target.GetNext().Should().Be(2);
-        target.Consumed.Should().Be(2);
+        target.Consumed.Should().Be(3);
+
         target.GetNext().Should().Be(4);
         target.Consumed.Should().Be(4);
 
         target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeTrue();
         target.Reset();
+
         target.Flags.Has(SequencePositionFlags.StartOfInput).Should().BeFalse();
         target.Flags.Has(SequencePositionFlags.EndOfInput).Should().BeFalse();
+
         target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);
     }
