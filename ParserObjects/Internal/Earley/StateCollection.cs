@@ -46,8 +46,8 @@ public sealed class StateCollection
             return _current.State;
 
         var i = _current.State.Number + consumed;
-        if (_lookup.ContainsKey(i))
-            return _lookup[i].State;
+        if (_lookup.TryGetValue(i, out var existing))
+            return existing.State;
 
         var state = new State(i, checkpoint);
         var current = _current;

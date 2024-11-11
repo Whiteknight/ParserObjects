@@ -37,10 +37,10 @@ public readonly struct ItemDerivationVisitor
         Debug.Assert(endItem.Index == production.Symbols.Count, "This is the end item of this production");
 
         var key = (production, endItem.ParentState.Number, endItem.CurrentState.Number);
-        if (_cache.ContainsKey(key))
+        if (_cache.TryGetValue(key, out var value))
         {
             _statistics.DerivationCacheHit++;
-            return _cache[key];
+            return value;
         }
 
         var results = GenerateValues(endItem, production);
@@ -117,7 +117,7 @@ public readonly struct ItemDerivationVisitor
         return results;
     }
 
-    private IReadOnlyList<object> GenerateValueForSingleSymbolSingleValue(IProduction production, object singleValue)
+    private object[] GenerateValueForSingleSymbolSingleValue(IProduction production, object singleValue)
     {
         // We're going to reuse buffer here to avoid allocating two arrays (one for the production
         // args and one for the result array).
@@ -132,7 +132,7 @@ public readonly struct ItemDerivationVisitor
         return buffer;
     }
 
-    private IReadOnlyList<object> GenerateValueForSingleSymbol(Item endItem, IProduction production)
+    private List<object> GenerateValueForSingleSymbol(Item endItem, IProduction production)
     {
         Debug.Assert(endItem?.Derivations != null, "Must have a valid endItem here");
         var argBuffer = new object[1];
