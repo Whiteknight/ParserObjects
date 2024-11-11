@@ -1,4 +1,4 @@
-﻿using CodeGenConsole;
+﻿namespace CodeGenConsole;
 
 public static class Program
 {
