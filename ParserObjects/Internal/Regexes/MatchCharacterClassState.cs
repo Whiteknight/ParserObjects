@@ -54,7 +54,7 @@ public sealed class MatchCharacterClassState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private MatchCharacterClassState Clone(string name)
         => new MatchCharacterClassState(name, _invert, _exactChars, _ranges)
         {
             Quantifier = Quantifier,

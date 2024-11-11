@@ -26,7 +26,7 @@ public sealed class MatchCharacterState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private MatchCharacterState Clone(string name)
         => new MatchCharacterState(name, _c)
         {
             Quantifier = Quantifier,

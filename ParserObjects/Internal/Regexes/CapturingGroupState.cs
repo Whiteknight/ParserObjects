@@ -40,7 +40,7 @@ public sealed class CapturingGroupState : IState
 
     public IState Clone() => Clone(Name);
 
-    private IState Clone(string name)
+    private CapturingGroupState Clone(string name)
          => new CapturingGroupState(name, GroupNumber, Group)
          {
              Quantifier = Quantifier,

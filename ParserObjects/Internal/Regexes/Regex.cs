@@ -19,7 +19,7 @@ public readonly struct Regex
         NumberGroups(states);
     }
 
-    private void NumberGroups(IReadOnlyList<IState> states)
+    private static void NumberGroups(IReadOnlyList<IState> states)
     {
         // The pattern parser numbers all Group states according to the index in the states array,
         // with "duplicate" groups having the same GroupNumber.
@@ -31,7 +31,7 @@ public readonly struct Regex
         NumberGroups(states, 0);
     }
 
-    private int NumberGroups(IReadOnlyList<IState> states, int destGroupNumber)
+    private static int NumberGroups(IReadOnlyList<IState> states, int destGroupNumber)
     {
         int lastSrcGroupNumber = -1;
         for (int i = 0; i < states.Count; i++)
