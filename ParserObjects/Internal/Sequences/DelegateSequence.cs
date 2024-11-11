@@ -48,7 +48,7 @@ public static class UserDelegate
             _bufferPtr = 0;
             _index = 0;
             _endIndex = -1;
-            Flags = SequenceStateType.StartOfInput;
+            Flags = SequenceStateTypes.StartOfInput;
 
             GetNextRaw(false);
         }
@@ -62,21 +62,21 @@ public static class UserDelegate
 
         public bool IsAtEnd => _endIndex >= 0 && _index >= _endIndex;
 
-        public SequenceStateType Flags { get; private set; }
+        public SequenceStateTypes Flags { get; private set; }
 
         public T GetNext()
         {
             if (IsAtEnd)
             {
-                Flags = Flags.With(SequenceStateType.EndOfInput);
+                Flags = Flags.With(SequenceStateTypes.EndOfInput);
                 return _options.EndSentinel;
             }
 
             var next = GetNextRaw(true);
-            Flags = Flags.Without(SequenceStateType.StartOfInput);
+            Flags = Flags.Without(SequenceStateTypes.StartOfInput);
             _stats.ItemsRead++;
             if (IsAtEnd)
-                Flags = Flags.With(SequenceStateType.EndOfInput);
+                Flags = Flags.With(SequenceStateTypes.EndOfInput);
 
             return next;
         }
@@ -227,7 +227,7 @@ public static class UserDelegate
         {
             _stats.Rewinds++;
             _index = 0;
-            Flags = SequenceStateType.StartOfInput;
+            Flags = SequenceStateTypes.StartOfInput;
         }
     }
 
@@ -244,7 +244,7 @@ public static class UserDelegate
 
         public bool IsAtEnd => _internal.IsAtEnd;
 
-        public SequenceStateType Flags => _internal.Flags;
+        public SequenceStateTypes Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 
@@ -279,14 +279,14 @@ public static class UserDelegate
         private InternalSequence<char> _internal;
         private int _line;
         private int _column;
-        private SequenceStateType _flags;
+        private SequenceStateTypes _flags;
 
         public CharSequence(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options)
         {
             _internal = new InternalSequence<char>(function, options);
             _line = 1;
             _column = 0;
-            _flags = SequenceStateType.StartOfLine;
+            _flags = SequenceStateTypes.StartOfLine;
         }
 
         public Location CurrentLocation => new Location(string.Empty, _line, _column);
@@ -295,7 +295,7 @@ public static class UserDelegate
 
         public int Consumed => _internal.Index;
 
-        public SequenceStateType Flags => _internal.Flags | _flags;
+        public SequenceStateTypes Flags => _internal.Flags | _flags;
 
         public char GetNext()
         {
@@ -315,11 +315,11 @@ public static class UserDelegate
             {
                 _line++;
                 _column = 0;
-                _flags = _flags.With(SequenceStateType.StartOfLine);
+                _flags = _flags.With(SequenceStateTypes.StartOfLine);
                 return next;
             }
 
-            _flags = _flags.Without(SequenceStateType.StartOfLine);
+            _flags = _flags.Without(SequenceStateTypes.StartOfLine);
             _column++;
             return next;
         }
@@ -381,10 +381,10 @@ public static class UserDelegate
 
         public void Rewind(SequenceCheckpoint checkpoint)
         {
-            _flags = checkpoint.Flags.Only(SequenceStateType.StartOfLine);
+            _flags = checkpoint.Flags.Only(SequenceStateTypes.StartOfLine);
             _internal.Rewind(checkpoint with
             {
-                Flags = checkpoint.Flags.Without(SequenceStateType.StartOfLine)
+                Flags = checkpoint.Flags.Without(SequenceStateTypes.StartOfLine)
             });
         }
 
@@ -393,7 +393,7 @@ public static class UserDelegate
             _internal.Reset();
             _line = 1;
             _column = 0;
-            _flags = SequenceStateType.StartOfLine;
+            _flags = SequenceStateTypes.StartOfLine;
         }
     }
 }

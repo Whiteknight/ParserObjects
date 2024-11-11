@@ -49,7 +49,7 @@ public static partial class Parsers
         );
 
     private static readonly IParser<char, object> _startOfLine = new SequenceFlagParser<char>(
-        SequenceStateType.StartOfLine,
+        SequenceStateTypes.StartOfLine,
         "Expected start of line but found ");
 
     /// <summary>

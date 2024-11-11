@@ -40,22 +40,22 @@ public static class CharBufferSequence
                 return _options.EndSentinel;
             var next = GetNextInternal(true);
 
-            Flags = Flags.Without(SequenceStateType.StartOfInput);
+            Flags = Flags.Without(SequenceStateTypes.StartOfInput);
             _stats.ItemsRead++;
 
             if (_index >= Length)
-                Flags = Flags.With(SequenceStateType.EndOfInput);
+                Flags = Flags.With(SequenceStateTypes.EndOfInput);
 
             // If we have a newline, update the line-tracking.
             if (next == '\n')
             {
                 _line++;
                 _column = 0;
-                Flags = Flags.With(SequenceStateType.StartOfLine);
+                Flags = Flags.With(SequenceStateTypes.StartOfLine);
                 return next;
             }
 
-            Flags = Flags.Without(SequenceStateType.StartOfLine);
+            Flags = Flags.Without(SequenceStateTypes.StartOfLine);
 
             // Bump counts and return
             _column++;
@@ -84,7 +84,7 @@ public static class CharBufferSequence
 
         public readonly bool IsAtEnd => _index >= Length;
 
-        public SequenceStateType Flags { get; private set; }
+        public SequenceStateTypes Flags { get; private set; }
 
         public readonly int Index => _index;
 
@@ -145,7 +145,7 @@ public static class CharBufferSequence
 
         public bool IsAtEnd => _internal.IsAtEnd;
 
-        public SequenceStateType Flags => _internal.Flags;
+        public SequenceStateTypes Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 
@@ -307,7 +307,7 @@ public static class CharBufferSequence
 
         public bool IsAtEnd => _internal.IsAtEnd;
 
-        public SequenceStateType Flags => _internal.Flags;
+        public SequenceStateTypes Flags => _internal.Flags;
 
         public int Consumed => _internal.Index;
 

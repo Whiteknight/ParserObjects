@@ -16,14 +16,14 @@ public static class FromMethodTests
                 return (idx + 1, idx == 2);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
             target.GetNext().Should().Be(1);
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(1);
             target.GetNext().Should().Be(2);
@@ -36,8 +36,8 @@ public static class FromMethodTests
             target.Consumed.Should().Be(3);
             target.GetNext().Should().Be(0);
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeFalse();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeTrue();
             target.IsAtEnd.Should().BeTrue();
             target.Consumed.Should().Be(3);
         }
@@ -70,14 +70,14 @@ public static class FromMethodTests
                 return (idx + 1, idx == 2);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
             target.Peek().Should().Be(1);
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
         }
@@ -116,8 +116,8 @@ public static class FromMethodTests
                 return (source[idx], idx == source.Length - 1);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             var cp = target.Checkpoint();
             target.GetNext().Should().Be(1);
             target.GetNext().Should().Be(2);
@@ -125,8 +125,8 @@ public static class FromMethodTests
             target.GetNext().Should().Be(4);
 
             cp.Rewind();
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.GetNext().Should().Be(1);
             target.GetNext().Should().Be(2);
             target.GetNext().Should().Be(3);
@@ -260,15 +260,15 @@ public static class FromMethodTests
                 return ((char)('a' + idx), idx == 2);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
 
             target.Peek().Should().Be('a');
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
         }
@@ -307,8 +307,8 @@ public static class FromMethodTests
                 return (source[idx], idx == source.Length - 1);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             var cp = target.Checkpoint();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
@@ -316,8 +316,8 @@ public static class FromMethodTests
             target.GetNext().Should().Be('d');
 
             cp.Rewind();
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
@@ -541,15 +541,15 @@ public static class FromMethodTests
                 return (source[idx], idx == source.Length - 1);
             });
 
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
 
             target.Reset();
-            target.Flags.Has(SequenceStateType.StartOfInput).Should().BeTrue();
-            target.Flags.Has(SequenceStateType.EndOfInput).Should().BeFalse();
+            target.Flags.Has(SequenceStateTypes.StartOfInput).Should().BeTrue();
+            target.Flags.Has(SequenceStateTypes.EndOfInput).Should().BeFalse();
 
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
