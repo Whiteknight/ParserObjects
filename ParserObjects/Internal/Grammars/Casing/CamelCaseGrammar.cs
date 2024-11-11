@@ -3,6 +3,8 @@ using System.Linq;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 
+#pragma warning disable S3251
+
 namespace ParserObjects.Internal.Grammars.Casing;
 
 public static class CamelCaseGrammar
