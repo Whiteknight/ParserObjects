@@ -41,6 +41,22 @@ public static class ReplaceableTests
         }
 
         [Test]
+        public void Parse_NoOutput()
+        {
+            var anyParser = Any();
+            var target = Rule(
+                Replaceable(Any()),
+                Replaceable(Any()),
+                (a, b) => $"{a}{b}"
+
+            );
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Value.Should().Be("ab");
+            result.Consumed.Should().Be(2);
+        }
+
+        [Test]
         public void SetParser_Test()
         {
             var anyParser = Any();
@@ -90,7 +106,7 @@ public static class ReplaceableTests
         [Test]
         public void Parse_Test()
         {
-            var target = Replaceable(End());
+            var target = Replaceable((IParser<char>)End());
             var input = FromString("");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
@@ -100,7 +116,7 @@ public static class ReplaceableTests
         public void GetChildren_Test()
         {
             var end = End();
-            var target = Replaceable(end);
+            var target = Replaceable((IParser<char>)end);
             var result = target.GetChildren().ToList();
             result.Count.Should().Be(1);
             result[0].Should().BeSameAs(end);
@@ -121,7 +137,7 @@ public static class ReplaceableTests
         {
             var startParser = End();
             var replaceParser = startParser.Named("replaced");
-            var target = Replaceable(startParser);
+            var target = Replaceable((IParser<char>)startParser);
             var result = (target as IReplaceableParserUntyped)?.SetParser(replaceParser);
 
             var child = target.GetChildren().First();
@@ -159,6 +175,34 @@ public static class ReplaceableTests
 
     public class MultiFunc
     {
+        [Test]
+        public void Parse_Test()
+        {
+            var anyParser = Any();
+            var target = Replaceable(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
+            var input = FromString("");
+            var result = target.Parse(input);
+            result.Results.Count().Should().Be(3);
+        }
+
+        [Test]
+        public void Parse_Fail()
+        {
+            var target = Replaceable(FailMulti<char>());
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Null()
+        {
+            var target = Replaceable((IMultiParser<char, char>)null);
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
         [Test]
         public void ToBnf_Test()
         {

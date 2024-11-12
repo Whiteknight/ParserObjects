@@ -37,19 +37,6 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public int Consumed => _inputs.Consumed;
 
-    private void DiscardNonMatches()
-    {
-        while (true)
-        {
-            if (_inputs.IsAtEnd)
-                return;
-            var next = _inputs.Peek();
-            if (_predicate(next))
-                return;
-            _inputs.GetNext();
-        }
-    }
-
     public SequenceCheckpoint Checkpoint()
         => _inputs.Checkpoint();
 
@@ -85,5 +72,18 @@ public sealed class FilterSequence<T> : ISequence<T>
     {
         _inputs.Reset();
         DiscardNonMatches();
+    }
+
+    private void DiscardNonMatches()
+    {
+        while (true)
+        {
+            if (_inputs.IsAtEnd)
+                return;
+            var next = _inputs.Peek();
+            if (_predicate(next))
+                return;
+            _inputs.GetNext();
+        }
     }
 }

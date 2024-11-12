@@ -204,6 +204,23 @@ public class WhereTests
     }
 
     [Test]
+    public void Checkpoint_RewindMethod()
+    {
+        var target = "aBcDeFgH".ToCharacterSequence().Where(x => char.IsUpper(x));
+        target.GetNext().Should().Be('B');
+        var cp = target.Checkpoint();
+        target.GetNext().Should().Be('D');
+        target.GetNext().Should().Be('F');
+        target.GetNext().Should().Be('H');
+        target.GetNext().Should().Be('\0');
+        target.Rewind(cp);
+        target.GetNext().Should().Be('D');
+        target.GetNext().Should().Be('F');
+        target.GetNext().Should().Be('H');
+        target.GetNext().Should().Be('\0');
+    }
+
+    [Test]
     public void Reset_Test()
     {
         var target = FromList(
@@ -276,5 +293,20 @@ public class WhereTests
 
         target.Consumed.Should().Be(1);
         target.GetNext().Should().Be(2);
+    }
+
+    [Test]
+    public void GetBetween_Test()
+    {
+        var target = "aBcDeFgH".ToCharacterSequence().Where(x => char.IsUpper(x));
+        target.GetNext().Should().Be('B');
+        var cp1 = target.Checkpoint();
+        target.GetNext().Should().Be('D');
+        target.GetNext().Should().Be('F');
+        target.GetNext().Should().Be('H');
+        var cp2 = target.Checkpoint();
+
+        var results = target.GetArrayBetween(cp1, cp2);
+        results.Should().ContainInOrder(new[] { 'D', 'F', 'H' });
     }
 }
