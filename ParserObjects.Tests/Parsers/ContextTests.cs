@@ -185,6 +185,21 @@ public static class ContextTests
         }
 
         [Test]
+        public void Match_SetupThrows()
+        {
+            var after = "";
+            var target = Context(
+                Produce<string>(() => "OK"),
+                _ => throw new Exception("test"),
+                _ => after = "OK2"
+            );
+            var result = target.Match("");
+            result.Should().BeFalse();
+
+            after.Should().Be("");
+        }
+
+        [Test]
         public void Match_InnerThrows()
         {
             var before = "";
@@ -206,10 +221,179 @@ public static class ContextTests
         }
 
         [Test]
+        public void Match_CleanupThrows()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                Produce<string>(() => "OK"),
+                _ => before = "OK1",
+                _ => throw new Exception("test")
+            );
+            Action act = () => target.Match("");
+            act.Should().Throw<Exception>();
+
+            before.Should().Be("OK1");
+            after.Should().Be("");
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var target = Context(
                 Produce(() => "OK"),
+                _ => { },
+                _ => { }
+            ).Named("target");
+            var result = target.ToBnf();
+            result.Should().Contain("target := PRODUCE");
+        }
+    }
+
+    public class SingleNoOutput
+    {
+        [Test]
+        public void Parse_NoOutput_Fail()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                (IParser<char>)Fail<string>(),
+                _ => before = "OK1",
+                _ => after = "OK2"
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeFalse();
+            before.Should().Be("OK1");
+            after.Should().Be("OK2");
+        }
+
+        [Test]
+        public void Parse_NoOutput_SetupThrows()
+        {
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce<string>(() => "OK"),
+                _ => throw new Exception("test"),
+                _ => after = "OK2"
+            );
+            var result = target.Parse("");
+            result.Success.Should().BeFalse();
+
+            after.Should().Be("");
+
+            var exData = result.Data.OfType<Exception>();
+            exData.Success.Should().BeTrue();
+            exData.Value.Message.Should().Be("test");
+        }
+
+        [Test]
+        public void Parse_NoOutput_InnerThrows()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce<string>(() => throw new System.Exception("test")),
+                _ => before = "OK1",
+                _ => after = "OK2"
+            );
+            Action act = () => target.Parse("");
+            act.Should().Throw<Exception>();
+            before.Should().Be("OK1");
+            after.Should().Be("OK2");
+        }
+
+        [Test]
+        public void Parse_NoOutput_CleanupThrows()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce<string>(() => "OK"),
+                _ => before = "OK1",
+                _ => throw new Exception("test")
+            );
+            Action act = () => target.Parse("");
+            act.Should().Throw<Exception>();
+
+            before.Should().Be("OK1");
+            after.Should().Be("");
+        }
+
+        [Test]
+        public void Match_NoOutput_Test()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce(() => "OK"),
+                _ => before = "OK1",
+                _ => after = "OK2"
+            );
+            var result = target.Match("");
+            result.Should().BeTrue();
+            before.Should().Be("OK1");
+            after.Should().Be("OK2");
+        }
+
+        [Test]
+        public void Match_NoOutput_InnerThrows()
+        {
+            var before = "";
+            var after = "";
+            var target = Try(
+                Context(
+                    (IParser<char>)Function<string>((state, results) =>
+                    {
+                        throw new System.Exception();
+                    }),
+                    _ => before = "OK1",
+                    _ => after = "OK2"
+                )
+            );
+            var result = target.Match("");
+            result.Should().BeFalse();
+            before.Should().Be("OK1");
+            after.Should().Be("OK2");
+        }
+
+        [Test]
+        public void Match_SetupThrows()
+        {
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce<string>(() => "OK"),
+                _ => throw new Exception("test"),
+                _ => after = "OK2"
+            );
+            var result = target.Match("");
+            result.Should().BeFalse();
+
+            after.Should().Be("");
+        }
+
+        [Test]
+        public void Match_CleanupThrows()
+        {
+            var before = "";
+            var after = "";
+            var target = Context(
+                (IParser<char>)Produce<string>(() => "OK"),
+                _ => before = "OK1",
+                _ => throw new Exception("test")
+            );
+            Action act = () => target.Match("");
+            act.Should().Throw<Exception>();
+
+            before.Should().Be("OK1");
+            after.Should().Be("");
+        }
+
+        [Test]
+        public void ToBnf_NoOutput_Test()
+        {
+            var target = Context(
+                (IParser<char>)Produce(() => "OK"),
                 _ => { },
                 _ => { }
             ).Named("target");

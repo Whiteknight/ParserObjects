@@ -57,14 +57,17 @@ public class RegexTests
 
     private void RegexTest(string pattern, string input, string expectedMatch)
     {
-        var parser = Regex(pattern);
+        var stringParser = Regex(pattern);
+        var matchParser = RegexMatch(pattern);
 
         // First test with a string sequence
         var stringSequence = FromString(input, new SequenceOptions<char>
         {
             MaintainLineEndings = true
         });
-        RegexTest(expectedMatch, parser, stringSequence);
+        RegexTest(expectedMatch, stringParser, stringSequence);
+        stringSequence.Reset();
+        RegexTest(expectedMatch, matchParser, stringSequence);
 
         // Second test with a stream sequence, just to show that they are equivalent
         var bytes = Encoding.UTF8.GetBytes(input);
@@ -73,7 +76,9 @@ public class RegexTests
         {
             MaintainLineEndings = true
         });
-        RegexTest(expectedMatch, parser, streamSequence);
+        RegexTest(expectedMatch, stringParser, streamSequence);
+        streamSequence.Reset();
+        RegexTest(expectedMatch, matchParser, streamSequence);
     }
 
     private static void RegexTest(string expectedMatch, IParser<char, string> parser, ISequence<char> sequence)
@@ -81,6 +86,15 @@ public class RegexTests
         var result = parser.Parse(sequence);
         result.Success.Should().BeTrue();
         result.Value.Should().Be(expectedMatch);
+        result.Consumed.Should().Be(expectedMatch.Length);
+        sequence.Consumed.Should().Be(expectedMatch.Length);
+    }
+
+    private static void RegexTest(string expectedMatch, IParser<char, RegexMatch> parser, ISequence<char> sequence)
+    {
+        var result = parser.Parse(sequence);
+        result.Success.Should().BeTrue();
+        result.Value[0][0].Should().Be(expectedMatch);
         result.Consumed.Should().Be(expectedMatch.Length);
         sequence.Consumed.Should().Be(expectedMatch.Length);
     }
@@ -94,10 +108,16 @@ public class RegexTests
     private void RegexTestFail(string pattern, string input)
     {
         var sequence = FromString(input);
-        var parser = Regex(pattern);
-        var result = parser.Parse(sequence);
-        result.Success.Should().BeFalse();
-        result.Consumed.Should().Be(0);
+        var stringParser = Regex(pattern);
+        var result1 = stringParser.Parse(sequence);
+        result1.Success.Should().BeFalse();
+        result1.Consumed.Should().Be(0);
+        sequence.Consumed.Should().Be(0);
+
+        var matchParser = RegexMatch(pattern);
+        var result2 = matchParser.Parse(sequence);
+        result2.Success.Should().BeFalse();
+        result2.Consumed.Should().Be(0);
         sequence.Consumed.Should().Be(0);
     }
 

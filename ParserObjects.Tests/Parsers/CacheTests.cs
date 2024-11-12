@@ -1,6 +1,7 @@
-﻿using static ParserObjects.Caches;
-using static ParserObjects.Parsers;
+﻿using Microsoft.Extensions.Caching.Memory;
+using static ParserObjects.Caches;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Parsers;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
@@ -11,6 +12,7 @@ public static class CacheTests
         => type switch
         {
             "memory" => InMemoryCache(),
+            "memory2" => InMemoryCache(new MemoryCache(new MemoryCacheOptions())),
             "dictionary" => Dictionary(),
             _ => NullCache()
         };
@@ -18,6 +20,7 @@ public static class CacheTests
     public class MethodNoOutput
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -45,6 +48,8 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
 
         [Test]
@@ -59,6 +64,7 @@ public static class CacheTests
     public class MethodSingle
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -88,6 +94,8 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
 
         [Test]
@@ -102,6 +110,7 @@ public static class CacheTests
     public class MethodMulti
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -131,6 +140,8 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
 
         [Test]
@@ -145,6 +156,7 @@ public static class CacheTests
     public class ExtensionNoOutput
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -172,12 +184,15 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
     }
 
     public class ExtensionSingle
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -207,12 +222,15 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
     }
 
     public class ExtensionMulti
     {
         [TestCase("memory")]
+        [TestCase("memory2")]
         [TestCase("dictionary")]
         public void Parse_Test(string cacheType)
         {
@@ -242,6 +260,8 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
         }
     }
 }
