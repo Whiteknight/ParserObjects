@@ -45,7 +45,7 @@ public sealed class AlternationState : IState
 
         foreach (var substate in Alternations)
         {
-            var matches = test(context.Captures, substate, context.Input);
+            var matches = test(context.Captures, substate, context.Input, true);
             if (matches)
                 return true;
         }

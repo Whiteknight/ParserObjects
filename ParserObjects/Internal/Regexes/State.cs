@@ -159,6 +159,15 @@ public static class State
         return states;
     }
 
+    public static List<IState> AddLookaheadState(List<IState>? states, bool positive, List<IState> group)
+    {
+        states ??= new List<IState>();
+        VerifyPreviousStateIsNotEndAnchor(states);
+        var groupState = new ZeroWidthLookaheadState(positive, group);
+        states.Add(groupState);
+        return states;
+    }
+
     private static MatchPredicateState CreateMatchState(Func<char, bool> predicate, string description)
          => new MatchPredicateState(description, predicate);
 
