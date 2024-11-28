@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ParserObjects.Internal.Parsers;
+﻿using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Regexes;
 using static ParserObjects.Internal.ParserCache;
@@ -15,16 +14,23 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
-    public static IParser<char, string> Regex(string pattern, params IParser<char>[] parsers)
-    {
-        if (string.IsNullOrEmpty(pattern))
-            return Parsers<char>.Produce(static () => string.Empty);
+    public static IParser<char, string> Regex(string pattern)
+        => string.IsNullOrEmpty(pattern)
+        ? Parsers<char>.Produce(static () => string.Empty)
+        : ParseRegexPattern(pattern);
 
-        var result = RegexPattern().WithDataContext(parsers.ToDictionary(p => p.Name, p => (object)p)).Parse(pattern, SequenceOptions.ForRegex(pattern));
-        return result.Success
-            ? new RegexParser(result.Value, pattern)
-            : throw new RegexException($"Could not parse pattern {pattern} error: {result.ErrorMessage}");
-    }
+    /// <summary>
+    /// Creates a parser which attempts to match the given regular expression from the current
+    /// position of the input stream.
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
+    /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
+    public static IParser<char, string> Regex(string pattern, params IParser<char>[] parsers)
+        => string.IsNullOrEmpty(pattern)
+        ? Parsers<char>.Produce(static () => string.Empty)
+        : ParseRegexPattern(pattern, parsers);
 
     /// <summary>
     /// Creates a parser which attempts to match the given regular expression from the current
@@ -33,16 +39,23 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
-    public static IParser<char, RegexMatch> RegexMatch(string pattern, params IParser<char>[] parsers)
-    {
-        if (string.IsNullOrEmpty(pattern))
-            return Parsers<char>.Produce(static () => Regexes.RegexMatch.Empty);
+    public static IParser<char, RegexMatch> RegexMatch(string pattern)
+        => string.IsNullOrEmpty(pattern)
+        ? Parsers<char>.Produce(static () => Regexes.RegexMatch.Empty)
+        : ParseRegexPattern(pattern);
 
-        var result = RegexPattern().WithDataContext(parsers.ToDictionary(p => p.Name, p => (object)p)).Parse(pattern, SequenceOptions.ForRegex(pattern));
-        return result.Success
-            ? new RegexParser(result.Value, pattern)
-            : throw new RegexException($"Could not parse pattern {pattern} error: {result.ErrorMessage}");
-    }
+    /// <summary>
+    /// Creates a parser which attempts to match the given regular expression from the current
+    /// psition of the input stream and returns the RegexMatch object.
+    /// </summary>
+    /// <param name="pattern"></param>
+    /// <param name="parsers"></param>
+    /// <returns></returns>
+    /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
+    public static IParser<char, RegexMatch> RegexMatch(string pattern, params IParser<char>[] parsers)
+        => string.IsNullOrEmpty(pattern)
+        ? Parsers<char>.Produce(static () => Regexes.RegexMatch.Empty)
+        : ParseRegexPattern(pattern, parsers);
 
     /// <summary>
     /// Creates a parser which parses a regex pattern string into a Regex object for work with
@@ -51,4 +64,28 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, Regex> RegexPattern()
         => GetOrCreate("Regex Pattern", RegexPatternGrammar.CreateParser);
+
+    private static RegexParser ParseRegexPattern(string pattern)
+        => RegexPattern().Parse(pattern, SequenceOptions.ForRegex(pattern)) switch
+        {
+            { Success: true } success => new RegexParser(success.Value, pattern),
+            var failure => throw new RegexException($"Could not parse pattern {pattern} error: {failure.ErrorMessage}")
+        };
+
+    private static RegexParser ParseRegexPattern(string pattern, IParser<char>[] parsers)
+        => RegexPattern()
+            .WithDataContext(parsers, static (data, ps) =>
+            {
+                for (int i = 0; i < ps.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(ps[i].Name))
+                        data.Set(ps[i].Name, ps[i]);
+                }
+            })
+            .Parse(pattern, SequenceOptions.ForRegex(pattern))
+        switch
+        {
+            { Success: true } success => new RegexParser(success.Value, pattern),
+            var failure => throw new RegexException($"Could not parse pattern {pattern} error: {failure.ErrorMessage}")
+        };
 }
