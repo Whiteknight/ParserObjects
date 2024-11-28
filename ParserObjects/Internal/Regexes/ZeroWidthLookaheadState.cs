@@ -48,7 +48,7 @@ internal class ZeroWidthLookaheadState : IState
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {
-        var isMatch = test(context.Captures, Group, context.Input, false);
+        var isMatch = test(context.Captures, Group, context, false);
         beforeMatch.Rewind();
         return _positive ? isMatch : !isMatch;
     }

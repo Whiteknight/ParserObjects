@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects.Internal.Regexes;
 
 // Holds information about the current state of the match
-public sealed class RegexContext
+public sealed class RegexContext : IParseState<char>
 {
     private readonly Stack<IState> _queue;
     private readonly Stack<BacktrackState> _backtrackStack;
+    private readonly IParseState<char> _parseState;
 
-    public RegexContext(ISequence<char> input, IReadOnlyList<IState> states, CaptureCollection captures)
+    private RegexContext(IParseState<char> parseState, IReadOnlyList<IState> states, CaptureCollection captures)
     {
-        Input = input;
+        _parseState = parseState;
         _queue = new Stack<IState>(states.Count + 1);
         _queue.Push(State.EndSentinel);
         for (int i = states.Count - 1; i >= 0; i--)
@@ -27,10 +29,23 @@ public sealed class RegexContext
         Captures = captures;
     }
 
-    public ISequence<char> Input { get; }
+    public static RegexContext Create(IParseState<char> parseState, IReadOnlyList<IState> states, CaptureCollection captures)
+        => parseState switch
+        {
+            RegexContext rc => new RegexContext(rc._parseState, states, captures),
+            IParseState<char> ps => new RegexContext(ps, states, captures),
+            _ => throw new ArgumentNullException(nameof(parseState))
+        };
+
+    public ISequence<char> Input => _parseState.Input;
+
     public IState CurrentState { get; private set; }
 
     public CaptureCollection Captures { get; }
+
+    public DataStore Data => _parseState.Data;
+
+    public IResultsCache Cache => _parseState.Cache;
 
     // The previous state matched successfully, so advance to the next state
     public void MoveToNextState()
@@ -88,4 +103,6 @@ public sealed class RegexContext
     {
         _backtrackStack.Push(backtrackState);
     }
+
+    public void Log(IParser parser, string message) => throw new NotImplementedException();
 }

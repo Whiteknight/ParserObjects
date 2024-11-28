@@ -54,7 +54,7 @@ public sealed class CapturingGroupState : IState
         if (context.Input.IsAtEnd)
             return false;
 
-        var match = test(context.Captures, Group, context.Input, true);
+        var match = test(context.Captures, Group, context, true);
         if (!match)
             return false;
 

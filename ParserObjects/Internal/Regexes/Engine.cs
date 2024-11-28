@@ -12,23 +12,23 @@ public static class Engine
     /// Attempts to match the given regex pattern on the given input starting at it's current
     /// location. Returns the matched text and any captures and metadata.
     /// </summary>
-    /// <param name="input"></param>
+    /// <param name="parseState"></param>
     /// <param name="regex"></param>
     /// <returns></returns>
-    public static MatchResult GetMatch(ISequence<char> input, Regex regex)
+    public static MatchResult GetMatch(IParseState<char> parseState, Regex regex)
     {
-        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(parseState);
         Assert.ArgumentNotNull(regex);
 
-        var startLocation = input.CurrentLocation;
+        var startLocation = parseState.Input.CurrentLocation;
 
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
-        var startCheckpoint = input.Checkpoint();
-        var matches = Test(captures, regex.States, input, true);
+        var startCheckpoint = parseState.Input.Checkpoint();
+        var matches = Test(captures, regex.States, parseState, true);
         if (matches)
         {
-            var endCheckpoint = input.Checkpoint();
-            var captureValue = GetOverallMatchCapture(input, startCheckpoint, endCheckpoint);
+            var endCheckpoint = parseState.Input.Checkpoint();
+            var captureValue = GetOverallMatchCapture(parseState.Input, startCheckpoint, endCheckpoint);
             var match = captures.ToRegexMatch(captureValue);
             return new MatchResult(captureValue, captureValue.Length, startLocation, match);
         }
@@ -36,13 +36,13 @@ public static class Engine
         return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);
     }
 
-    public static bool TestMatch(ISequence<char> input, Regex regex)
+    public static bool TestMatch(IParseState<char> parseState, Regex regex)
     {
-        Assert.ArgumentNotNull(input);
+        Assert.ArgumentNotNull(parseState);
         Assert.ArgumentNotNull(regex);
 
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
-        return Test(captures, regex.States, input, true);
+        return Test(captures, regex.States, parseState, true);
     }
 
     private static string GetOverallMatchCapture(ISequence<char> input, SequenceCheckpoint startCheckpoint, SequenceCheckpoint endCheckpoint)
@@ -53,11 +53,11 @@ public static class Engine
         return input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
     }
 
-    private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input, bool canBacktrack)
+    private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, IParseState<char> parseState, bool canBacktrack)
     {
-        var context = new RegexContext(input, states, captures);
+        var context = RegexContext.Create(parseState, states, captures);
 
-        var beforeMatch = input.Checkpoint();
+        var beforeMatch = parseState.Input.Checkpoint();
         var currentCheckpoint = beforeMatch;
         while (context.CurrentState is not EndSentinelState)
         {
@@ -94,7 +94,7 @@ public static class Engine
                     throw new RegexException($"Unrecognized quantifier {context.CurrentState.Quantifier}");
             }
 
-            currentCheckpoint = input.Checkpoint();
+            currentCheckpoint = parseState.Input.Checkpoint();
         }
 
         return true;

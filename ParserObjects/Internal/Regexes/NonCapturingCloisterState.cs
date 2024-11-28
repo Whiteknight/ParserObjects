@@ -40,5 +40,5 @@ public sealed class NonCapturingCloisterState : IState
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => !context.Input.IsAtEnd
-        && test(context.Captures, Group, context.Input, true);
+        && test(context.Captures, Group, context, true);
 }
