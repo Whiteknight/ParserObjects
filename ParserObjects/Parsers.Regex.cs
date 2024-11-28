@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Parsers;
+﻿using System.Linq;
+using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Regexes;
 using static ParserObjects.Internal.ParserCache;
@@ -14,12 +15,12 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
-    public static IParser<char, string> Regex(string pattern)
+    public static IParser<char, string> Regex(string pattern, params IParser<char>[] parsers)
     {
         if (string.IsNullOrEmpty(pattern))
             return Parsers<char>.Produce(static () => string.Empty);
 
-        var result = RegexPattern().Parse(pattern, SequenceOptions.ForRegex(pattern));
+        var result = RegexPattern().WithDataContext(parsers.ToDictionary(p => p.Name, p => (object)p)).Parse(pattern, SequenceOptions.ForRegex(pattern));
         return result.Success
             ? new RegexParser(result.Value, pattern)
             : throw new RegexException($"Could not parse pattern {pattern} error: {result.ErrorMessage}");
@@ -32,12 +33,12 @@ public static partial class Parsers
     /// <param name="pattern"></param>
     /// <returns></returns>
     /// <exception cref="RegexException">Thrown if the pattern is invalid.</exception>
-    public static IParser<char, RegexMatch> RegexMatch(string pattern)
+    public static IParser<char, RegexMatch> RegexMatch(string pattern, params IParser<char>[] parsers)
     {
         if (string.IsNullOrEmpty(pattern))
             return Parsers<char>.Produce(static () => Regexes.RegexMatch.Empty);
 
-        var result = RegexPattern().Parse(pattern, SequenceOptions.ForRegex(pattern));
+        var result = RegexPattern().WithDataContext(parsers.ToDictionary(p => p.Name, p => (object)p)).Parse(pattern, SequenceOptions.ForRegex(pattern));
         return result.Success
             ? new RegexParser(result.Value, pattern)
             : throw new RegexException($"Could not parse pattern {pattern} error: {result.ErrorMessage}");

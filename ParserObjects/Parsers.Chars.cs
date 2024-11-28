@@ -22,7 +22,7 @@ public static partial class Parsers
     public static IParser<char, string> CaptureString(params IParser<char>[] parsers)
         => parsers == null || parsers.Length == 0
             ? Produce(static () => string.Empty)
-            : (IParser<char, string>)new CaptureParser<char, string>(parsers, static (s, start, end) =>
+            : new CaptureParser<char, string>(parsers, static (s, start, end) =>
             {
                 if (s is ICharSequence charSequence)
                     return charSequence.GetStringBetween(start, end);

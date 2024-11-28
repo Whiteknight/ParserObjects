@@ -100,6 +100,23 @@ public static class RegexPatternGrammar
                     return State.AddLookaheadState(states.Value, false, group);
                 })
             )
+            // Recurse into IParser
+            .Add(MatchChars("(?p"), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
+                {
+                    var name = ctx.Parse(StrippedString());
+                    ctx.Expect(MatchChar(')'));
+                    var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
+                    return State.AddParserRecurse(null, parser);
+                })
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
+                {
+                    var name = ctx.Parse(StrippedString());
+                    ctx.Expect(MatchChar(')'));
+                    var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
+                    return State.AddParserRecurse(states.Value, parser);
+                })
+            )
             // normal parens, capturing group
             .Add(MatchChar('('), static p => p
                 .Bind(_bpAtom, static (ctx, _) =>
