@@ -224,18 +224,16 @@ public static partial class Parsers<TInput>
         IMultiParser<TInput, TOutput> inner,
         string name,
         TData value
-    )
-        where TData : notnull
-        => Internal.Parsers.Context<TInput>.Create(
-            inner,
-            static (c, d) =>
-            {
-                c.State.Data.PushDataFrame();
-                c.State.Data.Set(d.name, d.value);
-            },
-            static (c, _) => c.State.Data.PopDataFrame(),
-            (name, value)
-        );
+    ) => Internal.Parsers.Context<TInput>.Create(
+        inner,
+        static (c, d) =>
+        {
+            c.State.Data.PushDataFrame();
+            c.State.Data.Set(d.name, d.value);
+        },
+        static (c, _) => c.State.Data.PopDataFrame(),
+        (name, value)
+    );
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
