@@ -12,6 +12,14 @@ Any literal character such as `a` will be `5` matched literally. The exceptions 
 
    \ ( ) $ | [ ] . ? + * { }
 
+### Non-printing characters
+
+Character atoms may be defined using normal C# character escape codes in strings, for cases where you need to match something which you cannot type with your keyboard:
+
+```csharp
+var parser = Regex("[\x01-\x1F]+");
+```
+
 ### Wildcards
 
 The character `'.'` will match any single input character. It will fail at end of input.

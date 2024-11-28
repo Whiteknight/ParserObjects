@@ -28,7 +28,7 @@ public class RegexTests
     }
 
     [Test]
-    public void Regex_MatchLiteral_CanReparse()
+    public void MatchLiteral_CanReparse()
     {
         // Test that we can reuse the parser, that the act of parsing doesn't destroy state
         var parser = Regex("abc");
@@ -42,20 +42,20 @@ public class RegexTests
     }
 
     [Test]
-    public void Regex_Combines_Nicely()
+    public void Combines_Nicely()
     {
         var parser = Rule(
             Match('['),
             Regex("abc*"),
             Match(']'),
-            (open, match, close) => match
+            (_, match, _) => match
         );
         var result = parser.Parse("[abcccccc]");
         result.Success.Should().BeTrue();
         result.Value.Should().Be("abcccccc");
     }
 
-    private void RegexTest(string pattern, string input, string expectedMatch)
+    private static void RegexTest(string pattern, string input, string expectedMatch)
     {
         var stringParser = Regex(pattern);
         var matchParser = RegexMatch(pattern);
@@ -94,18 +94,18 @@ public class RegexTests
     {
         var result = parser.Parse(sequence);
         result.Success.Should().BeTrue();
-        result.Value[0][0].Should().Be(expectedMatch);
+        result.Value.GetCapture(0, 0).Should().Be(expectedMatch);
         result.Consumed.Should().Be(expectedMatch.Length);
         sequence.Consumed.Should().Be(expectedMatch.Length);
     }
 
-    private void RegexTestThrow(string pattern)
+    private static void RegexTestThrow(string pattern)
     {
         Action act = () => Regex(pattern);
         act.Should().Throw<RegexException>();
     }
 
-    private void RegexTestFail(string pattern, string input)
+    private static void RegexTestFail(string pattern, string input)
     {
         var sequence = FromString(input);
         var stringParser = Regex(pattern);
@@ -122,11 +122,11 @@ public class RegexTests
     }
 
     [TestCase("abc", "abcd", "abc")]
-    public void Regex_Match(string pattern, string input, string expectedMatch)
+    public void MatchLiterals(string pattern, string input, string expectedMatch)
         => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("a", "bad")]
-    public void Regex_Match_Fail(string pattern, string input)
+    public void MatchLiterals_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("ab?c", "abcd", "abc")]
@@ -135,33 +135,33 @@ public class RegexTests
     [TestCase("ab?", "abbb", "ab")]
     [TestCase("a?b", "b", "b")]
     [TestCase("a?b", "ab", "ab")]
-    public void Regex_ZeroOrOne(string pattern, string input, string expectedMatch)
+    public void ZeroOrOne(string pattern, string input, string expectedMatch)
          => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("ab*c", "abbbbcd", "abbbbc")]
     [TestCase("ab*c", "acd", "ac")]
     [TestCase("ab*b", "abcd", "ab")]
     [TestCase("ab*b", "abbbbcd", "abbbb")]
-    public void Regex_ZeroOrMore(string pattern, string input, string expectedMatch)
+    public void ZeroOrMore(string pattern, string input, string expectedMatch)
          => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("ab+c", "abbbbcd", "abbbbc")]
     [TestCase("ab+c", "abcd", "abc")]
-    public void Regex_OneOrMore(string pattern, string input, string expectedMatch)
+    public void OneOrMore(string pattern, string input, string expectedMatch)
          => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("ab+c", "acde")]
-    public void Regex_OneOrMore_Fail(string pattern, string input)
+    public void OneOrMore_Fail(string pattern, string input)
          => RegexTestFail(pattern, input);
 
     [TestCase("a(bc)?bc", "abcbcf", "abcbc")]
     [TestCase("a(bc)?bc", "abcdef", "abc")]
     [TestCase("a(bc)*bc", "abcbcbcdef", "abcbcbc")]
-    public void Regex_Groups(string pattern, string input, string expectedMatch)
+    public void Groups(string pattern, string input, string expectedMatch)
          => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("a$(b)")]
-    public void Regex_Groups_Throw(string pattern)
+    public void Groups_Throw(string pattern)
          => RegexTestThrow(pattern);
 
     [TestCase("\\d", "1a", "1")]
@@ -171,7 +171,7 @@ public class RegexTests
     [TestCase("\\s", " a", " ")]
     [TestCase("\\S", "a ", "a")]
     [TestCase("(\\w+\\s)*\\w+", "this is a test.", "this is a test")]
-    public void Regex_SpecialClasses(string pattern, string input, string expectedMatch)
+    public void SpecialClasses(string pattern, string input, string expectedMatch)
          => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("\\d", "a1")]
@@ -180,33 +180,33 @@ public class RegexTests
     [TestCase("\\W", "a ")]
     [TestCase("\\s", "a ")]
     [TestCase("\\S", " a")]
-    public void Regex_SpecialClasses_Fail(string pattern, string input)
+    public void SpecialClasses_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("\\")]
-    public void Regex_Escapes_Throw(string pattern)
+    public void Escapes_Throw(string pattern)
         => RegexTestThrow(pattern);
 
     [TestCase(".*", "abcd+=.", "abcd+=.")]
     [TestCase("\\.", ".", ".")]
     [TestCase(".*\\..*", "command.com", "command.com")]
-    public void Regex_Wildcard(string pattern, string input, string expectedMatch)
+    public void Wildcard(string pattern, string input, string expectedMatch)
         => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("\\.", "a")]
-    public void Regex_Wildcard_Fail(string pattern, string input)
+    public void Wildcard_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("abc$", "abc", "abc")]
     [TestCase("abc\\$", "abc$def", "abc$")]
     [TestCase("abc|abd$|abe", "abd", "abd")]
-    public void Regex_End(string pattern, string input, string expectedMatch)
+    public void End(string pattern, string input, string expectedMatch)
         => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("abc$", "abcd")]
     [TestCase("abc|abd$|abe", "abde")]
     [TestCase("$", "abc")]
-    public void Regex_End_Fail(string pattern, string input)
+    public void End_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("abc$d")]
@@ -214,7 +214,7 @@ public class RegexTests
     [TestCase("abc$+")]
     [TestCase("abc$?")]
     [TestCase("abc${1}")]
-    public void Regex_End_Throw(string pattern)
+    public void End_Throw(string pattern)
         => RegexTestThrow(pattern);
 
     [TestCase("a|b", "a", "a")]
@@ -223,7 +223,7 @@ public class RegexTests
     [TestCase("(a|b)*aba", "abbaabac", "abbaaba")]
     [TestCase("(a|b)+aba", "abbaabac", "abbaaba")]
     [TestCase("(a|b)*", "", "")]
-    public void Regex_Alternation(string pattern, string input, string expectedMatch)
+    public void Alternation(string pattern, string input, string expectedMatch)
         => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("a{3}", "aaaaa", "aaa")]
@@ -233,11 +233,11 @@ public class RegexTests
     [TestCase("ab{,3}", "ab", "ab")]
     [TestCase("a{3,5}", "aaa", "aaa")]
     [TestCase("a{3,5}", "aaaaaa", "aaaaa")]
-    public void Regex_Range(string pattern, string input, string expectedMatch)
+    public void Range(string pattern, string input, string expectedMatch)
        => RegexTest(pattern, input, expectedMatch);
 
     [TestCase("a{3,5}", "aa")]
-    public void Regex_Range_Fail(string pattern, string input)
+    public void Range_Fail(string pattern, string input)
        => RegexTestFail(pattern, input);
 
     [TestCase("a{5,3}")]
@@ -250,7 +250,7 @@ public class RegexTests
     [TestCase("a{3,5")]
     [TestCase("{3}")]
     [TestCase("a{a}")]
-    public void Regex_Range_Throw(string pattern)
+    public void Range_Throw(string pattern)
          => RegexTestThrow(pattern);
 
     [TestCase("[a-c]*", "abcd", "abc")]
@@ -268,11 +268,11 @@ public class RegexTests
     [TestCase(@"[0-9]+", "1234567890", "1234567890")]
     [TestCase(@"[a-z]+", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz")]
     [TestCase(@"[A-Z]+", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
-    public void Regex_CharacterClass(string pattern, string input, string expectedMatch)
+    public void CharacterClass(string pattern, string input, string expectedMatch)
        => RegexTest(pattern, input, expectedMatch);
 
     [Test]
-    public void Regex_CharacterClass_NonPrinting()
+    public void CharacterClass_NonPrinting()
     {
         // I put these here, instead of in the test above, because the test runner has a
         // real problem with these non-printing characters in the test name
@@ -285,7 +285,7 @@ public class RegexTests
     [TestCase("[a")]
     [TestCase("[a-")]
     [TestCase("[]")]
-    public void Regex_CharacterClass_Throw(string pattern)
+    public void CharacterClass_Throw(string pattern)
        => RegexTestThrow(pattern);
 
     [TestCase("a*?")]
@@ -295,11 +295,11 @@ public class RegexTests
     [TestCase("?")]
     [TestCase("*")]
     [TestCase("+")]
-    public void Regex_Quantifier_Errors(string pattern)
+    public void Quantifier_Errors(string pattern)
         => RegexTestThrow(pattern);
 
     [Test]
-    public void Parse_Captures_Simple()
+    public void Captures_Simple()
     {
         var target = Regex("(((...)))");
         var result = target.Parse("abc");
@@ -308,16 +308,16 @@ public class RegexTests
         var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches[1][0].Should().Be("abc");
-        matches[2][0].Should().Be("abc");
-        matches[3][0].Should().Be("abc");
+        matches.GetCapture(1, 0).Should().Be("abc");
+        matches.GetCapture(2, 0).Should().Be("abc");
+        matches.GetCapture(3, 0).Should().Be("abc");
     }
 
     [TestCase("(.)(.)(.)", "abc", "a", "b", "c")]
     [TestCase("(((..).).)", "abcd", "abcd", "abc", "ab")]
     [TestCase("(.(.(..)))", "abcd", "abcd", "bcd", "cd")]
     [TestCase("(.(.(..).).)", "abcdef", "abcdef", "bcde", "cd")]
-    public void Parse_3Groups1Capture(string pattern, string input, string group1, string group2, string group3)
+    public void Capture3Groups1Capture(string pattern, string input, string group1, string group2, string group3)
     {
         var target = Regex(pattern);
         var result = target.Parse(input);
@@ -325,16 +325,16 @@ public class RegexTests
         var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches[0][0].Should().Be(input);
-        matches[1][0].Should().Be(group1);
-        matches[2][0].Should().Be(group2);
-        matches[3][0].Should().Be(group3);
+        matches.GetCapture(0, 0).Should().Be(input);
+        matches.GetCapture(1, 0).Should().Be(group1);
+        matches.GetCapture(2, 0).Should().Be(group2);
+        matches.GetCapture(3, 0).Should().Be(group3);
     }
 
     [TestCase("(..)+", "abcdef", "ab", "cd", "ef")]
     [TestCase("(..)*", "abcdef", "ab", "cd", "ef")]
     [TestCase("(..){3}", "abcdef", "ab", "cd", "ef")]
-    public void Parse_1Group3Captures(string pattern, string input, string capture1, string capture2, string capture3)
+    public void Capture1Group3Captures(string pattern, string input, string capture1, string capture2, string capture3)
     {
         var target = Regex(pattern);
         var result = target.Parse(input);
@@ -342,14 +342,14 @@ public class RegexTests
         var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches[0][0].Should().Be(input);
-        matches[1][0].Should().Be(capture1);
-        matches[1][1].Should().Be(capture2);
-        matches[1][2].Should().Be(capture3);
+        matches.GetCapture(0, 0).Should().Be(input);
+        matches.GetCapture(1, 0).Should().Be(capture1);
+        matches.GetCapture(1, 1).Should().Be(capture2);
+        matches.GetCapture(1, 2).Should().Be(capture3);
     }
 
     [Test]
-    public void Parse_GroupMultipleBacktrack()
+    public void GroupMultipleBacktrack()
     {
         // The first one-or-more group will match "a" then "d". Then it will need to backtrack
         // to allow the second atom to match "d". In doing so, the capture of "d" by the group
@@ -360,10 +360,10 @@ public class RegexTests
         var matchOption = result.Data.OfType<RegexMatch>();
         matchOption.Success.Should().BeTrue();
         var matches = matchOption.Value;
-        matches[0][0].Should().Be("ad");
+        matches.GetCapture(0, 0).Should().Be("ad");
         matches.Count.Should().Be(2);
-        matches[1].Count.Should().Be(1);
-        matches[1][0].Should().Be("a");
+        matches.GetGroup(1).Count.Should().Be(1);
+        matches.GetCapture(1, 0).Should().Be("a");
     }
 
     [TestCase("(?:.)", "a")]
@@ -372,7 +372,7 @@ public class RegexTests
     [TestCase("(?:..)+", "abcd")]
     [TestCase("(?:..){1,}", "abcd")]
     [TestCase("(?:..){,4}", "abcdefgh")]
-    public void Parse_NonCapturingCloister_NoCaptures(string pattern, string input)
+    public void NonCapturingCloister_NoCaptures(string pattern, string input)
     {
         var target = Regex(pattern);
         var result = target.Parse(input);
@@ -385,7 +385,7 @@ public class RegexTests
     }
 
     [Test]
-    public void Parse_NonCapturingCloister_FailEndOfInput()
+    public void NonCapturingCloister_FailEndOfInput()
     {
         var target = Regex("...(?:.)");
         var result = target.Parse("abc");
@@ -395,35 +395,35 @@ public class RegexTests
     [TestCase("a(?=b)", "ab", "a")]
     [TestCase("a(?=.)", "ac", "a")]
     [TestCase("a(?=.)b", "ab", "ab")]
-    public void Parse_PositiveLookahead(string pattern, string input, string expected)
+    public void PositiveLookahead(string pattern, string input, string expected)
         => RegexTest(pattern, input, expected);
 
     [TestCase("a(?=b)", "a")]
     [TestCase("a(?=b)", "ac")]
-    public void Parse_PositiveLookahead_Fail(string pattern, string input)
+    public void PositiveLookahead_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("a(?=)")]
     [TestCase("a(?=b)*")]
     [TestCase("a(?=b)?")]
     [TestCase("a(?=b){0,1}")]
-    public void Parse_PositiveLookahead_ParseFail(string pattern)
+    public void PositiveLookahead_ParseFail(string pattern)
         => RegexTestThrow(pattern);
 
     [TestCase("a(?!b)", "ac", "a")]
     [TestCase("a(?!.)", "a", "a")]
-    public void Parse_NegativeLookahead(string pattern, string input, string expected)
+    public void NegativeLookahead(string pattern, string input, string expected)
         => RegexTest(pattern, input, expected);
 
     [TestCase("a(?!b)", "ab")]
-    public void Parse_NegativeLookahead_Fail(string pattern, string input)
+    public void NegativeLookahead_Fail(string pattern, string input)
         => RegexTestFail(pattern, input);
 
     [TestCase("a(?!)")]
     [TestCase("a(?!b)*")]
     [TestCase("a(?!b)?")]
     [TestCase("a(?!b){0,1}")]
-    public void Parse_NegativeLookahead_ParseFail(string pattern)
+    public void NegativeLookahead_ParseFail(string pattern)
         => RegexTestThrow(pattern);
 
     [TestCase("(..)\\1", "abab", "abab", "ab")]
@@ -434,7 +434,7 @@ public class RegexTests
     [TestCase("(..)\\1{1}", "ababab", "abab", "ab")]
     [TestCase("(..)\\1{1,}", "ababab", "ababab", "ab")]
     [TestCase("(..)\\1{,2}", "ababab", "ababab", "ab")]
-    public void Parse_CaptureBackreference(string pattern, string input, string group0, string group1)
+    public void CaptureBackreference(string pattern, string input, string group0, string group1)
     {
         var target = Regex(pattern);
         var result = target.Parse(input);
@@ -448,7 +448,7 @@ public class RegexTests
     }
 
     [TestCase("(..)(..)\\2\\1", "abcdcdab", "abcdcdab", "ab", "cd")]
-    public void Parse_CaptureBackreference(string pattern, string input, string group0, string group1, string group2)
+    public void CaptureBackreference(string pattern, string input, string group0, string group1, string group2)
     {
         var target = Regex(pattern);
         var result = target.Parse(input);
