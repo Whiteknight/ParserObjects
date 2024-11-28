@@ -77,6 +77,23 @@ public static class ParserStateExtensions
     ) => Parsers<TInput>.DataContext(p, values);
 
     /// <summary>
+    /// Push a recursive data frame before executing the given parser, and then pop the data frame
+    /// when the parser completes.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="p"></param>
+    /// <param name="data"></param>
+    /// <param name="onData"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> WithDataContext<TInput, TOutput, TData>(
+        this IParser<TInput, TOutput> p,
+        TData data,
+        Action<DataStore, TData> onData
+    ) => Parsers<TInput>.DataContext(p, data, onData);
+
+    /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
     /// frame when the parser completes.
     /// </summary>
