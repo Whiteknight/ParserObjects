@@ -46,6 +46,15 @@ public static class State
         return states;
     }
 
+    public static List<IState> AddParserRecurse(List<IState>? states, IParser<char> parser)
+    {
+        states ??= new List<IState>();
+        VerifyPreviousStateIsNotEndAnchor(states);
+
+        states.Add(new ParserState(parser));
+        return states;
+    }
+
     public static List<IState> SetPreviousStateRange(List<IState> states, uint min, uint max)
     {
         if (min > max)
