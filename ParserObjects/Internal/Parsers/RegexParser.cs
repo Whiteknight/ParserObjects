@@ -35,7 +35,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
     {
         Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
-        var result = Engine.GetMatch(state.Input, Regex);
+        var result = Engine.GetMatch(state, Regex);
         if (!result.Success)
         {
             startCp.Rewind();
@@ -49,7 +49,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
     {
         Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
-        var result = Engine.GetMatch(state.Input, Regex);
+        var result = Engine.GetMatch(state, Regex);
         if (!result.Success)
         {
             startCp.Rewind();
@@ -65,7 +65,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
     {
         Assert.ArgumentNotNull(state);
         var startCp = state.Input.Checkpoint();
-        var result = Engine.TestMatch(state.Input, Regex);
+        var result = Engine.TestMatch(state, Regex);
         if (!result)
         {
             startCp.Rewind();
