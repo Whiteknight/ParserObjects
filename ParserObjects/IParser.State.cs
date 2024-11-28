@@ -58,9 +58,7 @@ public static class ParserStateExtensions
         this IParser<TInput, TOutput> p,
         string name,
         TData value
-    )
-        where TData : notnull
-        => Parsers<TInput>.DataContext(p, name, value);
+    ) => Parsers<TInput>.DataContext(p, name, value);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
@@ -119,9 +117,7 @@ public static class ParserStateExtensions
         this IMultiParser<TInput, TOutput> p,
         string name,
         TData value
-    )
-        where TData : notnull
-        => Parsers<TInput>.DataContext(p, name, value);
+    ) => Parsers<TInput>.DataContext(p, name, value);
 
     /// <summary>
     /// Push a recursive data frame before executing the given parser, and then pop the data
