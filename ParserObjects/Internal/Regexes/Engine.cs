@@ -24,7 +24,7 @@ public static class Engine
 
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
         var startCheckpoint = input.Checkpoint();
-        var matches = Test(captures, regex.States, input);
+        var matches = Test(captures, regex.States, input, true);
         if (matches)
         {
             var endCheckpoint = input.Checkpoint();
@@ -42,7 +42,7 @@ public static class Engine
         Assert.ArgumentNotNull(regex);
 
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
-        return Test(captures, regex.States, input);
+        return Test(captures, regex.States, input, true);
     }
 
     private static string GetOverallMatchCapture(ISequence<char> input, SequenceCheckpoint startCheckpoint, SequenceCheckpoint endCheckpoint)
@@ -53,7 +53,7 @@ public static class Engine
         return input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
     }
 
-    private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input)
+    private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, ISequence<char> input, bool canBacktrack)
     {
         var context = new RegexContext(input, states, captures);
 
@@ -65,7 +65,7 @@ public static class Engine
             {
                 case Quantifier.ExactlyOne:
                     {
-                        var ok = TestExactlyOne(context, currentCheckpoint);
+                        var ok = TestExactlyOne(context, currentCheckpoint, canBacktrack);
                         if (ok)
                             break;
                         beforeMatch.Rewind();
@@ -100,7 +100,7 @@ public static class Engine
         return true;
     }
 
-    private static bool TestExactlyOne(RegexContext context, SequenceCheckpoint beforeMatch)
+    private static bool TestExactlyOne(RegexContext context, SequenceCheckpoint beforeMatch, bool canBacktrack)
     {
         var captureIndexBeforeMatch = context.Captures.CaptureIndex;
         var matches = context.CurrentState.Match(context, beforeMatch, Test);
@@ -115,7 +115,7 @@ public static class Engine
 
         // if we can backtrack, the Backtrack() code will rewind the sequence automatically. If we
         // cannot backtrack, the Test() method will rewind for us.
-        return context.Backtrack();
+        return canBacktrack && context.Backtrack();
     }
 
     private static void TestZeroOrOne(RegexContext context, SequenceCheckpoint beforeMatch)

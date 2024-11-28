@@ -11,8 +11,8 @@ namespace ParserObjects.Internal.Parsers;
 /// </summary>
 public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatch>
 {
-    /* Delegates to the Regex struct and the Regex.Engine struct for holding the pattern and
-     * testing pattern, respectively.
+    /* Delegates to the Regex struct to hold the pattern definition.
+     * Delegates to the Engine to test the pattern against the input.
      */
 
     public RegexParser(Regex regex, string describe, string? name = null)

@@ -392,6 +392,40 @@ public class RegexTests
         result.Success.Should().BeFalse();
     }
 
+    [TestCase("a(?=b)", "ab", "a")]
+    [TestCase("a(?=.)", "ac", "a")]
+    [TestCase("a(?=.)b", "ab", "ab")]
+    public void Parse_PositiveLookahead(string pattern, string input, string expected)
+        => RegexTest(pattern, input, expected);
+
+    [TestCase("a(?=b)", "a")]
+    [TestCase("a(?=b)", "ac")]
+    public void Parse_PositiveLookahead_Fail(string pattern, string input)
+        => RegexTestFail(pattern, input);
+
+    [TestCase("a(?=)")]
+    [TestCase("a(?=b)*")]
+    [TestCase("a(?=b)?")]
+    [TestCase("a(?=b){0,1}")]
+    public void Parse_PositiveLookahead_ParseFail(string pattern)
+        => RegexTestThrow(pattern);
+
+    [TestCase("a(?!b)", "ac", "a")]
+    [TestCase("a(?!.)", "a", "a")]
+    public void Parse_NegativeLookahead(string pattern, string input, string expected)
+        => RegexTest(pattern, input, expected);
+
+    [TestCase("a(?!b)", "ab")]
+    public void Parse_NegativeLookahead_Fail(string pattern, string input)
+        => RegexTestFail(pattern, input);
+
+    [TestCase("a(?!)")]
+    [TestCase("a(?!b)*")]
+    [TestCase("a(?!b)?")]
+    [TestCase("a(?!b){0,1}")]
+    public void Parse_NegativeLookahead_ParseFail(string pattern)
+        => RegexTestThrow(pattern);
+
     [TestCase("(..)\\1", "abab", "abab", "ab")]
     [TestCase("(..)(\\1|ad)", "abad", "abad", "ab")] // partial backref match should rewind successfully
     [TestCase("(?:..)(..)\\1", "abcdcd", "abcdcd", "cd")] // non-capturing cloister isn't used

@@ -42,20 +42,6 @@ public static class RegexPatternGrammar
                 .Bind(_bpAtom, static (_, c) => State.AddMatch(null, c.Value))
                 .BindLeft(_bpAtom, static (_, states, c) => State.AddMatch(states.Value, c.Value))
             )
-            .Add(MatchChar('('), static p => p
-                .Bind(_bpAtom, static (ctx, _) =>
-                {
-                    var group = ctx.Parse(_bpAll);
-                    ctx.Expect(MatchChar(')'));
-                    return State.AddCapturingGroupState(null, group);
-                })
-                .BindLeft(_bpAtom, static (ctx, states, _) =>
-                {
-                    var group = ctx.Parse(_bpAll);
-                    ctx.Expect(MatchChar(')'));
-                    return State.AddCapturingGroupState(states.Value, group);
-                })
-            )
             .Add(MatchChar('['), static p => p
                 .Bind(_bpAtom, static (ctx, _) => ParseCharacterClass(ctx, null))
                 .BindLeft(_bpAtom, static (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
@@ -68,6 +54,8 @@ public static class RegexPatternGrammar
                 .Bind(_bpAtom, static (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
                 .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
             )
+
+            // non-capturing group
             .Add(MatchChars("(?:"), static p => p
                 .Bind(_bpAtom, static (ctx, _) =>
                 {
@@ -80,6 +68,51 @@ public static class RegexPatternGrammar
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
                     return State.AddNonCapturingCloisterState(states.Value, group);
+                })
+            )
+            // zero-length positive lookahead
+            .Add(MatchChars("(?="), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddLookaheadState(null, true, group);
+                })
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddLookaheadState(states.Value, true, group);
+                })
+            )
+            // zero-length negative lookahead
+            .Add(MatchChars("(?!"), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddLookaheadState(null, false, group);
+                })
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddLookaheadState(states.Value, false, group);
+                })
+            )
+            // normal parens, capturing group
+            .Add(MatchChar('('), static p => p
+                .Bind(_bpAtom, static (ctx, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddCapturingGroupState(null, group);
+                })
+                .BindLeft(_bpAtom, static (ctx, states, _) =>
+                {
+                    var group = ctx.Parse(_bpAll);
+                    ctx.Expect(MatchChar(')'));
+                    return State.AddCapturingGroupState(states.Value, group);
                 })
             )
 
