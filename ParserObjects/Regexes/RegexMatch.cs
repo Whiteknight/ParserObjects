@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ParserObjects.Regexes;
 
@@ -13,4 +14,17 @@ public class RegexMatch : Dictionary<int, IReadOnlyList<string>>
     {
         { 0, new[] { string.Empty } }
     };
+
+    public IReadOnlyList<string> GetGroup(int group)
+        => ContainsKey(group)
+            ? this[group]
+            : Array.Empty<string>();
+
+    public string GetCapture(int group, int repetition = 0)
+    {
+        var captures = GetGroup(group);
+        return captures.Count > repetition
+            ? captures[repetition]
+            : string.Empty;
+    }
 }
