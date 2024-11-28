@@ -21,16 +21,42 @@ public static class Context<TInput>
      *    may be in an invalid state).
      */
 
-    public sealed class Parser : IParser<TInput, object>
+    public static Parser<TData> Create<TData>(
+        IParser<TInput> inner,
+        Action<ParseContext<TInput, object>, TData>? setup,
+        Action<ParseContext<TInput, object>, TData>? cleanup,
+        TData data,
+        string name = ""
+    ) => new Parser<TData>(inner, setup, cleanup, data, name);
+
+    public static Parser<TOutput, TData> Create<TOutput, TData>(
+        IParser<TInput, TOutput> inner,
+        Action<ParseContext<TInput, TOutput>, TData>? setup,
+        Action<ParseContext<TInput, TOutput>, TData>? cleanup,
+        TData data,
+        string name = ""
+    ) => new Parser<TOutput, TData>(inner, setup, cleanup, data, name);
+
+    public static MultiParser<TOutput, TData> Create<TOutput, TData>(
+        IMultiParser<TInput, TOutput> inner,
+        Action<MultiParseContext<TInput, TOutput>, TData>? setup,
+        Action<MultiParseContext<TInput, TOutput>, TData>? cleanup,
+        TData data,
+        string name = ""
+    ) => new MultiParser<TOutput, TData>(inner, setup, cleanup, data, name);
+
+    public sealed class Parser<TData> : IParser<TInput, object>
     {
         private readonly IParser<TInput> _inner;
-        private readonly Action<ParseContext<TInput, object>>? _setup;
-        private readonly Action<ParseContext<TInput, object>>? _cleanup;
+        private readonly Action<ParseContext<TInput, object>, TData>? _setup;
+        private readonly Action<ParseContext<TInput, object>, TData>? _cleanup;
+        private readonly TData _data;
 
         public Parser(
             IParser<TInput> inner,
-            Action<ParseContext<TInput, object>>? setup,
-            Action<ParseContext<TInput, object>>? cleanup,
+            Action<ParseContext<TInput, object>, TData>? setup,
+            Action<ParseContext<TInput, object>, TData>? cleanup,
+            TData data,
             string name = ""
         )
         {
@@ -38,6 +64,7 @@ public static class Context<TInput>
             _setup = setup;
             _cleanup = cleanup;
             Name = name;
+            _data = data;
         }
 
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
@@ -50,7 +77,7 @@ public static class Context<TInput>
 
             try
             {
-                _setup?.Invoke(new ParseContext<TInput, object>(_inner, state, default));
+                _setup?.Invoke(new ParseContext<TInput, object>(_inner, state, default), _data);
             }
             catch
             {
@@ -65,7 +92,7 @@ public static class Context<TInput>
             }
             finally
             {
-                _cleanup?.Invoke(new ParseContext<TInput, object>(_inner, state, default));
+                _cleanup?.Invoke(new ParseContext<TInput, object>(_inner, state, default), _data);
             }
 
             return result;
@@ -77,7 +104,7 @@ public static class Context<TInput>
 
             try
             {
-                _setup?.Invoke(new ParseContext<TInput, object>(_inner, state, default));
+                _setup?.Invoke(new ParseContext<TInput, object>(_inner, state, default), _data);
             }
             catch (Exception setupException)
             {
@@ -91,7 +118,7 @@ public static class Context<TInput>
             }
             finally
             {
-                _cleanup?.Invoke(new ParseContext<TInput, object>(_inner, state, result));
+                _cleanup?.Invoke(new ParseContext<TInput, object>(_inner, state, result), _data);
             }
 
             // If the callbacks consumed any input, be clear about how much we've consumed and who
@@ -108,7 +135,7 @@ public static class Context<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
-        public INamed SetName(string name) => new Parser(_inner, _setup, _cleanup, name);
+        public INamed SetName(string name) => new Parser<TData>(_inner, _setup, _cleanup, _data, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
@@ -119,22 +146,25 @@ public static class Context<TInput>
         }
     }
 
-    public sealed class Parser<TOutput> : IParser<TInput, TOutput>
+    public sealed class Parser<TOutput, TData> : IParser<TInput, TOutput>
     {
         private readonly IParser<TInput, TOutput> _inner;
-        private readonly Action<ParseContext<TInput, TOutput>>? _setup;
-        private readonly Action<ParseContext<TInput, TOutput>>? _cleanup;
+        private readonly Action<ParseContext<TInput, TOutput>, TData>? _setup;
+        private readonly Action<ParseContext<TInput, TOutput>, TData>? _cleanup;
+        private readonly TData _data;
 
         public Parser(
             IParser<TInput, TOutput> inner,
-            Action<ParseContext<TInput, TOutput>>? setup,
-            Action<ParseContext<TInput, TOutput>>? cleanup,
+            Action<ParseContext<TInput, TOutput>, TData>? setup,
+            Action<ParseContext<TInput, TOutput>, TData>? cleanup,
+            TData data,
             string name = ""
         )
         {
             _inner = inner;
             _setup = setup;
             _cleanup = cleanup;
+            _data = data;
             Name = name;
         }
 
@@ -148,7 +178,7 @@ public static class Context<TInput>
 
             try
             {
-                _setup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default));
+                _setup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default), _data);
             }
             catch
             {
@@ -163,7 +193,7 @@ public static class Context<TInput>
             }
             finally
             {
-                _cleanup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default));
+                _cleanup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default), _data);
             }
 
             return result;
@@ -175,7 +205,7 @@ public static class Context<TInput>
 
             try
             {
-                _setup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default));
+                _setup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, default), _data);
             }
             catch (Exception setupException)
             {
@@ -189,7 +219,7 @@ public static class Context<TInput>
             }
             finally
             {
-                _cleanup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, result));
+                _cleanup?.Invoke(new ParseContext<TInput, TOutput>(_inner, state, result), _data);
             }
 
             // If the callbacks consumed any input, be clear about how much we've consumed and who
@@ -206,7 +236,7 @@ public static class Context<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
-        public INamed SetName(string name) => new Parser<TOutput>(_inner, _setup, _cleanup, name);
+        public INamed SetName(string name) => new Parser<TOutput, TData>(_inner, _setup, _cleanup, _data, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
@@ -217,22 +247,25 @@ public static class Context<TInput>
         }
     }
 
-    public sealed class MultiParser<TOutput> : IMultiParser<TInput, TOutput>
+    public sealed class MultiParser<TOutput, TData> : IMultiParser<TInput, TOutput>
     {
         private readonly IMultiParser<TInput, TOutput> _inner;
-        private readonly Action<MultiParseContext<TInput, TOutput>>? _setup;
-        private readonly Action<MultiParseContext<TInput, TOutput>>? _cleanup;
+        private readonly Action<MultiParseContext<TInput, TOutput>, TData>? _setup;
+        private readonly Action<MultiParseContext<TInput, TOutput>, TData>? _cleanup;
+        private readonly TData _data;
 
         public MultiParser(
             IMultiParser<TInput, TOutput> inner,
-            Action<MultiParseContext<TInput, TOutput>>? setup,
-            Action<MultiParseContext<TInput, TOutput>>? cleanup,
+            Action<MultiParseContext<TInput, TOutput>, TData>? setup,
+            Action<MultiParseContext<TInput, TOutput>, TData>? cleanup,
+            TData data,
             string name = ""
         )
         {
             _inner = inner;
             _setup = setup;
             _cleanup = cleanup;
+            _data = data;
             Name = name;
         }
 
@@ -247,7 +280,7 @@ public static class Context<TInput>
             int consumedInSetup = 0;
             try
             {
-                _setup?.Invoke(new MultiParseContext<TInput, TOutput>(_inner, state, default));
+                _setup?.Invoke(new MultiParseContext<TInput, TOutput>(_inner, state, default), _data);
                 consumedInSetup = state.Input.Consumed - startCp.Consumed;
             }
             catch (Exception setupException)
@@ -264,7 +297,7 @@ public static class Context<TInput>
             }
             finally
             {
-                _cleanup?.Invoke(new MultiParseContext<TInput, TOutput>(_inner, state, result));
+                _cleanup?.Invoke(new MultiParseContext<TInput, TOutput>(_inner, state, result), _data);
             }
 
             // If the callbacks consumed any input, be clear about how much we've consumed and who
@@ -277,7 +310,7 @@ public static class Context<TInput>
 
         public IEnumerable<IParser> GetChildren() => new[] { _inner };
 
-        public INamed SetName(string name) => new MultiParser<TOutput>(_inner, _setup, _cleanup, name);
+        public INamed SetName(string name) => new MultiParser<TOutput, TData>(_inner, _setup, _cleanup, _data, name);
 
         public override string ToString() => DefaultStringifier.ToString(this);
 

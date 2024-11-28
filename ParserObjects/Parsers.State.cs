@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
+using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
 
 namespace ParserObjects;
@@ -21,7 +23,11 @@ public static partial class Parsers<TInput>
         Action<ParseContext<TInput, TOutput>>? cleanup
     ) => setup == null && cleanup == null
         ? parser
-        : new Context<TInput>.Parser<TOutput>(parser, setup, cleanup);
+        : Internal.Parsers.Context<TInput>.Create(
+            parser,
+            static (c, d) => d.setup?.Invoke(c),
+            static (c, d) => d.cleanup?.Invoke(c),
+            (setup, cleanup));
 
     /// <summary>
     /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
@@ -35,7 +41,11 @@ public static partial class Parsers<TInput>
         IParser<TInput> parser,
         Action<ParseContext<TInput, object>>? setup,
         Action<ParseContext<TInput, object>>? cleanup
-    ) => new Context<TInput>.Parser(parser, setup, cleanup);
+    ) => Internal.Parsers.Context<TInput>.Create(
+        parser,
+        static (c, d) => d.setup?.Invoke(c),
+        static (c, d) => d.cleanup?.Invoke(c),
+        (setup, cleanup));
 
     /// <summary>
     /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
@@ -52,7 +62,11 @@ public static partial class Parsers<TInput>
         Action<MultiParseContext<TInput, TOutput>>? cleanup
     ) => setup == null && cleanup == null
         ? parser
-        : new Context<TInput>.MultiParser<TOutput>(parser, setup, cleanup);
+        : Internal.Parsers.Context<TInput>.Create(
+            parser,
+            static (c, d) => d.setup?.Invoke(c),
+            static (c, d) => d.cleanup?.Invoke(c),
+            (setup, cleanup));
 
     /// <summary>
     /// Create a new parser using information from the current parse context. This parser is
@@ -86,10 +100,11 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> DataContext<TOutput>(
         IParser<TInput, TOutput> inner,
         Dictionary<string, object> values
-    ) => Context(
+    ) => Internal.Parsers.Context<TInput>.Create(
         inner,
-        c => c.State.Data.PushDataFrame(values),
-        static c => c.State.Data.PopDataFrame()
+        static (c, d) => c.State.Data.PushDataFrame(d),
+        static (c, _) => c.State.Data.PopDataFrame(),
+        values
     );
 
     /// <summary>
@@ -104,10 +119,11 @@ public static partial class Parsers<TInput>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(
         IMultiParser<TInput, TOutput> inner,
         Dictionary<string, object> values
-    ) => Context(
+    ) => Internal.Parsers.Context<TInput>.Create(
         inner,
-        c => c.State.Data.PushDataFrame(values),
-        static c => c.State.Data.PopDataFrame()
+        static (c, d) => c.State.Data.PushDataFrame(d),
+        static (c, _) => c.State.Data.PopDataFrame(),
+        values
     );
 
     /// <summary>
@@ -118,10 +134,11 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-         => Context(
+         => Internal.Parsers.Context<TInput>.Create(
             inner,
-            c => c.State.Data.PushDataFrame(),
-            static c => c.State.Data.PopDataFrame()
+            static (c, _) => c.State.Data.PushDataFrame(),
+            static (c, _) => c.State.Data.PopDataFrame(),
+            Defaults.ObjectInstance
         );
 
     /// <summary>
@@ -133,10 +150,11 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IMultiParser<TInput, TOutput> DataContext<TOutput>(IMultiParser<TInput, TOutput> inner)
-        => Context(
+        => Internal.Parsers.Context<TInput>.Create(
             inner,
-            c => c.State.Data.PushDataFrame(),
-            static c => c.State.Data.PopDataFrame()
+            static (c, _) => c.State.Data.PushDataFrame(),
+            static (c, _) => c.State.Data.PopDataFrame(),
+            Defaults.ObjectInstance
         );
 
     /// <summary>
@@ -154,9 +172,42 @@ public static partial class Parsers<TInput>
         IParser<TInput, TOutput> inner,
         string name,
         TData value
-    )
-        where TData : notnull
-        => DataContext(inner, new Dictionary<string, object> { { name, value } });
+    ) => Internal.Parsers.Context<TInput>.Create(
+        inner,
+        static (c, d) =>
+        {
+            c.State.Data.PushDataFrame();
+            c.State.Data.Set(d.name, d.value);
+        },
+        static (c, _) => c.State.Data.PopDataFrame(),
+        (name, value)
+    );
+
+    /// <summary>
+    /// Creates a new contextual data frame to store data and invokes a callback method to
+    /// populate it. Execute the inner parser. When the inner parser concludes, the new data frame
+    /// is popped off the data store.
+    /// </summary>
+    /// <typeparam name="TOutput"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    /// <param name="inner"></param>
+    /// <param name="data"></param>
+    /// <param name="onData"></param>
+    /// <returns></returns>
+    public static IParser<TInput, TOutput> DataContext<TOutput, TData>(
+        IParser<TInput, TOutput> inner,
+        TData data,
+        Action<DataStore, TData> onData
+    ) => Internal.Parsers.Context<TInput>.Create(
+        inner,
+        static (c, d) =>
+        {
+            c.State.Data.PushDataFrame();
+            d.onData(c.State.Data, d.data);
+        },
+        static (c, _) => c.State.Data.PopDataFrame(),
+        (data, onData)
+    );
 
     /// <summary>
     /// Creates a new contextual data frame to store data if the data store supports frames.
@@ -175,7 +226,16 @@ public static partial class Parsers<TInput>
         TData value
     )
         where TData : notnull
-        => DataContext(inner, new Dictionary<string, object> { { name, value! } });
+        => Internal.Parsers.Context<TInput>.Create(
+            inner,
+            static (c, d) =>
+            {
+                c.State.Data.PushDataFrame();
+                c.State.Data.Set(d.name, d.value);
+            },
+            static (c, _) => c.State.Data.PopDataFrame(),
+            (name, value)
+        );
 
     /// <summary>
     /// Invoke callbacks before and after a parse.
