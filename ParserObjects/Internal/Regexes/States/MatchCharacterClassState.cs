@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Internal.Regexes.Patterns;
 
@@ -24,6 +25,7 @@ public sealed class MatchCharacterClassState : IState
 
     public int Maximum { get; set; }
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} class";
 
     public IState Clone() => new MatchCharacterClassState(_invert, _exactChars, _ranges)

@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Regexes.Execution;
+﻿using System.Diagnostics.CodeAnalysis;
+using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes.States;
@@ -10,6 +11,7 @@ namespace ParserObjects.Internal.Regexes.States;
 /// [ExactlyOne(a), ExactlyOne(a), Fence], and Fence will throw an exception if the regex attempts
 /// to add a quantifier to it.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class FenceState : IState
 {
     public Quantifier Quantifier
@@ -24,13 +26,9 @@ public sealed class FenceState : IState
         set => throw new RegexException("Cannot quantify an atom which has already been quantified");
     }
 
-    public string Name => "Fence";
-
-    public INamed SetName(string name) => throw new RegexException("Cannot clone the Fence state");
-
     public IState Clone() => throw new RegexException("Cannot clone the Fence state");
 
-    public override string ToString() => Name;
+    public override string ToString() => "Fence";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => throw new RegexException("Unsupported state type during match");

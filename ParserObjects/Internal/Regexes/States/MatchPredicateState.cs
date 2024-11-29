@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Internal.Regexes.Patterns;
 
@@ -29,6 +30,7 @@ public sealed class MatchPredicateState : IState
         Maximum = Maximum
     };
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {_description}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)

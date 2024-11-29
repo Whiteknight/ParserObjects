@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Regexes.Execution;
+﻿using System.Diagnostics.CodeAnalysis;
+using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Internal.Regexes.Patterns;
 
 namespace ParserObjects.Internal.Regexes.States;
@@ -22,6 +23,7 @@ public sealed class MatchCharacterState : IState
         Maximum = Maximum
     };
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} Match '{_c}'";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)

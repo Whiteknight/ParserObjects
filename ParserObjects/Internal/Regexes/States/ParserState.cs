@@ -1,5 +1,4 @@
-﻿using System;
-using ParserObjects.Internal.Regexes.Execution;
+﻿using ParserObjects.Internal.Regexes.Execution;
 
 namespace ParserObjects.Internal.Regexes.States;
 
@@ -16,8 +15,6 @@ internal class ParserState : IState
 
     public int Maximum { get; set; }
 
-    public string Name => _parser.Name;
-
     public IState Clone() => new ParserState(_parser)
     {
         Quantifier = Quantifier,
@@ -28,6 +25,4 @@ internal class ParserState : IState
     {
         return _parser.Match(context);
     }
-
-    public INamed SetName(string name) => throw new NotImplementedException();
 }
