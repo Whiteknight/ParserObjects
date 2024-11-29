@@ -33,10 +33,10 @@ public readonly record struct Option<T>(bool Success, T Value)
     /// <param name="value"></param>
     /// <returns></returns>
     public bool Is(T value)
-        => (Success, value) switch
+        => (Success, Value) switch
         {
-            (true, null) => Value is null,
-            (true, not null) => Value is not null && Value.Equals(value),
+            (true, null) => value is null,
+            (true, var v) => value is not null && v.Equals(value),
             _ => false
         };
 

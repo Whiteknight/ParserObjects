@@ -270,7 +270,7 @@ public static class ParserCombinatorExtensions
         bool atLeastOne = false
     ) => Transform(
         List(p, atLeastOne),
-        s => string.Concat(s)
+        string.Concat
     );
 
     /// <summary>
