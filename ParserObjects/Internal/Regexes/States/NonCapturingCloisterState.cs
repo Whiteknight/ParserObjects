@@ -6,16 +6,8 @@ namespace ParserObjects.Internal.Regexes.States;
 
 public sealed class NonCapturingCloisterState : IState
 {
-    private readonly string? _name;
-
     public NonCapturingCloisterState(List<IState> group)
     {
-        Group = group;
-    }
-
-    private NonCapturingCloisterState(string name, List<IState> group)
-    {
-        _name = name;
         Group = group;
     }
 
@@ -23,22 +15,15 @@ public sealed class NonCapturingCloisterState : IState
 
     public int Maximum { get; set; }
 
-    public string Name => _name ?? "Non-capturing group";
-
     public List<IState> Group { get; set; }
 
-    public INamed SetName(string name) => Clone(name);
+    public IState Clone() => new NonCapturingCloisterState(Group)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
-    public IState Clone() => Clone(Name);
-
-    private NonCapturingCloisterState Clone(string name)
-         => new NonCapturingCloisterState(name, Group)
-         {
-             Quantifier = Quantifier,
-             Maximum = Maximum
-         };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} non-capturing group";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => !context.Input.IsAtEnd

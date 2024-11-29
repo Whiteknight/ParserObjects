@@ -6,9 +6,8 @@ namespace ParserObjects.Internal.Regexes.States;
 
 public sealed class AlternationState : IState
 {
-    public AlternationState(string name, List<List<IState>> alternations)
+    public AlternationState(List<List<IState>> alternations)
     {
-        Name = name;
         Alternations = alternations;
     }
 
@@ -20,25 +19,18 @@ public sealed class AlternationState : IState
     /// </summary>
     public int Maximum { get; set; }
 
-    public string Name { get; }
-
     /// <summary>
     /// Gets or sets all possibilities in an alternation.
     /// </summary>
     public List<List<IState>> Alternations { get; set; }
 
-    public INamed SetName(string name) => Clone(name);
+    public IState Clone() => new AlternationState(Alternations)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
-    public IState Clone() => Clone(Name);
-
-    private AlternationState Clone(string name)
-        => new AlternationState(name, Alternations)
-        {
-            Quantifier = Quantifier,
-            Maximum = Maximum
-        };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} alternation";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {

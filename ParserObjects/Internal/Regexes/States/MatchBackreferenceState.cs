@@ -8,16 +8,8 @@ namespace ParserObjects.Internal.Regexes.States;
 /// </summary>
 public sealed class MatchBackreferenceState : IState
 {
-    private readonly string? _name;
-
     public MatchBackreferenceState(int groupNumber)
     {
-        GroupNumber = groupNumber;
-    }
-
-    private MatchBackreferenceState(string name, int groupNumber)
-    {
-        _name = name;
         GroupNumber = groupNumber;
     }
 
@@ -25,22 +17,15 @@ public sealed class MatchBackreferenceState : IState
 
     public int Maximum { get; set; }
 
-    public string Name => _name ?? $"Match \\{GroupNumber}";
-
     public int GroupNumber { get; set; }
 
-    public INamed SetName(string name) => Clone(name);
+    public IState Clone() => new MatchBackreferenceState(GroupNumber)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
-    public IState Clone() => Clone(Name);
-
-    private MatchBackreferenceState Clone(string name)
-        => new MatchBackreferenceState(name, GroupNumber)
-        {
-            Quantifier = Quantifier,
-            Maximum = Maximum
-        };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} Match \\{GroupNumber}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {

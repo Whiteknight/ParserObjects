@@ -13,9 +13,8 @@ public sealed class MatchCharacterClassState : IState
     private readonly IReadOnlyList<(char low, char high)>? _ranges;
     private readonly bool _invert;
 
-    public MatchCharacterClassState(string name, bool invert, byte[]? exactChars, IReadOnlyList<(char, char)>? ranges)
+    public MatchCharacterClassState(bool invert, byte[]? exactChars, IReadOnlyList<(char, char)>? ranges)
     {
-        Name = name;
         _invert = invert;
         _exactChars = exactChars;
         _ranges = ranges;
@@ -25,20 +24,13 @@ public sealed class MatchCharacterClassState : IState
 
     public int Maximum { get; set; }
 
-    public string Name { get; }
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} class";
 
-    public INamed SetName(string name) => Clone(name);
-
-    public IState Clone() => Clone(Name);
-
-    private MatchCharacterClassState Clone(string name)
-        => new MatchCharacterClassState(name, _invert, _exactChars, _ranges)
-        {
-            Quantifier = Quantifier,
-            Maximum = Maximum
-        };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public IState Clone() => new MatchCharacterClassState(_invert, _exactChars, _ranges)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {

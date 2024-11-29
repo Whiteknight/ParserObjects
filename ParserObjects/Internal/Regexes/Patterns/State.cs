@@ -42,7 +42,7 @@ public readonly record struct StateList(List<IState> States)
     public StateList AddMatch(bool invert, CharRanges ranges)
     {
         VerifyPreviousStateIsNotEndAnchor();
-        return Add(new MatchCharacterClassState("character class", invert, ranges.ExactChars, ranges.Ranges));
+        return Add(new MatchCharacterClassState(invert, ranges.ExactChars, ranges.Ranges));
     }
 
     public StateList AddEndAnchor()
