@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Internal.Regexes.Patterns;
 
@@ -14,15 +15,8 @@ public sealed class CapturingGroupState : IState
 
     public Quantifier Quantifier { get; set; }
 
-    /// <summary>
-    /// Gets or sets the maximum number of times this state can match, if it supports more than
-    /// one. Used only with Range quantifiers.
-    /// </summary>
     public int Maximum { get; set; }
 
-    /// <summary>
-    /// Gets or sets all substates if this state is a group.
-    /// </summary>
     public List<IState> Group { get; set; }
 
     public int GroupNumber { get; set; }
@@ -33,6 +27,7 @@ public sealed class CapturingGroupState : IState
         Maximum = Maximum
     };
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} Group {GroupNumber}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)

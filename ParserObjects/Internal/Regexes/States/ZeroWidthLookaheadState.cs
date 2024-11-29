@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Regexes;
 
@@ -14,12 +15,14 @@ internal class ZeroWidthLookaheadState : IState
         Group = group;
     }
 
+    [ExcludeFromCodeCoverage]
     public Quantifier Quantifier
     {
         get => Quantifier.ExactlyOne;
         set => throw new RegexException("Cannot quantify an atom which has already been quantified");
     }
 
+    [ExcludeFromCodeCoverage]
     public int Maximum
     {
         get => 0;
@@ -28,8 +31,10 @@ internal class ZeroWidthLookaheadState : IState
 
     public List<IState> Group { get; set; }
 
+    [ExcludeFromCodeCoverage]
     public IState Clone() => throw new RegexException("Cannot clone Zero-Width lookahead states");
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{(_positive ? "Positive" : "Negative")} lookahead";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)

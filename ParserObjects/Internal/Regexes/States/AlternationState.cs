@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Internal.Regexes.Patterns;
 
@@ -13,15 +14,8 @@ public sealed class AlternationState : IState
 
     public Quantifier Quantifier { get; set; }
 
-    /// <summary>
-    /// Gets or sets the maximum number of times this state can match, if it supports more than
-    /// one. Used only with Range quantifiers.
-    /// </summary>
     public int Maximum { get; set; }
 
-    /// <summary>
-    /// Gets or sets all possibilities in an alternation.
-    /// </summary>
     public List<List<IState>> Alternations { get; set; }
 
     public IState Clone() => new AlternationState(Alternations)
@@ -30,6 +24,7 @@ public sealed class AlternationState : IState
         Maximum = Maximum
     };
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} alternation";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)

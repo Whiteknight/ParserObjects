@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Regexes.Execution;
+﻿using System.Diagnostics.CodeAnalysis;
+using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes.States;
@@ -7,6 +8,7 @@ namespace ParserObjects.Internal.Regexes.States;
 /// End anchor state when the user specifies "$" and wants to explicitly match the end of the
 /// input sequence.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class EndAnchorState : IState
 {
     public Quantifier Quantifier
@@ -21,13 +23,9 @@ public sealed class EndAnchorState : IState
         set => throw new RegexException("Cannot quantify the End Anchor $ state");
     }
 
-    public string Name => "End Anchor $";
-
-    public INamed SetName(string name) => throw new RegexException("Cannot clone the EndAnchor state");
-
     public IState Clone() => throw new RegexException("Cannot clone the EndAnchor state");
 
-    public override string ToString() => Name;
+    public override string ToString() => "End Anchor";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
         => context.Input.IsAtEnd;
