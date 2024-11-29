@@ -8,37 +8,12 @@ public sealed class MatchCharacterClassState : IState
 {
     // Printable ASCII chars go from 0x32 (' ') to 0x7E ('~'). _exactChars array is an optimization
     // where each character in that range corresponds to a bit in a 12-byte array.
-    private readonly byte[] _exactChars;
+    private readonly byte[]? _exactChars;
 
     private readonly IReadOnlyList<(char low, char high)>? _ranges;
     private readonly bool _invert;
 
-    public MatchCharacterClassState(string name, bool invert, IReadOnlyList<(char low, char high)> ranges)
-    {
-        Name = name;
-        _invert = invert;
-        var chars = new byte[12];
-
-        List<(char low, char high)>? rangeList = null;
-        for (int i = 0; i < ranges.Count; i++)
-        {
-            var (low, high) = ranges[i];
-            if (low >= ' ' && high <= '~')
-            {
-                for (char c = low; c <= high; c++)
-                    SetCharBit(chars, c);
-                continue;
-            }
-
-            rangeList ??= new List<(char low, char high)>();
-            rangeList.Add((low, high));
-        }
-
-        _exactChars = chars;
-        _ranges = rangeList;
-    }
-
-    private MatchCharacterClassState(string name, bool invert, byte[] exactChars, IReadOnlyList<(char, char)>? ranges)
+    public MatchCharacterClassState(string name, bool invert, byte[]? exactChars, IReadOnlyList<(char, char)>? ranges)
     {
         Name = name;
         _invert = invert;
@@ -80,27 +55,21 @@ public sealed class MatchCharacterClassState : IState
     private bool IsMatch(char c)
         => _invert ^ IsMatchBasic(c);
 
-    private static void SetCharBit(byte[] chars, char c)
-    {
-        var intVal = c - ' ';
-        chars[intVal / 8] |= (byte)(1 << intVal % 8);
-    }
-
     private bool IsMatchBasic(char c)
     {
-        if (c >= ' ' && c <= '~')
+        if (c >= ' ' && c <= '~' && _exactChars != null)
         {
             var intVal = c - ' ';
             return (_exactChars[intVal / 8] & (byte)(1 << intVal % 8)) > 0;
         }
 
-        if (_ranges == null)
-            return false;
-
-        for (int i = 0; i < _ranges.Count; i++)
+        if (_ranges != null)
         {
-            if (_ranges[i].low <= c && c <= _ranges[i].high)
-                return true;
+            for (int i = 0; i < _ranges.Count; i++)
+            {
+                if (_ranges[i].low <= c && c <= _ranges[i].high)
+                    return true;
+            }
         }
 
         return false;

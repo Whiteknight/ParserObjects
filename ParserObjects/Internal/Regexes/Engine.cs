@@ -23,19 +23,15 @@ public static class Engine
         Assert.ArgumentNotNull(regex);
 
         var startLocation = parseState.Input.CurrentLocation;
-
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
         var startCheckpoint = parseState.Input.Checkpoint();
-        var matches = Test(captures, regex.States, parseState, true);
-        if (matches)
-        {
-            var endCheckpoint = parseState.Input.Checkpoint();
-            var captureValue = GetOverallMatchCapture(parseState.Input, startCheckpoint, endCheckpoint);
-            var match = captures.ToRegexMatch(captureValue);
-            return new MatchResult(captureValue, captureValue.Length, startLocation, match);
-        }
+        if (!Test(captures, regex.States, parseState, true))
+            return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);
 
-        return new MatchResult($"Match failed at position {startCheckpoint.Consumed}", startLocation);
+        var endCheckpoint = parseState.Input.Checkpoint();
+        var captureValue = GetOverallMatchCapture(parseState.Input, startCheckpoint, endCheckpoint);
+        var match = captures.ToRegexMatch(captureValue);
+        return new MatchResult(captureValue, captureValue.Length, startLocation, match);
     }
 
     public static bool TestMatch(IParseState<char> parseState, Regex regex)
@@ -48,12 +44,9 @@ public static class Engine
     }
 
     private static string GetOverallMatchCapture(ISequence<char> input, SequenceCheckpoint startCheckpoint, SequenceCheckpoint endCheckpoint)
-    {
-        if (input is ICharSequence charSequence)
-            return charSequence.GetStringBetween(startCheckpoint, endCheckpoint);
-
-        return input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
-    }
+        => input is ICharSequence charSequence
+            ? charSequence.GetStringBetween(startCheckpoint, endCheckpoint)
+            : input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
 
     private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, IParseState<char> parseState, bool canBacktrack)
     {

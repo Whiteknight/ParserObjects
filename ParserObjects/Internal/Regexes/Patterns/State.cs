@@ -39,10 +39,10 @@ public readonly record struct StateList(List<IState> States)
         return Add(new MatchCharacterState(c));
     }
 
-    public StateList AddMatch(bool invert, IReadOnlyList<(char, char)> ranges)
+    public StateList AddMatch(bool invert, CharRanges ranges)
     {
         VerifyPreviousStateIsNotEndAnchor();
-        return Add(new MatchCharacterClassState("character class", invert, ranges));
+        return Add(new MatchCharacterClassState("character class", invert, ranges.ExactChars, ranges.Ranges));
     }
 
     public StateList AddEndAnchor()
