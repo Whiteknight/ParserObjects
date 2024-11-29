@@ -226,4 +226,11 @@ public static class SequenceExtensions
         cp.Rewind();
         return new string(result, 0, i);
     }
+
+    public static string GetStringBetween(this ISequence<char> input, SequenceCheckpoint start, SequenceCheckpoint end)
+    {
+        return input is ICharSequence charSequence
+            ? charSequence.GetStringBetween(start, end)
+            : input.GetBetween(start, end, (object?)null, static (b, _) => new string(b));
+    }
 }
