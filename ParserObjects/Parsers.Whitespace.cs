@@ -1,5 +1,4 @@
-﻿using System;
-using static ParserObjects.Parsers<char>;
+﻿using static ParserObjects.Parsers<char>;
 using static ParserObjects.Internal.ParserCache;
 
 namespace ParserObjects;

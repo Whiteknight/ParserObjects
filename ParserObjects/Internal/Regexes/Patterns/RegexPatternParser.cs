@@ -176,24 +176,22 @@ public static class RegexPatternGrammar
     private static StateList ParseCharacterClass(PrattParseContext<char, StateList> ctx, StateList states)
     {
         var invertResult = ctx.TryParse(MatchChar('^')).Success;
-        var ranges = new List<(char low, char high)>();
+        var ranges = new CharRanges(null, null);
 
-        while (true)
+        while (ctx.Input.Peek() != ']')
         {
             if (ctx.Input.IsAtEnd)
                 throw new RegexException("Incomplete character class");
 
-            var c = ctx.Input.GetNext();
-            if (c == ']')
-                break;
+            var c = GetUnescapedCharacter(ctx, ctx.Input.GetNext());
 
-            c = GetUnescapedCharacter(ctx, c);
-
-            var range = ParseCharacterRange(ctx, c);
-            ranges.Add(range);
+            var (low, high) = ParseCharacterRange(ctx, c);
+            ranges = ranges.Add(low, high);
         }
 
-        if (ranges.Count == 0)
+        // Clear the ']'
+        ctx.Input.GetNext();
+        if (!ranges.HasAny)
             throw new RegexException("Empty character class");
 
         return states.AddMatch(invertResult, ranges);
@@ -213,9 +211,7 @@ public static class RegexPatternGrammar
             throw new RegexException("Unexpected ] after -. Expected end of range. Did you mean '\\]'?");
 
         var high = GetUnescapedCharacter(ctx, c);
-        return high < low
-            ? throw new RegexException($"Invalid range {high}-{low} should be {low}-{high}")
-            : (low, high);
+        return (low, high);
     }
 
     private static StateList ParseRepetitionRange(PrattParseContext<char, StateList> ctx, StateList states, IParser<char, uint> digits)
