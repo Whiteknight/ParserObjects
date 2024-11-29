@@ -44,9 +44,7 @@ public static class Engine
     }
 
     private static string GetOverallMatchCapture(ISequence<char> input, SequenceCheckpoint startCheckpoint, SequenceCheckpoint endCheckpoint)
-        => input is ICharSequence charSequence
-            ? charSequence.GetStringBetween(startCheckpoint, endCheckpoint)
-            : input.GetBetween(startCheckpoint, endCheckpoint, (object?)null, static (b, _) => new string(b));
+        => input.GetStringBetween(startCheckpoint, endCheckpoint);
 
     private static bool Test(CaptureCollection captures, IReadOnlyList<IState> states, IParseState<char> parseState, bool canBacktrack)
     {
