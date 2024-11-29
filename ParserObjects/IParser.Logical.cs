@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace ParserObjects;
+﻿namespace ParserObjects;
 
 public static class ParserLogicalExtensions
 {
@@ -13,11 +11,7 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, object> And<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => Parsers<TInput>.And(
-            new[] { p1 }
-                .Concat(parsers)
-                .ToArray()
-        );
+        => Parsers<TInput>.And([p1, .. parsers]);
 
     /// <summary>
     /// Attempt to parse with a predicate parser, consuming no input. If the predicate parser succeeds,
@@ -54,11 +48,7 @@ public static class ParserLogicalExtensions
     /// <param name="parsers"></param>
     /// <returns></returns>
     public static IParser<TInput, object> Or<TInput>(this IParser<TInput> p1, params IParser<TInput>[] parsers)
-        => Parsers<TInput>.Or(
-            new[] { p1 }
-                .Concat(parsers)
-                .ToArray()
-        );
+        => Parsers<TInput>.Or([p1, .. parsers]);
 
     /// <summary>
     /// Attempt to parse with a predicate parser. If the predicate parser succeeds,

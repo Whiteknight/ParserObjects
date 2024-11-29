@@ -25,10 +25,10 @@ public static class Chain<TInput, TOutput>
     {
         Assert.ArgumentNotNull(inner);
         Assert.ArgumentNotNull(setup);
-        var config = new ParserPredicateBuilder<TInput, TMiddle, TOutput>(new List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)>());
+        var config = new ParserPredicateBuilder<TInput, TMiddle, TOutput>([]);
         setup(config);
         var selector = new Selector<TMiddle>(config.Parsers);
-        return new Parser<TMiddle, Selector<TMiddle>>(inner, selector, static (c, r) => c.Pick(r.Value), selector.GetChildren().ToList(), name);
+        return new Parser<TMiddle, Selector<TMiddle>>(inner, selector, static (c, r) => c.Pick(r.Value), [.. selector.GetChildren()], name);
     }
 
     public static IParser<TInput, TOutput> Create<TData, TMiddle>(
@@ -95,7 +95,7 @@ public static class Chain<TInput, TOutput>
             return false;
         }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner }.Concat(_mentions);
+        public IEnumerable<IParser> GetChildren() => [_inner, .. _mentions];
 
         public override string ToString() => DefaultStringifier.ToString("Chain", Name, Id);
 

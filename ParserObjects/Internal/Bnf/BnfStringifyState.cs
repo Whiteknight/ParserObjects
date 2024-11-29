@@ -108,10 +108,13 @@ public sealed class BnfStringifyState
         return this;
     }
 
-    public BnfStringifyState Append(params object[] args)
+#if NET9_0_OR_GREATER
+
+    public BnfStringifyState Append(params System.ReadOnlySpan<object> args)
     {
-        foreach (var arg in args)
+        for (int i = 0; i < args.Length; i++)
         {
+            var arg = args[i];
             if (arg is string s)
             {
                 Current.Append(s);
@@ -129,4 +132,31 @@ public sealed class BnfStringifyState
 
         return this;
     }
+
+#else
+
+    public BnfStringifyState Append(params object[] args)
+    {
+        for (int i = 0; i < args.Length; i++)
+        {
+            var arg = args[i];
+            if (arg is string s)
+            {
+                Current.Append(s);
+                continue;
+            }
+
+            if (arg is IParser p)
+            {
+                Visit(p);
+                continue;
+            }
+
+            Current.Append(arg);
+        }
+
+        return this;
+    }
+
+#endif
 }

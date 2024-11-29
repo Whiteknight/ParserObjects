@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 
@@ -51,7 +50,7 @@ public static class CamelCaseGrammar
         return Rule(
             firstPart,
             bodyParts.List(),
-            static (first, rest) => new[] { first }.Concat(rest)
+            static (first, rest) => (IEnumerable<string>)[first, .. rest]
         );
     }
 
@@ -89,7 +88,7 @@ public static class CamelCaseGrammar
         return Rule(
             lowerString,
             bodyParts.List(),
-            static (first, rest) => new[] { first }.Concat(rest)
+            static (first, rest) => (IEnumerable<string>)[first, .. rest]
         );
     }
 
@@ -132,7 +131,7 @@ public static class CamelCaseGrammar
         return Rule(
             firstPart,
             bodyParts.List(),
-            static (first, rest) => new[] { first }.Concat(rest)
+            static (first, rest) => (IEnumerable<string>)[first, .. rest]
         );
     }
 }

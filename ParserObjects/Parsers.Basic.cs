@@ -26,7 +26,7 @@ public static partial class Parsers<TInput>
             },
             static (state, p) => p.Match(state),
             "IF %0",
-            new[] { parser }
+            [parser]
         );
 
     /// <summary>
@@ -48,7 +48,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(params IParser<TInput>[] parsers)
         => parsers == null || parsers.Length == 0
-            ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
+            ? Produce(static () => (IReadOnlyList<object>)[])
             : Internal.Parsers.Rule.Create(
                 parsers,
                 Defaults.ObjectInstance,
@@ -63,7 +63,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, IReadOnlyList<object>> Combine(IReadOnlyList<IParser<TInput>> parsers)
         => parsers == null || parsers.Count == 0
-            ? Produce(static () => (IReadOnlyList<object>)Array.Empty<object>())
+            ? Produce(static () => (IReadOnlyList<object>)[])
             : Internal.Parsers.Rule.Create(
                 parsers,
                 Defaults.ObjectInstance,
@@ -72,7 +72,7 @@ public static partial class Parsers<TInput>
 
     public static IParser<TInput, IReadOnlyList<TItem>> Combine<TItem>(IReadOnlyList<IParser<TInput, TItem>> parsers)
         => parsers == null || parsers.Count == 0
-            ? Produce(static () => (IReadOnlyList<TItem>)Array.Empty<TItem>())
+            ? Produce(static () => (IReadOnlyList<TItem>)[])
             : Internal.Parsers.Rule.CreateTyped(
                 parsers,
                 Defaults.ObjectInstance,
@@ -177,7 +177,7 @@ public static partial class Parsers<TInput>
         static (state, f, args) => f.parse(state, args),
         match == null ? null : static (state, f) => f.match!.Invoke(state),
         description ?? "",
-        Array.Empty<IParser>()
+        []
     );
 
     /// <summary>
@@ -214,7 +214,7 @@ public static partial class Parsers<TInput>
                 return false;
             },
             "(?=%0)",
-            new[] { parser }
+            [parser]
         );
 
     /// <summary>
@@ -248,7 +248,7 @@ public static partial class Parsers<TInput>
                 return true;
             },
             "(?=%0)",
-            new[] { parser }
+            [parser]
         );
 
     /// <summary>
@@ -317,7 +317,7 @@ public static partial class Parsers<TInput>
             },
             static (_, _) => true,
             "PRODUCE",
-            Array.Empty<IParser>()
+            []
         );
 
     /// <summary>
@@ -336,7 +336,7 @@ public static partial class Parsers<TInput>
             },
             static (_, _) => true,
             "PRODUCE",
-            Array.Empty<IParser>()
+            []
         );
 
     /// <summary>
