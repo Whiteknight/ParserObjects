@@ -1,6 +1,7 @@
-﻿using ParserObjects.Regexes;
+﻿using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Regexes;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 /// <summary>
 /// State used to prevent re-applying a second quantifier to an atom which has already been

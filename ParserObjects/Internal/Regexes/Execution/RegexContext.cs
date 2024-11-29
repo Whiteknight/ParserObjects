@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using ParserObjects.Internal.Regexes.Patterns;
+using ParserObjects.Internal.Regexes.States;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.Execution;
 
 // Holds information about the current state of the match
 public sealed class RegexContext : IParseState<char>

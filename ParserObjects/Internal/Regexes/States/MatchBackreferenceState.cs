@@ -1,4 +1,7 @@
-﻿namespace ParserObjects.Internal.Regexes;
+﻿using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Internal.Regexes.Patterns;
+
+namespace ParserObjects.Internal.Regexes.States;
 
 /// <summary>
 /// Matches the most recent value of a previous capture group.

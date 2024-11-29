@@ -1,6 +1,7 @@
-﻿using ParserObjects.Regexes;
+﻿using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Regexes;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 /// <summary>
 /// End anchor state when the user specifies "$" and wants to explicitly match the end of the

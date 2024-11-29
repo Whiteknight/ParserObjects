@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.Execution;
 
 public struct BacktrackState
 {

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Internal.Regexes.Patterns;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 public sealed class AlternationState : IState
 {

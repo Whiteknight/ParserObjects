@@ -1,5 +1,6 @@
 ﻿using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Regexes;
+using ParserObjects.Internal.Regexes.Patterns;
 using ParserObjects.Regexes;
 using static ParserObjects.Internal.ParserCache;
 

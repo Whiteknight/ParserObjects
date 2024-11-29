@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Internal.Regexes.States;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;

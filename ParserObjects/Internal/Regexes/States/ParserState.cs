@@ -1,6 +1,7 @@
 ﻿using System;
+using ParserObjects.Internal.Regexes.Execution;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 internal class ParserState : IState
 {
