@@ -25,11 +25,12 @@ public static class RegexPatternGrammar
         '{', '}'
     };
 
+    private static readonly IParser<char, string> _parserNames = MatchChars(c => c != '}');
+    private static readonly IParser<char, char> _normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
+
     public static IParser<char, Regex> CreateParser()
     {
         // Literal match of any non-slash and non-control character
-        var normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
-
         var regex = Pratt<List<IState>>(config => config
 
             // Alternation
@@ -38,7 +39,7 @@ public static class RegexPatternGrammar
             )
 
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
-            .Add(normalChar, static p => p
+            .Add(_normalChar, static p => p
                 .Bind(_bpAtom, static (_, c) => State.AddMatch(null, c.Value))
                 .BindLeft(_bpAtom, static (_, states, c) => State.AddMatch(states.Value, c.Value))
             )
@@ -101,17 +102,19 @@ public static class RegexPatternGrammar
                 })
             )
             // Recurse into IParser
-            .Add(MatchChars("(?p"), static p => p
+            .Add(MatchChars("(?{"), static p => p
                 .Bind(_bpAtom, static (ctx, _) =>
                 {
-                    var name = ctx.Parse(StrippedString());
+                    var name = ctx.Parse(_parserNames);
+                    ctx.Expect(MatchChar('}'));
                     ctx.Expect(MatchChar(')'));
                     var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
                     return State.AddParserRecurse(null, parser);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
-                    var name = ctx.Parse(StrippedString());
+                    var name = ctx.Parse(_parserNames);
+                    ctx.Expect(MatchChar('}'));
                     ctx.Expect(MatchChar(')'));
                     var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
                     return State.AddParserRecurse(states.Value, parser);
