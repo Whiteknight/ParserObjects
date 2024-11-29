@@ -39,7 +39,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
             state.Append(" && ", child);
     }
 
-    private static void AcceptChain(IReadOnlyList<IParser> children, BnfStringifyState state)
+    private static void AcceptChain(List<IParser> children, BnfStringifyState state)
     {
         if (children.Count == 1)
         {
@@ -139,7 +139,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
         state.Append("FAIL");
     }
 
-    private static void AcceptFirstVariant(IReadOnlyList<IParser> children, BnfStringifyState state)
+    private static void AcceptFirstVariant(List<IParser> children, BnfStringifyState state)
     {
         Debug.Assert(children.Count >= 2, "We should not have a First with 0 or 1 children");
 

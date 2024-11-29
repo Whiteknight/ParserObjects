@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
 
