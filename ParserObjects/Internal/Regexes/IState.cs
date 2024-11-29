@@ -2,7 +2,7 @@
 
 namespace ParserObjects.Internal.Regexes;
 
-public interface IState : INamed
+public interface IState
 {
     /// <summary>
     /// Gets or sets the quantifier that controls how many times this state should match.

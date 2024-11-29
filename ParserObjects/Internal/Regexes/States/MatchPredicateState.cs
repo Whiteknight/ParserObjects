@@ -9,9 +9,11 @@ namespace ParserObjects.Internal.Regexes.States;
 /// </summary>
 public sealed class MatchPredicateState : IState
 {
-    public MatchPredicateState(string name, Func<char, bool> predicate)
+    private readonly string _description;
+
+    public MatchPredicateState(string description, Func<char, bool> predicate)
     {
-        Name = name;
+        _description = description;
         ValuePredicate = predicate;
     }
 
@@ -19,22 +21,15 @@ public sealed class MatchPredicateState : IState
 
     public int Maximum { get; set; }
 
-    public string Name { get; }
-
     public Func<char, bool> ValuePredicate { get; set; }
 
-    public INamed SetName(string name) => Clone(name);
+    public IState Clone() => new MatchPredicateState(_description, ValuePredicate)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
-    public IState Clone() => Clone(Name);
-
-    private MatchPredicateState Clone(string name)
-        => new MatchPredicateState(name, ValuePredicate)
-        {
-            Quantifier = Quantifier,
-            Maximum = Maximum
-        };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {_description}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {

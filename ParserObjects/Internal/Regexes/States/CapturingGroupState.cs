@@ -6,17 +6,8 @@ namespace ParserObjects.Internal.Regexes.States;
 
 public sealed class CapturingGroupState : IState
 {
-    private readonly string? _name;
-
     public CapturingGroupState(int groupNumber, List<IState> group)
     {
-        GroupNumber = groupNumber;
-        Group = group;
-    }
-
-    private CapturingGroupState(string name, int groupNumber, List<IState> group)
-    {
-        _name = name;
         GroupNumber = groupNumber;
         Group = group;
     }
@@ -29,8 +20,6 @@ public sealed class CapturingGroupState : IState
     /// </summary>
     public int Maximum { get; set; }
 
-    public string Name => _name ?? $"Group {GroupNumber}";
-
     /// <summary>
     /// Gets or sets all substates if this state is a group.
     /// </summary>
@@ -38,18 +27,13 @@ public sealed class CapturingGroupState : IState
 
     public int GroupNumber { get; set; }
 
-    public INamed SetName(string name) => Clone(name);
+    public IState Clone() => new CapturingGroupState(GroupNumber, Group)
+    {
+        Quantifier = Quantifier,
+        Maximum = Maximum
+    };
 
-    public IState Clone() => Clone(Name);
-
-    private CapturingGroupState Clone(string name)
-         => new CapturingGroupState(name, GroupNumber, Group)
-         {
-             Quantifier = Quantifier,
-             Maximum = Maximum
-         };
-
-    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} {Name}";
+    public override string ToString() => $"{State.QuantifierToString(Quantifier, Maximum)} Group {GroupNumber}";
 
     public bool Match(RegexContext context, SequenceCheckpoint beforeMatch, TestFunc test)
     {

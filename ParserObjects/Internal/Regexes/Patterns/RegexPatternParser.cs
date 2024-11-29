@@ -255,6 +255,6 @@ public static class RegexPatternGrammar
 
         return new StateList(options.Count == 1
             ? states.States!
-            : new List<IState> { new AlternationState("alternation", options) });
+            : new List<IState> { new AlternationState(options) });
     }
 }
