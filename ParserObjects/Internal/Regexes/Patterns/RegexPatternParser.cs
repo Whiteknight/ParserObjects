@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Internal.Regexes.States;
 using ParserObjects.Pratt;
 using ParserObjects.Regexes;
+using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers.C;
-using static ParserObjects.Parsers<char>;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.Patterns;
 
 public static class RegexPatternGrammar
 {

@@ -1,6 +1,7 @@
-﻿using ParserObjects.Regexes;
+﻿using ParserObjects.Internal.Regexes.Execution;
+using ParserObjects.Regexes;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 /// <summary>
 /// End sentinel state is added to the list of states so the engine knows when to stop matching.

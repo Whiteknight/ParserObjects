@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using ParserObjects.Internal.Regexes.States;
 using ParserObjects.Regexes;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.Patterns;
 
 public static class State
 {
@@ -80,12 +81,10 @@ public readonly record struct StateList(List<IState> States)
         }
 
         if (min >= 1)
-        {
             // Copy this state Minimum times, since we must have them all. We already have one
             // on the list, so we will have minimum+1 copies, and the last one we will apply
             // a range onto
             previousState = AddClones(previousState, min);
-        }
 
         if (max == int.MaxValue)
         {

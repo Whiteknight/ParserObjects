@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using ParserObjects.Internal.Regexes.Execution;
 using ParserObjects.Regexes;
 
-namespace ParserObjects.Internal.Regexes;
+namespace ParserObjects.Internal.Regexes.States;
 
 internal class ZeroWidthLookaheadState : IState
 {

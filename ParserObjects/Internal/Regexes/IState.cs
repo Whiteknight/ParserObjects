@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Internal.Regexes;
+﻿using ParserObjects.Internal.Regexes.Execution;
+
+namespace ParserObjects.Internal.Regexes;
 
 public interface IState : INamed
 {
