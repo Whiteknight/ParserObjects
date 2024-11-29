@@ -69,8 +69,8 @@ public static partial class Parsers
     private static RegexParser ParseRegexPattern(string pattern)
         => RegexPattern().Parse(pattern, SequenceOptions.ForRegex(pattern)) switch
         {
-            { Success: true } success => new RegexParser(success.Value, pattern),
-            var failure => throw new RegexException($"Could not parse pattern {pattern} error: {failure.ErrorMessage}")
+            (true, var value, _) => new RegexParser(value, pattern),
+            (false, _, var error) => throw new RegexException($"Could not parse pattern {pattern} error: {error}")
         };
 
     private static RegexParser ParseRegexPattern(string pattern, IParser<char>[] parsers)
@@ -86,7 +86,7 @@ public static partial class Parsers
             .Parse(pattern, SequenceOptions.ForRegex(pattern))
         switch
         {
-            { Success: true } success => new RegexParser(success.Value, pattern),
-            var failure => throw new RegexException($"Could not parse pattern {pattern} error: {failure.ErrorMessage}")
+            (true, var value, _) => new RegexParser(value, pattern),
+            (false, _, var error) => throw new RegexException($"Could not parse pattern {pattern} error: {error}")
         };
 }

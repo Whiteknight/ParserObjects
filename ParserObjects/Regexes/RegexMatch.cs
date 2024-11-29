@@ -18,7 +18,7 @@ public class RegexMatch : Dictionary<int, IReadOnlyList<string>>
     public IReadOnlyList<string> GetGroup(int group)
         => ContainsKey(group)
             ? this[group]
-            : Array.Empty<string>();
+            : [];
 
     public string GetCapture(int group, int repetition = 0)
     {
