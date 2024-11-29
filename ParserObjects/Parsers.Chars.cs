@@ -22,13 +22,10 @@ public static partial class Parsers
     public static IParser<char, string> CaptureString(params IParser<char>[] parsers)
         => parsers == null || parsers.Length == 0
             ? Produce(static () => string.Empty)
-            : new CaptureParser<char, string>(parsers, static (s, start, end) =>
-            {
-                if (s is ICharSequence charSequence)
-                    return charSequence.GetStringBetween(start, end);
-
-                return s.GetBetween(start, end, (object?)null, static (b, _) => new string(b));
-            });
+            : new CaptureParser<char, string>(parsers, static (s, start, end)
+                => s is ICharSequence charSequence
+                    ? charSequence.GetStringBetween(start, end)
+                    : s.GetBetween(start, end, (object?)null, static (b, _) => new string(b)));
 
     /// <summary>
     /// Convenience method to match a literal sequence of characters and return the
@@ -88,12 +85,12 @@ public static partial class Parsers
     /// <param name="caseInsensitive"></param>
     /// <returns></returns>
     public static IParser<char, char> MatchAny(string possibilities, bool caseInsensitive = false)
-    {
-        if (string.IsNullOrEmpty(possibilities))
-            return Fail("No possibilities provided so nothing can match");
-        var collection = new HashSet<char>(possibilities, CharComparer.Get(!caseInsensitive));
-        return new MatchPredicateParser<char, HashSet<char>>(collection, static (c, s) => s.Contains(c));
-    }
+        => string.IsNullOrEmpty(possibilities)
+            ? Fail("No possibilities provided so nothing can match")
+            : new MatchPredicateParser<char, HashSet<char>>(
+                new HashSet<char>(possibilities, CharComparer.Get(!caseInsensitive)),
+                static (c, s) => s.Contains(c)
+            );
 
     /// <summary>
     /// Test whether a char is not one of a set of given possibilities.

@@ -63,12 +63,11 @@ public readonly struct SequentialState<TInput>
     /// <returns></returns>
     /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Exits the Sequential if the parse fails.</exception>
     public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
-    {
-        var result = p.Parse(_state);
-        if (!result.Success)
-            throw new Internal.Parsers.Sequential.ParseFailedException(result.AsObject(), errorMessage);
-        return result.Value;
-    }
+        => p.Parse(_state) switch
+        {
+            { Success: true } successful => successful.Value,
+            var failure => throw new Sequential.ParseFailedException(failure.AsObject(), errorMessage)
+        };
 
     /// <summary>
     /// Attempt to invoke the parser. Return a result indicating success or failure.
@@ -91,12 +90,11 @@ public readonly struct SequentialState<TInput>
     /// Invoke the parser to match. Fails the entire Sequential if the match fails.
     /// </summary>
     /// <param name="p"></param>
-    /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    /// <exception cref="Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
     public void Expect(IParser<TInput> p)
     {
-        var ok = p.Match(_state);
-        if (!ok)
-            throw new Internal.Parsers.Sequential.ParseFailedException("Expect failed");
+        if (!p.Match(_state))
+            throw new Sequential.ParseFailedException("Expect failed");
     }
 
     public void Expect(TInput c)
@@ -124,19 +122,16 @@ public readonly struct SequentialState<TInput>
     /// Unconditional failure. Exit the Sequential.
     /// </summary>
     /// <param name="error"></param>
-    /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
+    /// <exception cref="Sequential.ParseFailedException">Immediately exits the Sequential.</exception>
     [DoesNotReturn]
-    public void Fail(string error = "Fail") => throw new Internal.Parsers.Sequential.ParseFailedException(error);
+    public void Fail(string error = "Fail") => throw new Sequential.ParseFailedException(error);
 
     /// <summary>
     /// Get an array of all inputs consumed by the Sequential so far.
     /// </summary>
     /// <returns></returns>
     public TInput[] GetCapturedInputs()
-    {
-        var currentCp = _state.Input.Checkpoint();
-        return _state.Input.GetArrayBetween(_startCheckpoint, currentCp);
-    }
+        => _state.Input.GetArrayBetween(_startCheckpoint, _state.Input.Checkpoint());
 
     public SequenceCheckpoint Checkpoint()
         => _state.Input.Checkpoint();

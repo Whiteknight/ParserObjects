@@ -27,7 +27,8 @@ public static partial class Parsers<TInput>
             parser,
             static (c, d) => d.setup?.Invoke(c),
             static (c, d) => d.cleanup?.Invoke(c),
-            (setup, cleanup));
+            (setup, cleanup)
+        );
 
     /// <summary>
     /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
@@ -45,7 +46,8 @@ public static partial class Parsers<TInput>
         parser,
         static (c, d) => d.setup?.Invoke(c),
         static (c, d) => d.cleanup?.Invoke(c),
-        (setup, cleanup));
+        (setup, cleanup)
+    );
 
     /// <summary>
     /// Invoke a callback to examine and/or adjust the parse state before and after invoking the
@@ -66,7 +68,8 @@ public static partial class Parsers<TInput>
             parser,
             static (c, d) => d.setup?.Invoke(c),
             static (c, d) => d.cleanup?.Invoke(c),
-            (setup, cleanup));
+            (setup, cleanup)
+        );
 
     /// <summary>
     /// Create a new parser using information from the current parse context. This parser is
@@ -134,7 +137,7 @@ public static partial class Parsers<TInput>
     /// <param name="inner"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> DataContext<TOutput>(IParser<TInput, TOutput> inner)
-         => Internal.Parsers.Context<TInput>.Create(
+        => Internal.Parsers.Context<TInput>.Create(
             inner,
             static (c, _) => c.State.Data.PushDataFrame(),
             static (c, _) => c.State.Data.PopDataFrame(),
