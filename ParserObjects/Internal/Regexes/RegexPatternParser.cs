@@ -31,7 +31,7 @@ public static class RegexPatternGrammar
     public static IParser<char, Regex> CreateParser()
     {
         // Literal match of any non-slash and non-control character
-        var regex = Pratt<List<IState>>(config => config
+        var regex = Pratt<StateList>(config => config
 
             // Alternation
             .Add(MatchChar('|'), static p => p
@@ -40,20 +40,20 @@ public static class RegexPatternGrammar
 
             // Atoms. NUD atoms create a new List<State>. LED atoms append to the existing List<State>
             .Add(_normalChar, static p => p
-                .Bind(_bpAtom, static (_, c) => State.AddMatch(null, c.Value))
-                .BindLeft(_bpAtom, static (_, states, c) => State.AddMatch(states.Value, c.Value))
+                .Bind(_bpAtom, static (_, c) => StateList.Create().AddMatch(c.Value))
+                .BindLeft(_bpAtom, static (_, states, c) => states.Value.AddMatch(c.Value))
             )
             .Add(MatchChar('['), static p => p
-                .Bind(_bpAtom, static (ctx, _) => ParseCharacterClass(ctx, null))
+                .Bind(_bpAtom, static (ctx, _) => ParseCharacterClass(ctx, StateList.Create()))
                 .BindLeft(_bpAtom, static (ctx, states, _) => ParseCharacterClass(ctx, states.Value))
             )
             .Add(MatchChar('.'), static p => p
-                .Bind(_bpAtom, static (_, _) => State.AddMatch(null, static c => c != '\0', "Any"))
-                .BindLeft(_bpAtom, static (_, states, _) => State.AddMatch(states.Value, static c => c != '\0', "Any"))
+                .Bind(_bpAtom, static (_, _) => StateList.Create().AddMatch(static c => c != '\0', "Any"))
+                .BindLeft(_bpAtom, static (_, states, _) => states.Value.AddMatch(static c => c != '\0', "Any"))
             )
             .Add(MatchChar('\\'), static p => p
-                .Bind(_bpAtom, static (ctx, _) => State.AddSpecialMatch(null, ctx.Parse(Any())))
-                .BindLeft(_bpAtom, (ctx, states, _) => State.AddSpecialMatch(states.Value, ctx.Parse(Any())))
+                .Bind(_bpAtom, static (ctx, _) => StateList.Create().AddSpecialMatch(ctx.Parse(Any())))
+                .BindLeft(_bpAtom, (ctx, states, _) => states.Value.AddSpecialMatch(ctx.Parse(Any())))
             )
 
             // non-capturing group
@@ -62,13 +62,13 @@ public static class RegexPatternGrammar
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddNonCapturingCloisterState(null, group);
+                    return StateList.Create().AddNonCapturingCloisterState(group);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddNonCapturingCloisterState(states.Value, group);
+                    return states.Value.AddNonCapturingCloisterState(group);
                 })
             )
             // zero-length positive lookahead
@@ -77,13 +77,13 @@ public static class RegexPatternGrammar
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddLookaheadState(null, true, group);
+                    return StateList.Create().AddLookaheadState(true, group);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddLookaheadState(states.Value, true, group);
+                    return states.Value.AddLookaheadState(true, group);
                 })
             )
             // zero-length negative lookahead
@@ -92,13 +92,13 @@ public static class RegexPatternGrammar
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddLookaheadState(null, false, group);
+                    return StateList.Create().AddLookaheadState(false, group);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddLookaheadState(states.Value, false, group);
+                    return states.Value.AddLookaheadState(false, group);
                 })
             )
             // Recurse into IParser
@@ -109,7 +109,7 @@ public static class RegexPatternGrammar
                     ctx.Expect(MatchChar('}'));
                     ctx.Expect(MatchChar(')'));
                     var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
-                    return State.AddParserRecurse(null, parser);
+                    return StateList.Create().AddParserRecurse(parser);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
@@ -117,7 +117,7 @@ public static class RegexPatternGrammar
                     ctx.Expect(MatchChar('}'));
                     ctx.Expect(MatchChar(')'));
                     var parser = ctx.Data.Get<IParser<char>>(name).GetValueOrDefault(Empty());
-                    return State.AddParserRecurse(states.Value, parser);
+                    return states.Value.AddParserRecurse(parser);
                 })
             )
             // normal parens, capturing group
@@ -126,13 +126,13 @@ public static class RegexPatternGrammar
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddCapturingGroupState(null, group);
+                    return StateList.Create().AddCapturingGroupState(group);
                 })
                 .BindLeft(_bpAtom, static (ctx, states, _) =>
                 {
                     var group = ctx.Parse(_bpAll);
                     ctx.Expect(MatchChar(')'));
-                    return State.AddCapturingGroupState(states.Value, group);
+                    return states.Value.AddCapturingGroupState(group);
                 })
             )
 
@@ -141,31 +141,27 @@ public static class RegexPatternGrammar
                 .BindLeft(_bpQuant, static (ctx, states, _) => ParseRepetitionRange(ctx, states.Value, UnsignedInteger()))
             )
             .Add(MatchChar('?'), static p => p
-                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrOne))
+                .BindLeft(_bpQuant, static (_, states, _) => states.Value.SetPreviousQuantifier(Quantifier.ZeroOrOne))
             )
             .Add(MatchChar('+'), static p => p
-                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousStateRange(states.Value, 1, int.MaxValue))
+                .BindLeft(_bpQuant, static (_, states, _) => states.Value.SetPreviousStateRange(1, int.MaxValue))
             )
             .Add(MatchChar('*'), static p => p
-                .BindLeft(_bpQuant, static (_, states, _) => State.SetPreviousQuantifier(states.Value, Quantifier.ZeroOrMore))
+                .BindLeft(_bpQuant, static (_, states, _) => states.Value.SetPreviousQuantifier(Quantifier.ZeroOrMore))
             )
 
             // End Anchor
             .Add(MatchChar('$'), static p => p
-                .Bind(_bpAnchor, static (_, _) => new List<IState> { State.EndAnchor })
-                .BindLeft(_bpAnchor, static (_, states, _) =>
-                {
-                    states.Value.Add(State.EndAnchor);
-                    return states.Value;
-                })
+                .Bind(_bpAnchor, static (_, _) => StateList.Create().AddEndAnchor())
+                .BindLeft(_bpAnchor, static (_, states, _) => states.Value.AddEndAnchor())
             )
         );
 
         return (regex, End()).Rule(static (r, _) => r)
-            .Transform(static r => new Regex(r));
+            .Transform(static r => new Regex(r.States));
     }
 
-    private static char GetUnescapedCharacter(PrattParseContext<char, List<IState>> ctx, char c)
+    private static char GetUnescapedCharacter(PrattParseContext<char, StateList> ctx, char c)
     {
         if (c != '\\')
             return c;
@@ -176,9 +172,9 @@ public static class RegexPatternGrammar
         return ctx.Input.GetNext();
     }
 
-    private static List<IState> ParseCharacterClass(PrattParseContext<char, List<IState>> ctx, List<IState>? states)
+    private static StateList ParseCharacterClass(PrattParseContext<char, StateList> ctx, StateList states)
     {
-        var invertResult = ctx.TryParse(MatchChar('^'));
+        var invertResult = ctx.TryParse(MatchChar('^')).Success;
         var ranges = new List<(char low, char high)>();
 
         while (true)
@@ -199,10 +195,10 @@ public static class RegexPatternGrammar
         if (ranges.Count == 0)
             throw new RegexException("Empty character class");
 
-        return State.AddMatch(states, invertResult.Success, ranges);
+        return states.AddMatch(invertResult, ranges);
     }
 
-    private static (char low, char high) ParseCharacterRange(PrattParseContext<char, List<IState>> ctx, char c)
+    private static (char low, char high) ParseCharacterRange(PrattParseContext<char, StateList> ctx, char c)
     {
         var low = c;
         var next = ctx.Input.Peek();
@@ -221,10 +217,9 @@ public static class RegexPatternGrammar
             : (low, high);
     }
 
-    private static List<IState> ParseRepetitionRange(PrattParseContext<char, List<IState>> ctx, List<IState> states, IParser<char, uint> digits)
+    private static StateList ParseRepetitionRange(PrattParseContext<char, StateList> ctx, StateList states, IParser<char, uint> digits)
     {
-        if (states[^1] is EndAnchorState)
-            throw new RegexException("Cannot quantify the end anchor $");
+        states.VerifyPreviousStateIsNotEndAnchor();
 
         uint min = 0;
         var first = ctx.TryParse(digits);
@@ -238,31 +233,31 @@ public static class RegexPatternGrammar
             if (!first.Success)
                 throw new RegexException("Invalid range specifier. Must be one of {X} {X,} {,Y} or {X,Y}");
             ctx.Expect(MatchChar('}'));
-            return State.SetPreviousStateRange(states, min, min);
+            return states.SetPreviousStateRange(min, min);
         }
 
         // At this point we might have X, X,Y or ,Y
         // In any case, min is filled in now with either a value or 0
         var second = ctx.TryParse(digits);
         ctx.Expect(MatchChar('}'));
-        return State.SetPreviousStateRange(states, min, second.Success ? second.Value : int.MaxValue);
+        return states.SetPreviousStateRange(min, second.Success ? second.Value : int.MaxValue);
     }
 
-    private static List<IState> ParseAlternation(PrattParseContext<char, List<IState>> ctx, List<IState> states)
+    private static StateList ParseAlternation(PrattParseContext<char, StateList> ctx, StateList states)
     {
-        var options = new List<List<IState>>() { states };
+        var options = new List<List<IState>>() { states.States! };
         do
         {
             var option = ctx.TryParse(_bpAlt);
             if (!option.Success || option.Value.Count == 0)
                 break;
 
-            options.Add(option.Value);
+            options.Add(option.Value.States);
         }
         while (ctx.Match(MatchChar('|')));
 
-        return options.Count == 1
-            ? states
-            : new List<IState> { new AlternationState("alternation", options) };
+        return new StateList(options.Count == 1
+            ? states.States!
+            : new List<IState> { new AlternationState("alternation", options) });
     }
 }
