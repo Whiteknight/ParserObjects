@@ -180,6 +180,14 @@ public static partial class Parsers
         => new MatchStringPatternParser(pattern, comparer ?? CharComparer.CaseSensitive);
 
     /// <summary>
+    /// Match characters which satisfy the predicate and return all of them as a string.
+    /// </summary>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
+    public static IParser<char, string> MatchChars(Func<char, bool> predicate)
+        => CaptureString(Match(predicate).List());
+
+    /// <summary>
     /// Matches a series of consecutive letter characters.
     /// </summary>
     /// <returns></returns>

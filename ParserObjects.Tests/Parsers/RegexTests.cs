@@ -462,9 +462,9 @@ public class RegexTests
         matches[2][0].Should().Be(group2);
     }
 
-    [TestCase("a(?p\"b\")*c", "abbbbbc", "abbbbbc")]
-    [TestCase("a(?p\"b\")?c", "ac", "ac")]
-    [TestCase("a((?p\"b\"))c\\1", "abcb", "abcb")]
+    [TestCase("a(?{b})*c", "abbbbbc", "abbbbbc")]
+    [TestCase("a(?{b})?c", "ac", "ac")]
+    [TestCase("a((?{b}))c\\1", "abcb", "abcb")]
     public void ParserRecurse(string pattern, string input, string expected)
     {
         var a = MatchChar('a').Named("a");
