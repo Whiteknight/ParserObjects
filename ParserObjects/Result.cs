@@ -84,6 +84,11 @@ public readonly record struct Result<TValue>(
         => Success
             ? $"{Parser} Ok"
             : $"{Parser} FAIL: {ErrorMessage}";
+
+    public void Deconstruct(out bool success, out TValue? value, out string? errorMessage)
+    {
+        (success, value, errorMessage) = (Success, InternalValue, InternalError);
+    }
 }
 
 /// <summary>

@@ -30,8 +30,8 @@ public readonly struct InsertableTrie<TKey, TResult>
     /// <returns></returns>
     public static InsertableTrie<TKey, TResult> Create(IEqualityComparer<TKey>? comparer = null)
         => comparer == null
-        ? new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), new List<IReadOnlyList<TKey>>())
-        : new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(comparer), new List<IReadOnlyList<TKey>>());
+        ? new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(), [])
+        : new InsertableTrie<TKey, TResult>(new RootNode<TKey, TResult>(comparer), []);
 
     /// <summary>
     /// Create and initialize a new trie instance from a user callback.
@@ -75,11 +75,8 @@ public readonly struct InsertableTrie<TKey, TResult>
     }
 }
 
-public class TrieInsertException : Exception
+public class TrieInsertException(string message) : Exception(message)
 {
-    public TrieInsertException(string message) : base(message)
-    {
-    }
 }
 
 public static class TrieExtensions

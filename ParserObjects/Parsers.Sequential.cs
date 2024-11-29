@@ -65,8 +65,8 @@ public readonly struct SequentialState<TInput>
     public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
         => p.Parse(_state) switch
         {
-            { Success: true } successful => successful.Value,
-            var failure => throw new Sequential.ParseFailedException(failure.AsObject(), errorMessage)
+            (true, var value, _) => value!,
+            var failure => throw new Sequential.ParseFailedException(failure.AsObject(), failure.ErrorMessage)
         };
 
     /// <summary>
