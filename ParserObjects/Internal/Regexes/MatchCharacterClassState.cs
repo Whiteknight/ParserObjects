@@ -81,10 +81,7 @@ public sealed class MatchCharacterClassState : IState
     private static void SetCharBit(byte[] chars, char c)
     {
         var intVal = c - ' ';
-        var index = intVal / 8;
-        var position = intVal % 8;
-        var flag = (byte)(1 << position);
-        chars[index] |= flag;
+        chars[intVal / 8] |= (byte)(1 << intVal % 8);
     }
 
     private bool IsMatchBasic(char c)
@@ -92,10 +89,7 @@ public sealed class MatchCharacterClassState : IState
         if (c >= ' ' && c <= '~')
         {
             var intVal = c - ' ';
-            var index = intVal / 8;
-            var position = intVal % 8;
-            var flag = (byte)(1 << position);
-            return (_exactChars[index] & flag) > 0;
+            return (_exactChars[intVal / 8] & (byte)(1 << intVal % 8)) > 0;
         }
 
         if (_ranges == null)

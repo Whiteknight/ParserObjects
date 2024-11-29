@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
@@ -18,52 +18,53 @@ public static class State
         => quantifier == Quantifier.Range
         ? $"0-{maximum}"
         : quantifier.ToString();
+}
 
-    public static List<IState> AddMatch(List<IState>? states, Func<char, bool> predicate, string description)
+public readonly record struct StateList(List<IState> States)
+{
+    public static StateList Create() => new StateList(new List<IState>());
+
+    public int Count => States.Count;
+
+    public StateList AddMatch(Func<char, bool> predicate, string description)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-
-        states.Add(CreateMatchState(predicate, description));
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(CreateMatchState(predicate, description));
     }
 
-    public static List<IState> AddMatch(List<IState>? states, char c)
+    public StateList AddMatch(char c)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-
-        states.Add(new MatchCharacterState(c));
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(new MatchCharacterState(c));
     }
 
-    public static List<IState> AddMatch(List<IState>? states, bool invert, IReadOnlyList<(char, char)> ranges)
+    public StateList AddMatch(bool invert, IReadOnlyList<(char, char)> ranges)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-
-        states.Add(new MatchCharacterClassState("character class", invert, ranges));
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(new MatchCharacterClassState("character class", invert, ranges));
     }
 
-    public static List<IState> AddParserRecurse(List<IState>? states, IParser<char> parser)
+    public StateList AddEndAnchor()
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-
-        states.Add(new ParserState(parser));
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(State.EndAnchor);
     }
 
-    public static List<IState> SetPreviousStateRange(List<IState> states, uint min, uint max)
+    public StateList AddParserRecurse(IParser<char> parser)
+    {
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(new ParserState(parser));
+    }
+
+    public StateList SetPreviousStateRange(uint min, uint max)
     {
         if (min > max)
             throw new RegexException($"Invalid range. Minimum {min} must be smaller or equal to maximum {max}");
         if (max == 0)
             throw new RegexException("Invalid range. Maximum must be 1 or more");
 
-        var previousState = states.LastOrDefault();
-        Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
+        Debug.Assert(States.Count >= 1, "Parser should not allow us to quantify without an atom");
+        var previousState = States[^1];
         if (previousState.Quantifier != Quantifier.ExactlyOne)
             throw new RegexException("Range quantifier may only follow an unquantified atom");
         if (previousState is EndAnchorState || previousState is FenceState)
@@ -74,10 +75,8 @@ public static class State
         // list.
         if (min == max)
         {
-            for (int i = 0; i < min - 1; i++)
-                states.Add(previousState.Clone());
-            states.Add(Fence);
-            return states;
+            AddClones(previousState, min - 1);
+            return Add(State.Fence);
         }
 
         if (min >= 1)
@@ -85,46 +84,40 @@ public static class State
             // Copy this state Minimum times, since we must have them all. We already have one
             // on the list, so we will have minimum+1 copies, and the last one we will apply
             // a range onto
-            for (int i = 0; i < min; i++)
-                states.Add(previousState.Clone());
-            previousState = states[^1];
+            previousState = AddClones(previousState, min);
         }
 
         if (max == int.MaxValue)
         {
             previousState.Quantifier = Quantifier.ZeroOrMore;
-            states.Add(Fence);
-            return states;
+            return Add(State.Fence);
         }
 
         previousState.Quantifier = Quantifier.Range;
         previousState.Maximum = (int)(max - min);
-        states.Add(Fence);
-        return states;
+        return Add(State.Fence);
     }
 
-    public static List<IState> SetPreviousQuantifier(List<IState> states, Quantifier quantifier)
+    public StateList SetPreviousQuantifier(Quantifier quantifier)
     {
         Debug.Assert(quantifier != Quantifier.Range, "Range quantifier cannot be set with this method");
 
-        var previousState = VerifyPreviousStateIsNotEndAnchor(states);
+        var previousState = VerifyPreviousStateIsNotEndAnchor();
         Debug.Assert(previousState != null, "Parser should not allow us to not have a previous state here");
         if (previousState.Quantifier != Quantifier.ExactlyOne || previousState is EndAnchorState || previousState is FenceState)
             throw new RegexException("Quantifier may only follow an unquantified atom");
 
         previousState.Quantifier = quantifier;
-        states.Add(Fence);
-        return states;
+        return Add(State.Fence);
     }
 
-    public static List<IState> AddSpecialMatch(List<IState>? states, char type)
+    public StateList AddSpecialMatch(char type)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
+        VerifyPreviousStateIsNotEndAnchor();
 
         // If it's one of the special char classes (\d \D \w \W \s \S) do that match. Otherwise
         // it's an escaped char and return a normal match.
-        IState matchState = type switch
+        return Add(type switch
         {
             'd' => CreateMatchState(c => char.IsDigit(c), "digit"),
             'D' => CreateMatchState(c => !char.IsDigit(c), "not digit"),
@@ -134,57 +127,56 @@ public static class State
             'S' => CreateMatchState(c => !char.IsWhiteSpace(c), "not whitespace"),
             >= '0' and <= '9' => new MatchBackreferenceState(type - '0'),
             _ => new MatchCharacterState(type)
-        };
-        states.Add(matchState);
-        return states;
+        });
     }
 
-    public static List<IState> AddCapturingGroupState(List<IState>? states, List<IState> group)
+    public StateList AddCapturingGroupState(StateList group)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-
-        int groupNumber = states.Count + 1;
-        var groupState = new CapturingGroupState(groupNumber, group);
-        states.Add(groupState);
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(new CapturingGroupState(States.Count + 1, group.States));
     }
 
-    public static List<IState> AddNonCapturingCloisterState(List<IState>? states, List<IState> group)
+    public StateList AddNonCapturingCloisterState(StateList group)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
+        VerifyPreviousStateIsNotEndAnchor();
 
         // Minor optimization. Since we're not capturing, a cloister of 1 is the same as the inner
         // state with no cloister. /(a)/ is the same as /a/.
-        if (group.Count == 1)
-        {
-            states.Add(group[0]);
-            return states;
-        }
-
-        var groupState = new NonCapturingCloisterState(group);
-        states.Add(groupState);
-        return states;
+        return Add(group.Count == 1
+            ? group.States[0]
+            : new NonCapturingCloisterState(group.States));
     }
 
-    public static List<IState> AddLookaheadState(List<IState>? states, bool positive, List<IState> group)
+    public StateList AddLookaheadState(bool positive, StateList group)
     {
-        states ??= new List<IState>();
-        VerifyPreviousStateIsNotEndAnchor(states);
-        var groupState = new ZeroWidthLookaheadState(positive, group);
-        states.Add(groupState);
-        return states;
+        VerifyPreviousStateIsNotEndAnchor();
+        return Add(new ZeroWidthLookaheadState(positive, group.States));
+    }
+
+    public IState? VerifyPreviousStateIsNotEndAnchor()
+    {
+        if (States.Count == 0)
+            return null;
+        var lastState = States[^1];
+        if (lastState is EndAnchorState)
+            throw new RegexException("Cannot add more states, or quantifiers, to end anchor$");
+        return lastState;
+    }
+
+    private IState AddClones(IState previousState, uint numberOfClones)
+    {
+        for (int i = 0; i < numberOfClones; i++)
+            States.Add(previousState.Clone());
+        return States[^1];
     }
 
     private static MatchPredicateState CreateMatchState(Func<char, bool> predicate, string description)
          => new MatchPredicateState(description, predicate);
 
-    private static IState? VerifyPreviousStateIsNotEndAnchor(List<IState> states)
-        => states.LastOrDefault() switch
-        {
-            EndAnchorState => throw new RegexException("Cannot add more states, or quantifiers, to end anchor$"),
-            IState previousState => previousState,
-            _ => null
-        };
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private StateList Add(IState state)
+    {
+        States.Add(state);
+        return this;
+    }
 }
