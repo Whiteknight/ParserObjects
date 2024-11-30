@@ -666,7 +666,21 @@ public class EarleyTests
                 .Rule(Match('A'), (_) => throw new System.Exception("FAIL"));
         });
 
-        var result = target.Parse("");
+        var result = target.Parse("A");
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
+    public void Production_ReturnsNull()
+    {
+        var target = Earley<object>(symbols =>
+        {
+            return symbols.New<object>("E")
+                .Rule(Match('A'), (_) => null);
+        });
+
+        var result = target.Parse("A");
+        result.Success.Should().BeFalse();
     }
 
     [Test]
