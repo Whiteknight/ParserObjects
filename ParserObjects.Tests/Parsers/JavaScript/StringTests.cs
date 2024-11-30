@@ -2,63 +2,32 @@
 
 namespace ParserObjects.Tests.Parsers.JavaScript;
 
-public static class StringTests
+public class StringTests
 {
-    public class SingleQuotes
+    [TestCase("'abcd'")]
+    [TestCase("'\\f\\n\\r\\x0A'")]
+    [TestCase("\"abcd\"")]
+    [TestCase("\"\\f\\n\\r\\x0A\"")]
+    [TestCase("'\\u1234'")]
+    [TestCase("'\\u{1234}'")]
+    [TestCase("'\\n'")]
+    [TestCase("'\\''")]
+    [TestCase("\"\\n\"")]
+    [TestCase("\"\\\"\"")]
+    public void Success(string value)
     {
-        [Test]
-        public void Parse_Tests()
-        {
-            var parser = String();
-            var result = parser.Parse("'abcd'");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("'abcd'");
-        }
-
-        [Test]
-        public void Parse_Escapes()
-        {
-            var parser = String();
-            var result = parser.Parse("'\\f\\n\\r\\x0A'");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("'\\f\\n\\r\\x0A'");
-        }
-
-        [Test]
-        public void Parse_InvalidEscapes()
-        {
-            var parser = String();
-            var result = parser.Parse("'\\z'");
-            result.Success.Should().BeFalse();
-        }
+        var parser = String();
+        var result = parser.Parse(value);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(value);
     }
 
-    public class DoubleQuotes
+    [TestCase("'\\z'")]
+    [TestCase("\"\\z\"")]
+    public void Failure(string input)
     {
-        [Test]
-        public void Parse_Tests()
-        {
-            var parser = String();
-            var result = parser.Parse("\"abcd\"");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("\"abcd\"");
-        }
-
-        [Test]
-        public void Parse_Escapes()
-        {
-            var parser = String();
-            var result = parser.Parse("\"\\f\\n\\r\\x0A\"");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("\"\\f\\n\\r\\x0A\"");
-        }
-
-        [Test]
-        public void Parse_InvalidEscapes()
-        {
-            var parser = String();
-            var result = parser.Parse("\"\\z\"");
-            result.Success.Should().BeFalse();
-        }
+        var parser = String();
+        var result = parser.Parse(input);
+        result.Success.Should().BeFalse();
     }
 }
