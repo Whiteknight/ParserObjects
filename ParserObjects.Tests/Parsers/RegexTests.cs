@@ -281,9 +281,11 @@ public class RegexTests
     }
 
     [TestCase("[c-a]")]
-    [TestCase("[a-]")]
+    [TestCase("[\\")]
     [TestCase("[a")]
+    [TestCase("[a\\")]
     [TestCase("[a-")]
+    [TestCase("[a-\\")]
     [TestCase("[]")]
     public void CharacterClass_Throw(string pattern)
        => RegexTestThrow(pattern);
@@ -395,6 +397,7 @@ public class RegexTests
     [TestCase("a(?=b)", "ab", "a")]
     [TestCase("a(?=.)", "ac", "a")]
     [TestCase("a(?=.)b", "ab", "ab")]
+    [TestCase("(?=a)", "a", "")]
     public void PositiveLookahead(string pattern, string input, string expected)
         => RegexTest(pattern, input, expected);
 
@@ -412,6 +415,7 @@ public class RegexTests
 
     [TestCase("a(?!b)", "ac", "a")]
     [TestCase("a(?!.)", "a", "a")]
+    [TestCase("(?!b)", "a", "")]
     public void NegativeLookahead(string pattern, string input, string expected)
         => RegexTest(pattern, input, expected);
 
