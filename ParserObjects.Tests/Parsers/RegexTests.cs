@@ -480,6 +480,28 @@ public class RegexTests
         result.Value.Should().Be(expected);
     }
 
+    [TestCase("a(?{p})c", "abc", "abc")]
+    public void ParserRecurse_Data(string pattern, string input, string expected)
+    {
+        // Test to make sure the IParseState<char>.Data field works in an inner parser
+        var inner = DataContext(MatchChar('b')).Named("p");
+        var target = Regex(pattern, inner);
+        var result = target.Parse(input);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(expected);
+    }
+
+    [TestCase("a(?{p})(?{p})c", "abbc", "abbc")]
+    public void ParserRecurse_Cache(string pattern, string input, string expected)
+    {
+        // Test to make sure the IParseState<char>.Cache field works in an inner parser
+        var inner = Deferred(() => MatchChar('b')).Named("p");
+        var target = Regex(pattern, inner);
+        var result = target.Parse(input);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(expected);
+    }
+
     [Test]
     public void Match_Test()
     {

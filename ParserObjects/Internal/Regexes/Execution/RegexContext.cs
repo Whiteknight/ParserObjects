@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal.Regexes.Patterns;
 using ParserObjects.Internal.Regexes.States;
 
@@ -52,12 +54,7 @@ public sealed class RegexContext : IParseState<char>
     // The previous state matched successfully, so advance to the next state
     public void MoveToNextState()
     {
-        if (_queue.Count == 0)
-        {
-            CurrentState = State.EndSentinel;
-            return;
-        }
-
+        Debug.Assert(_queue.Count != 0, "The queue should not be empty here");
         CurrentState = _queue.Pop();
     }
 
@@ -106,5 +103,6 @@ public sealed class RegexContext : IParseState<char>
         _backtrackStack.Push(backtrackState);
     }
 
+    [ExcludeFromCodeCoverage]
     public void Log(IParser parser, string message) => throw new NotImplementedException();
 }
