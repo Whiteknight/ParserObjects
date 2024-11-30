@@ -2,63 +2,32 @@
 
 namespace ParserObjects.Tests.Parsers.JavaScript;
 
-public static class StrippedStringTests
+public class StrippedStringTests
 {
-    public class SingleQuotes
+    [TestCase("'abcd'", "abcd")]
+    [TestCase("'\\f\\n\\r\\x0A'", "\f\n\r\x0A")]
+    [TestCase("\"abcd\"", "abcd")]
+    [TestCase("\"\\f\\n\\r\\x0A\"", "\f\n\r\x0A")]
+    [TestCase("'\\u1234'", "\u1234")]
+    [TestCase("'\\u{1234}'", "\u1234")]
+    [TestCase("'\\n'", "\n")]
+    [TestCase("'\\''", "'")]
+    [TestCase("\"\\n\"", "\n")]
+    [TestCase("\"\\\"\"", "\"")]
+    public void Success(string value, string expected)
     {
-        [Test]
-        public void Parse_Tests()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("'abcd'");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("abcd");
-        }
-
-        [Test]
-        public void Parse_Escapes()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("'a\\fb\\nc\\rd\\x0A'");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("a\fb\nc\rd\x0A");
-        }
-
-        [Test]
-        public void Parse_InvalidEscapes()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("'\\z'");
-            result.Success.Should().BeFalse();
-        }
+        var parser = StrippedString();
+        var result = parser.Parse(value);
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(expected);
     }
 
-    public class DoubleQuotes
+    [TestCase("'\\z'")]
+    [TestCase("\"\\z\"")]
+    public void Failure(string input)
     {
-        [Test]
-        public void Parse_Tests()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("\"abcd\"");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("abcd");
-        }
-
-        [Test]
-        public void Parse_Escapes()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("\"\\f\\n\\r\\x0A\"");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("\f\n\r\x0A");
-        }
-
-        [Test]
-        public void Parse_InvalidEscapes()
-        {
-            var parser = StrippedString();
-            var result = parser.Parse("\"\\z\"");
-            result.Success.Should().BeFalse();
-        }
+        var parser = StrippedString();
+        var result = parser.Parse(input);
+        result.Success.Should().BeFalse();
     }
 }
