@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Pratt;
 
@@ -90,10 +89,11 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     {
         Assert.ArgumentNotNull(parser);
         EnsureIsNotComplete();
-        var result = parser.Parse(_state);
-        return result.Success
-            ? result.Value
-            : throw new ParseException(ParseExceptionSeverity.Rule, result.ErrorMessage, parser, _state.Input.CurrentLocation);
+        return parser.Parse(_state) switch
+        {
+            (true, var value, _) => value!,
+            (false, _, var error) => throw new ParseException(ParseExceptionSeverity.Rule, error!, parser, _state.Input.CurrentLocation)
+        };
     }
 
     Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)

@@ -14,7 +14,7 @@ public abstract class SimpleParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public string Name { get; }
 
-    public virtual IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public virtual IEnumerable<IParser> GetChildren() => [];
 
     public virtual bool Match(IParseState<TInput> state) => Parse(state).Success;
 
@@ -36,7 +36,7 @@ public abstract record SimpleRecordParser<TInput, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public virtual IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public virtual IEnumerable<IParser> GetChildren() => [];
 
     public virtual bool Match(IParseState<TInput> state) => Parse(state).Success;
 
@@ -56,7 +56,7 @@ public abstract record SimpleRecordParser<TInput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public virtual IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public virtual IEnumerable<IParser> GetChildren() => [];
 
     public virtual bool Match(IParseState<TInput> state) => Parse(state).Success;
 
