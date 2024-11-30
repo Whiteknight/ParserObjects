@@ -455,7 +455,7 @@ public class FromStringTests
         target.GetNext().Should().Be('c');
         var cp2 = target.Checkpoint();
 
-        var result = target.GetBetween(cp1, cp2, (object?)null, (d, _) => new string(d));
+        var result = target.GetBetween(cp1, cp2, (object)null, (d, _) => new string(d));
         result.Should().Be("bc");
     }
 

@@ -1,4 +1,5 @@
-﻿using ParserObjects.Internal.Visitors;
+﻿using System.Collections.Generic;
+using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -21,6 +22,8 @@ public static class Objects<TInput>
         }
 
         public override Result<object> Parse(IParseState<TInput> state) => _inner.Parse(state);
+
+        public override IEnumerable<IParser> GetChildren() => [_inner];
 
         public override INamed SetName(string name) => new Parser(_inner, name);
 
