@@ -39,11 +39,10 @@ public static class UserDelegate
             _function = function;
             _options = options;
             _options.Validate();
-            _buffers = new Buffer<T>[2]
-            {
+            _buffers = [
                 new Buffer<T>(_options.BufferSize, 0),
                 new Buffer<T>(_options.BufferSize, -1)
-            };
+            ];
             _stats = default;
             _bufferPtr = 0;
             _index = 0;
@@ -57,10 +56,10 @@ public static class UserDelegate
 
         public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
-        public int Index => _index;
-        public int EndIndex => _endIndex;
+        public readonly int Index => _index;
+        public readonly int EndIndex => _endIndex;
 
-        public bool IsAtEnd => _endIndex >= 0 && _index >= _endIndex;
+        public readonly bool IsAtEnd => _endIndex >= 0 && _index >= _endIndex;
 
         public SequenceStateTypes Flags { get; private set; }
 
