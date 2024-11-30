@@ -63,6 +63,21 @@ public class PrattTests
     }
 
     [Test]
+    public void Infix_Addition_TryParse()
+    {
+        var target = Pratt<int>(c => c
+            .Add(Integer())
+            .Add(Match('+'), p => p
+                .BindLeft(1, (ctx, l, op) => l.Value + ctx.TryParse().GetValueOrDefault(0))
+            )
+        );
+        var result = target.Parse("1+2");
+        result.Success.Should().BeTrue();
+        result.Consumed.Should().Be(3);
+        result.Value.Should().Be(3);
+    }
+
+    [Test]
     public void Infix_Addition_TokenDetails()
     {
         var target = Pratt<int>(c => c
@@ -589,6 +604,52 @@ public class PrattTests
         result.Success.Should().BeTrue();
         result.Value.Should().Be("ab");
         input.GetRemainder().Should().Be("cdefg");
+    }
+
+    [Test]
+    public void Parse_Consumed_Zero()
+    {
+        var target = Pratt<int>(c => c
+            .Add(MatchChar('a'), p => p
+                .Bind(1, (ctx, _) => ctx.Consumed)
+            )
+        );
+        var result = target.Parse("a");
+        result.Success.Should().BeTrue();
+        result.Consumed.Should().Be(1);
+        result.Value.Should().Be(0);
+    }
+
+    [Test]
+    public void Parse_Consumed_One()
+    {
+        var target = Pratt<int>(c => c
+            .Add(MatchChar('a'), p => p
+                .Bind(1, (ctx, _) =>
+                {
+                    ctx.Parse(MatchChar('b'));
+                    return ctx.Consumed;
+                })
+            )
+        );
+        var result = target.Parse("ab");
+        result.Success.Should().BeTrue();
+        result.Consumed.Should().Be(2);
+        result.Value.Should().Be(1);
+    }
+
+    [Test]
+    public void Parse_Name()
+    {
+        var target = Pratt<string>(c => c
+            .Add(MatchChar('a').Named("test"), p => p
+                .Bind(1, (ctx, _) => ctx.Name)
+            )
+        );
+        var result = target.Parse("a");
+        result.Success.Should().BeTrue();
+        result.Consumed.Should().Be(1);
+        result.Value.Should().Be("test");
     }
 
     [Test]
