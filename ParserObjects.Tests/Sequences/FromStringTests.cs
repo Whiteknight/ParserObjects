@@ -424,4 +424,57 @@ public class FromStringTests
         next.Should().Be('\n');
         target.Consumed.Should().Be(1);
     }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void GetStatistics(bool normalize)
+    {
+        var target = FromString("abc", new SequenceOptions<char>
+        {
+            MaintainLineEndings = !normalize
+        });
+        // Every get attempt past the end of the string will return '\0'
+        target.GetNext().Should().Be('a');
+        target.GetNext().Should().Be('b');
+        var stats = target.GetStatistics();
+        stats.ItemsRead.Should().Be(2);
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void GetBetween(bool normalize)
+    {
+        var target = FromString("abcd", new SequenceOptions<char>
+        {
+            MaintainLineEndings = !normalize
+        });
+        // Every get attempt past the end of the string will return '\0'
+        target.GetNext().Should().Be('a');
+        var cp1 = target.Checkpoint();
+        target.GetNext().Should().Be('b');
+        target.GetNext().Should().Be('c');
+        var cp2 = target.Checkpoint();
+
+        var result = target.GetBetween(cp1, cp2, (object?)null, (d, _) => new string(d));
+        result.Should().Be("bc");
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void GetStringBetween(bool normalize)
+    {
+        var target = FromString("abcd", new SequenceOptions<char>
+        {
+            MaintainLineEndings = !normalize
+        });
+        // Every get attempt past the end of the string will return '\0'
+        target.GetNext().Should().Be('a');
+        var cp1 = target.Checkpoint();
+        target.GetNext().Should().Be('b');
+        target.GetNext().Should().Be('c');
+        var cp2 = target.Checkpoint();
+
+        var result = target.GetStringBetween(cp1, cp2);
+        result.Should().Be("bc");
+    }
 }
