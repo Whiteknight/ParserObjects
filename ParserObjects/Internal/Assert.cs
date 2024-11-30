@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 #pragma warning disable RCS1256 // Invalid argument null check.
@@ -10,6 +11,7 @@ namespace ParserObjects.Internal;
 /// <summary>
 /// Helper methods for enforcing invariants.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class Assert
 {
     public static void ArgumentNotNull(object? value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
