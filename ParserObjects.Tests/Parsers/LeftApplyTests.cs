@@ -205,6 +205,47 @@ public class LeftApplyTests
     }
 
     [Test]
+    public void Parse_BadQuantifier()
+    {
+        var numberParser = Match(char.IsNumber);
+        var letterParser = Match(char.IsLetter);
+        var parser = LeftApply(
+            numberParser.Transform(c => c.ToString()),
+            left => Rule(
+                left,
+                letterParser,
+                numberParser,
+                (l, op, r) => $"({l}{op}{r})"
+            ),
+            (Quantifier)(-100)
+        );
+
+        var input = FromString("1a2b3c4");
+        var result = parser.Parse(input);
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_ZeroOrMore_More()
+    {
+        var numberParser = Match(char.IsNumber);
+        var letterParser = Match(char.IsLetter);
+        var parser = LeftApply(
+            numberParser.Transform(c => c.ToString()),
+            left => Rule(
+                left,
+                letterParser,
+                numberParser,
+                (l, op, r) => $"({l}{op}{r})"
+            )
+        );
+
+        var input = FromString("1a2b3c4");
+        var result = parser.Match(input);
+        result.Should().BeTrue();
+    }
+
+    [Test]
     public void GetChildren_Test()
     {
         var numberParser = Match(char.IsNumber).Transform(c => c.ToString());

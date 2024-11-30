@@ -104,6 +104,24 @@ public class SelectTests
     }
 
     [Test]
+    public void Checkpoint_Rewind()
+    {
+        var target = FromList(
+            new[] { 1, 2, 3 },
+            0
+        ).Select(x => x * 2);
+        target.GetNext().Should().Be(2);
+        var cp = target.Checkpoint();
+        target.GetNext().Should().Be(4);
+        target.GetNext().Should().Be(6);
+        target.GetNext().Should().Be(0);
+        target.Rewind(cp);
+        target.GetNext().Should().Be(4);
+        target.GetNext().Should().Be(6);
+        target.GetNext().Should().Be(0);
+    }
+
+    [Test]
     public void Checkpoint_IsAtEndRewind()
     {
         var target = FromList(
@@ -121,6 +139,29 @@ public class SelectTests
         target.GetNext().Should().Be(4);
         target.GetNext().Should().Be(6);
         target.GetNext().Should().Be(0);
+    }
+
+    [Test]
+    public void Owns_Test()
+    {
+        var target = FromList(
+            new[] { 1, 2, 3 },
+            0
+        ).Select(x => x * 2);
+        var cp = target.Checkpoint();
+        target.Owns(cp).Should().BeTrue();
+    }
+
+    [Test]
+    public void GetStatistics_Test()
+    {
+        var target = FromList(
+            new[] { 1, 2, 3 },
+            0
+        ).Select(x => x * 2);
+
+        var result = target.GetStatistics();
+        result.ItemsRead.Should().Be(0);
     }
 
     [Test]

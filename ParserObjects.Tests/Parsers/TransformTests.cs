@@ -115,6 +115,16 @@ public static class TransformTests
         }
 
         [Test]
+        public void Parse_Untyped()
+        {
+            IMultiParser<char> parser = Transform(
+                ProduceMulti(() => new[] { "1" }),
+                c => int.Parse(c.ToString())
+            );
+            parser.Parse("").Results[0].Value.Should().Be(1);
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var target = Transform(

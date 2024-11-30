@@ -653,6 +653,28 @@ public class PrattTests
     }
 
     [Test]
+    public void Parse_Untyped()
+    {
+        IParser<char> target = Pratt<string>(c => c
+            .Add(DigitString())
+        );
+        var result = target.Parse("1");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be("1");
+        result.Consumed.Should().Be(1);
+    }
+
+    [Test]
+    public void Match_Test()
+    {
+        var target = Pratt<string>(c => c
+            .Add(DigitString())
+        );
+        var result = target.Match("1");
+        result.Should().BeTrue();
+    }
+
+    [Test]
     public void GetChildren_Test()
     {
         var a = Any();
