@@ -28,6 +28,8 @@ public static class FromMethodTests
             target.Consumed.Should().Be(1);
             target.GetNext().Should().Be(2);
 
+            target.CurrentLocation.Column.Should().NotBe(0);
+
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(2);
             target.GetNext().Should().Be(3);
@@ -47,7 +49,7 @@ public static class FromMethodTests
         {
             var target = FromMethod(idx =>
             {
-                if (idx > 2)
+                if (idx >= 2)
                     return (0, true);
                 return (idx + 1, idx == 2);
             });
@@ -58,6 +60,19 @@ public static class FromMethodTests
 
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Peek_EndSentinel()
+        {
+            var target = FromMethod(idx =>
+            {
+                if (idx >= 0)
+                    return (0, true);
+                return (idx + 1, idx >= 0);
+            });
+
+            target.Peek().Should().Be(0);
         }
 
         [Test]
@@ -159,6 +174,38 @@ public static class FromMethodTests
             result.Length.Should().Be(2);
             result.Should().ContainInOrder(3, 4);
         }
+
+        [Test]
+        public void GetStatistics_Test()
+        {
+            var target = FromMethod(idx =>
+            {
+                if (idx > 2)
+                    return (0, true);
+                return (idx + 1, idx == 2);
+            });
+
+            var result = target.GetStatistics();
+            result.ItemsRead.Should().Be(0);
+        }
+
+        [Test]
+        public void Reset_Test()
+        {
+            var target = FromMethod(idx =>
+            {
+                if (idx > 2)
+                    return (0, true);
+                return (idx + 1, idx == 2);
+            });
+
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            target.Reset();
+            target.Consumed.Should().Be(0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+        }
     }
 
     public class Chars
@@ -248,6 +295,21 @@ public static class FromMethodTests
 
             target.IsAtEnd.Should().BeFalse();
             target.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void Peek_NormalizeLineEndings()
+        {
+            var target = FromMethod(idx =>
+            {
+                if (idx >= 4)
+                    return ('\0', true);
+                return ("\r\n\r\n"[idx], idx >= 4);
+            });
+
+            target.IsAtEnd.Should().BeFalse();
+            target.Consumed.Should().Be(0);
+            target.Peek().Should().Be('\n');
         }
 
         [Test]
@@ -554,6 +616,21 @@ public static class FromMethodTests
             target.GetNext().Should().Be('a');
             target.GetNext().Should().Be('b');
             target.GetNext().Should().Be('c');
+        }
+
+        [Test]
+        public void GetStatistics_Test()
+        {
+            var source = "abc";
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return ('\0', true);
+                return (source[idx], idx == source.Length - 1);
+            });
+
+            var result = target.GetStatistics();
+            result.ItemsRead.Should().Be(0);
         }
     }
 }
