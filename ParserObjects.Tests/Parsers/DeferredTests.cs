@@ -18,6 +18,14 @@ public class DeferredTests
     }
 
     [Test]
+    public void Parse_Untyped()
+    {
+        IParser<char> target = Deferred(() => Any());
+        var input = FromString("abc");
+        target.Parse(input).Value.Should().Be('a');
+    }
+
+    [Test]
     public void Match_Any()
     {
         var target = Deferred(() => Any());
@@ -54,6 +62,16 @@ public class DeferredTests
         result.Results.Should().Contain(r => r.Value == "a");
         result.Results.Should().Contain(r => r.Value == "b");
         result.Results.Should().Contain(r => r.Value == "c");
+    }
+
+    [Test]
+    public void Parse_MultiUntyped()
+    {
+        IMultiParser<char> target = Deferred(() => ProduceMulti(() => new[] { "a", "b", "c" }));
+        var result = target.Parse(FromString(""));
+        result.Success.Should().BeTrue();
+        result.Results.Count.Should().Be(3);
+        result.Results.Should().Contain(r => r.Value as string == "a");
     }
 
     [Test]
