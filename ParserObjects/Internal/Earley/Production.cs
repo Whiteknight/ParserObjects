@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
@@ -58,6 +59,7 @@ public sealed class Production<TData, TOutput> : IProduction<TOutput>
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public override string ToString()
         => $"{LeftHandSide.Name} := {string.Join(" ", Symbols.Select(s => s.Name))}";
 }
