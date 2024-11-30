@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
@@ -18,9 +19,33 @@ public static class CombineTests
             result.Success.Should().BeTrue();
             result.Value.Count.Should().Be(0);
         }
+
+        [Test]
+        public void Parse_null()
+        {
+            var parser = Combine((IParser<char>[])null);
+            var input = FromString("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_List()
+        {
+            var parser = Combine(
+                (IParser<char>)MatchChar('a'),
+                (IParser<char>)MatchChar('b'),
+                (IParser<char>)MatchChar('c')
+            );
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(3);
+        }
     }
 
-    public class MethodList
+    public class MethodListUntyped
     {
         [Test]
         public void Parse_Empty()
@@ -30,6 +55,69 @@ public static class CombineTests
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
             result.Value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_null()
+        {
+            var parser = Combine((List<IParser<char>>)null);
+            var input = FromString("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_List()
+        {
+            var parser = Combine(new List<IParser<char>>
+            {
+                MatchChar('a'),
+                MatchChar('b'),
+                MatchChar('c')
+            });
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(3);
+        }
+    }
+
+    public class MethodListTyped
+    {
+        [Test]
+        public void Parse_Empty()
+        {
+            var parser = Combine(new List<IParser<char, char>>());
+            var input = FromString("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_null()
+        {
+            var parser = Combine((List<IParser<char, char>>)null);
+            var input = FromString("abd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Parse_List()
+        {
+            var parser = Combine(new List<IParser<char, char>>
+            {
+                MatchChar('a'),
+                MatchChar('b'),
+                MatchChar('c')
+            });
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Value.Count.Should().Be(3);
         }
     }
 
