@@ -19,4 +19,12 @@ public static partial class MultiParserExtensions
                 Defaults.LogMethod
             )
         );
+
+    public static MultiResult<object> Parse(this IMultiParser<char> p, string s)
+        => p.Parse(
+            new ParseState<char>(
+                FromString(s, default),
+                Defaults.LogMethod
+            )
+        );
 }

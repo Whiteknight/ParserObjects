@@ -138,9 +138,9 @@ public static class TryParserTests
         [Test]
         public void ToBnf_Test()
         {
-            var target = Try(Any());
+            var target = Try(Any()).Named("target");
             var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := TRY .");
+            result.Should().Contain("target := TRY .");
         }
     }
 
@@ -149,7 +149,7 @@ public static class TryParserTests
         [Test]
         public void Parse_Test()
         {
-            var target = Try(Empty());
+            var target = Try((IParser<char>)Empty());
             var result = target.Parse("abc");
             result.Success.Should().BeTrue();
             result.Consumed.Should().Be(0);
@@ -160,7 +160,7 @@ public static class TryParserTests
         [Test]
         public void Parse_Fail()
         {
-            var target = Try(End());
+            var target = Try((IParser<char>)End());
             var result = target.Parse("abc");
             result.Success.Should().BeFalse();
             result.Consumed.Should().Be(0);
@@ -207,7 +207,7 @@ public static class TryParserTests
         [Test]
         public void Match_Test()
         {
-            var target = Try(Empty());
+            var target = Try((IParser<char>)Empty());
             var result = target.Match("abc");
             result.Should().BeTrue();
         }
@@ -215,7 +215,7 @@ public static class TryParserTests
         [Test]
         public void Match_Fail()
         {
-            var target = Try(End());
+            var target = Try((IParser<char>)End());
             var result = target.Match("abc");
             result.Should().BeFalse();
         }
@@ -255,9 +255,9 @@ public static class TryParserTests
         [Test]
         public void ToBnf_Test()
         {
-            var target = Try(End());
+            var target = Try((IParser<char>)End()).Named("target");
             var result = target.ToBnf();
-            result.Should().Contain("(TARGET) := TRY END");
+            result.Should().Contain("target := TRY END");
         }
     }
 
@@ -267,6 +267,17 @@ public static class TryParserTests
         public void Parse_Test()
         {
             var target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
+            var result = target.Parse("");
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be('a');
+            var ex = result.Data.OfType<Exception>();
+            ex.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_Untyped()
+        {
+            IMultiParser<char> target = Try(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Results[0].Value.Should().Be('a');
