@@ -281,8 +281,14 @@ public class RegexTests
     [TestCase("(a|b)*aba", "abbaabac", "abbaaba")]
     [TestCase("(a|b)+aba", "abbaabac", "abbaaba")]
     [TestCase("(a|b)*", "", "")]
+    [TestCase("(?:a|b){2,4}", "aba", "aba")]
     public void Alternation(string pattern, string input, string expectedMatch)
         => RegexTest(pattern, input, expectedMatch);
+
+    [TestCase("a|b", "")]
+    [TestCase("a|b", "c")]
+    public void Alternation_Fail(string pattern, string input)
+        => RegexTestFail(pattern, input);
 
     [TestCase("a{3}", "aaaaa", "aaa")]
     [TestCase("a{3,}", "aaaaa", "aaaaa")]
