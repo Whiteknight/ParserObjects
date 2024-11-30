@@ -11,16 +11,16 @@ public static class StrippedStringGrammar
         {
             var startQuote = s.Input.Peek();
             if (startQuote != '"')
-            {
                 s.Fail($"Expected start quote but found '{startQuote}'");
-                return "";
-            }
 
             s.Input.GetNext();
 
             var sb = new StringBuilder();
-            while (!s.Input.IsAtEnd)
+            while (true)
             {
+                if (s.Input.IsAtEnd)
+                    s.Fail("No end quote");
+
                 var c = s.Input.GetNext();
                 if (c == '"')
                     return sb.ToString();
@@ -33,9 +33,6 @@ public static class StrippedStringGrammar
 
                 ParseStrippedStringEscapeSequence(s, sb);
             }
-
-            s.Fail("No end quote");
-            return "";
         });
 
     public static IParser<char, char> CreateCharacterParser()

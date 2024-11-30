@@ -31,6 +31,7 @@ internal class StringTests
     [TestCase("\"\\v\"")]
     [TestCase("\"\\60\"")]
     [TestCase("\"\\101\"")]
+    [TestCase("\"\\356\"")]
     [TestCase("\"\\x41\"")]
     [TestCase("\"\\x041\"")]
     [TestCase("\"\\x0041\"")]

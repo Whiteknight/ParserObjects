@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -26,6 +27,7 @@ public abstract class SimpleParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => DefaultStringifier.ToString(this);
 }
 

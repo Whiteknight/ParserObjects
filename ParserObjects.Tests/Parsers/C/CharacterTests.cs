@@ -39,6 +39,7 @@ internal class CharacterTests
         result.Value.Should().Be(test);
     }
 
+    [Test]
     public void Parse_Escapes_a()
     {
         // For whatever reason, the test runner doesn't like it when this one is in TestCase()
@@ -60,6 +61,7 @@ internal class CharacterTests
     [Test]
     [TestCase("")]
     [TestCase("'")]
+    [TestCase("''")]
     [TestCase("test'")]
     [TestCase("'\\'")]
     [TestCase("'\\x'")]

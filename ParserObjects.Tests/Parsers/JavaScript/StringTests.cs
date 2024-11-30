@@ -13,6 +13,7 @@ public class StringTests
     [TestCase("'\\n'")]
     [TestCase("'\\''")]
     [TestCase("\"\\n\"")]
+    [TestCase("\"\n\"")]
     [TestCase("\"\\\"\"")]
     public void Success(string value)
     {

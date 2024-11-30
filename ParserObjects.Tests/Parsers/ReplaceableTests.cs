@@ -114,6 +114,17 @@ public static class ReplaceableTests
             result.Value.Should().Be('a');
             result.Consumed.Should().Be(1);
         }
+
+        [Test]
+        public void Parse_Name()
+        {
+            var anyParser = Any();
+            var target = anyParser.Replaceable("target");
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Value.Should().Be('a');
+            result.Consumed.Should().Be(1);
+        }
     }
 
     public class SingleOutputNoDefault
@@ -193,7 +204,7 @@ public static class ReplaceableTests
         [Test]
         public void Parse_Test()
         {
-            var target = End().Replaceable();
+            var target = ((IParser<char>)End()).Replaceable();
             var input = FromString("");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
@@ -255,6 +266,14 @@ public static class ReplaceableTests
         public void ToBnf_Test()
         {
             var parser = ProduceMulti(() => new char[0]).Replaceable().Named("parser");
+            var result = parser.ToBnf();
+            result.Should().Contain("parser := PRODUCE");
+        }
+
+        [Test]
+        public void ToBnf_Name()
+        {
+            var parser = ProduceMulti(() => new char[0]).Replaceable("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
         }

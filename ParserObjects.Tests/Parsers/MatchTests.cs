@@ -42,6 +42,24 @@ public static class MatchTests
         }
 
         [Test]
+        public void Parse_Untyped()
+        {
+            IParser<char> parser = Match("abc");
+            var input = FromString("abcd");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
+        public void Parse_NullInputs()
+        {
+            var parser = Parsers<string>.Match(new[] { "a", "b", "c" });
+            var input = FromList(new[] { "a", null, "c" });
+            var result = parser.Parse(input);
+            result.Success.Should().BeFalse();
+        }
+
+        [Test]
         public void Parse_Fail_Start()
         {
             var parser = Match("abc");
@@ -100,8 +118,21 @@ public static class MatchTests
         public void Match_Test()
         {
             var parser = Match("abc");
-            var input = FromString("abcd");
             parser.Match("abc").Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Empty()
+        {
+            var parser = Match("");
+            parser.Match("abc").Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Fail()
+        {
+            var parser = Match("abc");
+            parser.Match("abd").Should().BeFalse();
         }
 
         [Test]

@@ -58,8 +58,7 @@ public sealed record MatchPatternParser<T>(
 
     public bool Match(IParseState<T> state)
     {
-        if (Pattern.Count == 0)
-            return true;
+        Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
 
         var checkpoint = state.Input.Checkpoint();
         for (int i = 0; i < Pattern.Count; i++)
