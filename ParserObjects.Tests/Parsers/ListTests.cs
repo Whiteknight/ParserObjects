@@ -37,16 +37,6 @@ public static class ListTests
         }
 
         [Test]
-        public void GetChildren_AtLeastOneFalse()
-        {
-            var anyParser = Any();
-            var parser = List(anyParser, false);
-            var result = parser.GetChildren().ToList();
-            result.Count.Should().Be(2);
-            result[0].Should().BeSameAs(anyParser);
-        }
-
-        [Test]
         public void Parse_Test()
         {
             var parser = List(Any());
@@ -58,6 +48,16 @@ public static class ListTests
             list[0].Should().Be('a');
             list[1].Should().Be('b');
             list[2].Should().Be('c');
+        }
+
+        [Test]
+        public void Parse_Minimum_Negative()
+        {
+            var parser = List(Any(), -1);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(3);
         }
 
         [Test]
@@ -94,6 +94,20 @@ public static class ListTests
         public void Parse_Maximum()
         {
             var parser = List(Any(), 0, 2);
+            var input = FromString("abc");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(2);
+            var list = result.Value;
+            list.Count.Should().Be(2);
+            list[0].Should().Be('a');
+            list[1].Should().Be('b');
+        }
+
+        [Test]
+        public void Parse_MaximumLessThanMinimum()
+        {
+            var parser = List(Any(), 2, 1);
             var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
@@ -158,10 +172,142 @@ public static class ListTests
         }
 
         [Test]
+        public void Match_NotAtLeastOne()
+        {
+            var parser = List(Any(), false);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_None_AtLeastOneFalse()
+        {
+            var parser = List(Match(char.IsNumber), false);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var parser = List(Any());
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Minimum_Negative()
+        {
+            var parser = List(Any(), -1);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Minimum_Fail()
+        {
+            var parser = List(Any(), 4);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Exactly_Success()
+        {
+            var parser = List(Any(), 4, 4);
+            var input = FromString("abcd");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Exactly_TooFew()
+        {
+            var parser = List(Any(), 4, 4);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Maximum()
+        {
+            var parser = List(Any(), 0, 2);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_MaximumLessThanMinimum()
+        {
+            var parser = List(Any(), 2, 1);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_None()
+        {
+            var parser = List(Match(char.IsNumber));
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Empty()
+        {
+            var parser = List(Produce(() => new object()));
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Empty_Minimum()
+        {
+            var parser = List(Produce(() => new object()), 3);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Fail_DoesNotBacktrack()
+        {
+            // Test to show that List() is greedy and does not backtrack. This helps to contrast
+            // it against NonGreedyList()
+            var target = Rule(
+                List(Match('a')),
+                CharacterString("ab"),
+                (l, r) => $"{l}{r}"
+            );
+            var result = target.Match("aaab");
+            result.Should().BeFalse();
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var anyParser = Any();
             var parser = List(anyParser);
+            var result = parser.GetChildren().ToList();
+            result.Count.Should().Be(2);
+            result[0].Should().BeSameAs(anyParser);
+        }
+
+        [Test]
+        public void GetChildren_AtLeastOneFalse()
+        {
+            var anyParser = Any();
+            var parser = List(anyParser, false);
             var result = parser.GetChildren().ToList();
             result.Count.Should().Be(2);
             result[0].Should().BeSameAs(anyParser);
@@ -236,16 +382,6 @@ public static class ListTests
             result.Success.Should().BeTrue();
             (result.Value as List<object>).Count().Should().Be(0);
             result.Consumed.Should().Be(0);
-        }
-
-        [Test]
-        public void GetChildren_AtLeastOneFalse()
-        {
-            var anyParser = (IParser<char>)Any();
-            var parser = List(anyParser, false);
-            var result = parser.GetChildren().ToList();
-            result.Count.Should().Be(2);
-            result[0].Should().BeSameAs(anyParser);
         }
 
         [Test]
@@ -346,10 +482,110 @@ public static class ListTests
         }
 
         [Test]
+        public void Match_NotAtLeastOne()
+        {
+            var parser = List((IParser<char>)Any(), false);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_None_AtLeastOneFalse()
+        {
+            var parser = List((IParser<char>)Match(char.IsNumber), false);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var parser = List((IParser<char>)Any());
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Minimum_Fail()
+        {
+            var parser = List((IParser<char>)Any(), 4);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Exactly_Success()
+        {
+            var parser = List((IParser<char>)Any(), 4, 4);
+            var input = FromString("abcd");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Exactly_TooFew()
+        {
+            var parser = List((IParser<char>)Any(), 4, 4);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Match_Maximum()
+        {
+            var parser = List((IParser<char>)Any(), 0, 2);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_None()
+        {
+            var parser = List((IParser<char>)Match(char.IsNumber));
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Empty()
+        {
+            var parser = List((IParser<char>)Produce(() => new object()));
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Match_Empty_Minimum()
+        {
+            var parser = List((IParser<char>)Produce(() => new object()), 3);
+            var input = FromString("abc");
+            var result = parser.Match(input);
+            result.Should().BeTrue();
+        }
+
+        [Test]
         public void GetChildren_Test()
         {
             var anyParser = (IParser<char>)Any();
             var parser = List(anyParser);
+            var result = parser.GetChildren().ToList();
+            result.Count.Should().Be(2);
+            result[0].Should().BeSameAs(anyParser);
+        }
+
+        [Test]
+        public void GetChildren_AtLeastOneFalse()
+        {
+            var anyParser = (IParser<char>)Any();
+            var parser = List(anyParser, false);
             var result = parser.GetChildren().ToList();
             result.Count.Should().Be(2);
             result[0].Should().BeSameAs(anyParser);
