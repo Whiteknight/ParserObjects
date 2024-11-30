@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Pratt;
@@ -103,6 +104,10 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
         return result.ToResult(this);
     }
 
+    // There's not really any way to access this method, because we can't use the IParseState<>
+    // inside the user callback method. It exists to satisfy the interface and maybe there's some
+    // way to compose parsers in a way that makes this callable, but for now we exclude it from tests
+    [ExcludeFromCodeCoverage]
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => ((IParser<TInput, TOutput>)this).Parse(state).AsObject();
 
     /// <summary>
@@ -216,8 +221,10 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
             : parser.Parse(_state).ToOption();
     }
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    [ExcludeFromCodeCoverage]
+    public IEnumerable<IParser> GetChildren() => [];
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => DefaultStringifier.ToString(this);
 
     private void EnsureRecursionIsPermitted()
@@ -232,8 +239,10 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
             throw new ParseException(ParseExceptionSeverity.Parser, "The parser is marked as being 'Complete' and cannot consume more inputs", this, _state.Input.CurrentLocation);
     }
 
+    [ExcludeFromCodeCoverage]
     public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename an internal parse context");
 
+    [ExcludeFromCodeCoverage]
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>
         => throw new NotImplementedException();
