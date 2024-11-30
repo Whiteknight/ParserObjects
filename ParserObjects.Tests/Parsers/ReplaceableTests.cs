@@ -44,16 +44,20 @@ public static class ReplaceableTests
         public void Parse_NoOutput()
         {
             var anyParser = Any();
-            var target = Rule(
-                Replaceable(Any()),
-                Replaceable(Any()),
-                (a, b) => $"{a}{b}"
+            IParser<char> target = Replaceable(Any());
+            var result = target.Parse("abc");
+            result.Value.Should().Be('a');
+            result.Consumed.Should().Be(1);
+        }
 
-            );
+        [Test]
+        public void Match_Test()
+        {
+            var anyParser = Any();
+            var target = Replaceable(anyParser);
             var input = FromString("abc");
-            var result = target.Parse(input);
-            result.Value.Should().Be("ab");
-            result.Consumed.Should().Be(2);
+            var result = target.Match(input);
+            result.Should().BeTrue();
         }
 
         [Test]
@@ -62,10 +66,21 @@ public static class ReplaceableTests
             var anyParser = Any();
             var failParser = Fail<char>();
             var target = Replaceable(failParser);
-            (target as IReplaceableParserUntyped)?.SetParser(anyParser);
+            var setResult = (target as IReplaceableParserUntyped)?.SetParser(anyParser);
+            setResult.Value.Success.Should().BeTrue();
             var input = FromString("abc");
             var result = target.Parse(input);
             result.Value.Should().Be('a');
+        }
+
+        [Test]
+        public void SetParser_WrongType()
+        {
+            var anyParser = Any();
+            var failParser = Fail<char>();
+            var target = Replaceable(failParser);
+            var setResult = (target as IReplaceableParserUntyped)?.SetParser(Produce(() => 5));
+            setResult.Value.Success.Should().BeFalse();
         }
 
         [Test]
@@ -98,6 +113,18 @@ public static class ReplaceableTests
             var result = target.Parse(input);
             result.Value.Should().Be('a');
             result.Consumed.Should().Be(1);
+        }
+    }
+
+    public class SingleOutputNoDefault
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var target = Replaceable<char>();
+            var input = FromString("abc");
+            var result = target.Parse(input);
+            result.Success.Should().BeFalse();
         }
     }
 
@@ -186,6 +213,16 @@ public static class ReplaceableTests
         }
 
         [Test]
+        public void Parse_NoOutput()
+        {
+            var anyParser = Any();
+            IMultiParser<char> target = Replaceable(ProduceMulti(() => new[] { 'a', 'b', 'c' }));
+            var input = FromString("");
+            var result = target.Parse(input);
+            result.Results.Count().Should().Be(3);
+        }
+
+        [Test]
         public void Parse_Fail()
         {
             var target = Replaceable(FailMulti<char>());
@@ -220,6 +257,17 @@ public static class ReplaceableTests
             var parser = ProduceMulti(() => new char[0]).Replaceable().Named("parser");
             var result = parser.ToBnf();
             result.Should().Contain("parser := PRODUCE");
+        }
+    }
+
+    public class MultiFunctionDefault
+    {
+        [Test]
+        public void Parse_Test()
+        {
+            var parser = ReplaceableMulti<char>();
+            var result = parser.Parse("abc");
+            result.Success.Should().BeFalse();
         }
     }
 }
