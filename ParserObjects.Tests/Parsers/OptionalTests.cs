@@ -17,6 +17,15 @@ public static class OptionalTests
         }
 
         [Test]
+        public void Parse_Untyped()
+        {
+            IParser<char> target = Optional(MatchChar('a'));
+            var result = target.Parse("abc");
+            result.Success.Should().Be(true);
+            ((Option<char>)result.Value).GetValueOrDefault('x').Should().Be('a');
+        }
+
+        [Test]
         public void Parse_Fail()
         {
             var target = Optional(Fail());
@@ -68,6 +77,22 @@ public static class OptionalTests
             var result = target.Parse("");
             result.Success.Should().Be(true);
             result.Value.Should().Be('x');
+        }
+
+        [Test]
+        public void Parse_Untyped()
+        {
+            IParser<char> target = Optional(Match('a'), () => 'x');
+            var result = target.Parse("abc");
+            result.Success.Should().Be(true);
+        }
+
+        [Test]
+        public void Match_Test()
+        {
+            var target = Optional(Match('a'), () => 'x');
+            var result = target.Match("abc");
+            result.Should().Be(true);
         }
 
         [Test]
