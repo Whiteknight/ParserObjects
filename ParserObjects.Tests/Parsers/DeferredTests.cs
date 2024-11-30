@@ -31,7 +31,7 @@ public class DeferredTests
     {
         var target = Deferred(() => Any());
         var input = FromString("abc");
-        target.Parse(new ParseState<char>(input, _ => { }, NullResultsCache.Instance)).Value.Should().Be('a');
+        target.Parse(new ParseState<char>(input, _ => { }, Caches.NullCache())).Value.Should().Be('a');
         target.Parse(input).Value.Should().Be('b');
         target.Parse(input).Value.Should().Be('c');
         target.Parse(input).Success.Should().BeFalse();

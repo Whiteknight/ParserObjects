@@ -358,6 +358,7 @@ public class RegexTests
     [TestCase("[a\\")]
     [TestCase("[a-")]
     [TestCase("[a-\\")]
+    [TestCase("[a-]")]
     [TestCase("[]")]
     public void CharacterClass_Throw(string pattern)
        => RegexTestThrow(pattern);
@@ -538,7 +539,12 @@ public class RegexTests
         matches[2][0].Should().Be(group2);
     }
 
+    [TestCase("\\1", "a")]
+    public void CaptureBackreference_Fail(string pattern, string input)
+        => RegexTestFail(pattern, input);
+
     [TestCase("a(?{b})*c", "abbbbbc", "abbbbbc")]
+    [TestCase("a(?{b}){2,4}c", "abbbc", "abbbc")]
     [TestCase("a(?{b})?c", "ac", "ac")]
     [TestCase("a((?{b}))c\\1", "abcb", "abcb")]
     public void ParserRecurse(string pattern, string input, string expected)

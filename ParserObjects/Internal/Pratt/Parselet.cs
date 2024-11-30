@@ -72,8 +72,8 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, result.Consumed > 0, Name, parseControl);
         try
         {
-            var resultValue = _nud!(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
-            var token = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
+            var resultValue = _nud!(context, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp));
+            var token = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp);
             return (true, token, state.Input.Consumed - startCp.Consumed);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)
@@ -96,8 +96,8 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         var context = new PrattParseContext<TInput, TOutput>(state, engine, Rbp, true, Name, parseControl);
         try
         {
-            var resultValue = _led!(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp, Name));
-            var resultToken = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp, Name);
+            var resultValue = _led!(context, left, new ValueToken<TValue>(TokenTypeId, result.Value, Lbp, Rbp));
+            var resultToken = new ValueToken<TOutput>(TokenTypeId, resultValue, Lbp, Rbp);
             return (true, resultToken, state.Input.Consumed - startCp.Consumed);
         }
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Rule)

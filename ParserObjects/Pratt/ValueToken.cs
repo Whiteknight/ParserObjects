@@ -5,8 +5,7 @@ public readonly record struct ValueToken<TValue>(
     int TokenTypeId,
     TValue Value,
     int LeftBindingPower,
-    int RightBindingPower,
-    string Name
+    int RightBindingPower
 )
 {
     public override string ToString() => Value?.ToString() ?? string.Empty;

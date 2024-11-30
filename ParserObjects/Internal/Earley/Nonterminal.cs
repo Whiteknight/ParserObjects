@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
@@ -32,6 +33,7 @@ public sealed class Nonterminal<TInput, TOutput> : HashSet<IProduction<TOutput>>
 
     public string Name { get; }
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => string.Join("\n", this.Select(p => p.ToString()));
 
     public INamed SetName(string name) => new Nonterminal<TInput, TOutput>(this, name);
