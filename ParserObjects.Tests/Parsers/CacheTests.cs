@@ -22,7 +22,7 @@ public static class CacheTests
         [TestCase("memory")]
         [TestCase("memory2")]
         [TestCase("dictionary")]
-        public void Parse_Test(string cacheType)
+        public void Parse_Statistics(string cacheType)
         {
             var parser = Cache(End());
             var input = FromString("TEST");
@@ -48,6 +48,57 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
+        }
+
+        [TestCase("memory")]
+        [TestCase("memory2")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
+        {
+            var parser = Cache(Any());
+            var input = FromString("TEST");
+            var start = input.Checkpoint();
+            var cache = GetCache(cacheType);
+            var state = new ParseState<char>(input, _ => { }, cache);
+
+            var result = parser.Parse(state);
+            result.Success.Should().BeTrue();
+
+            (cache as IDisposable)?.Dispose();
+        }
+
+        [TestCase("memory")]
+        [TestCase("memory2")]
+        [TestCase("dictionary")]
+        public void Parse_Untyped(string cacheType)
+        {
+            IParser<char> parser = Cache(Any());
+            var input = FromString("TEST");
+            var start = input.Checkpoint();
+            var cache = GetCache(cacheType);
+            var state = new ParseState<char>(input, _ => { }, cache);
+
+            var result = parser.Parse(state);
+            result.Success.Should().BeTrue();
+
+            (cache as IDisposable)?.Dispose();
+        }
+
+        [TestCase("memory")]
+        [TestCase("memory2")]
+        [TestCase("dictionary")]
+        public void Match_Test(string cacheType)
+        {
+            var parser = Cache(Any());
+            var input = FromString("TEST");
+            var start = input.Checkpoint();
+            var cache = GetCache(cacheType);
+            var state = new ParseState<char>(input, _ => { }, cache);
+
+            var result = parser.Match(state);
+            result.Should().BeTrue();
 
             (cache as IDisposable)?.Dispose();
         }
@@ -112,7 +163,7 @@ public static class CacheTests
         [TestCase("memory")]
         [TestCase("memory2")]
         [TestCase("dictionary")]
-        public void Parse_Test(string cacheType)
+        public void Parse_Statistics(string cacheType)
         {
             var parser = Cache(ProduceMulti(() => new[] { "abc" }));
             var input = FromString("TEST");
@@ -140,6 +191,42 @@ public static class CacheTests
             stats.Attempts.Should().Be(2);
             stats.Misses.Should().Be(1);
             stats.Hits.Should().Be(1);
+
+            (cache as IDisposable)?.Dispose();
+        }
+
+        [TestCase("memory")]
+        [TestCase("memory2")]
+        [TestCase("dictionary")]
+        public void Parse_Test(string cacheType)
+        {
+            var parser = Cache(ProduceMulti(() => new[] { "abc" }));
+            var input = FromString("TEST");
+            var start = input.Checkpoint();
+            var cache = GetCache(cacheType);
+            var state = new ParseState<char>(input, _ => { }, cache);
+
+            var result = parser.Parse(state);
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be("abc");
+
+            (cache as IDisposable)?.Dispose();
+        }
+
+        [TestCase("memory")]
+        [TestCase("memory2")]
+        [TestCase("dictionary")]
+        public void Parse_Untyped(string cacheType)
+        {
+            IMultiParser<char> parser = Cache(ProduceMulti(() => new[] { "abc" }));
+            var input = FromString("TEST");
+            var start = input.Checkpoint();
+            var cache = GetCache(cacheType);
+            var state = new ParseState<char>(input, _ => { }, cache);
+
+            var result = parser.Parse(state);
+            result.Success.Should().BeTrue();
+            result.Results[0].Value.Should().Be("abc");
 
             (cache as IDisposable)?.Dispose();
         }

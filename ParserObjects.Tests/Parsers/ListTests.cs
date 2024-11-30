@@ -951,12 +951,31 @@ public static class ListTests
     public class TypedSeparatedExtension
     {
         [Test]
-        public void Parse_Test()
+        public void Parse_AtLeastOneFalse()
         {
             var parser = Integer()
                 .List(
                     MatchChar(','),
                     atLeastOne: false
+                );
+            var input = FromString("1,2,3,4");
+            var result = parser.Parse(input);
+            result.Success.Should().BeTrue();
+            var value = result.Value.ToList();
+            value[0].Should().Be(1);
+            value[1].Should().Be(2);
+            value[2].Should().Be(3);
+            value[3].Should().Be(4);
+        }
+
+        [Test]
+        public void Parse_MinMax()
+        {
+            var parser = Integer()
+                .List(
+                    MatchChar(','),
+                    0,
+                    4
                 );
             var input = FromString("1,2,3,4");
             var result = parser.Parse(input);

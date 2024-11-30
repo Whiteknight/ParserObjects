@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
+using ParserObjects.Internal.Earley;
+using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers;
 using static ParserObjects.Parsers.C;
-using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects.Tests.Parsers;
 
@@ -21,6 +22,13 @@ public class EarleyTests
         result.Success.Should().BeTrue();
         result.Results.Count.Should().Be(1);
         result.Results[0].Value.Should().Be(4);
+    }
+
+    [Test]
+    public void SingleTerminal_NoProductions()
+    {
+        Action act = () => Earley<int>(symbols => symbols.New("S"));
+        act.Should().Throw<GrammarException>();
     }
 
     [Test]

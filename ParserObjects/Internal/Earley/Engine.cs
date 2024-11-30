@@ -20,9 +20,7 @@ public readonly struct Engine<TInput, TOutput>
         Assert.ArgumentNotNull(startSymbol);
         if (startSymbol.Productions.Count == 0)
             throw new GrammarException("The start symbol contains no valid productions");
-        if (startSymbol.Productions.All(p => p.Symbols.Count == 0))
-            throw new GrammarException("The start symbol productions contain no symbols");
-
+        Debug.Assert(startSymbol.Productions.Any(p => p.Symbols.Count > 0), "Start symbol must have valid productions");
         _startSymbol = startSymbol;
     }
 
@@ -61,8 +59,8 @@ public readonly struct Engine<TInput, TOutput>
             var derivations = derivationVisitor.GetDerivation(resultItem.Item);
             for (int j = 0; j < derivations.Count; j++)
             {
-                if (derivations[j] is not TOutput value)
-                    continue;
+                Debug.Assert(derivations[j] is TOutput, "The derivation must have the correct type");
+                var value = (TOutput)derivations[j];
                 var result = ResultAlternative<TOutput>.Ok(value, resultItem.State.Number, resultItem.State.Checkpoint);
                 results.Add(result);
             }
@@ -172,8 +170,6 @@ public readonly struct Engine<TInput, TOutput>
                 for (int j = 0; j < assocatedNullables.Count; j++)
                 {
                     var nullable = assocatedNullables[j];
-                    if (seenNullables.Contains(nullable))
-                        continue;
                     seenNullables.Add(nullable);
                     aycockItem.Add(nullable);
                 }

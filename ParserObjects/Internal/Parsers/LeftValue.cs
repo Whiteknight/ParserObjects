@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -21,6 +22,7 @@ public sealed class LeftValue<TInput, TOutput> : SimpleParser<TInput, TOutput>
 
     public override bool Match(IParseState<TInput> state) => true;
 
+    [ExcludeFromCodeCoverage]
     public override INamed SetName(string name)
         => throw new InvalidOperationException("Cannot rename inner value parser");
 
