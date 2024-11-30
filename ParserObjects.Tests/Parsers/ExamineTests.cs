@@ -22,6 +22,26 @@ public static class ExamineTests
         }
 
         [Test]
+        public void Parse_Values()
+        {
+            var inner = Any();
+            var parser = Examine(inner,
+                s =>
+                {
+                    s.Parser.Should().BeSameAs(inner);
+                    s.State.Should().NotBeNull();
+                },
+                s =>
+                {
+                    s.Parser.Should().BeSameAs(inner);
+                    s.State.Should().NotBeNull();
+                    s.Result.Success.Should().BeTrue();
+                });
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
+        }
+
+        [Test]
         public void Parse_NoCallbacks()
         {
             var parser = Examine(Any());
@@ -127,6 +147,26 @@ public static class ExamineTests
             before.Should().Be('a');
             result.Results[0].Value.Should().Be('b');
             after.Should().Be('c');
+        }
+
+        [Test]
+        public void Parse_Values()
+        {
+            var inner = ProduceMulti(() => new[] { 'b' });
+            var parser = Examine(inner,
+                s =>
+                {
+                    s.Parser.Should().BeSameAs(inner);
+                    s.State.Should().NotBeNull();
+                },
+                s =>
+                {
+                    s.Parser.Should().BeSameAs(inner);
+                    s.State.Should().NotBeNull();
+                    s.Result.Value.Success.Should().BeTrue();
+                });
+            var result = parser.Parse("abc");
+            result.Success.Should().BeTrue();
         }
 
         [Test]
