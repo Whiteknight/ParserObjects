@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using ParserObjects.Internal.Caching;
 using static ParserObjects.Parsers<char>;
 using static ParserObjects.Sequences;
 
@@ -23,6 +24,17 @@ public class DeferredTests
         IParser<char> target = Deferred(() => Any());
         var input = FromString("abc");
         target.Parse(input).Value.Should().Be('a');
+    }
+
+    [Test]
+    public void Parse_NoCache()
+    {
+        var target = Deferred(() => Any());
+        var input = FromString("abc");
+        target.Parse(new ParseState<char>(input, s => { }, NullResultsCache.Instance)).Value.Should().Be('a');
+        target.Parse(input).Value.Should().Be('b');
+        target.Parse(input).Value.Should().Be('c');
+        target.Parse(input).Success.Should().BeFalse();
     }
 
     [Test]
