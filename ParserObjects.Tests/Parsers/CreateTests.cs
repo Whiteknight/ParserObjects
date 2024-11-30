@@ -1,5 +1,6 @@
-﻿using static ParserObjects.Parsers;
+﻿using System.Linq;
 using static ParserObjects.Parsers<char>;
+using static ParserObjects.Parsers;
 using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Parsers;
@@ -19,11 +20,29 @@ public static class CreateTests
         }
 
         [Test]
+        public void Parse_Untyped()
+        {
+            IParser<char> target = Create(_ => Produce(() => 'A'));
+            var result = target.Parse(FromString(""));
+            result.Success.Should().BeTrue();
+            result.Consumed.Should().Be(0);
+            result.Value.Should().Be('A');
+        }
+
+        [Test]
         public void Parse_InnerFails()
         {
             var target = Create(_ => Fail<char>());
             var result = target.Parse(FromString(""));
             result.Success.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_InnerReturnsNull()
+        {
+            var target = Create(_ => (IParser<char, char>)null);
+            Action act = () => target.Parse(FromString(""));
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Test]
@@ -65,6 +84,14 @@ public static class CreateTests
         }
 
         [Test]
+        public void GetChildren_Test()
+        {
+            var parser = Create(_ => Any()).Named("parser");
+            var result = parser.GetChildren().ToList();
+            result.Count.Should().Be(0);
+        }
+
+        [Test]
         public void ToBnf_Test()
         {
             var parser = Create(_ => Any()).Named("parser");
@@ -98,6 +125,27 @@ public static class CreateTests
         }
 
         [Test]
+        public void Parse_ConsumeInputs()
+        {
+            var target = CreateMulti(s => ProduceMulti(() => new[] { s.Input.GetNext(), 'b', 'c' }));
+            var result = target.Parse(FromString("a"));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results.Should().Contain(r => r.Value == 'a');
+            result.Results.Should().Contain(r => r.Value == 'b');
+            result.Results.Should().Contain(r => r.Value == 'c');
+        }
+
+        [Test]
+        public void Parse_Untyped()
+        {
+            IMultiParser<char> target = CreateMulti(_ => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var result = target.Parse(FromString(""));
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+        }
+
+        [Test]
         public void Parse_InnerFails()
         {
             var target = CreateMulti(_ => FailMulti<char>());
@@ -117,6 +165,14 @@ public static class CreateTests
             var result = target.Parse(sequence);
             result.Success.Should().BeFalse();
             sequence.Consumed.Should().Be(0);
+        }
+
+        [Test]
+        public void GetChildren_Test()
+        {
+            var target = CreateMulti(_ => ProduceMulti(() => new[] { "a", "b", "c" }));
+            var result = target.GetChildren().ToList();
+            result.Count.Should().Be(0);
         }
 
         [Test]

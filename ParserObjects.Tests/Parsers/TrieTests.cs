@@ -35,6 +35,32 @@ public static class TrieTests
         }
 
         [Test]
+        public void Parse_Untyped()
+        {
+            IMultiParser<char> target = TrieMulti<string>(trie => trie
+                .Add("=", "=")
+                .Add("==", "==")
+                .Add("===", "===")
+                .Add(">=", ">=")
+                .Add("<=", "<=")
+                .Add("<", "<")
+                .Add(">", ">")
+            );
+
+            var input = FromString("===>=<=><<==");
+
+            var result = target.Parse(input);
+            result.Success.Should().BeTrue();
+            result.Results.Count.Should().Be(3);
+            result.Results[0].Value.Should().Be("=");
+            result.Results[0].Consumed.Should().Be(1);
+            result.Results[1].Value.Should().Be("==");
+            result.Results[1].Consumed.Should().Be(2);
+            result.Results[2].Value.Should().Be("===");
+            result.Results[2].Consumed.Should().Be(3);
+        }
+
+        [Test]
         public void Parse_Continue()
         {
             static void Populate(InsertableTrie<char, string> trie)
@@ -100,6 +126,31 @@ public static class TrieTests
         public void Parse_Operators()
         {
             var target = Trie<string>(trie =>
+            {
+                trie.Add("=", "=");
+                trie.Add("==", "==");
+                trie.Add(">=", ">=");
+                trie.Add("<=", "<=");
+                trie.Add("<", "<");
+                trie.Add(">", ">");
+            });
+
+            var input = FromString("===>=<=><<==");
+
+            target.Parse(input).Value.Should().Be("==");
+            target.Parse(input).Value.Should().Be("=");
+            target.Parse(input).Value.Should().Be(">=");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be(">");
+            target.Parse(input).Value.Should().Be("<");
+            target.Parse(input).Value.Should().Be("<=");
+            target.Parse(input).Value.Should().Be("=");
+        }
+
+        [Test]
+        public void Parse_Untyped()
+        {
+            IParser<char> target = Trie<string>(trie =>
             {
                 trie.Add("=", "=");
                 trie.Add("==", "==");

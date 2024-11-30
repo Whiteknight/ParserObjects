@@ -1,4 +1,5 @@
-﻿using static ParserObjects.Sequences;
+﻿using System.Collections.Generic;
+using static ParserObjects.Sequences;
 
 namespace ParserObjects.Tests.Sequences;
 
@@ -172,7 +173,7 @@ public static class FromListTests
         }
 
         [Test]
-        public void GetBetween_Test()
+        public void GetBetween_Array()
         {
             var target = FromList(new[] { 1, 2, 3, 4, 5 }, 0);
             target.GetNext().Should().Be(1);
@@ -187,6 +188,60 @@ public static class FromListTests
             result.Length.Should().Be(2);
             result[0].Should().Be(3);
             result[1].Should().Be(4);
+        }
+
+        [Test]
+        public void GetBetween_List()
+        {
+            var target = FromList(new List<int> { 1, 2, 3, 4, 5 }, 0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(4);
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be(5);
+
+            var result = target.GetArrayBetween(cp1, cp2);
+            result.Length.Should().Be(2);
+            result[0].Should().Be(3);
+            result[1].Should().Be(4);
+        }
+
+        [Test]
+        public void GetBetween_WrongOrder()
+        {
+            var target = FromList(new[] { 1, 2, 3, 4, 5 }, 0);
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(4);
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be(5);
+
+            var result = target.GetArrayBetween(cp2, cp1);
+            result.Length.Should().Be(0);
+        }
+
+        [Test]
+        public void GetBetween_BadCps1()
+        {
+            var target = FromList(new[] { 1, 2, 3, 4, 5 }, 0);
+            var cpGood = target.Checkpoint();
+            var cpBad = new SequenceCheckpoint(null!, 1, 2, 3, SequenceStateTypes.None, default);
+            var result = target.GetArrayBetween(cpGood, cpBad);
+            result.Length.Should().Be(0);
+        }
+
+        [Test]
+        public void GetBetween_BadCps2()
+        {
+            var target = FromList(new[] { 1, 2, 3, 4, 5 }, 0);
+            var cpGood = target.Checkpoint();
+            var cpBad = new SequenceCheckpoint(null!, 1, 2, 3, SequenceStateTypes.None, default);
+            var result = target.GetArrayBetween(cpBad, cpGood);
+            result.Length.Should().Be(0);
         }
 
         [Test]
