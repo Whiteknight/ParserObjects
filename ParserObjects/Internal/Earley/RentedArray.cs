@@ -7,6 +7,7 @@ public readonly struct RentedArray<T>
 {
     public RentedArray(T[] values, int count)
     {
+        Assert.ArgumentNotNull(values);
         Values = values;
         Count = count;
     }
@@ -15,13 +16,7 @@ public readonly struct RentedArray<T>
 
     public readonly int Count { get; }
 
-    public readonly int Length => Count;
-
     public readonly T[] Values { get; }
 
-    public void Return()
-    {
-        if (Values != null)
-            ArrayPool<T>.Shared.Return(Values);
-    }
+    public void Return() => ArrayPool<T>.Shared.Return(Values);
 }

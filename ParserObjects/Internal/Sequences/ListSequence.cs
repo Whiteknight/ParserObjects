@@ -99,7 +99,7 @@ public sealed class ListSequence<T> : ISequence<T>
         {
             List<T> l => map(CollectionsMarshal.AsSpan(l).Slice(start.Consumed, size), data),
             T[] a => map(a.AsSpan(start.Consumed, size), data),
-            _ => throw new NotImplementedException()
+            IReadOnlyList<T> ro => map(ro.ToArray().AsSpan(start.Consumed, size), data),
         };
     }
 

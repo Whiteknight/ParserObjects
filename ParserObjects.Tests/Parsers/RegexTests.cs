@@ -447,6 +447,15 @@ public class RegexTests
         matches.GetCapture(1, 0).Should().Be("a");
     }
 
+    [Test]
+    public void Group_OutOfBounds()
+    {
+        var target = RegexMatch("(.)");
+        var result = target.Parse("a");
+        result.Value.GetGroup(100).Should().NotBeNull().And.BeEmpty();
+        result.Value.GetCapture(100).Should().Be("");
+    }
+
     [TestCase("(?:.)", "a")]
     [TestCase("(?:..)", "ab")]
     [TestCase("(?:..)*", "abcd")]
