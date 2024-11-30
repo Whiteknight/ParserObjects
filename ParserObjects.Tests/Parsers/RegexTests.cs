@@ -10,7 +10,7 @@ namespace ParserObjects.Tests.Parsers;
 public class RegexTests
 {
     [Test]
-    public void EmptyPattern()
+    public void Regex_EmptyPattern()
     {
         var parser = Regex(string.Empty);
         var result = parser.Parse("abc");
@@ -19,12 +19,70 @@ public class RegexTests
     }
 
     [Test]
-    public void NullPattern()
+    public void Regex_NullPattern()
     {
         var parser = Regex(null);
         var result = parser.Parse("abc");
         result.Success.Should().BeTrue();
         result.Value.Should().Be(string.Empty);
+    }
+
+    [Test]
+    public void Regex_Parsers_EmptyPattern()
+    {
+        var a = MatchChar('a').Named("a");
+        var target = Regex("", a);
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be("");
+    }
+
+    [Test]
+    public void Regex_Parsers_NullPattern()
+    {
+        var a = MatchChar('a').Named("a");
+        var target = Regex(null, a);
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be("");
+    }
+
+    [Test]
+    public void RegexMatch_EmptyPattern()
+    {
+        var target = RegexMatch("");
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value[0][0].Should().Be("");
+    }
+
+    [Test]
+    public void RegexMatch_NullPattern()
+    {
+        var target = RegexMatch(null);
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value[0][0].Should().Be("");
+    }
+
+    [Test]
+    public void RegexMatch_Parsers_EmptyPattern()
+    {
+        var a = MatchChar('a').Named("a");
+        var target = RegexMatch("", a);
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value[0][0].Should().Be("");
+    }
+
+    [Test]
+    public void RegexMatch_Parsers_NullPattern()
+    {
+        var a = MatchChar('a').Named("a");
+        var target = RegexMatch(null, a);
+        var result = target.Parse("");
+        result.Success.Should().BeTrue();
+        result.Value[0][0].Should().Be("");
     }
 
     [Test]
@@ -473,7 +531,7 @@ public class RegexTests
     {
         var a = MatchChar('a').Named("a");
         var b = MatchChar('b').Named("b");
-        var c = MatchChar('c').Named("c");
+        var c = MatchChar('c');
         var target = Regex(pattern, a, b, c);
         var result = target.Parse(input);
         result.Success.Should().BeTrue();

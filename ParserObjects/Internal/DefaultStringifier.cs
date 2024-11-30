@@ -1,4 +1,6 @@
-﻿namespace ParserObjects.Internal;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ParserObjects.Internal;
 
 /// <summary>
 /// Default logic for implementing INamed.ToString().
@@ -25,6 +27,10 @@ public static class DefaultStringifier
             ? $"<{name}>"
             : $"<{type} Id={id}>";
 
+    // There are no types in the library which implement INamed but not IParser, so this method
+    // won't be called in normal use. We keep it for completeness incase a downstream user wants
+    // to stringify a non-parser INamed.
+    [ExcludeFromCodeCoverage]
     private static string UnnamedNonParserToString(INamed named)
     {
         var objType = named.GetType();
