@@ -62,7 +62,7 @@ public static class NoneTests
         [Test]
         public void Parse_Test()
         {
-            var target = None(And(Any(), Any()));
+            var target = None((IParser<char>)And(Any(), Any()));
             var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeTrue();
@@ -73,7 +73,7 @@ public static class NoneTests
         [Test]
         public void Parse_Fail()
         {
-            var target = None(And(Any(), Fail<char>()));
+            var target = None((IParser<char>)And(Any(), Fail<char>()));
             var input = FromString("abc");
             var result = target.Parse(input);
             result.Success.Should().BeFalse();
@@ -84,7 +84,7 @@ public static class NoneTests
         [Test]
         public void Match_Test()
         {
-            var target = None(And(Any(), Any()));
+            var target = None((IParser<char>)And(Any(), Any()));
             var input = FromString("abc");
             var result = target.Match(input);
             result.Should().BeTrue();
@@ -94,7 +94,7 @@ public static class NoneTests
         [Test]
         public void Match_Fail()
         {
-            var target = None(And(Any(), Fail<char>()));
+            var target = None((IParser<char>)And(Any(), Fail<char>()));
             var input = FromString("abc");
             var result = target.Match(input);
             result.Should().BeFalse();
