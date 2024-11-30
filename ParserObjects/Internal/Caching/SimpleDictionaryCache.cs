@@ -17,7 +17,7 @@ public sealed class SimpleDictionaryCache : Dictionary<(ISymbol, Location), obje
         if (TryGetValue((symbol, location), out var value) && value is TValue typed)
         {
             _statistics.Hits++;
-            return new Option<TValue>(true, typed);
+            return Option.Ok(typed);
         }
 
         _statistics.Misses++;

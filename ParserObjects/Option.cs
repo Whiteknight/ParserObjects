@@ -6,9 +6,6 @@ public static class Option
 {
     public static Option<T> Ok<T>(T value)
         => new Option<T>(true, value);
-
-    public static Option<T> Fail<T>()
-        => default;
 }
 
 /// <summary>
