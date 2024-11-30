@@ -63,8 +63,9 @@ public static class BnfDescription
             var literal = regularChars
                 .ListCharToString(1)
                 .Transform(s => new Token(TokenType.Literal, s, 0));
+
+            // We don't need to handle end-of-input here because the Append method above checks it
             return First(
-                If(End(), Produce(() => new Token(TokenType.End, string.Empty, 0))),
                 child,
                 literal
             );
