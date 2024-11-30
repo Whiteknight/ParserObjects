@@ -44,7 +44,7 @@ public static class Function<TInput, TOutput>
             _data = data;
             _parseFunction = parseFunction;
             _matchFunction = matchFunction ?? ((state, _) => Parse(state).Success);
-            _children = children ?? Array.Empty<IParser>();
+            _children = children ?? [];
             Description = description;
             Name = name;
         }
@@ -88,7 +88,7 @@ public static class Function<TInput, TOutput>
             return true;
         }
 
-        public IEnumerable<IParser> GetChildren() => _children ?? Array.Empty<IParser>();
+        public IEnumerable<IParser> GetChildren() => _children;
 
         public override string ToString() => DefaultStringifier.ToString("Function (Single)", Name, Id);
 
@@ -128,7 +128,7 @@ public static class Function<TInput, TOutput>
             _data = data;
             _parseFunction = parseFunction;
             Description = description;
-            _children = children ?? Array.Empty<IParser>();
+            _children = children ?? [];
             Name = name;
         }
 
@@ -181,20 +181,6 @@ public static class Function<TInput, TOutput>
             var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
             foreach (var value in values)
                 _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
-            return this;
-        }
-
-        public MultiResultBuilder AddSuccess(TOutput value)
-        {
-            var checkpoint = _state.Input.Checkpoint();
-            var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
-            _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
-            return this;
-        }
-
-        public MultiResultBuilder AddFailure(string message)
-        {
-            _results.Add(ResultAlternative<TOutput>.Failure(message, _startCheckpoint));
             return this;
         }
 
