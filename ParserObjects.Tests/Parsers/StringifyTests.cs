@@ -6,24 +6,12 @@ namespace ParserObjects.Tests.Parsers;
 
 public static class StringifyTests
 {
-    public class ArrayFunc
+    public class ListOfChars
     {
         [Test]
         public void Test()
         {
             var target = Stringify(Produce(() => new[] { 'a', 'b', 'c' }));
-            var result = target.Parse("");
-            result.Success.Should().BeTrue();
-            result.Value.Should().Be("abc");
-        }
-    }
-
-    public class ListFunc
-    {
-        [Test]
-        public void Test()
-        {
-            var target = Stringify(Produce(() => new char[] { 'a', 'b', 'c' }));
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");
@@ -47,7 +35,7 @@ public static class StringifyTests
         [Test]
         public void Test()
         {
-            var target = Produce(() => new char[] { 'a', 'b', 'c' }).Stringify();
+            var target = Produce(() => (IReadOnlyList<char>)new List<char> { 'a', 'b', 'c' }).Stringify();
             var result = target.Parse("");
             result.Success.Should().BeTrue();
             result.Value.Should().Be("abc");
