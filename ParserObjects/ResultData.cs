@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects;
@@ -19,14 +20,11 @@ public readonly struct ResultData
         Data = data;
     }
 
-    private ResultData(ResultDataType type, object? data)
+    private ResultData(ResultDataType type, ImmutableList<object> data)
     {
-        (_storageType, Data) = (type, data) switch
-        {
-            (ResultDataType.One, not null) => (ResultDataType.One, data),
-            (ResultDataType.List, ImmutableList<object>) => (ResultDataType.List, data),
-            _ => (ResultDataType.None, null)
-        };
+        Debug.Assert(type == ResultDataType.List, "At this point, the only thing we can create is a list");
+        _storageType = type;
+        Data = data;
     }
 
     public object? Data { get; }
@@ -35,7 +33,7 @@ public readonly struct ResultData
         => (_storageType, Data) switch
         {
             (ResultDataType.One, T typed) => new Option<T>(true, typed),
-            (ResultDataType.List, IEnumerable<object> list) => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
+            (ResultDataType.List, ImmutableList<object> list) => list.OfType<T>().Select(item => new Option<T>(true, item)).FirstOrDefault(),
             _ => default
         };
 
@@ -44,8 +42,7 @@ public readonly struct ResultData
         {
             (ResultDataType.One, not null) => new ResultData(ResultDataType.List, ImmutableList<object>.Empty.Add(Data).Add(data)),
             (ResultDataType.List, ImmutableList<object> list) => new ResultData(ResultDataType.List, list.Add(data)),
-            (ResultDataType.List, _) => throw new InvalidOperationException("Cannot be here"),
-            _ => new ResultData(data is null ? ResultDataType.None : ResultDataType.One, data)
+            _ => throw new InvalidOperationException("Unexpected situation")
         };
 
     private enum ResultDataType

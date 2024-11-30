@@ -11,6 +11,14 @@ public class ResultDataTests
     }
 
     [Test]
+    public void One_OfType_WrongType()
+    {
+        var target = new ResultData("test");
+        var result = target.OfType<int>();
+        result.Success.Should().BeFalse();
+    }
+
+    [Test]
     public void One_OfType_missing()
     {
         var target = new ResultData("test");
