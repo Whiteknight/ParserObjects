@@ -251,22 +251,32 @@ public class FromParseResultTests
     public void GetBetween_Failure()
     {
         int count = 0;
-        var values = "abcd";
         var parser = Function<char>((state, resultFactory) =>
         {
-            if (count > 4)
+            if (count >= 3)
                 return resultFactory.Failure("Count too high");
-            return resultFactory.Success(values[count++]);
+            count++;
+            return resultFactory.Success(state.Input.GetNext());
         });
-        var target = FromParseResult(FromString(values), parser);
+        var target = FromParseResult(FromString("abcd"), parser);
         target.GetNext().Value.Should().Be('a');
         target.GetNext().Value.Should().Be('b');
         var cp1 = target.Checkpoint();
         target.GetNext().Value.Should().Be('c');
-        target.GetNext().Value.Should().Be('d');
+        target.GetNext();
         var cp2 = target.Checkpoint();
 
         var result = target.GetArrayBetween(cp1, cp2);
         result.Length.Should().Be(0);
+    }
+
+    [Test]
+    public void GetStatistics_Test()
+    {
+        var parser = Any();
+        var target = FromParseResult("abc".ToCharacterSequence(), parser);
+
+        var result = target.GetStatistics();
+        result.ItemsRead.Should().Be(0);
     }
 }

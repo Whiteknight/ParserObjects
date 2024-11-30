@@ -95,11 +95,15 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
             if (!item.Success)
             {
                 currentPosition.Rewind();
+                ArrayPool<Result<TOutput>>.Shared.Return(buffer);
                 return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
             }
 
             if (item.Consumed == 0)
+            {
+                ArrayPool<Result<TOutput>>.Shared.Return(buffer);
                 return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
+            }
 
             buffer[i++] = item;
         }
