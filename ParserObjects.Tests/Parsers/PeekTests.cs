@@ -15,6 +15,8 @@ public class PeekTests
         target.Parse(input).Value.Should().Be('a');
         target.Parse(input).Value.Should().Be('a');
         input.Consumed.Should().Be(0);
+        var stats = input.GetStatistics();
+        stats.ItemsPeeked.Should().Be(3);
     }
 
     [Test]

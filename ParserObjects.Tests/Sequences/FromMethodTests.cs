@@ -215,6 +215,7 @@ public static class FromMethodTests
 
             var result = target.GetStatistics();
             result.ItemsRead.Should().Be(0);
+            result.ItemsGenerated.Should().Be(1);
         }
 
         [Test]
