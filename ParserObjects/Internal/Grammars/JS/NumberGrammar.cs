@@ -7,10 +7,10 @@ public static class NumberGrammar
 {
     public static IParser<char, string> CreateParser()
     {
-        var maybeMinus = MatchChar('-').Transform(_ => "-").Optional(() => "");
-        var zero = MatchChar('0').Transform(_ => "0");
+        var maybeMinus = MatchChar('-').Transform(static _ => "-").Optional(static () => "");
+        var zero = MatchChar('0').Transform(static _ => "0");
         var maybeDigits = Digit().ListCharToString();
-        var empty = Produce(() => "");
+        var empty = Produce(static () => "");
 
         // wholePart := '0' | <nonZeroDigit> <digits>*
         var wholePart = First(
@@ -18,16 +18,16 @@ public static class NumberGrammar
             Rule(
                 NonZeroDigit(),
                 maybeDigits,
-                (first, rest) => first + rest
+                static (first, rest) => first + rest
             )
         );
 
         // fractPart := '.' <digit>+ | <empty>
         var fractPart = First(
             Rule(
-                MatchChar('.').Transform(_ => "."),
+                MatchChar('.').Transform(static _ => "."),
                 DigitString(),
-                (dot, fract) => dot + fract
+                static (dot, fract) => dot + fract
             ),
             empty
         );
@@ -35,16 +35,16 @@ public static class NumberGrammar
         // expExpr := ('e' | 'E') ('+' | '-' | <empty>) <digit>+
         var expExpr = Rule(
             First(
-                MatchChar('e').Transform(_ => "e"),
-                MatchChar('E').Transform(_ => "E")
+                MatchChar('e').Transform(static _ => "e"),
+                MatchChar('E').Transform(static _ => "E")
             ),
             First(
-                MatchChar('+').Transform(_ => "+"),
-                MatchChar('-').Transform(_ => "-"),
-                Produce(() => "+")
+                MatchChar('+').Transform(static _ => "+"),
+                MatchChar('-').Transform(static _ => "-"),
+                Produce(static () => "+")
             ),
             DigitString(),
-            (e, sign, value) => e + sign + value
+            static (e, sign, value) => e + sign + value
         );
 
         // expPart := <exprExpr> | <empty>
