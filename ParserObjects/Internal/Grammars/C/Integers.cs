@@ -45,8 +45,7 @@ public static class Integers
         return First(
             decimalInteger,
             CreateHexSignedIntegerParser(),
-            octalInteger,
-            MatchChar('0').Transform(static _ => 0)
+            octalInteger
         );
     }
 
@@ -70,8 +69,7 @@ public static class Integers
         return First(
             decimalInteger,
             CreateHexUnsignedIntegerParser(),
-            octalInteger,
-            MatchChar('0').Transform(_ => 0U)
+            octalInteger
         );
     }
 
@@ -98,8 +96,7 @@ public static class Integers
         return First(
             decimalInteger,
             CreateHexSignedLongParser(),
-            octalInteger,
-            MatchChar('0').Transform(_ => 0L)
+            octalInteger
         );
     }
 
@@ -123,8 +120,7 @@ public static class Integers
         return First(
             decimalInteger,
             CreateHexUnsignedLongParser(),
-            octalInteger,
-            MatchChar('0').Transform(_ => 0UL)
+            octalInteger
         );
     }
 
@@ -298,9 +294,8 @@ public static class Integers
     private static ulong ConvertHexDigit(char c)
         => c switch
         {
-            >= '0' and <= '9' => (ulong)(c - '0'),
             >= 'a' and <= 'f' => (ulong)(c - 'a' + 10),
             >= 'A' and <= 'F' => (ulong)(c - 'A' + 10),
-            _ => 0
+            _ => (ulong)(c - '0')
         };
 }
