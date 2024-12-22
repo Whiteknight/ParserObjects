@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Pratt;
 
 namespace ParserObjects.Internal.Pratt;
@@ -107,7 +108,10 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => Name;
 
-    public INamed SetName(string name) => throw new InvalidOperationException("Cannot rename an internal parselet");
+    [ExcludeFromCodeCoverage]
+    public INamed SetName(string name)
+        => throw new InvalidOperationException("Cannot rename an internal parselet");
 }

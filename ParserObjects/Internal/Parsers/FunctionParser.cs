@@ -143,7 +143,7 @@ public static class Function<TInput, TOutput>
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.ArgumentNotNull(state);
-            var builder = new MultiResultBuilder(this, state, new List<ResultAlternative<TOutput>>(), state.Input.Checkpoint());
+            var builder = new MultiResultBuilder(this, state, new List<Alternative<TOutput>>(), state.Input.Checkpoint());
             return _parseFunction(state, _data, builder);
         }
 
@@ -164,10 +164,10 @@ public static class Function<TInput, TOutput>
     {
         private readonly IParser _parser;
         private readonly IParseState<TInput> _state;
-        private readonly List<ResultAlternative<TOutput>> _results;
+        private readonly List<Alternative<TOutput>> _results;
         private readonly SequenceCheckpoint _startCheckpoint;
 
-        public MultiResultBuilder(IParser parser, IParseState<TInput> state, List<ResultAlternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
+        public MultiResultBuilder(IParser parser, IParseState<TInput> state, List<Alternative<TOutput>> Results, SequenceCheckpoint StartCheckpoint)
         {
             _parser = parser;
             _state = state;
@@ -180,7 +180,7 @@ public static class Function<TInput, TOutput>
             var checkpoint = _state.Input.Checkpoint();
             var consumed = checkpoint.Consumed - _startCheckpoint.Consumed;
             foreach (var value in values)
-                _results.Add(ResultAlternative<TOutput>.Ok(value, consumed, checkpoint));
+                _results.Add(Alternative<TOutput>.Ok(value, consumed, checkpoint));
             return this;
         }
 

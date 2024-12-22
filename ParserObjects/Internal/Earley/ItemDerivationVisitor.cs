@@ -66,7 +66,7 @@ public readonly struct ItemDerivationVisitor
         var count = production.Symbols.Count;
         var values = ArrayPool<IReadOnlyList<object>>.Shared.Rent(count);
         if (!GetValuesArray(values, current))
-            return Array.Empty<object>();
+            return [];
 
         // Small shortcircuit: If there is only one item in the production, and that one item
         // has only one possible value after recursing, just return that without buffering.
@@ -210,7 +210,7 @@ public readonly struct ItemDerivationVisitor
             return results;
         }
 
-        return Array.Empty<object>();
+        return [];
     }
 
     private static bool IncrementBufferItems(int count, int[] indices, IReadOnlyList<object>[] values, object[] buffer)

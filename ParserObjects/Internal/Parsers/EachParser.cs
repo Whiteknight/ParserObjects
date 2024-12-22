@@ -26,7 +26,7 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
     public MultiResult<TOutput> Parse(IParseState<TInput> state)
     {
         var startCheckpoint = state.Input.Checkpoint();
-        var results = new List<ResultAlternative<TOutput>>();
+        var results = new List<Alternative<TOutput>>();
 
         foreach (var parser in _parsers)
         {
@@ -38,16 +38,16 @@ public sealed class EachParser<TInput, TOutput> : IMultiParser<TInput, TOutput>
         return new MultiResult<TOutput>(this, results);
     }
 
-    private static ResultAlternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
+    private static Alternative<TOutput> ParseOne(IParser<TInput, TOutput> parser, IParseState<TInput> state, SequenceCheckpoint startCheckpoint)
     {
         var result = parser.Parse(state);
         if (result.Success)
         {
             var endCheckpoint = state.Input.Checkpoint();
-            return ResultAlternative<TOutput>.Ok(result.Value, result.Consumed, endCheckpoint);
+            return Alternative<TOutput>.Ok(result.Value, result.Consumed, endCheckpoint);
         }
 
-        return ResultAlternative<TOutput>.Failure(result.ErrorMessage, startCheckpoint);
+        return Alternative<TOutput>.Failure(result.ErrorMessage, startCheckpoint);
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

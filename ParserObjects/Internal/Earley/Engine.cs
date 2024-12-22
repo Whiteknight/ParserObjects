@@ -52,7 +52,7 @@ public readonly struct Engine<TInput, TOutput>
     )
     {
         var derivationVisitor = new ItemDerivationVisitor(stats);
-        var results = new List<ResultAlternative<TOutput>>();
+        var results = new List<Alternative<TOutput>>();
         for (int i = 0; i < resultItems.Count; i++)
         {
             var resultItem = resultItems[i];
@@ -61,7 +61,7 @@ public readonly struct Engine<TInput, TOutput>
             {
                 Debug.Assert(derivations[j] is TOutput, "The derivation must have the correct type");
                 var value = (TOutput)derivations[j];
-                var result = ResultAlternative<TOutput>.Ok(value, resultItem.State.Number, resultItem.State.Checkpoint);
+                var result = Alternative<TOutput>.Ok(value, resultItem.State.Number, resultItem.State.Checkpoint);
                 results.Add(result);
             }
         }

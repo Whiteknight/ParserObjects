@@ -62,7 +62,7 @@ public static partial class Parsers<TInput>
     /// <returns></returns>
     public static IParser<TInput, TOutput> FirstResult<TOutput>(
         IMultiParser<TInput, TOutput> multiParser,
-        Func<ResultAlternative<TOutput>, bool> predicate
+        Func<Alternative<TOutput>, bool> predicate
     )
     {
         Assert.ArgumentNotNull(predicate);

@@ -19,11 +19,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, bool> Bool(IParser<TInput> parser)
         => new Function<TInput, bool>.Parser<IParser<TInput>>(
             parser,
-            static (state, p, args) =>
-            {
-                var result = p.Parse(state);
-                return args.Success(result.Success);
-            },
+            static (state, p, args) => args.Success(p.Parse(state).Success),
             static (state, p) => p.Match(state),
             "IF %0",
             [parser]
@@ -206,12 +202,8 @@ public static partial class Parsers<TInput>
                 var cp = state.Input.Checkpoint();
                 var result = p.Match(state);
                 if (result)
-                {
                     cp.Rewind();
-                    return true;
-                }
-
-                return false;
+                return result;
             },
             "(?=%0)",
             [parser]
@@ -310,11 +302,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<TOutput> produce)
         => Function<TInput, TOutput>.Create(
             produce,
-            static (_, p, args) =>
-            {
-                var value = p();
-                return args.Success(value);
-            },
+            static (_, p, args) => args.Success(p()),
             static (_, _) => true,
             "PRODUCE",
             []
@@ -329,11 +317,7 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Produce<TOutput>(Func<IParseState<TInput>, TOutput> produce)
         => Function<TInput, TOutput>.Create(
             produce,
-            static (state, p, args) =>
-            {
-                var value = p(state);
-                return args.Success(value);
-            },
+            static (state, p, args) => args.Success(p(state)),
             static (_, _) => true,
             "PRODUCE",
             []
@@ -350,7 +334,7 @@ public static partial class Parsers<TInput>
         {
             var values = p();
             return builder.AddSuccesses(values).BuildResult();
-        }, "PRODUCE", Array.Empty<IParser>());
+        }, "PRODUCE", []);
 
     /// <summary>
     /// Produces a multi result with all returned values as alternatives. Uses data or input from
@@ -364,7 +348,7 @@ public static partial class Parsers<TInput>
         {
             var values = p(s);
             return builder.AddSuccesses(values).BuildResult();
-        }, "PRODUCE", Array.Empty<IParser>());
+        }, "PRODUCE", []);
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.

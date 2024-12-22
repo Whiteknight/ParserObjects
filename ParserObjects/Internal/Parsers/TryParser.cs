@@ -211,7 +211,7 @@ public static class TryParser<TInput>
             => _data.Parse(
                 static (p, s) => p.Parse(s),
                 this,
-                static (p, ex, _) => new MultiResult<TOutput>(p, Array.Empty<ResultAlternative<TOutput>>(), new ResultData(ex)),
+                static (p, ex, _) => new MultiResult<TOutput>(p, Array.Empty<Alternative<TOutput>>(), new ResultData(ex)),
                 state
             );
 

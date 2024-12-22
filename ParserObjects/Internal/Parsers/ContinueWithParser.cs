@@ -47,7 +47,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             var startCp = state.Input.Checkpoint();
             var innerResult = _inner.Parse(state);
 
-            var results = new List<ResultAlternative<TOutput>>();
+            var results = new List<Alternative<TOutput>>();
 
             foreach (var alt in innerResult.Results)
             {
@@ -58,8 +58,8 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 _left.Value = alt.Value;
                 var result = _right.Parse(state);
                 results.Add(result.Success
-                    ? new ResultAlternative<TOutput>(true, null, result.Value, result.Consumed, state.Input.Checkpoint())
-                    : new ResultAlternative<TOutput>(false, result.ErrorMessage, default, 0, startCp));
+                    ? new Alternative<TOutput>(true, null, result.Value, result.Consumed, state.Input.Checkpoint())
+                    : new Alternative<TOutput>(false, result.ErrorMessage, default, 0, startCp));
             }
 
             startCp.Rewind();
@@ -109,7 +109,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
             var startCp = state.Input.Checkpoint();
             var innerResult = _inner.Parse(state);
 
-            var results = new List<ResultAlternative<TOutput>>();
+            var results = new List<Alternative<TOutput>>();
 
             foreach (var alt in innerResult.Results)
             {
@@ -121,7 +121,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
                 var result = _right.Parse(state);
                 if (!result.Success)
                 {
-                    results.Add(ResultAlternative<TOutput>.Failure("Right parser returned no valid results", startCp));
+                    results.Add(Alternative<TOutput>.Failure("Right parser returned no valid results", startCp));
                     continue;
                 }
 

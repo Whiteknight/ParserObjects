@@ -13,9 +13,9 @@ public static class ParserCache
         var result = _parsers.GetOrAdd(name, (n, c) =>
         {
             var parser = c();
-            if (parser.Name != n)
-                parser = parser.Named(n);
-            return parser;
+            return parser.Name == n
+                ? parser
+                : parser.Named(n);
         }, create);
 
         return result is TParser typed
