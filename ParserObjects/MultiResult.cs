@@ -5,7 +5,7 @@ using ParserObjects.Internal;
 
 namespace ParserObjects;
 
-public readonly record struct ResultAlternative<TOutput>(
+public readonly record struct Alternative<TOutput>(
     bool Success,
     string? InternalError,
     TOutput? InternalValue,
@@ -22,28 +22,28 @@ public readonly record struct ResultAlternative<TOutput>(
         ? string.Empty
         : InternalError ?? string.Empty;
 
-    public static ResultAlternative<TOutput> Failure(string errorMessage, SequenceCheckpoint startCheckpoint)
-        => new ResultAlternative<TOutput>(false, errorMessage, default!, 0, startCheckpoint);
+    public static Alternative<TOutput> Failure(string errorMessage, SequenceCheckpoint startCheckpoint)
+        => new Alternative<TOutput>(false, errorMessage, default!, 0, startCheckpoint);
 
-    public static ResultAlternative<TOutput> Ok(TOutput value, int consumed, SequenceCheckpoint continuation)
-        => new ResultAlternative<TOutput>(true, string.Empty, value, consumed, continuation);
+    public static Alternative<TOutput> Ok(TOutput value, int consumed, SequenceCheckpoint continuation)
+        => new Alternative<TOutput>(true, string.Empty, value, consumed, continuation);
 
-    public ResultAlternative<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
+    public Alternative<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
         => Success
-        ? new ResultAlternative<TValue>(true, string.Empty, transform(data, Value), Consumed, Continuation)
-        : new ResultAlternative<TValue>(false, ErrorMessage, default!, Consumed, Continuation);
+        ? new Alternative<TValue>(true, string.Empty, transform(data, Value), Consumed, Continuation)
+        : new Alternative<TValue>(false, ErrorMessage, default!, Consumed, Continuation);
 }
 
 public readonly record struct MultiResult<TOutput>(
     IParser Parser,
-    IReadOnlyList<ResultAlternative<TOutput>> Results,
+    IReadOnlyList<Alternative<TOutput>> Results,
     ResultData Data = default
 )
 {
     public bool Success => Results.Any(r => r.Success);
 
     public static MultiResult<TOutput> FromSingleFailure(IParser parser, SequenceCheckpoint startCheckpoint, string errorMessage)
-        => new MultiResult<TOutput>(parser, new[] { ResultAlternative<TOutput>.Failure(errorMessage, startCheckpoint) });
+        => new MultiResult<TOutput>(parser, new[] { Alternative<TOutput>.Failure(errorMessage, startCheckpoint) });
 
     public MultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
@@ -54,14 +54,14 @@ public readonly record struct MultiResult<TOutput>(
             Data);
     }
 
-    public Result<TOutput> ToResult(ResultAlternative<TOutput> alt)
+    public Result<TOutput> ToResult(Alternative<TOutput> alt)
         => alt.Success
         ? Result.Ok(Parser, alt.Value, alt.Consumed)
         : Result.Fail<TOutput>(Parser, alt.ErrorMessage);
 
     public MultiResult<object> AsObject() => Transform<object, object?>(null, static (_, x) => x!);
 
-    public MultiResult<TValue> SelectMany<TValue>(Func<ResultAlternative<TOutput>, ResultAlternative<TValue>> select)
+    public MultiResult<TValue> SelectMany<TValue>(Func<Alternative<TOutput>, Alternative<TValue>> select)
     {
         Assert.ArgumentNotNull(select);
         return new MultiResult<TValue>(

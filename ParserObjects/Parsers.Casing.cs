@@ -38,13 +38,9 @@ public static partial class Parsers
     public static IParser<char, IReadOnlyList<string>> SpinalCase()
         => GetOrCreate(
             "SpinalCase Words",
-            static () =>
-            {
-                var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '-');
-                var word = idChar.ListCharToString();
-                var separator = Match('-');
-                return word.List(separator, atLeastOne: true);
-            }
+            static () => Match(static c => char.IsLetterOrDigit(c) && c != '-')
+                .ListCharToString()
+                .List(Match('-'), atLeastOne: true)
         );
 
     /// <summary>
@@ -55,14 +51,9 @@ public static partial class Parsers
     public static IParser<char, IReadOnlyList<string>> ScreamingSpinalCase()
         => GetOrCreate(
             "ScreamingSpinalCase Words",
-            static () =>
-            {
-                var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-');
-                var word = idChar.ListCharToString();
-                var separator = MatchChar('-');
-                return word.List(separator, atLeastOne: true);
-            }
-        );
+            static () => Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '-')
+                .ListCharToString()
+                .List(MatchChar('-'), atLeastOne: true));
 
     /// <summary>
     /// Matches snake_case identifiers of letters (any case) or digits separated by
@@ -72,13 +63,9 @@ public static partial class Parsers
     public static IParser<char, IReadOnlyList<string>> SnakeCase()
         => GetOrCreate(
             "SnakeCase Words",
-            static () =>
-            {
-                var idChar = Match(static c => char.IsLetterOrDigit(c) && c != '_');
-                var word = idChar.ListCharToString();
-                var separator = Match('_');
-                return word.List(separator, atLeastOne: true);
-            }
+            static () => Match(static c => char.IsLetterOrDigit(c) && c != '_')
+                .ListCharToString()
+                .List(Match('_'), atLeastOne: true)
         );
 
     /// <summary>
@@ -89,12 +76,8 @@ public static partial class Parsers
     public static IParser<char, IReadOnlyList<string>> ScreamingSnakeCase()
         => GetOrCreate(
             "ScreamingSnakeCase Words",
-            static () =>
-            {
-                var idChar = Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_');
-                var word = idChar.ListCharToString();
-                var separator = Match('_');
-                return word.List(separator, atLeastOne: true);
-            }
+            static () => Match(static c => ((char.IsLetter(c) && char.IsUpper(c)) || char.IsDigit(c)) && c != '_')
+                .ListCharToString()
+                .List(Match('_'), atLeastOne: true)
         );
 }

@@ -33,9 +33,9 @@ public static class FindParserVisitor
         Assert.ArgumentNotNull(predicate);
         var state = new State(predicate, true);
         Visit(root, state);
-        if (state.Found.Count > 0)
-            return new Option<IParser>(true, state.Found[0]);
-        return default;
+        return state.Found.Count > 0
+            ? new Option<IParser>(true, state.Found[0])
+            : default;
     }
 
     /// <summary>
@@ -224,9 +224,8 @@ public static class FindParserVisitor
 
     private static void Visit(IParser parser, State state)
     {
-        if (parser == null)
-            return;
-        VisitInternal(parser, state);
+        if (parser != null)
+            VisitInternal(parser, state);
     }
 
     private static void VisitInternal(IParser parser, State state)

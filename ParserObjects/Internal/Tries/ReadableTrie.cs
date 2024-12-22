@@ -32,7 +32,7 @@ public readonly struct ReadableTrie<TKey, TResult>
         return _root.CanGet(keys);
     }
 
-    public IReadOnlyList<ResultAlternative<TResult>> GetMany(ISequence<TKey> keys)
+    public IReadOnlyList<Alternative<TResult>> GetMany(ISequence<TKey> keys)
     {
         Assert.ArgumentNotNull(keys);
         return _root.GetMany(keys);

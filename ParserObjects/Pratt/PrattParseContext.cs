@@ -244,6 +244,6 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 
     [ExcludeFromCodeCoverage]
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
-            where TVisitor : IVisitor<TState>
+        where TVisitor : IVisitor<TState>
         => throw new NotImplementedException();
 }

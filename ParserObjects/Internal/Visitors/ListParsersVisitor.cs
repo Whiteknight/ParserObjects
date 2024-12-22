@@ -6,10 +6,9 @@ public static class ListParsersVisitor
 {
     public static IReadOnlyDictionary<int, IParser> Visit(IParser parser)
     {
-        if (parser == null)
-            return new Dictionary<int, IParser>();
         var parsers = new Dictionary<int, IParser>();
-        VisitInternal(parser, parsers);
+        if (parser != null)
+            VisitInternal(parser, parsers);
         return parsers;
     }
 

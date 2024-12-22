@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using ParserObjects.Earley;
@@ -61,8 +62,10 @@ public sealed class State
         return existing;
     }
 
+    [ExcludeFromCodeCoverage]
     public override string ToString() => $"State {Number}";
 
+    [ExcludeFromCodeCoverage]
     public string GetCompleteListing()
     {
         var sb = new StringBuilder();

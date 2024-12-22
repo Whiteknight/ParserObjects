@@ -4,8 +4,8 @@ namespace ParserObjects.Internal;
 
 /// <summary>
 /// A struct representing a partial parse result. Can be converted into an Result by adding
-/// additional information. Used internally to pass values without having to allocate Result
-/// objects on the heap.
+/// additional information. Used internally to pass values within a parser until enough information
+/// is available to construct a proper Result.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 public readonly struct PartialResult<TValue>
@@ -36,19 +36,19 @@ public readonly struct PartialResult<TValue>
 
     public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<TResult> onFailure)
         => Success
-        ? onSuccess(Value!)
-        : onFailure();
+            ? onSuccess(Value!)
+            : onFailure();
 
     public TResult Match<TResult, TData>(TData data, Func<TValue, TData, TResult> onSuccess, Func<TData, TResult> onFailure)
         => Success
-        ? onSuccess(Value!, data)
-        : onFailure(data);
+            ? onSuccess(Value!, data)
+            : onFailure(data);
 
     public Option<TValue> ToOption()
         => Match(static v => new Option<TValue>(true, v), static () => default);
 
     public Result<TValue> ToResult(IParser parser)
         => Success
-        ? new Result<TValue>(parser, true, null, Value, Consumed, default)
-        : new Result<TValue>(parser, false, ErrorMessage, default, 0, default);
+            ? new Result<TValue>(parser, true, null, Value, Consumed, default)
+            : new Result<TValue>(parser, false, ErrorMessage, default, 0, default);
 }

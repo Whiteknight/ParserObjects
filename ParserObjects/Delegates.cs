@@ -3,15 +3,6 @@
 namespace ParserObjects;
 
 /// <summary>
-/// Create a new ResultAlternative starting from an existing result.
-/// </summary>
-/// <typeparam name="TOutput"></typeparam>
-/// <param name="existing"></param>
-/// <param name="factory"></param>
-/// <returns></returns>
-public delegate ResultAlternative<TOutput> CreateNewResultAlternative<TOutput>(ResultAlternative<TOutput> existing, ResultAlternativeFactoryMethod<TOutput> factory);
-
-/// <summary>
 /// Get or create a parser given the current parse state.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
@@ -87,14 +78,10 @@ public delegate IParser<TInput, TOutput> GetParserFromResult<TInput, TMiddle, TO
 /// <returns></returns>
 public delegate IEnumerable<IParser<TInput, TOutput>> GetParsersFromParser<TInput, TMiddle, TOutput>(IParser<TInput, TMiddle> p);
 
-public delegate ResultAlternative<TOutput> SelectResultFromMultiResult<TOutput>(MultiResult<TOutput> result);
-
 /// <summary>
-/// Factory method for creating a new result alternative of the same type.
+/// Given a MultiResult, select and return a single ResultAlternative.
 /// </summary>
 /// <typeparam name="TOutput"></typeparam>
-/// <param name="value"></param>
-/// <param name="consumed"></param>
-/// <param name="continuation"></param>
+/// <param name="result"></param>
 /// <returns></returns>
-public delegate ResultAlternative<TOutput> ResultAlternativeFactoryMethod<TOutput>(TOutput value, int consumed, SequenceCheckpoint continuation);
+public delegate Alternative<TOutput> SelectResultFromMultiResult<TOutput>(MultiResult<TOutput> result);

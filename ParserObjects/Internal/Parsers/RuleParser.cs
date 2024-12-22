@@ -20,18 +20,20 @@ public static class Rule
         TData data,
         Func<TData, IReadOnlyList<object>, TOutput> produce
     ) => new Parser<TInput, TOutput, TData, IParser<TInput>, object>(parsers, data,
-            static (state, parser) => parser.Parse(state),
-            static (state, parser) => parser.Match(state),
-            produce);
+        static (state, parser) => parser.Parse(state),
+        static (state, parser) => parser.Match(state),
+        produce
+    );
 
     public static IParser<TInput, TOutput> CreateTyped<TInput, TItem, TOutput, TData>(
         IReadOnlyList<IParser<TInput, TItem>> parsers,
         TData data,
         Func<TData, IReadOnlyList<TItem>, TOutput> produce
     ) => new Parser<TInput, TOutput, TData, IParser<TInput, TItem>, TItem>(parsers, data,
-            static (state, parser) => parser.Parse(state),
-            static (state, parser) => parser.Match(state),
-            produce);
+        static (state, parser) => parser.Parse(state),
+        static (state, parser) => parser.Match(state),
+        produce
+    );
 
     /// <summary>
     /// Parses a list of steps in sequence and produces a single output as a combination of outputs
