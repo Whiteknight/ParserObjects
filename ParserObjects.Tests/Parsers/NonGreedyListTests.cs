@@ -26,6 +26,24 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Parse_Untyped()
+    {
+        var target = (IParser<char>)NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Parse("aaaab");
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be("(aaa)(ab)");
+        result.Consumed.Should().Be(5);
+    }
+
+    [Test]
     public void Parse_Fail_NoConsumed()
     {
         var target = NonGreedyList(
@@ -292,6 +310,24 @@ public class NonGreedyListTests
     }
 
     [Test]
+    public void Match_SeparatorMissing_BelowMinimum()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            MatchChar(','),
+            l => Rule(
+                l,
+                MatchChar('a'),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            ),
+            minimum: 3
+        );
+
+        var result = target.Match("a,aa,ab");
+        result.Should().BeFalse();
+    }
+
+    [Test]
     public void Match_NoItems()
     {
         var target = NonGreedyList(
@@ -307,6 +343,23 @@ public class NonGreedyListTests
         var result = target.Match(input);
         result.Should().BeTrue();
         input.Consumed.Should().Be(2);
+    }
+
+    [Test]
+    public void Match_Fail_NoItems()
+    {
+        var target = NonGreedyList(
+            MatchChar('a'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var input = FromString("X");
+        var result = target.Match(input);
+        result.Should().BeFalse();
     }
 
     [Test]
@@ -340,6 +393,22 @@ public class NonGreedyListTests
         );
 
         var result = target.Match("aaB");
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Match_Fail_NoConsumed()
+    {
+        var target = NonGreedyList(
+            Produce(() => 'X'),
+            l => Rule(
+                l,
+                CharacterString("ab"),
+                (x, y) => $"({new string(x.ToArray())})({y})"
+            )
+        );
+
+        var result = target.Match("aaaab");
         result.Should().BeFalse();
     }
 
