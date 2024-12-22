@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
@@ -132,6 +133,10 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     private bool _expectLowSurrogate;
 
+    // This one is hard, if not impossible to test because the StreamReader isn't going to put
+    // unmatched high surrogates into the char buffer. We're going to keep a lot of this
+    // if (error) throw... logic just to be safe, but expect it to not come up much.
+    [ExcludeFromCodeCoverage]
     private char GetLowSurrogateOrThrow()
     {
         if (_index < _totalCharsInBuffer)

@@ -545,6 +545,44 @@ public class FromCharacterStreamTests
         new string(target.GetArrayBetween(cp1, cp4)).Should().Be("abcdef");
     }
 
+    [TestCase(5)]
+    [TestCase(2)]
+    public void GetBetween_ExpectedLowSurrogate(int bufferSize)
+    {
+        // Poop emoji from the astral plane (4 bytes)
+        var target = GetTarget("\U0001F4A9abc", bufferSize: bufferSize, encoding: Encoding.UTF8);
+        target.GetNext().Should().Be('\uD83D');
+        Action act = () => target.GetRemainder();
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void GetStringBetween_Test(int bufferSize, bool useAscii)
+    {
+        var target = GetTarget("abcdef", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+        var cp1 = target.Checkpoint();
+        target.GetNext().Should().Be('a');
+        target.GetNext().Should().Be('b');
+        var cp2 = target.Checkpoint();
+        target.GetNext().Should().Be('c');
+        target.GetNext().Should().Be('d');
+        var cp3 = target.Checkpoint();
+        target.GetNext().Should().Be('e');
+        target.GetNext().Should().Be('f');
+        var cp4 = target.Checkpoint();
+        target.GetNext().Should().Be('\0');
+
+        target.GetStringBetween(cp1, cp2).Should().Be("ab");
+        target.GetStringBetween(cp2, cp3).Should().Be("cd");
+        target.GetStringBetween(cp3, cp4).Should().Be("ef");
+        target.GetStringBetween(cp1, cp3).Should().Be("abcd");
+        target.GetStringBetween(cp2, cp4).Should().Be("cdef");
+        target.GetStringBetween(cp1, cp4).Should().Be("abcdef");
+    }
+
     [TestCase(5, true)]
     [TestCase(5, false)]
     [TestCase(2, true)]
@@ -591,6 +629,23 @@ public class FromCharacterStreamTests
         result.Should().Be("efghi");
 
         target.GetNext().Should().Be('e');
+    }
+
+    [TestCase(5, true)]
+    [TestCase(5, false)]
+    [TestCase(2, true)]
+    [TestCase(2, false)]
+    public void GetStatistics_Test(int bufferSize, bool useAscii)
+    {
+        var target = GetTarget("abcdefghi", bufferSize: bufferSize, encoding: useAscii ? Encoding.ASCII : Encoding.UTF8);
+
+        target.GetNext().Should().Be('a');
+        target.GetNext().Should().Be('b');
+        target.GetNext().Should().Be('c');
+        target.GetNext().Should().Be('d');
+
+        var result = target.GetStatistics();
+        result.ItemsRead.Should().Be(4);
     }
 
     [TestCase(5, true)]
