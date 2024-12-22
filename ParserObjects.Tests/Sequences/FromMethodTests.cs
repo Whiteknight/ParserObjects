@@ -73,6 +73,8 @@ public static class FromMethodTests
             });
 
             target.Peek().Should().Be(0);
+            target.GetNext();
+            target.Peek().Should().Be(0);
         }
 
         [Test]
@@ -173,6 +175,32 @@ public static class FromMethodTests
             var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result.Should().ContainInOrder(3, 4);
+        }
+
+        [Test]
+        public void GetBetween_WrongOrder()
+        {
+            var source = new[] { 1, 2, 3, 4, 5, 6 };
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return (0, true);
+                return (source[idx], idx == source.Length - 1);
+            });
+
+            target.GetNext().Should().Be(1);
+            target.GetNext().Should().Be(2);
+
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be(3);
+            target.GetNext().Should().Be(4);
+
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be(5);
+            target.GetNext().Should().Be(6);
+
+            var result = target.GetArrayBetween(cp2, cp1);
+            result.Length.Should().Be(0);
         }
 
         [Test]
@@ -454,6 +482,32 @@ public static class FromMethodTests
             var result = target.GetArrayBetween(cp1, cp2);
             result.Length.Should().Be(2);
             result.Should().ContainInOrder('c', 'd');
+        }
+
+        [Test]
+        public void GetBetween_WrongOrder()
+        {
+            var source = "abcdef";
+            var target = FromMethod(idx =>
+            {
+                if (idx >= source.Length)
+                    return ('\0', true);
+                return (source[idx], idx == source.Length - 1);
+            });
+
+            target.GetNext().Should().Be('a');
+            target.GetNext().Should().Be('b');
+
+            var cp1 = target.Checkpoint();
+            target.GetNext().Should().Be('c');
+            target.GetNext().Should().Be('d');
+
+            var cp2 = target.Checkpoint();
+            target.GetNext().Should().Be('e');
+            target.GetNext().Should().Be('f');
+
+            var result = target.GetArrayBetween(cp2, cp1);
+            result.Length.Should().Be(0);
         }
 
         [Test]

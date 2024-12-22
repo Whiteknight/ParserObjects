@@ -211,9 +211,9 @@ public static class UserDelegate
                 var (next, atEnd) = _function(i);
                 _stats.ItemsGenerated++;
                 _buffers[_bufferPtr].Values[i] = next;
-                if (atEnd && _endIndex == -1)
+                if (atEnd)
                 {
-                    _endIndex = i + 1;
+                    Debug.Assert(_endIndex >= 0, "Since this is a rewind we should already have seen the end index");
                     break;
                 }
             }

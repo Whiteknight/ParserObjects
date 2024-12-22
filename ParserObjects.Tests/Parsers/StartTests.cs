@@ -23,4 +23,12 @@ public class StartTests
         var result = target.Parse(input);
         result.Success.Should().BeFalse();
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = Start();
+        var result = target.ToBnf();
+        result.Should().Contain("START");
+    }
 }
