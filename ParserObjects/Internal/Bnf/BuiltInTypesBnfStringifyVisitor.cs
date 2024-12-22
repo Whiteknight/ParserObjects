@@ -441,11 +441,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, BnfStringifyState state)
     {
         var allPatterns = p.Trie.GetAllPatterns().ToList();
-        if (allPatterns.Count == 0)
-        {
-            state.Append("()");
-            return;
-        }
+        Debug.Assert(allPatterns.Count > 0, "Trie must have at least one entry");
 
         static void PrintPattern(IEnumerable<TInput> pattern, BnfStringifyState s)
         {

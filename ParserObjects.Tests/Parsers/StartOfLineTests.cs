@@ -31,4 +31,12 @@ public class StartOfLineTests
         result = target.Parse(input);
         result.Success.Should().BeTrue();
     }
+
+    [Test]
+    public void ToBnf_Test()
+    {
+        var target = StartOfLine();
+        var result = target.ToBnf();
+        result.Should().Contain("START");
+    }
 }
