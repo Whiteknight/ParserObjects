@@ -6,6 +6,7 @@ dotnet pack ParserObjects/ParserObjects.csproj --configuration Release --no-buil
 
 # Get the current version number
 POVERSION=$(cat ParserObjects/ParserObjects.csproj | sed -n -e 's/.*<Version>\(.*\)<\/Version>.*/\1/p')
+echo Pushing version $POVERSION
 
 # Push the packages
 nuget push ParserObjects/bin/Release/ParserObjects.$POVERSION.nupkg -Source https://www.nuget.org/api/v2/package
