@@ -19,34 +19,14 @@ public static class SequenceOptions
         };
 }
 
-public struct SequenceOptions<T>
+public readonly record struct SequenceOptions<T>(
+    string FileName,
+    int BufferSize,
+    T EndSentinel,
+    bool MaintainLineEndings,
+    Encoding? Encoding
+)
 {
-    /// <summary>
-    /// Gets or sets the name of the file to read from.
-    /// </summary>
-    public string FileName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the internal buffer, if used. Defaults to DefaultBufferSize.
-    /// </summary>
-    public int BufferSize { get; set; }
-
-    /// <summary>
-    /// Gets or sets the value of the end sentinel to use if an attempt is made to read past the
-    /// end of the source data.
-    /// </summary>
-    public T EndSentinel { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether to maintain the original line-endings.
-    /// </summary>
-    public bool MaintainLineEndings { get; set; }
-
-    /// <summary>
-    /// Gets or sets the encoding to use when bytes need to be decoded to characters.
-    /// </summary>
-    public Encoding? Encoding { get; set; }
-
     /// <summary>
     /// Gets a value indicating whether to normalize line endings to '\n'.
     /// </summary>
@@ -56,12 +36,10 @@ public struct SequenceOptions<T>
     /// Validate the values and set defaults where values are omitted.
     /// </summary>
     public SequenceOptions<T> Validate()
-        => new SequenceOptions<T>
+        => this with
         {
             BufferSize = BufferSize <= 0 ? SequenceOptions.DefaultBufferSize : BufferSize,
             FileName = FileName ?? string.Empty,
-            Encoding = Encoding ?? Encoding.UTF8,
-            EndSentinel = EndSentinel,
-            MaintainLineEndings = MaintainLineEndings,
+            Encoding = Encoding ?? Encoding.UTF8
         };
 }
