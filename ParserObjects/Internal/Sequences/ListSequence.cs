@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 namespace ParserObjects.Internal.Sequences;
@@ -21,7 +22,7 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public ListSequence(IEnumerable<T> enumerable, T endSentinel)
     {
-        Assert.NotNull(enumerable);
+        NotNull(enumerable);
         _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToArray();
         _endSentinelValue = endSentinel;
         _stats = default;
@@ -30,8 +31,7 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public ListSequence(IReadOnlyList<T> list, T endSentinel)
     {
-        Assert.NotNull(list);
-        _list = list;
+        _list = NotNull(list);
         _endSentinelValue = endSentinel;
         _stats = default;
         Reset();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Visitors;
 
@@ -20,17 +21,16 @@ public static class FindParserVisitor
 
         public State(Func<IParser, bool> predicate, bool justOne)
         {
-            Predicate = predicate;
+            Predicate = NotNull(predicate);
             JustOne = justOne;
-            Found = new List<IParser>();
-            Seen = new HashSet<IParser>();
+            Found = [];
+            Seen = [];
         }
     }
 
     private static Option<IParser> FindSingle(IParser root, Func<IParser, bool> predicate)
     {
-        Assert.NotNull(root);
-        Assert.NotNull(predicate);
+        NotNull(root);
         var state = new State(predicate, true);
         Visit(root, state);
         return state.Found.Count > 0
@@ -47,7 +47,7 @@ public static class FindParserVisitor
     /// <returns></returns>
     public static Option<IParser> Named(IParser root, string name)
     {
-        Assert.NotNullOrEmpty(name);
+        NotNullOrEmpty(name);
         return FindSingle(root, p => p.Name == name);
     }
 
@@ -69,7 +69,7 @@ public static class FindParserVisitor
     public static IReadOnlyList<TParser> OfType<TParser>(IParser root)
         where TParser : IParser
     {
-        Assert.NotNull(root);
+        NotNull(root);
         var state = new State(p => p is TParser, false);
         Visit(root, state);
         return state.Found.Cast<TParser>().ToList();

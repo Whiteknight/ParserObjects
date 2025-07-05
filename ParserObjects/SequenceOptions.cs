@@ -55,11 +55,13 @@ public struct SequenceOptions<T>
     /// <summary>
     /// Validate the values and set defaults where values are omitted.
     /// </summary>
-    public void Validate()
-    {
-        if (BufferSize <= 0)
-            BufferSize = SequenceOptions.DefaultBufferSize;
-        FileName ??= string.Empty;
-        Encoding ??= Encoding.UTF8;
-    }
+    public SequenceOptions<T> Validate()
+        => new SequenceOptions<T>
+        {
+            BufferSize = BufferSize <= 0 ? SequenceOptions.DefaultBufferSize : BufferSize,
+            FileName = FileName ?? string.Empty,
+            Encoding = Encoding ?? Encoding.UTF8,
+            EndSentinel = EndSentinel,
+            MaintainLineEndings = MaintainLineEndings,
+        };
 }

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Pratt;
 
@@ -21,9 +22,8 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public Parselet(int tokenTypeId, IParser<TInput, TValue> match, NudFunc<TInput, TValue, TOutput>? nud, LedFunc<TInput, TValue, TOutput>? led, int lbp, int rbp, string name)
     {
-        Assert.NotNull(match);
         TokenTypeId = tokenTypeId;
-        _match = match;
+        _match = NotNull(match);
         _nud = nud;
         _led = led;
         Lbp = lbp;
@@ -60,10 +60,10 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
      * parser or to another place for the user to catch and examine it.
      */
 
-    public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl)
+    public (bool Success, ValueToken<TOutput> Token, int Consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl)
     {
-        Debug.Assert(CanNud, "Must be a NUDable parselet");
-        Debug.Assert(_nud != null, "Must be a NUDable parselet");
+        Debug.Assert(CanNud);
+        Debug.Assert(_nud != null);
 
         var startCp = state.Input.Checkpoint();
         var result = _match.Parse(state);
@@ -84,10 +84,10 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
         }
     }
 
-    public (bool success, ValueToken<TOutput> token, int consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left)
+    public (bool Success, ValueToken<TOutput> Token, int Consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left)
     {
-        Debug.Assert(CanLed, "Must be a LEDable parselet");
-        Debug.Assert(_led != null, "Must be a LEDable parselet");
+        Debug.Assert(CanLed);
+        Debug.Assert(_led != null);
 
         var startCp = state.Input.Checkpoint();
         var result = _match.Parse(state);

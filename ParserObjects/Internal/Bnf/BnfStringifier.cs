@@ -17,8 +17,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public BnfStringifier()
     {
-        _partials =
-        [
+        _partials = [
             new BuiltInTypesBnfStringifyVisitor()
         ];
     }

@@ -15,7 +15,7 @@ public readonly struct ItemDerivationVisitor
 
     public ItemDerivationVisitor(ParseStatistics statistics)
     {
-        _cache = new Dictionary<(IProduction, int, int), IReadOnlyList<object>>();
+        _cache = [];
         _statistics = statistics ?? throw new ArgumentNullException(nameof(statistics));
     }
 
@@ -36,7 +36,7 @@ public readonly struct ItemDerivationVisitor
 
         var production = endItem.Production;
 
-        Debug.Assert(endItem.Index == production.Symbols.Count, "This is the end item of this production");
+        Debug.Assert(endItem.Index == production.Symbols.Count);
 
         var key = (production, endItem.ParentState.Number, endItem.CurrentState.Number);
         if (_cache.TryGetValue(key, out var value))
@@ -111,7 +111,7 @@ public readonly struct ItemDerivationVisitor
         }
         while (IncrementBufferItems(count, indices, values, buffer));
 
-        Debug.Assert(results.Count <= maxResultsCount, "We didn't allocate enough space");
+        Debug.Assert(results.Count <= maxResultsCount);
 
         ArrayPool<IReadOnlyList<object>>.Shared.Return(values);
         ArrayPool<object>.Shared.Return(buffer);
@@ -136,7 +136,7 @@ public readonly struct ItemDerivationVisitor
 
     private List<object> GenerateValueForSingleSymbol(Item endItem, IProduction production)
     {
-        Debug.Assert(endItem?.Derivations != null, "Must have a valid endItem here");
+        Debug.Assert(endItem?.Derivations != null);
         var argBuffer = new object[1];
         var results = new List<object>(endItem.Derivations.Count);
 
@@ -215,9 +215,9 @@ public readonly struct ItemDerivationVisitor
 
     private static bool IncrementBufferItems(int count, int[] indices, IReadOnlyList<object>[] values, object[] buffer)
     {
-        Debug.Assert(indices.Length >= count, "The indices array should have at least as many items as the count");
-        Debug.Assert(values.Length >= count, "The values array should have at least as many items as the count");
-        Debug.Assert(buffer.Length >= count, "The buffer should have at least as many slots as the count");
+        Debug.Assert(indices.Length >= count);
+        Debug.Assert(values.Length >= count);
+        Debug.Assert(buffer.Length >= count);
 
         // Incrementing happens after we produce a value. So the first iteration we have already
         // produced (0, 0, ..., 0) so we start here immediately by incrementing to (1, 0, ...)

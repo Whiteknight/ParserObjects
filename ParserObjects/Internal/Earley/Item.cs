@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ParserObjects.Earley;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Earley;
 
@@ -21,20 +22,17 @@ public sealed class Item : IEquatable<Item>
 
     public Item(IProduction production, int index, State parent, State currentState, Item? previous)
     {
-        Assert.NotNull(production);
-        Assert.NotNull(parent);
-
-        Production = production;
+        Production = NotNull(production);
         Index = index;
 
         Previous = previous;
-        _derivations = index == 0 ? null : new List<object>();
+        _derivations = index == 0 ? null : [];
 
         // ParentState is the state where this item started. CurrentState is the currently
         // active state where this item currenly resides. We need references here instead of
         // just the integer state numbers, because old States won't be referenced anymore
         // and they will get GC'd if we don't keep reference to them if we need them.
-        ParentState = parent;
+        ParentState = NotNull(parent);
         CurrentState = currentState;
     }
 
@@ -59,7 +57,7 @@ public sealed class Item : IEquatable<Item>
     {
         get
         {
-            Debug.Assert(!AtEnd, "End items do not have next symbols to match");
+            Debug.Assert(!AtEnd);
             return Production.Symbols[Index];
         }
     }
@@ -69,7 +67,7 @@ public sealed class Item : IEquatable<Item>
     {
         get
         {
-            Debug.Assert(!AtStart, "Start items do not have values");
+            Debug.Assert(!AtStart);
             return Production.Symbols[Index - 1];
         }
     }
@@ -98,17 +96,17 @@ public sealed class Item : IEquatable<Item>
     // single value
     public void SetTerminalValue(object input)
     {
-        Debug.Assert(!AtStart, "Start items cannot have values");
-        Debug.Assert(ValueSymbol is IParser, "Only parser (terminal) symbols may have values");
+        Debug.Assert(!AtStart);
+        Debug.Assert(ValueSymbol is IParser);
         _derivations!.Add(input);
     }
 
     public void Add(Item item)
     {
-        Debug.Assert(!AtStart, "Start items cannot have values");
+        Debug.Assert(!AtStart);
         var previousNonterminal = ValueSymbol as INonterminal;
-        Debug.Assert(previousNonterminal != null, "Only non-terminal symbols may point to Items");
-        Debug.Assert(previousNonterminal.Productions.Contains(item.Production), "The item should have the same production");
+        Debug.Assert(previousNonterminal != null);
+        Debug.Assert(previousNonterminal.Productions.Contains(item.Production));
 
         if (_derivations!.Contains(item))
             return;
@@ -117,7 +115,7 @@ public sealed class Item : IEquatable<Item>
 
     public Item CreateNextItem(State currentState)
     {
-        Debug.Assert(!AtEnd, "End items cannot be advanced");
+        Debug.Assert(!AtEnd);
         return new Item(Production, Index + 1, ParentState, currentState, this);
     }
 

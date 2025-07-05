@@ -1,7 +1,7 @@
 ﻿namespace ParserObjects.Internal.Visitors;
 
 /// <summary>
-/// Result of a single replacement operation
+/// Result of a single replacement operation.
 /// </summary>
 public readonly record struct SingleReplaceResult(
     IReplaceableParserUntyped Replaceable,

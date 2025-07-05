@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Pratt;
 
@@ -16,7 +17,7 @@ public sealed class Engine<TInput, TOutput>
 
     public Engine(IReadOnlyList<IParselet<TInput, TOutput>> parselets)
     {
-        Assert.NotNullAndContainsNoNulls(parselets);
+        NotNullAndContainsNoNulls(parselets);
         _nudableParselets = new IParselet<TInput, TOutput>[parselets.Count];
         _ledableParselets = new IParselet<TInput, TOutput>[parselets.Count];
         int numNudable = 0;
@@ -41,7 +42,7 @@ public sealed class Engine<TInput, TOutput>
 
     public PartialResult<TOutput> TryParse(IParseState<TInput> state, int rbp, ParseControl parseControl)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var levelCp = state.Input.Checkpoint();
         try
         {

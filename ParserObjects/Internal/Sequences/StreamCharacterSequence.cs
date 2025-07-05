@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 #pragma warning disable S1121
@@ -29,13 +30,11 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
-        Assert.NotNull(reader);
-        _options = options;
+        _options = options.Validate();
         _options.Encoding = reader.CurrentEncoding;
-        _options.Validate();
         _stats = default;
         _buffer = new char[_options.BufferSize];
-        _reader = reader;
+        _reader = NotNull(reader);
         _totalCharsInBuffer = _reader.Read(_buffer, 0, _options.BufferSize);
         _stats.BufferFills++;
         _bufferStartPositions = new long[(_reader.BaseStream.Length / _options.BufferSize) + 1];
@@ -45,9 +44,8 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.NotNull(stream);
-        _options = options;
-        _options.Validate();
+        NotNull(stream);
+        _options = options.Validate();
         _stats = default;
         _buffer = new char[_options.BufferSize];
         _reader = new StreamReader(stream, _options.Encoding!);
@@ -72,8 +70,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     private int GetEncodingByteCountForCharacter(char c)
     {
-        Span<char> buffer = stackalloc char[1];
-        buffer[0] = c;
+        Span<char> buffer = [c];
         return _options.Encoding!.GetByteCount(buffer);
     }
 
@@ -177,7 +174,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
             // We've seen the low surrogate for the size calculation. Assert, clear the flag.
             // Don't advance the stream position because we already did that when we saw the
             // high surrogate
-            Debug.Assert(char.IsLowSurrogate(c), "Make sure the low surrogate is still there");
+            Debug.Assert(char.IsLowSurrogate(c));
             _expectLowSurrogate = false;
             FillBuffer();
             return c;
@@ -280,7 +277,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
     {
-        Assert.NotNull(map);
+        NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map([], data);
 

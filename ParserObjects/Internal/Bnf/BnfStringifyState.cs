@@ -19,7 +19,7 @@ public sealed class BnfStringifyState
         _builder = sb;
         _history = new Stack<StringBuilder>();
         _history.Push(new StringBuilder());
-        _seen = new HashSet<IParser>();
+        _seen = [];
     }
 
     public void Visit(IParser parser, bool writeInPlace = true)

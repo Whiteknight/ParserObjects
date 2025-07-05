@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using static ParserObjects.Internal.Assert;
 
 #pragma warning disable S1121
 
@@ -23,9 +24,8 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public StreamByteSequence(SequenceOptions<byte> options)
     {
-        _options = options;
-        Assert.NotNullOrEmpty(_options.FileName);
-        _options.Validate();
+        NotNullOrEmpty(options.FileName);
+        _options = options.Validate();
 
         _stats = default;
         _bufferIndex = _options.BufferSize;
@@ -38,9 +38,8 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public StreamByteSequence(Stream stream, SequenceOptions<byte> options)
     {
-        Assert.NotNull(stream);
-        _options = options;
-        _options.Validate();
+        NotNull(stream);
+        _options = options.Validate();
 
         _stats = default;
         _bufferIndex = _options.BufferSize;
@@ -169,7 +168,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<byte, TData, TResult> map)
     {
-        Assert.NotNull(map);
+        NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map([], data);
 

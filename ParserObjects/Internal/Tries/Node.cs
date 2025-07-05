@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Tries;
 
@@ -28,8 +29,7 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, (Node<TKey, TRes
 
     public Node<TKey, TResult> GetOrAddChild(TKey key)
     {
-        Assert.NotNull(key);
-        var wrappedKey = new ValueTuple<TKey>(key);
+        var wrappedKey = new ValueTuple<TKey>(NotNull(key));
         if (ContainsKey(wrappedKey))
         {
             if (this[wrappedKey].Node != null)

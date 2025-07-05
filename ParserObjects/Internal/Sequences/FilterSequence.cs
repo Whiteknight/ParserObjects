@@ -1,4 +1,5 @@
 ﻿using System;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -13,10 +14,8 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
     {
-        Assert.NotNull(inputs);
-        Assert.NotNull(predicate);
-        _inputs = inputs;
-        _predicate = predicate;
+        _inputs = NotNull(inputs);
+        _predicate = NotNull(predicate);
         DiscardNonMatches();
     }
 

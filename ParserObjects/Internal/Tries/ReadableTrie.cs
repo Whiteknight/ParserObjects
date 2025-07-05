@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Tries;
 
@@ -21,22 +22,13 @@ public readonly struct ReadableTrie<TKey, TResult>
     }
 
     public PartialResult<TResult> Get(ISequence<TKey> keys)
-    {
-        Assert.NotNull(keys);
-        return _root.Get(keys);
-    }
+        => _root.Get(NotNull(keys));
 
     public bool CanGet(ISequence<TKey> keys)
-    {
-        Assert.NotNull(keys);
-        return _root.CanGet(keys);
-    }
+        => _root.CanGet(NotNull(keys));
 
     public IReadOnlyList<Alternative<TResult>> GetMany(ISequence<TKey> keys)
-    {
-        Assert.NotNull(keys);
-        return _root.GetMany(keys);
-    }
+        => _root.GetMany(NotNull(keys));
 
     public IEnumerable<IReadOnlyList<TKey>> GetAllPatterns() => _patterns;
 }

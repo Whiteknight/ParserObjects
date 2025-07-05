@@ -52,7 +52,7 @@ public sealed class StateCollection
         var state = new State(i, checkpoint);
         var current = _current;
 
-        Debug.Assert(i > current.State.Number, "We shouldn't be going backwards");
+        Debug.Assert(i > current.State.Number);
         while (current.Next != null && current.Next.State.Number < i)
             current = current.Next;
 
