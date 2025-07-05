@@ -28,7 +28,7 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, (Node<TKey, TRes
 
     public Node<TKey, TResult> GetOrAddChild(TKey key)
     {
-        Assert.ArgumentNotNull(key);
+        Assert.NotNull(key);
         var wrappedKey = new ValueTuple<TKey>(key);
         if (ContainsKey(wrappedKey))
         {

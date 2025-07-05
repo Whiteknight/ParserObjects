@@ -65,7 +65,7 @@ public static class Rule
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
             return Parse(state, new TItem[Parsers.Count]);
         }
 
@@ -73,7 +73,7 @@ public static class Rule
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
 

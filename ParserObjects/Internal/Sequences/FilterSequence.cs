@@ -13,8 +13,8 @@ public sealed class FilterSequence<T> : ISequence<T>
 
     public FilterSequence(ISequence<T> inputs, Func<T, bool> predicate)
     {
-        Assert.ArgumentNotNull(inputs);
-        Assert.ArgumentNotNull(predicate);
+        Assert.NotNull(inputs);
+        Assert.NotNull(predicate);
         _inputs = inputs;
         _predicate = predicate;
         DiscardNonMatches();

@@ -43,7 +43,7 @@ public static class Repetition<TInput>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PartialResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             var startCheckpoint = state.Input.Checkpoint();
             var items = new List<TItem>();
@@ -108,7 +108,7 @@ public static class Repetition<TInput>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             int count = 0;
             var startCheckpoint = state.Input.Checkpoint();
@@ -173,8 +173,8 @@ public static class Repetition<TInput>
 
         public Parser(IParser<TInput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
-            Assert.ArgumentNotNull(parser);
-            Assert.ArgumentNotNull(separator);
+            Assert.NotNull(parser);
+            Assert.NotNull(separator);
 
             _internal = new InternalParser<IParser<TInput>, object, object>(parser, separator, static (p, s) => p.Parse(s), static r => r.Value, minimum, maximum);
 
@@ -221,8 +221,8 @@ public static class Repetition<TInput>
 
         public Parser(IParser<TInput, TOutput> parser, IParser<TInput> separator, int minimum, int? maximum, string name = "")
         {
-            Assert.ArgumentNotNull(parser);
-            Assert.ArgumentNotNull(separator);
+            Assert.NotNull(parser);
+            Assert.NotNull(separator);
 
             _internal = new InternalParser<IParser<TInput, TOutput>, TOutput, TOutput>(
                 parser,

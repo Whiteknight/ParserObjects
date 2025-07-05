@@ -132,7 +132,7 @@ public static class CharBufferSequence
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s);
+            Assert.NotNull(s);
             Debug.Assert(options.MaintainLineEndings, "Only used when line-ending normalization is off");
             _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
         }
@@ -168,7 +168,7 @@ public static class CharBufferSequence
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
-            Assert.ArgumentNotNull(map);
+            Assert.NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
                 return map(ReadOnlySpan<char>.Empty, data);
 
@@ -198,14 +198,14 @@ public static class CharBufferSequence
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s);
+            Assert.NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
-            Assert.ArgumentNotNull(s);
+            Assert.NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
@@ -330,7 +330,7 @@ public static class CharBufferSequence
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
-            Assert.ArgumentNotNull(map);
+            Assert.NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
                 return map(ReadOnlySpan<char>.Empty, data);
 

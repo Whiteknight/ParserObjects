@@ -20,8 +20,8 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
 
     public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultFactory<TInput, TOutput>, Result<TOutput>>? getEndSentinel, Action<string> log)
     {
-        Assert.ArgumentNotNull(input);
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(input);
+        Assert.NotNull(parser);
         _state = new ParseState<TInput>(input, log);
         _input = input;
         _parser = parser;

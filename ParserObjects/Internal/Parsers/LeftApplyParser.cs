@@ -21,8 +21,8 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public LeftApplyParser(IParser<TInput, TOutput> initial, GetParserFromParser<TInput, TOutput> getRight, Quantifier arity, string name = "")
     {
-        Assert.ArgumentNotNull(initial);
-        Assert.ArgumentNotNull(getRight);
+        Assert.NotNull(initial);
+        Assert.NotNull(getRight);
 
         _initial = initial;
         _quantifier = arity;
@@ -38,7 +38,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         return _quantifier switch
         {
             Quantifier.ExactlyOne => ParseExactlyOne(state),

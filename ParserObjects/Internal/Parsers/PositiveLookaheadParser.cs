@@ -17,7 +17,7 @@ public sealed record PositiveLookaheadParser<TInput>(
 
     public Result<object> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         var result = Inner.Parse(state);
         if (!result.Success)
@@ -31,7 +31,7 @@ public sealed record PositiveLookaheadParser<TInput>(
 
     public bool Match(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         var startCheckpoint = state.Input.Checkpoint();
         var result = Inner.Match(state);
         if (!result)

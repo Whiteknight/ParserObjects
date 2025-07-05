@@ -23,9 +23,9 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 
     public PrattParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name, ParseControl parseControl)
     {
-        Assert.ArgumentNotNull(state);
-        Assert.ArgumentNotNull(engine);
-        Assert.ArgumentNotNull(parseControl);
+        Assert.NotNull(state);
+        Assert.NotNull(engine);
+        Assert.NotNull(parseControl);
 
         _state = state;
         _engine = engine;
@@ -87,7 +87,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <exception cref="ParseException">Thrown if the parser fails.</exception>
     public TValue Parse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(parser);
         EnsureIsNotComplete();
         return parser.Parse(_state) switch
         {
@@ -131,7 +131,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public bool Match(IParser<TInput> parser)
     {
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(parser);
         EnsureIsNotComplete();
         return parser.Match(_state);
     }
@@ -145,7 +145,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// callback.</exception>
     public void Expect(IParser<TInput> parser)
     {
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(parser);
         EnsureIsNotComplete();
         var result = parser.Match(_state);
         if (!result)
@@ -215,7 +215,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(parser);
         return _parseControl.IsComplete
             ? default
             : parser.Parse(_state).ToOption();

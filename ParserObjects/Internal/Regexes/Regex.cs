@@ -16,7 +16,7 @@ public readonly struct Regex
 
     public Regex(IReadOnlyList<IState> states)
     {
-        Assert.ArgumentNotNull(states);
+        Assert.NotNull(states);
         States = states;
         Debug.Assert(States.All(s => s != null), "There are null states in the regex list");
         NumberOfGroups = NumberGroups(states);

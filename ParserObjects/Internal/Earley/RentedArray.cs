@@ -7,7 +7,7 @@ public readonly struct RentedArray<T>
 {
     public RentedArray(T[] values, int count)
     {
-        Assert.ArgumentNotNull(values);
+        Assert.NotNull(values);
         Values = values;
         Count = count;
     }

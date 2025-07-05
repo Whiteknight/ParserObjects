@@ -21,7 +21,7 @@ public sealed class Parselet<TInput, TValue, TOutput> : IParselet<TInput, TOutpu
 
     public Parselet(int tokenTypeId, IParser<TInput, TValue> match, NudFunc<TInput, TValue, TOutput>? nud, LedFunc<TInput, TValue, TOutput>? led, int lbp, int rbp, string name)
     {
-        Assert.ArgumentNotNull(match);
+        Assert.NotNull(match);
         TokenTypeId = tokenTypeId;
         _match = match;
         _nud = nud;

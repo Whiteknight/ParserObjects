@@ -14,7 +14,7 @@ public sealed record AnyParser<T>(
 {
     public override Result<T> Parse(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         if (state.Input.IsAtEnd)
             return Result.Fail(this, "Expected any but found End.");
 

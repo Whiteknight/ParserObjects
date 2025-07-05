@@ -65,7 +65,7 @@ public static partial class Parsers<TInput>
         Func<Alternative<TOutput>, bool> predicate
     )
     {
-        Assert.ArgumentNotNull(predicate);
+        Assert.NotNull(predicate);
         return SelectResult(multiParser, multi => multi.Results.FirstOrDefault(predicate));
     }
 

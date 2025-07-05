@@ -22,8 +22,8 @@ public static class Chain<TInput, TOutput>
 
     public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateBuilder<TInput, TMiddle, TOutput>> setup, string name = "")
     {
-        Assert.ArgumentNotNull(inner);
-        Assert.ArgumentNotNull(setup);
+        Assert.NotNull(inner);
+        Assert.NotNull(setup);
         var config = new ParserPredicateBuilder<TInput, TMiddle, TOutput>([]);
         setup(config);
         var selector = new Selector<TMiddle>(config.Parsers);
@@ -62,7 +62,7 @@ public static class Chain<TInput, TOutput>
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _inner.Parse(state);
@@ -80,7 +80,7 @@ public static class Chain<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _inner.Parse(state);

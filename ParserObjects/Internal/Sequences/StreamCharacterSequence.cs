@@ -29,7 +29,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(reader);
+        Assert.NotNull(reader);
         _options = options;
         _options.Encoding = reader.CurrentEncoding;
         _options.Validate();
@@ -45,7 +45,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(stream);
+        Assert.NotNull(stream);
         _options = options;
         _options.Validate();
         _stats = default;
@@ -280,7 +280,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
     {
-        Assert.ArgumentNotNull(map);
+        Assert.NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map(ReadOnlySpan<char>.Empty, data);
 

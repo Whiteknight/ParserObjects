@@ -69,7 +69,7 @@ public static class Transform<TInput>
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.ArgumentNotNull(state);
+            Assert.NotNull(state);
 
             // Execute the parse and transform the result
             var startCp = state.Input.Checkpoint();

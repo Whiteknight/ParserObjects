@@ -21,8 +21,8 @@ public sealed class Item : IEquatable<Item>
 
     public Item(IProduction production, int index, State parent, State currentState, Item? previous)
     {
-        Assert.ArgumentNotNull(production);
-        Assert.ArgumentNotNull(parent);
+        Assert.NotNull(production);
+        Assert.NotNull(parent);
 
         Production = production;
         Index = index;

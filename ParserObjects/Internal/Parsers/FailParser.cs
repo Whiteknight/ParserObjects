@@ -20,13 +20,13 @@ public sealed record FailParser<TInput, TOutput>(
 
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         return MultiResult<TOutput>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         return MultiResult<object>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
     }
 
