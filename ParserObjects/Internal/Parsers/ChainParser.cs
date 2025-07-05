@@ -122,7 +122,7 @@ public static class Chain<TInput, TOutput>
     }
 
     public readonly record struct Selector<TMiddle>(
-        IReadOnlyList<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)> Parsers
+        IReadOnlyList<(Func<TMiddle, bool> IsEqual, IParser<TInput, TOutput> Parser)> Parsers
     )
     {
         /// <summary>
@@ -149,7 +149,7 @@ public static class Chain<TInput, TOutput>
         {
             var children = new IParser[Parsers.Count];
             for (int i = 0; i < Parsers.Count; i++)
-                children[i] = Parsers[i].parser;
+                children[i] = Parsers[i].Parser;
             return children;
         }
     }

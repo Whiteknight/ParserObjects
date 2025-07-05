@@ -76,7 +76,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         return ParseUntilComplete(state, count, startCp, items);
     }
 
-    private (Result<TOutput> result, int count) ParseUntilMinimum(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
+    private (Result<TOutput> Result, int Count) ParseUntilMinimum(IParseState<TInput> state, int count, SequenceCheckpoint startCp, List<TItem> items)
     {
         // First make sure we account for Minimum items. We don't even need to attempt the
         // Right parser at this time.
@@ -185,7 +185,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         return MatchUntilComplete(state, count, startCp);
     }
 
-    private (bool returnFailure, int count) MatchUntilMinimum(IParseState<TInput> state, int count)
+    private (bool ReturnFailure, int Count) MatchUntilMinimum(IParseState<TInput> state, int count)
     {
         // First make sure we account for Minimum items. We don't even need to attempt the
         // Right parser at this time.
@@ -252,7 +252,7 @@ public sealed class NonGreedyListParser<TInput, TItem, TOutput> : IParser<TInput
         }
     }
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _itemParser, _separator, _rightParser };
+    public IEnumerable<IParser> GetChildren() => [_itemParser, _separator, _rightParser];
 
     public override string ToString() => DefaultStringifier.ToString("NonGreedyList", Name, Id);
 

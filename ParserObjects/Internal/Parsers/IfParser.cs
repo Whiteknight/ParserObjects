@@ -38,7 +38,7 @@ public sealed record IfParser<TInput, TOutput>(
         return Result.Fail(parser, thenResult.ErrorMessage);
     }
 
-    public override IEnumerable<IParser> GetChildren() => new IParser[] { Predicate, OnSuccess, OnFailure };
+    public override IEnumerable<IParser> GetChildren() => [Predicate, OnSuccess, OnFailure];
 
     public override string ToString() => DefaultStringifier.ToString("If", Name, Id);
 

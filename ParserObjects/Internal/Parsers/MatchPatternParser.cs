@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -20,7 +19,7 @@ public sealed record MatchPatternParser<T>(
     public Result<IReadOnlyList<T>> Parse(IParseState<T> state)
     {
         Assert.NotNull(state);
-        Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
+        Debug.Assert(Pattern.Count > 0);
 
         // If the pattern has exactly one item in it, check for equality without a loop
         // or allocating a buffer
@@ -29,7 +28,7 @@ public sealed record MatchPatternParser<T>(
             var next = state.Input.Peek();
             return next is null || !next.Equals(Pattern[0])
                 ? Result.Fail(this, "Item does not match")
-                : Result.Ok(this, (IReadOnlyList<T>)new List<T> { state.Input.GetNext() }, 1);
+                : Result.Ok(this, (IReadOnlyList<T>)[state.Input.GetNext()], 1);
         }
 
         var checkpoint = state.Input.Checkpoint();
@@ -58,7 +57,7 @@ public sealed record MatchPatternParser<T>(
 
     public bool Match(IParseState<T> state)
     {
-        Debug.Assert(Pattern.Count > 0, "We shouldn't have empty patterns here");
+        Debug.Assert(Pattern.Count > 0);
 
         var checkpoint = state.Input.Checkpoint();
         for (int i = 0; i < Pattern.Count; i++)

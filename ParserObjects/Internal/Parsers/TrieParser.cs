@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Tries;
 using ParserObjects.Internal.Visitors;
 
@@ -8,6 +7,10 @@ namespace ParserObjects.Internal.Parsers;
 /// <summary>
 /// Uses a Trie to match the longest pattern from among available options.
 /// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+/// <param name="Trie"></param>
+/// <param name="Name"></param>
 public sealed record TrieParser<TInput, TOutput>(
     ReadableTrie<TInput, TOutput> Trie,
     string Name = ""
@@ -35,7 +38,8 @@ public sealed record TrieParser<TInput, TOutput>(
         return new MultiResult<TOutput>(this, results);
     }
 
-    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
+    MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
+        => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
 
     public IEnumerable<IParser> GetChildren() => [];
 

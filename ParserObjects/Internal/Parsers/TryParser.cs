@@ -111,7 +111,7 @@ public static class TryParser<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _data.Parser };
+        public IEnumerable<IParser> GetChildren() => [_data.Parser];
 
         public bool Match(IParseState<TInput> state) => _data.Match(static (p, s) => p.Match(s), state);
 
@@ -157,7 +157,7 @@ public static class TryParser<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _data.Parser };
+        public IEnumerable<IParser> GetChildren() => [_data.Parser];
 
         public bool Match(IParseState<TInput> state) => _data.Match(static (p, s) => p.Match(s), state);
 
@@ -205,7 +205,7 @@ public static class TryParser<TInput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _data.Parser };
+        public IEnumerable<IParser> GetChildren() => [_data.Parser];
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
             => _data.Parse(

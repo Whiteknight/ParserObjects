@@ -14,7 +14,7 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
 {
     public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { Lexer, Parser };
+    public IEnumerable<IParser> GetChildren() => [Lexer, Parser];
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 

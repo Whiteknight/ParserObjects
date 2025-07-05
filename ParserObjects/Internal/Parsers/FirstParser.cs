@@ -24,7 +24,7 @@ public static class FirstParser<TInput>
     )
     {
         Assert.NotNull(state);
-        Debug.Assert(parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
+        Debug.Assert(parsers.Count >= 2);
 
         for (int i = 0; i < parsers.Count - 1; i++)
         {
@@ -47,7 +47,7 @@ public static class FirstParser<TInput>
         public override bool Match(IParseState<TInput> state)
         {
             Assert.NotNull(state);
-            Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
+            Debug.Assert(Parsers.Count >= 2);
 
             for (int i = 0; i < Parsers.Count - 1; i++)
             {
@@ -81,7 +81,7 @@ public static class FirstParser<TInput>
         public override bool Match(IParseState<TInput> state)
         {
             Assert.NotNull(state);
-            Debug.Assert(Parsers.Count >= 2, "We shouldn't have fewer than 2 parsers here");
+            Debug.Assert(Parsers.Count >= 2);
 
             for (int i = 0; i < Parsers.Count; i++)
             {

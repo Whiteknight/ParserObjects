@@ -37,7 +37,7 @@ public sealed record SelectParser<TInput, TOutput>(
 
     public override string ToString() => DefaultStringifier.ToString("Select", Name, Id);
 
-    public IEnumerable<IParser> GetChildren() => new[] { Initial };
+    public IEnumerable<IParser> GetChildren() => [Initial];
 
     public INamed SetName(string name) => this with { Name = name };
 

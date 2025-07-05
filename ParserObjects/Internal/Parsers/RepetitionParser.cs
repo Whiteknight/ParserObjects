@@ -164,7 +164,7 @@ public static class Repetition<TInput>
             return true;
         }
 
-        public IParser[] GetChildren() => new[] { _parser, _separator };
+        public IParser[] GetChildren() => [_parser, _separator];
     }
 
     public sealed class Parser : IParser<TInput, IReadOnlyList<object>>
