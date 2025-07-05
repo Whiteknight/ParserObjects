@@ -73,7 +73,7 @@ public static class Replaceable<TInput, TOutput>
             return parser.Match(state);
         }
 
-        public IEnumerable<IParser> GetChildren() => new[] { _parser };
+        public IEnumerable<IParser> GetChildren() => [_parser];
 
         public SingleReplaceResult SetParser(IParser parser)
         {

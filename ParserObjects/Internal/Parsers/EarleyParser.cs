@@ -20,7 +20,7 @@ public static class Earley<TInput, TOutput>
 
     public static IMultiParser<TInput, TOutput> Setup(Func<EarleySymbolFactory<TInput, TOutput>, INonterminal<TInput, TOutput>> setup)
     {
-        var factory = new EarleySymbolFactory<TInput, TOutput>(new Dictionary<string, ISymbol>());
+        var factory = new EarleySymbolFactory<TInput, TOutput>([]);
         var startNonterminal = setup(factory) ?? throw new GrammarException("Setup callback did not return a valid start symbol");
         return new Parser(startNonterminal);
     }

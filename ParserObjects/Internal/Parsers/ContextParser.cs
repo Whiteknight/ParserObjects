@@ -133,7 +133,7 @@ public static class Context<TInput>
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+        public IEnumerable<IParser> GetChildren() => [_inner];
 
         public INamed SetName(string name) => new Parser<TData>(_inner, _setup, _cleanup, _data, name);
 
@@ -234,7 +234,7 @@ public static class Context<TInput>
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+        public IEnumerable<IParser> GetChildren() => [_inner];
 
         public INamed SetName(string name) => new Parser<TOutput, TData>(_inner, _setup, _cleanup, _data, name);
 
@@ -308,7 +308,7 @@ public static class Context<TInput>
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
-        public IEnumerable<IParser> GetChildren() => new[] { _inner };
+        public IEnumerable<IParser> GetChildren() => [_inner];
 
         public INamed SetName(string name) => new MultiParser<TOutput, TData>(_inner, _setup, _cleanup, _data, name);
 

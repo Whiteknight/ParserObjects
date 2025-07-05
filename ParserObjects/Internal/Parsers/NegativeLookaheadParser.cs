@@ -41,7 +41,7 @@ public sealed record NegativeLookaheadParser<TInput>(
         return false;
     }
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
+    public IEnumerable<IParser> GetChildren() => [Inner];
 
     public override string ToString() => DefaultStringifier.ToString("NegativeLookahead", Name, Id);
 

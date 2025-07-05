@@ -19,7 +19,7 @@ public static class Optional<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
+        public IEnumerable<IParser> GetChildren() => [Inner];
 
         public bool Match(IParseState<TInput> state)
         {
@@ -56,7 +56,7 @@ public static class Optional<TInput, TOutput>
     {
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
+        public IEnumerable<IParser> GetChildren() => [Inner];
 
         public bool Match(IParseState<TInput> state)
         {

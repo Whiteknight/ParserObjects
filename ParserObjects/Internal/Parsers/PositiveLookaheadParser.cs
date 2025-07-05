@@ -41,7 +41,7 @@ public sealed record PositiveLookaheadParser<TInput>(
         return true;
     }
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { Inner };
+    public IEnumerable<IParser> GetChildren() => [Inner];
 
     public override string ToString() => DefaultStringifier.ToString("PositiveLookahead", Name, Id);
 

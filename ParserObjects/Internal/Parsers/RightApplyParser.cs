@@ -60,7 +60,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     private Result<TOutput> ParseZeroOrMore(IParseState<TInput> state, Result<TOutput> leftResult)
     {
-        var resultStack = new Stack<(TOutput left, TMiddle middle)>();
+        var resultStack = new Stack<(TOutput Left, TMiddle Middle)>();
 
         Result<TOutput> ProduceSuccess(TOutput right, int consumed)
         {
@@ -189,7 +189,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _item, _middle };
+    public IEnumerable<IParser> GetChildren() => [_item, _middle];
 
     public override string ToString() => DefaultStringifier.ToString("RightApply", Name, Id);
 

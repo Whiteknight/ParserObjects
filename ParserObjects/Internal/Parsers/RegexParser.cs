@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Visitors;
 using ParserObjects.Regexes;
@@ -59,7 +58,8 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
         return Result.Ok(this, result.Value!, result.Consumed, new ResultData(result.Match!));
     }
 
-    Result<object> IParser<char>.Parse(IParseState<char> state) => ((IParser<char, RegexMatch>)this).Parse(state).AsObject();
+    Result<object> IParser<char>.Parse(IParseState<char> state)
+        => ((IParser<char, RegexMatch>)this).Parse(state).AsObject();
 
     public bool Match(IParseState<char> state)
     {

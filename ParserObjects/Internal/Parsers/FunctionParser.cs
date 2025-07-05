@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
 
 namespace ParserObjects.Internal.Parsers;
@@ -143,15 +142,17 @@ public static class Function<TInput, TOutput>
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
             Assert.NotNull(state);
-            var builder = new MultiResultBuilder(this, state, new List<Alternative<TOutput>>(), state.Input.Checkpoint());
+            var builder = new MultiResultBuilder(this, state, [], state.Input.Checkpoint());
             return _parseFunction(state, _data, builder);
         }
 
-        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
+        MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
+            => Parse(state).AsObject();
 
         public override string ToString() => DefaultStringifier.ToString("Function (Multi)", Name, Id);
 
-        public INamed SetName(string name) => new MultiParser<TData>(_data, _parseFunction, Description, _children, name);
+        public INamed SetName(string name)
+            => new MultiParser<TData>(_data, _parseFunction, Description, _children, name);
 
         public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>

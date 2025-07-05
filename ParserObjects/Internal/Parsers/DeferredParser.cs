@@ -54,7 +54,7 @@ public sealed record DeferredParser<TInput, TOutput, TParser>(
         return parser.Match(state);
     }
 
-    public override IEnumerable<IParser> GetChildren() => new IParser[] { GetParser() };
+    public override IEnumerable<IParser> GetChildren() => [GetParser()];
 
     public override string ToString() => DefaultStringifier.ToString("Deferred", Name, Id);
 

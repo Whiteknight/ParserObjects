@@ -77,7 +77,7 @@ public sealed record SynchronizeParser<TInput, TOutput>(
 
     public bool Match(IParseState<TInput> state) => Attempt.Match(state);
 
-    public IEnumerable<IParser> GetChildren() => new[] { Attempt };
+    public IEnumerable<IParser> GetChildren() => [Attempt];
 
     public INamed SetName(string name) => this with { Name = name };
 

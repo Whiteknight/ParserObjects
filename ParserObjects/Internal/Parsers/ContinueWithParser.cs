@@ -40,7 +40,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
+        public IEnumerable<IParser> GetChildren() => [_inner, _right];
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
@@ -102,7 +102,7 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public string Name { get; }
 
-        public IEnumerable<IParser> GetChildren() => new IParser[] { _inner, _right };
+        public IEnumerable<IParser> GetChildren() => [_inner, _right];
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {

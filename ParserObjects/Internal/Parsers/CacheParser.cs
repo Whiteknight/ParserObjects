@@ -81,7 +81,7 @@ public static class Cache<TInput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+        public IEnumerable<IParser> GetChildren() => [_internal.Parser];
 
         public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>
@@ -116,7 +116,7 @@ public static class Cache<TInput>
 
         public override string ToString() => DefaultStringifier.ToString(this);
 
-        public IEnumerable<IParser> GetChildren() => new[] { _internal.Parser };
+        public IEnumerable<IParser> GetChildren() => [_internal.Parser];
 
         public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
             where TVisitor : IVisitor<TState>

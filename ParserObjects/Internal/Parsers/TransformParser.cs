@@ -45,7 +45,7 @@ public static class Transform<TInput>
 
         public bool Match(IParseState<TInput> state) => Inner.Match(state);
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
+        public IEnumerable<IParser> GetChildren() => [Inner];
 
         public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 
@@ -81,7 +81,7 @@ public static class Transform<TInput>
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
-        public IEnumerable<IParser> GetChildren() => new[] { Inner };
+        public IEnumerable<IParser> GetChildren() => [Inner];
 
         public override string ToString() => DefaultStringifier.ToString("Transform", Name, Id);
 

@@ -109,11 +109,12 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public bool Match(IParseState<TInput> state) => Parse(state).Success;
 
-    public IEnumerable<IParser> GetChildren() => new IParser[] { _initial, _right };
+    public IEnumerable<IParser> GetChildren() => [_initial, _right];
 
     public override string ToString() => DefaultStringifier.ToString("LeftApply", Name, Id);
 
-    public INamed SetName(string name) => new LeftApplyParser<TInput, TOutput>(_initial, _getRight, _quantifier, name);
+    public INamed SetName(string name)
+        => new LeftApplyParser<TInput, TOutput>(_initial, _getRight, _quantifier, name);
 
     public void Visit<TVisitor, TState>(TVisitor visitor, TState state)
         where TVisitor : IVisitor<TState>
