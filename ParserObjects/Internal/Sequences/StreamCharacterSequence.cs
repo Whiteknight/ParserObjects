@@ -30,8 +30,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     public StreamCharacterSequence(StreamReader reader, SequenceOptions<char> options)
     {
-        _options = options.Validate();
-        _options.Encoding = reader.CurrentEncoding;
+        _options = options.Validate() with { Encoding = reader.CurrentEncoding };
         _stats = default;
         _buffer = new char[_options.BufferSize];
         _reader = NotNull(reader);

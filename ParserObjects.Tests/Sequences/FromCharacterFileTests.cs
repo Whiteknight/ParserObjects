@@ -6,15 +6,14 @@ namespace ParserObjects.Tests.Sequences;
 
 public class FromCharacterFileTests
 {
-    private void Test(string content, SequenceOptions<char> options, Action<ICharSequence> act)
+    private static void Test(string content, SequenceOptions<char> options, Action<ICharSequence> act)
     {
         var fileName = Guid.NewGuid().ToString() + ".txt";
         ICharSequence target = null;
         try
         {
             File.WriteAllText(fileName, content);
-            options.FileName = fileName;
-            target = FromCharacterFile(options);
+            target = FromCharacterFile(options with { FileName = fileName });
             act(target);
         }
         finally
