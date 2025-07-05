@@ -4,7 +4,7 @@ In the [previous example](expression_example.md) we showed the use of basic comb
 
 From the previous example we are going to keep the `Calculator` class, the `LexicalGrammar` class, and remaining components not related to the parser itself (`Token`, extension methods, etc). We will be rewriting the `ExpressionGrammar` class.
 
-First thing we need to do is stub out the Pratt parser:
+First thing we need to do is stub out the Pratt parser, showing that we expect an `int` result:
 
 ```csharp
 var expression = Pratt<int>(config => config
@@ -42,7 +42,7 @@ var expression = Pratt<int>(config => config
 );
 ```
 
-What this statement means is that we want the Pratt parser to recognize numbers, to treat them with the lowest possible precedence, and just return the value as-is. A shorthand for this kind of production is this:
+What this statement means is that we want the Pratt parser to recognize numbers, to treat them with the lowest possible precedence, and just return the value as-is. A shorthand for this most simple kind of production is this:
 
 ```csharp
 var expression = Pratt<int>(config => config
@@ -53,15 +53,18 @@ var expression = Pratt<int>(config => config
 Next, we want to add an operator. We will start with '+':
 
 ```csharp
-.Add(Token(TokenType.Addition), p => p
-    // ".BindLeft" means "LED".
-    .BindLeft(1, (ctx, left, _) =>
-    {
-        // "left" is the value on the left we're binding to.
-        // Recurse to get the "right"
-        var right = ctx.Parse();
-        return left.Value + right;
-    }))
+    .Add(Token(TokenType.Addition), p => p
+        // ".BindLeft" means "LED". We are attaching to something
+        // on the left-hand side, which has already been parsed
+        .BindLeft(1, (ctx, left, _) =>
+        {
+            // "left" is the value on the left we're binding to.
+            // Recurse to get the "right"
+            // "ctx" is the Pratt parse context, which can be used
+            // for recursive parsing operations
+            var right = ctx.Parse();
+            return left.Value + right;
+        }))
 ```
 
 Here we're looking for Addition tokens, and binding those to the item on the left with a binding power of 1 (very low, because '+' is the lowest-precedence operator in our grammar). Notice the call to `ctx.Parse()` which recurses into the Pratt engine to find the right-hand side value. With this code our parser can parse expressions like `"4"`, `"4 + 5"`, `"4 + 5 + 6"`. 
@@ -124,7 +127,7 @@ And then we can add it to the parser:
     }))
 ```
 
-Notice that we specify two binding power values: `6` and `5`. The first number is how strongly the operator binds to the value on the left, the second number is how strongly it binds on the right. A longer way of specifying the addition rule using both values would look like this:
+Notice that we specify two binding power values: `6` and `5`. The first number is how strongly the operator binds to the value on the left, the second number is how strongly it binds on the right. A longer way of specifying the addition rule using both values would have looked like this:
 
 ```csharp
 .Add(Token(TokenType.Addition), p => p
@@ -135,11 +138,11 @@ Notice that we specify two binding power values: `6` and `5`. The first number i
     }))
 ```
 
-An operator is **Left Associative** if the right binding power is greater than the left binding power. An operator is **Right Associative** if the left binding power is higher than the right. 
+An operator is **Left Associative** if the right binding power is greater than the left binding power. An operator is **Right Associative** if the left binding power is higher than the right. It seems counter-intuitive at first, so let's explain.
 
-Look at an example expression like `"4 + 5 + 6"`. In this expression, the first `+` binds more strongly to the `5` than the second `+` does, because `+` binds more strongly on the right. In other words, the first `+` binds to the `5` before the `+` does. The parser evaluates `"4 + 5"` first, and then the `"+ 6"` next. For exponentiation in an expression like `"2 ^ 3 ^ 4"` the values are opposite. The second `^` binds to the `3` more strongly than the first one does, so the parser parses the expression as `2 ^ (3 ^ 4)`.
+Look at an example expression like `"4 + 5 + 6"`. In this expression, the first `+` binds more strongly to the `5` than the second `+` does, because `+` binds more strongly on the right. In other words, the first `+` binds to the `5` before the second `+` does. The parser evaluates `"4 + 5"` first, and then the `"+ 6"` next. For exponentiation in an expression like `"2 ^ 3 ^ 4"` the values are opposite. The second `^` binds to the `3` more strongly than the first one does, so the parser parses the expression as `2 ^ (3 ^ 4)`.
 
-Now we're going to look at another element that the original example did not cover: parentheses. Parenthesis treat a sub-expression together as a group as if it was a single number, and the contents of a parenthesis is evaluated first regardless of precedence. Since parenthesis do not interact with a value on the left, we can define them with a `.Bind` rule, and use a `0` binding power the same as for numbers:
+Now we're going to look at another element that the original example did not cover: parentheses. Parenthesis treat a sub-expression together as a group as if it was a single number, and the contents of a parenthesis is evaluated first regardless of precedence. Since parenthesis do not interact with a value on the left, we can define them as a NUD with a `.Bind` rule, and use a `0` binding power the same as for numbers:
 
 ```csharp
 .Add(Token(TokenType.OpenParen), p => p
@@ -211,12 +214,12 @@ See the [Pratt Calculator Example](https://github.com/Whiteknight/ParserObjects/
    1. The prefix `+` which indicates the value is positive, similar to unary `-`
    2. The suffix `!` to compute the factorial with binding power similar to `*`
    3. The `|4|` notation for computing the absolute value similar to `( )`
-   4. The `=` operator which returns `1` if the value is non-zero, or `0` if it is zero
-   5. The `a ? b : c ` ternary operator which returns the b value if a is non-zero, but returns the c value otherwise.
+   4. The `=` operator which returns `1` if two operands are the same, or `0` otherwise
+   5. The `a ? b : c ` ternary operator which returns the `b` value if `a` is non-zero, but returns the `c` value otherwise.
 2. Add unit tests to show that the parser correctly parses expressions with order-of-operation rules
 
 ## Summary
 
-The Pratt parser is designed for operator precedence parsing, which makes it a natural fit for parsing expressions like these. That said, Pratt is also very useful in a number of other situations as well, and has even been used to parse entire programming languages. While it is well-suited for parsing expressions, it can be a little tricky to manually keep track of precedence and binding power values for every symbol. 
+The Pratt parser is designed for operator precedence parsing, which makes it a natural fit for parsing expressions like these. That said, Pratt is also very useful in a number of other situations as well, and has even been used to parse entire programming languages. While it is well-suited for parsing expressions, it can be a little tricky to manually keep track of precedence and binding power values for every symbol, and does require a bit more technical knowledge than some other algorithms.
 
 Next we're going to look at an expression parser using the [Earley Parser](earlyexpr_example.md).

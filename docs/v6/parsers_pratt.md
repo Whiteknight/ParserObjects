@@ -117,5 +117,5 @@ var parser = Pratt<string>(c => c
 );
 ```
 
-With this parser, an input string like `"a=b=4+5+6"` would be correctly parenthesized as `"(a=(b=((4+5)+6)))".
+With this parser, an input string like `"a=b=4+5+6"` would be correctly parenthesized as `"(a=(b=((4+5)+6)))"`.
 

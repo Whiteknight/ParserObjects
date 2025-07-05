@@ -13,7 +13,7 @@ using static ParserObjects.Parsers;
 using static ParserObjects.Parsers<char>;
 ```
 
-**Note**: The `<char>` there is the input type of the parsers. If you are operating on a different input type, such as a custom Token class, put that in there instead of `<char>`.
+**Note**: The `<char>` there is the input type of the parsers. If you are operating on a different input type, such as a custom Token class, specify that type instead of `<char>`.
 
 **Note**: You should only use the static factory methods and extension methods when creating new parsers. You should not be directly accessing the parser classes, or calling constructors yourself. The library technically allows this for advanced use cases, but it is *explicitly not supported*. Subsequent releases of the library may change class names or constructor parameters on a whim, while the factory methods and extension methods described will follow normal support/deprecation/versioning rules.
 
@@ -21,13 +21,13 @@ using static ParserObjects.Parsers<char>;
 
 The `IParser` interface is the parent interface that all parsers must inherit. It offers very little functionality by itself.
 
-`IParser<TInput>` is a parser which can call `.Parse()` on an input of type `TInput` to return an `IResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
+`IParser<TInput>` is a parser which can call `.Parse()` on an input of type `TInput` to return an `Result`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output or may produce an output `object` without strong typing. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
 
-`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input of type `TInput` and will return an `IResult<TOutput>`. This is more common than the `IParser<TInput>` type and should be preferred where possible because of the extra strong-typing.
+`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input of type `TInput` and will return an `Result<TOutput>`. This is more common than the `IParser<TInput>` type and should be preferred where possible because of the extra strong-typing.
 
-The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to return an `IMultiResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
+The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to return an `MultiResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
 
-`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `IMultiResult<TOutput>` of several possible parse results from the current position.
+`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `MultiResult<TOutput>` of several possible parse results from the current position.
 
 ## Parser Invariants
 
@@ -37,7 +37,7 @@ The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to 
 2. On success, the parser consumes only the data it needed to match a pattern and construct the result value. All other data, including buffers and lookaheads, are returned to the input sequence. 
 3. All parsers are built to be composed. They only read input data starting from the current position of the input sequence, and the parser does not necessarily expect to read until the end of input. 
 4. Parsers will generally try to communicate failure through a result value and will try not to throw exceptions unless some major invariant has been violated. However, many parsers take user callback delegates, which may throw exceptions. Exceptions thrown from user code will be allowed to bubble up to a user handler, and may leave the input sequence in an invalid or incomplete state.
-5. Parsers should not return `null` but should always return a valid `IResult` or `IResult<TOutput>` with a valid non-null result value.
+5. Parsers should not return `null` but should always return a valid `Result` or `Result<TOutput>` with a valid non-null result value.
 
 `IMultiParser<>` types have two caveats to these rules, because the multiple results may have consumed different amounts of input:
 1. The MultiParser should always rewind the input to the position it was in before the parse
@@ -51,13 +51,13 @@ It is possible to implement your own `IParser` classes in your own project. When
 
 ## Parser Results
 
-Parser `.Parse()` calls generally do not throw exceptions, except in some specific rare cases. For the most part results will be communicated using an `IResult<TOutput>` or `IMultiResult<TOutput>` object. Parse results should always include the `Location` where the success or failure happened, so that information can be communicated to the user.
+Parser `.Parse()` calls generally do not throw exceptions, except in some specific rare cases. For the most part results will be communicated using an `Result<TOutput>` or `MultiResult<TOutput>` object. Parse results should always include the `Location` where the success or failure happened, so that information can be communicated to the user.
 
 Result values may be transformed from one type to another without losing metadata using the `.Transform(value => ... )` method.
 
 ```csharp
-IResult<int> intResult = ...
-IResult<string> stringResult = intResult.Transform(i => i.ToString());
+Result<int> intResult = ...
+Result<string> stringResult = intResult.Transform(i => i.ToString());
 ```
 
 ## Matching and Parsing
@@ -98,7 +98,9 @@ var result2 = parser2.Parse(sequence);
 
 ### Untyped Parsing
 
-`IParser<TInput>` and `IMultiParser<TInput>` define parsers which can parse an input, but do not return a typed output. In addition, `IParser<TInput, TOutput>` and `IMultiParser<TInput, TOutput>` implement `IParser<TInput>` and `IMultiParser<TInput>` respectively, and so can parse without specifying output type information. This parse method variant will return an `object` which may contain the parsed value, but as an `object` instead of as a specific type.
+`IParser<TInput>` and `IMultiParser<TInput>` define parsers which can parse an input, but do not return a strongly-typed output. In addition, `IParser<TInput, TOutput>` and `IMultiParser<TInput, TOutput>` implement `IParser<TInput>` and `IMultiParser<TInput>` respectively, and so can parse without specifying output type information. This parse method variant will return an `object` which may contain the parsed value, but as an `object` instead of as a specific type.
+
+**Note:** value-typed results will be boxed using this interface, which may have implications on memory usage and performance.
 
 ```csharp
 var result = unTypedParser.Parse(state);
@@ -138,7 +140,7 @@ var methodDeclareParser = Rule(
     Word(),
     OptionalWhitespace(),
 
-    // Parenthisized parameter list
+    // Parenthesized parameter list
     Rule(
         Match('('),
         Match(')'),
@@ -295,7 +297,7 @@ Another concern is a parser which expects to parse the entirety of the input str
 // Option 1: End must match or the whole rule fails
 var parser = Rule(
     innerParser,
-    If(End(), Produce(() => true)),
+    IsEnd(),
     (value, end) => value
 );
 ```

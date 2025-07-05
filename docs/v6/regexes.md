@@ -8,7 +8,7 @@ An **atom** is a piece of input which can be matched. A **quantifier** modifies 
 
 ### Literal Characters
 
-Any literal character such as `a` will be `5` matched literally. The exceptions to this rule are the *special characters* which need to be escaped with `\`. The list of special characters includes:
+Any literal character such as `a` or `5` will be matched literally. The exceptions to this rule are the *special characters* which need to be escaped with `\`. The list of special characters includes:
 
    \ ( ) $ | [ ] . ? + * { }
 

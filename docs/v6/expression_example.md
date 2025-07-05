@@ -1,6 +1,6 @@
 # Expression Parsing Example
 
-We would like to create a calculator routine which parses a string like `"1 + 2 * 3"` into a result following standard order-of-operations rules. The first operators we will initially support are "+" and "*", where multiplication has *higher precedence* and both operators are *left-associative*. 
+We would like to create a calculator routine which parses a string like `"1 + 2 * 3"` into a result following standard order-of-operations rules. The first operators we will initially support are "+" and "\*", where multiplication has *higher precedence* and both operators are *left-associative*. 
 
 Up-to-date working code for this example is part of the [ParserObjects unit test suite](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples/ExprCalculator). Where this documentation may be out of date or contain typos, the code in the unit test suite is guaranteed to build, run and produce the described results.
 
@@ -22,17 +22,7 @@ For a two-phase design we need to create two `IParser` objects: One to read a se
 First, let's create the `Token` class which is the interchange between the two phases:
 
 ```csharp
-public class Token
-{
-    public Token(TokenType type, string value)
-    {
-        Type = type;
-        Value = value;
-    }
-
-    public TokenType Type { get; }
-    public string Value { get; }
-}
+public record Token(TokenType Type, string Value);
 ```
 
 ## The Lexer
@@ -52,7 +42,7 @@ public class LexicalGrammar
 }
 ```
 
-First thing we want to parse are operators. We can use the `Match()` parser to match specific characters, and the `.Transform()` extension method to convert the value into a `Token`:
+The first thing we want to parse are operators. We can use the `Match()` parser to match specific characters, and the `.Transform()` extension method to convert the value into a `Token`:
 
 ```csharp
 var addition = Match('+')
@@ -176,14 +166,14 @@ var number = Token(TokenType.Number)
 
 ### Basic Operations
 
-A basic rule for addition would have a number, followed by a "+", followed by another number. Similar with multiplication. In BNF notation we can describe those rules like this:
+A basic rule for addition would have a number, followed by a `"+"`, followed by another number. Similar with multiplication. In BNF notation we can describe those rules like this:
 
 ```
 addition := <number> '+' <number>
 multiplication := <number> '*' <number>
 ```
 
-We can turn those rules into parsers very simply:
+We can turn those rules into parsers very simply using the `Rule()` parser:
 
 ```csharp
 var addition = Rule(
@@ -205,7 +195,7 @@ With this we can parse a string like "1 + 2" or "1 * 2" but we cannot parse some
 
 ### Precedence
 
-Let's make our BNF a little bit more correct. A `multiplicative` is a number followed by one or more multiplications (a `'*'` followed by another number). Likewise an `additive` is a `multiplicative` followed by one or more additions (a `'+'` followed by another `multiplicative`). In BNF:
+Let's make our BNF a little bit more correct. A `multiplicative` is a number followed by one or more multiplications (a `'*'` and another number). Likewise an `additive` is a `multiplicative` followed by one or more additions (a `'+'` and another `multiplicative`). In BNF:
 
 ```
 multiplicative := <number> ('*' <number>)*
@@ -403,7 +393,7 @@ public class Calculator
 ```
 
 This is a very good start, but there is no error handling. 
-1. An input string like `"1 GARBAGE 2"` will return a value of `1`, because the parser does not recogize `GARBAGE` and so it stops.
+1. An input string like `"1 GARBAGE 2"` will return a value of `1`, because the parser does not recognize `GARBAGE` and so it stops.
 2. An input string like `"1 + "` will also return a value of `1` because the `LeftApply` rule to match `+` followed by `number` fails so only the first number is returned.
  
 **Exercises for the Reader:**

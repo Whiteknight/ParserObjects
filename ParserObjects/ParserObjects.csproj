@@ -8,7 +8,7 @@
     <AssemblyName>ParserObjects</AssemblyName>
     <RootNamespace>ParserObjects</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>5.3.0</Version>
+    <Version>6.0.0-beta1</Version>
 
     <Authors>Andrew F. Whitworth</Authors>
     <Company />
@@ -21,7 +21,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <DebugType>full</DebugType>
-    <PackageReadmeFile>../README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <DocumentationFile>C:\projects\ParserObjects\ParserObjects\ParserObjects.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>

@@ -2,7 +2,7 @@
 
 The core single parsers are all generic on the type of input they accept. For a list of additional parsers which are related strictly to parsing strings with character input sequences, see the [String/Character Parsers](parsers_chars.md) page. In addition, there are several specialty parsers related to parsing common patterns from programming languages and serialization formats, which also take character input sequences. You can find these in the [Programming Parsers](parsers_programming.md) page.
 
-Throughout the descriptions of these parsers, examples will be shown where one parser is functionally or logically equivalent to a combination of other parsers. This is done to give multiple possible ways to understand some of the trickier concepts.
+Throughout the descriptions of these parsers, examples will be shown where one parser is functionally or logically equivalent to a combination of other parsers. This is done to give multiple possible ways to understand some of the trickier concepts. Often, the shorter single-method declarations are more optimized than the combinations you would create yourself.
 
 The best way to access these core parsers is through the static factory methods. Add this to the top of your C# file:
 
@@ -94,7 +94,11 @@ This is the same as:
 var parser = Bool(End());
 ```
 
-### Match  Parser
+To recap the differences:
+* `End()`: Succeeds at end of input, fails otherwise. Returns no meaningful value. Is an `IParser<TInput>`
+* `IsEnd()`: Succeeds everywhere, returns a boolean true at end of input, false otherwise. Is an `IParser<TInput, bool>`.
+
+### Match Parser
 
 The `MatchParser` examines the next input item or next several items and returns the matched values if they match a pattern or predicate:
 
@@ -103,16 +107,17 @@ The `MatchParser` examines the next input item or next several items and returns
 var parser = Match('A');
 
 // Match a single item which satisfies a predicate
-var parser = Match(c => IsMatch(c));
+var parser = Match(c => SatisfiesMyPredicate(c));
 
 // Match a series of items one after the other, using C# .Equals()
+// Returns a list of matched items
 var parser = Match(new [] { 'A', 'B', 'C' });
 
 // Same as above, but uses the fact that a string is an IEnumerable<char>
 var parser = Match("ABC");
 ```
 
-The `Match` parser can match the end sentinel, and if the end sentinel matches, it will return success at end of input (with 0 `.Consumed`). If you would like to have the same behavior as Match but without matching the end sentinel, use the `MatchItem` parser instead.
+The `Match` parser can match the end sentinel if it would satisfy your predicate, and if the end sentinel matches, it will return success at end of input (with 0 `.Consumed`). If you would like to have the same behavior as Match but without matching the end sentinel, use the `MatchItem` parser instead.
 
 **Note**: If you are matching single characters the [MatchChar() parser](parsers_chars.md) is optimized to cache values and perform fewer allocations. 
 
@@ -124,12 +129,16 @@ The `MatchItem` parser is the same as `Match(predicate)` except it returns failu
 var parser = MatchItem(c => IsMatch(c));
 ```
 
+To recap the differences:
+* `Match(c => c == '\0')` will return successfully at end of input, while
+* `MatchItem(c => c == '\0')` will not.
+In cases where the end sentinel (`'\0'` by default) would not match your predicate, such as `Match(c => char.IsLetter(c))`, `Match()` and `MatchItem()` are equivalent.
+
 ### Peek Parser
 
 The `Peek` parser peeks at the next value of input, but does not consume it. It returns failure when the input sequence is at end, success otherwise.
 
 ```csharp
-var parser = new PeekParser<char>();
 var parser = Peek();
 ```
 
@@ -149,7 +158,7 @@ var parser = Start();
 
 ## Basic Combinator Parser Types
 
-These parsers are used to combine and compose smaller parsers to form larger parsers. This is the heart of the ParserObjects combinators approach. To use these, import the methods you're using (replace `<char>` with whatever input type you are using):
+These parsers are used to combine and compose smaller parsers to form larger parsers. This is the heart of the ParserObjects combinators approach. To use these, import the methods with these statements (replace `<char>` with whatever your input type is):
 
 ```csharp
 using ParserObjects;
@@ -158,7 +167,7 @@ using static ParserObjects.Parsers<char>;
 
 ### Bool Parser
 
-The `Bool` parser invokes a parser and returns `true` if the inner parser succeeds, `false` otherwise. It is useful if you want to know whether something matches, but don't care what the result value is, or if you want to convert `IParser<TInput>` to `IParser<TInput, bool>`.
+The `Bool` parser invokes a parser and returns a success result with `true` if the inner parser succeeds, `false` otherwise. It is useful if you want to know whether something matches without caring what the result value is, or if you want to convert `IParser<TInput>` to `IParser<TInput, bool>`.
 
 ```csharp
 var parser = Bool(innerParser);
@@ -239,7 +248,9 @@ The `Combine` parser takes a list of parsers, parses each in sequence, and retur
 var parser = Combine(p1, p2, p3, ...);
 ```
 
-For most cases, it is preferred to use the strongly-typed `Rule` parser instead of `Combine`.
+Notice that value types will be boxed to object, which may cause your program to have lower performance or higher memory use than you might expect. For most cases, it is preferred to use the strongly-typed `Rule` parser instead of `Combine`.
+
+**Note:** The `.Match()` method on the `Combine()` parser can be very fast because output values are not boxed and output arrays are not allocated.
 
 ### Compose Parser
 
@@ -341,7 +352,7 @@ var parser = NonGreedyList(
 
 Like the `List()` parser, `NonGreedyList()` parser also takes optional **separator**, **minimum** and **maximum** parameters.
 
-The `NonGreedyList` implementation provides a backtracking behavior. It will attempt to continue the parse by matching zero items. If the parse fails, it will match one item and attempt again, if that fails it will match a second item and attempt again, etc. Performance can be negatively impacted if the NonGreedyList has to make many such attempts and backtracks. 
+The `NonGreedyList` implementation provides a backtracking behavior. It will attempt to continue the parse by matching zero items. If the continuation parse fails, it will match one item and attempt again, if that fails it will match a second item and attempt again, etc. Performance can be negatively impacted if the NonGreedyList has to make many such attempts for long lists. 
 
 ### Optional Parser
 
@@ -387,10 +398,12 @@ The `Produce` parser produces a value but consumes no input. It always returns s
 
 ```csharp
 var parser = Produce(() => "abcd");
-var parser = Produce((input, data) => "abcd");
+var parser = Produce((state) => "abcd");
 ```
 
 The produce parser may be used to construct synthetic values at parse time. It can return a constant value or create a new value on every call. The value will not be cached. It may look at and consume input from the input sequence. It may use values from the contextual state data.
+
+
 
 The simple case of the Produce parser is functionally equivalent to a combination of the `Empty` and `Transform` parsers:
 
@@ -398,7 +411,7 @@ The simple case of the Produce parser is functionally equivalent to a combinatio
 var parser = Empty().Transform(_ => "abcd");
 ```
 
-**Note:** The `Produce` parser has access to the input stream and can consume input or perform other operations on the input stream or the parse state. While it is strongly preferred that you treat the `Produce` parser callback as a read-only, side-effect-free operation, you have the power to do anything you want in the callback you provide. Keep in mind that side-effects you create in your callback will not be automatically undone if subsequent parsers `.Reset()` or `.Rewind()` the input sequence, or if the parent parser fails, etc. Be careful not to create problems for yourself here, and try to take the most simple approach.
+**Note:** The `Produce` parser has access to the `IParseState<TInput>` and can therefore do many things which may have side-effects including modifying the input stream or modifying contextual data, etc. While it is *strongly preferred* that you treat the `Produce` parser callback as a read-only, side-effect-free operation, you have the power to do anything you want in the callback you provide. Keep in mind that side-effects you create in your callback will not be automatically undone if the parse fails in subsequent parsers. Be careful not to create problems for yourself here, and try to take the most simple approach towards any problem you are facing.
 
 ### Rule Parser
 
@@ -408,7 +421,8 @@ The `Rule` parser attempts to execute a list of parsers, and then return a combi
 var parser = Rule(
     parser1, 
     parser2, 
-    parser3, 
+    parser3,
+
     (r1, r2, r3) => ...
 );
 var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
@@ -416,9 +430,11 @@ var parser = (parser1, parser2, parser3).Rule((r1, r2, r3) => ...);
 
 The `Rule()` method and tuple variants are both limited to 9 parsers at most. If you need to combine the results of more than 9 parsers, use the `Combine` parser instead. 
 
+**Note:** Consider designs where you do not need to combine the results of more than 9 parsers at once, such as creating intermediate results first and then combining them, etc.
+
 ### Synchronize Parser
 
-The `Synchronize` parser allows entering **panic mode** when a parse fails. In panic mode, the parser will discard tokens to get back to a known "good" state, before attempting the parse again. This is useful for cases where you want to report all syntax errors to the user, not just the first error.
+The `Synchronize` parser allows entering **panic mode** when a parse fails. When in Panic Mode, the parser will discard tokens until it finds a known-good state, and then attempts to continue the parse. This is useful for cases where you want to report multiple syntax errors to the user at once, instead of reporting them one at a time.
 
 ```csharp
 var parser = Synchronize(inner, x => x == ';');
@@ -443,7 +459,7 @@ The `Try` parser catches user-thrown exceptions from within the parse and handle
 var parser = Try(innerParser, ex => {...}, bubble: true);
 ```
 
-The second parameter is a callback to allow examining the exception when it is received. This can be a useful place to set a breakpoint during debugging. The third parameter `bubble` tells whether to rethrow the exception (`true`) or to handle the exception and return a failure result (`false`).
+The second parameter is a callback to allow examining the exception received. This can be a useful place to set a breakpoint during debugging. The third parameter `bubble` tells whether to rethrow the exception after examining it (`true`) or to handle the exception and return a failure result (`false`).
 
 You can get information about the exception thrown from the result, if you set `bubble: false`:
 
@@ -452,7 +468,7 @@ var result = parser.Parse(...);
 var exception = result.TryGetData<Exception>();
 ```
 
-**Note**: The ParserObjects library uses special exceptions for non-local control flow purposes in specific situations. The `Try` parser will not catch or interfere with these in any way, and if you throw a `ParserObjects.Internal.ControlFlowException` or a subclass of `ParserObjects.Internal.ControlFlowException` in your user callbacks or custom parser implementations, they will not be caught or handled by the `Try` parser.
+**Note**: The ParserObjects library uses special internal exception types for non-local control flow purposes in specific situations. The `Try` parser will not catch or interfere with these in any way. If you throw a `ParserObjects.Internal.ControlFlowException` or a subclass of `ParserObjects.Internal.ControlFlowException` in your user callbacks or custom parser implementations, they will not be caught or handled by the `Try` parser. It is recommended that you do not do this in most cases.
 
 ## Code Callback Parsers
 
@@ -462,7 +478,7 @@ Because these functions take arbitrary user callback delegates which may operate
 
 ### Function Parser
 
-The `Function` parser takes a callback function to perform the parse and expects you to create your own `Result<TOutput>` return value. The first argument to the callback `state` is the `IParseState<>` of the parse, which provides access to the input sequence, result cache and other features. The second argument is the 'resultFactory' which provides methods for creating `.Success()` and `.Failure()` result values, if you do not prefer to create your own. It is suggested you use the `resultFactory` when possible, to make sure metadata in the result is filled in correctly. The `Function` parser will automatically rewind the input sequence on failure, so you do not need to cleanup manually. It will also automatically report the correct number of consumed input tokens so you do not need to track it yourself.
+The `Function` parser takes a callback function to perform the parse and expects you to create your own `Result<TOutput>` return value. The first argument to the callback `state` is the `IParseState<>` of the parse, which provides access to the input sequence, result cache and other features. The second argument is the 'resultFactory' which provides methods for creating `.Success()` and `.Failure()` result values, if you do not prefer to create your own. It is suggested you use the `resultFactory` when possible, to make sure metadata in the result is filled in correctly. The `Function` parser will automatically rewind the input sequence on failure, so you do not need to manually clean up on error. It will also automatically report the correct number of consumed input tokens so you do not need to track it yourself.
 
 ```csharp
 var parser = Function((state, resultFactory) => {
@@ -560,6 +576,23 @@ var parser = trie.ToParser();
 var parser = Trie(trie => trie.Add(...));
 ```
 
+The Trie is useful for places where we may want to search through a list of names with possibly over-lapping prefixes. In these cases other parsers would have to make attempts and backtrack to the beginning on failure, but the Trie can traverse through a tree-like structure and find the longest match directly. See this example, which can select one of several common comparison operators using longest-match:
+
+```csharp
+var parser = Trie<string>(trie => trie
+    .Add("=", "=")
+    .Add("==", "==")
+    .Add("===", "===")
+    .Add(">=", ">=")
+    .Add("<=", "<=")
+    .Add("<", "<")
+    .Add(">", ">")
+);
+
+// Returns "===", ">=", "<", ">=" and ">" in order
+var result = target.Parse("===<=<>=>");
+```
+
 There is also a `MatchAny` parser which is similar to `Trie` but matches characters into strings.
 
 ## Transforming parsers
@@ -577,17 +610,21 @@ var parser = innerParser.Transform(r => ...);
 
 ## Capturing Parsers
 
-The `IParser<TInput>.Match()` can be a significant optimization over the `IParser<TInput>.Parse()` method. The `Capture` parser takes advantage of this fact by calling `.Match()` on a list of parsers in series and then returns a list of input items directly from the input sequence which were spanned by the match as an `IReadOnlyList<TInput>`. The `Capture` parser can be a significant optimization in terms of both runtime performance and memory use if you need to match a complicated pattern and return the input items directly.
+The `IParser<TInput>.Match()` can be a significant optimization over the `IParser<TInput>.Parse()` method because intermediate result objects are not allocated and production callbacks do not need to be invoked. The `Capture` parser takes advantage of this fact by calling `.Match()` on a list of parsers in series and then returns a list of input items directly from the input sequence which were spanned by the match as an `IReadOnlyList<TInput>`. The `Capture` parser can be a significant optimization in terms of both runtime performance and memory use if you need to match a complicated pattern and return the input items directly.
 
 ```csharp
 var parser = Capture(p1, p2, p3, ...);
 ```
 
-There is also a `CaptureString` variant which operates on `char` inputs and returns a `string` output instead of an `IReadOnlyList<char>`.
+There is also a `CaptureString` variant which operates on `char` inputs and returns a `string` output instead of an `IReadOnlyList<char>`. This is equivalent to:
+
+```csharp
+var parser = Capture(p1, p2, p3).ListCharToString();
+```
 
 ## Recursive Parsers
 
-These parsers exist to help simplify certain recursion scenarios, especially in parsing equations and mathematical expressions. They are not helpful in all recursion scenarios.
+These parsers exist to help simplify certain recursion scenarios, especially in parsing equations and mathematical expressions. They are not helpful in all recursion scenarios and may have performance and complexity implications.
 
 ### Left Apply Parser
 
@@ -639,7 +676,7 @@ parserCore = First(
     Rule(
         item, 
         middle,
-        parser,
+        parser,  // Notice the circular definition of parser
         (l, m, r) => ...
     ),
     item
@@ -653,7 +690,7 @@ This type of parser is also referred to as "recursive ascent" because of how it 
 The `Pratt` parser is an implementation of the Pratt parsing algorithm, which may be particularly helpful with parsing mathematical expressions and other types of languages with similar structures.
 
 ```csharp
-var parser = Pratt(config => { ... });
+var parser = Pratt<TOutput>(config => { ... });
 ```
 
 For detailed information about configuring and using the `Pratt` parser, see the [Pratt Parser page](parsers_pratt.md). It may be simpler to use in many situations than the `LeftApply` and `RightApply` parsers are, or attempting to use other mechanisms for parsing precedence and associativity rules.
@@ -663,7 +700,7 @@ For detailed information about configuring and using the `Pratt` parser, see the
 The `Earley` parser is an implementation of the Earley parsing algorithm, which is a powerful algorithm for context-free languages and left- and right-recursive grammars.
 
 ```csharp
-var parser = Earley(...);
+var parser = Earley<TOutput>(...);
 ```
 
 For more detailed information about configuring and using the `Earley` parser, see the [Earley Parser page](parsers_earley.md). 
@@ -674,7 +711,7 @@ These parsers exist to help with referencing issues, to help resolve circular de
 
 ### Create Parser
 
-The `Create` parser creates a parser at parse time using information available in the current parse state. Create parser looks similar to the `Deferred` parser, though has a few important semantic differences: The create callback takes the `ParseState`, and it cannot be used with find/replace operations. The Create parser is expected to create new parser instances at different times, so it is not considered to have "children". This means that the parser returns by the Create parser will not be visible to Visitors.
+The `Create` parser creates a parser at parse time using information available in the current parse state. Create parser looks similar to the `Deferred` parser, though has a few important semantic differences: The create callback takes the `ParseState`, and it cannot be used with find/replace operations. The Create parser is expected to create new parser instances every time it is invoked, so it is not considered to have "children". This means that the parser returned by the Create parser will not be visible to Visitors.
 
 ```csharp
 var parser = new CreateParser<TInput, TOutput>(state => { ... });
@@ -701,7 +738,7 @@ var parenthesis = Rule(
     Match(')'),
     (_, ex _) => ex
 );
-innerExpression = First
+innerExpression = First(
     parenthesis,
     term
 );

@@ -1,6 +1,6 @@
 # ParserObjects
 
-ParserObjects is a library for object-based parsers, combinators, parsing utilities and abstractions. See the [Documentation](https://whiteknight.github.io/ParserObjects/v5) for more details on usage.
+ParserObjects is a library for object-based parsers, combinators, parsing utilities and abstractions. See the [Documentation](https://whiteknight.github.io/ParserObjects/v6) for more details on usage.
 
     Install-Package ParserObjects
 
@@ -48,7 +48,7 @@ Once you have a parser, you can pass it an input sequence to obtain a parse resu
 var result = parser.Parse(sequence);
 ```
 
-The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs. Please see the [Documentation](https://whiteknight.github.io/ParserObjects/v4) for more information, and the [Test Suite Examples](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples) for real-world usage patterns.
+The ParserObjects library provides many small parsers and parser combinators that can be built up into parsers for large and complex grammars. In addition, ParserObjects provides several pre-made parsers for specialty parsing needs. Please see the [Documentation](https://whiteknight.github.io/ParserObjects/v6) for more information, and the [Test Suite Examples](https://github.com/Whiteknight/ParserObjects/tree/master/ParserObjects.Tests/Examples) for real-world usage patterns.
 
 ## Contributing
 
@@ -56,5 +56,5 @@ We welcome contributions including code, feedback, bug reports and suggestions.
 
 ## Current Status
 
-ParserObjects library is currently in active development. **v5.0.0** is available on Nuget and is preferred over all previous versions. 
+ParserObjects library is currently in active development. Version **6** is available on Nuget and is preferred over all previous versions.
 
