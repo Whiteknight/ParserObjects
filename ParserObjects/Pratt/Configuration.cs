@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal;
 using ParserObjects.Internal.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Pratt;
 
@@ -36,8 +36,8 @@ public readonly struct Configuration<TInput, TOutput>
     /// <returns></returns>
     public Configuration<TInput, TOutput> Add<TValue>(IParser<TInput, TValue> matcher, Func<ParseletBuilder<TInput, TValue, TOutput>, ParseletBuilder<TInput, TValue, TOutput>> setup)
     {
-        Assert.NotNull(matcher);
-        Assert.NotNull(setup);
+        NotNull(matcher);
+        NotNull(setup);
 
         var parseletConfig = new ParseletBuilder<TInput, TValue, TOutput>(matcher.Name ?? string.Empty);
         parseletConfig = setup(parseletConfig);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Pratt;
 
@@ -23,16 +24,12 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
 
     public PrattParseContext(IParseState<TInput> state, Engine<TInput, TOutput> engine, int rbp, bool canRecurse, string name, ParseControl parseControl)
     {
-        Assert.NotNull(state);
-        Assert.NotNull(engine);
-        Assert.NotNull(parseControl);
-
-        _state = state;
-        _engine = engine;
+        _state = NotNull(state);
+        _engine = NotNull(engine);
         _rbp = rbp;
         _startConsumed = state.Input.Consumed;
         Name = name;
-        _parseControl = parseControl;
+        _parseControl = NotNull(parseControl);
         _canRecurse = canRecurse;
     }
 
@@ -87,7 +84,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <exception cref="ParseException">Thrown if the parser fails.</exception>
     public TValue Parse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.NotNull(parser);
+        NotNull(parser);
         EnsureIsNotComplete();
         return parser.Parse(_state) switch
         {
@@ -131,7 +128,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public bool Match(IParser<TInput> parser)
     {
-        Assert.NotNull(parser);
+        NotNull(parser);
         EnsureIsNotComplete();
         return parser.Match(_state);
     }
@@ -145,7 +142,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// callback.</exception>
     public void Expect(IParser<TInput> parser)
     {
-        Assert.NotNull(parser);
+        NotNull(parser);
         EnsureIsNotComplete();
         var result = parser.Match(_state);
         if (!result)
@@ -215,7 +212,7 @@ public readonly struct PrattParseContext<TInput, TOutput> : IParser<TInput, TOut
     /// <returns></returns>
     public Option<TValue> TryParse<TValue>(IParser<TInput, TValue> parser)
     {
-        Assert.NotNull(parser);
+        NotNull(parser);
         return _parseControl.IsComplete
             ? default
             : parser.Parse(_state).ToOption();
