@@ -28,6 +28,4 @@ public interface IProduction
     Option<object> Apply(object[] argsList);
 }
 
-public interface IProduction<TOutput> : IProduction
-{
-}
+public interface IProduction<TOutput> : IProduction;

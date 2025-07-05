@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using ParserObjects.Internal;
 using ParserObjects.Internal.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Pratt;
 
@@ -34,7 +34,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     // We need at least one parameter here, because it's a struct
     public ParseletBuilder(string name)
     {
-        _getParselets = new List<GetParseletArguments>();
+        _getParselets = [];
         _typeId = 0;
         Name = name;
     }
@@ -83,7 +83,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <returns></returns>
     public readonly ParseletBuilder<TInput, TValue, TOutput> NullDenominator(int rbp, NudFunc<TInput, TValue, TOutput> getNud)
     {
-        Assert.NotNull(getNud);
+        NotNull(getNud);
         _getParselets.Add(new GetParseletArguments(getNud, null, rbp, rbp));
         return this;
     }
@@ -98,7 +98,7 @@ public struct ParseletBuilder<TInput, TValue, TOutput>
     /// <returns></returns>
     public readonly ParseletBuilder<TInput, TValue, TOutput> LeftDenominator(int lbp, int rbp, LedFunc<TInput, TValue, TOutput> getLed)
     {
-        Assert.NotNull(getLed);
+        NotNull(getLed);
         _getParselets.Add(new GetParseletArguments(null, getLed, lbp, rbp));
         return this;
     }
