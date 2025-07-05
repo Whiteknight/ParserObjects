@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -27,12 +28,10 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public SingleParser(IMultiParser<TInput, TMiddle> inner, GetParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
-            Assert.NotNull(inner);
-            Assert.NotNull(getParser);
-            _inner = inner;
+            _inner = NotNull(inner);
             _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);
-            _getParser = getParser;
+            _getParser = NotNull(getParser);
             Name = name;
         }
 
@@ -89,12 +88,10 @@ public static class ContinueWith<TInput, TMiddle, TOutput>
 
         public MultiParser(IMultiParser<TInput, TMiddle> inner, GetMultiParserFromParser<TInput, TMiddle, TOutput> getParser, string name = "")
         {
-            Assert.NotNull(inner);
-            Assert.NotNull(getParser);
-            _inner = inner;
+            _inner = NotNull(inner);
             _left = new LeftValue<TInput, TMiddle>(name);
             _right = getParser(_left);
-            _getParser = getParser;
+            _getParser = NotNull(getParser);
             Name = name;
         }
 

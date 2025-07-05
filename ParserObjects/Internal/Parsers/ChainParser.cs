@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -22,10 +23,9 @@ public static class Chain<TInput, TOutput>
 
     public static IParser<TInput, TOutput> Configure<TMiddle>(IParser<TInput, TMiddle> inner, Action<ParserPredicateBuilder<TInput, TMiddle, TOutput>> setup, string name = "")
     {
-        Assert.NotNull(inner);
-        Assert.NotNull(setup);
+        NotNull(inner);
         var config = new ParserPredicateBuilder<TInput, TMiddle, TOutput>([]);
-        setup(config);
+        NotNull(setup)(config);
         var selector = new Selector<TMiddle>(config.Parsers);
         return new Parser<TMiddle, Selector<TMiddle>>(inner, selector, static (c, r) => c.Pick(r.Value), [.. selector.GetChildren()], name);
     }
@@ -62,7 +62,7 @@ public static class Chain<TInput, TOutput>
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
+            NotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _inner.Parse(state);
@@ -80,7 +80,7 @@ public static class Chain<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
+            NotNull(state);
 
             var checkpoint = state.Input.Checkpoint();
             var initial = _inner.Parse(state);

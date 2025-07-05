@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -69,10 +70,8 @@ public static class Transform<TInput>
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
-
             // Execute the parse and transform the result
-            var startCp = state.Input.Checkpoint();
+            var startCp = NotNull(state).Input.Checkpoint();
             var result = Inner.Parse(state);
             startCp.Rewind();
 

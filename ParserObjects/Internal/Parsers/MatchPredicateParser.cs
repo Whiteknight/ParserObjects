@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -42,7 +42,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 
     public Result<T> Parse(IParseState<T> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
 
         var startConsumed = state.Input.Consumed;
 
@@ -61,7 +61,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 
     public bool Match(IParseState<T> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
 
         if (!_readAtEnd && state.Input.IsAtEnd)
             return false;

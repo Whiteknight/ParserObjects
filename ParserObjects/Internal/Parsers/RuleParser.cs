@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -64,18 +65,13 @@ public static class Rule
         public int Id { get; } = UniqueIntegerGenerator.GetNext();
 
         public Result<TOutput> Parse(IParseState<TInput> state)
-        {
-            Assert.NotNull(state);
-            return Parse(state, new TItem[Parsers.Count]);
-        }
+            => Parse(NotNull(state), new TItem[Parsers.Count]);
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
-
-            var startCheckpoint = state.Input.Checkpoint();
+            var startCheckpoint = NotNull(state).Input.Checkpoint();
 
             for (int i = 0; i < Parsers.Count; i++)
             {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -21,14 +22,11 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public LeftApplyParser(IParser<TInput, TOutput> initial, GetParserFromParser<TInput, TOutput> getRight, Quantifier arity, string name = "")
     {
-        Assert.NotNull(initial);
-        Assert.NotNull(getRight);
-
-        _initial = initial;
+        _initial = NotNull(initial);
         _quantifier = arity;
         _left = new LeftValue<TInput, TOutput>(name);
         _right = getRight(_left);
-        _getRight = getRight;
+        _getRight = NotNull(getRight);
         Name = name;
     }
 
@@ -38,7 +36,7 @@ public sealed class LeftApplyParser<TInput, TOutput> : IParser<TInput, TOutput>
 
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         return _quantifier switch
         {
             Quantifier.ExactlyOne => ParseExactlyOne(state),

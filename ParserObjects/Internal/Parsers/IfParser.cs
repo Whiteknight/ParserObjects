@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -18,7 +19,7 @@ public sealed record IfParser<TInput, TOutput>(
 {
     public override Result<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var cp = state.Input.Checkpoint();
         var result = Predicate.Parse(state);
         return Parse(state, result.Success ? OnSuccess : OnFailure, cp, result.Consumed);
