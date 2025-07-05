@@ -2,6 +2,4 @@
 
 namespace ParserObjects;
 
-public sealed class ErrorList<T> : List<Result<T>>
-{
-}
+public sealed class ErrorList<T> : List<Result<T>>;

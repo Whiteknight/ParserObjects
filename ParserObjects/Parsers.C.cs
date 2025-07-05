@@ -1,5 +1,5 @@
-﻿using static ParserObjects.Parsers<char>;
-using static ParserObjects.Internal.ParserCache;
+﻿using static ParserObjects.Internal.ParserCache;
+using static ParserObjects.Parsers<char>;
 
 #pragma warning disable S3218
 
@@ -59,10 +59,10 @@ public static partial class Parsers
             => GetOrCreate(
                 "C-Style Identifier",
                 static () => Capture(
-                        Match(static c => c == '_' || char.IsLetter(c)),
-                        Match(static c => c == '_' || char.IsLetterOrDigit(c)).List()
-                    )
-                    .Stringify()
+                    Match(static c => c == '_' || char.IsLetter(c)),
+                    Match(static c => c == '_' || char.IsLetterOrDigit(c)).List()
+                )
+                .Stringify()
             );
 
         /// <summary>

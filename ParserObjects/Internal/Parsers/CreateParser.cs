@@ -65,7 +65,7 @@ public static class Create<TInput, TOutput>
             return true;
         }
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+        public IEnumerable<IParser> GetChildren() => [];
 
         public override string ToString() => DefaultStringifier.ToString("Create", Name, Id);
 
@@ -113,7 +113,7 @@ public static class Create<TInput, TOutput>
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
 
-        public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+        public IEnumerable<IParser> GetChildren() => [];
 
         public override string ToString() => DefaultStringifier.ToString("Create", Name, Id);
 

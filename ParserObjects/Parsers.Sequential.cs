@@ -59,10 +59,9 @@ public readonly struct SequentialState<TInput>
     /// </summary>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="p"></param>
-    /// <param name="errorMessage"></param>
     /// <returns></returns>
     /// <exception cref="Internal.Parsers.Sequential.ParseFailedException">Exits the Sequential if the parse fails.</exception>
-    public TOutput Parse<TOutput>(IParser<TInput, TOutput> p, string errorMessage = "")
+    public TOutput Parse<TOutput>(IParser<TInput, TOutput> p)
         => p.Parse(_state) switch
         {
             (true, var value, _) => value!,

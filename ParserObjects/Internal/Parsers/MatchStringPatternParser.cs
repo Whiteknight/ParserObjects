@@ -106,7 +106,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         return true;
     }
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public IEnumerable<IParser> GetChildren() => [];
 
     public override string ToString() => DefaultStringifier.ToString("MatchPattern", Name, Id);
 

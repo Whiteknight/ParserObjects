@@ -259,7 +259,7 @@ public static class UserDelegate
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
         {
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(ReadOnlySpan<T>.Empty, data);
+                return map([], data);
 
             return _internal.GetBetween(this, start, end, data, map);
         }
@@ -370,7 +370,7 @@ public static class UserDelegate
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(ReadOnlySpan<char>.Empty, data);
+                return map([], data);
 
             return _internal.GetBetween(this, start, end, data, map);
         }

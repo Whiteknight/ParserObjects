@@ -92,7 +92,7 @@ public sealed class ListSequence<T> : ISequence<T>
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<T, TData, TResult> map)
     {
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return map(ReadOnlySpan<T>.Empty, data);
+            return map([], data);
 
         var size = end.Consumed - start.Consumed;
         return _list switch

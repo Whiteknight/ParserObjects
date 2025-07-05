@@ -171,7 +171,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     {
         Assert.NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return map(ReadOnlySpan<byte>.Empty, data);
+            return map([], data);
 
         var currentConsumed = Consumed;
         int startOfCurrentBuffer = currentConsumed - _bufferIndex;

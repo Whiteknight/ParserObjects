@@ -37,7 +37,7 @@ public sealed record TrieParser<TInput, TOutput>(
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state) => ((IMultiParser<TInput, TOutput>)this).Parse(state).AsObject();
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public IEnumerable<IParser> GetChildren() => [];
 
     public override string ToString() => DefaultStringifier.ToString("Trie", Name, Id);
 

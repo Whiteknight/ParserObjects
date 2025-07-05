@@ -79,7 +79,7 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<Result<TOutput>, TData, TResult> map)
     {
         if (start.CompareTo(end) >= 0)
-            return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
+            return map([], data);
 
         var currentPosition = _input.Checkpoint();
         start.Rewind();
@@ -96,13 +96,13 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
             {
                 currentPosition.Rewind();
                 ArrayPool<Result<TOutput>>.Shared.Return(buffer);
-                return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
+                return map([], data);
             }
 
             if (item.Consumed == 0)
             {
                 ArrayPool<Result<TOutput>>.Shared.Return(buffer);
-                return map(ReadOnlySpan<Result<TOutput>>.Empty, data);
+                return map([], data);
             }
 
             buffer[i++] = item;

@@ -74,7 +74,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
         return true;
     }
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public IEnumerable<IParser> GetChildren() => [];
 
     public override string ToString() => DefaultStringifier.ToString("MatchPredicate", Name, Id);
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Bnf;
 
@@ -16,10 +17,10 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public BnfStringifier()
     {
-        _partials = new List<IPartialVisitor<BnfStringifyState>>
-        {
+        _partials =
+        [
             new BuiltInTypesBnfStringifyVisitor()
-        };
+        ];
     }
 
     public static BnfStringifier Instance { get; } = new BnfStringifier();
@@ -30,8 +31,8 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public void Add(IPartialVisitor<BnfStringifyState> partial)
     {
-        Assert.NotNull(partial);
-        if (partial == null || _partials.Contains(partial))
+        NotNull(partial);
+        if (_partials.Contains(partial))
             return;
         _partials.Add(partial);
     }
@@ -46,7 +47,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public string Stringify(IParser parser)
     {
-        Assert.NotNull(parser);
+        NotNull(parser);
         var sb = new StringBuilder();
         var state = new BnfStringifyState(this, sb);
         state.Visit(parser);

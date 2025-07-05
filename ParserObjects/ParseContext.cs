@@ -1,8 +1,13 @@
 ﻿namespace ParserObjects;
 
 /// <summary>
-/// Current contextual state of the parse
+/// Current contextual state of the parse.
 /// </summary>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TOutput"></typeparam>
+/// <param name="Parser"></param>
+/// <param name="State"></param>
+/// <param name="Result"></param>
 public readonly record struct ParseContext<TInput, TOutput>(
     IParser Parser,
     IParseState<TInput> State,
@@ -21,7 +26,7 @@ public readonly record struct ParseContext<TInput, TOutput>(
 }
 
 /// <summary>
-/// Current contextual state of the parse
+/// Current contextual state of the parse.
 /// </summary>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TOutput"></typeparam>

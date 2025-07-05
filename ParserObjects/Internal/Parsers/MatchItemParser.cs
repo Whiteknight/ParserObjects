@@ -50,7 +50,7 @@ public sealed class MatchItemParser<T> : IParser<T, T>
 
     public INamed SetName(string name) => new MatchItemParser<T>(Item, name);
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public IEnumerable<IParser> GetChildren() => [];
 
     public override string ToString() => DefaultStringifier.ToString(this);
 

@@ -202,7 +202,7 @@ public static class Sequences
     /// <param name="options"></param>
     /// <returns></returns>
     public static ICharSequence FromMethod(
-        Func<int, (char next, bool atEnd)> function,
+        Func<int, (char Next, bool IsAtEnd)> function,
         SequenceOptions<char> options = default
     ) => new UserDelegate.CharSequence(function, options);
 
@@ -217,7 +217,7 @@ public static class Sequences
     /// <param name="options"></param>
     /// <returns></returns>
     public static ISequence<T> FromMethod<T>(
-        Func<int, (T next, bool atEnd)> function,
+        Func<int, (T Next, bool IsAtEnd)> function,
         SequenceOptions<T> options = default
     ) => new UserDelegate.Sequence<T>(function, options);
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects;
 
@@ -65,7 +65,7 @@ public static partial class Parsers<TInput>
         Func<Alternative<TOutput>, bool> predicate
     )
     {
-        Assert.NotNull(predicate);
+        NotNull(predicate);
         return SelectResult(multiParser, multi => multi.Results.FirstOrDefault(predicate));
     }
 
