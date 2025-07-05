@@ -10,9 +10,7 @@ public interface IBuiltInPartialVisitor<TState> :
     IRegexPartialVisitor<TState>, IFunctionPartialVisitor<TState>, IListPartialVisitor<TState>,
     ICorePartialVisitor<TState>, IAssociativePartialVisitor<TState>, IMultiPartialVisitor<TState>,
     ILogicalPartialVisitor<TState>, IEarleyPartialVisitor<TState>, IPrattPartialVisitor<TState>,
-    IMatchPartialVisitor<TState>, ILookaheadPartialVisitor<TState>
-{
-}
+    IMatchPartialVisitor<TState>, ILookaheadPartialVisitor<TState>;
 
 public interface IRegexPartialVisitor<in TState> : IPartialVisitor<TState>
 {

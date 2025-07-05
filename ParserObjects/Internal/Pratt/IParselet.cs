@@ -39,7 +39,7 @@ public interface IParselet<TInput, TOutput> : INamed
     /// <param name="engine"></param>
     /// <param name="parseControl"></param>
     /// <returns></returns>
-    (bool success, ValueToken<TOutput> token, int consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl);
+    (bool Success, ValueToken<TOutput> Token, int Consumed) TryGetNextNud(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl);
 
     /// <summary>
     /// Attepts to get the next LED token from the input sequence.
@@ -49,7 +49,7 @@ public interface IParselet<TInput, TOutput> : INamed
     /// <param name="parseControl"></param>
     /// <param name="left"></param>
     /// <returns></returns>
-    (bool success, ValueToken<TOutput> token, int consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left);
+    (bool Success, ValueToken<TOutput> Token, int Consumed) TryGetNextLed(IParseState<TInput> state, Engine<TInput, TOutput> engine, ParseControl parseControl, ValueToken<TOutput> left);
 
     /// <summary>
     /// Gets a value indicating whether this parselet can be used as a null denominator.

@@ -19,7 +19,7 @@ public sealed class BnfGrammarVisitor
 
     public string Visit(INonterminal rootRule, BnfStringifyState outerState)
     {
-        var state = new State(outerState, new HashSet<object>(), new List<string>());
+        var state = new State(outerState, [], []);
         Visit(rootRule, state);
         return string.Join("\n", state.Lines);
     }

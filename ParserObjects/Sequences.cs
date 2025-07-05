@@ -74,7 +74,7 @@ public static class Sequences
     /// <returns></returns>
     public static ICharSequence FromCharacterFile(SequenceOptions<char> options)
     {
-        options.Validate();
+        options = options.Validate();
         var stream = File.OpenRead(options.FileName);
         if (stream.Length <= options.BufferSize)
         {
@@ -102,7 +102,7 @@ public static class Sequences
         SequenceOptions<char> options = default
     )
     {
-        options.Validate();
+        options = options.Validate();
         if (stream.Length <= options.BufferSize)
         {
             using var reader = new StreamReader(stream);

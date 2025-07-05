@@ -24,8 +24,7 @@ public static class UserDelegate
 
     private struct InternalSequence<T>
     {
-        private readonly Func<int, (T next, bool atEnd)> _function;
-        private readonly SequenceOptions<T> _options;
+        private readonly Func<int, (T Next, bool AtEnd)> _function;
         private readonly Buffer<T>[] _buffers;
 
         private WorkingSequenceStatistics _stats;
@@ -33,15 +32,14 @@ public static class UserDelegate
         private int _index;
         private int _endIndex;
 
-        public InternalSequence(Func<int, (T next, bool atEnd)> function, SequenceOptions<T> options)
+        public InternalSequence(Func<int, (T Next, bool AtEnd)> function, SequenceOptions<T> options)
             : this()
         {
             _function = function;
-            _options = options;
-            _options.Validate();
+            Options = options.Validate();
             _buffers = [
-                new Buffer<T>(_options.BufferSize, 0),
-                new Buffer<T>(_options.BufferSize, -1)
+                new Buffer<T>(Options.BufferSize, 0),
+                new Buffer<T>(Options.BufferSize, -1)
             ];
             _stats = default;
             _bufferPtr = 0;
@@ -52,7 +50,7 @@ public static class UserDelegate
             GetNextRaw(false);
         }
 
-        public SequenceOptions<T> Options => _options;
+        public readonly SequenceOptions<T> Options { get; }
 
         public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
@@ -68,7 +66,7 @@ public static class UserDelegate
             if (IsAtEnd)
             {
                 Flags = Flags.With(SequenceStateTypes.EndOfInput);
-                return _options.EndSentinel;
+                return Options.EndSentinel;
             }
 
             var next = GetNextRaw(true);
@@ -98,7 +96,7 @@ public static class UserDelegate
             _stats.ItemsRead++;
             _index++;
             var nextBufferOffset = _index - _buffers[_bufferPtr].StartIndex;
-            if (nextBufferOffset >= _options.BufferSize)
+            if (nextBufferOffset >= Options.BufferSize)
             {
                 // The next index is beyond the current buffer. So we swap over to the next buffer
                 _bufferPtr = (_bufferPtr + 1) % 2;
@@ -111,7 +109,7 @@ public static class UserDelegate
         public T GetNextRaw(bool advance)
         {
             if (IsAtEnd)
-                return _options.EndSentinel;
+                return Options.EndSentinel;
 
             // Check to see if the character to read is in the current buffer. If so, return it directly
             var buffer = _buffers[_bufferPtr];
@@ -206,14 +204,14 @@ public static class UserDelegate
 
             for (int i = _buffers[_bufferPtr].HighWaterMark + 1; i <= bufferIndex; i++)
             {
-                Debug.Assert(_endIndex == -1 || i < _endIndex, "We should not have a checkpoint beyond the end");
+                Debug.Assert(_endIndex == -1 || i < _endIndex);
 
                 var (next, atEnd) = _function(i);
                 _stats.ItemsGenerated++;
                 _buffers[_bufferPtr].Values[i] = next;
                 if (atEnd)
                 {
-                    Debug.Assert(_endIndex >= 0, "Since this is a rewind we should already have seen the end index");
+                    Debug.Assert(_endIndex >= 0);
                     break;
                 }
             }
@@ -234,7 +232,7 @@ public static class UserDelegate
     {
         private InternalSequence<T> _internal;
 
-        public Sequence(Func<int, (T next, bool atEnd)> function, SequenceOptions<T> options)
+        public Sequence(Func<int, (T Next, bool AtEnd)> function, SequenceOptions<T> options)
         {
             _internal = new InternalSequence<T>(function, options);
         }
@@ -280,7 +278,7 @@ public static class UserDelegate
         private int _column;
         private SequenceStateTypes _flags;
 
-        public CharSequence(Func<int, (char next, bool atEnd)> function, SequenceOptions<char> options)
+        public CharSequence(Func<int, (char Next, bool AtEnd)> function, SequenceOptions<char> options)
         {
             _internal = new InternalSequence<char>(function, options);
             _line = 1;

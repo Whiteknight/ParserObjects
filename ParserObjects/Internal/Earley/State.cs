@@ -13,7 +13,7 @@ public sealed class State
 {
     public State(int number, SequenceCheckpoint cp)
     {
-        Items = new List<Item>();
+        Items = [];
         Number = number;
         Checkpoint = cp;
     }
@@ -58,7 +58,7 @@ public sealed class State
             return item;
         }
 
-        Debug.Assert(existing.CanImport(item), "Imported item must be Equal and not have any derivations");
+        Debug.Assert(existing.CanImport(item));
         return existing;
     }
 

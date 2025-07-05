@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 namespace ParserObjects.Internal.Sequences;
@@ -21,8 +22,7 @@ public static class CharBufferSequence
 
         public InternalState(SequenceOptions<char> options, TData data, int length, Func<TData, int, char> getCharAt)
         {
-            _options = options;
-            _options.Validate();
+            _options = options.Validate();
             Data = data;
             Length = length;
             _getCharAt = getCharAt;
@@ -132,8 +132,8 @@ public static class CharBufferSequence
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
-            Assert.NotNull(s);
-            Debug.Assert(options.MaintainLineEndings, "Only used when line-ending normalization is off");
+            NotNull(s);
+            Debug.Assert(options.MaintainLineEndings);
             _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
         }
 
@@ -168,7 +168,7 @@ public static class CharBufferSequence
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
-            Assert.NotNull(map);
+            NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
                 return map([], data);
 
@@ -198,21 +198,21 @@ public static class CharBufferSequence
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
-            Assert.NotNull(s);
+            NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
-            Assert.NotNull(s);
+            NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
             _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
         }
 
-        private static (char[] buffer, int length) Normalize(string s, bool normalize)
+        private static (char[] Buffer, int Length) Normalize(string s, bool normalize)
         {
-            Debug.Assert(normalize, "Factory method should create a different class for non-normalized strings");
+            Debug.Assert(normalize);
 
             if (s.Length == 0)
                 return (Array.Empty<char>(), 0);
@@ -254,7 +254,7 @@ public static class CharBufferSequence
             return (chars, destIdx);
         }
 
-        private static (char[] buffer, int length) Normalize(IReadOnlyList<char> s, bool normalize)
+        private static (char[] Buffer, int Length) Normalize(IReadOnlyList<char> s, bool normalize)
         {
             if (!normalize)
                 return (s.ToArray(), s.Count);
@@ -330,7 +330,7 @@ public static class CharBufferSequence
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
-            Assert.NotNull(map);
+            NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
                 return map([], data);
 

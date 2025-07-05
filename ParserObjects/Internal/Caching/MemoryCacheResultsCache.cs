@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Caching;
 
@@ -28,7 +29,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
 
     public void Add<TValue>(ISymbol symbol, Location location, TValue value)
     {
-        Assert.NotNull(symbol);
+        NotNull(symbol);
         var key = new Key(symbol, location);
         _cache.Set(key, value);
     }
@@ -41,7 +42,7 @@ public sealed class MemoryCacheResultsCache : IResultsCache, IDisposable
 
     public Option<TValue> Get<TValue>(ISymbol symbol, Location location)
     {
-        Assert.NotNull(symbol);
+        NotNull(symbol);
         _stats.Attempts++;
         var key = new Key(symbol, location);
         if (_cache.TryGetValue(key, out var objValue) && objValue is TValue typed)

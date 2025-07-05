@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Earley;
 
@@ -7,8 +8,7 @@ public readonly struct RentedArray<T>
 {
     public RentedArray(T[] values, int count)
     {
-        Assert.NotNull(values);
-        Values = values;
+        Values = NotNull(values);
         Count = count;
     }
 

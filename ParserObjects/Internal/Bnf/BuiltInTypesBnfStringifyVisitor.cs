@@ -141,7 +141,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
 
     private static void AcceptFirstVariant(List<IParser> children, BnfStringifyState state)
     {
-        Debug.Assert(children.Count >= 2, "We should not have a First with 0 or 1 children");
+        Debug.Assert(children.Count >= 2);
 
         state.Append("(", children[0]);
 
@@ -441,7 +441,7 @@ public sealed class BuiltInTypesBnfStringifyVisitor : IBuiltInPartialVisitor<Bnf
     public void Accept<TInput, TOutput>(TrieParser<TInput, TOutput> p, BnfStringifyState state)
     {
         var allPatterns = p.Trie.GetAllPatterns().ToList();
-        Debug.Assert(allPatterns.Count > 0, "Trie must have at least one entry");
+        Debug.Assert(allPatterns.Count > 0);
 
         static void PrintPattern(IEnumerable<TInput> pattern, BnfStringifyState s)
         {

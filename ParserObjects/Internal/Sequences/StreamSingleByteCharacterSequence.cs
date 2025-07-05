@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
 #pragma warning disable S1121
@@ -24,9 +25,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public StreamSingleByteCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.NotNull(stream);
-        _options = options;
-        _options.Validate();
+        _options = options.Validate();
         if (!_options.Encoding!.IsSingleByte)
             throw new ArgumentException("This sequence is only for single-byte character encodings");
 
@@ -37,7 +36,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _consumed = 0;
         _byteBuffer = new byte[_options.BufferSize];
         _buffer = new char[_options.BufferSize];
-        _stream = stream;
+        _stream = NotNull(stream);
         _totalCharsInBuffer = ReadStream();
         _bufferStartStreamPosition = 0;
         _stats.BufferFills++;
@@ -191,7 +190,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
     {
-        Assert.NotNull(map);
+        NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map([], data);
 

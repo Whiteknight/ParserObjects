@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -20,11 +21,9 @@ public sealed class ParseResultSequence<TInput, TOutput> : ISequence<Result<TOut
 
     public ParseResultSequence(ISequence<TInput> input, IParser<TInput, TOutput> parser, Func<ResultFactory<TInput, TOutput>, Result<TOutput>>? getEndSentinel, Action<string> log)
     {
-        Assert.NotNull(input);
-        Assert.NotNull(parser);
         _state = new ParseState<TInput>(input, log);
-        _input = input;
-        _parser = parser;
+        _input = NotNull(input);
+        _parser = NotNull(parser);
         _getEndSentinel = getEndSentinel;
         _endSentinel = default;
         _stats = default;

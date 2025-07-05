@@ -12,7 +12,7 @@ public sealed class ChildParserListVisitor
 
     public IEnumerable<IParser> Visit(INonterminal item)
     {
-        var state = new State(new HashSet<object>(), new List<IParser>());
+        var state = new State([], []);
         Visit(item, state);
         return state.ChildParsers;
     }

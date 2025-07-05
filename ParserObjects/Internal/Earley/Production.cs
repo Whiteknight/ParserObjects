@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ParserObjects;
 using ParserObjects.Earley;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Earley;
 
@@ -31,12 +32,9 @@ public sealed class Production<TData, TOutput> : IProduction<TOutput>
 
     public Production(INonterminal lhs, TData data, Func<TData, object[], TOutput> reduce, IReadOnlyList<ISymbol> symbols)
     {
-        Assert.NotNull(lhs);
-        Assert.NotNull(reduce);
-        Assert.NotNullAndContainsNoNulls(symbols);
-        Symbols = symbols;
-        _reduce = reduce;
-        LeftHandSide = lhs;
+        Symbols = NotNullAndContainsNoNulls(symbols);
+        _reduce = NotNull(reduce);
+        LeftHandSide = NotNull(lhs);
         _data = data;
     }
 
@@ -46,7 +44,7 @@ public sealed class Production<TData, TOutput> : IProduction<TOutput>
 
     public Option<object> Apply(object[] argsList)
     {
-        Assert.NotNull(argsList);
+        NotNull(argsList);
         try
         {
             Debug.Assert(argsList.Length >= Symbols.Count, "The arguments buffer should hold at least as many values as there are symbols");

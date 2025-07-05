@@ -20,7 +20,7 @@ public readonly struct Engine<TInput, TOutput>
     {
         if (NotNull(startSymbol).Productions.Count == 0)
             throw new GrammarException("The start symbol contains no valid productions");
-        Debug.Assert(startSymbol.Productions.Any(p => p.Symbols.Count > 0), "Start symbol must have valid productions");
+        Debug.Assert(startSymbol.Productions.Any(p => p.Symbols.Count > 0));
         _startSymbol = startSymbol;
     }
 
@@ -59,7 +59,7 @@ public readonly struct Engine<TInput, TOutput>
             var derivations = derivationVisitor.GetDerivation(resultItem.Item);
             for (int j = 0; j < derivations.Count; j++)
             {
-                Debug.Assert(derivations[j] is TOutput, "The derivation must have the correct type");
+                Debug.Assert(derivations[j] is TOutput);
                 var value = (TOutput)derivations[j];
                 var result = Alternative<TOutput>.Ok(value, resultItem.State.Number, resultItem.State.Checkpoint);
                 results.Add(result);
@@ -277,7 +277,7 @@ public readonly struct Engine<TInput, TOutput>
     )
     {
         if (!completedNullables.ContainsKey(production))
-            completedNullables[production] = new List<Item>();
+            completedNullables[production] = [];
         completedNullables[production].Add(item);
         stats.CompletedNullables++;
     }

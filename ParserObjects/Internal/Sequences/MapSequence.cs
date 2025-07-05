@@ -1,4 +1,5 @@
 ﻿using System;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Sequences;
 
@@ -17,10 +18,8 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public MapSequence(ISequence<TInput> inputs, Func<TInput, TOutput> map)
     {
-        Assert.NotNull(inputs);
-        Assert.NotNull(map);
-        _inputs = inputs;
-        _map = map;
+        _inputs = NotNull(inputs);
+        _map = NotNull(map);
     }
 
     public TOutput GetNext() => GetNext(true);
