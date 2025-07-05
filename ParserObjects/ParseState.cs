@@ -58,7 +58,7 @@ public readonly struct DataStore
 
     public DataStore(LinkedList<(int Version, Dictionary<string, object> Values)> data)
     {
-        Assert.ArgumentNotNull(data);
+        Assert.NotNull(data);
         _store = data;
     }
 
@@ -73,7 +73,7 @@ public readonly struct DataStore
 
     public int PopDataFrame(int version = 0)
     {
-        Assert.ArgumentGreaterThanOrEqualTo(version, 0);
+        Assert.GreaterThanOrEqualTo(version, 0);
         if (version == 0)
             version = _store.Last!.Value.Version - 1;
 

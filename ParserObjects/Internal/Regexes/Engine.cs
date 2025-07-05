@@ -19,8 +19,8 @@ public static class Engine
     /// <returns></returns>
     public static MatchResult GetMatch(IParseState<char> parseState, Regex regex)
     {
-        Assert.ArgumentNotNull(parseState);
-        Assert.ArgumentNotNull(regex);
+        Assert.NotNull(parseState);
+        Assert.NotNull(regex);
 
         var startLocation = parseState.Input.CurrentLocation;
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
@@ -36,8 +36,8 @@ public static class Engine
 
     public static bool TestMatch(IParseState<char> parseState, Regex regex)
     {
-        Assert.ArgumentNotNull(parseState);
-        Assert.ArgumentNotNull(regex);
+        Assert.NotNull(parseState);
+        Assert.NotNull(regex);
 
         var captures = regex.NumberOfGroups == 0 ? CaptureCollection.GetReusableInstance() : new CaptureCollection();
         return Test(captures, regex.States, parseState, true);

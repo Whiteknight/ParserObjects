@@ -17,8 +17,8 @@ public sealed class MapSequence<TInput, TOutput> : ISequence<TOutput>
 
     public MapSequence(ISequence<TInput> inputs, Func<TInput, TOutput> map)
     {
-        Assert.ArgumentNotNull(inputs);
-        Assert.ArgumentNotNull(map);
+        Assert.NotNull(inputs);
+        Assert.NotNull(map);
         _inputs = inputs;
         _map = map;
     }

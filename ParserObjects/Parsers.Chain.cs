@@ -80,8 +80,8 @@ public readonly record struct ParserPredicateBuilder<TInput, TMiddle, TOutput>(
     /// <returns></returns>
     public ParserPredicateBuilder<TInput, TMiddle, TOutput> When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
     {
-        Assert.ArgumentNotNull(equals);
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(equals);
+        Assert.NotNull(parser);
         Parsers.Add((equals, parser));
         return this;
     }

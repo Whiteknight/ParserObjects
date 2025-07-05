@@ -14,45 +14,45 @@ namespace ParserObjects.Internal;
 [ExcludeFromCodeCoverage]
 public static class Assert
 {
-    public static void ArgumentNotNull(object? value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
-    {
-        if (value == null)
-            throw new ArgumentNullException(parameterName);
-    }
+    [return: NotNull]
+    public static T NotNull<T>([NotNull] T? value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+        => value is null ? throw new ArgumentNullException(parameterName) : value!;
 
-    public static void ArrayNotNullAndContainsNoNulls<T>(IReadOnlyList<T> values, [CallerArgumentExpression(nameof(values))] string parameterName = "")
+    [return: NotNull]
+    public static IReadOnlyList<T> NotNullAndContainsNoNulls<T>([NotNull] IReadOnlyList<T> values, [CallerArgumentExpression(nameof(values))] string parameterName = "")
         where T : class
     {
-        ArgumentNotNull(values, parameterName);
+        NotNull(values, parameterName);
         for (int i = 0; i < values.Count; i++)
         {
             if (values[i] == null)
                 throw new ArgumentNullException(parameterName + $"[{i}]");
         }
+
+        return values;
     }
 
-    public static void ArgumentNotNullOrEmpty(string value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+    [return: NotNull]
+    public static string NotNullOrEmpty([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+        => string.IsNullOrEmpty(value) ? throw new ArgumentException("string value may not be null or empty", parameterName) : value!;
+
+    public static int NotLessThanOrEqualToZero(int value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+        => value > 0
+        ? value
+        : throw new ArgumentOutOfRangeException(parameterName, "Value must be positive integer");
+
+    public static int InRange(int value, int min, int max, [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
-        if (string.IsNullOrEmpty(value))
-            throw new ArgumentException("string value may not be null or empty", parameterName);
+        Debug.Assert(min <= max);
+        return value < min || value > max
+            ? throw new ArgumentOutOfRangeException(parameterName, $"Value must be between {min} and {max}")
+            : value;
     }
 
-    public static void ArgumentNotLessThanOrEqualToZero(int value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
-    {
-        if (value <= 0)
-            throw new ArgumentOutOfRangeException(parameterName, "Value must be positive integer");
-    }
-
-    public static void ArgumentInRange(int value, int min, int max, [CallerArgumentExpression(nameof(value))] string parameterName = "")
-    {
-        Debug.Assert(min <= max, "The bounds should not be inverted");
-        if (value < min || value > max)
-            throw new ArgumentOutOfRangeException(parameterName, $"Value must be between {min} and {max}");
-    }
-
-    public static void ArgumentGreaterThanOrEqualTo(int value, int min, [CallerArgumentExpression(nameof(value))] string parameterName = "")
+    public static int GreaterThanOrEqualTo(int value, int min, [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         if (value < min)
             throw new ArgumentOutOfRangeException(parameterName, $"Value must be greater than or equal to {min}");
+        return value;
     }
 }

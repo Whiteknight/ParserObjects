@@ -183,8 +183,8 @@ public static class SequenceExtensions
 
     public static T[] GetNext<T>(this ISequence<T> input, int count)
     {
-        Assert.ArgumentNotNull(input);
-        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        Assert.NotNull(input);
+        Assert.NotLessThanOrEqualToZero(count);
         var result = new T[count];
         for (int i = 0; i < count; i++)
             result[i] = input.GetNext();
@@ -193,8 +193,8 @@ public static class SequenceExtensions
 
     public static string GetString(this ICharSequence input, int count)
     {
-        Assert.ArgumentNotNull(input);
-        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        Assert.NotNull(input);
+        Assert.NotLessThanOrEqualToZero(count);
         var result = new char[count];
         int i = 0;
         for (; !input.IsAtEnd && i < count; i++)
@@ -204,8 +204,8 @@ public static class SequenceExtensions
 
     public static T[] Peek<T>(this ISequence<T> input, int count)
     {
-        Assert.ArgumentNotNull(input);
-        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        Assert.NotNull(input);
+        Assert.NotLessThanOrEqualToZero(count);
         var result = new T[count];
         var cp = input.Checkpoint();
         for (int i = 0; i < count; i++)
@@ -216,8 +216,8 @@ public static class SequenceExtensions
 
     public static string PeekString(this ICharSequence input, int count)
     {
-        Assert.ArgumentNotNull(input);
-        Assert.ArgumentNotLessThanOrEqualToZero(count);
+        Assert.NotNull(input);
+        Assert.NotLessThanOrEqualToZero(count);
         var result = new char[count];
         var cp = input.Checkpoint();
         int i = 0;

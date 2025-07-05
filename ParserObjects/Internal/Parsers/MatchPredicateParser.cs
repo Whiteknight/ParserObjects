@@ -42,7 +42,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 
     public Result<T> Parse(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
 
         var startConsumed = state.Input.Consumed;
 
@@ -61,7 +61,7 @@ public sealed class MatchPredicateParser<T, TData> : IParser<T, T>
 
     public bool Match(IParseState<T> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
 
         if (!_readAtEnd && state.Input.IsAtEnd)
             return false;

@@ -17,7 +17,7 @@ public readonly struct Engine<TInput, TOutput>
 
     public Engine(INonterminal<TInput, TOutput> startSymbol)
     {
-        Assert.ArgumentNotNull(startSymbol);
+        Assert.NotNull(startSymbol);
         if (startSymbol.Productions.Count == 0)
             throw new GrammarException("The start symbol contains no valid productions");
         Debug.Assert(startSymbol.Productions.Any(p => p.Symbols.Count > 0), "Start symbol must have valid productions");
@@ -26,7 +26,7 @@ public readonly struct Engine<TInput, TOutput>
 
     public ParseResult<TOutput> Parse(IParseState<TInput> parseState)
     {
-        Assert.ArgumentNotNull(parseState);
+        Assert.NotNull(parseState);
 
         var stats = new ParseStatistics();
 

@@ -30,7 +30,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public void Add(IPartialVisitor<BnfStringifyState> partial)
     {
-        Assert.ArgumentNotNull(partial);
+        Assert.NotNull(partial);
         if (partial == null || _partials.Contains(partial))
             return;
         _partials.Add(partial);
@@ -46,7 +46,7 @@ public sealed class BnfStringifier : IVisitor<BnfStringifyState>
 
     public string Stringify(IParser parser)
     {
-        Assert.ArgumentNotNull(parser);
+        Assert.NotNull(parser);
         var sb = new StringBuilder();
         var state = new BnfStringifyState(this, sb);
         state.Visit(parser);

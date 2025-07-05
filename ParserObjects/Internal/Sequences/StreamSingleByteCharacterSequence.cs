@@ -24,7 +24,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public StreamSingleByteCharacterSequence(Stream stream, SequenceOptions<char> options)
     {
-        Assert.ArgumentNotNull(stream);
+        Assert.NotNull(stream);
         _options = options;
         _options.Validate();
         if (!_options.Encoding!.IsSingleByte)
@@ -191,7 +191,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
     {
-        Assert.ArgumentNotNull(map);
+        Assert.NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map(ReadOnlySpan<char>.Empty, data);
 

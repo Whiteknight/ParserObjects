@@ -47,7 +47,7 @@ public readonly record struct MultiResult<TOutput>(
 
     public MultiResult<TValue> Transform<TValue, TData>(TData data, Func<TData, TOutput, TValue> transform)
     {
-        Assert.ArgumentNotNull(transform);
+        Assert.NotNull(transform);
         return new MultiResult<TValue>(
             Parser,
             Results.Select(r => r.Transform(data, transform)).ToList(),
@@ -63,7 +63,7 @@ public readonly record struct MultiResult<TOutput>(
 
     public MultiResult<TValue> SelectMany<TValue>(Func<Alternative<TOutput>, Alternative<TValue>> select)
     {
-        Assert.ArgumentNotNull(select);
+        Assert.NotNull(select);
         return new MultiResult<TValue>(
             Parser,
             Results.Select(r => r.Success ? select(r) : r.Transform<TValue, object?>(null, static (_, _) => default!)).ToList(),

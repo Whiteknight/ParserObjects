@@ -28,7 +28,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
 
     public Result<string> Parse(IParseState<char> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         Debug.Assert(Pattern.Length > 0, "We shouldn't have empty patterns here");
 
         var checkpoint = state.Input.Checkpoint();

@@ -15,7 +15,7 @@ public sealed record SequenceFlagParser<TInput>(
 {
     public override Result<object> Parse(IParseState<TInput> state)
     {
-        Assert.ArgumentNotNull(state);
+        Assert.NotNull(state);
         return state.Input.Flags.Has(Flags)
             ? Result.Ok(this, Defaults.ObjectInstance, 0)
             : Result.Fail(this, FailureMessage + state.Input.Peek()!);

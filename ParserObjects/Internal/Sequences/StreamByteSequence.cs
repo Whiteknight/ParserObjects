@@ -24,7 +24,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
     public StreamByteSequence(SequenceOptions<byte> options)
     {
         _options = options;
-        Assert.ArgumentNotNullOrEmpty(_options.FileName);
+        Assert.NotNullOrEmpty(_options.FileName);
         _options.Validate();
 
         _stats = default;
@@ -38,7 +38,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public StreamByteSequence(Stream stream, SequenceOptions<byte> options)
     {
-        Assert.ArgumentNotNull(stream);
+        Assert.NotNull(stream);
         _options = options;
         _options.Validate();
 
@@ -169,7 +169,7 @@ public sealed class StreamByteSequence : ISequence<byte>, IDisposable
 
     public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<byte, TData, TResult> map)
     {
-        Assert.ArgumentNotNull(map);
+        Assert.NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
             return map(ReadOnlySpan<byte>.Empty, data);
 

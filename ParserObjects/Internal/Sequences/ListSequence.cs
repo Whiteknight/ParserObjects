@@ -21,7 +21,7 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public ListSequence(IEnumerable<T> enumerable, T endSentinel)
     {
-        Assert.ArgumentNotNull(enumerable);
+        Assert.NotNull(enumerable);
         _list = enumerable is IReadOnlyList<T> list ? list : enumerable.ToArray();
         _endSentinelValue = endSentinel;
         _stats = default;
@@ -30,7 +30,7 @@ public sealed class ListSequence<T> : ISequence<T>
 
     public ListSequence(IReadOnlyList<T> list, T endSentinel)
     {
-        Assert.ArgumentNotNull(list);
+        Assert.NotNull(list);
         _list = list;
         _endSentinelValue = endSentinel;
         _stats = default;
