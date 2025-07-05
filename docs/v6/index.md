@@ -33,13 +33,13 @@ You can get access to available sequence types in your code by statically includ
 using static ParserObjects.Sequences;
 ```
 
-### `IResult<T>` and `IMultiResult<T>`
+### `Result<T>` and `MultiResult<T>`
 
-The `IResult<T>` and `IMultiResult<T>` abstractions represent the result of a parser execution. Results communicate success or failure. On success it includes the derived value and on failure it includes an error message. The result also includes metadata about how many inputs were consumed and the location in the input stream where the match occurred, among other things.
+The `Result<T>` and `MultiResult<T>` abstractions represent the result of a parser execution. Results communicate success or failure. On success it includes the derived value and on failure it includes an error message. The result also includes metadata about how many inputs were consumed and the location in the input stream where the match occurred, among other things.
 
 ### `IParser<TInput, TOutput>` and `IMultiParser<TInput, TOutput>`
 
-`IParser<TInput, TOutput>` and `IMultiParser<TInput, TOutput>` and related interfaces represent a parser object. These are the core component of the ParserObjects library. Parsers take an `ISequence<TInput>` of input values and return an `IResult<TOutput>` or `IMultiResult<TOutput>` indicating success or failure.
+`IParser<TInput, TOutput>` and `IMultiParser<TInput, TOutput>` and related interfaces represent a parser object. These are the core component of the ParserObjects library. Parsers take an `ISequence<TInput>` of input values and return an `Result<TOutput>` or `MultiResult<TOutput>` indicating success or failure.
 
 See the page on [Parser Usage](parser_usage.md) for information about using parsers. 
 

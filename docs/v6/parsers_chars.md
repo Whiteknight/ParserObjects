@@ -5,6 +5,7 @@ In addition to the [Core Parsers](parsers_core.md), ParserObjects provides a few
 All these specialty parsers can be accessed with this declaration:
 
 ```csharp
+using ParserObjects;
 using static ParserObjects.Parsers;
 ```
 
@@ -161,7 +162,7 @@ The `PrefixedLine` parser instance is not cached by the library.
 
 ## Whitespace Parsers
 
-The `WhitespaceCharacter` parser matches any single whitespace character and returns it. The `Whitespace` parser returns a string of one or more whitespace characters and returns the string. The `OptionalWhitespace` parser returns a string of zero or more whitespace characters and is equivalent to `.Whitespace().Optional()`.
+The `WhitespaceCharacter` parser matches any single whitespace character and returns it. The `Whitespace` parser returns a string of one or more whitespace characters as a string. The `OptionalWhitespace` parser returns a string of zero or more whitespace characters and is equivalent to `.Whitespace().Optional()`.
 
 ```csharp
 var parser = WhitespaceCharacter();
@@ -263,6 +264,7 @@ var getWord = Stringify(
         Match(c => char.IsLetter(c))
     )
 );
+var getWord = Match(c => char.IsLetter(c)).List().Stringify();
 ```
 
 ## Capturing Parsers

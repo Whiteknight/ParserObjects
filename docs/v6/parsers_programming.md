@@ -20,14 +20,14 @@ var parser = Comment();
 
 ### Hexadecimal Numbers
 
-A C-style hexadecimal string has an optional negative sign `-`, starts with the prefix `0x` and is followed by 1 to 8 hexadecimal digits. The `HexadecimalString` parser returns the matched string, while the `HexadecimalInteger` parser parses the string and returns an `int`.
+A C-style hexadecimal string starts with the prefix `0x` and is followed by 1 to 8 hexadecimal digits. The `HexadecimalString` parser returns the matched string, while the `HexadecimalInteger` parser parses the string and returns an `int`.
 
 ```csharp
 var parser = HexadecimalString();
 var parser = HexadecimalInteger();
 ```
 
-Values can be in the range `-0x80000000` to `0x7FFFFFFF` inclusive. Without the negative sign, the range is `0x80000000` to `0x7FFFFFFF`. The hex values are parsed as an unsigned integer, then cast to an `int`, then the negative sign is applied, if any.
+Values can be in the range `-0x00000000` to `0xFFFFFFFF` inclusive. The hex values are parsed as an unsigned integer, then cast to an `int`, then the negative sign is applied, if any.
 
 ### Integer Literals
 

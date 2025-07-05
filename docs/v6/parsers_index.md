@@ -2,7 +2,7 @@
 
 This is an alphabetical list of all parsers from the ParserObjects library:
 
-**Notice**: Parsers are named after the public factory methods which are used to create them. The actual classes which implement the behavior may be named other things, and a single implementation may be used in several of these named parsers:
+**Notice**: Parsers are named after the public factory methods which are used to create them. The actual classes which implement the behavior may be named other things, and implementations are not 1:1 unique with the named factory methods.
 
 * `And()` Attempt to match several parsers and returns success if they all succeed.
 * `Any()` Matches any input item, fails at end of input.

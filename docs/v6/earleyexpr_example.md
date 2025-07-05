@@ -2,7 +2,7 @@
 
 In the first [expression parser example](expression_example.md) we showed an expression parser with basic combinator types, and then we showed the same basic example using the [Pratt parser](pratexpr_example.md). Now we are going to show the same thing with the Earley parser. Using the Lexical Grammar, Token type and helper methods from the previous example, we can create an expression-parser using the Earley parser to see how it works.
 
-First we start by stubbing out our parser:
+First we start by stubbing out our parser, an Earley parser which we want to return an `int`:
 
 ```csharp
 var parser = Earley<int>(symbols => {
@@ -10,7 +10,7 @@ var parser = Earley<int>(symbols => {
 });
 ```
 
-The Earley parse algorithm is a context-free recursive parsing algorithm which is extremely powerful. All that power comes with some drawbacks, however. We will see it in this example.
+The Earley parse algorithm is a context-free recursive parsing algorithm which is extremely powerful. All that power comes with some drawbacks, however. We will see those in this example.
 
 Let's start by defining a few parsers to help with getting the tokens we need:
 
@@ -22,7 +22,7 @@ var number = Token(TokenType.Number)
     .Transform(t => int.Parse(t.Value));
 ```
 
-The BNF for our grammar is going to look like this:
+The irst draft BNF for our grammar is going to look like this:
 
 ```
 Expr ::= <number>
@@ -30,7 +30,7 @@ Expr ::= <Expr> '+' <Expr>
 Expr ::= <Expr> '*' <Expr>
 ```
 
-Notice how unlike in the combinators example and the Pratt example, the BNF rules here are *recursive*. That is, the symbol `Expr` appears in it's own definition. Right-recursion (where the symbol appears at the end of it's own definition) is possible with many parsers, but Left-recursion (where the symbol appears at *the beginning* of it's own definition) is not. With the Earley parser, both recursion scenarios are possible and *easy*.
+Notice how unlike in the combinators example and the Pratt example, the BNF rules here are *recursive*. That is, the symbol `Expr` appears in it's own definition. Right-recursion (where the symbol appears at the end of it's own definition) is possible with many parsers, but Left-recursion (where the symbol appears at *the beginning* of it's own definition) is usually not. With the Earley parser, both recursion scenarios are possible and *easy*.
 
 Create an Expression symbol in the Earley parser which combines these things together:
 
@@ -105,7 +105,7 @@ Expr ::= <Term>
 Expr ::= <Expr> '+' <Expr>
 ```
 
-He we can see we want to parse `Term` first and then an `Expr` is a sum of `Term`. This is similar to our `multiplicative` and `additive` rules from the first example. Writing this in the Earley parser gives us:
+He we can see we want to parse `Term` first and then an `Expr` is a sum of one or more `Term`. This is similar to our `multiplicative` and `additive` rules from the first example. Writing this in the Earley parser gives us:
 
 ```csharp
 var term = symbols.New<int>("Term");
@@ -169,6 +169,6 @@ expr.Rule(expr, minus, term, (l, _, r) => l - r);
 
 Now when we run the calculator example we get the one answer we expect, `20`. 
 
-Notice that this grammar we have created is still *left-recursive*, which is very difficult to express and implement in other parser types. With the Earley algorithm we are able to create a left-recursive grammar in only a few lines of code, and are able to follow a very natural development path without worrying about how recursion was being implemented. As an exercise for the reader, try to re-implement the above grammar using right recursion instead.
+Notice that this grammar we have created is still *left-recursive*, which is very difficult to express and implement in other parser types. With the Earley algorithm we are able to create a left-recursive grammar in only a few lines of code, and are able to follow a very natural development path without worrying about how recursion was being implemented. As an exercise for the reader, try to re-implement the above grammar using right recursion instead, and see the differences in the results.
 
-The Earley parser is very powerful, but sometimes all that extra power gives you some unexpected problems. You may find that if your rules are not precise enough you will end up with more results than you expect, and you will have to do some work to narrow the grammar down to give you just the values that you want.
+The Earley parser is very powerful, but sometimes all that extra power gives you some unexpected problems. You may find that if your rules are not precise enough you will end up with more results than you expect. Sometimes it's good to get multiple possible parse results, but other times you want to narrow down to only a single "best" result. You need to define what you mean by "best" in your application.

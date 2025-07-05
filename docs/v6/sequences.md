@@ -14,13 +14,13 @@ In addition, several sequence types can be created via extension methods:
 using ParserObjects;
 ```
 
-**Note**: Sequences should be created from the factory methods in the `ParserObjects.Sequences` class, or via extension methods in the `ParserObjects` namespace *only*. Trying to create sequence classes directly by calling their constructors is *explicitly not supported*, even if it is technically possible. If you find yourself needing to access functionality of a sequence that is not available from one of the factory methods, please contact the maintainers and ask for that functionality to be added to the supported interface.
+**Note**: Sequences should be created from the factory methods in the `ParserObjects.Sequences` class, or via extension methods in the `ParserObjects` namespace. This is the only supported, stable interface. If you find yourself requiring functionality which is not readily provided by the public factory methods, please contact the developers.
 
 ## Sequence Invariants and Design Requirements
 
 Sequences provided by ParserObjects all satisfy the following invariants and design requirements, some of which will be described further throughout this page.
 
-1. Sequences should properly report whether they are at the end of input at all times, without needing to read a value first.
+1. Sequences should properly report whether they are at the start of input or end of input at all times, without needing to read a value first.
 2. Sequences should properly report the number of items consumed from the sequence at the current point in time, and also report the correct location in input at the current point in time
 3. Sequences should be friendly to the underlying data source
    1. Sequences should read from the underlying data source as infrequently as possible.
@@ -30,7 +30,7 @@ Sequences provided by ParserObjects all satisfy the following invariants and des
 
 ### End Sentinels and End of Input
 
-Since sequences are infinite, `Peek()` and `GetNext()` should always return a value, even if the sequence is read from it's end position. In these cases the value returned will be the **end sentinel**. The end sentinel is a special constant value, usually the C# `default` value for that type, which can be specified by the user (see methods below). Notice that end sentinel values *are valid values for the item type*, and the same value may be a valid part of the input sequence at other locations besides end-of-input.
+Since sequences are infinite `Peek()` and `GetNext()` should always return a value, even if the sequence is read from it's end position. In these cases the value returned will be the **end sentinel**. The end sentinel is a special constant value, usually the C# `default` value for that type, which can be specified by the user (see methods below). Notice that end sentinel values *are valid values for the item type*, and the same value may be a valid part of the input sequence at other locations besides end-of-input.
 
 For example, consider the following string used as a source for a character sequence:
 
@@ -39,7 +39,7 @@ var input = "abc\0def\0ghi";
 var sequence = FromString(input);
 ```
 
-For this string, the null character `'\0'` is part of the input string and will be returned when the sequence is read at that position. Because it is the default end sentinel for `char` sequences, the null character `'\0'` will also be returned for every subsequent read after the final character `'i'`. In order to tell if the sequence is at the end of input or not, with certainty, is to check the `sequence.IsAtEnd` property.
+For this string, the null character `'\0'` is part of the input string and will be returned when the sequence is read at that position. Because it is also the default end sentinel for `char` sequences, the null character `'\0'` will also be returned for every subsequent read after the final character `'i'`. In order to tell if the sequence is at the end of input or not, with certainty, use the `sequence.IsAtEnd` property.
 
 Reads at end of input *will not consume any input*, so the value of `sequence.Consumed` will not change after the call to `sequence.GetNext()`. Parsers which allow matching the end sentinel will return `result.Consumed == 0` in those cases.
 
@@ -48,7 +48,7 @@ Notice that many parsers will fail to match at end of input anyway, or may fail 
 1. `Any()` will not attempt to read at end of input
 2. `Match()` will read at end of input and can match the end sentinel depending on arguments passed
 3. `MatchItem()` will not read at end of input, but is otherwise identical to `Match()`
-4. `Regex()` will not read at end of input.
+4. `Regex()` will not match any pattern except `"$"` or an empty pattern like `".?"` at end of input.
 5. `List()` will not check for end of input, but will automatically end if a read consumes zero input. So a `List(Match(predicate))`, where the predicate can match the end sentinel, will return a single end sentinel at the end.
 
 The end sentinel value is usually the C# `default` value for that type, but you can change it in the `SequenceOptions`:
@@ -68,7 +68,7 @@ All factory methods for sequences (listed below) will allow passing a `SequenceO
 
 The `.GetNext()` method returns the next input item from the sequence. If the sequence is past the end of input, the end sentinel value will be returned instead. If `null` or a default value is a valid input value, you may need to take extra care to differentiate a "real" input from the sequence from the "synthetic" end sentinel value.
 
-All sequences are infinite: you can continue to read past the end of input for as long as you like, but all values returned after the end of input will be the end sentinel. This behavior allows the creation of parsers without having to always check for end of input at every single step. Your parser can read an input, see that it doesn't match the current requirements, and return failure. For example, we can change this:
+All sequences are infinite: you can continue to read past the end of input for as long as you like, but all values returned after the end of input will be the end sentinel. This behavior allows the creation of parsers without having to always check for end of input at every single step. Your parser can read an input, check that input against your requirements, and return failure. For example, we can change this:
 
 ```csharp
 If(End(), Fail(), Match('m'))
@@ -80,7 +80,7 @@ If(End(), Fail(), Match('m'))
 Match('m')
 ```
 
-That is, we don't need to explicitly check for `End()` before every read to avoid exceptions being thrown. In other words, reading from a sequence *should never throw an exception*, so you can focus more energy on being *expressive* and less energy on being *defensive*.
+That is, we don't need to explicitly check for `End()` before every read to avoid exceptions being thrown. Reading from a sequence *should never throw an exception*, so you can focus more energy on being *expressive* and less energy on being *defensive*.
 
 Getting the next item with `.GetNext()` will update the `.CurrentLocation` of the sequence and will update the count of items `.Consumed`. If the sequence is at end of input, `.CurrentLocation` and `.Consumed` will not change.
 
@@ -92,7 +92,7 @@ var str = charSequence.GetString(5);
 
 #### Newline Handling
 
-To help be cross-platform compatible, all sequences in ParserObjects normalize all line endings to use `\n` only by default. Windows-style `\n\r` will be transformed to just `\n`. Old-MAC style `\r` will be transformed to `\n`. 
+To help with cross-platform compatibility, all sequences in ParserObjects normalize all line endings to use `\n` by default. Windows-style `\n\r` will be transformed to just `\n`. Old-MAC style `\r` will be transformed to `\n`. 
 
 It is important to keep this rule in mind if you need to convert your results back to string: you may need to convert back to the preferred line endings of your current platform.
 
@@ -107,13 +107,13 @@ var sequence = FromString("...", new SequenceOptions<char>
 
 ### Check for End
 
-The special `.IsAtEnd` property will return `true` when the sequence has returned it's last element, `false` otherwise. The `.IsAtEnd` property will be updated automatically when the input is exhausted, you do not need to call `.GetNext()` or do anything else to update the flag. An empty input sequence will automatically set `.IsAtEnd` in the constructor. This behavior means that, for some sequence types, the underlying data source may be advanced ahead of the call to `.GetNext()` so that the end can be planned for.  If `.Checkpoint()`/`.Rewind()` is used to move back to a prior position, `.IsAtEnd` will be updated to `false` even though the underlying data source may be exhausted.
+The special `.IsAtEnd` property will return `true` when the sequence has returned it's last element, `false` otherwise. The `.IsAtEnd` property will be updated automatically when the input is exhausted, you do not need to call `.GetNext()` or do anything else to update the flag. An empty input sequence will automatically set `.IsAtEnd` in the constructor. This behavior means that, for some sequence types, the underlying data source may be advanced ahead of the call to `.GetNext()` so that the end can be planned for. If `.Checkpoint()`/`.Rewind()` is used to move back to a prior position, `.IsAtEnd` will be updated to `false` even though the underlying data source may be exhausted.
 
-It is important to understand the separation of the position of the *sequence* from the position of the *underlying data source*. If you are reading from a file, or a stream, or a network resource, calls to `.GetNext()` may trigger reads on the stream, but are not directly correlated with them. Sequences may read ahead on the stream and buffer data. If a sequence calls `.Reset()` or `.Rewind()` the position of the sequence may be far diverged from the position of the input sequence. The ParserObjects library attempts, within reason, to buffer data and avoid re-reading data which has already been fetched from the source. 
+It is important to understand the difference between the position of the *sequence* and the position of the *underlying data source*. If you are reading from a file, a stream, or a network resource, calls to `.GetNext()` may trigger reads on the stream, but are not directly correlated with them. Sequences may read ahead on the stream and buffer data. If a sequence calls `.Reset()` or `.Rewind()` the position of the sequence may be far diverged from the position of the input sequence. The ParserObjects library attempts, within reason, to buffer data and avoid re-reading data which has already been fetched from the source. 
 
 ### Rewinding to a Previous Location
 
-The `.Checkpoint()` method creates a `SequenceCheckpoint` structure, which is an implementation of the **Memento** pattern, and is conceptually similar to a **Continuation**. A `SequenceCheckpoint` object provides a single `.Rewind()` method which can be used to return the sequence to a different position. This allows you to rewind back to a prior position if you attempt a long parse and it fails.
+The `.Checkpoint()` method creates a `SequenceCheckpoint` structure, which is an implementation of the **Memento** pattern and is conceptually similar to a **Continuation**. A `SequenceCheckpoint` object provides a single `.Rewind()` method which can be used to return the sequence to a different position. This allows you to rewind back to a prior position if you attempt a long parse and it fails.
 
 ```csharp
 var checkpoint = sequence.Checkpoint();
@@ -201,14 +201,14 @@ Some sequences might have disposable resources. Cleaning them up manually will h
 
 ### Checkpoint Ownership
 
-A checkpoint "belongs" to a single sequence, and you cannot use a checkpoint created from one sequence to change the position in another sequence, even if the two sequences share an underlying source (an in-memory string, for example). You can tell if a checkpoint belongs to a given sequence with the `.Owns()` method:
+A checkpoint "belongs" to a single sequence, and you cannot use a checkpoint created from one sequence to change the position in another sequence even if the two sequences share an underlying source (an in-memory string, for example). You can tell if a checkpoint belongs to a given sequence with the `.Owns()` method:
 
 ```csharp
 if (sequence.Owns(checkpoint))
     ...
 ```
 
-Attempting to `.Rewind()` a sequence to a checkpoint which it does not own may throw an exception or leave the input sequence in a faulty state.
+Attempting to `.Rewind()` a sequence to a checkpoint which it does not own is a no-op.
 
 ### Getting spans of items
 
@@ -217,8 +217,6 @@ If you create two checkpoints, you can get an array containing all the values be
 ```csharp
 var values = sequence.GetBetween(startCheckpoint, endCheckpoint);
 ```
-
-Notice that this is an `O(N)` operation, and may require re-reading/re-buffering data from the source. ParserObjects does buffer data from dynamic sources such as `Stream`s, but buffers are configurable and are not guaranteed to hold all data for all active checkpoints.
 
 If the `start` checkpoint and the `end` checkpoint are for the same location, or if `start` is after `end`, an empty array will be returned.
 
@@ -259,21 +257,21 @@ By default this sequence converts line endings to `\n` and uses `\0` as the end 
 
 ### Read Characters from a File or Stream
 
-You can read **characters** from a file or from any other stream using the `StreamCharacterSequence` or the `.ToCharSequence()` extension method:
+You can read **characters** from a file or from any other stream using the `FromCharacterStream()`, `FromCharacterFile()`, or the `.ToCharSequence()` methods:
 
 ```csharp
 var sequence = FromCharacterStream(stream);
-var sequence = FromCharacterFile(stream);
+var sequence = FromCharacterFile(fileName);
 var sequence = stream.ToCharSequence();
 ```
 
 Once you instantiate the sequence, ParserObjects expects to have exclusive use of the Stream. Concurrent reads of the stream from other locations in your code may lead to unexpected results and missing data or unexpected exceptions.
 
-This sequence converts line endings to `\n`, it ignores `\r` characters, and uses `\0` as the end sentinel. These values can be changed with the `SequenceOptions<char>` parameter.
+These sequences convert line endings to `\n`, ignore `\r` characters, and use `\0` as the end sentinel. These values can be changed with the `SequenceOptions<char>` parameter.
 
 **Notice**: The exact implementation returned from each of these methods may be different depending on the length of the stream and the encoding used. Simpler cases (where the stream length is shorter than the size of the internal buffer, or when a single-byte encoding such as ASCII is used) may be able to return optimized sequence types. *Code to the `ISequence<char>` abstraction and do not depend on any specific concrete implementation*.
 
-**Notice**: Multi-byte encodings read from a long stream have a limitation that *a checkpoint cannot be created between the low and high characters of a surrogate pair*. This is due to a problem calculating the exact position of the underlying stream when we are between parts of a single codepoint which uses a variable-length encoding. For example, if we have a UTF8 encoded input stream with a 4-byte astral plane codepoint, which C# converts to two `char` values encoded in UTF16, it's not meaningful to ask what the position is of the stream in the middle of that code point. The stream reader cannot be reset into the middle of that codepoint, because it cannot understand the last few bytes without having the first byte available. If you are dealing with variable-length encodings such as `UTF8` or `UTF16` and may be parsing characters with surrogate pairs, you cannot call `.Checkpoint()`, `.GetBetween()`, or `.GetRemainder()` in the middle of the surrogate pair. `.Peek()` and `.GetNext()` will work in that situation, however. The underlying sequence will throw an exception for malformed input if there is an unmatched high or low surrogate, so if your code reads a high surrogate you should be able to read the low surrogate with confidence that you will receive it, so do you not need to set a checkpoint between them.
+**Notice**: Multi-byte encodings read from a long stream have a limitation that *a checkpoint cannot be created between the low and high characters of a surrogate pair*. This is due to a problem calculating the exact position of the underlying stream when we are between parts of a single codepoint which uses a variable-length encoding. For example, if we have a UTF8 encoded input stream with a 4-byte astral plane codepoint, which C# converts to two `char` values encoded in UTF16, it's not meaningful to ask what the position is of the stream in the middle of that code point. The stream reader cannot be reset into the middle of that codepoint, because it cannot understand the last few bytes without having the first byte available. If you are dealing with variable-length encodings such as `UTF8` or `UTF16` and may be parsing characters with surrogate pairs, you cannot call `.Checkpoint()`, `.GetBetween()`, or `.GetRemainder()` in the middle of the surrogate pair. `.Peek()` and `.GetNext()` will work in that situation, however. The underlying sequence will throw an exception for malformed input if there is an unmatched high or low surrogate, so if your code reads a high surrogate you should be able to read the low surrogate with confidence that you will receive it.
 
 ### Read Bytes from a File or Stream
 
