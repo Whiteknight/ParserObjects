@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ParserObjects.Internal;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects;
 
@@ -69,7 +69,7 @@ public static partial class Parsers<TInput>
 /// <typeparam name="TMiddle"></typeparam>
 /// <typeparam name="TOutput"></typeparam>
 public readonly record struct ParserPredicateBuilder<TInput, TMiddle, TOutput>(
-    List<(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)> Parsers
+    List<(Func<TMiddle, bool> IsEqual, IParser<TInput, TOutput> Parser)> Parsers
 )
 {
     /// <summary>
@@ -80,9 +80,7 @@ public readonly record struct ParserPredicateBuilder<TInput, TMiddle, TOutput>(
     /// <returns></returns>
     public ParserPredicateBuilder<TInput, TMiddle, TOutput> When(Func<TMiddle, bool> equals, IParser<TInput, TOutput> parser)
     {
-        Assert.NotNull(equals);
-        Assert.NotNull(parser);
-        Parsers.Add((equals, parser));
+        Parsers.Add((NotNull(equals), NotNull(parser)));
         return this;
     }
 }

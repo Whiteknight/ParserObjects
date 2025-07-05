@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ParserObjects.Internal;
 
 namespace ParserObjects;
 
@@ -11,14 +10,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -26,14 +20,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -41,14 +30,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -56,14 +40,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4, IParser<TInput> P5) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -71,14 +50,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4, IParser<TInput> P5, IParser<TInput> P6) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -86,14 +60,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4, IParser<TInput> P5, IParser<TInput> P6, IParser<TInput> P7) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -101,14 +70,9 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4, IParser<TInput> P5, IParser<TInput> P6, IParser<TInput> P7, IParser<TInput> P8) parsers
+    );
 
     /// <summary>
     /// Execute the given parsers in order and return an ordered list of result values.
@@ -116,12 +80,7 @@ public static partial class TupleExtensions
     /// <typeparam name="TInput"></typeparam>
     /// <param name="parsers"></param>
     /// <returns></returns>
-    public static IParser<TInput, IReadOnlyList<object>> Combine<TInput>(this (IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>, IParser<TInput>) parsers)
-    {
-        return Internal.Parsers.Rule.Create(
-            new IParser<TInput>[] { parsers.Item1, parsers.Item2, parsers.Item3, parsers.Item4, parsers.Item5, parsers.Item6, parsers.Item7, parsers.Item8, parsers.Item9 },
-            Defaults.ObjectInstance,
-            static (_, r) => r
-        );
-    }
+    public static partial IParser<TInput, IReadOnlyList<object>> Combine<TInput>(
+        this (IParser<TInput> P1, IParser<TInput> P2, IParser<TInput> P3, IParser<TInput> P4, IParser<TInput> P5, IParser<TInput> P6, IParser<TInput> P7, IParser<TInput> P8, IParser<TInput> P9) parsers
+    );
 }
