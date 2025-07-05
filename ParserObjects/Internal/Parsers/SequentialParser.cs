@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -46,8 +47,7 @@ public static class Sequential
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
-            var startCheckpoint = state.Input.Checkpoint();
+            var startCheckpoint = NotNull(state).Input.Checkpoint();
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);
@@ -83,8 +83,7 @@ public static class Sequential
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
-            var startCheckpoint = state.Input.Checkpoint();
+            var startCheckpoint = NotNull(state).Input.Checkpoint();
             try
             {
                 var seqState = new SequentialState<TInput>(state, startCheckpoint);

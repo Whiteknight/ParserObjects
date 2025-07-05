@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -56,7 +57,7 @@ public static class Function<TInput, TOutput>
 
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
+            NotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
 
             var args = new ResultFactory<TInput, TOutput>(this, state, startCheckpoint);
@@ -74,7 +75,7 @@ public static class Function<TInput, TOutput>
 
         public bool Match(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
+            NotNull(state);
             var startCheckpoint = state.Input.Checkpoint();
 
             var result = _matchFunction(state, _data);
@@ -141,7 +142,7 @@ public static class Function<TInput, TOutput>
 
         public MultiResult<TOutput> Parse(IParseState<TInput> state)
         {
-            Assert.NotNull(state);
+            NotNull(state);
             var builder = new MultiResultBuilder(this, state, [], state.Input.Checkpoint());
             return _parseFunction(state, _data, builder);
         }

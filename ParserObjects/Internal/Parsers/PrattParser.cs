@@ -4,6 +4,7 @@ using System.Linq;
 using ParserObjects.Internal.Pratt;
 using ParserObjects.Internal.Visitors;
 using ParserObjects.Pratt;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -30,7 +31,7 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public static PrattParser<TInput, TOutput> Configure(Action<Configuration<TInput, TOutput>> setup, string name = "")
     {
-        Assert.NotNull(setup);
+        NotNull(setup);
         var parselets = new List<IParselet<TInput, TOutput>>();
         var references = new List<IParser>();
         var config = new Configuration<TInput, TOutput>(parselets, references);
@@ -43,7 +44,7 @@ public sealed record PrattParser<TInput, TOutput>(
 
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var frame = state.Data.PushDataFrame();
         var startCp = state.Input.Checkpoint();
         try

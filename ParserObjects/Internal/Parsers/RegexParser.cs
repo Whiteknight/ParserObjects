@@ -2,6 +2,7 @@
 using ParserObjects.Internal.Regexes;
 using ParserObjects.Internal.Visitors;
 using ParserObjects.Regexes;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -32,7 +33,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
 
     Result<RegexMatch> IParser<char, RegexMatch>.Parse(IParseState<char> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var startCp = state.Input.Checkpoint();
         var result = Engine.GetMatch(state, Regex);
         if (!result.Success)
@@ -46,7 +47,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
 
     Result<string> IParser<char, string>.Parse(IParseState<char> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var startCp = state.Input.Checkpoint();
         var result = Engine.GetMatch(state, Regex);
         if (!result.Success)
@@ -63,7 +64,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
 
     public bool Match(IParseState<char> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         var startCp = state.Input.Checkpoint();
         var result = Engine.TestMatch(state, Regex);
         if (!result)

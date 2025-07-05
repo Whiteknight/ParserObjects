@@ -1,4 +1,5 @@
 ﻿using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -20,13 +21,13 @@ public sealed record FailParser<TInput, TOutput>(
 
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         return MultiResult<TOutput>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         return MultiResult<object>.FromSingleFailure(this, state.Input.Checkpoint(), ErrorMessage);
     }
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -27,7 +28,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
 
     public Result<string> Parse(IParseState<char> state)
     {
-        Assert.NotNull(state);
+        NotNull(state);
         Debug.Assert(Pattern.Length > 0);
 
         var checkpoint = state.Input.Checkpoint();

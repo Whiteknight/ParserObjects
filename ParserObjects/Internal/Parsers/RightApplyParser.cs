@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ParserObjects.Internal.Visitors;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Parsers;
 
@@ -21,15 +22,17 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     // <item> (<middle> <item>)* with right-associativity in the production method
 
-    public RightApplyParser(IParser<TInput, TOutput> item, IParser<TInput, TMiddle> middle, Func<RightApplyArguments<TOutput, TMiddle>, TOutput> produce, Quantifier quantifier, Func<IParseState<TInput>, TOutput>? getMissingRight = null, string name = "")
+    public RightApplyParser(
+        IParser<TInput, TOutput> item,
+        IParser<TInput, TMiddle> middle,
+        Func<RightApplyArguments<TOutput, TMiddle>, TOutput> produce,
+        Quantifier quantifier,
+        Func<IParseState<TInput>, TOutput>? getMissingRight = null,
+        string name = "")
     {
-        Assert.NotNull(item);
-        Assert.NotNull(middle);
-        Assert.NotNull(produce);
-
-        _item = item;
-        _middle = middle;
-        _produce = produce;
+        _item = NotNull(item);
+        _middle = NotNull(middle);
+        _produce = NotNull(produce);
         _getMissingRight = getMissingRight;
         _quantifier = quantifier;
         Name = name;
@@ -41,9 +44,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
-        Assert.NotNull(state);
-
-        var startCp = state.Input.Checkpoint();
+        var startCp = NotNull(state).Input.Checkpoint();
 
         var leftResult = _item.Parse(state);
         if (!leftResult.Success)

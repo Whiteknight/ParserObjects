@@ -56,12 +56,9 @@ public sealed record class ComposeParser<TInput, TMiddle, TOutput>(
             return cached.Value;
 
         var innerSequence = FromParseResult(state.Input, Lexer, getEndSentinel: OnEnd)
-            .Select(static r =>
-            {
-                if (r.Success)
-                    return r.Value;
-                throw new InnerParserFailedException(r);
-            });
+            .Select(static r => r.Success
+                ? r.Value
+                : throw new InnerParserFailedException(r));
         IParseState<TMiddle> innerState = new ParseState<TMiddle>(innerSequence, s => state.Log(this, s));
         state.Cache.Add(this, default, innerState);
         return innerState;
