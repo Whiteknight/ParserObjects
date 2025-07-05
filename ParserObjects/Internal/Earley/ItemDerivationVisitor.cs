@@ -128,7 +128,7 @@ public readonly struct ItemDerivationVisitor
         _statistics.ProductionRuleAttempts++;
         var result = production.Apply(buffer);
         if (!result.Success)
-            return Array.Empty<object>();
+            return [];
         _statistics.ProductionRuleSuccesses++;
         buffer[0] = result.Value;
         return buffer;

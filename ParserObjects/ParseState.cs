@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Caching;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects;
 
@@ -58,8 +59,7 @@ public readonly struct DataStore
 
     public DataStore(LinkedList<(int Version, Dictionary<string, object> Values)> data)
     {
-        Assert.NotNull(data);
-        _store = data;
+        _store = NotNull(data);
     }
 
     public int PushDataFrame(IReadOnlyDictionary<string, object>? data = null)
@@ -73,7 +73,7 @@ public readonly struct DataStore
 
     public int PopDataFrame(int version = 0)
     {
-        Assert.GreaterThanOrEqualTo(version, 0);
+        GreaterThanOrEqualTo(version, 0);
         if (version == 0)
             version = _store.Last!.Value.Version - 1;
 

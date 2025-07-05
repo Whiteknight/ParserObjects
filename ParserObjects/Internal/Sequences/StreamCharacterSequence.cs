@@ -282,7 +282,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
     {
         Assert.NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return map(ReadOnlySpan<char>.Empty, data);
+            return map([], data);
 
         var currentPosition = Checkpoint();
         start.Rewind();

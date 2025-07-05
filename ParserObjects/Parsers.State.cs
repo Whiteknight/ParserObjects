@@ -297,7 +297,7 @@ public static partial class Parsers<TInput>
             },
             static (_, _) => true,
             $"GET '{name}'",
-            Array.Empty<IParser>()
+            []
         );
 
     /// <summary>
@@ -318,7 +318,7 @@ public static partial class Parsers<TInput>
             },
             static (_, _) => true,
             $"SET '{name}'",
-            Array.Empty<IParser>()
+            []
         );
 
     /// <summary>
@@ -364,6 +364,6 @@ public static partial class Parsers<TInput>
         },
         static (state, srdArgs) => srdArgs.Parser.Match(state),
         "SetResultData",
-        new[] { p }
+        [p]
     );
 }

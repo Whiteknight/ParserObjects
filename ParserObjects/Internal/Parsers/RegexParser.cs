@@ -75,7 +75,7 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
         return true;
     }
 
-    public IEnumerable<IParser> GetChildren() => Enumerable.Empty<IParser>();
+    public IEnumerable<IParser> GetChildren() => [];
 
     public override string ToString() => DefaultStringifier.ToString("Regex", Name, Id);
 

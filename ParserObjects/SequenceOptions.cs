@@ -50,7 +50,7 @@ public struct SequenceOptions<T>
     /// <summary>
     /// Gets a value indicating whether to normalize line endings to '\n'.
     /// </summary>
-    public bool NormalizeLineEndings => !MaintainLineEndings;
+    public readonly bool NormalizeLineEndings => !MaintainLineEndings;
 
     /// <summary>
     /// Validate the values and set defaults where values are omitted.

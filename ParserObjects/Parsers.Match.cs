@@ -22,7 +22,7 @@ public static partial class Parsers<TInput>
         static (state, _, args) => args.Success(state.Input.IsAtEnd),
         static (state, _) => state.Input.IsAtEnd,
         "IF END THEN PRODUCE",
-        Array.Empty<IParser>()
+        []
     );
 
     private static readonly IParser<TInput, TInput> _peek = new AnyParser<TInput>(true);
@@ -86,9 +86,9 @@ public static partial class Parsers<TInput>
     {
         var asList = pattern as IReadOnlyList<TInput>
             ?? pattern?.ToList()
-            ?? (IReadOnlyList<TInput>)Array.Empty<TInput>();
+            ?? (IReadOnlyList<TInput>)[];
         return asList.Count == 0
-            ? Produce(static () => (IReadOnlyList<TInput>)Array.Empty<TInput>())
+            ? Produce(static () => (IReadOnlyList<TInput>)[])
             : new MatchPatternParser<TInput>(asList);
     }
 

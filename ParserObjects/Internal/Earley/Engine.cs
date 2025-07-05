@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using ParserObjects.Earley;
+using static ParserObjects.Internal.Assert;
 
 namespace ParserObjects.Internal.Earley;
 
@@ -17,8 +18,7 @@ public readonly struct Engine<TInput, TOutput>
 
     public Engine(INonterminal<TInput, TOutput> startSymbol)
     {
-        Assert.NotNull(startSymbol);
-        if (startSymbol.Productions.Count == 0)
+        if (NotNull(startSymbol).Productions.Count == 0)
             throw new GrammarException("The start symbol contains no valid productions");
         Debug.Assert(startSymbol.Productions.Any(p => p.Symbols.Count > 0), "Start symbol must have valid productions");
         _startSymbol = startSymbol;
@@ -26,7 +26,7 @@ public readonly struct Engine<TInput, TOutput>
 
     public ParseResult<TOutput> Parse(IParseState<TInput> parseState)
     {
-        Assert.NotNull(parseState);
+        NotNull(parseState);
 
         var stats = new ParseStatistics();
 
@@ -181,7 +181,7 @@ public readonly struct Engine<TInput, TOutput>
         }
     }
 
-    private static (Result<object> result, SequenceCheckpoint continuation) TryParse(
+    private static (Result<object> Result, SequenceCheckpoint Continuation) TryParse(
         IParser<TInput> terminal,
         IParseState<TInput> parseState,
         SequenceCheckpoint stateCheckpoint

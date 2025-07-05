@@ -21,7 +21,7 @@ public readonly struct ResultData
 
     private ResultData(ResultDataType type, ImmutableList<object> data)
     {
-        Debug.Assert(type == ResultDataType.List, "At this point, the only thing we can create is a list");
+        Debug.Assert(type == ResultDataType.List);
         _storageType = type;
         Data = data;
     }

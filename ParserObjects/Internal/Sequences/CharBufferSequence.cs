@@ -170,7 +170,7 @@ public static class CharBufferSequence
         {
             Assert.NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(ReadOnlySpan<char>.Empty, data);
+                return map([], data);
 
             var size = end.Consumed - start.Consumed;
             var span = _internal.Data.AsSpan(start.Consumed, size);
@@ -332,7 +332,7 @@ public static class CharBufferSequence
         {
             Assert.NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(ReadOnlySpan<char>.Empty, data);
+                return map([], data);
 
             var size = end.Consumed - start.Consumed;
             var span = _internal.Data.AsSpan(start.Consumed, size);
