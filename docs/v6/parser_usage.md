@@ -19,15 +19,11 @@ using static ParserObjects.Parsers<char>;
 
 ## Parser Interfaces
 
-The `IParser` interface is the parent interface that all parsers must inherit. It offers very little functionality by itself.
+`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input sequence of `TInput` items and will return a `Result<TOutput>`. This is the primary parser interface type and it is strongly preferred to use this interface for all custom parser implementations. All factory methods in the ParserObjects library will return a parser instance of this type.
 
-`IParser<TInput>` is a parser which can call `.Parse()` on an input of type `TInput` to return an `Result`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output or may produce an output `object` without strong typing. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
+`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return a `MultiResult<TOutput>` of several possible parse results from the current position.
 
-`IParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input of type `TInput` and will return an `Result<TOutput>`. This is more common than the `IParser<TInput>` type and should be preferred where possible because of the extra strong-typing.
-
-The `IMultiParser<TInput>` is a parser which can call `.Parse()` on an input to return an `MultiResult`. Parsers which inherit this interface can match a pattern or rule, but may not necessarily produce meaningful output. When using this interface, the goal is typically to tell if the pattern matches or not, or to do a match without knowing the type of the output result.
-
-`IMultiParser<TInput, TOutput>` is a parser which can call `.Parse()` on an input and will return an `MultiResult<TOutput>` of several possible parse results from the current position.
+In addition to these types above the library internally makes use of `IParser`, `IParser<TInput>` and `IMultiParser<TInput>` interface types, though these are not generally recommended for use by downstream custom parser developers.
 
 ## Parser Invariants
 
@@ -51,7 +47,7 @@ It is possible to implement your own `IParser` classes in your own project. When
 
 ## Parser Results
 
-Parser `.Parse()` calls generally do not throw exceptions, except in some specific rare cases. For the most part results will be communicated using an `Result<TOutput>` or `MultiResult<TOutput>` object. Parse results should always include the `Location` where the success or failure happened, so that information can be communicated to the user.
+Parser `.Parse()` calls generally do not throw exceptions, except in some specific rare cases. For the most part results will be communicated using a `Result<TOutput>` or `MultiResult<TOutput>` object. Parse results should always include the `Location` where the success or failure happened, so that information can be communicated to the user.
 
 Result values may be transformed from one type to another without losing metadata using the `.Transform(value => ... )` method.
 

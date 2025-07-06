@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using static ParserObjects.Parsers;
-using static ParserObjects.Parsers<char>;
 using static ParserObjects.Internal.ParserCache;
+using static ParserObjects.Parsers<char>;
+using static ParserObjects.Parsers;
 
 namespace ParserObjects.Internal.Grammars.Data;
 
@@ -30,7 +30,7 @@ public static class DateTimeGrammar
      * to convert a list of Parts to a DateTime
      */
 
-    public const string Iso8601Format = "YYYY-MM-dd HH:mmss.fff";
+    public const string Iso8601Format = "YYYY-MM-dd HH:mm:ss.fff";
 
     public static IParser<char, IParser<char, DateTimeOffset>> CreateDateAndTimeFormatParser()
         => First(
