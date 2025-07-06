@@ -11,7 +11,7 @@ public sealed class MatchCharacterClassState : IState
     // where each character in that range corresponds to a bit in a 12-byte array.
     private readonly byte[]? _exactChars;
 
-    private readonly IReadOnlyList<(char low, char high)>? _ranges;
+    private readonly IReadOnlyList<(char Low, char High)>? _ranges;
     private readonly bool _invert;
 
     public MatchCharacterClassState(bool invert, byte[]? exactChars, IReadOnlyList<(char, char)>? ranges)
@@ -61,7 +61,7 @@ public sealed class MatchCharacterClassState : IState
         {
             for (int i = 0; i < _ranges.Count; i++)
             {
-                if (_ranges[i].low <= c && c <= _ranges[i].high)
+                if (_ranges[i].Low <= c && c <= _ranges[i].High)
                     return true;
             }
         }

@@ -16,13 +16,13 @@ public readonly record struct CharRanges(byte[]? ExactChars, List<(char Low, cha
         if (low >= ' ' && high <= '~')
         {
             var chars = ExactChars ?? new byte[12];
-            Debug.Assert(chars.Length == 12, "The byte array must have a length of 12");
+            Debug.Assert(chars.Length == 12);
             for (char c = low; c <= high; c++)
                 SetCharBit(chars, c);
             return this with { ExactChars = chars };
         }
 
-        var ranges = Ranges ?? new List<(char low, char high)>();
+        var ranges = Ranges ?? [];
         ranges.Add((low, high));
         return this with { Ranges = ranges };
     }

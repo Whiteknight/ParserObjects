@@ -2,8 +2,8 @@
 using ParserObjects.Internal.Regexes.States;
 using ParserObjects.Pratt;
 using ParserObjects.Regexes;
-using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers;
+using static ParserObjects.Parsers<char>;
 using static ParserObjects.Parsers.C;
 
 namespace ParserObjects.Internal.Regexes.Patterns;
@@ -16,15 +16,14 @@ public static class RegexPatternGrammar
     private const int _bpQuant = 20;
     private const int _bpAnchor = 30;
 
-    private static readonly HashSet<char> _charsRequiringEscape = new HashSet<char>
-    {
+    private static readonly HashSet<char> _charsRequiringEscape = [
         '\\',
         '(', ')',
         '$', '|',
         '[',
         '.', '?', '+', '*',
         '{', '}'
-    };
+    ];
 
     private static readonly IParser<char, string> _parserNames = MatchChars(c => c != '}');
     private static readonly IParser<char, char> _normalChar = Match(c => !_charsRequiringEscape.Contains(c) && !char.IsControl(c));
@@ -197,7 +196,7 @@ public static class RegexPatternGrammar
         return states.AddMatch(invertResult, ranges);
     }
 
-    private static (char low, char high) ParseCharacterRange(PrattParseContext<char, StateList> ctx, char c)
+    private static (char Low, char High) ParseCharacterRange(PrattParseContext<char, StateList> ctx, char c)
     {
         var low = c;
         var next = ctx.Input.Peek();
@@ -255,6 +254,6 @@ public static class RegexPatternGrammar
 
         return new StateList(options.Count == 1
             ? states.States!
-            : new List<IState> { new AlternationState(options) });
+            : [new AlternationState(options)]);
     }
 }

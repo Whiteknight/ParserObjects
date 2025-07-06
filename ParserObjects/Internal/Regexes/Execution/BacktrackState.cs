@@ -10,7 +10,7 @@ public struct BacktrackState
     // "(AB)+" could match after 2, 4, or 6 characters, etc. The Engine greedily consumes as
     // many characters as possible for a match, but keeps track of the character counts at each
     // success milestone, so we can backtrack if necessary.
-    private readonly Stack<(SequenceCheckpoint? beforeMatch, int captureIndex)> _consumptions;
+    private readonly Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)> _consumptions;
 
     public BacktrackState(bool isBacktrackable, IState state)
     {
@@ -36,7 +36,7 @@ public struct BacktrackState
         }
     }
 
-    public (SequenceCheckpoint? beforeMatch, int captureIndex) GetNextConsumption()
+    public readonly (SequenceCheckpoint? BeforeMatch, int CaptureIndex) GetNextConsumption()
         => _consumptions.Count == 0
         ? (null, -1)
         : _consumptions.Pop();

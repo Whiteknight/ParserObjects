@@ -5,6 +5,8 @@ namespace ParserObjects.Internal.Grammars.C;
 
 public static class Integers
 {
+    private const string _errorCannotStartWithZero = "Cannot start with a zero";
+
     private static readonly IParser<char, char> _octalDigit = Match(c => char.IsDigit(c) && c >= '0' && c <= '7');
 
     public static IParser<char, int> CreateHexSignedIntegerParser()
@@ -31,7 +33,7 @@ public static class Integers
             // Get the first digit, which cannot be zero.
             var d = s.Parse(Digit());
             if (d == '0')
-                s.Fail("Cannot start with a zero");
+                s.Fail(_errorCannotStartWithZero);
             return ParseSignedIntegerBodyWithBase(s, 10, Digit(), d - '0', sign);
         });
 
@@ -56,7 +58,7 @@ public static class Integers
             // Get the first digit, which cannot be zero.
             var d = s.Parse(Digit());
             if (d == '0')
-                s.Fail("Cannot start with a zero");
+                s.Fail(_errorCannotStartWithZero);
             return ParseUnsignedIntegerBodyWithBase(s, 10, Digit(), (uint)(d - '0'));
         });
 
@@ -82,7 +84,7 @@ public static class Integers
             // Get the first digit, which cannot be zero.
             var d = s.Parse(Digit());
             if (d == '0')
-                s.Fail("Cannot start with a zero");
+                s.Fail(_errorCannotStartWithZero);
             return ParseSignedLongBodyWithBase(s, 10, Digit(), d - '0', sign);
         });
 
@@ -107,7 +109,7 @@ public static class Integers
             // Get the first digit, which cannot be zero.
             var d = s.Parse(Digit());
             if (d == '0')
-                s.Fail("Cannot start with a zero");
+                s.Fail(_errorCannotStartWithZero);
             return ParseUnsignedLongBodyWithBase(s, 10, Digit(), (ulong)d - '0');
         });
 

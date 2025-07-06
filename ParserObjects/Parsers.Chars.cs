@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using ParserObjects.Internal;
 using ParserObjects.Internal.Parsers;
 using ParserObjects.Internal.Tries;
-using static ParserObjects.Parsers<char>;
 using static ParserObjects.Internal.ParserCache;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
 public static partial class Parsers
 {
+    private const string _errorNoPossibilities = "No possibilities provided so nothing can match";
     private static readonly Dictionary<char, IParser<char, char>> _matchByChar = new Dictionary<char, IParser<char, char>>();
     private static readonly Dictionary<char, IParser<char, char>> _matchByCharInsensitive = new Dictionary<char, IParser<char, char>>();
 
@@ -50,14 +51,14 @@ public static partial class Parsers
     public static IParser<char, string> MatchAny(IEnumerable<string> patterns, bool caseInsensitive = false)
     {
         if (patterns == null)
-            return Fail<string>("No possibilities provided so nothing can match");
+            return Fail<string>(_errorNoPossibilities);
 
         var trie = caseInsensitive ? InsertableTrie<char, string>.Create(CharComparer.CaseInsensitive) : InsertableTrie<char, string>.Create();
         foreach (var pattern in patterns)
             trie.Add(pattern, pattern);
 
         if (trie.Count == 0)
-            return Fail<string>("No possibilities provided so nothing can match");
+            return Fail<string>(_errorNoPossibilities);
 
         var readable = ReadableTrie<char, string>.Create(trie);
         return new TrieParser<char, string>(readable);
@@ -71,7 +72,7 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, char> MatchAny(ICollection<char> possibilities)
         => possibilities == null || possibilities.Count == 0
-            ? Fail("No possibilities provided so nothing can match")
+            ? Fail(_errorNoPossibilities)
             : new MatchPredicateParser<char, ICollection<char>>(possibilities, static (c, p) => p.Contains(c));
 
     /// <summary>
@@ -83,7 +84,7 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, char> MatchAny(string possibilities, bool caseInsensitive = false)
         => string.IsNullOrEmpty(possibilities)
-            ? Fail("No possibilities provided so nothing can match")
+            ? Fail(_errorNoPossibilities)
             : new MatchPredicateParser<char, HashSet<char>>(
                 new HashSet<char>(possibilities, CharComparer.Get(!caseInsensitive)),
                 static (c, s) => s.Contains(c)

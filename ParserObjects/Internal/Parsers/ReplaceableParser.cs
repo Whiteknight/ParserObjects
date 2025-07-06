@@ -16,6 +16,8 @@ namespace ParserObjects.Internal.Parsers;
 /// <typeparam name="TOutput"></typeparam>
 public static class Replaceable<TInput, TOutput>
 {
+    private const string _errorParserWrongType = "Parser is not the correct type";
+
     public static TParser From<TParser>(TParser parser)
         where TParser : class, IParser
         => (new Parser<TParser>(parser) as TParser)!;
@@ -41,35 +43,35 @@ public static class Replaceable<TInput, TOutput>
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
         {
             var parser = _parser as IParser<TInput>
-                ?? throw new InvalidOperationException("Parser is not the correct type");
+                ?? throw new InvalidOperationException(_errorParserWrongType);
             return parser.Parse(state);
         }
 
         Result<TOutput> IParser<TInput, TOutput>.Parse(IParseState<TInput> state)
         {
             var parser = _parser as IParser<TInput, TOutput>
-                ?? throw new InvalidOperationException("Parser is not the correct type");
+                ?? throw new InvalidOperationException(_errorParserWrongType);
             return parser.Parse(state);
         }
 
         MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
         {
             var parser = _parser as IMultiParser<TInput>
-                ?? throw new InvalidOperationException("Parser is not the correct type");
+                ?? throw new InvalidOperationException(_errorParserWrongType);
             return parser.Parse(state);
         }
 
         MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
         {
             var parser = _parser as IMultiParser<TInput, TOutput>
-                ?? throw new InvalidOperationException("Parser is not the correct type");
+                ?? throw new InvalidOperationException(_errorParserWrongType);
             return parser.Parse(state);
         }
 
         public bool Match(IParseState<TInput> state)
         {
             var parser = _parser as IParser<TInput>
-                ?? throw new InvalidOperationException("Parser is not the correct type");
+                ?? throw new InvalidOperationException(_errorParserWrongType);
             return parser.Match(state);
         }
 
