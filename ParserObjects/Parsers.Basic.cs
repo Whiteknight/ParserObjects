@@ -293,6 +293,8 @@ public static partial class Parsers<TInput>
         return new Optional<TInput, TOutput>.DefaultValueParser(p, getDefault);
     }
 
+    private const string _descriptionProduce = "PRODUCE";
+
     /// <summary>
     /// Produce a value without consuming anything out of the input sequence.
     /// </summary>
@@ -304,7 +306,7 @@ public static partial class Parsers<TInput>
             produce,
             static (_, p, args) => args.Success(p()),
             static (_, _) => true,
-            "PRODUCE",
+            _descriptionProduce,
             []
         );
 
@@ -319,7 +321,7 @@ public static partial class Parsers<TInput>
             produce,
             static (state, p, args) => args.Success(p(state)),
             static (_, _) => true,
-            "PRODUCE",
+            _descriptionProduce,
             []
         );
 
@@ -334,7 +336,7 @@ public static partial class Parsers<TInput>
         {
             var values = p();
             return builder.AddSuccesses(values).BuildResult();
-        }, "PRODUCE", []);
+        }, _descriptionProduce, []);
 
     /// <summary>
     /// Produces a multi result with all returned values as alternatives. Uses data or input from
@@ -348,7 +350,7 @@ public static partial class Parsers<TInput>
         {
             var values = p(s);
             return builder.AddSuccesses(values).BuildResult();
-        }, "PRODUCE", []);
+        }, _descriptionProduce, []);
 
     /// <summary>
     /// Serves as a placeholder in the parser tree where an in-place replacement can be made.

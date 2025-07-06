@@ -19,38 +19,40 @@ public sealed record DeferredParser<TInput, TOutput, TParser>(
 ) : SimpleRecordParser<TInput, TOutput>(Name), IParser<TInput, TOutput>, IMultiParser<TInput, TOutput>
         where TParser : class, IParser
 {
+    private const string _errorInvalidParserType = "Invalid parser type";
+
     public override Result<TOutput> Parse(IParseState<TInput> state)
     {
         var parser = GetParserFromCacheOrCallback(state) as IParser<TInput, TOutput>
-            ?? throw new InvalidOperationException("Invalid parser type");
+            ?? throw new InvalidOperationException(_errorInvalidParserType);
         return parser.Parse(state);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state)
     {
         var parser = GetParserFromCacheOrCallback(state) as IParser<TInput>
-            ?? throw new InvalidOperationException("Invalid parser type");
+            ?? throw new InvalidOperationException(_errorInvalidParserType);
         return parser.Parse(state);
     }
 
     MultiResult<TOutput> IMultiParser<TInput, TOutput>.Parse(IParseState<TInput> state)
     {
         var parser = GetParserFromCacheOrCallback(state) as IMultiParser<TInput, TOutput>
-            ?? throw new InvalidOperationException("Invalid parser type");
+            ?? throw new InvalidOperationException(_errorInvalidParserType);
         return parser.Parse(state);
     }
 
     MultiResult<object> IMultiParser<TInput>.Parse(IParseState<TInput> state)
     {
         var parser = GetParserFromCacheOrCallback(state) as IMultiParser<TInput>
-            ?? throw new InvalidOperationException("Invalid parser type");
+            ?? throw new InvalidOperationException(_errorInvalidParserType);
         return parser.Parse(state);
     }
 
     public override bool Match(IParseState<TInput> state)
     {
         var parser = GetParserFromCacheOrCallback(state) as IParser<TInput, TOutput>
-           ?? throw new InvalidOperationException("Invalid parser type");
+           ?? throw new InvalidOperationException(_errorInvalidParserType);
         return parser.Match(state);
     }
 

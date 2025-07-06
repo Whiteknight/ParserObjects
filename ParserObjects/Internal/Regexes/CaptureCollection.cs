@@ -4,7 +4,7 @@ using ParserObjects.Regexes;
 
 namespace ParserObjects.Internal.Regexes;
 
-public sealed class CaptureCollection : List<(int group, string value)>
+public sealed class CaptureCollection : List<(int Group, string Value)>
 {
     /* CaptureCollection IS-A List to avoid a second allocation. We cannot make it a struct because
      * we need reference behavior on the CaptureIndex value.
@@ -13,7 +13,7 @@ public sealed class CaptureCollection : List<(int group, string value)>
      * value in snapshots so that it can rewind to a previous index during backtracking.
      */
 
-    private static readonly CaptureCollection _reusableInstance = new CaptureCollection();
+    private static readonly CaptureCollection _reusableInstance = [];
 
     public CaptureCollection()
     {
@@ -64,9 +64,9 @@ public sealed class CaptureCollection : List<(int group, string value)>
         for (int i = 0; i <= CaptureIndex; i++)
         {
             var (group, value) = this[i];
-            Debug.Assert(group > 0, "We cannot add to group 0");
+            Debug.Assert(group > 0);
             if (!groups.ContainsKey(group))
-                groups.Add(group, new List<string>());
+                groups.Add(group, []);
             ((List<string>)groups[group]).Add(value);
         }
 
@@ -77,8 +77,8 @@ public sealed class CaptureCollection : List<(int group, string value)>
     {
         for (int i = CaptureIndex; i >= 0; i--)
         {
-            if (this[i].group == groupNumber)
-                return this[i].value;
+            if (this[i].Group == groupNumber)
+                return this[i].Value;
         }
 
         return null;
