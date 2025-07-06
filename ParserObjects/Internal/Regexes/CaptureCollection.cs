@@ -65,15 +65,17 @@ public sealed class CaptureCollection : List<(int Group, string Value)>
         {
             var (group, value) = this[i];
             Debug.Assert(group > 0);
-            if (!groups.ContainsKey(group))
+            if (!groups.TryGetValue(group, out var groupList))
             {
                 // We cannot use [] here, because that will create an array but semantically we
                 // require a List<string> that we can append to.
 #pragma warning disable IDE0028 // Simplify collection initialization
-                groups.Add(group, new List<string>());
+                groupList = new List<string>();
+                groups.Add(group, groupList);
 #pragma warning restore IDE0028 // Simplify collection initialization
             }
-            ((List<string>)groups[group]).Add(value);
+
+            ((List<string>)groupList).Add(value);
         }
 
         return groups;
