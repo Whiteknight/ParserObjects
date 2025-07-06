@@ -1,6 +1,6 @@
 # Regular Expressions
 
-The Regular Expression engine provided by ParserObjects has fewer features than an ordinary Regular Expression engine, such as the one provided by the `System.Text.Regex` class or the popular PCRE library. 
+The Regular Expression engine provided by ParserObjects has fewer features than an ordinary Regular Expression engine, such as the one provided by the `System.Text.Regex` class or the popular PCRE library. However it should be useful for many common parsing needs.
 
 An **atom** is a piece of input which can be matched. A **quantifier** modifies the atom to repeat a certain number of times.
 
@@ -43,13 +43,15 @@ Some common character classes are already pre-defined with special names:
 
 ## Quantifiers
 
+Quantifiers go after an atom to tell the engine how many times to match that atom.
+
 ### Basic Quantifiers
 
 Quantifiers include:
 
-* `'?'` which matches the atom zero or one times. In other words, the atom is optional.
-* `'*'` which matches the atom zero or more times.
-* `'+'` which matches the atom one or more times.
+* `'?'` match the atom zero or one times. In other words, the atom is optional.
+* `'*'` match the atom zero or more times.
+* `'+'` match the atom one or more times.
 
 For example the pattern `"ab?a"` will match `"aa"` or `"aba"` because the `'b'` is optional.
 
@@ -60,7 +62,7 @@ The `{ }` braces define a range. The range may have one or two numbers, separate
 1. `{3}` exactly three
 2. `{3,}` at least three
 3. `{,5}` at most five
-4. `{3,5}` between three and five
+4. `{3,5}` between three and five, inclusive
 
 ## Groups
 
@@ -76,7 +78,7 @@ var result = parser.Parse("abcd");
 var captured = result.Value[1][0]; // "bc"
 ```
 
-Notice that `result[0][0]` is always the total overall match. Groups are numbered, starting with `1`, from left to right. Groups may be nested:
+Notice that `result[0][0]` is always the total overall match. Groups are numbered, starting with `1`, from left to right according to the position of the opening parenthesis. Groups may be nested:
 
 ```csharp
 var parser = RegexMatch("a(.(..).)f");
@@ -116,9 +118,11 @@ var result = parser.Parse("abcd");
 var numberOfGroups = result.Count; // Just 1, for the overall match
 ```
 
+**Note:** It is a *modest* performance improvement to use a non-capturing group if you do not need to capture the value.
+
 ### Zero-Width Lookahead
 
-The regex engine can lookahead and match additional characters, but not include those as part of the match. The Positive lookahead `(?= )` matches true if the match succeeds but does not include that value in the overall match. The Negative lookahead `(?! )` matches true if the match does not succeed and will not include any values in the match.
+The regex engine can lookahead and match additional characters, but not include those as part of the match. The Positive lookahead `(?= )` matches true if the pattern succeeds but does not include that value in the overall match. The Negative lookahead `(?! )` matches true if the pattern does not succeed and will not include any values in the match.
 
 ```csharp
 var parser = Regex("a(?=b)");
@@ -146,7 +150,7 @@ var captured = result.Value; // "b"
 
 ### End anchor
 
-The `'$'` character is the end anchor. It only matches true at the end of the input sequence and consumes no input.
+The `'$'` character is the end anchor. It only matches true at the end of the input sequence and consumes no input. This is useful to tell the engine that you want the match to include all input items, or fail.
 
 ## Parsers
 
