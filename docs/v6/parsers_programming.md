@@ -219,6 +219,33 @@ var parser = Time("Hms");
 var result = parser.Parse("11111");
 ```
 
-This result is ambiguous because the source might intend the value to be `11:11:01` or `01:11:11` or `11:01:11`. Because of the greedy nature of the `.List()` parser used in the implementation of the `Time` parser, it will be parsed as `11:11:01`. Likewise the input value `1111` will throw an error here because `H` will greedily match `"11"`, `m` will greedily match `"11"` and there will be no input left to match `s`. 
+Because of the greedy nature of the `.List()` parser used in the implementation of the `Time` parser, it will be parsed as `11:11:01`. Likewise the input value `1111` will throw an error here because `H` will greedily match `"11"`, `m` will greedily match `"11"` and there will be no input left to match `s`. 
 
 **Note:** The 2-digit specifiers with leading zeros (`HH`, `mm`, etc) are more efficient to parse than the specifiers which may omit leading zeros (`H`, `m`, etc). Where possible, prefer the variants with leading zeros.
+
+### ISO-8601
+
+The `DateAndTimeIso8601` parser uses the standard ISO-8601 format for parsing date/time:
+
+```csharp
+var parser = DateAndTimeIso8601();
+```
+
+This is equivalent to:
+
+```csharp
+var parser = DateAndTime("YYYY-MM-dd HH:mm:ss.fff");
+```
+
+### Format Parsers
+
+The `DateAndTimeFormat`, `DateFormat` and `TimeFormat` parsers parse format strings and return a new parser, and are used in the implementation of the parsers above:
+
+```csharp
+var formatParser = DateAndTimeFormat();
+var result = formatParser.Parse("YYYY-MM-dd HH:mm:ss.fff");
+var parser = result.Value;
+```
+
+It is probably easier to just use the factory methods for `DateAndTime`, `Date` and `Time` instead of using the format parsers directly.
+

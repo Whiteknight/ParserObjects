@@ -170,6 +170,19 @@ var overallMatchString = result.Value[0][0];
 
 Which of the two parsers to use is dependent on what you want to do with the result you obtain.
 
+## Parser Recursing
+
+The Regex parser can call out to other existing parsers by name in order to make complicated matches. The `(?{name})` syntax allows you to specify the name of the parser to invoke. You can pass in a list of parsers that you want to be available to the regex engine, and the engine can invoke them by name (you **MUST** name your parser, or the regex engine won't be able to find it).
+
+```csharp
+var a = MatchChar('a').Named("a");
+var b = MatchChar('b').Named("b");
+var regex = Regex("(?{a})(?{b})c", a, b);
+
+// Success!
+var result = regex.Parse("abc");
+```
+
 ## Behaviors
 
 The Regex parser always attempts to match the pattern starting at the current position of the input sequence. It will not skip over input characters looking for a match which occurs later. Because of this the Regex parser does not support the beginning of input anchor (`^`) in patterns. It also does not support the `\b` word-boundary because it cannot look backwards in the input sequence to determine if the previous character was a word or non-word character. 

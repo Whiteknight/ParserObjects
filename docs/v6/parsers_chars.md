@@ -151,14 +151,50 @@ var parser = DigitString().Transform(int.Parse);
 
 ## Line Parsers
 
-The `Line` method parses the remainder of the line until the next newline character. It does not return the newline character. The `PrefixedLine` method parses the line if it starts with the given prefix. If the prefix is null or empty, it is the same as `Line`.
+### Line Parser
+
+The `Line` method parses the remainder of the line until the next newline character. It does not return the newline character. 
 
 ```csharp
 var parser = Line();
+```
+
+### Prefixed Line Parser
+
+The `PrefixedLine` method parses the line if it starts with the given prefix. If the prefix is null or empty, it is the same as `Line`.
+
+```csharp
 var parser = PrefixedLine("abc");
 ```
 
 The `PrefixedLine` parser instance is not cached by the library.
+
+### Start of Line Parser
+
+The `StartOfLine` parser returns success if the sequence is at `Start` or immediately after a newline. This parser is only defined for `char` sequences.
+
+```csharp
+var parser = StartOfLine();
+```
+
+### End of Line Parser
+
+The `EndOfLine` parser returns success at `End` or directly before a newline character. This parser is only defined for `char` sequences.
+
+```csharp
+var parser = EndOfLine();
+```
+
+This is equivalent to a combination of `PositiveLookahead`, `First`, `MatchCharacter`, and `End`:
+
+```csharp
+var parser = PositiveLookahead(
+    First(
+        MatchChar('\n'),
+        End()
+    )
+)
+```
 
 ## Whitespace Parsers
 
