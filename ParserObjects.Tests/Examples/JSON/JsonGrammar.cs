@@ -28,18 +28,22 @@ public static class JsonGrammar
         var value = Deferred(() => valueInner);
         var valueList = value.List(comma);
 
+        // objectProperty := <string> : <value>
         var objectProperty = (str, colon, value)
             .Rule((name, _, val) => (name.Value, val));
         var objectPropertyList = objectProperty.List(comma);
 
+        // json object literal := { <objectProperty>* }
         var jsonObject = (openCurlyBracket, objectPropertyList, closeCurlyBracket)
             .Rule((_, v, _) => new JsonObject(v))
             .Named("JSON Object");
 
+        // json array := [ <value>* ]
         var jsonArray = (openSquareBracket, valueList, closeSquareBracket)
             .Rule((_, items, _) => new JsonArray(items))
             .Named("JSON Array");
 
+        // value := <object> | <array> | <string> | <number>
         valueInner = Predict<IJsonValue>(c => c
             .When(t => t.Type == JsonTokenType.OpenCurlyBracket, jsonObject.Map(x => (IJsonValue)x))
             .When(t => t.Type == JsonTokenType.OpenSquareBracket, jsonArray.Map(x => (IJsonValue)x))
