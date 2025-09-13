@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using static ParserObjects.Parsers<char>;
 using static ParserObjects.Internal.ParserCache;
+using static ParserObjects.Parsers<char>;
 
 namespace ParserObjects;
 
@@ -66,4 +66,9 @@ public static partial class Parsers
     /// <returns></returns>
     public static IParser<char, string> HexadecimalString()
         => GetOrCreate("hexDigits", static () => HexadecimalDigit().ListCharToString(true));
+
+    public static IParser<char, int> HexadecimalDigitsAsInteger(int minimum, int maximum)
+        => HexadecimalDigit()
+            .ListCharToString(minimum, maximum)
+            .Transform(s => string.IsNullOrEmpty(s) ? 0 : int.Parse(s, System.Globalization.NumberStyles.HexNumber));
 }
