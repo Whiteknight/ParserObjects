@@ -3,16 +3,17 @@
 # Microsoft Managed Recommended Rules
 # Description: These rules focus on the most critical problems in your code, including potential security holes, application crashes, and other important logic and design errors. It is recommended to include this rule set in any custom rule set you create for your projects.
 
+[*]
+# Indentation and spacing
+indent_size = 4
+indent_style = space
+tab_width = 4
+
 # Code files
 # C# files
 [*.cs]
 
 #### Core EditorConfig Options ####
-
-# Indentation and spacing
-indent_size = 4
-indent_style = space
-tab_width = 4
 
 # New line preferences
 end_of_line = crlf
