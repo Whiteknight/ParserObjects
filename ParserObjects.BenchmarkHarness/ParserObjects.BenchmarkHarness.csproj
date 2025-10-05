@@ -5,9 +5,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
@@ -18,10 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ParserObjects\ParserObjects.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="StyleCop.Analyzers" Version="1.1.118" />
   </ItemGroup>
 
 </Project>
