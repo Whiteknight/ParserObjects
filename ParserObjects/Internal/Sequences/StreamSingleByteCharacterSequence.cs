@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
@@ -29,6 +31,8 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         if (!_options.Encoding!.IsSingleByte)
             throw new ArgumentException("This sequence is only for single-byte character encodings");
 
+        Debug.Assert(stream.CanSeek);
+        Debug.Assert(stream.CanRead);
         _stats = default;
         _line = 0;
         _column = 0;
@@ -98,6 +102,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _stream.Dispose();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private char GetNextCharRaw(bool advance)
     {
         // We fill the buffer initially in the constructor, and then again after we get a
@@ -116,6 +121,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         return c;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FillBuffer()
     {
         // If there are chars remaining in the current buffer, bail. There's nothing to do
@@ -128,8 +134,10 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
         _index = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int ReadStream()
     {
+        // Read raw bytes and convert to chars using the single-byte encoding
         _totalCharsInBuffer = _stream.Read(_byteBuffer, 0, _options.BufferSize);
         if (_totalCharsInBuffer > 0)
             _options.Encoding!.GetChars(_byteBuffer, 0, _totalCharsInBuffer, _buffer, 0);
@@ -192,7 +200,7 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
     {
         NotNull(map);
         if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-            return map([], data);
+            return map(Array.Empty<char>(), data);
 
         var currentPosition = Checkpoint();
         start.Rewind();
@@ -217,15 +225,18 @@ public sealed class StreamSingleByteCharacterSequence : ICharSequence, IDisposab
 
     public string GetRemainder()
     {
+        // Read remaining bytes directly from the underlying stream and decode with the encoding.
+        // Avoid creating a StreamReader (which allocates internal buffers and may allocate more),
+        // and avoid changing our reader semantics. We seek and restore the original position.
         var cp = Checkpoint();
 
         _stream.Seek(_bufferStartStreamPosition + _index, SeekOrigin.Begin);
-        var reader = new StreamReader(_stream, _options.Encoding!);
-        var s = reader.ReadToEnd();
 
+        using var ms = new MemoryStream();
+        _stream.CopyTo(ms);
+        var bytesTotal = ms.ToArray();
         cp.Rewind();
-
-        return s;
+        return _options.Encoding!.GetString(bytesTotal);
     }
 
     public void Reset()
