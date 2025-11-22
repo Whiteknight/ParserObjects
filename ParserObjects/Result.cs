@@ -82,8 +82,8 @@ public readonly record struct Result<TValue>(
 
     public override string ToString()
         => Success
-            ? $"{Parser} Ok"
-            : $"{Parser} FAIL: {ErrorMessage}";
+        ? $"{Parser} Ok"
+        : $"{Parser} FAIL: {ErrorMessage}";
 
     public void Deconstruct(out bool success, out TValue? value, out string? errorMessage)
     {
