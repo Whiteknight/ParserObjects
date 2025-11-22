@@ -10,7 +10,12 @@ namespace ParserObjects.Internal.Sequences;
 
 public static class CharBufferSequence
 {
-    private struct InternalStateString
+    /// <summary>
+    /// A sequence of characters read from a string. Does not do any normalization of line endings.
+    /// This type is an optimization for cases where we have a string and we explicitly do not need
+    /// normalization. We can save a lot of up-front work in that case and store the string as-is.
+    /// </summary>
+    public sealed class FromNonnormalizedString : ICharSequence
     {
         private readonly SequenceOptions<char> _options;
         private readonly string _data;
@@ -19,269 +24,121 @@ public static class CharBufferSequence
         private int _index;
         private int _line;
         private int _column;
-
-        public InternalStateString(SequenceOptions<char> options, string data)
-        {
-            _options = options.Validate();
-            _data = data;
-            Length = data.Length;
-            _stats = default;
-            _index = 0;
-            _line = 1;
-            _column = 0;
-            Flags = FlagsForStartOfCharSequence(Length == 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char GetNext()
-        {
-            if (IsAtEnd)
-                return _options.EndSentinel;
-            var next = GetNextInternal(true);
-
-            Flags &= ~SequenceStateTypes.StartOfInput;
-            _stats.ItemsRead++;
-
-            if (_index >= Length)
-                Flags |= SequenceStateTypes.EndOfInput;
-
-            if (next == '\n')
-            {
-                _line++;
-                _column = 0;
-                Flags |= SequenceStateTypes.StartOfLine;
-                return next;
-            }
-
-            Flags &= ~SequenceStateTypes.StartOfLine;
-
-            _column++;
-            return next;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private char GetNextInternal(bool advance)
-        {
-            if (_index >= Length)
-                return _options.EndSentinel;
-            var value = _data[_index];
-            if (advance)
-                _index++;
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char Peek()
-        {
-            var next = GetNextInternal(false);
-            _stats.ItemsPeeked++;
-            return next;
-        }
-
-        public readonly Location CurrentLocation => new Location(_options.FileName, _line, _column);
-
-        public readonly bool IsAtEnd => _index >= Length;
-
-        public SequenceStateTypes Flags { get; private set; }
-
-        public readonly int Index => _index;
-
-        public int Length { get; }
-
-        public string Data => _data;
-
-        public void Reset()
-        {
-            _index = 0;
-            _line = 1;
-            _column = 0;
-            Flags = FlagsForStartOfCharSequence(Length == 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SequenceCheckpoint Checkpoint(ISequence sequence)
-        {
-            _stats.CheckpointsCreated++;
-            return new SequenceCheckpoint(sequence, _index, _index, 0L, Flags, new Location(_options.FileName, _line, _column));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Rewind(SequenceCheckpoint checkpoint)
-        {
-            _stats.Rewinds++;
-            _stats.RewindsToCurrentBuffer++;
-            _index = checkpoint.Index;
-            _line = checkpoint.Location.Line;
-            _column = checkpoint.Location.Column;
-            Flags = checkpoint.Flags;
-        }
-
-        public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
-    }
-
-    // Specialization for char[] backing to avoid delegate overhead in hot path.
-    private struct InternalStateCharArray
-    {
-        private readonly SequenceOptions<char> _options;
-        private readonly char[] _data;
-
-        private WorkingSequenceStatistics _stats;
-        private int _index;
-        private int _line;
-        private int _column;
-
-        public InternalStateCharArray(SequenceOptions<char> options, char[] data, int length)
-        {
-            _options = options.Validate();
-            _data = data;
-            Length = length;
-            _stats = default;
-            _index = 0;
-            _line = 1;
-            _column = 0;
-            Flags = FlagsForStartOfCharSequence(Length == 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char GetNext()
-        {
-            if (IsAtEnd)
-                return _options.EndSentinel;
-            var next = GetNextInternal(true);
-
-            Flags &= ~SequenceStateTypes.StartOfInput;
-            _stats.ItemsRead++;
-
-            if (_index >= Length)
-                Flags |= SequenceStateTypes.EndOfInput;
-
-            if (next == '\n')
-            {
-                _line++;
-                _column = 0;
-                Flags |= SequenceStateTypes.StartOfLine;
-                return next;
-            }
-
-            Flags &= ~SequenceStateTypes.StartOfLine;
-
-            _column++;
-            return next;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private char GetNextInternal(bool advance)
-        {
-            if (_index >= Length)
-                return _options.EndSentinel;
-            var value = _data[_index];
-            if (advance)
-                _index++;
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char Peek()
-        {
-            var next = GetNextInternal(false);
-            _stats.ItemsPeeked++;
-            return next;
-        }
-
-        public readonly Location CurrentLocation => new Location(_options.FileName, _line, _column);
-
-        public readonly bool IsAtEnd => _index >= Length;
-
-        public SequenceStateTypes Flags { get; private set; }
-
-        public readonly int Index => _index;
-
-        public int Length { get; }
-
-        public char[] Data => _data;
-
-        public void Reset()
-        {
-            _index = 0;
-            _line = 1;
-            _column = 0;
-            Flags = FlagsForStartOfCharSequence(Length == 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SequenceCheckpoint Checkpoint(ISequence sequence)
-        {
-            _stats.CheckpointsCreated++;
-            return new SequenceCheckpoint(sequence, _index, _index, 0L, Flags, new Location(_options.FileName, _line, _column));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Rewind(SequenceCheckpoint checkpoint)
-        {
-            _stats.Rewinds++;
-            _stats.RewindsToCurrentBuffer++;
-            _index = checkpoint.Index;
-            _line = checkpoint.Location.Line;
-            _column = checkpoint.Location.Column;
-            Flags = checkpoint.Flags;
-        }
-
-        public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
-    }
-
-    /// <summary>
-    /// A sequence of characters read from a string. Does not do any normalization of line endings.
-    /// This type is an optimization for cases where we have a string and we explicitly do not need
-    /// normalization. We can save a lot of up-front work in that case and store the string as-is.
-    /// </summary>
-    public sealed class FromNonnormalizedString : ICharSequence
-    {
-        private InternalStateString _internal;
+        private SequenceStateTypes _flags;
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
-            NotNull(s);
             Debug.Assert(options.MaintainLineEndings);
-            _internal = new InternalStateString(options, s);
+            _options = options.Validate();
+            _data = NotNull(s);
+            Length = s.Length;
+            _stats = default;
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            _flags = FlagsForStartOfCharSequence(Length == 0);
         }
 
-        public char GetNext() => _internal.GetNext();
+        public char GetNext()
+        {
+            if (IsAtEnd)
+                return _options.EndSentinel;
+            var next = GetNextInternal(true);
 
-        public char Peek() => _internal.Peek();
+            _flags &= ~SequenceStateTypes.StartOfInput;
+            _stats.ItemsRead++;
 
-        public Location CurrentLocation => _internal.CurrentLocation;
+            if (_index >= Length)
+                _flags |= SequenceStateTypes.EndOfInput;
 
-        public bool IsAtEnd => _internal.IsAtEnd;
+            if (next == '\n')
+            {
+                _line++;
+                _column = 0;
+                _flags |= SequenceStateTypes.StartOfLine;
+                return next;
+            }
 
-        public SequenceStateTypes Flags => _internal.Flags;
+            _flags &= ~SequenceStateTypes.StartOfLine;
 
-        public int Consumed => _internal.Index;
+            _column++;
+            return next;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private char GetNextInternal(bool advance)
+        {
+            if (_index >= Length)
+                return _options.EndSentinel;
+            var value = _data[_index];
+            if (advance)
+                _index++;
+            return value;
+        }
+
+        public char Peek()
+        {
+            var next = GetNextInternal(false);
+            _stats.ItemsPeeked++;
+            return next;
+        }
+
+        public Location CurrentLocation => new Location(_options.FileName, _line, _column);
+
+        public bool IsAtEnd => _index >= Length;
+
+        public SequenceStateTypes Flags => _flags;
+
+        public int Consumed => _index;
+
+        // Keep a Data accessor to preserve original behavior
+        public string Data => _data;
+
+        public int Length { get; }
 
         public string GetRemainder()
         {
-            if (_internal.Index == 0)
-                return _internal.Data;
-            if (_internal.Index >= _internal.Length)
+            if (_index == 0)
+                return _data;
+            if (_index >= Length)
                 return string.Empty;
-            return _internal.Data.Substring(_internal.Index);
+            return _data.Substring(_index);
         }
 
-        public void Reset() => _internal.Reset();
+        public void Reset()
+        {
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            _flags = FlagsForStartOfCharSequence(Length == 0);
+        }
 
-        public SequenceCheckpoint Checkpoint() => _internal.Checkpoint(this);
+        public SequenceCheckpoint Checkpoint()
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(this, _index, _index, 0L, _flags, new Location(_options.FileName, _line, _column));
+        }
 
-        public void Rewind(SequenceCheckpoint checkpoint) => _internal.Rewind(checkpoint);
+        public void Rewind(SequenceCheckpoint checkpoint)
+        {
+            _stats.Rewinds++;
+            _stats.RewindsToCurrentBuffer++;
+            _index = checkpoint.Index;
+            _line = checkpoint.Location.Line;
+            _column = checkpoint.Location.Column;
+            _flags = checkpoint.Flags;
+        }
 
-        public SequenceStatistics GetStatistics() => _internal.GetStatistics();
+        public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
             NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(Array.Empty<char>(), data);
+                return map([], data);
 
             var size = end.Consumed - start.Consumed;
-            var span = _internal.Data.AsSpan(start.Consumed, size);
+            var span = _data.AsSpan(start.Consumed, size);
             return map(span, data);
         }
 
@@ -291,7 +148,7 @@ public static class CharBufferSequence
                 return string.Empty;
 
             int size = end.Consumed - start.Consumed;
-            return _internal.Data.Substring(start.Consumed, size);
+            return _data.Substring(start.Consumed, size);
         }
 
         public bool Owns(SequenceCheckpoint checkpoint) => checkpoint.Sequence == this;
@@ -302,20 +159,42 @@ public static class CharBufferSequence
     /// </summary>
     public sealed class FromCharArray : ICharSequence
     {
-        private InternalStateCharArray _internal;
+        // Inlined InternalStateCharArray fields to avoid an extra indirection and make the hot path JIT-friendlier.
+        private readonly SequenceOptions<char> _options;
+        private readonly char[] _data;
+
+        private WorkingSequenceStatistics _stats;
+        private int _index;
+        private int _line;
+        private int _column;
+        private SequenceStateTypes _flags;
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
             NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
-            _internal = new InternalStateCharArray(options, buffer, bufferLength);
+            _options = options.Validate();
+            _data = buffer;
+            Length = bufferLength;
+            _stats = default;
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            _flags = FlagsForStartOfCharSequence(Length == 0);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
             NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
-            _internal = new InternalStateCharArray(options, buffer, bufferLength);
+            _options = options.Validate();
+            _data = buffer;
+            Length = bufferLength;
+            _stats = default;
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            _flags = FlagsForStartOfCharSequence(Length == 0);
         }
 
         private static (char[] Buffer, int Length) Normalize(string s, bool normalize)
@@ -407,43 +286,107 @@ public static class CharBufferSequence
             return (chars, destIdx);
         }
 
-        public char GetNext() => _internal.GetNext();
+        public char GetNext()
+        {
+            if (IsAtEnd)
+                return _options.EndSentinel;
+            var next = GetNextInternal(true);
 
-        public char Peek() => _internal.Peek();
+            _flags &= ~SequenceStateTypes.StartOfInput;
+            _stats.ItemsRead++;
 
-        public Location CurrentLocation => _internal.CurrentLocation;
+            if (_index >= Length)
+                _flags |= SequenceStateTypes.EndOfInput;
 
-        public bool IsAtEnd => _internal.IsAtEnd;
+            if (next == '\n')
+            {
+                _line++;
+                _column = 0;
+                _flags |= SequenceStateTypes.StartOfLine;
+                return next;
+            }
 
-        public SequenceStateTypes Flags => _internal.Flags;
+            _flags &= ~SequenceStateTypes.StartOfLine;
 
-        public int Consumed => _internal.Index;
+            _column++;
+            return next;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private char GetNextInternal(bool advance)
+        {
+            if (_index >= Length)
+                return _options.EndSentinel;
+            var value = _data[_index];
+            if (advance)
+                _index++;
+            return value;
+        }
+
+        public char Peek()
+        {
+            var next = GetNextInternal(false);
+            _stats.ItemsPeeked++;
+            return next;
+        }
+
+        public Location CurrentLocation => new Location(_options.FileName, _line, _column);
+
+        public bool IsAtEnd => _index >= Length;
+
+        public SequenceStateTypes Flags => _flags;
+
+        public int Consumed => _index;
+
+        public int Index => _index;
+
+        public char[] Data => _data;
+
+        public int Length { get; }
 
         public string GetRemainder()
         {
-            if (_internal.Index == 0)
-                return new string(_internal.Data, 0, _internal.Length);
-            if (_internal.Index >= _internal.Length)
+            if (_index == 0)
+                return new string(_data, 0, Length);
+            if (_index >= Length)
                 return string.Empty;
-            return new string(_internal.Data, _internal.Index, _internal.Length - _internal.Index);
+            return new string(_data, _index, Length - _index);
         }
 
-        public void Reset() => _internal.Reset();
+        public void Reset()
+        {
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            _flags = FlagsForStartOfCharSequence(Length == 0);
+        }
 
-        public SequenceCheckpoint Checkpoint() => _internal.Checkpoint(this);
+        public SequenceCheckpoint Checkpoint()
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(this, _index, _index, 0L, _flags, new Location(_options.FileName, _line, _column));
+        }
 
-        public void Rewind(SequenceCheckpoint checkpoint) => _internal.Rewind(checkpoint);
+        public void Rewind(SequenceCheckpoint checkpoint)
+        {
+            _stats.Rewinds++;
+            _stats.RewindsToCurrentBuffer++;
+            _index = checkpoint.Index;
+            _line = checkpoint.Location.Line;
+            _column = checkpoint.Location.Column;
+            _flags = checkpoint.Flags;
+        }
 
-        public SequenceStatistics GetStatistics() => _internal.GetStatistics();
+        public SequenceStatistics GetStatistics() => _stats.Snapshot();
 
         public TResult GetBetween<TData, TResult>(SequenceCheckpoint start, SequenceCheckpoint end, TData data, MapSequenceSpan<char, TData, TResult> map)
         {
             NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map(Array.Empty<char>(), data);
+                return map([], data);
 
             var size = end.Consumed - start.Consumed;
-            var span = _internal.Data.AsSpan(start.Consumed, size);
+            var span = _data.AsSpan(start.Consumed, size);
             return map(span, data);
         }
 
