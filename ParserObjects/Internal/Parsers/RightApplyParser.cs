@@ -44,15 +44,27 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     public Result<TOutput> Parse(IParseState<TInput> state)
     {
-        var startCp = NotNull(state).Input.Checkpoint();
+        // Exactly one parses either <left> or <left> <middle> <right>. We only need the
+        // start checkpoint in this case
+        if (_quantifier == Quantifier.ExactlyOne)
+        {
+            var start = NotNull(state).Input.Checkpoint();
+            var lr = _item.Parse(state);
+            if (!lr.Success)
+                return lr;
+            return ParseExactlyOne(state, lr, start);
+        }
 
+        // In other cases, the term "Zero" means "maybe match <left> by itself"
+        // If <left> fails, the parser fails.
+        // If <left> succeeds, this is "Zero" and we continue from there
+        // Every reduction of <left> <middle> <right> is considered one iteration.
         var leftResult = _item.Parse(state);
         if (!leftResult.Success)
             return leftResult;
 
         return _quantifier switch
         {
-            Quantifier.ExactlyOne => ParseExactlyOne(state, leftResult, startCp),
             Quantifier.ZeroOrOne => ParseZeroOrOne(state, leftResult),
             Quantifier.ZeroOrMore => ParseZeroOrMore(state, leftResult),
             _ => throw new InvalidOperationException("Unsupported quantifier"),
@@ -61,22 +73,22 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
 
     private Result<TOutput> ParseZeroOrMore(IParseState<TInput> state, Result<TOutput> leftResult)
     {
-        var resultStack = new Stack<(TOutput Left, TMiddle Middle)>();
-
-        Result<TOutput> ProduceSuccess(TOutput right, int consumed)
+        static Result<TOutput> ProduceSuccess(IParser self, Func<RightApplyArguments<TOutput, TMiddle>, TOutput> produce, Stack<(TOutput Left, TMiddle Middle)> resultStack, TOutput right, int consumed)
         {
             while (resultStack.Count > 0)
             {
                 var (left, middle) = resultStack.Pop();
                 var args = new RightApplyArguments<TOutput, TMiddle>(left, middle, right);
-                right = _produce(args);
+                right = produce(args);
             }
 
-            return Result.Ok(this, right, consumed);
+            return Result.Ok(self, right, consumed);
         }
 
         var left = leftResult.Value;
         int consumed = leftResult.Consumed;
+
+        var resultStack = new Stack<(TOutput Left, TMiddle Middle)>();
 
         while (true)
         {
@@ -85,7 +97,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
             // We have the left, so parse the middle. If not found, just return left
             var middleResult = _middle.Parse(state);
             if (!middleResult.Success)
-                return ProduceSuccess(left, consumed);
+                return ProduceSuccess(this, _produce, resultStack, left, consumed);
 
             int rightConsumed = middleResult.Consumed;
 
@@ -100,7 +112,7 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
                 resultStack.Push((left, middleResult.Value));
                 left = rightResult.Value;
                 if (rightConsumed == 0)
-                    return ProduceSuccess(rightResult.Value, consumed);
+                    return ProduceSuccess(this, _produce, resultStack, rightResult.Value, consumed);
                 continue;
             }
 
@@ -113,15 +125,18 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
                 consumed += middleResult.Consumed;
                 var syntheticRight = _getMissingRight(state);
                 resultStack.Push((left, middleResult.Value));
-                return ProduceSuccess(syntheticRight, consumed);
+                return ProduceSuccess(this, _produce, resultStack, syntheticRight, consumed);
             }
 
             // We can't make a synthetic right, so rewind to give back the <middle>
             checkpoint.Rewind();
-            return ProduceSuccess(left, consumed);
+            return ProduceSuccess(this, _produce, resultStack, left, consumed);
         }
     }
 
+    // Parse zero or one reductions of the form <left> <middle> <right>.
+    // Zero reductions of that form is just <left>
+    // So a better name for this might be "ParseLeftOnlyOrLeftMiddleRight" but that feels verbose.
     private Result<TOutput> ParseZeroOrOne(IParseState<TInput> state, Result<TOutput> leftResult)
     {
         var checkpoint = state.Input.Checkpoint();
@@ -154,6 +169,9 @@ public sealed class RightApplyParser<TInput, TMiddle, TOutput> : IParser<TInput,
         return leftResult;
     }
 
+    // Parse exactly one reduction of the form <left> <middle> <right>.
+    // If we only have <left>, we do not have a full reduction of this form and call it a failure
+    // Rewind back to the point before the <left> matches in that case.
     private Result<TOutput> ParseExactlyOne(IParseState<TInput> state, Result<TOutput> leftResult, SequenceCheckpoint startCp)
     {
         var middleCp = state.Input.Checkpoint();
