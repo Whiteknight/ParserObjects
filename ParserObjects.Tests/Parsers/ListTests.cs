@@ -380,7 +380,7 @@ public static class ListTests
             var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            (result.Value as List<object>).Count().Should().Be(0);
+            result.Value.Count.Should().Be(0);
             result.Consumed.Should().Be(0);
         }
 
@@ -449,7 +449,7 @@ public static class ListTests
             var input = FromString("abc");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            (result.Value as List<object>).Count().Should().Be(0);
+            result.Value.Count.Should().Be(0);
             result.Consumed.Should().Be(0);
         }
 
@@ -848,7 +848,7 @@ public static class ListTests
             var input = FromString("");
             var result = parser.Parse(input);
             result.Success.Should().BeTrue();
-            (result.Value as List<object>).Count().Should().Be(0);
+            result.Value.Count().Should().Be(0);
             result.Consumed.Should().Be(0);
         }
 

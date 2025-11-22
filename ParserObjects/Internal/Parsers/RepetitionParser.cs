@@ -49,22 +49,25 @@ public static class Repetition<TInput>
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PartialResult<IReadOnlyList<TItem>> Parse(IParseState<TInput> state)
+            => Minimum == 0
+                ? ParseZeroMinimum(state)
+                : ParseNonZeroMinimum(state);
+
+        private PartialResult<IReadOnlyList<TItem>> ParseNonZeroMinimum(IParseState<TInput> state)
         {
             var startCheckpoint = NotNull(state).Input.Checkpoint();
-            var items = new List<TItem>();
 
             // We are parsing <List> := <Item> (<Separator> <Item>)*
 
             var initialItemResult = _getResult(_parser, state);
             if (!initialItemResult.Success)
-            {
-                if (Minimum == 0)
-                    return new PartialResult<IReadOnlyList<TItem>>(items, 0);
-                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}");
-            }
+                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but found none.");
 
             var item = _getItem(initialItemResult);
-            items.Add(item);
+            var items = new List<TItem>(Maximum ?? 16)
+            {
+                item
+            };
             int currentConsumed = initialItemResult.Consumed;
             var currentFailureCheckpoint = state.Input.Checkpoint();
 
@@ -99,7 +102,7 @@ public static class Repetition<TInput>
 
             // If we don't have at least Minimum items, we need to roll all the way back to the
             // beginning of the attempt
-            if (Minimum > 0 && items.Count < Minimum)
+            if (items.Count < Minimum)
             {
                 startCheckpoint.Rewind();
                 return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}");
@@ -108,6 +111,57 @@ public static class Repetition<TInput>
             var endConsumed = state.Input.Consumed;
 
             return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startCheckpoint.Consumed);
+        }
+
+        private PartialResult<IReadOnlyList<TItem>> ParseZeroMinimum(IParseState<TInput> state)
+        {
+            var startConsumed = state.Input.Consumed;
+            // We are parsing <List> := <Item> (<Separator> <Item>)*
+
+            var initialItemResult = _getResult(_parser, state);
+            if (!initialItemResult.Success)
+                return new PartialResult<IReadOnlyList<TItem>>([], 0);
+
+            var item = _getItem(initialItemResult);
+            var items = new List<TItem>(Maximum ?? 16)
+            {
+                item
+            };
+            int currentConsumed = initialItemResult.Consumed;
+            var currentFailureCheckpoint = state.Input.Checkpoint();
+
+            while (Maximum == null || items.Count < Maximum)
+            {
+                var separatorResult = _separator.Match(state);
+                if (!separatorResult)
+                    break;
+                var separatorConsumed = state.Input.Consumed - currentFailureCheckpoint.Consumed;
+                if (currentConsumed == 0 && separatorConsumed == 0 && items.Count >= Minimum)
+                {
+                    // An <Item> and <Separator> have consumed 0 inputs. We're going to break here
+                    // to avoid getting into an infinite loop
+                    // We don't need to rewind to before the separator, because it consumed nothing
+                    break;
+                }
+
+                var result = _getResult(_parser, state);
+                if (!result.Success)
+                {
+                    // If we fail the item here, we have to rewind to the position before the
+                    // separator.
+                    currentFailureCheckpoint.Rewind();
+                    break;
+                }
+
+                item = _getItem(result);
+                items.Add(item);
+                currentConsumed = result.Consumed;
+                currentFailureCheckpoint = state.Input.Checkpoint();
+            }
+
+            var endConsumed = state.Input.Consumed;
+
+            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startConsumed);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
