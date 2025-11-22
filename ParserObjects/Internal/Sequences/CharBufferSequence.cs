@@ -10,22 +10,21 @@ namespace ParserObjects.Internal.Sequences;
 
 public static class CharBufferSequence
 {
-    private struct InternalState<TData>
+    private struct InternalStateString
     {
-        private readonly Func<TData, int, char> _getCharAt;
         private readonly SequenceOptions<char> _options;
+        private readonly string _data;
 
         private WorkingSequenceStatistics _stats;
         private int _index;
         private int _line;
         private int _column;
 
-        public InternalState(SequenceOptions<char> options, TData data, int length, Func<TData, int, char> getCharAt)
+        public InternalStateString(SequenceOptions<char> options, string data)
         {
             _options = options.Validate();
-            Data = data;
-            Length = length;
-            _getCharAt = getCharAt;
+            _data = data;
+            Length = data.Length;
             _stats = default;
             _index = 0;
             _line = 1;
@@ -40,33 +39,32 @@ public static class CharBufferSequence
                 return _options.EndSentinel;
             var next = GetNextInternal(true);
 
-            Flags = Flags.Without(SequenceStateTypes.StartOfInput);
+            Flags &= ~SequenceStateTypes.StartOfInput;
             _stats.ItemsRead++;
 
             if (_index >= Length)
-                Flags = Flags.With(SequenceStateTypes.EndOfInput);
+                Flags |= SequenceStateTypes.EndOfInput;
 
-            // If we have a newline, update the line-tracking.
             if (next == '\n')
             {
                 _line++;
                 _column = 0;
-                Flags = Flags.With(SequenceStateTypes.StartOfLine);
+                Flags |= SequenceStateTypes.StartOfLine;
                 return next;
             }
 
-            Flags = Flags.Without(SequenceStateTypes.StartOfLine);
+            Flags &= ~SequenceStateTypes.StartOfLine;
 
-            // Bump counts and return
             _column++;
             return next;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char GetNextInternal(bool advance)
         {
             if (_index >= Length)
                 return _options.EndSentinel;
-            var value = _getCharAt(Data, _index);
+            var value = _data[_index];
             if (advance)
                 _index++;
             return value;
@@ -88,9 +86,119 @@ public static class CharBufferSequence
 
         public readonly int Index => _index;
 
-        public TData Data { get; }
+        public int Length { get; }
+
+        public string Data => _data;
+
+        public void Reset()
+        {
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            Flags = FlagsForStartOfCharSequence(Length == 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public SequenceCheckpoint Checkpoint(ISequence sequence)
+        {
+            _stats.CheckpointsCreated++;
+            return new SequenceCheckpoint(sequence, _index, _index, 0L, Flags, new Location(_options.FileName, _line, _column));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Rewind(SequenceCheckpoint checkpoint)
+        {
+            _stats.Rewinds++;
+            _stats.RewindsToCurrentBuffer++;
+            _index = checkpoint.Index;
+            _line = checkpoint.Location.Line;
+            _column = checkpoint.Location.Column;
+            Flags = checkpoint.Flags;
+        }
+
+        public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
+    }
+
+    // Specialization for char[] backing to avoid delegate overhead in hot path.
+    private struct InternalStateCharArray
+    {
+        private readonly SequenceOptions<char> _options;
+        private readonly char[] _data;
+
+        private WorkingSequenceStatistics _stats;
+        private int _index;
+        private int _line;
+        private int _column;
+
+        public InternalStateCharArray(SequenceOptions<char> options, char[] data, int length)
+        {
+            _options = options.Validate();
+            _data = data;
+            Length = length;
+            _stats = default;
+            _index = 0;
+            _line = 1;
+            _column = 0;
+            Flags = FlagsForStartOfCharSequence(Length == 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public char GetNext()
+        {
+            if (IsAtEnd)
+                return _options.EndSentinel;
+            var next = GetNextInternal(true);
+
+            Flags &= ~SequenceStateTypes.StartOfInput;
+            _stats.ItemsRead++;
+
+            if (_index >= Length)
+                Flags |= SequenceStateTypes.EndOfInput;
+
+            if (next == '\n')
+            {
+                _line++;
+                _column = 0;
+                Flags |= SequenceStateTypes.StartOfLine;
+                return next;
+            }
+
+            Flags &= ~SequenceStateTypes.StartOfLine;
+
+            _column++;
+            return next;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private char GetNextInternal(bool advance)
+        {
+            if (_index >= Length)
+                return _options.EndSentinel;
+            var value = _data[_index];
+            if (advance)
+                _index++;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public char Peek()
+        {
+            var next = GetNextInternal(false);
+            _stats.ItemsPeeked++;
+            return next;
+        }
+
+        public readonly Location CurrentLocation => new Location(_options.FileName, _line, _column);
+
+        public readonly bool IsAtEnd => _index >= Length;
+
+        public SequenceStateTypes Flags { get; private set; }
+
+        public readonly int Index => _index;
 
         public int Length { get; }
+
+        public char[] Data => _data;
 
         public void Reset()
         {
@@ -128,13 +236,13 @@ public static class CharBufferSequence
     /// </summary>
     public sealed class FromNonnormalizedString : ICharSequence
     {
-        private InternalState<string> _internal;
+        private InternalStateString _internal;
 
         public FromNonnormalizedString(string s, SequenceOptions<char> options)
         {
             NotNull(s);
             Debug.Assert(options.MaintainLineEndings);
-            _internal = new InternalState<string>(options, s, s.Length, static (str, i) => str[i]);
+            _internal = new InternalStateString(options, s);
         }
 
         public char GetNext() => _internal.GetNext();
@@ -153,7 +261,7 @@ public static class CharBufferSequence
         {
             if (_internal.Index == 0)
                 return _internal.Data;
-            if (_internal.Index >= _internal.Data.Length)
+            if (_internal.Index >= _internal.Length)
                 return string.Empty;
             return _internal.Data.Substring(_internal.Index);
         }
@@ -170,7 +278,7 @@ public static class CharBufferSequence
         {
             NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map([], data);
+                return map(Array.Empty<char>(), data);
 
             var size = end.Consumed - start.Consumed;
             var span = _internal.Data.AsSpan(start.Consumed, size);
@@ -194,20 +302,20 @@ public static class CharBufferSequence
     /// </summary>
     public sealed class FromCharArray : ICharSequence
     {
-        private InternalState<char[]> _internal;
+        private InternalStateCharArray _internal;
 
         public FromCharArray(string s, SequenceOptions<char> options)
         {
             NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
-            _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
+            _internal = new InternalStateCharArray(options, buffer, bufferLength);
         }
 
         public FromCharArray(IReadOnlyList<char> s, SequenceOptions<char> options)
         {
             NotNull(s);
             (var buffer, int bufferLength) = Normalize(s, options.NormalizeLineEndings);
-            _internal = new InternalState<char[]>(options, buffer, bufferLength, static (d, i) => d[i]);
+            _internal = new InternalStateCharArray(options, buffer, bufferLength);
         }
 
         private static (char[] Buffer, int Length) Normalize(string s, bool normalize)
@@ -332,7 +440,7 @@ public static class CharBufferSequence
         {
             NotNull(map);
             if (!Owns(start) || !Owns(end) || start.CompareTo(end) >= 0)
-                return map([], data);
+                return map(Array.Empty<char>(), data);
 
             var size = end.Consumed - start.Consumed;
             var span = _internal.Data.AsSpan(start.Consumed, size);
