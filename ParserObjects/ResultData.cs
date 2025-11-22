@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ParserObjects;
@@ -19,10 +18,9 @@ public readonly struct ResultData
         Data = data;
     }
 
-    private ResultData(ResultDataType type, ImmutableList<object> data)
+    private ResultData(ImmutableList<object> data)
     {
-        Debug.Assert(type == ResultDataType.List);
-        _storageType = type;
+        _storageType = ResultDataType.List;
         Data = data;
     }
 
@@ -39,8 +37,9 @@ public readonly struct ResultData
     public ResultData And(object data)
         => (_storageType, Data) switch
         {
-            (ResultDataType.One, not null) => new ResultData(ResultDataType.List, ImmutableList<object>.Empty.Add(Data).Add(data)),
-            (ResultDataType.List, ImmutableList<object> list) => new ResultData(ResultDataType.List, list.Add(data)),
+            (ResultDataType.None, _) => new ResultData(data),
+            (ResultDataType.One, not null) => new ResultData(ImmutableList<object>.Empty.Add(Data).Add(data)),
+            (ResultDataType.List, ImmutableList<object> list) => new ResultData(list.Add(data)),
             _ => throw new InvalidOperationException("Unexpected situation")
         };
 
