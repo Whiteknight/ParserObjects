@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.CompilerServices;
 using static ParserObjects.Internal.Assert;
 using static ParserObjects.Internal.Sequences.SequenceFlags;
 
@@ -16,6 +17,7 @@ namespace ParserObjects.Internal.Sequences;
 public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 {
     private readonly char[] _surrogateBuffer = new char[2];
+    private readonly char[] _tempBuffer = new char[1];
     private readonly StreamReader _reader;
     private readonly char[] _buffer;
     private readonly SequenceOptions<char> _options;
@@ -67,10 +69,11 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
      * the buffer by resetting the stream to that position and clearing the reader buffer.
      */
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetEncodingByteCountForCharacter(char c)
     {
-        Span<char> buffer = [c];
-        return _options.Encoding!.GetByteCount(buffer);
+        _tempBuffer[0] = c;
+        return _options.Encoding!.GetByteCount(_tempBuffer.AsSpan());
     }
 
     public char GetNext()
@@ -152,6 +155,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
         return next;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private char GetNextCharRaw(bool advance)
     {
         // We fill the buffer initially in the constructor, and then again after we get a
@@ -203,6 +207,7 @@ public sealed class StreamCharacterSequence : ICharSequence, IDisposable
 
     // Called during normal read operations to fill the next buffer when we've read to the end of
     // the current buffer.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FillBuffer()
     {
         // If there are chars remaining in the current buffer, bail. There's nothing to do
