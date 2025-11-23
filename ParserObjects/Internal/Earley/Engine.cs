@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ParserObjects.Earley;
 using static ParserObjects.Internal.Assert;
 
@@ -143,13 +144,14 @@ public readonly struct Engine<TInput, TOutput>
     )
     {
         // Add prediction states
-        var relevantCompletedNullableProductions = new List<IProduction>();
-        foreach (var p in nonterminal.Productions)
+        var nonterminalProductions = nonterminal.Productions;
+        var relevantCompletedNullables = new List<IList<Item>>(nonterminalProductions.Count);
+        foreach (var p in nonterminalProductions)
         {
             var newItem = new Item(p, state, state);
             stats.CreatedItems++;
-            if (completedNullables.ContainsKey(p))
-                relevantCompletedNullableProductions.Add(p);
+            if (completedNullables.TryGetValue(p, out var completedItems))
+                relevantCompletedNullables.Add(completedItems);
             if (state.Contains(newItem))
                 continue;
             state.Add(newItem);
@@ -158,15 +160,14 @@ public readonly struct Engine<TInput, TOutput>
 
         // Aycock fix: If this item is waiting on a symbol which is already in the list of
         // nullables, we can simply advance it here
-        if (relevantCompletedNullableProductions.Count > 0)
+        if (relevantCompletedNullables.Count > 0)
         {
             var aycockItem = state.Import(item.CreateNextItem(state));
             stats.CreatedItems++;
             var seenNullables = new HashSet<Item>();
-            for (int i = 0; i < relevantCompletedNullableProductions.Count; i++)
+            for (int i = 0; i < relevantCompletedNullables.Count; i++)
             {
-                var relevantProduction = relevantCompletedNullableProductions[i];
-                var assocatedNullables = completedNullables[relevantProduction];
+                var assocatedNullables = relevantCompletedNullables[i];
                 for (int j = 0; j < assocatedNullables.Count; j++)
                 {
                     var nullable = assocatedNullables[j];
@@ -181,6 +182,7 @@ public readonly struct Engine<TInput, TOutput>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static (Result<object> Result, SequenceCheckpoint Continuation) TryParse(
         IParser<TInput> terminal,
         IParseState<TInput> parseState,
@@ -198,6 +200,7 @@ public readonly struct Engine<TInput, TOutput>
         return (result, continuation);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static MultiResult<object> TryParse(IMultiParser<TInput> terminal, IParseState<TInput> parseState)
     {
         var location = parseState.Input.CurrentLocation;
@@ -210,6 +213,7 @@ public readonly struct Engine<TInput, TOutput>
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Scan(
         State currentState,
         Item item,
@@ -238,6 +242,7 @@ public readonly struct Engine<TInput, TOutput>
             currentState.Checkpoint.Rewind();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Scan(
         State currentState,
         Item item,
@@ -276,9 +281,13 @@ public readonly struct Engine<TInput, TOutput>
         ParseStatistics stats
     )
     {
-        if (!completedNullables.ContainsKey(production))
-            completedNullables[production] = [];
-        completedNullables[production].Add(item);
+        if (!completedNullables.TryGetValue(production, out var list))
+        {
+            list = [];
+            completedNullables[production] = list;
+        }
+
+        list.Add(item);
         stats.CompletedNullables++;
     }
 
