@@ -30,12 +30,12 @@ public class Node<TKey, TResult> : Dictionary<ValueTuple<TKey>, (Node<TKey, TRes
     public Node<TKey, TResult> GetOrAddChild(TKey key)
     {
         var wrappedKey = new ValueTuple<TKey>(NotNull(key));
-        if (ContainsKey(wrappedKey))
+        if (TryGetValue(wrappedKey, out var value))
         {
-            if (this[wrappedKey].Node != null)
-                return this[wrappedKey].Node!;
+            if (value.Node != null)
+                return value.Node!;
             var node = new Node<TKey, TResult>(Comparer);
-            this[wrappedKey] = (node, this[wrappedKey].HasValue, this[wrappedKey].Value);
+            this[wrappedKey] = (node, value.HasValue, value.Value);
             return node;
         }
 
@@ -250,12 +250,12 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
         {
             if (currentValue.HasValue)
             {
-                if (current[wrappedKey].Value!.Equals(value))
+                if (EqualityComparer<TResult>.Default.Equals(currentValue.Value!, value))
                     return false;
                 throw new TrieInsertException("The result value has already been set for this input sequence");
             }
 
-            current[wrappedKey] = (current[wrappedKey].Node, true, value);
+            current[wrappedKey] = (currentValue.Node, true, value);
             SetPatternDepth(keyList.Count);
             return true;
         }
