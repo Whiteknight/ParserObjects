@@ -99,7 +99,7 @@ public static class Engine
         var matches = context.CurrentState.Match(context, beforeMatch, Test);
         if (matches)
         {
-            var backtrackState = new BacktrackState(false, context.CurrentState);
+            var backtrackState = new BacktrackState(false, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>());
             context.Push(backtrackState);
             backtrackState.AddConsumption(beforeMatch, captureIndexBeforeMatch);
             context.MoveToNextState();
@@ -116,8 +116,8 @@ public static class Engine
         // If we're at the end of input, treat it like 0 matches and return
         if (context.Input.IsAtEnd)
         {
-            var backtrackState = new BacktrackState(false, context.CurrentState);
-            backtrackState.AddZeroConsumed(beforeMatch, context.Captures.CaptureIndex);
+            var backtrackState = new BacktrackState(false, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>())
+                .AddZeroConsumed(beforeMatch, context.Captures.CaptureIndex);
             context.Push(backtrackState);
             context.MoveToNextState();
             return;
@@ -130,9 +130,9 @@ public static class Engine
         // instead.
         if (matches && context.Input.Consumed > beforeMatch.Consumed)
         {
-            var backtrackState = new BacktrackState(true, context.CurrentState);
-            context.Push(backtrackState);
+            var backtrackState = new BacktrackState(true, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>());
             backtrackState.AddConsumption(beforeMatch, captureIndexBeforeMatch);
+            context.Push(backtrackState);
             context.MoveToNextState();
             return;
         }
@@ -140,22 +140,22 @@ public static class Engine
         // Otherwise rewind if we need to
         if (!matches)
             beforeMatch.Rewind();
-        var fallbackBtState = new BacktrackState(false, context.CurrentState);
-        fallbackBtState.AddZeroConsumed(beforeMatch, captureIndexBeforeMatch);
+        var fallbackBtState = new BacktrackState(false, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>())
+            .AddZeroConsumed(beforeMatch, captureIndexBeforeMatch);
         context.Push(fallbackBtState);
         context.MoveToNextState();
     }
 
     private static void TestZeroOrMore(RegexContext context, SequenceCheckpoint beforeMatch)
     {
-        var backtrackState = new BacktrackState(true, context.CurrentState);
+        var backtrackState = new BacktrackState(true, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>());
         var currentCheckpoint = beforeMatch;
         while (true)
         {
             // At end of input, track zero consumed and return
             if (context.Input.IsAtEnd)
             {
-                backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
+                backtrackState = backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
                 context.Push(backtrackState);
                 context.MoveToNextState();
                 break;
@@ -170,7 +170,7 @@ public static class Engine
             {
                 if (!matches)
                     currentCheckpoint.Rewind();
-                backtrackState.AddZeroConsumed(currentCheckpoint, captureIndexBeforeMatch);
+                backtrackState = backtrackState.AddZeroConsumed(currentCheckpoint, captureIndexBeforeMatch);
                 context.Push(backtrackState);
                 context.MoveToNextState();
                 break;
@@ -186,7 +186,7 @@ public static class Engine
     {
         // Ranges are set up to always go from [0-Max) so there is no minimum value.
         // We can bail out at any time.
-        var backtrackState = new BacktrackState(true, context.CurrentState);
+        var backtrackState = new BacktrackState(true, context.CurrentState, new Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)>());
         int count = 0;
         var currentCheckpoint = beforeMatch;
         while (true)
@@ -194,7 +194,7 @@ public static class Engine
             // We're out of input, so we're done. Bail out.
             if (context.Input.IsAtEnd)
             {
-                backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
+                backtrackState = backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
                 context.Push(backtrackState);
                 context.MoveToNextState();
                 break;
@@ -207,7 +207,7 @@ public static class Engine
             // we don't backtrack here.
             if (!matches || context.Input.Consumed == currentCheckpoint.Consumed)
             {
-                backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
+                backtrackState = backtrackState.AddZeroConsumed(currentCheckpoint, context.Captures.CaptureIndex);
                 context.Push(backtrackState);
                 context.MoveToNextState();
                 break;

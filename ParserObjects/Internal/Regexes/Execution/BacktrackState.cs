@@ -2,49 +2,40 @@
 
 namespace ParserObjects.Internal.Regexes.Execution;
 
-public struct BacktrackState
-{
-    // Keeps track of places in the parse history where backtracking may be possible.
+// Keeps track of places in the parse history where backtracking may be possible.
+public readonly record struct BacktrackState(
+    bool IsBacktrackable,
 
-    // Number of characters in a complete match of the current State. For example the regex
+    // The state in the regex which produced this backtrack point
+    IState State,
+
+    // Consumptions is the number of characters in a complete match of the current State. For example the regex
     // "(AB)+" could match after 2, 4, or 6 characters, etc. The Engine greedily consumes as
     // many characters as possible for a match, but keeps track of the character counts at each
     // success milestone, so we can backtrack if necessary.
-    private readonly Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)> _consumptions;
-
-    public BacktrackState(bool isBacktrackable, IState state)
-    {
-        IsBacktrackable = isBacktrackable;
-        State = state;
-        _consumptions = new Stack<(SequenceCheckpoint?, int)>();
-    }
-
-    // This point allows backtracking. True if the State supports a variable number of consumed
-    // characters.
-    public bool IsBacktrackable { get; private set; }
-
-    // The state in the regex which produced this backtrack point
-    public IState State { get; }
-
+    Stack<(SequenceCheckpoint? BeforeMatch, int CaptureIndex)> Consumptions)
+{
     // Flag that this state consumed 0 inputs. This means that it could not be backtracked to
-    public void AddZeroConsumed(SequenceCheckpoint beforeMatch, int captureIndex)
+    public BacktrackState AddZeroConsumed(SequenceCheckpoint beforeMatch, int captureIndex)
     {
-        if (_consumptions.Count == 0)
+        if (Consumptions.Count == 0)
         {
-            _consumptions.Push((beforeMatch, captureIndex));
-            IsBacktrackable = false;
+            Consumptions.Push((beforeMatch, captureIndex));
+            return this with { IsBacktrackable = false };
         }
+
+        return this;
     }
 
     public readonly (SequenceCheckpoint? BeforeMatch, int CaptureIndex) GetNextConsumption()
-        => _consumptions.Count == 0
+        => Consumptions.Count == 0
         ? (null, -1)
-        : _consumptions.Pop();
+        : Consumptions.Pop();
 
-    public readonly bool HasConsumptions => _consumptions.Count > 0;
+    public readonly bool HasConsumptions => Consumptions.Count > 0;
 
     public readonly void AddConsumption(SequenceCheckpoint beforeMatch, int captureIndex)
     {
-        _consumptions.Push((beforeMatch, captureIndex));
+        Consumptions.Push((beforeMatch, captureIndex));
     }
 }
