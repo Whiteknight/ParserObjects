@@ -91,9 +91,6 @@ public static class CharBufferSequence
 
         public int Consumed => _index;
 
-        // Keep a Data accessor to preserve original behavior
-        public string Data => _data;
-
         public int Length { get; }
 
         public string GetRemainder()
@@ -337,10 +334,6 @@ public static class CharBufferSequence
         public SequenceStateTypes Flags => _flags;
 
         public int Consumed => _index;
-
-        public int Index => _index;
-
-        public char[] Data => _data;
 
         public int Length { get; }
 
