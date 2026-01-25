@@ -43,7 +43,9 @@ public readonly record struct Result<TValue>(
         ? InternalValue!
         : throw new InvalidOperationException("This result has failed. There is no value to access: " + ErrorMessage);
 
-    public bool IsValid => (Success && InternalValue is not null) || (!Success && !string.IsNullOrEmpty(InternalError));
+    public bool IsValid
+        => (Success && InternalValue is not null)
+        || (!Success && !string.IsNullOrEmpty(InternalError));
 
     /// <summary>
     /// Safely get the value of the result, or the default value.
@@ -68,6 +70,11 @@ public readonly record struct Result<TValue>(
         => Success
         ? onSuccess(Value)
         : onFailure();
+
+    public TResult Match<TResult, TData>(TData data, Func<TValue, TData, TResult> onSuccess, Func<string, Location, TData, TResult> onFailure)
+        => Success
+        ? onSuccess(Value, data)
+        : onFailure(ErrorMessage, Location, data);
 
     public Result<T> Select<T>(Func<TValue, T> selector)
         => Success
