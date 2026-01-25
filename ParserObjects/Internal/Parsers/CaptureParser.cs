@@ -33,13 +33,14 @@ public record CaptureParser<TInput, TOutput>(
             if (!result)
             {
                 startCp.Rewind();
-                return Result.Fail(this, $"Inner parser {i} failed.");
+                // TODO: It would be nicer if we didn't allocate a string here for the error message
+                return Result.Fail(this, $"Inner parser {i} failed.", state.Input.CurrentLocation);
             }
         }
 
         var endCp = state.Input.Checkpoint();
         var contents = GetOutput(state.Input, startCp, endCp);
-        return Result.Ok(this, contents, endCp.Consumed - startCp.Consumed);
+        return Result.Ok(this, contents, endCp.Consumed - startCp.Consumed, state.Input.CurrentLocation);
     }
 
     Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

@@ -61,7 +61,7 @@ public static class Repetition<TInput>
 
             var initialItemResult = _getResult(_parser, state);
             if (!initialItemResult.Success)
-                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but found none.");
+                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but found none.", state.Input.CurrentLocation);
 
             var item = _getItem(initialItemResult);
             var items = new List<TItem>(Maximum ?? 16)
@@ -105,12 +105,12 @@ public static class Repetition<TInput>
             if (items.Count < Minimum)
             {
                 startCheckpoint.Rewind();
-                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}");
+                return new PartialResult<IReadOnlyList<TItem>>($"Expected at least {Minimum} items but only found {items.Count}", state.Input.CurrentLocation);
             }
 
             var endConsumed = state.Input.Consumed;
 
-            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startCheckpoint.Consumed);
+            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startCheckpoint.Consumed, state.Input.CurrentLocation);
         }
 
         private PartialResult<IReadOnlyList<TItem>> ParseZeroMinimum(IParseState<TInput> state)
@@ -120,7 +120,7 @@ public static class Repetition<TInput>
 
             var initialItemResult = _getResult(_parser, state);
             if (!initialItemResult.Success)
-                return new PartialResult<IReadOnlyList<TItem>>([], 0);
+                return new PartialResult<IReadOnlyList<TItem>>([], 0, state.Input.CurrentLocation);
 
             var item = _getItem(initialItemResult);
             var items = new List<TItem>(Maximum ?? 16)
@@ -161,7 +161,7 @@ public static class Repetition<TInput>
 
             var endConsumed = state.Input.Consumed;
 
-            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startConsumed);
+            return new PartialResult<IReadOnlyList<TItem>>(items, endConsumed - startConsumed, state.Input.CurrentLocation);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

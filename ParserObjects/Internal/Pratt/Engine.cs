@@ -51,7 +51,7 @@ public sealed class Engine<TInput, TOutput>
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Level)
         {
             levelCp.Rewind();
-            return new PartialResult<TOutput>(pe.Message);
+            return new PartialResult<TOutput>(pe.Message, state.Input.CurrentLocation);
         }
     }
 
@@ -61,10 +61,10 @@ public sealed class Engine<TInput, TOutput>
     {
         var leftResult = GetLeft(state, parseControl);
         if (!leftResult.Success)
-            return new PartialResult<TOutput>(string.Empty);
+            return new PartialResult<TOutput>(string.Empty, state.Input.CurrentLocation);
 
         if (parseControl.IsComplete)
-            return new PartialResult<TOutput>(leftResult.Value!.Value, leftResult.Consumed);
+            return new PartialResult<TOutput>(leftResult.Value!.Value, leftResult.Consumed, state.Input.CurrentLocation);
 
         var leftToken = leftResult.Value!;
         int consumed = leftResult.Consumed;
@@ -86,7 +86,7 @@ public sealed class Engine<TInput, TOutput>
                 break;
         }
 
-        return new PartialResult<TOutput>(leftToken.Value, consumed);
+        return new PartialResult<TOutput>(leftToken.Value, consumed, state.Input.CurrentLocation);
     }
 
     // Get the next "LED" right value by testing all available parselets in definition order
@@ -100,15 +100,15 @@ public sealed class Engine<TInput, TOutput>
 
             var (success, token, consumed) = parselet.TryGetNextLed(state, this, parseControl, leftToken);
             if (success)
-                return new PartialResult<ValueToken<TOutput>>(token, consumed);
+                return new PartialResult<ValueToken<TOutput>>(token, consumed, state.Input.CurrentLocation);
 
             // If the parse failed we want to keep trying other parselets UNLESS the parse is
             // marked complete.
             if (parseControl.IsComplete)
-                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.", state.Input.CurrentLocation);
         }
 
-        return new PartialResult<ValueToken<TOutput>>(string.Empty);
+        return new PartialResult<ValueToken<TOutput>>(string.Empty, state.Input.CurrentLocation);
     }
 
     // Get the next "NUD" left value by testing all available parselets in definition order
@@ -120,15 +120,15 @@ public sealed class Engine<TInput, TOutput>
 
             var (success, token, consumed) = parselet.TryGetNextNud(state, this, parseControl);
             if (success)
-                return new PartialResult<ValueToken<TOutput>>(token, consumed);
+                return new PartialResult<ValueToken<TOutput>>(token, consumed, state.Input.CurrentLocation);
 
             // If we failed we want to keep trying other parselets UNLESS the parse is marked
             // complete.
             if (parseControl.IsComplete)
-                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.");
+                return new PartialResult<ValueToken<TOutput>>("A match was not found at the current position but the parse was marked complete.", state.Input.CurrentLocation);
         }
 
-        return new PartialResult<ValueToken<TOutput>>("No parselets matched and transformed at the current position.");
+        return new PartialResult<ValueToken<TOutput>>("No parselets matched and transformed at the current position.", state.Input.CurrentLocation);
     }
 }
 

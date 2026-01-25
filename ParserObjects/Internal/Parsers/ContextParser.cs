@@ -108,7 +108,7 @@ public static class Context<TInput>
             }
             catch (Exception setupException)
             {
-                return Result.Fail(this, "Setup code threw an exception", new ResultData(setupException));
+                return Result.Fail(this, "Setup code threw an exception", state.Input.CurrentLocation, new ResultData(setupException));
             }
 
             Result<object> result = default;
@@ -209,7 +209,7 @@ public static class Context<TInput>
             }
             catch (Exception setupException)
             {
-                return Result.Fail(this, "Setup code threw an exception", new ResultData(setupException));
+                return Result.Fail(this, "Setup code threw an exception", state.Input.CurrentLocation, new ResultData(setupException));
             }
 
             Result<TOutput> result = default;

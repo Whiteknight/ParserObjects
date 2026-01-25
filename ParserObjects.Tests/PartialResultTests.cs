@@ -7,7 +7,7 @@ public class PartialResultTests
     [Test]
     public void Match_Success()
     {
-        var target = new PartialResult<int>(5, 0);
+        var target = new PartialResult<int>(5, 0, default);
         var result = target.Match(x => x.ToString(), () => "FAIL");
         result.Should().Be("5");
     }
@@ -15,7 +15,7 @@ public class PartialResultTests
     [Test]
     public void Match_Error()
     {
-        var target = new PartialResult<int>("ErrorMessage");
+        var target = new PartialResult<int>("ErrorMessage", default);
         var result = target.Match(x => x.ToString(), () => "FAIL");
         result.Should().Be("FAIL");
     }

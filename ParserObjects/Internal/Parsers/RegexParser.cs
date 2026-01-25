@@ -39,10 +39,10 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
         if (!result.Success)
         {
             startCp.Rewind();
-            return Result.Fail<RegexMatch>(this, result.ErrorMessage!);
+            return Result.Fail<RegexMatch>(this, result.ErrorMessage ?? "Unknown regex error", state.Input.CurrentLocation!);
         }
 
-        return Result.Ok(this, result.Match!, result.Consumed, new ResultData(result.Match!));
+        return Result.Ok(this, result.Match!, result.Consumed, state.Input.CurrentLocation, new ResultData(result.Match!));
     }
 
     Result<string> IParser<char, string>.Parse(IParseState<char> state)
@@ -53,10 +53,10 @@ public sealed class RegexParser : IParser<char, string>, IParser<char, RegexMatc
         if (!result.Success)
         {
             startCp.Rewind();
-            return Result.Fail<string>(this, result.ErrorMessage!);
+            return Result.Fail<string>(this, result.ErrorMessage!, state.Input.CurrentLocation);
         }
 
-        return Result.Ok(this, result.Value!, result.Consumed, new ResultData(result.Match!));
+        return Result.Ok(this, result.Value!, result.Consumed, state.Input.CurrentLocation, new ResultData(result.Match!));
     }
 
     Result<object> IParser<char>.Parse(IParseState<char> state)

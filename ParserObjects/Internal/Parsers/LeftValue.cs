@@ -18,7 +18,7 @@ public sealed class LeftValue<TInput, TOutput> : SimpleParser<TInput, TOutput>
     public TOutput? Value { get; set; }
 
     public override Result<TOutput> Parse(IParseState<TInput> state)
-        => Result.Ok(this, Value!, 0);
+        => Result.Ok(this, Value!, 0, state.Input.CurrentLocation);
 
     public override bool Match(IParseState<TInput> state) => true;
 

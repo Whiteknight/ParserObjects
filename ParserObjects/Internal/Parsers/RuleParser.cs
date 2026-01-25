@@ -119,12 +119,13 @@ public static class Rule
                 var name = Parsers[i].Name;
                 if (string.IsNullOrEmpty(name))
                     name = "(Unnamed)";
-                return Result.Fail(this, $"Parser {i} {name} failed");
+                // TODO: Try not to allocate a string here.
+                return Result.Fail(this, $"Parser {i} {name} failed", state.Input.CurrentLocation);
             }
 
             var consumed = state.Input.Consumed - startCheckpoint.Consumed;
             var resultValue = Produce(Data, outputs);
-            return Result.Ok(this, resultValue, consumed);
+            return Result.Ok(this, resultValue, consumed, state.Input.CurrentLocation);
         }
     }
 }

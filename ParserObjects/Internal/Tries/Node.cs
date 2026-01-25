@@ -150,14 +150,14 @@ public class RootNode<TKey, TResult> : Node<TKey, TResult>
             {
                 cont.Rewind();
                 ArrayPool<BacktrackNode>.Shared.Return(previous);
-                return new PartialResult<TResult>(value, keys.Consumed - startConsumed);
+                return new PartialResult<TResult>(value, keys.Consumed - startConsumed, keys.CurrentLocation);
             }
         }
 
         // No node matched, so return failure
         startCont.Rewind();
         ArrayPool<BacktrackNode>.Shared.Return(previous);
-        return new PartialResult<TResult>("Trie does not contain matching item");
+        return new PartialResult<TResult>("Trie does not contain matching item", keys.CurrentLocation);
     }
 
     public bool CanGet(ISequence<TKey> keys)

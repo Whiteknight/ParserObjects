@@ -16,10 +16,10 @@ public sealed record AnyParser<T>(
     {
         Assert.NotNull(state);
         if (state.Input.IsAtEnd)
-            return Result.Fail(this, "Expected any but found End.");
+            return Result.Fail(this, "Expected any but found End.", state.Input.CurrentLocation);
 
         var next = GetNext(state);
-        return Result.Ok(this, next, 1);
+        return Result.Ok(this, next, 1, state.Input.CurrentLocation);
     }
 
     public override bool Match(IParseState<T> state)

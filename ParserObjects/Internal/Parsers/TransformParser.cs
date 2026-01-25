@@ -38,8 +38,8 @@ public static class Transform<TInput>
         {
             var result = Inner.Parse(state);
             return result.Success
-                ? Result.Ok(this, Transform(Data, result.Value), result.Consumed, result.Data)
-                : Result.Fail<TOutput>(Inner, result.ErrorMessage, result.Data);
+                ? Result.Ok(this, Transform(Data, result.Value), result.Consumed, state.Input.CurrentLocation, result.Data)
+                : Result.Fail<TOutput>(Inner, result.ErrorMessage, state.Input.CurrentLocation, result.Data);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();

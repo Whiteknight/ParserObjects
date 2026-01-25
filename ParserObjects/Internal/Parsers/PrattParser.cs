@@ -55,7 +55,7 @@ public sealed record PrattParser<TInput, TOutput>(
         catch (ParseException pe) when (pe.Severity == ParseExceptionSeverity.Parser)
         {
             startCp.Rewind();
-            return Result.Fail<TOutput>(pe.Parser ?? this, pe.Message);
+            return Result.Fail<TOutput>(pe.Parser ?? this, pe.Message, state.Input.CurrentLocation);
         }
         finally
         {

@@ -17,8 +17,8 @@ public sealed record SequenceFlagParser<TInput>(
     {
         Assert.NotNull(state);
         return state.Input.Flags.Has(Flags)
-            ? Result.Ok(this, Defaults.ObjectInstance, 0)
-            : Result.Fail(this, FailureMessage + state.Input.Peek()!);
+            ? Result.Ok(this, Defaults.ObjectInstance, 0, state.Input.CurrentLocation)
+            : Result.Fail(this, FailureMessage + state.Input.Peek()!, state.Input.CurrentLocation);
     }
 
     public override bool Match(IParseState<TInput> state)

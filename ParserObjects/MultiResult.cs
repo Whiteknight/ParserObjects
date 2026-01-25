@@ -56,8 +56,8 @@ public readonly record struct MultiResult<TOutput>(
 
     public Result<TOutput> ToResult(Alternative<TOutput> alt)
         => alt.Success
-        ? Result.Ok(Parser, alt.Value, alt.Consumed)
-        : Result.Fail<TOutput>(Parser, alt.ErrorMessage);
+        ? Result.Ok(Parser, alt.Value, alt.Consumed, alt.Continuation.Location)
+        : Result.Fail<TOutput>(Parser, alt.ErrorMessage, alt.Continuation.Location);
 
     public MultiResult<object> AsObject() => Transform<object, object?>(null, static (_, x) => x!);
 

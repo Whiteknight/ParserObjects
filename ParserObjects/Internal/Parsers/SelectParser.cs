@@ -21,11 +21,11 @@ public sealed record SelectParser<TInput, TOutput>(
     {
         var multi = Initial.Parse(state);
         if (!multi.Success)
-            return Result.Fail(this, "Parser returned no valid results");
+            return Result.Fail(this, "Parser returned no valid results", state.Input.CurrentLocation);
 
         var selected = Selector(multi);
         if (!selected.Success)
-            return Result.Fail(this, "No alternative selected, or no matching successful value could be found");
+            return Result.Fail(this, "No alternative selected, or no matching successful value could be found", state.Input.CurrentLocation);
 
         selected.Continuation.Rewind();
         return multi.ToResult(selected);

@@ -226,7 +226,7 @@ public static partial class Parsers<TInput>
                     return result;
 
                 startCheckpoint.Rewind();
-                return Result.Ok(p, result.Value, 0);
+                return Result.Ok(p, result.Value, 0, state.Input.CurrentLocation);
             },
             static (state, p) =>
             {

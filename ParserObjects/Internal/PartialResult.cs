@@ -10,20 +10,22 @@ namespace ParserObjects.Internal;
 /// <typeparam name="TValue"></typeparam>
 public readonly struct PartialResult<TValue>
 {
-    public PartialResult(string error)
+    public PartialResult(string error, Location location)
     {
         Success = false;
         ErrorMessage = error;
         Consumed = 0;
         Value = default;
+        Location = location;
     }
 
-    public PartialResult(TValue value, int consumed)
+    public PartialResult(TValue value, int consumed, Location location)
     {
         Success = true;
         Value = value;
         Consumed = consumed;
         ErrorMessage = default;
+        Location = location;
     }
 
     public bool Success { get; }
@@ -33,6 +35,8 @@ public readonly struct PartialResult<TValue>
     public int Consumed { get; }
 
     public string? ErrorMessage { get; }
+
+    public Location Location { get; }
 
     public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<TResult> onFailure)
         => Success
@@ -49,6 +53,6 @@ public readonly struct PartialResult<TValue>
 
     public Result<TValue> ToResult(IParser parser)
         => Success
-            ? new Result<TValue>(parser, true, null, Value, Consumed, default)
-            : new Result<TValue>(parser, false, ErrorMessage, default, 0, default);
+            ? new Result<TValue>(parser, true, null, Value, Consumed, Location, default)
+            : new Result<TValue>(parser, false, ErrorMessage, default, 0, Location, default);
 }

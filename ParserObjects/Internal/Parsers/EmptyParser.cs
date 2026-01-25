@@ -11,7 +11,7 @@ public sealed record EmptyParser<TInput>(
 ) : SimpleRecordParser<TInput, object>(Name), IParser<TInput, object>
 {
     public override Result<object> Parse(IParseState<TInput> state)
-        => Result.Ok(this, Defaults.ObjectInstance, 0);
+        => Result.Ok(this, Defaults.ObjectInstance, 0, state.Input.CurrentLocation);
 
     public override bool Match(IParseState<TInput> state) => true;
 

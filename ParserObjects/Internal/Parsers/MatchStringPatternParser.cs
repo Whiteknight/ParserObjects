@@ -40,10 +40,10 @@ public sealed class MatchStringPatternParser : IParser<char, string>
             if (!Compare(s))
             {
                 checkpoint.Rewind();
-                return Result.Fail(this, "Pattern does not match");
+                return Result.Fail(this, "Pattern does not match", state.Input.CurrentLocation);
             }
 
-            return Result.Ok(this, s, s.Length);
+            return Result.Ok(this, s, s.Length, state.Input.CurrentLocation);
         }
 
         return Parse(state, Comparer, checkpoint);
@@ -55,8 +55,8 @@ public sealed class MatchStringPatternParser : IParser<char, string>
         {
             var next = state.Input.Peek();
             return comparer.Equals(next, Pattern[0])
-                ? Result.Ok(this, Pattern, 1)
-                : Result.Fail(this, "Item does not match");
+                ? Result.Ok(this, Pattern, 1, state.Input.CurrentLocation)
+                : Result.Fail(this, "Item does not match", state.Input.CurrentLocation);
         }
 
         for (var i = 0; i < Pattern.Length; i++)
@@ -66,10 +66,11 @@ public sealed class MatchStringPatternParser : IParser<char, string>
                 continue;
 
             checkpoint.Rewind();
-            return Result.Fail(this, $"Item does not match at position {i}");
+            // TODO: Do not allocate a string here
+            return Result.Fail(this, $"Item does not match at position {i}", state.Input.CurrentLocation);
         }
 
-        return Result.Ok(this, Pattern, Pattern.Length);
+        return Result.Ok(this, Pattern, Pattern.Length, state.Input.CurrentLocation);
     }
 
     private bool Compare(string input)

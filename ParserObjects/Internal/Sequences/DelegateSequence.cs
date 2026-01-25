@@ -52,7 +52,7 @@ public static class UserDelegate
 
         public readonly SequenceOptions<T> Options { get; }
 
-        public SequenceStatistics GetStatistics() => _stats.Snapshot();
+        public readonly SequenceStatistics GetStatistics() => _stats.Snapshot();
 
         public readonly int Index => _index;
         public readonly int EndIndex => _endIndex;

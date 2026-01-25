@@ -7,16 +7,16 @@ namespace ParserObjects;
 public static class Result
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Result<T> Ok<T>(IParser parser, T value, int consumed, ResultData data = default)
-        => new Result<T>(parser, true, string.Empty, value, consumed, data);
+    public static Result<T> Ok<T>(IParser parser, T value, int consumed, Location location, ResultData data = default)
+        => new Result<T>(parser, true, string.Empty, value, consumed, location, data);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Result<T> Fail<T>(IParser parser, string errorMessage, ResultData data = default)
-        => new Result<T>(parser, false, errorMessage ?? string.Empty, default, 0, data);
+    public static Result<T> Fail<T>(IParser parser, string errorMessage, Location location, ResultData data = default)
+        => new Result<T>(parser, false, errorMessage ?? string.Empty, default, 0, location, data);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Result<TOutput> Fail<TInput, TOutput>(IParser<TInput, TOutput> parser, string errorMessage, ResultData data = default)
-        => new Result<TOutput>(parser, false, errorMessage ?? string.Empty, default, 0, data);
+    public static Result<TOutput> Fail<TInput, TOutput>(IParser<TInput, TOutput> parser, string errorMessage, Location location, ResultData data = default)
+        => new Result<TOutput>(parser, false, errorMessage ?? string.Empty, default, 0, location, data);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<TOutput> Create<TOutput>(IParser parser, PartialResult<TOutput> part)
@@ -29,6 +29,7 @@ public readonly record struct Result<TValue>(
     string? InternalError,
     TValue? InternalValue,
     int Consumed,
+    Location Location,
     ResultData Data
 )
 {
@@ -70,13 +71,13 @@ public readonly record struct Result<TValue>(
 
     public Result<T> Select<T>(Func<TValue, T> selector)
         => Success
-        ? new Result<T>(Parser, true, null, selector(Value), Consumed, Data)
-        : new Result<T>(Parser, false, ErrorMessage, default, 0, Data);
+        ? new Result<T>(Parser, true, null, selector(Value), Consumed, Location, Data)
+        : new Result<T>(Parser, false, ErrorMessage, default, 0, Location, Data);
 
     public Result<T> Select<T, TData>(TData data, Func<TValue, TData, T> selector)
         => Success
-        ? new Result<T>(Parser, true, null, selector(Value, data), Consumed, Data)
-        : new Result<T>(Parser, false, ErrorMessage, default, 0, Data);
+        ? new Result<T>(Parser, true, null, selector(Value, data), Consumed, Location, Data)
+        : new Result<T>(Parser, false, ErrorMessage, default, 0, Location, Data);
 
     public Result<object> AsObject() => Select<object>(static t => t!);
 
@@ -124,5 +125,5 @@ public readonly struct ResultFactory<TInput, TOutput>
     /// <param name="value"></param>
     /// <returns></returns>
     public Result<TOutput> Success(TOutput value)
-        => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed);
+        => Result.Ok(_parser, value, _state.Input.Consumed - _startCheckpoint.Consumed, _state.Input.CurrentLocation);
 }
