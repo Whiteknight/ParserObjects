@@ -39,8 +39,8 @@ public sealed record MatchPatternParser<T>(
             if (c is null)
             {
                 checkpoint.Rewind();
-                // TODO: Do not allocate a string here
-                return Result.Fail(this, $"Item does not match at position {i}", state.Input.CurrentLocation);
+                var err = ParserCache.ErrorMessages.GetItemFailMessage(i);
+                return Result.Fail(this, err, state.Input.CurrentLocation);
             }
 
             buffer[i] = c;
@@ -48,8 +48,8 @@ public sealed record MatchPatternParser<T>(
                 continue;
 
             checkpoint.Rewind();
-            // TODO: Do not allocate a string here
-            return Result.Fail(this, $"Item does not match at position {i}", state.Input.CurrentLocation);
+            var error = ParserCache.ErrorMessages.GetItemFailMessage(i);
+            return Result.Fail(this, error, state.Input.CurrentLocation);
         }
 
         return Result.Ok(this, (IReadOnlyList<T>)buffer, Pattern.Count, state.Input.CurrentLocation);

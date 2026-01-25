@@ -116,11 +116,8 @@ public static class Rule
                 }
 
                 startCheckpoint.Rewind();
-                var name = Parsers[i].Name;
-                if (string.IsNullOrEmpty(name))
-                    name = "(Unnamed)";
-                // TODO: Try not to allocate a string here.
-                return Result.Fail(this, $"Parser {i} {name} failed", state.Input.CurrentLocation);
+                var error = ParserCache.ErrorMessages.GetInnerParserFailMessage(i);
+                return Result.Fail(this, error, state.Input.CurrentLocation);
             }
 
             var consumed = state.Input.Consumed - startCheckpoint.Consumed;

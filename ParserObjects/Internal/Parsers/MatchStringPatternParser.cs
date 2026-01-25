@@ -66,8 +66,7 @@ public sealed class MatchStringPatternParser : IParser<char, string>
                 continue;
 
             checkpoint.Rewind();
-            // TODO: Do not allocate a string here
-            return Result.Fail(this, $"Item does not match at position {i}", state.Input.CurrentLocation);
+            return Result.Fail(this, "Item does not match", state.Input.CurrentLocation);
         }
 
         return Result.Ok(this, Pattern, Pattern.Length, state.Input.CurrentLocation);

@@ -33,8 +33,8 @@ public record CaptureParser<TInput, TOutput>(
             if (!result)
             {
                 startCp.Rewind();
-                // TODO: It would be nicer if we didn't allocate a string here for the error message
-                return Result.Fail(this, $"Inner parser {i} failed.", state.Input.CurrentLocation);
+                var error = ParserCache.ErrorMessages.GetInnerParserFailMessage(i);
+                return Result.Fail(this, error, state.Input.CurrentLocation);
             }
         }
 
