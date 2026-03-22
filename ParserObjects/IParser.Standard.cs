@@ -281,11 +281,13 @@ public static class ParserCombinatorExtensions
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
     /// <param name="transform"></param>
+    /// <param name="transformError"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(
         this IParser<TInput, TMiddle> parser,
-        Func<TMiddle, TOutput> transform
-    ) => Parsers<TInput>.Transform(parser, transform);
+        Func<TMiddle, TOutput> transform,
+        Func<string, TOutput>? transformError = null
+    ) => Parsers<TInput>.Transform(parser, transform, transformError);
 
     /// <summary>
     /// Wraps the given parser to guarantee that it consumes no input.

@@ -426,11 +426,13 @@ public static partial class Parsers<TInput>
     /// <typeparam name="TOutput"></typeparam>
     /// <param name="parser"></param>
     /// <param name="transform"></param>
+    /// <param name="transformError"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IParser<TInput, TMiddle> parser,
-        Func<TMiddle, TOutput> transform
-    ) => Transform<TInput>.Create(parser, transform, static (t, v) => t(v));
+        Func<TMiddle, TOutput> transform,
+        Func<string, TOutput>? transformError = null
+    ) => Transform<TInput>.Create(parser, (transform, transformError), static (t, v) => t.transform(v), transformError == null ? null : (static (t, e) => t.transformError!(e)));
 
     /// <summary>
     /// Transform the output value of the parser.
@@ -441,12 +443,14 @@ public static partial class Parsers<TInput>
     /// <param name="parser"></param>
     /// <param name="data"></param>
     /// <param name="transform"></param>
+    /// <param name="transformError"></param>
     /// <returns></returns>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput, TData>(
         IParser<TInput, TMiddle> parser,
         TData data,
-        Func<TData, TMiddle, TOutput> transform
-    ) => Transform<TInput>.Create(parser, data, transform);
+        Func<TData, TMiddle, TOutput> transform,
+        Func<TData, string, TOutput>? transformError = null
+    ) => Transform<TInput>.Create(parser, data, transform, transformError);
 
     /// <summary>
     /// Transforms the output value of the parser.

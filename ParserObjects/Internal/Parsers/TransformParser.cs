@@ -15,8 +15,9 @@ public static class Transform<TInput>
         IParser<TInput, TMiddle> inner,
         TData data,
         Func<TData, TMiddle, TOutput> transform,
+        Func<TData, string, TOutput>? transformError,
         string name = ""
-    ) => new Parser<TMiddle, TOutput, TData>(inner, data, transform, name);
+    ) => new Parser<TMiddle, TOutput, TData>(inner, data, transform, transformError, name);
 
     public static IMultiParser<TInput, TOutput> Create<TMiddle, TOutput, TData>(
         IMultiParser<TInput, TMiddle> inner,
@@ -29,6 +30,7 @@ public static class Transform<TInput>
         IParser<TInput, TMiddle> Inner,
         TData Data,
         Func<TData, TMiddle, TOutput> Transform,
+        Func<TData, string, TOutput>? TransformError,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -37,9 +39,13 @@ public static class Transform<TInput>
         public Result<TOutput> Parse(IParseState<TInput> state)
         {
             var result = Inner.Parse(state);
-            return result.Success
-                ? Result.Ok(this, Transform(Data, result.Value), result.Consumed, state.Input.CurrentLocation, result.Data)
-                : Result.Fail<TOutput>(Inner, result.ErrorMessage, state.Input.CurrentLocation, result.Data);
+            if (result.Success)
+                return Result.Ok(this, Transform(Data, result.Value), result.Consumed, state.Input.CurrentLocation, result.Data);
+
+            if (TransformError != null)
+                return Result.Ok(this, TransformError(Data, result.ErrorMessage), result.Consumed, state.Input.CurrentLocation, result.Data);
+
+            return Result.Fail<TOutput>(Inner, result.ErrorMessage, state.Input.CurrentLocation, result.Data);
         }
 
         Result<object> IParser<TInput>.Parse(IParseState<TInput> state) => Parse(state).AsObject();
