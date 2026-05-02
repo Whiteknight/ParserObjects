@@ -15,7 +15,7 @@ public static class Transform<TInput>
         IParser<TInput, TMiddle> inner,
         TData data,
         Func<TData, TMiddle, TOutput> transform,
-        Func<TData, string, TOutput>? transformError,
+        Func<TData, string, Location, TOutput>? transformError,
         string name = ""
     ) => new Parser<TMiddle, TOutput, TData>(inner, data, transform, transformError, name);
 
@@ -30,7 +30,7 @@ public static class Transform<TInput>
         IParser<TInput, TMiddle> Inner,
         TData Data,
         Func<TData, TMiddle, TOutput> Transform,
-        Func<TData, string, TOutput>? TransformError,
+        Func<TData, string, Location, TOutput>? TransformError,
         string Name = ""
     ) : IParser<TInput, TOutput>
     {
@@ -43,7 +43,7 @@ public static class Transform<TInput>
                 return Result.Ok(this, Transform(Data, result.Value), result.Consumed, state.Input.CurrentLocation, result.Data);
 
             if (TransformError != null)
-                return Result.Ok(this, TransformError(Data, result.ErrorMessage), result.Consumed, state.Input.CurrentLocation, result.Data);
+                return Result.Ok(this, TransformError(Data, result.ErrorMessage, result.Location), result.Consumed, state.Input.CurrentLocation, result.Data);
 
             return Result.Fail<TOutput>(Inner, result.ErrorMessage, state.Input.CurrentLocation, result.Data);
         }

@@ -431,8 +431,8 @@ public static partial class Parsers<TInput>
     public static IParser<TInput, TOutput> Transform<TMiddle, TOutput>(
         IParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform,
-        Func<string, TOutput>? transformError = null
-    ) => Transform<TInput>.Create(parser, (transform, transformError), static (t, v) => t.transform(v), transformError == null ? null : (static (t, e) => t.transformError!(e)));
+        Func<string, Location, TOutput>? transformError = null
+    ) => Transform<TInput>.Create(parser, (transform, transformError), static (t, v) => t.transform(v), transformError == null ? null : (static (t, e, l) => t.transformError!(e, l)));
 
     /// <summary>
     /// Transform the output value of the parser.
@@ -449,7 +449,7 @@ public static partial class Parsers<TInput>
         IParser<TInput, TMiddle> parser,
         TData data,
         Func<TData, TMiddle, TOutput> transform,
-        Func<TData, string, TOutput>? transformError = null
+        Func<TData, string, Location, TOutput>? transformError = null
     ) => Transform<TInput>.Create(parser, data, transform, transformError);
 
     /// <summary>

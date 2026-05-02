@@ -34,6 +34,21 @@ public static class TransformTests
         }
 
         [Test]
+        public void Parse_Failure_ErrorMapper()
+        {
+            var fail = Fail<char>();
+            var parser = Transform(
+                fail,
+                c => int.Parse(c.ToString()),
+                (e, l) => -100
+            );
+            var result = parser.Parse("1");
+            result.Success.Should().BeTrue();
+            result.Value.Should().Be(-100);
+            result.Parser.Should().BeSameAs(parser);
+        }
+
+        [Test]
         public void Parse_Consumed()
         {
             var parser = Transform(

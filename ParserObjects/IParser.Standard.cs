@@ -286,7 +286,7 @@ public static class ParserCombinatorExtensions
     public static IParser<TInput, TOutput> Map<TInput, TMiddle, TOutput>(
         this IParser<TInput, TMiddle> parser,
         Func<TMiddle, TOutput> transform,
-        Func<string, TOutput>? transformError = null
+        Func<string, Location, TOutput>? transformError = null
     ) => Parsers<TInput>.Transform(parser, transform, transformError);
 
     /// <summary>
